@@ -1223,6 +1223,12 @@ def build_source(settings: Any, source: str, names: list[str] | None = None, yea
     for name in fields:
         if name not in declared or all(view(name, declared[name]) is None for view in (intake_cube, rows_view, margins_view)):
             raise ValueError(f"{source}.{name}: an intake field that is neither a records cube nor a view of the records")
+        register = rows_view(name, declared[name])
+        if register is not None:
+            # a register is a view of the landed records, never copied: there is nothing to build, and reading it whole would put
+            # every record of the years in memory (ANS's itemised lines are 5.1 million rows for two states and two years)
+            report[name] = {"rows": None if register["where"] else report["rows"], "view": True}
+            continue
         table = load_field(name, years=years, settings=settings)
         total = float(pc.sum(table.column("value")).as_py() or 0) if "value" in table.column_names else None
         report[name] = {"rows": table.num_rows, "total": total, "cube": True}

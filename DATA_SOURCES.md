@@ -1129,6 +1129,25 @@ TabNet's state forms classify by `territorio/{UF}_macsaud.cnv` and `{UF}_regsaud
 - **SINAN-ESPO** is the Sinan Net epizootics base (serial `ID_NOTIFICACAO`, gapless 1 to 32,492 for 2013-2022; no classification column). **SINAN-NTRA** holds survey batches whose positives SINAN-TRAC lists one by one.
 - **SISPRENATAL-PN** rows are pregnancy-months with cumulative consultation counts; `NU_GESTA` is a record serial that reaches 122,739, not a gravidity.
 
+## 15. ANS TISS, the private plans' hospital and outpatient events (D-TISS; measured 2026-11-21; docs/evaluation/2026-11-21-ans-tiss-intake.md)
+
+- **Tree.** `dadosabertos.ans.gov.br/FTP/PDA/TISS/{HOSPITALAR,AMBULATORIAL}/<year>/<UF>/<UF>_<yyyymm>_{HOSP,AMB}_{CONS,DET,REM}.zip` (Apache index, answers a browser User-Agent), 2015-2025, 27 states (no `XX`),
+  one zip of one CSV per state, month and kind: 3,564 files each of CONS and DET, 972 of REM (2023-2025 only). Zipped sizes, summed from the listing: hospital CONS 1.18 GiB, DET 4.24, REM 0.19 (5.6 GiB);
+  outpatient CONS 105.9, DET 79.7, REM 11.9 (197.6 GiB); the outpatient 2025 files alone are 30 GiB. Beside them `DICIONARIO/` (two `.ods`: to 2022, from 2023) and `DADOS_DE_PLANOS/PLANOS.zip` (1.4 MB, 31.9 MB CSV,
+  166,107 plans: segmentation, coverage, financing, scope, moderating factor, accommodation; keyed by `ID_PLANO`).
+- **Layout.** `;`, UTF-8, quoted strings. CONS: one row per event (`ID_EVENTO_ATENCAO_SAUDE` unique in the sample), with the plan, the beneficiary's age band, sex and municipality of residence (empty together when the
+  SIB/CNS crossing found none), the operator's size class and modality, the provider's municipality and state, the month (`ANO_MES_EVENTO` hospital, `DT_REALIZACAO` outpatient, `yyyy-mm`), and the hospital stay
+  and ICD-10 (`CID_1`-`CID_4`, optional, mostly empty) or the outpatient CBO and consultation type. DET: one row per item, same event key, `CD_TABELA_REFERENCIA` + `CD_PROCEDIMENTO` (TUSS 19, 20, 22; 63 groups; 90
+  and 98 operator packages; `0`/`00` with `TABELA PROPRIA` for an operator's own code), quantity and value billed. REM: event, remuneration model (TUSS 79), value. In the hospital sample every CONS event had
+  DET items and every DET item a CONS event. **Two layouts**: to 2022 as above; from 2023 CONS adds `VL_EVENTO_INFORMADO/PAGO/GLOSA` (outpatient also `REGIME_ATENDIMENTO`, `SAUDE_OCUPACIONAL`) and DET adds
+  `QT_ITEM_EVENTO_PAGO`, `VL_ITEM_EVENTO_PAGO`, `UNIDADE_MEDIDA`; the dictionary says the payment fields were published in 2026 for 2023 on. Headers read in RR for January of every year 2015-2025 and April,
+  May and December 2023: the break is 2022/2023, not May 2023.
+- **Spellings.** Age bands are `30 a 39` to 2022 and `30 a 39 anos` from 2023 (also `<1`, `Menos de 1 ano`, and `N¿o identificado` with a literal `¿`); numbers use a decimal comma (`1,0`, the 2022 hospital stay
+  length too); some codes are float text in 2022 (`11.0`). The files hold no operator registry number, no CNES and no beneficiary identifier: the operator is its modality and size class, the plan an opaque `ID_PLANO`.
+- **Dictionary codes.** Given: character of care (`1` elective, `2` urgent), modality (21/55 administradora, 22 medical cooperative, 23 dental cooperative, 24 self-management, 25 group medicine, 26 group dental,
+  27 philanthropic, 28/29 insurer), size class, the pre-established-value and package flags. Named by TUSS table but not listed, so left undecoded: 23, 57, 41, 39, 50, 76, 52, 24, 77, 36, 60, 79. The two
+  dictionaries disagree on `LG_FATOR_MODERADOR` (0 or 1 for "present"); the first rows of PLANOS.zip file `Ausente` with 1.
+
 ## SINAN residence codes and representations (measured 2026-10-24; ADR-0207)
 
 - `ID_MN_RESI` (SINAN-DENG 2010-2026) writes Federal District residents with region codes as well as 530010: 5300xx (530020-530180, as SIH did before 2018) and SINAN's 5399xx (539901-539934), 22,958 rows, 13,585 of them in 2024; DATASUS's TabWin tables AGLBR and BR_CAPITAL map 530000-539999 to Brasília. `XX0000` is the state with its municipality unknown (BR_DIVADM: "Município ignorado - UF").
