@@ -26,7 +26,9 @@ import fnmatch
 import functools
 import re
 import warnings
+from collections.abc import Iterable
 from pathlib import Path
+from typing import Any
 
 import pyarrow as pa
 import pyarrow.parquet as pq
@@ -202,7 +204,7 @@ def _establishment_columns(raw: pa.Table) -> tuple[str, str] | None:
 
     code = facility_code_field("CNES-ST")
     cpf_cnpj = next((c.column for c in declared_columns("CNES-ST") if c.role == "establishment.cpf_cnpj"), None)
-    if code in raw.column_names and cpf_cnpj in raw.column_names:
+    if code is not None and cpf_cnpj is not None and code in raw.column_names and cpf_cnpj in raw.column_names:
         return code, cpf_cnpj
     return None
 
@@ -263,22 +265,22 @@ def _establishments(raw: pa.Table) -> pa.Table:
     })
 
 
-def _establishment_layout() -> dict[str, object]:
+def _establishment_layout() -> dict[str, Any]:
     """The establishment register's columns, as ``codelists.yml``'s registry role declares them (``establishments``)."""
-    return dict(_registry_declarations()["establishments"])  # type: ignore[call-overload]
+    return dict(_registry_declarations()["establishments"])
 
 
 def establishment_window(included: object, excluded: object) -> tuple[str, str]:
     """The competences (``AAAAMM``) an establishment was in the register, from its ``included`` and ``excluded`` dates
     (``AAAAMMDD``); an exclusion date that starts with the register's declared open end (``9999``: never excluded) is
     an open end, ``""``."""
-    open_end = str(dict(_establishment_layout()["excluded"])["open_end"])  # type: ignore[call-overload]
+    open_end = str(dict(_establishment_layout()["excluded"])["open_end"])
     lo = str(included or "")[:6]
     hi = str(excluded or "")[:6]
     return lo, "" if hi.startswith(open_end) else hi
 
 
-def _registry_declarations() -> dict[str, object]:
+def _registry_declarations() -> dict[str, Any]:
     """The ``registry`` role of ``codelists.yml``: the patterns, each plain table's key and name columns, the owners."""
     from .config import curation_root
     from .semantics.curation import read_yaml
@@ -353,7 +355,7 @@ def _read(path: str, mtime_ns: int) -> pa.Table:
     return pq.read_table(path)
 
 
-def facility_names(registries: str | Path, codes: object = None) -> dict[str, str]:
+def facility_names(registries: str | Path, codes: Iterable[object] | None = None) -> dict[str, str]:
     """An establishment's current name by its CNES code, from the CNES register (``CADGERBR``): every establishment, or
     those of ``codes``. The register names an establishment as it is now (renamed since a record: its current name)."""
     import pyarrow as pa

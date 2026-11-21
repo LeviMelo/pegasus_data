@@ -25,7 +25,7 @@ mesh with the basic counts, ``registries/ibge_points/tracts.gpkg`` (`tract_mesh`
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from ..persist.kept import write_parquet_atomic
 from ..semantics.curation import declared
@@ -179,7 +179,7 @@ def _where(municipality: Any, uf: Any) -> str:
         if None in placed:
             raise ValueError(f"not municipality codes (6 or 7 digits naming a municipality): "
                              f"{[v for v, p in zip(values, placed, strict=True) if p is None]}")
-        clauses.append("municipality7 IN (" + ",".join(repr(str(p)) for p in sorted(set(placed))) + ")")
+        clauses.append("municipality7 IN (" + ",".join(repr(str(p)) for p in sorted(cast("set[str]", set(placed)))) + ")")
     if uf is not None:
         states = [str(s).strip() for s in ([uf] if isinstance(uf, (str, int)) else uf)]
         clauses.append("substr(municipality7, 1, 2) IN (" + ",".join(repr(s) for s in states) + ")")

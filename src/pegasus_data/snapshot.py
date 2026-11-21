@@ -25,7 +25,7 @@ from collections.abc import Callable, Iterable, Mapping, Sequence
 from dataclasses import dataclass, field
 from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from .acquire.cache import BlobStore
 from .acquire.fetcher import Fetcher
@@ -130,7 +130,7 @@ def declared_series(only: Sequence[str] | None = None) -> dict[str, dict[str, An
 
 def _competence_floor(months: int, today: date) -> int:
     """The oldest competence (YYYYMM) kept: ``months`` back from ``today``."""
-    return add_months(compose(today.year, today.month), -months)
+    return add_months(cast(int, compose(today.year, today.month)), -months)
 
 
 def _keeps(spec: Mapping[str, Any], filename: str, today: date) -> bool:

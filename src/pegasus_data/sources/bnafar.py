@@ -23,7 +23,7 @@ from __future__ import annotations
 import json
 from collections import Counter
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import pyarrow as pa
 
@@ -140,7 +140,7 @@ def monthly(catmats: list[str], year: int, months: range | list[int] = range(1, 
     out = []
     for code in catmats:
         for m in months:
-            t = stock(code, compose(year, m), root=root)
+            t = stock(code, cast(int, compose(year, m)), root=root)
             if not t.num_rows:
                 continue
             incomplete = bool((t.schema.metadata or {}).get(b"intake_unstable"))

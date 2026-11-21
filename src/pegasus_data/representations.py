@@ -240,7 +240,7 @@ def select_publications(
     year_set = {int(y) for y in years} if years else None
     month_set = {int(m) for m in months} if months else None
 
-    def on_axes(row: Mapping[str, Any]) -> bool:
+    def on_axes(row: Mapping[str, Any] | sqlite3.Row) -> bool:
         return (
             (uf_set is None or (row["geo_code"] or "") in uf_set)
             and (year_set is None or row["year"] in year_set)

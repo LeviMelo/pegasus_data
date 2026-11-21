@@ -24,7 +24,7 @@ sentence; two fields that differ say how in their labels (`unlabelled_fields`, `
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import pyarrow as pa
 
@@ -206,7 +206,9 @@ def intake_cube(name: str, spec: dict[str, Any]) -> dict[str, Any] | None:
     if spec.get("source") != "intake":
         return None
     source = declared_sources().get(str(spec.get("intake")))
-    fs = ((source or {}).get("fields") or {}).get(name) if source else None
+    if not source:
+        return None
+    fs = (source.get("fields") or {}).get(name)
     if not fs or fs.get("unpivot") or fs.get("rows"):
         return None
     place = source.get("place") or {}
@@ -312,7 +314,9 @@ def rows_view(name: str, spec: dict[str, Any]) -> dict[str, Any] | None:
     if spec.get("source") != "intake":
         return None
     source = declared_sources().get(str(spec.get("intake")))
-    fs = ((source or {}).get("fields") or {}).get(name) if source else None
+    if not source:
+        return None
+    fs = (source.get("fields") or {}).get(name)
     if not fs or not fs.get("rows") or not _landed(source):
         return None
     return {"dataset": f"{source['system']}-{source['series']}", "rows": dict(fs["rows"]), "where": dict(fs.get("where") or {})}
@@ -326,8 +330,8 @@ def _field_from_rows(register: dict[str, Any], years: list[int] | None, settings
 
     columns = list(dict.fromkeys([*register["rows"].values(), "year"]))
     period = [str(y) for y in years] if years else None
-    table = query(register["dataset"], period=period, geography="BR", select=columns, present="codes",
-                  rows={k.upper(): [str(v) for v in vs] for k, vs in register["where"].items()} or None, settings=settings)
+    table = cast("pa.Table", query(register["dataset"], period=period, geography="BR", select=columns, present="codes",
+                  rows={k.upper(): [str(v) for v in vs] for k, vs in register["where"].items()} or None, settings=settings))
     named = {c.upper(): c for c in table.column_names}
     out = {alias: table.column(named[str(col).upper()]) for alias, col in register["rows"].items()}
     out["year"] = pc.cast(table.column(named["YEAR"]), pa.int32())
@@ -343,7 +347,9 @@ def margins_view(name: str, spec: dict[str, Any]) -> dict[str, Any] | None:
     if spec.get("source") != "intake":
         return None
     source = declared_sources().get(str(spec.get("intake")))
-    fs = ((source or {}).get("fields") or {}).get(name) if source else None
+    if not source:
+        return None
+    fs = (source.get("fields") or {}).get(name)
     if not fs or not fs.get("unpivot") or not _landed(source):
         return None
     unpivot = fs["unpivot"]
@@ -523,7 +529,7 @@ def field_rate(name: str, *, per: float = 1000.0, years: list[int] | int | None 
                  where={"race": ["total"]}, settings=settings)
     from .geography import place_six
 
-    population = {(str(p)[:6], int(y)): v for p, y, v in zip(total.column("place").to_pylist(),
+    population: dict[tuple[str | None, int], Any] = {(str(p)[:6], int(y)): v for p, y, v in zip(total.column("place").to_pylist(),
                                                               total.column("period").to_pylist(),
                                                               total.column("value").to_pylist(), strict=True)}
     municipality = field.column("municipality").to_pylist()

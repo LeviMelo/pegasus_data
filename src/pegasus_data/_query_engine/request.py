@@ -12,7 +12,7 @@ from __future__ import annotations
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from functools import cached_property
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 import pyarrow as pa
 
@@ -123,7 +123,7 @@ class ReadRequest:
         from ..conditions import Condition, prepare
         from ..semantics.curation import load_variable_docs
 
-        prepared = condition
+        prepared = cast("Condition | None", condition)
         if condition is not None and not isinstance(condition, Condition):
             prepared = prepare(f"{system}-{series}" if series else system, condition)
         if prepared is not None and years is not None:

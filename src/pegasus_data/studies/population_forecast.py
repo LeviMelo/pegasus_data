@@ -17,7 +17,7 @@ same code is run from past bases (``pseudo_forecast``) to measure its error by h
 from __future__ import annotations
 
 from dataclasses import replace
-from typing import Any
+from typing import Any, cast
 
 import numpy as np
 
@@ -41,11 +41,11 @@ def national_events(settings: Any, years: list[int]) -> tuple[np.ndarray, np.nda
     d = np.zeros((len(years), 2, A))
     b = np.zeros((len(years), 2))
     for k, y in enumerate(years):
-        t = vital_events(settings, "deaths", y, "country")
+        t = cast("dict[str, Any]", vital_events(settings, "deaths", y, "country"))
         ok = (t["sex"] >= 0) & (t["age"] >= 0)
         np.add.at(d[k], (t["sex"][ok], np.minimum(np.floor(t["age"][ok]), A - 1).astype(int)), t["events"][ok])
         d[k] *= t["events"].sum() / max(d[k].sum(), 1)
-        t = vital_events(settings, "births", y, "country")
+        t = cast("dict[str, Any]", vital_events(settings, "births", y, "country"))
         for x in (0, 1):
             b[k, x] = t["events"][t["sex"] == x].sum()
         b[k] *= t["events"].sum() / max(b[k].sum(), 1)
@@ -170,7 +170,8 @@ def forecast_account(inp, cal, settings: Any, steps: int = 8) -> dict:
     ref = [y - 2010 for y in tr.ref]
     mult = municipal_multipliers(tr, inp.start22, ev["deaths"][ref].sum(0), ev["births"][ref].sum((0, 2)))
     path = project_vital(inp.start22, tr, mult, ev["deaths"][12:], ev["births"][12:], steps, 2022)
-    X, bands, off = [], [], {lv: ([], []) for lv in LEVELS}
+    X, bands = [], []
+    off: dict[Any, tuple[list[Any], list[Any]]] = {lv: ([], []) for lv in LEVELS}
     for h in range(1, steps + 1):
         vb = to_bands(path[h])
         centre = forecast_bands(inp.P22, cal, vb, h)[2]

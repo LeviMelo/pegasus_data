@@ -179,6 +179,6 @@ def age_standardised_rates(
     if unplaced:
         # events of no municipality (a null or a code that places none, `geography.place_municipalities`) belong to no
         # rate: they are one row of group None, so the table's events plus these are the records read
-        for key, value in zip(out, (None, unplaced, None, None, None, None, None, 0, standard, None), strict=True):
-            out[key].append(value)
+        for column, value in zip(out, (None, unplaced, None, None, None, None, None, 0, standard, None), strict=True):
+            out[column].append(value)
     return pa.table(out)

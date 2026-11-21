@@ -1176,10 +1176,10 @@ def _held(store: _Store, onto: Ontology, wanted: set[str], lake_dir: Path) -> _H
 
     out = _Held()
     with ThreadPoolExecutor(max_workers=8) as pool:
-        for (code, year, uf, _), meta in pool.map(footer, parts):
+        for (code, part_year, uf, _), meta in pool.map(footer, parts):
             if meta is None:
                 continue
-            key = (code, year, uf)
+            key = (code, part_year, uf)
             out.cover[key] = out.cover.get(key, 0) + meta.num_rows
             out.rows[code] = out.rows.get(code, 0) + meta.num_rows
             nulls: dict[str, int | None] = {}
@@ -1297,7 +1297,7 @@ def _write_products(db: sqlite3.Connection, cfg: Settings, report: CompendiumRep
     db.executemany("INSERT INTO products VALUES (?,?,?,?,?,?,?,?,?,?,?)", rows)
     report.rows["products"] = len(rows)
 
-    members = []
+    members: list[tuple[Any, ...]] = []
     for name, spec in sorted(((read_yaml(base / "populations.yml", missing_ok=True) or {}).get("series") or {}).items()):
         what = " ".join(str(spec.get(k) or "") for k in ("kind", "authority", "notes")).strip()
         members.append(("population_series", name, what, spec.get("axes") and json.dumps(spec["axes"]),
