@@ -42,15 +42,41 @@ ibge_tracts:
   source: "https://ftp.ibge.gov.br/Censos/Censo_Demografico_2022/Agregados_por_Setores_Censitarios/ (dictionary of the demography file)"
   as_of: "2026-05-20 (the date IBGE put in the basic file's name)"
   basic_file: "Agregados_por_Setor_csv/Agregados_por_setores_basico_BR_20260520.zip"
+  # Every path below is relative to the Census 2022 root, https://ftp.ibge.gov.br/Censos/Censo_Demografico_2022/.
+  # A dictionary: its xlsx, its sheet and the column (0-based) of each field in it; null where the sheet has none (the unit is then unstated).
+  dictionaries:
+    setores: {file: "Agregados_por_Setores_Censitarios/dicionario_de_dados_agregados_por_setores_censitarios_20261113.xlsx", sheet: "Dicionário não PCT",
+              columns: {unit: 0, theme: 1, variable: 2, label: 3}, basic_sheet: "Dicionário Básico"}
+    renda_responsavel: {file: "Agregados_por_Setores_Censitarios_Rendimento_do_Responsavel/dicionario_de_dados_renda_responsavel_20260508.xlsx",
+                        sheet: "Dicionário Renda Responsável", columns: {unit: null, theme: 0, variable: 1, label: 2}}
+  # The wide topics: folder and zip, the dictionary and the theme's name in it, and the values' type: integer (a count; "X" suppressed is null)
+  # or decimal (float64; "X" suppressed and "." not applicable are null, a decimal point). The header must be the theme's dictionary variables.
+  aggregates:
+    alfabetizacao: {folder: "Agregados_por_Setores_Censitarios/Agregados_por_Setor_csv", file: "Agregados_por_setores_alfabetizacao_BR.zip",
+                    dictionary: setores, theme: "Alfabetização", values: integer}
+    domicilio1: {folder: "Agregados_por_Setores_Censitarios/Agregados_por_Setor_csv", file: "Agregados_por_setores_caracteristicas_domicilio1_BR_20261021.zip",
+                 dictionary: setores, theme: "Características do Domicílio - Parte 1", values: integer}
+    domicilio2: {folder: "Agregados_por_Setores_Censitarios/Agregados_por_Setor_csv", file: "Agregados_por_setores_caracteristicas_domicilio2_BR_20250417.zip",
+                 dictionary: setores, theme: "Características do Domicílio - Parte 2", values: integer}
+    domicilio3: {folder: "Agregados_por_Setores_Censitarios/Agregados_por_Setor_csv", file: "Agregados_por_setores_caracteristicas_domicilio3_BR_20250417.zip",
+                 dictionary: setores, theme: "Características do Domicílio - Parte 3", values: integer}
+    cor_ou_raca: {folder: "Agregados_por_Setores_Censitarios/Agregados_por_Setor_csv", file: "Agregados_por_setores_cor_ou_raca_BR.zip",
+                  dictionary: setores, theme: "Cor ou Raça", values: integer}
+    # Income of the household head, IBGE of 2026-05-08: V06001 heads, V06002 residents, V06003 variance of residents, V06004 mean, V06005 variance, V06006 median (of heads with income)
+    renda_responsavel: {folder: "Agregados_por_Setores_Censitarios_Rendimento_do_Responsavel", file: "Agregados_por_setores_renda_responsavel_BR_20260508_csv.zip",
+                        dictionary: renda_responsavel, theme: "Renda do Responsável", values: decimal}
+  # The sample's tables by weighting area (Areas de Ponderacao, 14,270 areas: the unit of the sample's estimates) and the tracts that compose each area.
+  # A table is one xlsx of the zip: two title rows, then header_rows of header (a group's name is on its first merged cell), then one row per area
+  # after IBGE's "Brasil" total row; columns 0-3 are municipality code, its name, area code, area name; the rest are numbers (decimal). Others of the
+  # zip's 34 tables read the same way once declared with their header_rows (Tab8_x are the income tables).
+  weighting_areas:
+    tables_zip: "Microdados_e_Areas_de_Ponderacao/Areas_de_Ponderacao/tabelas_xlsx_20261106.zip"
+    composition: "Microdados_e_Areas_de_Ponderacao/Documentacao/Áreas de ponderação/Composição das Áreas de Ponderação.xlsx"
+    tables:
+      renda_trabalho: {member: "XLS/Tab8_1.xlsx", header_rows: 1}
+      renda_pessoas: {member: "XLS/Tab8_2.xlsx", header_rows: 1}
+      renda_domiciliar_per_capita: {member: "XLS/Tab8_3.xlsx", header_rows: 2}
   # The variables of each sex's eleven age bands of the demography file, in the bands' order (0-4 ... 70+): V01009-V01019 men, V01020-V01030 women.
-  dictionary_file: "dicionario_de_dados_agregados_por_setores_censitarios_20261113.xlsx"
-  # The wide themes: topic -> [zip under Agregados_por_Setor_csv/, the theme's name in the dictionary's sheet "Dicionário não PCT"].
-  aggregate_files:
-    alfabetizacao: ["Agregados_por_setores_alfabetizacao_BR.zip", "Alfabetização"]
-    domicilio1: ["Agregados_por_setores_caracteristicas_domicilio1_BR_20261021.zip", "Características do Domicílio - Parte 1"]
-    domicilio2: ["Agregados_por_setores_caracteristicas_domicilio2_BR_20250417.zip", "Características do Domicílio - Parte 2"]
-    domicilio3: ["Agregados_por_setores_caracteristicas_domicilio3_BR_20250417.zip", "Características do Domicílio - Parte 3"]
-    cor_ou_raca: ["Agregados_por_setores_cor_ou_raca_BR.zip", "Cor ou Raça"]
   sex_band_variables: {"1": [V01009, V01010, V01011, V01012, V01013, V01014, V01015, V01016, V01017, V01018, V01019],
                        "2": [V01020, V01021, V01022, V01023, V01024, V01025, V01026, V01027, V01028, V01029, V01030]}
 

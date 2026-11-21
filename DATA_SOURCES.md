@@ -885,8 +885,25 @@ TabNet's state forms classify by `territorio/{UF}_macsaud.cnv` and `{UF}_regsaud
   persons aged 15+, the literate are V00748-V00760), household characteristics V00001-V00643 in three parts (89, 406, 148),
   colour or race V01317-V01411 (95), all 458,772 tracts with residents, `X` for suppressed (6-14% of cells); the dictionary is
   `dicionario_de_dados_agregados_por_setores_censitarios_20261113.xlsx` in the folder above the CSVs (it has no universe field;
-  the description carries it). The basic file has only V0001-V0009 (no income). Tracts' sums fall 0.04-0.6% short of SIDRA's
+  the description carries it). The basic file has only V0001-V0009. Tracts' sums fall 0.04-0.6% short of SIDRA's
   municipal values (evaluation 2026-11-21).
+  **Income of the household head IS published by tract** (read 2026-11-21, `tract_aggregates("renda_responsavel")`): a separate folder
+  `Censos/Censo_Demografico_2022/Agregados_por_Setores_Censitarios_Rendimento_do_Responsavel/` (release 2026-05-08) with the tract, neighbourhood,
+  district, subdistrict and municipality CSVs (`Agregados_por_{setores,bairros,distritos,subdistritos,municipios}_renda_responsavel_BR_20260508_csv.zip`,
+  also `_xlsx.zip`) and `dicionario_de_dados_renda_responsavel_20260508.xlsx` (Tema, Variavel, Descricao). Six variables: V06001 heads, V06002 residents,
+  V06003 variance of the number of residents, V06004 mean and V06006 median nominal monthly income of heads *with income*, V06005 its variance.
+  The tract file has a decimal point, the municipal file a comma (Windows-1252); `X` suppressed, `.` not applicable. 458,772 tracts: 8,904
+  (1.9%, 531,151 residents) have `X` in V06001-V06003, 337 more have no mean or median.
+- **Weighting areas** (Areas de Ponderacao, the sample's unit; 14,270 with residents), `Microdados_e_Areas_de_Ponderacao/` (read 2026-11-21):
+  `Areas_de_Ponderacao/tabelas_xlsx_20261106.zip` (44 MB; 34 xlsx `XLS/Tab<n>_<m>.xlsx`, each 2 title rows, 1-2 header rows, a `Brasil` row and 14,270
+  area rows: households, education, disability, religion, fertility, migration, work, **income (8.1 work income, 8.2 all sources, 8.3 per capita household
+  income by sex, mean and median)**, commuting, marital status, families). `Documentacao/Areas de ponderacao/Composicao das Areas de Ponderacao.xlsx` **maps each
+  tract to its area** (468,097 tracts; 14,406 areas, 136 of them empty: 252 tracts, no residents; the two lagoon tracts are unplaced), with the area lists for public and
+  controlled microdata (14,270 each: type, tracts, persons and households of the universe and the sample), `Fracoes.xlsx` and variation coefficients.
+  **Microdata of the sample** (`Microdados_de_acesso_Publico/{csv,txt}/`, per UF 3-182 MB zipped, `Todas_as_UFs.zip` 1.0 GB): record types Domicilios (55 variables), Pessoas (169),
+  Familia (28), Mortalidade (14), with `Peso Amostral`; AL (read, 16 MB): 114,514 households, 347,165 persons, 103,380 families, 6,601 deaths. **The public files carry no
+  municipality, tract or weighting-area code** (UF, `Controle`, the tract's situation and the weight only; areas are in the controlled-access version): they cannot be placed below the UF.
+
 - **CNEFE 2022**: §6.5 (files, columns, levels; the CEP aggregate holds counts and no coordinates).
 
 ### 6.4 SIDRA, the aggregates API v3 (measured 2026-10-05 through `sidra/`)

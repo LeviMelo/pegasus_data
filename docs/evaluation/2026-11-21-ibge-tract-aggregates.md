@@ -7,7 +7,7 @@ tracts with residents), 240 MB in all, built in 3 minutes from 1.5 GB of zips re
 variable as IBGE publishes it (long would be 1.4 billion rows), and an `X` is the only null, so null is the suppressed flag.
 `census_tracts` now also keeps `v0005` (mean residents per household), `v0006` (share imputed) and the favela and urban community
 code and name (`cd_fcu`, `nm_fcu`). IBGE's dictionary (xlsx of 2026-11-13) has 1,109 variables for these themes and the basic file; the basic file
-has nothing beyond `V0001`-`V0009` (no income of the household head in any of these files). Each variable's IBGE description and
+has nothing beyond `V0001`-`V0009` (the household head's income is a separate IBGE folder: [tract income](2026-11-21-ibge-tract-income.md); this entry first called it unpublished, which was wrong). Each variable's IBGE description and
 unit (people or households) is in `tract_dictionary_2022.parquet`; IBGE publishes no separate universe field, the description states it.
 
 **Counted.** The tracts' sums against the municipal values `load_field` serves from SIDRA (Census 2022), one quantity in two IBGE
