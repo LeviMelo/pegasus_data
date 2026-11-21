@@ -878,6 +878,12 @@ TabNet's state forms classify by `territorio/{UF}_macsaud.cnv` and `{UF}_regsaud
   municipal count by sex and age is SIDRA's, not this file's. The basic file is Windows-1252 and writes "." for "not
   applicable" (the lagoons 4300001/4300002 have `CD_MUN` "."); the demography file is ASCII. The tract mesh with the basic attributes (`malha_com_atributos/.../BR_setores_CD2022.gpkg`,
   1.5 GB, 472,780 rows: tracts in several pieces repeat their counts) is in `registries/ibge_points/tracts.gpkg`.
+  **The other themes** (read 2026-11-21, `tract_aggregates`): literacy V00644-V01005 (362; the bare age bands V00644-V00656 are all
+  persons aged 15+, the literate are V00748-V00760), household characteristics V00001-V00643 in three parts (89, 406, 148),
+  colour or race V01317-V01411 (95), all 458,772 tracts with residents, `X` for suppressed (6-14% of cells); the dictionary is
+  `dicionario_de_dados_agregados_por_setores_censitarios_20261113.xlsx` in the folder above the CSVs (it has no universe field;
+  the description carries it). The basic file has only V0001-V0009 (no income). Tracts' sums fall 0.04-0.6% short of SIDRA's
+  municipal values (evaluation 2026-11-21).
 - **CNEFE 2022**: §6.5 (files, columns, levels; the CEP aggregate holds counts and no coordinates).
 
 ### 6.4 SIDRA, the aggregates API v3 (measured 2026-10-05 through `sidra/`)

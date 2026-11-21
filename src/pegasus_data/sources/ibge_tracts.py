@@ -4,9 +4,10 @@
 for Brazil's 472,780 tracts. Two are read:
 
 * **básico** (Windows-1252; "." is "not applicable", read as null): the tract's identity (``CD_SETOR``, 15 digits whose first 7 are the municipality; urban or
-  rural situation ``SITUACAO``/``CD_SIT``, type, area in km², district, subdistrict, neighbourhood, urban nucleus,
-  agglomeration, intermediate and immediate regions, urban concentration) and its counts ``v0001`` (residents) to
-  ``v0009`` (households by kind; ``v0005`` and ``v0006`` are a mean and a share and are not stored);
+  rural situation ``SITUACAO``/``CD_SIT``, type, area in km², district, subdistrict, neighbourhood, urban nucleus, favela
+  and urban community, agglomeration, intermediate and immediate regions, urban concentration) and all nine of its variables,
+  ``v0001`` (residents) to ``v0009`` (households by kind), ``v0005`` (mean residents per occupied private household) and
+  ``v0006`` (share of them imputed) as decimals; IBGE's dictionary has no other variable (no income) in this file;
 * **demografia** (458,772 tracts, the ones with residents): ``V01006`` residents, ``V01007``/``V01008`` men and women,
   ``V01009``-``V01019`` men and ``V01020``-``V01030`` women in eleven bands (0-4, 5-9, 10-14, 15-19, 20-24, 25-29,
   30-39, 40-49, 50-59, 60-69, 70 or more).
@@ -17,8 +18,16 @@ file of the theme is the sum of the same published cells, so it falls short too;
 (``v0001``) are never suppressed, and the people the bands leave out are measured against them (`municipal_check`) and
 reported, not spread.
 
-**Stored** once per data home in ``registries/ibge_tracts/``: the zips, ``tracts_2022.parquet`` (identity and counts)
-and ``tract_population_2022.parquet`` (long: tract, sex, band, people, suppressed). The tract polygons are IBGE's tract
+Five more themes are read the same way (`tract_aggregates`): literacy (``alfabetizacao``, V00644-V01005), the household's
+characteristics in three parts (``domicilio1`` V00001-V00089, ``domicilio2`` V00090-V00495, ``domicilio3`` V00496-V00643) and
+colour or race (``cor_ou_raca``, V01317-V01411). Each is one wide table, a column per variable as IBGE publishes it (about
+1.4 billion long rows would cost ten times the disk for nothing); an ``X`` is the only null, so null *is* the suppressed flag.
+`tract_dictionary` carries each variable's theme, unit (people or households) and IBGE's own description, which states the
+universe (IBGE publishes no separate universe field and none is inferred).
+
+**Stored** once per data home in ``registries/ibge_tracts/``: the zips, ``tracts_2022.parquet`` (identity and counts),
+``tract_population_2022.parquet`` (long: tract, sex, band, people, suppressed), ``tract_aggregates_<topic>_2022.parquet``
+and ``tract_dictionary_2022.parquet``. The tract polygons are IBGE's tract
 mesh with the basic counts, ``registries/ibge_points/tracts.gpkg`` (`tract_mesh`), where the points pack had kept it.
 """
 
@@ -34,17 +43,21 @@ SOURCE = "https://ftp.ibge.gov.br/Censos/Censo_Demografico_2022/Agregados_por_Se
 FILES = {"basico": declared("published_tables.yml", "ibge_tracts", "basic_file"),
          "demografia": "Agregados_por_Setor_csv/Agregados_por_setores_demografia_BR.zip",
          "municipios_demografia": "Agregados_por_Municipio_csv/Agregados_por_municipios_demografia_BR.zip"}
+#: The themes read wide: topic -> (zip under ``Agregados_por_Setor_csv/``, IBGE's theme name in the dictionary), declared in ``curation/published_tables.yml``
+AGGREGATES = {k: tuple(v) for k, v in declared("published_tables.yml", "ibge_tracts", "aggregate_files").items()}
+DICTIONARY_FILE = declared("published_tables.yml", "ibge_tracts", "dictionary_file")
 MESH = "malha_com_atributos/setores/gpkg/BR/BR_setores_CD2022.gpkg"
 #: The eleven bands of the demography file, as (from, to) in years; None is open
 BANDS = ((0, 4), (5, 9), (10, 14), (15, 19), (20, 24), (25, 29), (30, 39), (40, 49), (50, 59), (60, 69), (70, None))
 #: The variables of each sex's bands, in BANDS order (declared with the dictionary's source in ``curation/published_tables.yml``)
 SEX_BANDS = declared("published_tables.yml", "ibge_tracts", "sex_band_variables")
 COUNTS = ("v0001", "v0002", "v0003", "v0004", "v0007", "v0008", "v0009")
+DECIMALS = ("v0005", "v0006")     # a mean and a share, written with a decimal comma
 IDENTITY = ("CD_SETOR", "SITUACAO", "CD_SIT", "CD_TIPO", "AREA_KM2", "CD_MUN", "NM_MUN", "CD_DIST", "NM_DIST", "CD_SUBDIST",
-            "NM_SUBDIST", "CD_BAIRRO", "NM_BAIRRO", "CD_NU", "NM_NU", "CD_AGLOM", "NM_AGLOM", "CD_RGINT", "NM_RGINT",
+            "NM_SUBDIST", "CD_BAIRRO", "NM_BAIRRO", "CD_NU", "NM_NU", "CD_FCU", "NM_FCU", "CD_AGLOM", "NM_AGLOM", "CD_RGINT", "NM_RGINT",
             "CD_RGI", "NM_RGI", "CD_CONCURB", "NM_CONCURB")
 
-__all__ = ["BANDS", "build", "tract_mesh", "tract_population", "tracts"]
+__all__ = ["BANDS", "build", "build_aggregates", "tract_aggregates", "tract_dictionary", "tract_mesh", "tract_population", "tracts"]
 
 
 def _directory(root: str | Path | None) -> Path:
@@ -107,6 +120,9 @@ def build(root: str | Path | None = None) -> dict[str, Any]:
         value, suppressed = _count(basic.column(name))
         columns[name] = value
         suppressed_basic += int(pc.sum(suppressed).as_py() or 0)
+    for name in DECIMALS:          # "0,0923": a decimal comma; "." is null
+        column = pc.replace_substring(basic.column(name), ",", ".")
+        columns[name] = pc.cast(pc.if_else(pc.equal(column, "."), pa.scalar(None, pa.string()), column), pa.float64())
     identity = pa.table(columns)
     # a tract code begins with its municipality's; the two lagoons (4300001, 4300002: no municipality) have none
     if pc.any(pc.fill_null(pc.not_equal(identity.column("municipality7"), identity.column("cd_mun")), False)).as_py():
@@ -133,7 +149,83 @@ def build(root: str | Path | None = None) -> dict[str, Any]:
             "residents_demography_unsuppressed": int(pc.sum(residents).as_py()),
             "tracts_residents_suppressed": int(pc.sum(residents_suppressed).as_py()),
             "sex_band_cells": population.num_rows, "sex_band_cells_suppressed": suppressed_cells,
-            "basic_counts_suppressed": suppressed_basic, "municipal_check": municipal_check(root)}
+            "basic_counts_suppressed": suppressed_basic, "aggregates": build_aggregates(root),
+            "municipal_check": municipal_check(root)}
+
+
+def _dictionary(root: str | Path | None) -> Any:
+    """IBGE's dictionary of the tract aggregates (its xlsx, downloaded once) as a table: variable, topic, theme, unit, label."""
+    import openpyxl
+    import pyarrow as pa
+
+    from ..transport import download
+
+    path = download(SOURCE + DICTIONARY_FILE, _directory(root) / DICTIONARY_FILE, timeout=600)
+    book = openpyxl.load_workbook(path, read_only=True)
+    rows: list[dict[str, Any]] = [{"variable": str(r[1]).strip().upper(), "topic": "basico", "theme": str(r[0]).strip(), "unit": None,
+                                   "label": str(r[2]).replace("\xa0", " ").strip()}
+                                  for r in list(book["Dicionário Básico"].iter_rows(values_only=True))[1:] if r[1]]
+    by_theme = {theme: topic for topic, (_, theme) in AGGREGATES.items()}
+    for kind, theme, variable, label in list(book["Dicionário não PCT"].iter_rows(values_only=True))[1:]:
+        if variable and theme in by_theme:
+            rows.append({"variable": str(variable).strip(), "topic": by_theme[theme], "theme": theme,
+                         "unit": {"Pessoas": "people", "Domicílio": "households"}.get(kind, kind),
+                         "label": str(label).replace("\xa0", " ").strip()})
+    return pa.Table.from_pylist(rows, schema=pa.schema([pa.field(n, pa.string()) for n in ("variable", "topic", "theme", "unit", "label")]))
+
+
+def build_aggregates(root: str | Path | None = None) -> dict[str, Any]:
+    """Read each wide theme (``AGGREGATES``) in batches into ``tract_aggregates_<topic>_2022.parquet`` (tract, municipality7 and
+    one int32 column per variable, an ``X`` null) and write the dictionary. The header must be the dictionary's variables, in
+    order. Returns per topic the tracts, variables, cells and suppressed cells."""
+    import zipfile
+
+    import pyarrow as pa
+    import pyarrow.compute as pc
+    import pyarrow.csv as pacsv
+    import pyarrow.parquet as pq
+
+    from ..persist.kept import write_atomic, write_parquet_atomic
+    from ..transport import download
+
+    directory = _directory(root)
+    dictionary = _dictionary(root)
+    write_parquet_atomic(dictionary, directory / "tract_dictionary_2022.parquet", compression="zstd")
+    report: dict[str, Any] = {"dictionary_variables": dictionary.num_rows}
+    for topic, (name, _) in AGGREGATES.items():
+        archive_path = download(SOURCE + "Agregados_por_Setor_csv/" + name, directory / name, timeout=3600)
+        expected = [v for v, t in zip(dictionary.column("variable").to_pylist(), dictionary.column("topic").to_pylist(), strict=True)
+                    if t == topic]
+        counts = {"tracts": 0, "cells": 0, "suppressed": 0}
+        with zipfile.ZipFile(archive_path) as archive, archive.open(next(n for n in archive.namelist() if n.lower().endswith(".csv"))) as handle:
+            first = handle.readline().decode("utf8").strip().split(";")
+            tract_name, header = first[0].strip('"'), [c.strip('"') for c in first[1:]]
+            if header != expected:
+                raise ValueError(f"{name}: the header's variables are not the dictionary's {topic} variables")
+            schema = pa.schema([pa.field("tract", pa.string()), pa.field("municipality7", pa.string())]
+                               + [pa.field(v, pa.int32()) for v in header])
+            reader = pacsv.open_csv(handle, read_options=pacsv.ReadOptions(block_size=32 << 20, column_names=[tract_name, *header]),
+                                    parse_options=pacsv.ParseOptions(delimiter=";"),
+                                    convert_options=pacsv.ConvertOptions(column_types={c: pa.string() for c in [tract_name, *header]},
+                                                                         strings_can_be_null=False, quoted_strings_can_be_null=False))
+
+            def _write(tmp: Path, reader: Any = reader, schema: Any = schema, header: list[str] = header,
+                       tract_name: str = tract_name, counts: dict[str, int] = counts) -> None:
+                with pq.ParquetWriter(tmp, schema, compression="zstd") as writer:
+                    for batch in reader:
+                        tract = batch.column(tract_name)
+                        columns = [tract, pc.utf8_slice_codeunits(tract, 0, 7)]
+                        for variable in header:
+                            value, suppressed = _count(batch.column(variable))
+                            columns.append(pc.cast(value, pa.int32()))
+                            counts["suppressed"] += int(pc.sum(suppressed).as_py() or 0)
+                        counts["tracts"] += batch.num_rows
+                        counts["cells"] += batch.num_rows * len(header)
+                        writer.write_table(pa.Table.from_arrays(columns, schema=schema))
+
+            write_atomic(directory / f"tract_aggregates_{topic}_2022.parquet", _write)
+        report[topic] = {**counts, "variables": len(expected), "suppressed_share": round(counts["suppressed"] / counts["cells"], 4)}
+    return report
 
 
 def municipal_check(root: str | Path | None = None) -> dict[str, Any]:
@@ -215,6 +307,42 @@ def tract_population(*, municipality: Any = None, uf: Any = None, root: str | Pa
     return _read("tract_population_2022.parquet", municipality, uf, root)
 
 
+def tract_aggregates(topic: str, variables: Any = None, *, municipality: Any = None, uf: Any = None,
+                     root: str | Path | None = None) -> Any:
+    """One theme of the Census 2022 tract aggregates (a pyarrow table, wide): ``tract``, ``municipality7`` and one int32 column per
+    variable (``V00644`` ...), as IBGE publishes them. A count IBGE suppressed (``X``) is null, never 0, and is never filled.
+    ``topic`` is ``alfabetizacao``, ``domicilio1``, ``domicilio2``, ``domicilio3`` or ``cor_ou_raca`` (the basic theme is
+    `census_tracts`); ``variables`` selects columns by the dictionary's codes (`tract_dictionary`)."""
+    if topic not in AGGREGATES:
+        raise ValueError(f"unknown topic {topic!r}; one of {sorted(AGGREGATES)}")
+    select = "*"
+    if variables is not None:
+        wanted = [variables] if isinstance(variables, str) else list(variables)
+        known = set(tract_dictionary(topic, root=root).column("variable").to_pylist())
+        if unknown := [v for v in wanted if v not in known]:
+            raise ValueError(f"not variables of {topic!r} (see tract_dictionary({topic!r})): {unknown[:5]}")
+        select = ", ".join(["tract", "municipality7", *wanted])
+    import duckdb
+
+    path = _directory(root) / f"tract_aggregates_{topic}_2022.parquet"
+    if not path.is_file():
+        raise FileNotFoundError(f"the tract aggregates are not built in {path.parent}; run `pegasus-data tracts`")
+    return duckdb.connect().execute(f"SELECT {select} FROM read_parquet('{path.as_posix()}') {_where(municipality, uf)}").to_arrow_table()
+
+
+def tract_dictionary(topic: str | None = None, *, root: str | Path | None = None) -> Any:
+    """IBGE's dictionary of the tract variables (a pyarrow table): ``variable``, ``topic``, IBGE's ``theme``, ``unit`` (people or
+    households) and ``label``, IBGE's own description (it carries the universe: "Domicílios Particulares Permanentes Ocupados, ...").
+    The basic theme's variables are ``V0001`` ... (the columns ``v0001`` of `census_tracts`)."""
+    import duckdb
+
+    path = _directory(root) / "tract_dictionary_2022.parquet"
+    if not path.is_file():
+        raise FileNotFoundError(f"the tract dictionary is not built in {path.parent}; run `pegasus-data tracts`")
+    where = "" if topic is None else f"WHERE topic = '{topic.replace(chr(39), '')}'"
+    return duckdb.connect().execute(f"SELECT * FROM read_parquet('{path.as_posix()}') {where}").to_arrow_table()
+
+
 def tract_mesh(*, municipality: Any = None, uf: Any = None, root: str | Path | None = None) -> Any:
     """IBGE's 2022 tract polygons (a GeoDataFrame, SIRGAS 2000), one row per tract (a tract in several pieces is merged:
     the file repeats its counts on each piece), from ``registries/ibge_points/tracts.gpkg`` (downloaded once)."""
@@ -230,5 +358,5 @@ def tract_mesh(*, municipality: Any = None, uf: Any = None, root: str | Path | N
     return frame.dissolve(by="CD_SETOR", aggfunc="first").reset_index()
 
 
-#: The public names (`pegasus_data.tract_population`, `census_tracts`)
+#: The public names (`pegasus_data.tract_population`, `census_tracts`, `tract_aggregates`, `tract_dictionary`)
 census_tracts = tracts

@@ -249,6 +249,22 @@ products:
     call: "tract_population(uf=33)"
     stores: [registries/ibge_tracts/tract_population_2022.parquet]
 
+  tract_aggregates:
+    label: "Tract literacy, household and colour or race counts"
+    kind: population
+    source: "IBGE, Censo 2022, Agregados por Setores Censitários (alfabetização, características do domicílio 1-3, cor ou raça; dictionary of 2026-11-13)"
+    what: >
+      Five themes, 1,100 variables, one wide table per theme (a column per IBGE variable, V00001 to V01411): literacy by age and
+      sex, the household's water, sewage, waste, electricity, housing and goods with its residents, and persons by colour or race.
+      A count IBGE suppressed (X) is null, never zero. `tract_dictionary` gives each variable's IBGE description, which
+      states its universe.
+    grain: "census tract (a column per variable)"
+    period: "2022"
+    call: 'tract_aggregates("cor_ou_raca", uf="AL")'
+    stores: [registries/ibge_tracts/tract_aggregates_alfabetizacao_2022.parquet, registries/ibge_tracts/tract_aggregates_domicilio1_2022.parquet,
+             registries/ibge_tracts/tract_aggregates_domicilio2_2022.parquet, registries/ibge_tracts/tract_aggregates_domicilio3_2022.parquet,
+             registries/ibge_tracts/tract_aggregates_cor_ou_raca_2022.parquet, registries/ibge_tracts/tract_dictionary_2022.parquet]
+
   # ------------------------------------------------------------------------------------------------- climate
   climate_daily:
     label: "Daily municipal weather"
