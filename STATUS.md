@@ -45,7 +45,9 @@ holds and can do, one space × time object, and the principles audits' defects c
   while they were replaced (21 Nov, 14:30-15:00) should be run again; role tables of those years rebuild once.
   **SIGTAP procedures** are labelled only inside their window (0403070171 from 202312); `link(..., match="procedure")`
   and `sih_readmissions` are new; CNES neurosurgery fields (`cnes_neurosurgeons_*`, `cnes_accreditation_*`,
-  `cnes_beds_neurosurgery`, ...) are declared.
+  `cnes_beds_neurosurgery`, ...) are declared. Also new: a `stay` event type for SIH-RD (AIHs chained by person, discharge reason and day;
+  `hospitalisation` unchanged), `sih_admissions_to_radiotherapy`, census tract aggregates (`tract_aggregates`), and
+  a partition whose files differ by a column is written as several part files (SIA-AQ 2013-2015 had failed).
 - **Race.** A third reference: a death linked to the dead person's own birth (`sim_deaths_to_own_birth`), giving
   `race_confusion_child` (ages 1-14, children born from 2012). The birth record's colour is the mother's only from the
   2011 form. False links are priced per pair, inside the municipality; `race-confusion-women-2` is the women's product

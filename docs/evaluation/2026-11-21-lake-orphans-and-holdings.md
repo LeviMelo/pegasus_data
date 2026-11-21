@@ -25,3 +25,8 @@ SIM-DO "held 24,944,830 rows" for 23,048,296.
 **Checked.** `pegasus-data info`: SIM.DO 23,048,296 rows; CNES lines as above. `search trombectomia` returns
 `HABILITA` 1618 and SIGTAP 0403070171. Found on the way, left open: SIM's national and state files differ in the
 cause lines (OPEN_QUESTIONS #94), and SIGTAP labels have no validity window (#95).
+
+**Same day: a partition of mixed schemas.** Building SIA-AQ 2013-2015 raised `Table schema does not match schema used
+to create file` for state partitions whose monthly files differ by a column. The writer now opens the next part file
+when a batch's schema changes and registers each file with its own row count: 2014 is written as 3 part files per
+state (81 files, 2,937,694 rows) and `query("SIA.AQ", period="2014", geography="AC")` returns its 5,491 rows.
