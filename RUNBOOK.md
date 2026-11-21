@@ -38,6 +38,7 @@ $PY scripts/live.py --show <run-id>
 - Establishment, team and CNPJ names (the registry tables) are built, never fetched by a read (ADR-0176):
   `$PD registries build CNES [--refresh]` (SIH's names need CNES's kit, 127 MB, once; `SIASUS` for `INE_EQUIPE`).
   Without it a `load`/`query` leaves those labels null and says this command in one warning.
+- Read equivalence: `$PY scripts/read_equivalence.py record OUT` runs thirty fixed real reads (the lake, small published files, a hybrid, refusals) and writes one digest per case; `compare BEFORE AFTER` says which differ. Record before and after any change to the read path (`query`, `api.read_lake`, `retrieve.read_source`, the renderer).
 - Decode coverage on records: `$PY scripts/decode_coverage.py --root HOME --out x.json` renders each lake family's latest partition whole, eight coded columns at a time (`--only SIM-DO,SIHSUS-RD` restricts it), and counts its coded columns (labelled, words as filed, bare, with the codes left bare and their cells). A dataset the root does not hold is measured on one small file
   landed into a scratch home, `$PD build --root HOME --family F --uf UF --years Y --limit 1` (a few hundred KB each; 111 datasets, 355 MB, 2026-10-24), and `$PD curate --root HOME` after a curation edit.
 - The live home is `~/pegasus_live/home` (override: `PEGASUS_LIVE_HOME`),
