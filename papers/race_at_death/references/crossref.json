@@ -1,0 +1,277 @@
+{
+ "noymer2011": {
+  "doi": "10.1371/journal.pone.0015812",
+  "title": "Cause of Death Affects Racial Classification on Death Certificates",
+  "journal": "PLoS ONE",
+  "short_journal": "PLoS ONE",
+  "year": 2011,
+  "volume": "6",
+  "issue": "1",
+  "pages": "e15812",
+  "authors": [
+   "Noymer A",
+   "Penner AM",
+   "Saperstein A"
+  ]
+ },
+ "saperstein2012": {
+  "doi": "10.1086/667722",
+  "title": "Racial Fluidity and Inequality in the United States",
+  "journal": "American Journal of Sociology",
+  "short_journal": "American Journal of Sociology",
+  "year": 2012,
+  "volume": "118",
+  "issue": "3",
+  "pages": "676-727",
+  "authors": [
+   "Saperstein A",
+   "Penner AM"
+  ]
+ },
+ "muniz2017": {
+  "doi": "10.1590/0102-311x00082816",
+  "title": "Volatilidade classificatória e a (in)consistência da desigualdade racial",
+  "journal": "Cadernos de Saúde Pública",
+  "short_journal": "Cad. Saúde Pública",
+  "year": 2017,
+  "volume": "33",
+  "issue": "suppl 1",
+  "pages": null,
+  "authors": [
+   "Muniz JO",
+   "Bastos JL"
+  ]
+ },
+ "bailey2013": {
+  "doi": "10.1016/j.ssresearch.2012.06.006",
+  "title": "Measures of “Race” and the analysis of racial inequality in Brazil",
+  "journal": "Social Science Research",
+  "short_journal": "Social Science Research",
+  "year": 2013,
+  "volume": "42",
+  "issue": "1",
+  "pages": "106-119",
+  "authors": [
+   "Bailey SR",
+   "Loveman M",
+   "Muniz JO"
+  ]
+ },
+ "miranda2015": {
+  "doi": "10.4054/demres.2015.32.59",
+  "title": "A resurgence of black identity in Brazil? Evidence from an analysis of recent censuses",
+  "journal": "Demographic Research",
+  "short_journal": "DemRes",
+  "year": 2015,
+  "volume": "32",
+  "issue": null,
+  "pages": "1603-1630",
+  "authors": [
+   "Miranda V"
+  ]
+ },
+ "cardoso2005": {
+  "doi": "10.1590/s0102-311x2005000500035",
+  "title": "Mortalidade infantil segundo raça/cor no Brasil: o que dizem os sistemas nacionais de informação?",
+  "journal": "Cadernos de Saúde Pública",
+  "short_journal": "Cad. Saúde Pública",
+  "year": 2005,
+  "volume": "21",
+  "issue": "5",
+  "pages": "1602-1608",
+  "authors": [
+   "Cardoso AM",
+   "Santos RV",
+   "Coimbra Jr. CEA"
+  ]
+ },
+ "chor2005": {
+  "doi": "10.1590/s0102-311x2005000500033",
+  "title": "Aspectos epidemiológicos das desigualdades raciais em saúde no Brasil",
+  "journal": "Cadernos de Saúde Pública",
+  "short_journal": "Cad. Saúde Pública",
+  "year": 2005,
+  "volume": "21",
+  "issue": "5",
+  "pages": "1586-1594",
+  "authors": [
+   "Chor D",
+   "Lima CRdA"
+  ]
+ },
+ "caldas2017": {
+  "doi": "10.1590/0102-311x00046516",
+  "title": "Mortalidade infantil segundo cor ou raça com base no Censo Demográfico de 2010 e nos sistemas nacionais de informação em saúde no Brasil",
+  "journal": "Cadernos de Saúde Pública",
+  "short_journal": "Cad. Saúde Pública",
+  "year": 2017,
+  "volume": "33",
+  "issue": "7",
+  "pages": null,
+  "authors": [
+   "Caldas ADR",
+   "Santos RV",
+   "Borges GM",
+   "Valente JG",
+   "Portela MC",
+   "Marinho GL"
+  ]
+ },
+ "telles1998": {
+  "doi": "10.2307/3004014",
+  "title": "Does it matter who answers the race question? Racial classification and income inequality in Brazil",
+  "journal": "Demography",
+  "short_journal": "",
+  "year": 1998,
+  "volume": "35",
+  "issue": "4",
+  "pages": "465-474",
+  "authors": [
+   "Telles EE",
+   "Lim N"
+  ]
+ },
+ "benchimol2015": {
+  "doi": "10.1371/journal.pmed.1001885",
+  "title": "The REporting of studies Conducted using Observational Routinely-collected health Data (RECORD) Statement",
+  "journal": "PLOS Medicine",
+  "short_journal": "PLoS Med",
+  "year": 2015,
+  "volume": "12",
+  "issue": "10",
+  "pages": "e1001885",
+  "authors": [
+   "Benchimol EI",
+   "Smeeth L",
+   "Guttmann A",
+   "Harron K",
+   "Moher D",
+   "Petersen I",
+   "Sørensen HT",
+   "von Elm E",
+   "Langan SM",
+   ""
+  ]
+ },
+ "travassos2004": {
+  "doi": "10.1590/s0102-311x2004000300003",
+  "title": "The concept and measurement of race and their relationship to public health: a review focused on Brazil and the United States",
+  "journal": "Cadernos de Saúde Pública",
+  "short_journal": "Cad. Saúde Pública",
+  "year": 2004,
+  "volume": "20",
+  "issue": "3",
+  "pages": "660-678",
+  "authors": [
+   "Travassos C",
+   "Williams DR"
+  ]
+ },
+ "fellegi1969": {
+  "doi": "10.1080/01621459.1969.10501049",
+  "title": "A Theory for Record Linkage",
+  "journal": "Journal of the American Statistical Association",
+  "short_journal": "Journal of the American Statistical Association",
+  "year": 1969,
+  "volume": "64",
+  "issue": "328",
+  "pages": "1183-1210",
+  "authors": [
+   "Fellegi IP",
+   "Sunter AB"
+  ]
+ },
+ "doidge2019": {
+  "doi": "10.1093/ije/dyz203",
+  "title": "Reflections on modern methods: linkage error bias",
+  "journal": "International Journal of Epidemiology",
+  "short_journal": "",
+  "year": 2019,
+  "volume": null,
+  "issue": null,
+  "pages": "dyz203",
+  "authors": [
+   "Doidge JC",
+   "Harron KL"
+  ]
+ },
+ "braz2013": {
+  "doi": "10.1590/s0103-11042013000400002",
+  "title": "Avaliação da completude da variável raça/cor nos sistemas nacionais de informação em saúde para aferição da equidade étnico-racial em indicadores usados pelo Índice de Desempenho do Sistema Único de Saúde",
+  "journal": "Saúde em Debate",
+  "short_journal": "Saúde debate",
+  "year": 2013,
+  "volume": "37",
+  "issue": "99",
+  "pages": "554-562",
+  "authors": [
+   "Braz RM",
+   "Oliveira PdTRd",
+   "Reis ATd",
+   "Machado NMdS"
+  ]
+ },
+ "liebler2017": {
+  "doi": "10.1007/s13524-016-0544-0",
+  "title": "America’s Churning Races: Race and Ethnicity Response Changes Between Census 2000 and the 2010 Census",
+  "journal": "Demography",
+  "short_journal": "",
+  "year": 2017,
+  "volume": "54",
+  "issue": "1",
+  "pages": "259-284",
+  "authors": [
+   "Liebler CA",
+   "Porter SR",
+   "Fernandez LE",
+   "Noon JM",
+   "Ennis SR"
+  ]
+ },
+ "romero2006": {
+  "doi": "10.1590/s0102-311x2006000300022",
+  "title": "Avaliação da qualidade das variáveis sócio-econômicas e demográficas dos óbitos de crianças menores de um ano registrados no Sistema de Informações sobre Mortalidade do Brasil (1996/2001)",
+  "journal": "Cadernos de Saúde Pública",
+  "short_journal": "Cad. Saúde Pública",
+  "year": 2006,
+  "volume": "22",
+  "issue": "3",
+  "pages": "673-681",
+  "authors": [
+   "Romero DE",
+   "Cunha CBd"
+  ]
+ },
+ "loveman2012": {
+  "doi": "10.1080/01419870.2011.607503",
+  "title": "Brazil in black and white? Race categories, the census, and the study of inequality",
+  "journal": "Ethnic and Racial Studies",
+  "short_journal": "Ethnic and Racial Studies",
+  "year": 2012,
+  "volume": "35",
+  "issue": "8",
+  "pages": "1466-1483",
+  "authors": [
+   "Loveman M",
+   "Muniz JO",
+   "Bailey SR"
+  ]
+ },
+ "arias2010": {
+  "doi": "10.2105/ajph.2008.135863",
+  "title": "The Hispanic Mortality Advantage and Ethnic Misclassification on US Death Certificates",
+  "journal": "American Journal of Public Health",
+  "short_journal": "Am J Public Health",
+  "year": 2010,
+  "volume": "100",
+  "issue": "S1",
+  "pages": "S171-S177",
+  "authors": [
+   "Arias E",
+   "Eschbach K",
+   "Schauman WS",
+   "Backlund EL",
+   "Sorlie PD"
+  ]
+ }
+}
