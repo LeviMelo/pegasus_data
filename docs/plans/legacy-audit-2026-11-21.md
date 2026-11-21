@@ -64,3 +64,5 @@ Line numbers are from the tree as read (2026-11-21).
 | 16 | fixed: `formats.py` is the one suffix/container declaration; the six lists are gone |
 | 7 | fixed: population columns renamed by declared role |
 | 8 | fixed: `Kind.parts_sum`; national = every UF; UI control cutoffs and decimals kept as display presets |
+| 29 | fixed: `curation/questions.yml` (`settled`, `open`) replaces `SETTLED`/`UNRESOLVED` |
+| 28 | fixed: `SEED_QUESTIONS` and the V7/V8 resolutions (fixed historical measurements) are in `questions.yml`; answers with run-measured numbers already formatted them. `build.py` reading the V7/V8 texts from it lands once the other session commits its open build.py work |

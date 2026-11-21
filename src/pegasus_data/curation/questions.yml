@@ -1,0 +1,113 @@
+# The questions the catalog is seeded with, and the answers it records that no run measures.
+#
+# seed:        the open questions every catalog is given on first open (Pipeline.seed_questions), so each is tracked
+#              whether or not a run happens to close it.
+# settled:     decisions that are FINISHED, recorded already resolved (a settled "no" that kept appearing as open work
+#              would be indistinguishable from a task nobody has got to).
+# open:        gaps that are OPEN, with exactly what would close them: "do not guess" stays visible as a named gap.
+# resolutions: the text recorded when a stage closes a seed question and the figures in it are a FIXED historical
+#              measurement, not something that run computes (an answer that holds a number the run measures is
+#              formatted by its code). Each cites where it was measured; the number belongs to that date.
+
+settled:
+  semantics.cep_decoding:
+    area: semantics
+    question: Should CEP (Brazilian postal code) be decoded to a place name?
+    resolution: 'Will not decode; use município instead. Three independent reasons, any one sufficient. No CEP table exists
+      anywhere on the FTP tree, and there is no reason to expect one — CEP is Correios'' property, not the Ministry''s.
+      The Correios data that would close it is licensed, so shipping it is not ours to do. And CEP is a re-identification
+      vector: combined with sex and date of birth, both present in these files, it narrows a patient to a household. MUNIC_RES
+      answers the geographic question at a granularity the data is actually licensed and safe to publish at.'
+  semantics.sexo_contradictory_coding:
+    area: semantics
+    question: Which SEXO coding applies to which SIH generation?
+    resolution: 'One coding throughout. SIHSUS''s own SEXO table (0 Ignorado, 1 Masculino, 2-3 Feminino, 4-9 Ignorado) is
+      identical in all four vintages the kits ship: 1992-97, 1998-2003, 2003-07 and current. The contradiction was between
+      SYSTEMS (RESP codes 1 as Feminino), and appeared only when every system''s table was merged; codelists are keyed by
+      system, so SIH''s column is bound to SIH''s table (2026-09-28).'
+open:
+  discovery.uploads_directory:
+    area: discovery
+    question: What is behind /dissemin/publicos/uploads, the one path the crawl cannot read?
+    procedure: 'Nothing can be determined from outside, and this was probed rather than assumed: LIST, NLST, CWD, SIZE and
+      MDTM all return ''550 Access is denied''. Its type is not even knowable — the name appears in the parent listing,
+      the SIZE probe that distinguishes a file from a directory is itself refused, and the crawler therefore treats it as
+      an unreadable directory. The name suggests a staging area rather than published data, and no file anywhere else on
+      the tree references it. It is recorded as the single unresolved coverage_gap rather than passed over. Closing it needs
+      credentials or a question to the Ministry, not another crawl.'
+    blocking: 'nothing measurable: it is one path of 362, holding no content this project can see'
+  semantics.cod_idade_units:
+    area: semantics
+    question: What time unit does each COD_IDADE value stand for in SIH?
+    procedure: Fetch a SIH .CNV or .DEF that decodes the age-unit column, or read the value list out of a record-layout
+      document. The .DEF files bind COD_IDADE to IDADEPUB, IDADEBAS, IDADEDET and IDADE18, and all four are TabNet age-BAND
+      axes (3-character codes labelled '< 1 ano', '1 a 4 anos'), not the unit code. No codelist of time units exists in
+      the 4.0M rows ingested so far.
+    blocking: 'decoding IDADE at all: an age distribution computed without the unit invents thousands of thirty-year-olds
+      out of thirty-month-old infants'
+seed:
+  V1.https_mirror:
+    area: discovery
+    question: Does an HTTPS mirror serve the same tree, restoring Content-Length and Last-Modified?
+    verification_procedure: HEAD/GET the same paths over https and compare payload SHA-256 to the FTP fetch for 20 files
+      across 5 systems.
+    blocking: cheap incremental sync (superseded if the IIS MS-DOS LIST dialect is parsed, which it now is)
+  V2.sfx_exe_payload:
+    area: decode
+    question: What is inside SIASUS/APAC/*.EXE, and does opening it recover the APAC series?
+    verification_procedure: Unpack /dissemin/publicos/SIASUS/APAC/2002/acac0202.exe and enumerate members.
+    blocking: 1,723 files and the only patient-anchored longitudinal trail in public data
+  V3.cnv_def_grammar:
+    area: semantics
+    question: What are the .CNV and .DEF grammars?
+    verification_procedure: Learn from the uncompressed files under PNI/AUXILIARES/, then generalise to kit members.
+    blocking: the entire semantic layer (P1)
+  V4.tab_kit_contents:
+    area: semantics
+    question: What lookup tables exist inside each TAB_*.zip kit?
+    verification_procedure: Enumerate the members of every kit and catalogue the DBF lookups.
+    blocking: procedure, establishment and ICD tables
+  V5.sigtap_procedure_table:
+    area: semantics
+    question: Is a procedure code table present inside any kit, or must SIGTAP be sourced separately?
+    verification_procedure: Search kit members for a procedure table; if absent, check sigtap.datasus.gov.br.
+    blocking: amputation and dialysis signals in the companion research plan
+  V6.duck_storage_version:
+    area: decode
+    question: Can the installed DuckDB open the .duck databases under Dados_Abertos?
+    verification_procedure: Open apac_atd.duck.zip; on failure record the storage version from the file header.
+    blocking: 11 APAC DuckDB databases plus 66 SIASUS PA backups
+  V7.projpop:
+    area: denominators
+    question: What are the 71 files under IBGE/projpop, and do they supersede POPSVS for projected age structures?
+    verification_procedure: Decode PROJUF*.dbf and inspect its stratifications and year coverage.
+    blocking: choice of denominator for projected years
+  V8.ministry_denominator:
+    area: denominators
+    question: Which population series backs the Ministry's own published rates?
+    verification_procedure: Reproduce a published TabNet rate from microdata under each candidate series and see which matches.
+    blocking: validation of any rate against a federal publication
+  V9.demas_granularity:
+    area: api
+    question: What granularity do the BNAFAR/Horus, Previne cadastro and Previne indicator endpoints serve?
+    verification_procedure: Read the persisted OpenAPI parameters and fetch one page from each endpoint.
+    blocking: the pre-decompensation medication signal
+  V10.dados_abertos_grammar:
+    area: inventory
+    question: What naming grammar does the Dados_Abertos subtree use?
+    verification_procedure: Parse its filenames and measure how many remain unparsed.
+    blocking: 82 families reported UNPARSED by the prior scan
+  V11.coverage_gaps:
+    area: discovery
+    question: Do the 32 directories that failed to list in the prior scan resolve on retry?
+    verification_procedure: Re-crawl with per-directory method escalation; anything still failing persists as a coverage_gaps
+      row.
+    blocking: dictionary and documentation directories, i.e. part of P1
+resolutions:
+  V7.projpop: 'IBGE/projpop holds 71 files named PROJUF00…PROJUF70 — IBGE population *projections* keyed by projection year
+    2000–2070, at UF level with sex and age. They do NOT supersede POPSVS: POPSVS is municipal and projpop is not, so projpop
+    complements it for projected years and for national age structures. Note the two-digit year runs forward to 70, so the
+    usual 1900/2000 pivot would misread the later files by a century; the epoch is inferred per directory from contiguity.'
+  V8.ministry_denominator: 'The Ministry''s tables divide by POPSVS: TabNet''s population form (ibge/cnv/popsvs2024br.def)
+    reads IBGE/POPSVS, and its 2022 equals the local POPSVS in 27 of 27 states (210,862,983). DATA_SOURCES.md, population,
+    2026-10-03.'

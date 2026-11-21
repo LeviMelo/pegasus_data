@@ -253,6 +253,12 @@ KINDS: tuple[tuple[str, Any], ...] = (
             "thresholds": obj("coverage icd prefix_systems reference", sub={
                 "coverage": obj("decoded_share"), "icd": obj("suspect_binding_share"),
                 "prefix_systems": obj("min_agreement min_observations"), "reference": obj("blank_label_share")})})),
+        ("questions.yml", obj("open resolutions seed settled", sub={
+            "open": free(obj("area blocking procedure question", required="area blocking procedure question")),
+            "resolutions": free(),
+            "seed": free(obj("area blocking question verification_procedure",
+                             required="area blocking question verification_procedure")),
+            "settled": free(obj("area question resolution", required="area question resolution"))})),
         ("snapshots.yml", obj("snapshots", sub={"snapshots": free(obj("directories months pattern ufs what"))})),
         ("populations.yml", obj("populations series", sub={
             "populations": free(obj("documents limitations method producer reference_date state_totals title vintage "

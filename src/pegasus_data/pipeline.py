@@ -60,6 +60,7 @@ from .progress import (
     run_with_timeout,
 )
 from .semantics.cnv_parser import parse_cnv_bytes
+from .semantics.curation import declared
 from .semantics.def_parser import parse_def_bytes
 from .semantics.dictionary import (
     bind_by_semantic_type,
@@ -77,88 +78,6 @@ from .semantics.dictionary import (
 from .semantics.ledger import build_ledger, persist_ledger
 from .semantics.reference import load_reference_sets
 from .semantics.tabkit import find_kits, find_loose_dictionaries, parse_kit, parser_fingerprint, persist_kit
-
-#: The `[V]` list from §14, seeded into ``open_questions`` on first run so that
-#: every one is tracked whether or not this run happens to close it.
-SEED_QUESTIONS: tuple[dict[str, str], ...] = (
-    {
-        "key": "V1.https_mirror",
-        "area": "discovery",
-        "question": "Does an HTTPS mirror serve the same tree, restoring Content-Length and Last-Modified?",
-        "verification_procedure": "HEAD/GET the same paths over https and compare payload SHA-256 to the FTP fetch for 20 files across 5 systems.",
-        "blocking": "cheap incremental sync (superseded if the IIS MS-DOS LIST dialect is parsed, which it now is)",
-    },
-    {
-        "key": "V2.sfx_exe_payload",
-        "area": "decode",
-        "question": "What is inside SIASUS/APAC/*.EXE, and does opening it recover the APAC series?",
-        "verification_procedure": "Unpack /dissemin/publicos/SIASUS/APAC/2002/acac0202.exe and enumerate members.",
-        "blocking": "1,723 files and the only patient-anchored longitudinal trail in public data",
-    },
-    {
-        "key": "V3.cnv_def_grammar",
-        "area": "semantics",
-        "question": "What are the .CNV and .DEF grammars?",
-        "verification_procedure": "Learn from the uncompressed files under PNI/AUXILIARES/, then generalise to kit members.",
-        "blocking": "the entire semantic layer (P1)",
-    },
-    {
-        "key": "V4.tab_kit_contents",
-        "area": "semantics",
-        "question": "What lookup tables exist inside each TAB_*.zip kit?",
-        "verification_procedure": "Enumerate the members of every kit and catalogue the DBF lookups.",
-        "blocking": "procedure, establishment and ICD tables",
-    },
-    {
-        "key": "V5.sigtap_procedure_table",
-        "area": "semantics",
-        "question": "Is a procedure code table present inside any kit, or must SIGTAP be sourced separately?",
-        "verification_procedure": "Search kit members for a procedure table; if absent, check sigtap.datasus.gov.br.",
-        "blocking": "amputation and dialysis signals in the companion research plan",
-    },
-    {
-        "key": "V6.duck_storage_version",
-        "area": "decode",
-        "question": "Can the installed DuckDB open the .duck databases under Dados_Abertos?",
-        "verification_procedure": "Open apac_atd.duck.zip; on failure record the storage version from the file header.",
-        "blocking": "11 APAC DuckDB databases plus 66 SIASUS PA backups",
-    },
-    {
-        "key": "V7.projpop",
-        "area": "denominators",
-        "question": "What are the 71 files under IBGE/projpop, and do they supersede POPSVS for projected age structures?",
-        "verification_procedure": "Decode PROJUF*.dbf and inspect its stratifications and year coverage.",
-        "blocking": "choice of denominator for projected years",
-    },
-    {
-        "key": "V8.ministry_denominator",
-        "area": "denominators",
-        "question": "Which population series backs the Ministry's own published rates?",
-        "verification_procedure": "Reproduce a published TabNet rate from microdata under each candidate series and see which matches.",
-        "blocking": "validation of any rate against a federal publication",
-    },
-    {
-        "key": "V9.demas_granularity",
-        "area": "api",
-        "question": "What granularity do the BNAFAR/Horus, Previne cadastro and Previne indicator endpoints serve?",
-        "verification_procedure": "Read the persisted OpenAPI parameters and fetch one page from each endpoint.",
-        "blocking": "the pre-decompensation medication signal",
-    },
-    {
-        "key": "V10.dados_abertos_grammar",
-        "area": "inventory",
-        "question": "What naming grammar does the Dados_Abertos subtree use?",
-        "verification_procedure": "Parse its filenames and measure how many remain unparsed.",
-        "blocking": "82 families reported UNPARSED by the prior scan",
-    },
-    {
-        "key": "V11.coverage_gaps",
-        "area": "discovery",
-        "question": "Do the 32 directories that failed to list in the prior scan resolve on retry?",
-        "verification_procedure": "Re-crawl with per-directory method escalation; anything still failing persists as a coverage_gaps row.",
-        "blocking": "dictionary and documentation directories, i.e. part of P1",
-    },
-)
 
 
 @dataclass(slots=True)
@@ -219,11 +138,11 @@ class Pipeline:
             }
         except Exception:  # noqa: BLE001 - a catalog without the table seeds everything
             known = {}
-        for q in SEED_QUESTIONS:
-            if known.get(q["key"]) == (q["area"], q["question"], q["verification_procedure"], q["blocking"]):
+        for key, q in declared("questions.yml", "seed").items():     # the `[V]` list of §14, in curation/questions.yml
+            if known.get(key) == (q["area"], q["question"], q["verification_procedure"], q["blocking"]):
                 continue
             self.catalog.note_question(
-                q["key"],
+                key,
                 area=q["area"],
                 question=q["question"],
                 verification_procedure=q["verification_procedure"],

@@ -781,87 +781,26 @@ def _load_curation(catalog: CatalogStore, root: Path) -> dict[str, object]:
     }
 
 
-#: Decisions that are FINISHED. They are recorded as resolved questions rather
-#: than left in the open list, because a settled "no" that keeps appearing as
-#: unfinished work is indistinguishable from a task nobody has got to.
-SETTLED: tuple[tuple[str, str, str, str], ...] = (
-    (
-        "semantics.cep_decoding",
-        "semantics",
-        "Should CEP (Brazilian postal code) be decoded to a place name?",
-        "Will not decode; use município instead. Three independent reasons, any one "
-        "sufficient. No CEP table exists anywhere on the FTP tree, and there is no "
-        "reason to expect one — CEP is Correios' property, not the Ministry's. The "
-        "Correios data that would close it is licensed, so shipping it is not ours to "
-        "do. And CEP is a re-identification vector: combined with sex and date of "
-        "birth, both present in these files, it narrows a patient to a household. "
-        "MUNIC_RES answers the geographic question at a granularity the data is "
-        "actually licensed and safe to publish at.",
-    ),
-    (
-        "semantics.sexo_contradictory_coding",
-        "semantics",
-        "Which SEXO coding applies to which SIH generation?",
-        "One coding throughout. SIHSUS's own SEXO table (0 Ignorado, 1 Masculino, 2-3 "
-        "Feminino, 4-9 Ignorado) is identical in all four vintages the kits ship: 1992-97, "
-        "1998-2003, 2003-07 and current. The contradiction was between SYSTEMS (RESP codes "
-        "1 as Feminino), and appeared only when every system's table was merged; codelists "
-        "are keyed by system, so SIH's column is bound to SIH's table (2026-09-28).",
-    ),
-)
-
-
-#: Gaps that are OPEN, recorded with exactly what would close them. §6.1's rule
-#: is "do not guess", and a named gap is how not-guessing stays visible.
-UNRESOLVED: tuple[tuple[str, str, str, str, str], ...] = (
-    (
-        "discovery.uploads_directory",
-        "discovery",
-        "What is behind /dissemin/publicos/uploads, the one path the crawl cannot read?",
-        "Nothing can be determined from outside, and this was probed rather than assumed: "
-        "LIST, NLST, CWD, SIZE and MDTM all return '550 Access is denied'. Its type is not "
-        "even knowable — the name appears in the parent listing, the SIZE probe that "
-        "distinguishes a file from a directory is itself refused, and the crawler therefore "
-        "treats it as an unreadable directory. The name suggests a staging area rather than "
-        "published data, and no file anywhere else on the tree references it. It is recorded "
-        "as the single unresolved coverage_gap rather than passed over. Closing it needs "
-        "credentials or a question to the Ministry, not another crawl.",
-        "nothing measurable: it is one path of 362, holding no content this project can see",
-    ),
-    (
-        "semantics.cod_idade_units",
-        "semantics",
-        "What time unit does each COD_IDADE value stand for in SIH?",
-        "Fetch a SIH .CNV or .DEF that decodes the age-unit column, or read the value "
-        "list out of a record-layout document. The .DEF files bind COD_IDADE to "
-        "IDADEPUB, IDADEBAS, IDADEDET and IDADE18, and all four are TabNet age-BAND "
-        "axes (3-character codes labelled '< 1 ano', '1 a 4 anos'), not the unit code. "
-        "No codelist of time units exists in the 4.0M rows ingested so far.",
-        "decoding IDADE at all: an age distribution computed without the unit invents "
-        "thousands of thirty-year-olds out of thirty-month-old infants",
-    ),
-)
-
-
 def _record_open_gaps(catalog: CatalogStore) -> None:
-    for key, area, question, procedure, blocking in UNRESOLVED:
+    """The gaps that are OPEN (``questions.yml``, ``open``), each with exactly what would close it."""
+    for key, gap in declared("questions.yml", "open").items():
         catalog.note_question(
-            key, area=area, question=question,
-            verification_procedure=procedure, blocking=blocking,
+            key, area=gap["area"], question=gap["question"],
+            verification_procedure=gap["procedure"], blocking=gap["blocking"],
         )
 
 
 def _record_settled_rulings(catalog: CatalogStore) -> None:
-    """Write the settled decisions in, already resolved."""
-    for key, area, question, resolution in SETTLED:
+    """Write the settled decisions (``questions.yml``, ``settled``) in, already resolved."""
+    for key, ruling in declared("questions.yml", "settled").items():
         catalog.note_question(
             key,
-            area=area,
-            question=question,
+            area=ruling["area"],
+            question=ruling["question"],
             verification_procedure="Settled by ruling; reopen only with new licensing facts.",
             blocking="nothing — this is a decision, not a gap",
         )
-        catalog.resolve_question(key, resolution=resolution, evidence="curation: settled ruling")
+        catalog.resolve_question(key, resolution=ruling["resolution"], evidence="curation: settled ruling")
 
 
 def _replace_variable_docs(catalog: CatalogStore, docs: Sequence[VariableDoc]) -> None:
