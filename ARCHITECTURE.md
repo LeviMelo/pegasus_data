@@ -316,7 +316,7 @@ the milestone that removes the duplicate; an ADR is written when it is done.
 | a `Catalog` | ~~`api.Catalog` and `catalog/store.Catalog`~~ | **done** (2026-10-04): `Catalog` is the public door; the SQLite store is `catalog/store.CatalogStore` |
 | re-export the query engine | ~~three layers~~ | **done** (ADR-0073): `_query_engine/` only |
 | stock time reducers | ~~refused in `measures.py`, implemented in `tools/export_workbook.py`~~ | **done** (2026-10-04): `_aggregate` reduces a stock over time (OQ-14); the workbook (`workbook.py`, `pegasus-data workbook`) calls it |
-| choose a publication's files | `Builder.build` and `retrieve._select_files` each read a family's files, filter by state, year and month, and call `choose_representations`; the retry after a refusal for columns is shared since ADR-0190 | one function that returns the selected rows of a family, called by both |
+| choose a publication's files | ~~`Builder.build` and `retrieve._select_files` each read a family's files, filter by state, year and month, and call `choose_representations`~~ | **done** (2026-11-21): `representations.select_publications` returns each family's selected rows; the build and `_select_files` call it (they keep their own national-year rule: the build after the choice and per family, the read before it with a report line); the retry after a refusal for columns is shared since ADR-0190 |
 | spell a dataset id; read a curation YAML; reach a server | ~~`.upper().replace(".", "-")` in ten modules; `ontology._read_yaml` imported by twelve; `snapshot`'s own httpx client, `sigtap`'s own ftplib~~ | **done** (2026-11-09): `ontology.dataset_key`; `semantics.curation.read_yaml(missing_ok=)`; `transport.get_text` and `discovery.ftp_client.FtpClient` |
 
 Also known, not duplicates:
@@ -378,7 +378,7 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
 - `registry.py`: registries from their owner's current TabWin kit, fetched once and cached (ADR-0086): the typed establishment registry (`CADGERBR`: names, maintainer, valid CNPJ only, inclusion/exclusion dates), `CNPJ_BR`, teams (`INE_EQUIPE_BR`, SIASUS kit) and `HUF_*` (ADR-0100). The single source of establishment identity.
 - `presentation.py`: how a result reads, applied last: value and header templates, presets, language (ADR-0084).
 - `render_groups.py`: groups files by vintage and system before rendering.
-- `representations.py`: deduplicates the same publication delivered twice, and re-chooses after a representation was refused for its columns (`refused=`, ADR-0190).
+- `representations.py`: deduplicates the same publication delivered twice, re-chooses after a representation was refused for its columns (`refused=`, ADR-0190), and `select_publications` returns a family's files for states, years and months, one representation each.
 - `_aggregate.py`: recipes, `build_aggregate`, `aggregate()`.
 - `measures.py`: the measure algebra (accumulator states); `measure_of_role` makes the `(n, sum)` measure of a quantity from its column role, with the axes the aggregate recipes allow (`_aggregate.declared_measures`), for `care_flows(measure=)` (ADR-0201).
 - `capabilities.py`: what a client may do with a built aggregate.
