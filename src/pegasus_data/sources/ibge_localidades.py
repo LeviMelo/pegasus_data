@@ -39,6 +39,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from ..persist.kept import write_text_atomic
+
 __all__ = [
     "BASE_URL",
     "IBGE_CLASSIFICATIONS",
@@ -191,12 +193,11 @@ def save_cache(municipalities: tuple[Municipality, ...], path: str | Path) -> Pa
 
     out = Path(path)
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(
+    write_text_atomic(
         json.dumps({"source": BASE_URL, "count": len(municipalities),
                     "municipalities": [asdict(m) for m in municipalities]},
                    ensure_ascii=False, indent=1) + "\n",
-        encoding="utf-8",
-    )
+        out)
     return out
 
 

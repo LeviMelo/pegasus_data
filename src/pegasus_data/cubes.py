@@ -255,6 +255,7 @@ def _cached(settings: Any, key: str, where: Mapping[str, Any], build: Any, stamp
 
     import pyarrow.parquet as pq
 
+    from .persist.kept import kept
     from .semantics.epoch import curation_epoch
     from .sidra.store import fact_parts
 
@@ -270,17 +271,8 @@ def _cached(settings: Any, key: str, where: Mapping[str, Any], build: Any, stamp
         for part in fact_parts(Path(settings.lake_dir)):
             stat = part.stat()
             digest.update(f"{part.parent.name}/{part.name}:{stat.st_size}:{stat.st_mtime_ns}".encode())
-    target = folder / f"{key}-{digest.hexdigest()}.parquet"
-    if target.exists():
-        return pq.read_table(target)
-    table = build()
-    folder.mkdir(parents=True, exist_ok=True)
-    for stale in folder.glob(f"{key}-*.parquet"):
-        stale.unlink(missing_ok=True)
-    tmp = target.with_name(f"_{target.name}.tmp")
-    pq.write_table(table, tmp, compression="zstd")
-    tmp.replace(target)
-    return table
+    return kept(folder / f"{key}-{digest.hexdigest()}.parquet", build, read=pq.read_table,
+                write=lambda table, tmp: pq.write_table(table, tmp, compression="zstd"), siblings=f"{key}-*.parquet")
 
 
 # ------------------------------------------------------------------------------------------------------ records
@@ -1020,9 +1012,12 @@ def _code_fingerprint() -> bytes:
 def _records_stamp(settings: Any, dataset: str, digest: Any) -> None:
     """What a records cube was read from: the dataset's lake partitions and its published files, as the catalog lists
     them (path, size, time). A unit landed again, a file republished or a partition rebuilt changes it."""
+    from ._aggregate import geography_pack_checksum
     from .catalog.store import CatalogStore
     from .semantics.curation import semantics_for
 
+    # the packaged geography places a record in its municipality: a new pack changes where events fall
+    digest.update(geography_pack_checksum(("geography.parquet", "municipalities.parquet")).encode())
     semantics = semantics_for(dataset)
     system, series = (str(semantics.system or "").upper(), str(semantics.series or "").upper()) if semantics else ("", "")
     store = CatalogStore(settings.catalog_path, read_only=True)

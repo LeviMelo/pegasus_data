@@ -25,10 +25,11 @@ never means (CLAUDE.md §6).
 
 from __future__ import annotations
 
-import os
 import re
 from pathlib import Path
 from typing import Any, cast
+
+from ..persist.kept import write_parquet_atomic
 
 SOURCE = "https://geoftp.ibge.gov.br/recortes_para_fins_estatisticos/grade_estatistica/censo_2022/"
 NOTE = SOURCE + "Notas_metodologicas_grade_estatistica_2022.pdf"
@@ -163,7 +164,6 @@ def build(root: str | Path | None = None, log: Any = None) -> dict[str, Any]:
     import geopandas as gpd
     import numpy as np
     import pyarrow as pa
-    import pyarrow.parquet as pq
     import shapely
 
     from .._geometry import polygonal
@@ -204,12 +204,7 @@ def build(root: str | Path | None = None, log: Any = None) -> dict[str, Any]:
     shares = whole.group_by("cell").aggregate([("share", "sum")]).column("share_sum").to_numpy()
     report["share_sum_max_error"] = float(np.abs(shares - 1).max())
     target = directory / CELLS_NAME
-    tmp = target.with_name(f"_{target.name}.{os.getpid()}.tmp")
-    try:
-        pq.write_table(whole, tmp, compression="zstd", row_group_size=1 << 20)
-        os.replace(tmp, target)
-    finally:
-        tmp.unlink(missing_ok=True)
+    write_parquet_atomic(whole, target, compression="zstd", row_group_size=1 << 20)
     report["rows"] = whole.num_rows
     report["file"] = str(target)
     return report

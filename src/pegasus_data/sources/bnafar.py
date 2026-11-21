@@ -29,6 +29,7 @@ import pyarrow as pa
 
 from .. import intake
 from ..normalize.time import compose
+from ..persist.kept import write_json_atomic
 from ..semantics.curation import declared
 from ..textenc import fold
 from ..transport import get_json
@@ -54,7 +55,7 @@ def catmat_pdms(root: str | Path | None = None, refresh: bool = False) -> list[d
         return json.loads(target.read_text(encoding="utf8"))
     rows = [{k: r[k] for k in ("codigoPdm", "nomePdm", "statusPdm")}
             for r in intake.api_rows("catmat", "/3_consultarPdmMaterial", {"codigoClasse": CATMAT_CLASS})]
-    target.write_text(json.dumps(rows, ensure_ascii=False), encoding="utf8")
+    write_json_atomic(rows, target, ensure_ascii=False)
     return rows
 
 
@@ -69,7 +70,7 @@ def catmat_items(pdm: int, root: str | Path | None = None) -> dict[str, list[dic
               "nome": r["nomeUnidadeFornecimento"], "capacidade": r["capacidadeUnidadeFornecimento"]}
              for r in intake.api_rows("catmat", "/6_consultarMaterialUnidadeFornecimento", {"codigoPdm": pdm})]
     target.parent.mkdir(parents=True, exist_ok=True)
-    target.write_text(json.dumps({"items": items, "units": units}, ensure_ascii=False), encoding="utf8")
+    write_json_atomic({"items": items, "units": units}, target, ensure_ascii=False)
     return {"items": items, "units": units}
 
 
@@ -97,7 +98,7 @@ def products(term: str, root: str | Path | None = None, units: dict[str, str] | 
                 if code not in probe:
                     rows = intake.rows_of(get_json(intake.url(SOURCE), {"codigo_catmat": code, "limit": 1}), "parametros", f"BNAFAR {code}")
                     probe[code] = rows[0]["descricao_produto"].strip() if rows else None
-                    cache.write_text(json.dumps(probe, ensure_ascii=False), encoding="utf8")
+                    write_json_atomic(probe, cache, ensure_ascii=False)
                 if probe[code] or not only_with_stock:
                     out.append({"pdm": pdm["codigoPdm"], "pdm_name": pdm["nomePdm"], "code": code,
                                 "item": item["codigoItem"], "item_description": item["descricaoItem"],

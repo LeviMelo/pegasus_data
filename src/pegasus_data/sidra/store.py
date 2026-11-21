@@ -33,6 +33,7 @@ from typing import Any
 import pyarrow as pa
 import pyarrow.parquet as pq
 
+from ..persist.kept import write_parquet_atomic
 from .client import Response
 
 __all__ = ["facts_dir", "load_facts", "parse_values", "part_path", "provenance", "read_value", "write_part", "SYMBOLS"]
@@ -136,9 +137,7 @@ def write_part(lake: Path, table: int, response: Response, class_ids: list[int],
     facts = facts.replace_schema_metadata({k.encode(): v.encode() for k, v in meta.items()})
     path = part_path(lake, table, response.url)
     path.parent.mkdir(parents=True, exist_ok=True)
-    tmp = path.with_suffix(".tmp")
-    pq.write_table(facts, tmp, compression="zstd")
-    tmp.replace(path)
+    write_parquet_atomic(facts, path, compression="zstd")
     return path, facts.num_rows, symbols
 
 

@@ -44,7 +44,6 @@ from __future__ import annotations
 import hashlib
 import io
 import json
-import os
 import shutil
 import time
 import warnings
@@ -56,6 +55,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from ..config import UF_NUMERIC, Settings, load_settings
+from ..persist.kept import write_atomic, write_json_atomic
 from ..semantics.curation import declared
 from ..transport import download, request
 
@@ -141,9 +141,7 @@ def manifest(settings: Settings | None = None) -> dict[str, Any]:
 def _save_manifest(settings: Settings, data: dict[str, Any]) -> None:
     path = _source_dir(settings) / "manifest.json"
     path.parent.mkdir(parents=True, exist_ok=True)
-    tmp = path.with_name(f"_{path.name}.{os.getpid()}.tmp")
-    tmp.write_text(json.dumps(data, indent=1, ensure_ascii=False, sort_keys=True), encoding="utf-8")
-    os.replace(tmp, path)
+    write_json_atomic(data, path, indent=1, ensure_ascii=False, sort_keys=True)
 
 
 def built_ufs(settings: Settings | None = None) -> list[str]:
@@ -371,8 +369,7 @@ def derive_ceps(uf: str | int, settings: Settings | None = None, *, log: Callabl
               "+ cos(radians(c.lat)) * cos(radians(a.lat)) * pow(sin(radians(a.lon - c.lon) / 2), 2))))")
     target = _ceps_dir(settings) / f"uf={uf}"
     target.mkdir(parents=True, exist_ok=True)
-    tmp = target / f"_part-0.{os.getpid()}.tmp"
-    try:
+    def copy_out(tmp: Path) -> None:
         con.execute(f"""
             COPY (
               WITH point AS (
@@ -391,9 +388,10 @@ def derive_ceps(uf: str | int, settings: Settings | None = None, *, log: Callabl
               FROM point JOIN spread USING (cep, m) JOIN kinds USING (cep, m) JOIN tracts USING (cep, m)
               ORDER BY cep, m
             ) TO '{tmp.as_posix()}' (FORMAT parquet, COMPRESSION zstd, ROW_GROUP_SIZE 100000)""")
-        os.replace(tmp, target / "part-0.parquet")
+
+    try:
+        write_atomic(target / "part-0.parquet", copy_out)
     finally:
-        tmp.unlink(missing_ok=True)
         con.close()
     rows = _count(target / "part-0.parquet")
     return {"rows": rows, "records": stats[0], "records_without_cep": stats[1], "addresses": stats[3], "address_rows": stats[2],

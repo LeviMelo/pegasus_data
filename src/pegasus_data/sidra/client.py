@@ -21,13 +21,13 @@ from __future__ import annotations
 import gzip
 import hashlib
 import json
-import os
 import time
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from ..persist.kept import write_atomic, write_json_atomic
 from ..transport import SourceAbsent, request
 
 BASE = "https://servicodados.ibge.gov.br/api/v3/agregados"
@@ -110,11 +110,9 @@ class SidraClient:
         body_path.parent.mkdir(parents=True, exist_ok=True)
         sha = hashlib.sha256(raw).hexdigest()
         fetched_at = datetime.now(UTC).isoformat(timespec="seconds")
-        tmp = body_path.with_suffix(f".{os.getpid()}.tmp")
-        tmp.write_bytes(gzip.compress(raw, 6))
-        tmp.replace(body_path)
-        meta_path.write_text(json.dumps({"url": url, "status": 200, "bytes": len(raw), "sha256": sha,
-                                         "fetched_at": fetched_at, "seconds": round(seconds, 3)}), "utf-8")
+        write_atomic(body_path, lambda tmp: tmp.write_bytes(gzip.compress(raw, 6)))
+        write_json_atomic({"url": url, "status": 200, "bytes": len(raw), "sha256": sha,
+                           "fetched_at": fetched_at, "seconds": round(seconds, 3)}, meta_path)
         return Response(json.loads(raw.decode("utf-8")), url, False, len(raw), sha, fetched_at, seconds)
 
     # -- network ---------------------------------------------------------------------------------

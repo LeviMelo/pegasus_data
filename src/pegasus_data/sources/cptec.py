@@ -274,7 +274,7 @@ def grid(settings: Any, lon: Any, lat: Any) -> _Weights:
     kept beside the store as ``weights_<grid>.parquet``."""
     import pyarrow.parquet as pq
 
-    from ..fields import write_parquet_atomic
+    from ..persist.kept import write_parquet_atomic
     from . import ibge_grade
 
     key = f"{lon[0]:.3f}_{lat[0]:.3f}_{lon[1] - lon[0]:.3f}_{len(lon)}x{len(lat)}"
@@ -338,7 +338,7 @@ def _update_locked(settings: Any, product: Product, start: dt.date, end: dt.date
     import numpy as np
     import pyarrow as pa
 
-    from ..fields import write_parquet_atomic
+    from ..persist.kept import write_parquet_atomic
     from ..transport import request
 
     variable = product.variable

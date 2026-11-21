@@ -494,9 +494,8 @@ def _national_year(spec: DatasetRoles, year: int, ufs: tuple[str, ...], geograph
     """
     import os
 
-    import pyarrow.parquet as pq
-
     from .._query_engine.planner import plan
+    from ..persist.kept import prune_siblings, write_parquet_atomic
 
     path = _cache_path(spec.dataset, year, settings)
     if path is None:
@@ -518,18 +517,14 @@ def _national_year(spec: DatasetRoles, year: int, ufs: tuple[str, ...], geograph
     full, strategy = _compute_roles(spec, list(spec.roles), period=str(year), geography="BR", **query_kwargs)
     if strategy != "lake":
         return None
-    path.parent.mkdir(parents=True, exist_ok=True)
-    tmp = path.with_name(f"{path.name}.{os.getpid()}.tmp")   # one name per process: two studies building one year
-    pq.write_table(full, tmp, compression="zstd")            # interleaved on a shared name (2026-10-14 review)
-    tmp.replace(path)
+    write_parquet_atomic(full, path, compression="zstd")   # a unique temp per process and call: two studies building one year
     # The same year under an older key can never be served again (its lake files or roles changed): 4.3 GB of them
     # had piled up. A table of any other scope than one national year can neither (the layout before 2026-10-04
     # kept states and multi-year periods beside the nation).
     prefix = path.name.split("__", 1)[0] + "__"
-    for stale in path.parent.glob("*.parquet"):
-        national_year = re.fullmatch(r"\d{4}_BR", stale.name.split("__", 1)[0])
-        if stale != path and (stale.name.startswith(prefix) or not national_year):
-            stale.unlink(missing_ok=True)
+    prune_siblings(path, (stale for stale in path.parent.glob("*.parquet")
+                          if stale.name.startswith(prefix)
+                          or not re.fullmatch(r"\d{4}_BR", stale.name.split("__", 1)[0])))
     _cap_cache(Path(settings.lake_dir) / "roles", float(getattr(settings, "role_cache_gb", 20.0)), keep=path)
     kept = full.select([c for c in columns if c in full.column_names]).replace_schema_metadata(full.schema.metadata)
     return _filtered(kept, where)
@@ -537,14 +532,9 @@ def _national_year(spec: DatasetRoles, year: int, ufs: tuple[str, ...], geograph
 
 def _cap_cache(root: Path, limit_gb: float, *, keep: Path) -> None:
     """Delete the least recently used role tables until the cache fits."""
-    files = sorted(root.glob("*/*.parquet"), key=lambda f: f.stat().st_mtime)
-    total = sum(f.stat().st_size for f in files)
-    for f in files:
-        if total <= limit_gb * 2**30:
-            break
-        if f != keep:
-            total -= f.stat().st_size
-            f.unlink(missing_ok=True)
+    from ..persist.kept import cap_by_recency
+
+    cap_by_recency(root.glob("*/*.parquet"), limit_gb * 2**30, keep=keep)
 
 
 def _state_partitions(dataset: str, geography: object, settings: Any) -> list[str]:

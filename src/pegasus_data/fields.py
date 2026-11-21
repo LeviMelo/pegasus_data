@@ -23,30 +23,15 @@ sentence; two fields that differ say how in their labels (`unlabelled_fields`, `
 
 from __future__ import annotations
 
-import os
 from pathlib import Path
 from typing import Any
 
 import pyarrow as pa
 
+from .persist.kept import write_parquet_atomic
 from .semantics.epoch import curated
 
 __all__ = ["build_fields", "declared_fields", "field_rate", "load_field", "shared_labels", "unlabelled_fields"]
-
-
-def write_parquet_atomic(table: pa.Table, target: Path, **options: Any) -> None:
-    """Write ``target`` whole or not at all: to a hidden file beside it (a dataset scan ignores a leading ``_``), then
-    renamed over it. A second process finding the file never reads half of it, and a crash leaves no truncated file for
-    a cache to trust forever."""
-    import pyarrow.parquet as pq
-
-    target = Path(target)
-    tmp = target.with_name(f"_{target.name}.{os.getpid()}.tmp")
-    try:
-        pq.write_table(table, tmp, **options)
-        os.replace(tmp, target)
-    finally:
-        tmp.unlink(missing_ok=True)
 
 
 @curated(rooted=True)

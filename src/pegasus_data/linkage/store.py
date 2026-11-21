@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import hashlib
 import json
-import os
 import re
 from dataclasses import dataclass
 from pathlib import Path
@@ -19,6 +18,7 @@ from typing import Any
 import pyarrow as pa
 import pyarrow.parquet as pq
 
+from ..persist.kept import write_json_atomic, write_parquet_atomic
 from .engine import raw_links
 
 #: Bumped when the engine, the levels, the placebo or the verdict rules change what a run holds: every stored run
@@ -122,26 +122,18 @@ def fingerprint(settings: Any, key: RunKey) -> str:
     return hashlib.sha256(f"{base}|{STATE_IDENTITY}".encode()).hexdigest()
 
 
-def _write_atomic(path: Path, write: Any) -> None:
-    """``write(tmp)`` then rename: a reader never meets half a file, and two processes never share a temporary name."""
-    tmp = path.with_name(f"{path.name}.{os.getpid()}.tmp")
-    write(tmp)
-    tmp.replace(path)
-
-
 def save(settings: Any, key: RunKey, pairs: pa.Table, summary: dict[str, Any]) -> Path:
     """The pairs first, the report last: a run exists when its report does, and the report names the pairs file's
     size, so a crash between the two (or a reader between the two renames) never serves old pairs under a new report."""
     folder = links_dir(settings) / key.spec
     folder.mkdir(parents=True, exist_ok=True)
     target = folder / f"{key.stem}.parquet"
-    _write_atomic(target, lambda tmp: pq.write_table(pairs, tmp, compression="zstd"))
+    write_parquet_atomic(pairs, target, compression="zstd")
     report = {**summary, "run": {"spec": key.spec, "method": key.method, "period": key.period,
                                  "geography": key.geography, "spec_digest": key.digest,
                                  "fingerprint": fingerprint(settings, key), "pairs_bytes": target.stat().st_size,
                                  **({"params": key.params} if key.params else {})}}
-    _write_atomic(folder / f"{key.stem}.json", lambda tmp: tmp.write_text(
-        json.dumps(report, ensure_ascii=False, indent=1, default=str), encoding="utf-8"))
+    write_json_atomic(report, folder / f"{key.stem}.json", ensure_ascii=False, indent=1, default=str)
     return target
 
 
@@ -231,7 +223,7 @@ def save_params(settings: Any, key: RunKey, summary: dict[str, Any]) -> Path:
     body = {"spec": key.spec, "scope": f"{key.geography} {key.period}", "models": summary.get("models") or [],
             "threshold_bits": summary.get("threshold_bits"), "calibration": summary.get("calibration") or {},
             "fingerprint": fingerprint(settings, key)}
-    _write_atomic(path, lambda tmp: tmp.write_text(json.dumps(body, indent=1), encoding="utf-8"))
+    write_json_atomic(body, path, indent=1)
     return path
 
 

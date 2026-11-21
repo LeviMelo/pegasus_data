@@ -53,6 +53,7 @@ import pyarrow.compute as pc
 import pyarrow.parquet as pq
 
 from .normalize.time import month_of, year_of
+from .persist.kept import write_json_atomic, write_parquet_atomic
 from .persist.lake import SLICE, unit_parts
 from .textenc import fold
 from .transport import SourceAbsent, download, get_json
@@ -363,7 +364,7 @@ def read_slice(source: str, filters: dict[str, Any], *, root: str | Path | None 
         table = table.replace_schema_metadata({"intake_unstable": json.dumps(unstable)})
     if table.num_rows or spec.get("cache_empty"):
         target.parent.mkdir(parents=True, exist_ok=True)
-        pq.write_table(table, target)
+        write_parquet_atomic(table, target)
     if spec.get("snapshot") and table.num_rows:
         land_snapshot(source, table, label, datetime.now(UTC).date().isoformat(), root)
     return table
@@ -807,7 +808,7 @@ def register_held(settings: Any, source: str | None = None) -> dict[str, Any]:
             side = _sidecar(name, settings.root, unit["key"])
             if not side.is_file():
                 continue
-            family = (json.loads(side.read_text(encoding="utf8")).get("stats") or {}).get("family")
+            family = ((_read_sidecar(side) or {}).get("stats") or {}).get("family")
             parts = sorted(unit_parts(lake_root, family, _safe(unit["key"]))) if family else []
             if not parts:
                 missing.append(unit["key"])
@@ -946,12 +947,22 @@ def _current(side: Path, known: dict[str, Any], spec: dict[str, Any], unit: dict
                     *([{"period_derivation": version}] if version else []))
     if known.get("fingerprint") != whole:
         return False
-    side.write_text(json.dumps({**known, "fingerprint": unit["fingerprint"]}), encoding="utf8")
+    write_json_atomic({**known, "fingerprint": unit["fingerprint"]}, side)
     return True
 
 
 def _sidecar(source: str, root: Path | str | None, key: str) -> Path:
     return _cache(source, root, "units", f"{_safe(key)}.json")
+
+
+def _read_sidecar(side: Path) -> dict[str, Any] | None:
+    """A unit's sidecar, or None when it is absent or unparsable (a torn write): the unit is then not landed, and is
+    landed again."""
+    try:
+        known = json.loads(side.read_text(encoding="utf8"))
+    except (OSError, ValueError):
+        return None
+    return known if isinstance(known, dict) and isinstance(known.get("stats"), dict) else None
 
 
 #: a lone byte that is not valid UTF-8, as Windows-1252 reads it
@@ -1020,10 +1031,9 @@ def _land_unit(settings: Any, source: str, spec: dict[str, Any], unit: dict[str,
     root = settings.root
     unit["fingerprint"] = _fingerprint(spec, unit)
     side = _sidecar(source, root, unit["key"])
-    if side.is_file() and not refresh:
-        known = json.loads(side.read_text(encoding="utf8"))
-        if _current(side, known, spec, unit):
-            return {**known["stats"], "cached": True}
+    known = None if refresh else _read_sidecar(side)
+    if known is not None and _current(side, known, spec, unit):
+        return {**known["stats"], "cached": True}
     if not refresh:
         # a unit the declaration now reads differently, whose records are in the lake with every value as filed: derived
         # again from them, nothing downloaded (SNGPC's 94 months and SISAGUA's control files after the month fix, 2026-10-24)
@@ -1083,7 +1093,7 @@ def _land_unit(settings: Any, source: str, spec: dict[str, Any], unit: dict[str,
             if path is not None and path.is_file():
                 path.unlink()
     side.parent.mkdir(parents=True, exist_ok=True)
-    side.write_text(json.dumps({"fingerprint": unit["fingerprint"], "stats": stats}), encoding="utf8")
+    write_json_atomic({"fingerprint": unit["fingerprint"], "stats": stats}, side)
     return stats
 
 
@@ -1146,7 +1156,7 @@ def _reland(settings: Any, source: str, spec: dict[str, Any], unit: dict[str, An
         copy.unlink(missing_ok=True)
     stats["relanded_from_lake"] = True
     side.parent.mkdir(parents=True, exist_ok=True)
-    side.write_text(json.dumps({"fingerprint": unit["fingerprint"], "stats": stats}), encoding="utf8")
+    write_json_atomic({"fingerprint": unit["fingerprint"], "stats": stats}, side)
     return stats
 
 
@@ -1241,7 +1251,7 @@ def _land_api(settings: Any, source: str, spec: dict[str, Any], refresh: bool) -
         unit = {"key": key, "year": year, "extension": "json", "size": 0, "path": path}
         unit["fingerprint"] = _fingerprint(spec, unit)
         side = _sidecar(source, settings.root, key)
-        previous = json.loads(side.read_text(encoding="utf8")) if side.is_file() else None
+        previous = _read_sidecar(side)
         known = None if refresh else previous
         if known and _current(side, known, spec, unit) and (static or _is_complete(known, capacity)):
             stats, complete = known["stats"], _is_complete(known, capacity)
@@ -1265,7 +1275,7 @@ def _land_api(settings: Any, source: str, spec: dict[str, Any], refresh: bool) -
                 if unstable:
                     stats["unstable"] = unstable
                 side.parent.mkdir(parents=True, exist_ok=True)
-                side.write_text(json.dumps({"fingerprint": unit["fingerprint"], "stats": stats, "complete": complete}), encoding="utf8")
+                write_json_atomic({"fingerprint": unit["fingerprint"], "stats": stats, "complete": complete}, side)
         for k in ("rows", "undated", "unplaced", "unallocated"):
             total[k] += stats.get(k, 0)
         total["units"] += 1

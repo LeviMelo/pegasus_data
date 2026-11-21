@@ -30,12 +30,12 @@ from __future__ import annotations
 
 import io
 import json
-import os
 import time
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any, cast
 
+from ..persist.kept import write_json_atomic, write_parquet_atomic
 from ..transport import get_json, read_range
 
 #: Zenodo's concept record of the BR-DWGD zonal statistics: its latest version is the current release.
@@ -120,7 +120,7 @@ def latest_release(cache_dir: str | Path | None = None) -> dict[str, Any]:
     release = {"record": record["id"], "version": versions.pop(), "published": record["metadata"]["publication_date"], "files": files}
     if cache is not None:
         cache.parent.mkdir(parents=True, exist_ok=True)
-        cache.write_text(json.dumps(release), encoding="utf-8")
+        write_json_atomic(release, cache)
     return release
 
 
@@ -204,12 +204,7 @@ def monthly(cache_dir: str | Path, release: dict[str, Any], variable: str, log: 
         "first_day": whole.column("date_min_min"), "last_day": whole.column("date_max_max")})
     out = out.sort_by([("municipality7", "ascending"), ("year", "ascending"), ("month", "ascending")])
     target.parent.mkdir(parents=True, exist_ok=True)
-    tmp = target.with_name(f"_{target.name}.{os.getpid()}.tmp")
-    try:
-        pq.write_table(out, tmp, compression="zstd")
-        os.replace(tmp, target)
-    finally:
-        tmp.unlink(missing_ok=True)
+    write_parquet_atomic(out, target, compression="zstd")
     return target
 
 

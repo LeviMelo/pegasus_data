@@ -9,7 +9,6 @@ check against each table's own totals are the general interface's, not a second 
 
 from __future__ import annotations
 
-import os
 from pathlib import Path
 from typing import Any
 
@@ -49,7 +48,7 @@ def build_census(sidra: Sidra, population_dir: Path, years: list[int] | None = N
 
     A cell IBGE did not publish is a null in ``population`` (its reason is ``status`` in the fact store), never a zero.
     """
-    import pyarrow.parquet as pq
+    from ..persist.kept import write_parquet_atomic
 
     out_dir = Path(population_dir) / "CENSO"
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -62,9 +61,7 @@ def build_census(sidra: Sidra, population_dir: Path, years: list[int] | None = N
         symbols = {k: v for k, v in zip(*[table.column("status").value_counts().field(i).to_pylist() for i in (0, 1)], strict=True)
                    if k not in ("value", "zero")}
         target = out_dir / f"censo_{year}.parquet"
-        tmp = target.with_name(f"{target.name}.{os.getpid()}.tmp")
-        pq.write_table(table.drop_columns(["status"]), tmp, compression="zstd")
-        tmp.replace(target)
+        write_parquet_atomic(table.drop_columns(["status"]), target, compression="zstd")
         report[year] = {"cells": table.num_rows, "municipalities": check["checked"] + check["total_missing"],
                         "population": int(pc.sum(table.column("population")).as_py()),
                         "mismatched_municipalities": check["mismatched"], "examples": check["examples"],
