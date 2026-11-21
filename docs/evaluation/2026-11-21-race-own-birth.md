@@ -324,3 +324,35 @@ colour, old form). One DuckDB query each (in the session; the product and the la
   the external deaths' (0.39 transport, 0.64 assault). Margins, not the same people: it bounds, it does not prove.
 - The account carries this as each cohort's race shares moving between censuses (ADR-0151 item 3); a rate that divides
   deaths by a census population by race rests on the declared race at that census, not at birth.
+
+## Hospital deaths: two models of the two records, and the conclusion of the adult question (plan R3; `two_readings.py`, `conditional.py`)
+
+**The certificate given the declaration and the hospital's record.** The race model with bands age x the hospital's
+race, on the 33,191 women who died in hospital with its race recorded (5,908 linked to their declaration), fit
+2015-2018, scored on 2019-2022: log loss 0.760 against 0.790 without the hospital's record (count error 8.2% and 7.9%).
+The hospital's record carries information on the certificate beyond the declaration, as the raw table said.
+
+**The declared mix of a group of hospital deaths from its two records** (known answer: the triples' own declared
+races, false pairs taken out by region; learned on one half of the years, applied to the other). Share misallocated:
+
+| | all | North | Northeast | Southeast | South | Centre-West |
+|---|---|---|---|---|---|---|
+| the certificate alone | 0.075 / 0.066 | 0.14 / 0.12 | 0.11 / 0.12 | 0.06 / 0.05 | 0.03 / 0.02 | 0.16 / - |
+| **the hospital's record alone** | **0.025 / 0.011** | 0.04 / 0.09 | 0.03 / 0.03 | 0.02 / 0.05 | 0.09 / 0.03 | 0.02 / - |
+| both, one national table of P(hospital, certificate given declared) | 0.064 / 0.026 | 0.13 / 0.17 | 0.16 / 0.16 | 0.14 / 0.14 | 0.21 / 0.16 | 0.04 / - |
+| both, the race model (state, composition) with the hospital's record | 0.111 / 0.035 | 0.18 / 0.12 | 0.05 / 0.05 | 0.10 / 0.11 | 0.05 / 0.02 | 0.26 / - |
+
+- No inversion of the two records beats reading the hospital's race as it is. The hospital's errors are large one by
+  one (Preta recorded as declared 0.37) but nearly cancel in a group's mix; the certificate's do not (it holds more
+  Preta than declared: 0.083-0.086 for 0.055-0.059, and less Parda).
+- A national table fails by region and the regional model has too few triples to hold (177 to 1,245 a region and
+  half).
+
+**Conclusion for adults (R3).**
+1. The certificate is not independent of the hospital's record given the declared race; the chain is wrong.
+2. For a death in hospital the hospital's recorded race is the better stand-in for the declared mix of a group
+   (1-3% misallocated nationally, 2-9% by region, against 7% and 3-16% for the certificate). It reaches the certificate
+   through `sih_deaths_to_sim`, stored nationally for 2010-2025.
+3. What these women show fits men's hospital deaths as well as women's (misfit 0.027 against 0.028).
+4. No product is built: no model here improves on rule 2, and deaths outside hospital, where the examiner certifies,
+   have no second reading. The measured bridge for adults stays `race-confusion-women-2` (women 15-49).

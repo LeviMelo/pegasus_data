@@ -83,4 +83,8 @@ the product's folder. *Done when* a reader can reproduce every number from the h
   least 27% of those white at birth are no longer declared so, which is the share of natural deaths white at birth
   that are certified Parda (0.26-0.29). The excess at death is the external causes'. By state it is what the account
   already carries (ADR-0151).
+- **R3 concluded** (the same entry): for a death in hospital, the hospital's recorded race read as it is gives a
+  group's declared mix better than the certificate (1-3% misallocated against 7%) and better than any inversion of
+  the two records tried (a national table; the race model with the hospital's record). No adult product: the rule
+  needs none, and deaths outside hospital have one reading only. Men: the women's structure fits them equally.
 
