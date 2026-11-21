@@ -405,3 +405,24 @@ cohorts by the mother's colour; relative to Parda):
   are from the counts (real plus control), not from a model.
 - Limits: a child who moved municipality is not among its candidates (t = 0.6-0.7), and movers may differ; twins
   of the same sex are each other's candidates (not removed); the standard errors treat the cells as Poisson.
+
+## The external deaths by candidates, in municipalities of every size (`candidates_old.py`)
+
+Old-form cohorts (born 2000-2010), deaths 2014-2024 at 15-24 in every municipality (51,716 natural, 65,599 by assault,
+25,517 transport), other-sex control. Share recorded as at birth (± one standard error):
+
+| | Branca stays | Branca recorded Parda | Parda stays | Preta stays |
+|---|---|---|---|---|
+| natural, municipalities under 1,600 births a year (23,842 deaths) | 0.69 ± 0.02 | 0.30 ± 0.02 | 0.68 ± 0.02 | 0.28 ± 0.03 |
+| assault, under 1,600 (27,164) | **0.38 ± 0.02** | **0.60 ± 0.03** | 0.85 ± 0.02 | 0.31 ± 0.03 |
+| natural, 1,600 and over (27,874) | not estimable | | 0.62 ± 0.06 | 0.27 ± 0.09 |
+| assault, 1,600 and over (38,435) | not estimable | | 0.80 ± 0.04 | 0.35 ± 0.05 |
+| transport, every municipality (25,517) | 0.72 ± 0.06 | 0.31 ± 0.07 | 0.75 ± 0.04 | 0.25 ± 0.05 |
+
+- The unique-link result (assault 0.33, natural 0.69, on municipalities under 400 births) holds with no false-link
+  model on three times the deaths (municipalities under 1,600 births): 0.38 against 0.69.
+- In the large municipalities the row of those white at birth cannot be estimated: half the candidates of any death
+  are white-at-birth by chance, and the row's total is lost in that noise (standard errors of hundreds). The Parda row
+  can, and says the same there: by assault 0.80 stay Parda against 0.62 for natural deaths.
+- So the estimator's reach depends on the row: a declared class that is common among the chance candidates needs
+  small or middling municipalities; a rarer one is read everywhere.
