@@ -191,7 +191,7 @@ KINDS: tuple[tuple[str, Any], ...] = (
         ("codes/supplements.yml", obj("SINAN", sub={"SINAN": free(free(obj("codes drop source_ref")))})),
         ("codes/*.yml", obj("series system", sub={"series": free(free(_CODED_FIELD))})),
         ("sidra/axes.yml", obj("axes", sub={"axes": free(obj("classifications names rule"))})),
-        ("sidra/topics.yml", obj("topics", sub={"topics": free(obj("weight words"))})),
+        ("sidra/topics.yml", obj("researches topics", sub={"topics": free(obj("weight words"))})),
         ("sidra/series.yml", obj("series", sub={"series": free(obj("comparability gaps sources what", sub={
             "comparability": obj("level note"),
             "sources": seq(obj("dims drop_totals id level measure periods picks priority role sum table variable"))}))})),

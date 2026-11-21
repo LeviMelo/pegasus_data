@@ -131,14 +131,22 @@ def _wsi_municipality(wsi: object) -> str | None:
     return match.group(1) if match else None
 
 
+#: Hourly readings of a whole day: an automatic station's day counts only with all of them (`station_months`).
+HOURS = 24
+
+
 def station_months(cache_dir: str | Path, years: list[int] | None = None, complete: float = 0.9) -> Any:
     """Station-months of both networks with the daily statistics a gridded product is validated against (a pyarrow table):
     ``temperature_mean`` (an automatic station's 24-hour mean of its hourly readings, a conventional station's INMET
     mean), ``temperature_midrange`` (the month's mean of (daily maximum + daily minimum) / 2), ``temperature_max`` and
     ``temperature_min`` (the month's means of the daily extremes), ``precipitation_mm`` (the month total).
 
-    A day counts when it has 20 hourly readings of the variable (an automatic station) or its daily value (a
-    conventional one); a month is **complete** when at least ``complete`` of its days count, and a variable of a
+    A day counts when it has all 24 hourly readings of the variable (an automatic station) or its daily value (a
+    conventional one). Measured on 42,017 complete station-days of 2023 (150 stations; one block of k hours removed at
+    a random start): one hour missing moves the daily mean by 0.3 C at the 95th percentile, above the 0.2 K achievable
+    uncertainty of an air-temperature sensor (WMO CIMO Guide), and loses over a tenth of the rain on 9% of wet days; at
+    the 20 readings once required, 1.3 C and 27% (docs/evaluation/2026-11-21-legacy-audit-fixes.md, #20). A day with a
+    gap is not a day of the variable; a month is **complete** when at least ``complete`` of its days count, and a variable of a
     month that is not complete is null, never a statistic of the days held. A precipitation total is the mean
     counted day times the days of the month. An hourly gauge that reported nothing is a null month, not a dry one.
     """
@@ -151,8 +159,8 @@ def station_months(cache_dir: str | Path, years: list[int] | None = None, comple
         path = fetch(db, cache_dir).as_posix()
         if network == "automatic_hourly":
             daily = f"""SELECT CAST(station_id AS VARCHAR) AS station_id, CAST(datetime AS DATE) AS day,
-                               if(count(temp_db) >= 20, avg(temp_db), NULL) AS tmean, if(count(temp_db) >= 20, max(temp_db), NULL) AS tmax,
-                               if(count(temp_db) >= 20, min(temp_db), NULL) AS tmin, if(count(p) >= 20, sum(p), NULL) AS p
+                               if(count(temp_db) = {HOURS}, avg(temp_db), NULL) AS tmean, if(count(temp_db) = {HOURS}, max(temp_db), NULL) AS tmax,
+                               if(count(temp_db) = {HOURS}, min(temp_db), NULL) AS tmin, if(count(p) = {HOURS}, sum(p), NULL) AS p
                           FROM read_parquet('{path}') {where} GROUP BY ALL"""
         else:
             daily = f"""SELECT CAST(station_id AS VARCHAR) AS station_id, CAST(datetime AS DATE) AS day,

@@ -2,6 +2,11 @@
 # any word (accents and case ignored) occurs in its name, subject, variables or classifications. Weight is how
 # much a match moves the reading order; it decides nothing, a table enters PegaSUS only by being declared.
 
+# The researches whose metadata is read first (`Registry.scan_order`, after the curated compendium), in order: censuses
+# and population estimates (denominators, which match no health word), municipal profiles, sanitation, vital
+# statistics, health, household surveys, school health, GDP. A reading priority: it decides nothing about a table.
+researches: [CD, XF, XE, CM, IO, PM, SB, RC, XN, AA, AM, B5, PD, DD, OF, CL, FP, IU, C2]
+
 topics:
   health_services:
     weight: 3

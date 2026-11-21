@@ -53,9 +53,12 @@ CREATE INDEX IF NOT EXISTS category_name ON category(tab, class_id);
 """
 
 
-#: Researches in the order their metadata is read: censuses and estimates, municipal profiles, sanitation,
-#: vital statistics, health, household surveys, school health, GDP.
-HEALTH_RESEARCHES = ("CD", "XF", "XE", "CM", "IO", "PM", "SB", "RC", "XN", "AA", "AM", "B5", "PD", "DD", "OF", "CL", "FP", "IU", "C2")
+def health_researches() -> tuple[str, ...]:
+    """The researches whose metadata is read first, in order (``curation/sidra/topics.yml`` ``researches``)."""
+    from ..config import curation_root
+    from ..semantics.curation import read_yaml
+
+    return tuple(str(r) for r in read_yaml(Path(curation_root()) / "sidra" / "topics.yml").get("researches") or ())
 
 
 #: The `search` column holds `textenc.fold` text (upper case, no accents, hyphens and runs of spaces as one space), the
@@ -133,14 +136,14 @@ class Registry:
 
     def scan_order(self, client: SidraClient, *, everything: bool = False) -> list[int]:
         """The order to read metadata in: the curated compendium first, then the researches that bear on health
-        (`HEALTH_RESEARCHES`, municipal tables before the rest of each), then the other municipal tables, and,
+        (`health_researches`, municipal tables before the rest of each), then the other municipal tables, and,
         with ``everything``, all the remaining tables. A scan that is stopped has read what matters most."""
         n6 = set(self.n6_table_ids(client))
         by_research: dict[str, list[int]] = {}
         for tid, rid in self.db.execute("SELECT id, research_id FROM tab ORDER BY id"):
             by_research.setdefault(rid, []).append(tid)
         order: list[int] = [r[0] for r in self.db.execute("SELECT tab FROM compendium ORDER BY tab")]
-        for rid in HEALTH_RESEARCHES:
+        for rid in health_researches():
             ids = by_research.get(rid, [])
             order += [t for t in ids if t in n6] + ([t for t in ids if t not in n6] if everything else [])
         order += sorted(n6)

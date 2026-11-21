@@ -73,18 +73,32 @@ def rank(registry: Registry, *, level: str = "N6", topics: list[str] | None = No
             continue
         hit = [k for k, words in patterns.items() if any(w in r["search"] for w in words)]
         if hit:
-            span = _years(r["first_period"], r["last_period"])
-            base.append((sum(weights[k] for k in hit) + (1.0 if span >= 2 else 0) + (0.5 if r["frequency"] == "anual" else 0), r, hit))
-    base.sort(key=lambda x: (-x[0], x[1]["id"]))
-    out = []
-    for score, r, hit in base[:3 * limit if client else limit]:
-        if client is not None and _n6_known(registry, r["id"], level) is None:
-            registry.load_locality_count(client, r["id"], level)
-        n = _n6_known(registry, r["id"], level)
-        adjusted = score + (2.0 if (n or 0) >= 5000 else (0.0 if n is None else -1.0))
-        out.append({"table": r["id"], "score": round(adjusted, 1), "research": r["research"], "name": r["name"][:90],
-                    "periods": f"{r['first_period']}-{r['last_period']} {r['frequency']}", level: n, "topics": ",".join(hit)})
-    out.sort(key=lambda x: (-x["score"], x["table"]))
+            base.append((sum(weights[k] for k in hit), r, hit))
+    # Coverage is the table's localities at the level over the most any table lists there (the whole level): a table
+    # listing N6 for 27 capitals covers 0.5% of what one covering the country does. The rank is the topic score times
+    # the coverage (the share of the level the matched topics reach; an unknown coverage is not discounted), ties to
+    # the longer series. With a client, the unknown coverages of the best 3 x limit are fetched and the rank redone.
+    def ranked() -> list[dict[str, Any]]:
+        row = registry.db.execute("SELECT MAX(n) FROM locality_count WHERE level = ?", (level,)).fetchone()
+        whole = int(row[0]) if row and row[0] else None
+        out = []
+        for score, r, hit in base:
+            n = _n6_known(registry, r["id"], level)
+            coverage = round(n / whole, 3) if n is not None and whole else None
+            out.append({"table": r["id"], "score": round(score * (coverage if coverage is not None else 1.0), 2),
+                        "topic_score": round(score, 1), "coverage": coverage, "research": r["research"],
+                        "name": r["name"][:90], "periods": f"{r['first_period']}-{r['last_period']} {r['frequency']}",
+                        level: n, "topics": ",".join(hit), "_years": _years(r["first_period"], r["last_period"])})
+        return sorted(out, key=lambda x: (-x["score"], -x["_years"], x["table"]))
+
+    out = ranked()
+    if client is not None:
+        for item in out[:3 * limit]:
+            if item["coverage"] is None:
+                registry.load_locality_count(client, item["table"], level)
+        out = ranked()
+    for item in out:
+        del item["_years"]
     return out[:limit]
 
 
