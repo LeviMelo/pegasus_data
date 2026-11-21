@@ -889,7 +889,32 @@ def _write_core(
     report: CompendiumReport,
     descriptions: bool,
 ) -> None:
-    # --- coverage, and the per-dataset totals derived from it --------------
+    """Coverage, variables and their links, generations, datasets, systems and open questions."""
+    cover = _crawled_cover(store, onto, wanted)
+    _write_coverage(db, cover, held, report)
+    totals = _dataset_totals(cover, onto, wanted)
+
+    described = _described(store)
+    per_dataset_cols, col_system = _dataset_columns(store, onto, wanted, binding, held, described)
+    _write_variables(db, per_dataset_cols, col_system, described, _field_meta(store), descriptions, report)
+    _write_dataset_variables(
+        db, store, onto, wanted, per_dataset_cols, col_system, described, held, report
+    )
+
+    _write_field_validity(db, store, onto, wanted, report)
+    _write_codelist_vintages(db, store, report)
+    _write_join_keys(db, onto, wanted, report)
+
+    gens_per = _write_schema_generations(db, store, onto, wanted, binding, report)
+    ds_rows = _write_datasets(
+        db, store, onto, wanted, totals, per_dataset_cols, col_system, described, gens_per, held, report
+    )
+    _write_systems(db, onto, wanted, ds_rows, report)
+    _write_open_questions(db, store, report)
+
+
+def _crawled_cover(store: _Store, onto: Ontology, wanted: set[str]) -> dict[tuple[str, int, str], int]:
+    """Data files the crawl lists per (dataset, year, uf)."""
     cover: dict[tuple[str, int, str], int] = {}
     for row in store.query(
         "SELECT system, series_prefix, year, geo_code, COUNT(*) AS n FROM file_facts "
@@ -902,6 +927,13 @@ def _write_core(
         uf = str(row["geo_code"] or "")
         key = (code, year, uf)
         cover[key] = cover.get(key, 0) + int(row["n"] or 0)
+    return cover
+
+
+def _write_coverage(
+    db: sqlite3.Connection, cover: dict[tuple[str, int, str], int], held: _Held, report: CompendiumReport
+) -> None:
+    """The coverage table: files listed and rows held per (dataset, year, uf)."""
     db.executemany(
         "INSERT INTO coverage (dataset, year, uf, files, rows_held) VALUES (?,?,?,?,?)",
         [(d, y, u, cover.get((d, y, u), 0), held.cover.get((d, y, u)))
@@ -909,6 +941,11 @@ def _write_core(
     )
     report.rows["coverage"] = len(set(cover) | set(held.cover))
 
+
+def _dataset_totals(
+    cover: dict[tuple[str, int, str], int], onto: Ontology, wanted: set[str]
+) -> dict[str, dict[str, Any]]:
+    """Per dataset: files, first and last year, and the UFs seen, from the coverage."""
     totals: dict[str, dict[str, Any]] = {}
     for (code, year, uf), n in cover.items():
         slot = totals.setdefault(code, {"files": 0, "ymin": None, "ymax": None, "ufs": set()})
@@ -925,10 +962,18 @@ def _write_core(
         if n > slot["files"]:
             slot.update(files=n, ymin=y0 if slot["ymin"] is None else min(slot["ymin"], y0),
                         ymax=y1 if slot["ymax"] is None else max(slot["ymax"], y1))
+    return totals
 
-    # --- variables, and which datasets carry them -------------------------
-    described = _described(store)
-    field_meta = _field_meta(store)
+
+def _dataset_columns(
+    store: _Store,
+    onto: Ontology,
+    wanted: set[str],
+    binding: _Binding,
+    held: _Held,
+    described: dict[tuple[str, str], dict[str, Any]],
+) -> tuple[dict[str, set[str]], dict[tuple[str, str], str]]:
+    """Each dataset's columns by name, and the system each (dataset, column) is attributed to."""
     # A dataset's columns, keyed by column name — NOT by (crawled system, name).
     #
     # This built the cross product of columns and crawled systems, so a dataset
@@ -972,7 +1017,19 @@ def _write_core(
         for name in cols:
             owner = next((s for s in systems_for if (s, name.upper()) in described), None)
             col_system[(code, name)] = owner or systems_for[0]
+    return per_dataset_cols, col_system
 
+
+def _write_variables(
+    db: sqlite3.Connection,
+    per_dataset_cols: dict[str, set[str]],
+    col_system: dict[tuple[str, str], str],
+    described: dict[tuple[str, str], dict[str, Any]],
+    field_meta: dict[tuple[str, str], dict[str, Any]],
+    descriptions: bool,
+    report: CompendiumReport,
+) -> None:
+    """The variables table: one row per (system, column), documented where documentation exists."""
     seen_vars: set[tuple[str, str]] = {
         (col_system[(code, name)], name)
         for code, cols in per_dataset_cols.items()
@@ -1001,6 +1058,19 @@ def _write_core(
     )
     report.rows["variables"] = len(var_rows)
 
+
+def _write_dataset_variables(
+    db: sqlite3.Connection,
+    store: _Store,
+    onto: Ontology,
+    wanted: set[str],
+    per_dataset_cols: dict[str, set[str]],
+    col_system: dict[tuple[str, str], str],
+    described: dict[tuple[str, str], dict[str, Any]],
+    held: _Held,
+    report: CompendiumReport,
+) -> None:
+    """Which datasets carry which columns, with the labelling decision and how filled the column is."""
     labels = _label_bindings(store, onto, wanted)
     link_rows = []
     for code, cols in per_dataset_cols.items():
@@ -1030,11 +1100,16 @@ def _write_core(
         "SELECT COUNT(*) FROM dataset_variables"
     ).fetchone()[0]
 
-    _write_field_validity(db, store, onto, wanted, report)
-    _write_codelist_vintages(db, store, report)
-    _write_join_keys(db, onto, wanted, report)
 
-    # --- schema generations, with what each one changed -------------------
+def _write_schema_generations(
+    db: sqlite3.Connection,
+    store: _Store,
+    onto: Ontology,
+    wanted: set[str],
+    binding: _Binding,
+    report: CompendiumReport,
+) -> dict[str, int]:
+    """Schema generations, with what each one changed; returns the generation count per dataset."""
     gen_rows = _generations(store, onto, wanted, binding)
     db.executemany(
         "INSERT OR REPLACE INTO schema_generations (dataset, signature, field_count,"
@@ -1045,8 +1120,23 @@ def _write_core(
     gens_per: dict[str, int] = {}
     for gen_row in gen_rows:
         gens_per[gen_row[0]] = gens_per.get(gen_row[0], 0) + 1
+    return gens_per
 
-    # --- datasets ---------------------------------------------------------
+
+def _write_datasets(
+    db: sqlite3.Connection,
+    store: _Store,
+    onto: Ontology,
+    wanted: set[str],
+    totals: dict[str, dict[str, Any]],
+    per_dataset_cols: dict[str, set[str]],
+    col_system: dict[tuple[str, str], str],
+    described: dict[tuple[str, str], dict[str, Any]],
+    gens_per: dict[str, int],
+    held: _Held,
+    report: CompendiumReport,
+) -> list[tuple]:
+    """The datasets table; returns its rows for the systems table to total."""
     docs = _dataset_docs(store, onto)
     axes_by_code = onto.axes(store.conn)
     ds_rows = []
@@ -1080,8 +1170,17 @@ def _write_core(
         ds_rows,
     )
     report.rows["datasets"] = len(ds_rows)
+    return ds_rows
 
-    # --- systems ----------------------------------------------------------
+
+def _write_systems(
+    db: sqlite3.Connection,
+    onto: Ontology,
+    wanted: set[str],
+    ds_rows: list[tuple],
+    report: CompendiumReport,
+) -> None:
+    """The systems table, with dataset, file and year totals taken from the datasets rows."""
     sys_rows = []
     for code, sys_node in sorted(onto.systems.items()):
         mine = [r for r in ds_rows if r[1] == code]
@@ -1104,6 +1203,9 @@ def _write_core(
     )
     report.rows["systems"] = len(sys_rows)
 
+
+def _write_open_questions(db: sqlite3.Connection, store: _Store, report: CompendiumReport) -> None:
+    """The catalog's open questions."""
     questions = [
         (str(r["key"]), r["area"], r["question"], r["blocking"])
         for r in store.query(
