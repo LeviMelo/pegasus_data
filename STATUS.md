@@ -51,6 +51,15 @@ holds and can do, one space × time object, and the principles audits' defects c
   2011 form. False links are priced per pair, inside the municipality; `race-confusion-women-2` is the women's product
   under that model. From 15 a man is recorded darker than a woman of the same colour at birth: the women's matrix is
   not carried to men. Open: adults over 24, and 15-24 under a reference comparable with the census.
+- **Race, concluded 2026-11-21** (docs/plans/race.md, evaluation 2026-11-21-race-own-birth): children's mortality by
+  declared race for the whole country, without a matrix (ADR-0229: Branca 0.66 of Parda at ages 1-4, certificates say
+  1.43); at 15-24 the certificate depends on the kind of death (white at birth and killed: certified Branca 0.33-0.38);
+  cohorts change declared race through life (53% Branca at birth, 39% at 20); for a death in hospital the hospital's
+  race stands in for the declared mix better than the certificate. No adult product; the bridges are usable for Branca
+  against Parda in small municipalities, not for Preta alone.
+- **Population, concluded for now** (docs/plans/population.md): the yearly signals stay out of the forecast (they do
+  not transfer across three truths); groups of municipalities and age groups have tested interval laws
+  (`population_benchmark`); race intervals wait for the next census.
 - **Linkage.** A 7-digit municipality code (SINASC to 2005) is placed in link roles; before, a link on residence over
   those years found nothing, silently. Role tables rebuild once (`ROLE_TABLE_VERSION` 2).
 

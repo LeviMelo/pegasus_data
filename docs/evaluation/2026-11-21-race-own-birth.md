@@ -426,3 +426,8 @@ Old-form cohorts (born 2000-2010), deaths 2014-2024 at 15-24 in every municipali
   can, and says the same there: by assault 0.80 stay Parda against 0.62 for natural deaths.
 - So the estimator's reach depends on the row: a declared class that is common among the chance candidates needs
   small or middling municipalities; a rarer one is read everywhere.
+
+**The package's functions** (`modelled_race.candidate_counts`, `candidate_difference`; `candidates_package.py`): the same run
+through the package keeps the certificates without a race in the rows' sums: ages 1-4 Branca 0.66 ± 0.06, Preta 1.11 ± 0.16,
+Indígena 4.6 ± 0.3; ages 5-9 0.67 ± 0.11, 1.05 ± 0.29, 2.0 ± 0.5 (the probe's, on certificates with a race: 0.69, 1.08, 4.9 and
+0.69, 1.02, 2.2). Under 400 births a year: Branca 0.81 ± 0.02, Preta 0.22 ± 0.02, Parda 0.60 ± 0.01. ADR-0229.

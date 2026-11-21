@@ -1058,6 +1058,80 @@ def own_birth_deaths(settings: Any, population: Population, years: list[int], de
         "stratum": klass[keep].astype(np.int64), "sex": t["sex"], "id": t["l"]})
 
 
+def candidate_counts(settings: Any, name: str, years: list[int], *, births_from: int, births_to: int, max_age: int,
+                     log: Any = print) -> pa.Table:
+    """The own-birth link without a one-to-one match (ADR-0229): for the deaths of ``years`` up to ``max_age`` of people
+    born ``births_from`` to ``births_to``, the births that share each death's birth date and municipality, counted by the
+    colour the certificate records (``recorded``) and the colour the birth declares (``declared``).
+
+    ``control`` false: births of the death's own sex, its candidates; one of them is the person, where the family did
+    not move, the rest are chance. ``control`` true: births of the OTHER sex on the same day in the same municipality,
+    scaled by the municipality's births of the death's sex over the other's; they share the day (a day of many births
+    makes many people and so many deaths, which a moved date does not share) and none is the person. Their difference,
+    summed over any group of deaths, is t x the group's deaths by (declared, recorded) (`candidate_difference`),
+    whatever the municipality's size: no false-link model, and the unique link is the case of one candidate.
+    Columns: ``born``, ``control``, ``mun``, ``births`` (the municipality's of that year), ``age``, ``sex``,
+    ``recorded``, ``declared``, ``n``; and the deaths themselves as rows with ``declared`` null and ``control`` null."""
+    import pyarrow.compute as pc
+
+    from ..linkage import engine
+    from ..linkage.identity import connect
+
+    spec = engine.load_links()[name]
+    deaths = engine._side_table(spec.left, ["deceased.birth_date", "deceased.sex", "deceased.residence", "deceased.race", "deceased.age_years"],
+                                period=(str(years[0]), str(years[-1])), geography="BR", root=settings.root)
+    deaths = deaths.filter(pc.less_equal(deaths["deceased.age_years"], max_age))
+    con = connect()
+    con.register("d_all", deaths)
+    parts = []
+    for born in range(births_from, min(births_to, years[-1] - 1) + 1):
+        births = engine._side_table(spec.right, ["baby.birth_date", "baby.sex", "mother.residence", "baby.race"], period=born,
+                                    geography="BR", root=settings.root)
+        con.register("b_raw", births)
+        con.execute("""CREATE OR REPLACE TEMP TABLE b AS SELECT "baby.birth_date" dn, "baby.sex" sex, "mother.residence" mun, "baby.race" j,
+                       count(*) n FROM b_raw WHERE "mother.residence" IS NOT NULL AND "baby.sex" IS NOT NULL GROUP BY ALL""")
+        con.execute("CREATE OR REPLACE TEMP TABLE bs AS SELECT mun, sex, sum(n) n FROM b GROUP BY ALL")
+        con.execute("CREATE OR REPLACE TEMP TABLE bm AS SELECT mun, sum(n) births FROM b GROUP BY ALL")
+        con.execute(f"""CREATE OR REPLACE TEMP TABLE d AS SELECT "deceased.birth_date" dn, "deceased.sex" sex, "deceased.residence" mun,
+                        "deceased.race" k, CAST("deceased.age_years" AS INTEGER) age, count(*) n FROM d_all
+                        WHERE year("deceased.birth_date") = {born} AND "deceased.residence" IS NOT NULL AND "deceased.sex" IS NOT NULL
+                        GROUP BY ALL""")
+        parts.append(con.execute(f"""
+            SELECT {born} AS born, false AS control, d.mun, bm.births, d.age, d.sex, d.k AS recorded, b.j AS declared, CAST(sum(d.n * b.n) AS DOUBLE) AS n
+            FROM d JOIN b ON b.dn = d.dn AND b.sex = d.sex AND b.mun = d.mun JOIN bm ON bm.mun = d.mun GROUP BY ALL
+            UNION ALL
+            SELECT {born}, true, d.mun, bm.births, d.age, d.sex, d.k, b.j, sum(d.n * b.n * same.n / opp.n)
+            FROM d JOIN b ON b.dn = d.dn AND b.sex <> d.sex AND b.mun = d.mun JOIN bm ON bm.mun = d.mun
+            JOIN bs same ON same.mun = d.mun AND same.sex = d.sex JOIN bs opp ON opp.mun = d.mun AND opp.sex = b.sex GROUP BY ALL
+            UNION ALL
+            SELECT {born}, NULL, d.mun, bm.births, d.age, d.sex, d.k, NULL, CAST(sum(d.n) AS DOUBLE) FROM d LEFT JOIN bm ON bm.mun = d.mun GROUP BY ALL
+        """).to_arrow_table())
+        con.unregister("b_raw")
+        log(f"{name} candidates, born {born}: {deaths.num_rows} deaths read, {parts[-1].num_rows} cells")
+    return pa.concat_tables(parts)
+
+
+def candidate_difference(counts: pa.Table, mask: Any = None) -> tuple[np.ndarray, np.ndarray, float]:
+    """``T[declared, recorded]`` = candidates less the control over the rows of ``counts`` that ``mask`` keeps (classes in
+    `encode_race`'s order; a role label is read through ``RACE_LABEL_CODE``), its standard error from the counts
+    themselves (candidates plus control, as Poisson), and the deaths of the group. ``T`` is t times the group's deaths by
+    (declared, recorded), t the share of the people found among their candidates: ``T.sum() / deaths``. A row of ``T``
+    over its sum is how the certificate records that declared class; the rows' sums over ``T.sum()`` are the group's
+    declared mix."""
+    t = counts if mask is None else counts.filter(mask)
+    control = t["control"].to_pylist()
+    dec, rec = encode_race(_codes(t["declared"])), encode_race(_codes(t["recorded"]))
+    n = np.asarray(t["n"].to_numpy(zero_copy_only=False), dtype=float)
+    T, V, deaths = np.zeros((6, 6)), np.zeros((6, 6)), 0.0
+    for c, j, k, v in zip(control, dec, rec, n, strict=True):
+        if c is None:
+            deaths += v
+        else:
+            T[j, k] += -v if c else v
+            V[j, k] += v
+    return T, np.sqrt(V), deaths
+
+
 def _build_product(population: Population, settings: Any, version: str, validation: str, log: Any) -> dict[str, Any]:
     from dataclasses import replace
 
