@@ -181,7 +181,15 @@ def _where(municipality: Any, uf: Any) -> str:
                              f"{[v for v, p in zip(values, placed, strict=True) if p is None]}")
         clauses.append("municipality7 IN (" + ",".join(repr(str(p)) for p in sorted(cast("set[str]", set(placed)))) + ")")
     if uf is not None:
-        states = [str(s).strip() for s in ([uf] if isinstance(uf, (str, int)) else uf)]
+        from ..config import UF_NUMERIC
+
+        # a state by its IBGE code or its abbreviation: "AC" matched no tract and returned an empty table (2026-11-21)
+        by_name = {name: code for code, name in UF_NUMERIC.items()}
+        given = [str(s).strip().upper() for s in ([uf] if isinstance(uf, (str, int)) else uf)]
+        states = [by_name.get(s, s) for s in given]
+        unknown = [g for g, s in zip(given, states, strict=True) if s not in UF_NUMERIC]
+        if unknown:
+            raise ValueError(f"not states (an abbreviation such as AC or an IBGE code such as 12): {unknown}")
         clauses.append("substr(municipality7, 1, 2) IN (" + ",".join(repr(s) for s in states) + ")")
     return ("WHERE " + " AND ".join(clauses)) if clauses else ""
 

@@ -87,11 +87,18 @@ def plan(
             "DATASUS publishes this dataset per state only; the nation is read as every state",
         ))
     if capabilities.year_geography:
-        national = ", ".join(str(year) for year, _ in capabilities.year_geography)
+        # one reading of each such year (coverage.national_or_states, ADR-0228): the national file, or the state files
+        # where the national file cuts a column they hold whole
+        by_national = [str(y) for y, ufs in capabilities.year_geography if tuple(ufs) == ("BR",)]
+        by_states = [str(y) for y, ufs in capabilities.year_geography if tuple(ufs) != ("BR",)]
+        read = "; ".join(part for part in (
+            f"{', '.join(by_national)} from the national file" if by_national else "",
+            f"{', '.join(by_states)} from the 27 state files, whose columns the national file cuts" if by_states else "",
+        ) if part)
         adaptations.append(Adaptation(
-            "geography", "all states", "BR",
-            f"DATASUS publishes {national} both as a national file and as one file per state, the same records; "
-            "only the national file is read (the state files would count every record twice)",
+            "geography", "all states", "BR" if not by_states else "one reading",
+            f"DATASUS publishes {', '.join([*by_national, *by_states])} both as a national file and as one file per "
+            f"state, the same records; each year is read once ({read})",
         ))
     if capabilities.missing_lake_years:
         adaptations.append(Adaptation(
