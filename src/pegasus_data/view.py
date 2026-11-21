@@ -731,6 +731,389 @@ def placed_companions(table: pa.Table) -> pa.Table:
     return table
 
 
+@dataclass
+class _RenderContext:
+    """What every column's rendering reads, and the report and memo it writes: one render's shared state."""
+
+    table: pa.Table
+    store: CatalogStore
+    system: str
+    family_id: str | None
+    lake: Path
+    registry_home: Path | None
+    year: int | None
+    competencia: int | None
+    strict: bool
+    settings_profile: RenderProfile
+    overrides: dict[str, RenderMode]
+    companions: bool | Sequence[str] | None
+    docs: Mapping[str, VariableDoc]
+    series: Any
+    bindings: Mapping[str, Any]
+    kinds: dict[str, str]
+    codes_only: bool
+    report: RenderReport
+    lookups: dict[tuple, Mapping[str, str]] = field(default_factory=dict)
+
+
+_Emitted = list[tuple[str, Any]]
+
+
+def _lookup(
+    ctx: _RenderContext, field_name: str, codelists: Sequence[str], only: frozenset[str] | None = None,
+) -> Mapping[str, str] | None:
+    """Merge every table bound to this field. Exact width keeps them apart."""
+    # No width filter. Exact string matching already keeps classifications of
+    # different widths apart (§6.2); filtering the TABLE to the curated token
+    # width as well dropped every legitimate code of another width. SIH's
+    # DIAG_PRINC is curated at width 4 and holds 3-character CID-10
+    # categories (I64, J18, I10) beside 4-character subcategories: 13% of
+    # AL 2023-01 admissions came back unlabelled (live run 2026-09-28).
+    width = None
+    # The key has to carry EVERYTHING the lookup below depends on. It was
+    # just the codelist names, but the result is filtered by the field's
+    # curated token width — so two fields sharing a codelist and needing
+    # different widths shared a map built for whichever ran first. That
+    # quietly undoes §6.2, the rule that keeps merged classifications of
+    # different widths apart.
+    key = (tuple(codelists), ctx.system, ctx.year, width, only)
+    if key in ctx.lookups:
+        return ctx.lookups[key] or None
+    merged, missing = _merged_lookup(
+        ctx.lake, tuple(codelists), ctx.system, ctx.year, ctx.competencia, only, ctx.registry_home)
+    if not merged:
+        names = ", ".join(repr(c) for c in codelists)
+        message = f"{field_name}: no reference table for {names} in the lake"
+        if ctx.strict:
+            raise LabelUnavailable(message)
+        ctx.report.warnings.append(message)
+        ctx.report.unlabelled.append(field_name)
+    elif missing:
+        # A table with no version for this period is not missing: ICD-9's
+        # chapter files end in 1997, and every SIH query of 2022 warned that
+        # seventeen of them were "missing" (2026-09-30). Only a table that
+        # exists in no window at all is worth saying.
+        absent = [c for c in missing if not _exists_anywhere(Path(ctx.lake), c, ctx.registry_home)]
+        if absent:
+            ctx.report.warnings.append(
+                f"{field_name}: labelled from {len(codelists) - len(missing)} of "
+                f"{len(codelists)} bound tables; no version at all of {', '.join(absent)}"
+            )
+    ctx.lookups[key] = merged
+    return merged or None
+
+
+def _undecoded(name: str, column: Any, doc: Any, *, with_label: bool = True) -> _Emitted:
+    """The column as filed, with an empty label companion when the curation says it is coded (ADR-0085/0086)."""
+    out: _Emitted = [(name, column)]
+    if with_label and _coded(doc):
+        out.append((f"{name}{LABEL_SUFFIX}", pa.nulls(len(column), type=pa.string())))
+    return out
+
+
+def _refused(ctx: _RenderContext, name: str, message: str) -> None:
+    """Record that ``name`` could not be labelled (or raise under ``strict``)."""
+    if ctx.strict:
+        raise LabelUnavailable(message)
+    ctx.report.warnings.append(message)
+    ctx.report.unlabelled.append(name)
+
+
+def _companion_column(ctx: _RenderContext, name: str) -> _Emitted:
+    """A stored companion column: kept or dropped by the profile or by the caller's list."""
+    keep = ctx.settings_profile.companions
+    if isinstance(ctx.companions, (list, tuple, set)):
+        keep = name in set(ctx.companions)
+    if not keep:
+        ctx.report.companions_dropped.append(name)
+        return []
+    return [(name, ctx.table.column(name))]
+
+
+def _sibling_label(ctx: _RenderContext, name: str, column: Any, sibling: str) -> _Emitted:
+    """The record names its own code (ADR-0090): the sibling column is the label."""
+    named = pc.utf8_trim(ctx.table.column(sibling).cast(pa.string()), characters=" ")
+    named = pc.if_else(pc.equal(named, ""), pa.scalar(None, pa.string()), named)
+    ctx.report.labelled.append(name)
+    ctx.report.codelist_used[name] = f"column {sibling}"
+    return [(name, column), (f"{name}{LABEL_SUFFIX}", named)]
+
+
+def _label_via_column(ctx: _RenderContext, name: str, column: Any, doc: Any) -> _Emitted | None:
+    """The label read through another column (an establishment's name by its code), or None when it does not apply."""
+    via = getattr(doc, "label_via", None) if doc is not None else None
+    # ``column`` may list candidates: one variable, several layouts (SIA BI
+    # names its establishment CODUNI, PS names it CNES_EXEC).
+    via_columns = via.get("column", []) if via else []
+    via_column = next(
+        (str(c).upper() for c in (via_columns if isinstance(via_columns, list) else [via_columns])
+         if str(c).upper() in ctx.table.schema.names),
+        None,
+    )
+    if not (via and via_column):
+        return None
+    named_via = _label_via(ctx.lake, ctx.system, ctx.table.column(via_column), via, ctx.registry_home)
+    if named_via is None:
+        return None
+    # The field's own tables first: they name THIS value exactly (a
+    # CNPJ's own legal name, a documented "zeros: no maintainer").
+    # The row's establishment's maintainer fills what they leave.
+    own = [c for c in (doc.codelist, *doc.codelists) if c] if doc is not None else []
+    own_lookup = _lookup(ctx, name.upper(), own) if own else None
+    if own_lookup:
+        named_via = pc.coalesce(_labels_for(column, own_lookup), named_via)
+    ctx.report.labelled.append(name)
+    ctx.report.codelist_used[name] = f"{via.get('table')}.{via.get('field')} via {via_column}"
+    return [(name, column), (f"{name}{LABEL_SUFFIX}", named_via)]
+
+
+def _is_not_coded(ctx: _RenderContext, name: str, doc: Any) -> bool:
+    """The curation says the column is not coded, or the family's form dictionary types it a date."""
+    # The curation says this column is not coded (a date, a count, an
+    # identifier), or the family's own form dictionary types it a date. A kit .DEF may still bind it to a table (DT_SAIDA to
+    # ANOMES), and weighing that table against its values warned "no
+    # bound table decodes the column" on every SIH and SIM query
+    # (2026-09-30). The curation's word is the stronger evidence.
+    return doc is not None and (
+        (getattr(doc, "code_system", None) == "none" and not getattr(doc, "codes", None))
+        or bool(ctx.series and form_types_a_date(ctx.system, ctx.series, name))
+    )
+
+
+def _not_coded_column(ctx: _RenderContext, name: str, column: Any) -> _Emitted:
+    """A column that is not coded, as filed; an explicit request for its label is answered with a warning."""
+    if ctx.overrides.get(name.upper(), "code") != "code":
+        # But an explicit request that cannot be honoured must say so.
+        _refused(ctx, name, f"{name}: not a coded column (curation: code_system none), so no label can be produced")
+    return [(name, column)]
+
+
+def _multi_valued_columns(
+    ctx: _RenderContext, name: str, column: Any, doc: Any, codelists: list[str], lookup: Mapping[str, str],
+) -> _Emitted:
+    """A column holding several codes: the code, its labels, and the optional code-list and unmatched companions."""
+    rendered, code_lists, unmatched = _render_multi_valued(column, doc.token_rule, lookup)
+    out: _Emitted = [(name, column), (f"{name}{LABEL_SUFFIX}", rendered)]
+    keep_companions = ctx.settings_profile.companions
+    if isinstance(ctx.companions, (list, tuple, set)):
+        keep_companions = f"{name}_codes" in set(ctx.companions)
+    if keep_companions:
+        out.append((f"{name}_codes", code_lists))
+        out.append((f"{name}_unmatched", unmatched))
+    total_missing = int(pc.sum(unmatched).as_py() or 0)
+    if total_missing:
+        ctx.report.tokens_unmatched[name] = total_missing
+    ctx.report.labelled.append(name)
+    ctx.report.codelist_used[name] = "+".join(codelists)
+    return out
+
+
+def _disagreements(ctx: _RenderContext, codelists: list[str]) -> dict[str, set[str]]:
+    """Codes that a bound table maps to more than one label, over every table the merged lookup draws from."""
+    # A table that disagrees with itself cannot render this column. Refusing
+    # is the whole point: an unlabelled code is visibly unfinished, and a
+    # confidently wrong label is not.
+    try:
+        disagreements: dict[str, set[str]] = {}
+        for bound in codelists:
+            # Every table the merged lookup draws from, not just the
+            # first: a self-contradictory SECOND table was never checked,
+            # and its labels reached the merge all the same.
+            for code, found in _contradictions(
+                ctx.lake,
+                bound,
+                system=ctx.system,
+                year=ctx.year,
+                competencia=ctx.competencia,
+                code_width=None,
+                registries=ctx.registry_home,
+            ).items():
+                disagreements.setdefault(code, set()).update(found)
+    except FileNotFoundError:
+        # A codelist bound but never materialised. That is a labelling gap
+        # for this one column, already reported where the lookup was built —
+        # not grounds to fail the whole request. Letting it escape meant a
+        # single unmaterialised table made every SINAN dataset unfetchable:
+        # `fetch("SINAN-DENG")` died on AGRAVNET while 200 other columns
+        # were sitting there ready to be returned.
+        disagreements = {}
+    return disagreements
+
+
+def _labelled_columns(
+    ctx: _RenderContext, name: str, column: Any, doc: Any, key_column: Any, selection: _Selection,
+    codelist: str, mode: RenderMode,
+) -> _Emitted:
+    """Apply the chosen codelists to a column: the label, the refusals (contradiction, no match) and the roll-up case."""
+    codelists = selection.codelists
+    observed = {str(v).strip() for v in _distinct(key_column)}
+    multi = bool(doc and doc.multi_valued and doc.token_rule)
+    lookup = _lookup(ctx, name.upper(), codelists, None if multi else frozenset(observed))
+    if lookup is None:
+        return [(name, column)]
+
+    if doc and doc.multi_valued and doc.token_rule:
+        return _multi_valued_columns(ctx, name, column, doc, codelists, lookup)
+
+    width_warning = _check_width(name, "+".join(codelists), key_column, lookup)
+    if width_warning:
+        ctx.report.warnings.append(width_warning)
+
+    ambiguous = {
+        code: labels for code, labels in _disagreements(ctx, codelists).items() if code in observed
+    }
+    if ambiguous:
+        example = next(iter(sorted(ambiguous)))
+        _refused(ctx, name, (
+            f"{name}: codelist {codelists[0]!r} maps {len(ambiguous)} observed code(s) "
+            f"to more than one label — {example!r} means "
+            f"{sorted(ambiguous[example])}. Not labelled; the sources disagree."
+        ))
+        return [(name, column)]
+    labels = _labels_for(key_column, lookup)
+    matched = int(pc.sum(pc.is_valid(labels)).as_py() or 0)
+    if not matched:
+        if len(observed) <= 1:
+            # See above: one value throughout is a dead column, not a gap.
+            ctx.report.constant[name] = next(iter(observed), "")
+            ctx.report.unlabelled.append(name)
+            return _undecoded(name, column, doc)  # visibly undecoded, not a plain value (ADR-0086)
+        _refused(ctx, name, f"{name}: reference table {codelist!r} matched none of the observed codes")
+        return _undecoded(name, column, doc)
+
+    ctx.report.labelled.append(name)
+    ctx.report.codelist_used[name] = "+".join(codelists)
+    if name in ctx.report.rollup_used:
+        # A ROLL-UP is not this column's identity. `CODMUNRES` bound only to
+        # `CIRAC` decodes 100% of its values and returns "Baixo Acre e
+        # Purus" for a municipality code — a region name wearing a
+        # municipality's name. Coverage cannot tell the two apart, so the
+        # broader answer is emitted as its own dimension beside the code
+        # rather than in place of it, and the code stays what it is.
+        rollup_name = f"{name}_{selection.codelists[0].lower()}" if selection.codelists else f"{name}_rollup"
+        ctx.report.derived_added.append(rollup_name)
+        return [(name, column), (rollup_name, labels)]
+    if mode == "label":
+        return [(name, labels)]
+    return [(name, column), (f"{name}{LABEL_SUFFIX}", labels)]  # "both"
+
+
+def _coded_column(ctx: _RenderContext, name: str, column: Any, doc: Any) -> _Emitted:
+    """Choose the codelists for a column that may be coded and render it by the profile's mode."""
+    report = ctx.report
+    key_column = _lookup_key(ctx.table, doc, column)
+    if key_column is None:
+        absent = _key_columns(ctx.table, doc.key)[1]
+        _refused(ctx, name, (
+            f"{name}: its codelist is keyed by {' + '.join(doc.key)} and {', '.join(absent)} is not in "
+            "the table, so the column is left undecoded (its own values would match a different key)"
+        ))
+        return _undecoded(name, column, doc)
+    selection = _select_codelists(
+        name,
+        key_column,
+        doc=doc,
+        candidates=list(ctx.bindings.get(name.upper()) or []),
+        report=report,
+        strict=ctx.strict,
+        lookup_one=lambda cl, w: _single_lookup(
+            ctx.lake, cl, ctx.system, ctx.year, w, ctx.competencia, ctx.registry_home),
+        store=ctx.store,
+        system=ctx.system,
+        family_id=ctx.family_id or "",
+        vintage=ctx.competencia if ctx.competencia is not None else ctx.year,
+    )
+    if selection.unlabelled:
+        # Selection decided this column cannot be labelled and has already
+        # said why. Emit it as filed, with an EMPTY label companion when the
+        # curation says the column is coded, so the presentation shows its
+        # codes as undecoded ("9 (?)") rather than as plain values (ADR-0085).
+        return _undecoded(name, column, doc)
+    codelists = selection.codelists
+    codelist = codelists[0] if codelists else None
+    code_system = (doc.code_system if doc else None) or ("internal" if codelist else "none")
+    profile = ctx.settings_profile
+    mode: RenderMode = ctx.overrides.get(name.upper()) or (
+        profile.internal if code_system == "internal" else
+        profile.external if code_system == "external" else "code"
+    )
+
+    if code_system == "none" or codelist is None or mode == "code":
+        if (codelist is None and code_system in ("internal", "external")
+                and name not in report.unlabelled):
+            # Curation says this column IS coded; nothing is bound to
+            # decode it. The unlabelled list is the machine-readable form
+            # of "visibly unfinished" -- without it the column reverted to
+            # raw codes with no trace anywhere in the report.
+            report.unlabelled.append(name)
+        if mode != "code" and codelist is None and name.upper() in ctx.overrides:
+            # An explicit request that cannot be honoured must say so.
+            _refused(ctx, name, f"{name}: no codelist is bound, so no label can be produced")
+        # Coded, and nothing decodes it: visibly undecoded (ADR-0085).
+        return _undecoded(name, column, doc, with_label=mode != "code" and codelist is None)
+    return _labelled_columns(ctx, name, column, doc, key_column, selection, codelist, mode)
+
+
+def _render_column(ctx: _RenderContext, name: str) -> _Emitted:
+    """The output column(s) one stored column becomes: nothing, the column as filed, or the column with its label."""
+    kind = ctx.kinds[name]
+    if kind == "label":
+        # Labels are produced here, not read from storage. A stored one is a
+        # build-time artefact of an older path and would shadow the join.
+        return []
+    if kind == "companion":
+        return _companion_column(ctx, name)
+
+    # A column is read as the ChunkedArray it is, never flattened into one array: past 2 GiB of characters a
+    # `string` cannot be one (`lookups.PIECE_BYTES`), and a column that passes through unchanged (a 58.6-million-row
+    # SNGPC-IND year's `_source_path` is 5.4 GB) is not copied for being kept. The table is assembled below with
+    # each column that fits one array made one (`contiguous`), as every column always was.
+    column = ctx.table.column(name)
+
+    if ctx.codes_only or ctx.overrides.get(name.upper()) == "code":
+        # a column asked for as filed: no codelist chosen for it (a role table reads labels of five of its
+        # eighteen SIH columns; labelling all of them was 31-48 s of a state-year against 4-9 s, 2026-10-11)
+        return [(name, column)]
+
+    doc = ctx.docs.get(name.upper())
+    sibling = getattr(doc, "label_from", None) if doc is not None else None
+    if sibling and sibling in ctx.table.schema.names:
+        return _sibling_label(ctx, name, column, sibling)
+    via_out = _label_via_column(ctx, name, column, doc)
+    if via_out is not None:
+        return via_out
+    # The value a table is keyed by. Usually the column itself; for a code
+    # that only means something with another column (CNES CLASS_SR, keyed
+    # by SERV_ESP + CLASS_SR in S_CLASSEN), the concatenation (ADR-0088).
+    if _is_not_coded(ctx, name, doc):
+        return _not_coded_column(ctx, name, column)
+    if name.startswith("_"):
+        # the record's bookkeeping (row number, source file, record key): never coded. Weighed against every
+        # codelist, `_row`'s 583,191 distinct values were most of a labelled SINASC SP year (2026-10-11)
+        return [(name, column)]
+    return _coded_column(ctx, name, column, doc)
+
+
+def _with_label_companions(
+    columns: list[Any], names: list[str], docs: Mapping[str, VariableDoc],
+) -> tuple[list[Any], list[str]]:
+    """THE INVARIANT (ADR-0086): a column the curation says is coded leaves with a label companion, null where nothing
+    decoded it, so the presentation shows "9 (?)" instead of a bare code that reads like a value. Enforced once here
+    rather than in each of the rendering's refusal branches."""
+    present_names = set(names)
+    final_columns: list[Any] = []
+    final_names: list[str] = []
+    for col, col_name in zip(columns, names, strict=True):
+        final_columns.append(col)
+        final_names.append(col_name)
+        label_name = f"{col_name}{LABEL_SUFFIX}"
+        if (not col_name.endswith(LABEL_SUFFIX) and label_name not in present_names
+                and _coded(docs.get(col_name.upper()))):
+            final_columns.append(pa.nulls(len(col), type=pa.string()))
+            final_names.append(label_name)
+    return final_columns, final_names
+
+
 def _render_table(
     table: pa.Table,
     *,
@@ -780,367 +1163,23 @@ def _render_table(
         and all(mode == "code" for mode in overrides.values())
     )
 
+    ctx = _RenderContext(
+        table=table, store=store, system=system, family_id=family_id, lake=lake, registry_home=registry_home,
+        year=year, competencia=competencia, strict=strict, settings_profile=settings_profile,
+        overrides=overrides, companions=companions, docs=docs, series=series, bindings=bindings, kinds=kinds,
+        codes_only=codes_only, report=report,
+    )
     columns: list[pa.Array | pa.ChunkedArray] = []
     names: list[str] = []
-    lookups: dict[tuple, Mapping[str, str]] = {}
-
-    def _lookup(
-        field_name: str, codelists: Sequence[str], only: frozenset[str] | None = None,
-    ) -> Mapping[str, str] | None:
-        """Merge every table bound to this field. Exact width keeps them apart."""
-        # No width filter. Exact string matching already keeps classifications of
-        # different widths apart (§6.2); filtering the TABLE to the curated token
-        # width as well dropped every legitimate code of another width. SIH's
-        # DIAG_PRINC is curated at width 4 and holds 3-character CID-10
-        # categories (I64, J18, I10) beside 4-character subcategories: 13% of
-        # AL 2023-01 admissions came back unlabelled (live run 2026-09-28).
-        width = None
-        # The key has to carry EVERYTHING the lookup below depends on. It was
-        # just the codelist names, but the result is filtered by the field's
-        # curated token width — so two fields sharing a codelist and needing
-        # different widths shared a map built for whichever ran first. That
-        # quietly undoes §6.2, the rule that keeps merged classifications of
-        # different widths apart.
-        key = (tuple(codelists), system, year, width, only)
-        if key in lookups:
-            return lookups[key] or None
-        merged, missing = _merged_lookup(lake, tuple(codelists), system, year, competencia, only, registry_home)
-        if not merged:
-            names = ", ".join(repr(c) for c in codelists)
-            message = f"{field_name}: no reference table for {names} in the lake"
-            if strict:
-                raise LabelUnavailable(message)
-            report.warnings.append(message)
-            report.unlabelled.append(field_name)
-        elif missing:
-            # A table with no version for this period is not missing: ICD-9's
-            # chapter files end in 1997, and every SIH query of 2022 warned that
-            # seventeen of them were "missing" (2026-09-30). Only a table that
-            # exists in no window at all is worth saying.
-            absent = [c for c in missing if not _exists_anywhere(Path(lake), c, registry_home)]
-            if absent:
-                report.warnings.append(
-                    f"{field_name}: labelled from {len(codelists) - len(missing)} of "
-                    f"{len(codelists)} bound tables; no version at all of {', '.join(absent)}"
-                )
-        lookups[key] = merged
-        return merged or None
-
     for name in table.schema.names:
-        kind = kinds[name]
-
-        if kind == "label":
-            # Labels are produced here, not read from storage. A stored one is a
-            # build-time artefact of an older path and would shadow the join.
-            continue
-
-        if kind == "companion":
-            keep = settings_profile.companions
-            if isinstance(companions, (list, tuple, set)):
-                keep = name in set(companions)
-            if not keep:
-                report.companions_dropped.append(name)
-                continue
-            columns.append(table.column(name))
-            names.append(name)
-            continue
-
-        # A column is read as the ChunkedArray it is, never flattened into one array: past 2 GiB of characters a
-        # `string` cannot be one (`lookups.PIECE_BYTES`), and a column that passes through unchanged (a 58.6-million-row
-        # SNGPC-IND year's `_source_path` is 5.4 GB) is not copied for being kept. The table is assembled below with
-        # each column that fits one array made one (`contiguous`), as every column always was.
-        column = table.column(name)
-
-        if codes_only or overrides.get(name.upper()) == "code":
-            # a column asked for as filed: no codelist chosen for it (a role table reads labels of five of its
-            # eighteen SIH columns; labelling all of them was 31-48 s of a state-year against 4-9 s, 2026-10-11)
-            columns.append(column)
-            names.append(name)
-            continue
-
-        doc = docs.get(name.upper())
-        sibling = getattr(doc, "label_from", None) if doc is not None else None
-        if sibling and sibling in table.schema.names:
-            # The record names its own code (ADR-0090): no table to choose.
-            named = pc.utf8_trim(table.column(sibling).cast(pa.string()), characters=" ")
-            named = pc.if_else(pc.equal(named, ""), pa.scalar(None, pa.string()), named)
-            columns.append(column)
-            names.append(name)
-            columns.append(named)
-            names.append(f"{name}{LABEL_SUFFIX}")
-            report.labelled.append(name)
-            report.codelist_used[name] = f"column {sibling}"
-            continue
-        via = getattr(doc, "label_via", None) if doc is not None else None
-        # ``column`` may list candidates: one variable, several layouts (SIA BI
-        # names its establishment CODUNI, PS names it CNES_EXEC).
-        via_columns = via.get("column", []) if via else []
-        via_column = next(
-            (str(c).upper() for c in (via_columns if isinstance(via_columns, list) else [via_columns])
-             if str(c).upper() in table.schema.names),
-            None,
-        )
-        if via and via_column:
-            named_via = _label_via(lake, system, table.column(via_column), via, registry_home)
-            if named_via is not None:
-                # The field's own tables first: they name THIS value exactly (a
-                # CNPJ's own legal name, a documented "zeros: no maintainer").
-                # The row's establishment's maintainer fills what they leave.
-                own = [c for c in (doc.codelist, *doc.codelists) if c] if doc is not None else []
-                own_lookup = _lookup(name.upper(), own) if own else None
-                if own_lookup:
-                    named_via = pc.coalesce(_labels_for(column, own_lookup), named_via)
-                columns.append(column)
-                names.append(name)
-                columns.append(named_via)
-                names.append(f"{name}{LABEL_SUFFIX}")
-                report.labelled.append(name)
-                report.codelist_used[name] = f"{via.get('table')}.{via.get('field')} via {via_column}"
-                continue
-        # The value a table is keyed by. Usually the column itself; for a code
-        # that only means something with another column (CNES CLASS_SR, keyed
-        # by SERV_ESP + CLASS_SR in S_CLASSEN), the concatenation (ADR-0088).
-        if doc is not None and (
-            (getattr(doc, "code_system", None) == "none" and not getattr(doc, "codes", None))
-            or (series and form_types_a_date(system, series, name))
-        ):
-            # The curation says this column is not coded (a date, a count, an
-            # identifier), or the family's own form dictionary types it a date. A kit .DEF may still bind it to a table (DT_SAIDA to
-            # ANOMES), and weighing that table against its values warned "no
-            # bound table decodes the column" on every SIH and SIM query
-            # (2026-09-30). The curation's word is the stronger evidence.
-            if overrides.get(name.upper(), "code") != "code":
-                # But an explicit request that cannot be honoured must say so.
-                message = f"{name}: not a coded column (curation: code_system none), so no label can be produced"
-                if strict:
-                    raise LabelUnavailable(message)
-                report.warnings.append(message)
-                report.unlabelled.append(name)
-            columns.append(column)
-            names.append(name)
-            continue
-        if name.startswith("_"):
-            # the record's bookkeeping (row number, source file, record key): never coded. Weighed against every
-            # codelist, `_row`'s 583,191 distinct values were most of a labelled SINASC SP year (2026-10-11)
-            columns.append(column)
-            names.append(name)
-            continue
-        key_column = _lookup_key(table, doc, column)
-        if key_column is None:
-            absent = _key_columns(table, doc.key)[1]
-            message = (f"{name}: its codelist is keyed by {' + '.join(doc.key)} and {', '.join(absent)} is not in "
-                       "the table, so the column is left undecoded (its own values would match a different key)")
-            if strict:
-                raise LabelUnavailable(message)
-            report.warnings.append(message)
-            report.unlabelled.append(name)
-            columns.append(column)
-            names.append(name)
-            if _coded(doc):
-                columns.append(pa.nulls(len(column), type=pa.string()))
-                names.append(f"{name}{LABEL_SUFFIX}")
-            continue
-        selection = _select_codelists(
-            name,
-            key_column,
-            doc=doc,
-            candidates=list(bindings.get(name.upper()) or []),
-            report=report,
-            strict=strict,
-            lookup_one=lambda cl, w: _single_lookup(lake, cl, system, year, w, competencia, registry_home),
-            store=store,
-            system=system,
-            family_id=family_id or "",
-            vintage=competencia if competencia is not None else year,
-        )
-        if selection.unlabelled:
-            # Selection decided this column cannot be labelled and has already
-            # said why. Emit it as filed, with an EMPTY label companion when the
-            # curation says the column is coded, so the presentation shows its
-            # codes as undecoded ("9 (?)") rather than as plain values (ADR-0085).
-            columns.append(column)
-            names.append(name)
-            if _coded(doc):
-                columns.append(pa.nulls(len(column), type=pa.string()))
-                names.append(f"{name}{LABEL_SUFFIX}")
-            continue
-        codelists = selection.codelists
-        codelist = codelists[0] if codelists else None
-        code_system = (doc.code_system if doc else None) or ("internal" if codelist else "none")
-        mode: RenderMode = overrides.get(name.upper()) or (
-            settings_profile.internal if code_system == "internal" else
-            settings_profile.external if code_system == "external" else "code"
-        )
-
-        if code_system == "none" or codelist is None or mode == "code":
-            if (codelist is None and code_system in ("internal", "external")
-                    and name not in report.unlabelled):
-                # Curation says this column IS coded; nothing is bound to
-                # decode it. The unlabelled list is the machine-readable form
-                # of "visibly unfinished" -- without it the column reverted to
-                # raw codes with no trace anywhere in the report.
-                report.unlabelled.append(name)
-            if mode != "code" and codelist is None and name.upper() in overrides:
-                # An explicit request that cannot be honoured must say so.
-                message = f"{name}: no codelist is bound, so no label can be produced"
-                if strict:
-                    raise LabelUnavailable(message)
-                report.warnings.append(message)
-                report.unlabelled.append(name)
-            columns.append(column)
-            names.append(name)
-            if mode != "code" and codelist is None and _coded(doc):
-                # Coded, and nothing decodes it: visibly undecoded (ADR-0085).
-                columns.append(pa.nulls(len(column), type=pa.string()))
-                names.append(f"{name}{LABEL_SUFFIX}")
-            continue
-
-        observed = {str(v).strip() for v in _distinct(key_column)}
-        multi = bool(doc and doc.multi_valued and doc.token_rule)
-        lookup = _lookup(name.upper(), codelists, None if multi else frozenset(observed))
-        if lookup is None:
-            columns.append(column)
-            names.append(name)
-            continue
-
-        if doc and doc.multi_valued and doc.token_rule:
-            rendered, code_lists, unmatched = _render_multi_valued(column, doc.token_rule, lookup)
-            columns.append(column)
-            names.append(name)
-            columns.append(rendered)
-            names.append(f"{name}{LABEL_SUFFIX}")
-            keep_companions = settings_profile.companions
-            if isinstance(companions, (list, tuple, set)):
-                keep_companions = f"{name}_codes" in set(companions)
-            if keep_companions:
-                columns.append(code_lists)
-                names.append(f"{name}_codes")
-                columns.append(unmatched)
-                names.append(f"{name}_unmatched")
-            total_missing = int(pc.sum(unmatched).as_py() or 0)
-            if total_missing:
-                report.tokens_unmatched[name] = total_missing
-            report.labelled.append(name)
-            report.codelist_used[name] = "+".join(codelists)
-            continue
-
-        width_warning = _check_width(name, "+".join(codelists), key_column, lookup)
-        if width_warning:
-            report.warnings.append(width_warning)
-
-        # A table that disagrees with itself cannot render this column. Refusing
-        # is the whole point: an unlabelled code is visibly unfinished, and a
-        # confidently wrong label is not.
-        try:
-            disagreements: dict[str, set[str]] = {}
-            for bound in codelists:
-                # Every table the merged lookup draws from, not just the
-                # first: a self-contradictory SECOND table was never checked,
-                # and its labels reached the merge all the same.
-                for code, found in _contradictions(
-                    lake,
-                    bound,
-                    system=system,
-                    year=year,
-                    competencia=competencia,
-                    code_width=None,
-                    registries=registry_home,
-                ).items():
-                    disagreements.setdefault(code, set()).update(found)
-        except FileNotFoundError:
-            # A codelist bound but never materialised. That is a labelling gap
-            # for this one column, already reported where the lookup was built —
-            # not grounds to fail the whole request. Letting it escape meant a
-            # single unmaterialised table made every SINAN dataset unfetchable:
-            # `fetch("SINAN-DENG")` died on AGRAVNET while 200 other columns
-            # were sitting there ready to be returned.
-            disagreements = {}
-        ambiguous = {
-            code: labels for code, labels in disagreements.items() if code in observed
-        }
-        if ambiguous:
-            example = next(iter(sorted(ambiguous)))
-            message = (
-                f"{name}: codelist {codelists[0]!r} maps {len(ambiguous)} observed code(s) "
-                f"to more than one label — {example!r} means "
-                f"{sorted(ambiguous[example])}. Not labelled; the sources disagree."
-            )
-            if strict:
-                raise LabelUnavailable(message)
-            report.warnings.append(message)
-            report.unlabelled.append(name)
-            columns.append(column)
-            names.append(name)
-            continue
-        labels = _labels_for(key_column, lookup)
-        matched = int(pc.sum(pc.is_valid(labels)).as_py() or 0)
-        if not matched:
-            if len(observed) <= 1:
-                # See above: one value throughout is a dead column, not a gap.
-                report.constant[name] = next(iter(observed), "")
-                report.unlabelled.append(name)
-                columns.append(column)
-                names.append(name)
-                if _coded(doc):  # visibly undecoded, not a plain value (ADR-0086)
-                    columns.append(pa.nulls(len(column), type=pa.string()))
-                    names.append(f"{name}{LABEL_SUFFIX}")
-                continue
-            message = f"{name}: reference table {codelist!r} matched none of the observed codes"
-            if strict:
-                raise LabelUnavailable(message)
-            report.warnings.append(message)
-            report.unlabelled.append(name)
-            columns.append(column)
-            names.append(name)
-            if _coded(doc):
-                columns.append(pa.nulls(len(column), type=pa.string()))
-                names.append(f"{name}{LABEL_SUFFIX}")
-            continue
-
-        report.labelled.append(name)
-        report.codelist_used[name] = "+".join(codelists)
-        if name in report.rollup_used:
-            # A ROLL-UP is not this column's identity. `CODMUNRES` bound only to
-            # `CIRAC` decodes 100% of its values and returns "Baixo Acre e
-            # Purus" for a municipality code — a region name wearing a
-            # municipality's name. Coverage cannot tell the two apart, so the
-            # broader answer is emitted as its own dimension beside the code
-            # rather than in place of it, and the code stays what it is.
-            columns.append(column)
-            names.append(name)
-            rollup_name = f"{name}_{selection.codelists[0].lower()}" if selection.codelists else f"{name}_rollup"
-            columns.append(labels)
-            names.append(rollup_name)
-            report.derived_added.append(rollup_name)
-            continue
-        if mode == "label":
-            columns.append(labels)
-            names.append(name)
-        else:  # "both"
-            columns.append(column)
-            names.append(name)
-            columns.append(labels)
-            names.append(f"{name}{LABEL_SUFFIX}")
+        for out_name, out_column in _render_column(ctx, name):
+            names.append(out_name)
+            columns.append(out_column)
 
     _report_reference_decisions(report, collected, system, strict=strict)
 
-    # THE INVARIANT (ADR-0086): a column the curation says is coded leaves with a
-    # label companion, null where nothing decoded it, so the presentation shows
-    # "9 (?)" instead of a bare code that reads like a value. Enforced once
-    # here rather than in each of the loop's refusal branches.
     if not codes_only:
-        present_names = set(names)
-        final_columns: list[pa.Array] = []
-        final_names: list[str] = []
-        for col, col_name in zip(columns, names, strict=True):
-            final_columns.append(col)
-            final_names.append(col_name)
-            label_name = f"{col_name}{LABEL_SUFFIX}"
-            if (not col_name.endswith(LABEL_SUFFIX) and label_name not in present_names
-                    and _coded(docs.get(col_name.upper()))):
-                final_columns.append(pa.nulls(len(col), type=pa.string()))
-                final_names.append(label_name)
-        columns, names = final_columns, final_names
+        columns, names = _with_label_companions(columns, names, docs)
     rendered_table = pa.Table.from_arrays([contiguous(c) for c in columns], names=names)
 
     # A derived column the caller names is built under every profile. The codes
