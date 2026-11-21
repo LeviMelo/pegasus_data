@@ -104,3 +104,7 @@ settles.
 - **The 2022 anchor is IBGE's** (ADR-0227, evaluation 2026-11-21-account-on-ibge-census): `population-account-8`. Against
   POPSVS only the within-state allocation (1.7% at census years) and the timing between censuses are left. The
   benchmark under this truth: 0.0511 / 0.0590 (births and deaths alone 0.0730 / 0.0671).
+- **Between censuses, the total needs no signal** (evaluation 2026-11-21-population-symptoms, last section): against the
+  2007 Contagem the even share is the best share (error 0.0367) and the roll's and the births' own timing add nothing.
+  The between-census work left is by age. Under the census as truth the account's within-state allocation at a census
+  year is the census's own; POPSVS's differs by its smoothing.
