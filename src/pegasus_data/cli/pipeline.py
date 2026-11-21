@@ -383,18 +383,24 @@ def prune(
     dry_run: Annotated[bool, typer.Option("--dry-run", help="Count what would go, delete nothing")] = False,
     as_json: JsonOpt = False,
 ) -> None:
-    """Delete downloaded files whose lake partitions are verified; refetched only if a rebuild needs them.
+    """Delete downloaded files whose lake partitions are verified, and lake partitions that hold records twice.
 
     The catalog keeps each file's checksum, size and path. The original DATASUS
     bytes cannot be regenerated from the lake; a refetch reproduces them. Kits,
-    registries and files no partition was built from are kept.
+    registries and files no partition was built from are kept. A lake partition
+    goes when the catalogued reading of its dataset and year contains every one
+    of its records (an unlisted leftover, or a state file beside its national
+    one); one not contained is kept and counted (``persist.lake.drop_redundant_partitions``).
     """
     from ..acquire.cache import BlobStore
+    from ..persist.lake import drop_redundant_partitions
 
     settings = _writer(root)
     catalog = CatalogStore(settings.catalog_path)
     try:
+        lake = drop_redundant_partitions(catalog, settings.lake_dir, dry_run=dry_run)
         result = BlobStore(settings.blobs_dir, catalog).prune_verified(settings.lake_dir, dry_run=dry_run)
+        result.update({f"lake_{k}": v for k, v in lake.items()})
         _emit(result, as_json, "prune (dry run)" if dry_run else "prune")
     finally:
         catalog.close()

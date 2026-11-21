@@ -86,9 +86,16 @@ def search(
     if kind == "code":
         return [{k: v for k, v in c.items() if k != "_rank"} for c in _code_hits(needle, wanted_system, limit)]
     if kind is None:
-        # Codes share the list: up to a quarter of it, label matches that are exact or begin the label.
-        codes = [{k: v for k, v in c.items() if k != "_rank"}
-                 for c in _code_hits(needle, wanted_system, limit) if cast(int, c["_rank"]) < 2][: max(3, limit // 4)]
+        # Codes share the list: label matches that are exact or begin the label, at least a quarter of it and every
+        # slot the other kinds leave empty ("neurocirurgia" found six codes and hid the HABILITA accreditations
+        # 1606-1618 behind an empty list, 2026-11-21).
+        # A word inside a label ("NEUROCIRURGIA ENDOVASCULAR/TROMBECTOMIA MECANICA" for "trombectomia") fills only
+        # what the labels that begin with the words leave.
+        room = max(3, limit // 4, limit - len(out))
+        found = _code_hits(needle, wanted_system, limit)
+        ranked = [c for c in found if cast(int, c["_rank"]) < 2] + (
+            [c for c in found if cast(int, c["_rank"]) >= 2] if room > limit // 4 else [])
+        codes = [{k: v for k, v in c.items() if k != "_rank"} for c in ranked][:room]
         out = out[: max(0, limit - len(codes))] + codes
     return out
 

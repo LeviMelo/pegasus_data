@@ -590,3 +590,98 @@ class Lake:
             dict(r)
             for r in self.catalog.query(f"SELECT * FROM lake_partitions{clause}", params)
         ]
+
+
+def drop_redundant_partitions(catalog: CatalogStore, lake_dir: str | Path, *, dry_run: bool = False) -> dict[str, int]:
+    """Delete the lake partitions whose records the dataset's catalogued reading of that year already holds.
+
+    Two cases, one rule. A partition on disk that the catalog does not list (a build whose catalog write was lost, a
+    generation left behind) is read by nothing that plans from the catalog, but every scan of the folder and the
+    footer census of ``info`` counted it: SIM-DO 2009 held an unlisted DOBR beside its 27 listed state partitions and
+    2012 ten unlisted state partitions beside its listed DOBR, so 1.9 M deaths were held and counted twice
+    (2026-11-21). And a listed state partition of a year whose listed national partition holds the same records is
+    the second reading of a year SIM and SINASC publish twice (``coverage.national_or_states``).
+
+    A listed partition goes only when the reference (the listed national partitions of its year) contains each of
+    its rows, compared as a multiset on every published column the two share. An unlisted one goes when it is so
+    contained, or when its year has a listed reading and every file it was built from is still on the server (the
+    catalog's crawl lists it): nothing reads it, and a build reproduces it. SIM's state and national files of a year are
+    not always the same records: the national DBF of 2011-2017 declares the cause lines narrower than the state files
+    (``LINHAA`` 10 characters in DOBR2012, 20 in DOES2012), so a third cause on a line is cut (DATA_SOURCES.md). An
+    unlisted partition whose year has no listed reading holds records the catalog lost: kept and counted under
+    ``unlisted_kept``, for a build of that year to register again.
+    """
+    import duckdb
+
+    root = Path(lake_dir)
+    listed = [dict(r) for r in catalog.query(
+        "SELECT family_id, schema_signature, uf, year, relative_path, row_count FROM lake_partitions")]
+    known = {str(r["relative_path"]) for r in listed}
+
+    def dataset(family: str) -> str:
+        return family.rsplit("_", 1)[0]
+
+    by_year: dict[tuple[str, int], list[dict[str, object]]] = {}
+    for row in listed:
+        if (root / str(row["relative_path"])).is_file():
+            by_year.setdefault((dataset(str(row["family_id"])), int(row["year"] or 0)), []).append(row)
+
+    # (file, the reference files it must be contained in, its catalog row or None when unlisted)
+    candidates: list[tuple[Path, list[Path], dict[str, object] | None]] = []
+    for path in sorted(root.glob("*/*_??????????/schema_signature=*/uf=*/year=*/*.parquet")):
+        rel = path.relative_to(root).as_posix()
+        if rel in known or not path.parent.name.split("=", 1)[1].isdigit():
+            continue
+        refs = by_year.get((dataset(path.parts[-5]), int(path.parent.name.split("=", 1)[1])), [])
+        candidates.append((path, [root / str(r["relative_path"]) for r in refs], None))
+    for rows in by_year.values():
+        national = [root / str(r["relative_path"]) for r in rows if str(r["uf"]).upper() == "BR"]
+        if national:
+            candidates += [(root / str(r["relative_path"]), national, r) for r in rows
+                           if str(r["uf"]).upper() not in {"", "BR", "NA"}]
+
+    out = {"partitions": 0, "rows": 0, "bytes": 0, "unlisted_kept": 0, "listed_kept": 0}
+    con = duckdb.connect()
+    con.execute("SET memory_limit='1GB'; SET threads=2; SET enable_progress_bar=false")
+    for path, refs, row in candidates:
+        contained = False
+        if refs:
+            shared = set.intersection(*(set(pq.read_schema(f).names) for f in refs))
+            cols = sorted(c for c in pq.read_schema(path).names if c in shared and not c.startswith("_")
+                          and c not in {"schema_signature", "uf", "year"})
+            if cols:
+                key = "md5(concat_ws('|', " + ", ".join(f"coalesce(\"{c}\"::VARCHAR, '~')" for c in cols) + "))"
+                files = ", ".join(f"'{f.as_posix()}'" for f in refs)
+                short = con.execute(
+                    f"""WITH s AS (SELECT {key} k, count(*) n FROM read_parquet('{path.as_posix()}') GROUP BY 1),
+                             b AS (SELECT {key} k, count(*) n FROM read_parquet([{files}], union_by_name=true)
+                                   WHERE {key} IN (SELECT k FROM s) GROUP BY 1)
+                        SELECT coalesce(sum(s.n - coalesce(b.n, 0)), 0) FROM s LEFT JOIN b USING (k)
+                        WHERE s.n > coalesce(b.n, 0)""").fetchone()[0]  # type: ignore[index]
+                contained = not short
+        if not contained and row is None and refs:
+            sources = [str(r[0]) for r in con.execute(
+                f"SELECT DISTINCT _source_path FROM read_parquet('{path.as_posix()}')").fetchall()]
+            marks = ",".join("?" for _ in sources) or "NULL"
+            listed_now = {str(r["path"]) for r in catalog.query(
+                f"SELECT path FROM files WHERE gone_at IS NULL AND path IN ({marks})", tuple(sources))}
+            contained = bool(sources) and set(sources) <= listed_now
+            out["superseded"] = out.get("superseded", 0) + int(contained)
+        if not contained:
+            out["unlisted_kept" if row is None else "listed_kept"] += 1
+            continue
+        out["partitions"] += 1
+        out["rows"] += pq.ParquetFile(path).metadata.num_rows
+        siblings = [f for f in path.parent.iterdir() if f.is_file()]
+        out["bytes"] += sum(f.stat().st_size for f in siblings)
+        if dry_run:
+            continue
+        for f in siblings:
+            f.unlink()
+        path.parent.rmdir()
+        if row is not None:
+            with catalog.write() as conn:
+                conn.execute("DELETE FROM lake_partitions WHERE family_id=? AND schema_signature=? AND uf=? AND year=?",
+                             (row["family_id"], row["schema_signature"], row["uf"], row["year"]))
+    con.close()
+    return out

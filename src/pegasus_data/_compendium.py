@@ -113,7 +113,13 @@ CREATE TABLE datasets (
   query_as         TEXT,              -- the identifier query() takes
   rows_held        INTEGER,
   year_min_held    INTEGER,
-  year_max_held    INTEGER
+  year_max_held    INTEGER,
+  -- Downloaded and not built into the lake: published files whose bytes the
+  -- blob store holds (CNES's registers are read from them, never built), so
+  -- query() reads them without the network.
+  files_downloaded INTEGER,
+  year_min_downloaded INTEGER,
+  year_max_downloaded INTEGER
 );
 CREATE INDEX ix_datasets_system ON datasets(system);
 
@@ -542,7 +548,7 @@ def compendium(
 
         wanted = _wanted_datasets(onto, systems)
         binding = _bindings(store, onto, wanted)
-        held = _held(store, onto, wanted, cfg.lake_dir)
+        held = _held(store, onto, wanted, cfg.lake_dir, cfg.blobs_dir)
         _write_core(db, store, onto, wanted, binding, held, report, descriptions)
         _write_holdings(db, store, onto, wanted, cfg, report)
         _write_entries(db, report)
@@ -643,13 +649,15 @@ def overview(*, settings: Settings | None = None, root: str | Path | None = None
                "  info <dataset> / info <dataset>.<COLUMN> describes one. Rows held are in this install's lake.", ""]
 
         datasets = q("SELECT d.code, d.translated_name, d.year_min, d.year_max, d.rows_held, d.year_min_held,"
-                     " d.year_max_held, d.columns_total, s.kind FROM datasets d LEFT JOIN systems s ON s.code = d.system"
+                     " d.year_max_held, d.columns_total, s.kind, d.files_downloaded, d.year_min_downloaded,"
+                     " d.year_max_downloaded FROM datasets d LEFT JOIN systems s ON s.code = d.system"
                      " ORDER BY d.system, d.code").fetchall()
         data = [d for d in datasets if d[8] != "tooling"]
         out.append(f"RECORD DATASETS ({len(data)}): query(\"<code>\", period=..., geography=...)")
-        for code, name, y0, y1, held, h0, h1, cols, _ in data:
+        for code, name, y0, y1, held, h0, h1, cols, _, files, f0, f1 in data:
             server = f"{y0}-{y1}" if y0 else "-"
-            kept = f"held {held:,} rows {h0}-{h1}" if held else "none held"
+            kept = f"held {held:,} rows {h0}-{h1}" if held else (
+                f"downloaded {files:,} files {f0}-{f1}, not built" if files else "none held")
             out.append(f"  {code:<30} {str(name or '')[:46]:<46} {cols or 0:>4} cols  server {server:<9}  {kept}")
 
         fields = q("SELECT name, label, source, years, years_held FROM fields ORDER BY source, name").fetchall()
@@ -1157,6 +1165,7 @@ def _write_datasets(
                 len(cols), n_desc,
                 *_axis_columns(axes_by_code.get(code)),
                 code, held.rows.get(code), *held.span(code),
+                *held.downloads.get(code, (None, None, None)),
             )
         )
     db.executemany(
@@ -1164,8 +1173,8 @@ def _write_datasets(
         " what_it_is, what_one_row_is, unit_of_analysis, known_biases, gotchas, status,"
         " confidence, files, year_min, year_max, ufs, generations, columns_total,"
         " columns_described, split_by, split_by_uf, split_by_year, split_by_month,"
-        " query_as, rows_held, year_min_held, year_max_held)"
-        " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+        " query_as, rows_held, year_min_held, year_max_held, files_downloaded, year_min_downloaded,"
+        " year_max_downloaded) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
         ds_rows,
     )
     report.rows["datasets"] = len(ds_rows)
@@ -1231,6 +1240,8 @@ class _Held:
     #: dataset -> column -> [non-null rows (None when a file carries no statistics), rows]
     columns: dict[str, dict[str, list[Any]]] = field(default_factory=dict)
     rows: dict[str, int] = field(default_factory=dict)
+    #: dataset -> (published files the blob store holds, first year, last year), whether built into the lake or not
+    downloads: dict[str, tuple[int, int | None, int | None]] = field(default_factory=dict)
 
     def span(self, code: str) -> tuple[int | None, int | None]:
         years = [y for (c, y, _), n in self.cover.items() if c == code and y and n]
@@ -1242,7 +1253,7 @@ def _internal(name: str) -> bool:
     return name.startswith("_") or name.endswith(("__RAW", "__FLAG"))
 
 
-def _held(store: _Store, onto: Ontology, wanted: set[str], lake_dir: Path) -> _Held:
+def _held(store: _Store, onto: Ontology, wanted: set[str], lake_dir: Path, blobs_dir: Path | None = None) -> _Held:
     from concurrent.futures import ThreadPoolExecutor
 
     import pyarrow.parquet as pq
@@ -1275,13 +1286,25 @@ def _held(store: _Store, onto: Ontology, wanted: set[str], lake_dir: Path) -> _H
         except (OSError, ValueError):  # a partition the catalog lists and the disk no longer has
             return part, None
 
+    # The rows held are one reading of each year, as query() reads it: a year whose national file is held beside
+    # some of its state files (SIM-DO 2009 and 2012, built when states were asked) counted each death twice, 24.9 M
+    # rows for 23.1 M (2026-11-21). The coverage still lists every partition, the state ones included.
+    from ._query_engine.coverage import national_or_states
+
+    by_year: dict[tuple[str, int], list[tuple[str, int, str, Path]]] = {}
+    for part in parts:
+        by_year.setdefault((part[0], part[1]), []).append(part)
+    reading = {part[3] for items in by_year.values() for part in national_or_states(items, lambda p: p[2])}
+
     out = _Held()
     with ThreadPoolExecutor(max_workers=8) as pool:
-        for (code, part_year, uf, _), meta in pool.map(footer, parts):
+        for (code, part_year, uf, path), meta in pool.map(footer, parts):
             if meta is None:
                 continue
             key = (code, part_year, uf)
             out.cover[key] = out.cover.get(key, 0) + meta.num_rows
+            if path not in reading:
+                continue
             out.rows[code] = out.rows.get(code, 0) + meta.num_rows
             nulls: dict[str, int | None] = {}
             for g in range(meta.num_row_groups):
@@ -1300,7 +1323,36 @@ def _held(store: _Store, onto: Ontology, wanted: set[str], lake_dir: Path) -> _H
                 slot = columns.setdefault(name, [0, 0])
                 slot[0] = None if (slot[0] is None or n_null is None) else slot[0] + meta.num_rows - n_null
                 slot[1] += meta.num_rows
+    if blobs_dir is not None:
+        out.downloads = _downloaded(store, onto, wanted, blobs_dir)
     return out
+
+
+def _downloaded(store: _Store, onto: Ontology, wanted: set[str], blobs_dir: Path) -> dict[str, tuple[int, int | None, int | None]]:
+    """Per dataset, the published files whose bytes the blob store holds: what a query reads without the network. CNES is
+    held this way and never built into the lake (its fields are cubes over the downloaded registers, ADR-0217), and the
+    map said "none held" of twelve years of every state's registers (2026-11-21)."""
+    per: dict[str, list[int]] = {}
+    count: dict[str, int] = {}
+    seen: set[str] = set()
+    for row in store.conn.execute(
+        "SELECT DISTINCT f.sha256, f.source_path, ff.system, ff.series_prefix, ff.year FROM fetches f"
+        " JOIN file_facts ff ON ff.path = f.source_path"
+    ).fetchall():
+        sha, path, system, series, year = (row[0], row[1], row[2], row[3], row[4])
+        if path in seen or not sha or not (blobs_dir / "sha256" / str(sha)[:2] / str(sha)).is_file():
+            continue
+        try:
+            code = onto.bind(str(system or ""), str(series or "")).dataset
+        except (KeyError, ValueError, LookupError):
+            code = None
+        if not code or code not in wanted:
+            continue
+        seen.add(path)
+        count[code] = count.get(code, 0) + 1
+        if year:
+            per.setdefault(code, []).append(int(year))
+    return {code: (n, min(per.get(code) or [0]) or None, max(per.get(code) or [0]) or None) for code, n in count.items()}
 
 
 def _declared_columns(onto: Ontology, wanted: set[str]) -> dict[str, set[str]]:
@@ -1442,13 +1494,20 @@ def _write_products(db: sqlite3.Connection, cfg: Settings, report: CompendiumRep
 
 
 def _write_fields(db: sqlite3.Connection, cfg: Settings, report: CompendiumReport) -> None:
-    from .fields import cube_of, declared_fields, load_field
+    from .fields import cnes_cube, cube_of, declared_fields, load_field
 
     built = cfg.lake_dir / "fields"
     rows = []
+    december = _cnes_decembers(cfg)
     for name, spec in sorted(declared_fields().items()):
         held_dir = built / name
-        if cube_of(spec) is not None:
+        cnes = cnes_cube(name, spec)
+        if cnes is not None:
+            # A CNES field is a cube over December's downloaded registers (its dataset's and the ST support's): held
+            # for the years both are downloaded, never as a folder under lake/fields (the map said "none held").
+            support = str(cnes["support"]).split(":", 1)[1].split("/", 1)[0]
+            years = sorted(december.get(str(cnes["dataset"]), set()) & december.get(support, set()))
+        elif cube_of(spec) is not None:
             # A SIDRA or series field is its cube: what is held is what the fact store answers (ADR-0217).
             try:
                 years = sorted(set(load_field(name, settings=cfg).column("year").to_pylist()))
@@ -1469,6 +1528,27 @@ def _write_fields(db: sqlite3.Connection, cfg: Settings, report: CompendiumRepor
         ))
     db.executemany("INSERT INTO fields VALUES (?,?,?,?,?,?,?,?,?,?,?)", rows)
     report.rows["fields"] = len(rows)
+
+
+def _cnes_decembers(cfg: Settings) -> dict[str, set[int]]:
+    """``CNES-<TYPE> -> years`` whose December register the blob store holds for all 27 states."""
+    import re
+
+    con = sqlite3.connect(f"file:{cfg.catalog_path.as_posix()}?mode=ro", uri=True)
+    try:
+        rows = con.execute("SELECT DISTINCT sha256, source_path FROM fetches WHERE source_path LIKE '%/CNES/%'").fetchall()
+    finally:
+        con.close()
+    states: dict[tuple[str, int], set[str]] = {}
+    for sha, path in rows:
+        m = re.match(r"([A-Z]{2})([A-Z]{2})(\d{2})12\.DBC$", Path(str(path)).name.upper())
+        if m and sha and (cfg.blobs_dir / "sha256" / str(sha)[:2] / str(sha)).is_file():
+            states.setdefault((f"CNES-{m.group(1)}", 2000 + int(m.group(3))), set()).add(m.group(2))
+    out: dict[str, set[int]] = {}
+    for (dataset, year), ufs in states.items():
+        if len(ufs) >= 27:
+            out.setdefault(dataset, set()).add(year)
+    return out
 
 
 def _write_roles(db: sqlite3.Connection, report: CompendiumReport) -> None:
