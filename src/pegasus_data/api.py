@@ -398,41 +398,9 @@ def describe(
     cat = catalog or Catalog(root=root, settings=settings)
     try:
         store = cat.store
-        candidates = resolve_family(store, system, series, field)
-        if not candidates:
-            from .retrieve import DatasetUnknown
-
-            raise DatasetUnknown(
-                f"no family found for system={system!r} series={series!r}"
-            )
-        family = candidates[0]
+        family = _describe_family(store, system, series, field)
         family_id = family["family_id"]
-
-        ledger_rows = store.query(
-            """
-            SELECT * FROM ledger WHERE family_id = ? AND field_name = ?
-            """,
-            (family_id, field),
-        )
-        profile_rows = store.query(
-            "SELECT * FROM variable_profiles WHERE family_id = ? AND field_name = ?",
-            (family_id, field),
-        )
-        in_schema = bool(
-            store.count(
-                "schema_presence", "schema_signature = ? AND field_name = ?",
-                (family["schema_signature"], field),
-            )
-        )
-        if not ledger_rows and not profile_rows and not in_schema:
-            # Genuinely absent from every generation we know about.
-            availability = field_availability(store, system, series or family["series"] or "", field)
-            raise MissingColumnError(field, family_id, [
-                g["family_id"] for g in availability.get("generations", []) if g.get("has_field")
-            ])
-
-        led = dict(ledger_rows[0]) if ledger_rows else {}
-        prof = dict(profile_rows[0]) if profile_rows else {}
+        led, prof = _describe_stats_rows(store, system, series, family, field)
         signature = str(prof.get("schema_signature") or family["schema_signature"])
 
         observed = observed_values(
@@ -447,42 +415,9 @@ def describe(
         )
         labelled_by = decision.codelists if decision.labels else ()
         labels = lookup(store, system=system, field_name=field, observed=observed, labelled_by=labelled_by)
-        total = sum(observed.values()) or 1
-        top = [
-            {
-                "value": value,
-                "count": count,
-                "percent": round(count / total, 6),
-                "label": labels.get(value),
-            }
-            for value, count in sorted(observed.items(), key=lambda kv: -kv[1])[:25]
-        ]
-
-        evidence: dict[str, Any] = {}
-        raw_evidence = led.get("semantic_evidence") or prof.get("semantic_evidence")
-        if raw_evidence:
-            try:
-                evidence = json.loads(raw_evidence)
-            except json.JSONDecodeError:
-                evidence = {"raw": raw_evidence}
-
-        generations = [
-            {
-                "family_id": f["family_id"],
-                "columns": f["field_count"],
-                "years": [f["time_min"], f["time_max"]],
-                "has_field": bool(
-                    store.count(
-                        "schema_presence", "schema_signature = ? AND field_name = ?",
-                        (f["schema_signature"], field),
-                    )
-                ),
-            }
-            for f in resolve_family(store, system, series, None)
-        ]
 
         open_questions = json.loads(led.get("open_questions") or "[]")
-        if not ledger_rows and not profile_rows:
+        if not led and not prof:
             # In the schema, but never profiled: say so rather than implying the
             # column does not exist, and rather than implying it is understood.
             open_questions.append(
@@ -498,94 +433,11 @@ def describe(
         from .semantics.curation import load_variable_docs
 
         curated = load_variable_docs(store, system).get(field.upper())
-        translated_name = curated.translated_name if curated else None
-        description = curated.description if curated else None
-        code_system = curated.code_system if curated else None
-        description_source = curated.source if curated else None
-        description_source_ref = curated.source_ref if curated else None
-
-        official_name = (curated.official_name if curated else None) or led.get("official_name")
-        if official_name is None:
-            # The record layout names the column itself; check it before giving up.
-            documented = store.query(
-                """
-                SELECT description, source_ref FROM field_documentation
-                 WHERE field_name = ? AND (system = ? OR system IS NULL)
-                 ORDER BY confidence DESC LIMIT 1
-                """,
-                (field, system),
-            )
-            if documented:
-                official_name = str(documented[0]["description"])
-        if official_name is None:
-            # Same rule the ledger uses: only a declaration that names the field
-            # itself counts. A declaration bound to a codelist names an
-            # aggregation level, and reporting one of those as the column's
-            # official name would be a plausible-looking guess (§13).
-            named = store.query(
-                """
-                SELECT display_name FROM def_variables
-                 WHERE field_name = ? AND lookup_ref IS NULL AND (system = ? OR system IS NULL)
-                 ORDER BY LENGTH(display_name) LIMIT 1
-                """,
-                (field, system),
-            )
-            official_name = named[0]["display_name"] if named else None
 
         bound = codelists_for(store, system=system, field_name=field)
-        sources = binding_sources(store, system=system, field_name=field)
-        chosen = labelled_by[0] if labelled_by else None
-        reference: dict[str, Any] | None = None
-        label_policy = "materialised"
-        if chosen:
-            hierarchical = is_hierarchical(store, chosen)
-            windows = [
-                {"valid_from": r["valid_from"], "valid_to": r["valid_to"], "codes": int(r["n"])}
-                for r in store.query(
-                    """
-                    SELECT valid_from, valid_to, COUNT(*) AS n FROM dictionary
-                     WHERE value_group = ? GROUP BY valid_from, valid_to ORDER BY valid_from
-                    """,
-                    (chosen,),
-                )
-            ]
-            reference = {
-                "table": chosen,
-                "tables": list(labelled_by),
-                "decided_by": decision.basis,
-                "decision": decision.reason,
-                # a catalog never profiled holds no values to weigh against: the decision then rests on what needs none
-                "observed_codes": len(observed),
-                "hierarchical": hierarchical,
-                "bound_by": sources.get(chosen) or ("curation" if decision.basis == "curated" else "unknown"),
-                "authoritative": decision.basis == "curated" or sources.get(chosen) in {"def", "manual", "layout_doc"},
-                "validity_windows": windows,
-                "rollup_levels": [
-                    r["codelist"]
-                    for r in rollups_for(store, system=system, field_name=field, observed=observed, labelled_by=labelled_by)
-                    if r["codelist"] != chosen
-                ][:8],
-                "join": (
-                    f"load_reference({chosen!r}, year=<year>) and join on the raw code; the "
-                    "window is chosen by year so a 1995 record decodes against the table "
-                    "published for 1995"
-                )
-                if hierarchical
-                else None,
-            }
-            label_policy = "join_reference_table" if hierarchical else "materialised"
-            if hierarchical:
-                open_questions.append(
-                    f"{field} is decoded by {chosen}, a hierarchical classification: no single "
-                    "label is written into the lake, because chapter, block and category are all "
-                    "valid levels and the published wording is version-specific. Join "
-                    f"load_reference({chosen!r}, year=...) at the level you want."
-                )
-            if sources.get(chosen) == "semantic_match":
-                open_questions.append(
-                    f"the binding {field} -> {chosen} rests on a measured membership rate, not on "
-                    "a .DEF or a layout document; treat it as a candidate until corroborated"
-                )
+        reference, label_policy = _describe_reference(
+            store, system, field, decision, labelled_by, observed, open_questions
+        )
         if not bound:
             # Name-matched codelists are *candidates*, never applied: "obvious" is
             # how a wrong mapping gets in without provenance (§13). Surfacing them
@@ -602,35 +454,214 @@ def describe(
             series=series or family["series"],
             family_id=family_id,
             field_name=field,
-            official_name=official_name,
-            translated_name=translated_name,
-            description=description,
-            code_system=code_system,
-            description_source=description_source,
-            description_source_ref=description_source_ref,
+            official_name=_describe_official_name(store, system, field, curated, led),
+            translated_name=curated.translated_name if curated else None,
+            description=curated.description if curated else None,
+            code_system=curated.code_system if curated else None,
+            description_source=curated.source if curated else None,
+            description_source_ref=curated.source_ref if curated else None,
             multi_valued=bool(curated and curated.multi_valued),
             token_rule=dict(curated.token_rule) if curated and curated.token_rule else None,
             semantic_type=led.get("semantic_type") or prof.get("semantic_type"),
             semantic_confidence=led.get("semantic_confidence") or prof.get("semantic_confidence"),
-            semantic_evidence=evidence,
+            semantic_evidence=_describe_evidence(led, prof),
             aggregation=str(led.get("aggregation") or "non_summable"),
             unit=led.get("unit"),
             dictionary_coverage=float(led.get("dictionary_coverage") or 0.0),
             distinct_observed=int(led.get("distinct_observed") or len(observed)),
             distinct_decoded=int(led.get("distinct_decoded") or 0),
             sentinel_values=json.loads(led.get("sentinel_values") or "[]"),
-            top_values=top,
+            top_values=_describe_top_values(observed, labels),
             codelists=bound,
             rollups=rollups_for(store, system=system, field_name=field, observed=observed, labelled_by=labelled_by),
             provenance=json.loads(led.get("provenance") or "[]"),
             open_questions=open_questions,
             reference=reference,
             label_policy=label_policy,
-            generations=generations,
+            generations=_describe_generations(store, system, series, field),
         )
     finally:
         if own:
             cat.close()
+
+
+def _describe_family(store: Any, system: str, series: str | None, field: str) -> dict[str, Any]:
+    """The family ``describe`` answers for; an unknown system or series raises ``DatasetUnknown``."""
+    candidates = resolve_family(store, system, series, field)
+    if not candidates:
+        from .retrieve import DatasetUnknown
+
+        raise DatasetUnknown(f"no family found for system={system!r} series={series!r}")
+    return candidates[0]
+
+
+def _describe_stats_rows(
+    store: Any, system: str, series: str | None, family: dict[str, Any], field: str
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    """The field's ledger row and variable profile (each ``{}`` if absent); a field in no generation raises."""
+    family_id = family["family_id"]
+    ledger_rows = store.query(
+        """
+        SELECT * FROM ledger WHERE family_id = ? AND field_name = ?
+        """,
+        (family_id, field),
+    )
+    profile_rows = store.query(
+        "SELECT * FROM variable_profiles WHERE family_id = ? AND field_name = ?",
+        (family_id, field),
+    )
+    in_schema = bool(
+        store.count(
+            "schema_presence", "schema_signature = ? AND field_name = ?",
+            (family["schema_signature"], field),
+        )
+    )
+    if not ledger_rows and not profile_rows and not in_schema:
+        # Genuinely absent from every generation we know about.
+        availability = field_availability(store, system, series or family["series"] or "", field)
+        raise MissingColumnError(field, family_id, [
+            g["family_id"] for g in availability.get("generations", []) if g.get("has_field")
+        ])
+    return (dict(ledger_rows[0]) if ledger_rows else {}, dict(profile_rows[0]) if profile_rows else {})
+
+
+def _describe_top_values(observed: dict[str, int], labels: dict[str, Any]) -> list[dict[str, Any]]:
+    """The 25 most frequent observed values with share and label."""
+    total = sum(observed.values()) or 1
+    return [
+        {
+            "value": value,
+            "count": count,
+            "percent": round(count / total, 6),
+            "label": labels.get(value),
+        }
+        for value, count in sorted(observed.items(), key=lambda kv: -kv[1])[:25]
+    ]
+
+
+def _describe_evidence(led: dict[str, Any], prof: dict[str, Any]) -> dict[str, Any]:
+    """The stored semantic evidence as a dict (``{"raw": text}`` if it is not JSON)."""
+    raw_evidence = led.get("semantic_evidence") or prof.get("semantic_evidence")
+    if not raw_evidence:
+        return {}
+    try:
+        return json.loads(raw_evidence)
+    except json.JSONDecodeError:
+        return {"raw": raw_evidence}
+
+
+def _describe_generations(store: Any, system: str, series: str | None, field: str) -> list[dict[str, Any]]:
+    """Every schema generation of the series and whether it carries the column."""
+    return [
+        {
+            "family_id": f["family_id"],
+            "columns": f["field_count"],
+            "years": [f["time_min"], f["time_max"]],
+            "has_field": bool(
+                store.count(
+                    "schema_presence", "schema_signature = ? AND field_name = ?",
+                    (f["schema_signature"], field),
+                )
+            ),
+        }
+        for f in resolve_family(store, system, series, None)
+    ]
+
+
+def _describe_official_name(store: Any, system: str, field: str, curated: Any, led: dict[str, Any]) -> str | None:
+    """Curated name, else the ledger's, else the record layout's, else a self-naming declaration; None if none."""
+    official_name = (curated.official_name if curated else None) or led.get("official_name")
+    if official_name is None:
+        # The record layout names the column itself; check it before giving up.
+        documented = store.query(
+            """
+            SELECT description, source_ref FROM field_documentation
+             WHERE field_name = ? AND (system = ? OR system IS NULL)
+             ORDER BY confidence DESC LIMIT 1
+            """,
+            (field, system),
+        )
+        if documented:
+            official_name = str(documented[0]["description"])
+    if official_name is None:
+        # Same rule the ledger uses: only a declaration that names the field
+        # itself counts. A declaration bound to a codelist names an
+        # aggregation level, and reporting one of those as the column's
+        # official name would be a plausible-looking guess (§13).
+        named = store.query(
+            """
+            SELECT display_name FROM def_variables
+             WHERE field_name = ? AND lookup_ref IS NULL AND (system = ? OR system IS NULL)
+             ORDER BY LENGTH(display_name) LIMIT 1
+            """,
+            (field, system),
+        )
+        official_name = named[0]["display_name"] if named else None
+    return official_name
+
+
+def _describe_reference(
+    store: Any,
+    system: str,
+    field: str,
+    decision: Any,
+    labelled_by: Sequence[str],
+    observed: dict[str, int],
+    open_questions: list[str],
+) -> tuple[dict[str, Any] | None, str]:
+    """The labelling table's reference block and label policy; appends its caveats to ``open_questions``."""
+    sources = binding_sources(store, system=system, field_name=field)
+    chosen = labelled_by[0] if labelled_by else None
+    if not chosen:
+        return None, "materialised"
+    hierarchical = is_hierarchical(store, chosen)
+    windows = [
+        {"valid_from": r["valid_from"], "valid_to": r["valid_to"], "codes": int(r["n"])}
+        for r in store.query(
+            """
+            SELECT valid_from, valid_to, COUNT(*) AS n FROM dictionary
+             WHERE value_group = ? GROUP BY valid_from, valid_to ORDER BY valid_from
+            """,
+            (chosen,),
+        )
+    ]
+    reference = {
+        "table": chosen,
+        "tables": list(labelled_by),
+        "decided_by": decision.basis,
+        "decision": decision.reason,
+        # a catalog never profiled holds no values to weigh against: the decision then rests on what needs none
+        "observed_codes": len(observed),
+        "hierarchical": hierarchical,
+        "bound_by": sources.get(chosen) or ("curation" if decision.basis == "curated" else "unknown"),
+        "authoritative": decision.basis == "curated" or sources.get(chosen) in {"def", "manual", "layout_doc"},
+        "validity_windows": windows,
+        "rollup_levels": [
+            r["codelist"]
+            for r in rollups_for(store, system=system, field_name=field, observed=observed, labelled_by=labelled_by)
+            if r["codelist"] != chosen
+        ][:8],
+        "join": (
+            f"load_reference({chosen!r}, year=<year>) and join on the raw code; the "
+            "window is chosen by year so a 1995 record decodes against the table "
+            "published for 1995"
+        )
+        if hierarchical
+        else None,
+    }
+    if hierarchical:
+        open_questions.append(
+            f"{field} is decoded by {chosen}, a hierarchical classification: no single "
+            "label is written into the lake, because chapter, block and category are all "
+            "valid levels and the published wording is version-specific. Join "
+            f"load_reference({chosen!r}, year=...) at the level you want."
+        )
+    if sources.get(chosen) == "semantic_match":
+        open_questions.append(
+            f"the binding {field} -> {chosen} rests on a measured membership rate, not on "
+            "a .DEF or a layout document; treat it as a candidate until corroborated"
+        )
+    return reference, "join_reference_table" if hierarchical else "materialised"
 
 
 def levels(
