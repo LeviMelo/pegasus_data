@@ -22,7 +22,7 @@ from typing import Any
 
 import numpy as np
 
-from .ontology import dataset_key
+from ..ontology import dataset_key
 from .population_account import (
     BANDS,
     A,
@@ -54,7 +54,7 @@ def area_places(places: Places, area_of: dict[int, int], n_areas: int) -> Simple
 def load_contagem(root: str | Path, municipalities: list[int]) -> np.ndarray:
     """The Contagem of 1996 by municipality × sex × 15 groups (0-4 .. 65-69, 70+), NaN where the municipality has no count
     (4,974 of the 5,570 existed). SIDRA table 475, variable 93, read as its cube."""
-    from .cubes import cube
+    from ..cubes import cube
 
     t = cube("sidra:475/93", by=["c2", "c58"], where={"c2": [4, 5], "c58": list(CONTAGEM_GROUPS)}, periods=["1996"],
              labels=False, settings=_settings(root))
@@ -189,7 +189,7 @@ class Pre:
 def member_totals(root: str | Path, municipalities: list[int]) -> dict[str, np.ndarray]:
     """Per municipality (``municipalities`` order): the 1991 census total (SIDRA 200, sample table whose total is the
     universe) and the 1996 Contagem total, NaN where the municipality had no count."""
-    from .cubes import cube
+    from ..cubes import cube
     from .population_account import _AGE_GROUP_IDS
 
     t = cube("sidra:200/93", by=["c2", "c58"], where={"c2": [4, 5], "c58": list(_AGE_GROUP_IDS)}, periods=["1991"],

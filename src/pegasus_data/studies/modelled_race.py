@@ -48,9 +48,9 @@ from typing import Any
 import numpy as np
 import pyarrow as pa
 
-from ._age import bands
-from .config import UF_NUMERIC
-from .ontology import dataset_key
+from .._age import bands
+from ..config import UF_NUMERIC
+from ..ontology import dataset_key
 
 MODEL_VERSION = "race-confusion-infant-1"
 #: Factor on the sd of a simulated state x recorded-race count for 90% predictive coverage out of sample
@@ -76,7 +76,7 @@ def race_parameter(name: str) -> float:
     """One analytic choice of the race model (``parameters:`` of ``race_confusion_infant`` in `curation/products.yml`, which
     ``race_confusion_women`` repeats: the one model, with the reason beside each): ``kappa``, the pseudo-count that smooths a
     municipality's racial shares toward its state's; ``alpha_sd``, the prior scale of the intercepts."""
-    from .modelled import product_parameters
+    from ..modelled import product_parameters
 
     return float(product_parameters("race_confusion_infant")[name])
 
@@ -605,7 +605,7 @@ def build(deaths: pa.Table, births: pa.Table, reference_births: pa.Table, *, set
     the year the table is expressed on. ``selection`` = (train years, score years) of the scale selection, declared
     by the product; without it the first year is trained against the last and back. Needs the ``modelled`` extra.
     """
-    from .modelled import ModelledManifest, write_modelled  # noqa: PLC0415
+    from ..modelled import ModelledManifest, write_modelled  # noqa: PLC0415
 
     comp = composition(births)
     year, linked, pairs = prepare(deaths, comp, population)
@@ -671,7 +671,7 @@ RACE_LABEL_CODE = {"white": "1", "black": "2", "asian": "3", "brown": "4", "indi
 
 
 def _declaration(product: str) -> dict[str, Any]:
-    from .semantics.curation import products
+    from ..semantics.curation import products
 
     return dict((products().get(product) or {}).get("inputs") or {})
 
@@ -686,9 +686,9 @@ def _residence(settings: Any, dataset: str, role: str, table: pa.Table, ids: lis
     state's "ignored" municipality (xx0000), whose deaths and births still belong to their state (a null's UF is unknown)."""
     import pyarrow.compute as pc
 
-    from . import query
-    from .linkage.identity import record_ids
-    from .semantics.column_roles import column_of
+    from .. import query
+    from ..linkage.identity import record_ids
+    from ..semantics.column_roles import column_of
 
     value = table[role].cast(pa.string())
     gaps = pc.is_null(value)
@@ -703,8 +703,8 @@ def _residence(settings: Any, dataset: str, role: str, table: pa.Table, ids: lis
 def births_by_race(settings: Any, years: list[int]) -> pa.Table:
     """SINASC births of ``years`` by the mother's residence (``mun``) and the baby's colour code (``race``, null if blank):
     the municipal composition, and the year the product is expressed on. Columns ``mun``, ``race``, ``n``."""
-    from .linkage.identity import record_ids
-    from .linkage.roles import role_table
+    from ..linkage.identity import record_ids
+    from ..linkage.roles import role_table
 
     parts = []
     for year in years:
@@ -718,7 +718,7 @@ def births_by_race(settings: Any, years: list[int]) -> pa.Table:
 def _stored_pairs(settings: Any, name: str, year: int, notes: list[str]) -> tuple[pa.Table, dict[str, Any]]:
     """A probabilistic link's stored pairs for ``year``. A run stored before fingerprints existed reads as stale; it is used
     (the link takes hours and is not this build's to rerun) and the reason goes into the manifest's notes."""
-    from .linkage import engine, store
+    from ..linkage import engine, store
 
     key = engine.stored_key(name, engine.link_method(name), year, "BR")
     found = store.load(settings, key, allow_stale=True)
@@ -735,9 +735,9 @@ def infant_deaths(settings: Any, name: str, years: list[int], notes: list[str]) 
     days, the residence, whether the stored link found its birth, and the colour that birth declares."""
     import pyarrow.compute as pc
 
-    from .linkage import engine
-    from .linkage.identity import record_ids
-    from .linkage.roles import role_table
+    from ..linkage import engine
+    from ..linkage.identity import record_ids
+    from ..linkage.roles import role_table
 
     spec = engine.load_links()[name]
     out = []
@@ -776,8 +776,8 @@ def _women_year(settings: Any, name: str, year: int, first_year: int, shifts: li
     pairs and prices their false share by municipality size."""
     import time
 
-    from .linkage import engine, placebo
-    from .linkage.identity import connect
+    from ..linkage import engine, placebo
+    from ..linkage.identity import connect
 
     t0 = time.time()
     spec = engine.load_links()[name]
@@ -852,7 +852,7 @@ def women_deaths(settings: Any, name: str, years: list[int], decl: dict[str, Any
 def _build_product(population: Population, settings: Any, version: str, validation: str, log: Any) -> dict[str, Any]:
     from dataclasses import replace
 
-    from .fields import _years
+    from ..fields import _years
 
     decl = _declaration(population.product)
     years = _years(decl["years"])

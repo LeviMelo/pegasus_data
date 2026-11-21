@@ -514,7 +514,7 @@ products:
     # the strata are under these names, sex read from its label (M, F or unknown), never from a code
     # `from` is the first year a system publishes; `earlier` the system that holds the years before it (SIM-DO starts in 1996,
     # its ICD-9 predecessor SIM-DOR, non-foetal deaths by residence, holds 1979-1995; SINASC starts in 1994, so 1991-1993 have no births)
-    build: pegasus_data.population_tensor.build_population_account
+    build: pegasus_data.studies.population_tensor.build_population_account
     inputs:
       deaths: {events: "records:SIM-DO/death", from: 1996, earlier: "records:SIM-DOR/death",
                strata: {residence: deceased.residence, sex: deceased.sex, age: deceased.age_years}}
@@ -564,7 +564,7 @@ products:
     period: "2021-2023"
     call: 'pegasus_data.modelled.read_modelled("population_without_private_coverage")'
     stores: [lake/modelled/population_without_private_coverage]
-    build: pegasus_data.sus_dependent.build_sus_dependent
+    build: pegasus_data.studies.sus_dependent.build_sus_dependent
     # what it subtracts (`sus_dependent.build_sus_dependent`): the population account's own band estimate, with a 10-90%
     # interval per five-year band (ADR-0145; the account's build writes it beside the single-age product), and the field of
     # plan links, whose declared `where` is the plan coverage that insures hospital care and whose declared years are the
@@ -584,7 +584,7 @@ products:
     period: "2021-2022"
     call: 'pegasus_data.modelled.read_modelled("race_confusion_infant")'
     stores: [lake/modelled/race_confusion_infant]
-    build: pegasus_data.modelled_race.build_infant_product
+    build: pegasus_data.studies.modelled_race.build_infant_product
     # the stored link run of each year (a probabilistic run takes hours: the build reads it, never runs it); the births whose
     # municipal racial composition is the covariate, and the year the table is expressed on
     inputs: {link: sim_infant_deaths_to_sinasc, years: "2021-2022", composition_years: "2020-2021", reference_year: 2022}
@@ -604,7 +604,7 @@ products:
     period: "2015-2022"
     call: 'pegasus_data.modelled.read_modelled("race_confusion_women")'
     stores: [lake/modelled/race_confusion_women]
-    build: pegasus_data.modelled_race.build_women_product
+    build: pegasus_data.studies.modelled_race.build_women_product
     # one link run per death year over the births from `births_from` (run by the build, which keeps the pairs `engine.link` drops at this chance rate). A municipality's class is
     # its number of mother groups against `class_edges`: chance agreement of a birth date grows with it, so only classes up to
     # `max_class` (here under 2,000 groups) are used, and each pair carries the false-link share its class and year measured with
@@ -648,7 +648,7 @@ products:
     period: "2000-2023"
     call: 'pegasus_data.modelled.read_modelled("system_completeness")'
     stores: [lake/modelled/system_completeness, resources/published_coverage_idb2012.csv]
-    build: pegasus_data.completeness.build_completeness
+    build: pegasus_data.studies.completeness.build_completeness
     # the deaths whose ill-defined share (by UF of residence and year) is a covariate of the SIM series
     inputs:
       ill_defined: {events: "records:SIM-DO/death", years: "2010-2023"}
@@ -673,7 +673,7 @@ products:
     period: "2000-2004 to 2017-2021"
     call: 'pegasus_data.modelled.read_modelled("registration_completeness")'
     stores: [lake/modelled/registration_completeness]
-    build: pegasus_data.population_account.build_registration_completeness
+    build: pegasus_data.studies.population_account.build_registration_completeness
     # the census term of the interval is the account's own (see `population_account`)
     parameters: {national: *national}
 

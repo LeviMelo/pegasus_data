@@ -38,8 +38,8 @@ def _links_field() -> tuple[str, dict, dict]:
     """The field of plan links the product subtracts (``inputs: links`` of its entry in ``curation/products.yml``) and its
     declaration: the declared ``where`` names the coverage that insures hospital care, the declared ``years`` the years;
     and its records cube plan (the measure column, the stratum columns by their names)."""
-    from .fields import declared_fields, intake_cube
-    from .semantics.curation import product
+    from ..fields import declared_fields, intake_cube
+    from ..semantics.curation import product
 
     name = str(product("population_without_private_coverage")["inputs"]["links"]["field"])
     spec = declared_fields()[name]
@@ -73,8 +73,8 @@ def _unplaced(root: str | Path, year: int) -> int:
     municipality is -1, and a state's "ignored" code 270000): the records cube's own count of what it could not place
     (``unplaced_events``), read from the ANS records in the lake."""
 
-    from .config import load_settings
-    from .cubes import cube, manifest
+    from ..config import load_settings
+    from ..cubes import cube, manifest
 
     _, spec, plan = _links_field()
     coverage = {alias: column for column, alias in plan["strata"]}["coverage"]
@@ -89,10 +89,10 @@ def load_ans(root: str | Path, years: list[int]) -> tuple[dict[tuple, int], dict
     ``medical_total`` and reported, and subtracted from no cell."""
     import pyarrow as pa
 
-    from .config import load_settings
-    from .fields import load_field
+    from ..config import load_settings
+    from ..fields import load_field
+    from ..semantics.categories import canonical_sex
     from .population_account import BAND_LABELS
-    from .semantics.categories import canonical_sex
 
     name, spec, _ = _links_field()
     settings = load_settings(root=Path(root))
@@ -125,12 +125,12 @@ def build_sus_dependent(settings, *, version: str, validation: str, draws: int =
                         log=print) -> dict[str, Any]:
     """Write the ``population_without_private_coverage`` modelled product: the population account's version declared in
     `curation/products.yml` minus the ANS medical-hospital links of the years both hold."""
-    from .modelled import ModelledManifest, write_modelled
+    from ..modelled import ModelledManifest, write_modelled
 
     root = settings.root
-    from .fields import _years
-    from .modelled import read_modelled
-    from .semantics.curation import product
+    from ..fields import _years
+    from ..modelled import read_modelled
+    from ..semantics.curation import product
 
     # the years the links field declares; those the account holds are built (it does not extrapolate, ADR-0145)
     years = _years(str(_links_field()[1]["years"]))

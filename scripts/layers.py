@@ -38,8 +38,7 @@ LAYERS: list[tuple[str, str]] = [
     # the map of everything held
     ("describe", "_info _translate _unknowns _compendium _search verify adopt"),
     # modelled products built on all of it
-    ("studies", "studies population_account population_tensor population_backcast population_forecast modelled_race "
-                "completeness sus_dependent"),
+    ("studies", "studies"),
     # the doors
     ("entry", "cli serve __init__"),
 ]

@@ -25,10 +25,10 @@ from pathlib import Path
 
 import numpy as np
 
-from .config import UF_NUMERIC
+from ..config import UF_NUMERIC
 
 UFS = sorted(int(code) for code in UF_NUMERIC)
-RESOURCES = Path(__file__).parent / "resources"
+RESOURCES = Path(__file__).parent.parent / "resources"
 
 
 def published() -> dict[tuple[str, int, int], float]:
@@ -50,7 +50,7 @@ def systems() -> dict[str, dict]:
     """Each system the product extends past 2011 and its declared model (``curation/products.yml``, ``system_completeness``:
     ``systems``): ``anchor_sd``, the standard deviation (probability scale) of the published ratio itself, and ``extension``,
     ``drift`` or ``persist``, each with the evidence it rests on."""
-    from .semantics.curation import product
+    from ..semantics.curation import product
 
     return product("system_completeness")["systems"]
 
@@ -115,11 +115,11 @@ def ill_defined_shares(settings, log=print) -> tuple[str, dict[tuple[int, int], 
     import pyarrow as pa
     import pyarrow.compute as pc
 
-    from .config import curation_root
-    from .cubes import cube
-    from .fields import _years
-    from .semantics.column_roles import column_of
-    from .semantics.curation import product, read_yaml
+    from ..config import curation_root
+    from ..cubes import cube
+    from ..fields import _years
+    from ..semantics.column_roles import column_of
+    from ..semantics.curation import product, read_yaml
 
     spec = product("system_completeness")["inputs"]["ill_defined"]
     dataset, _, event = str(spec["events"]).removeprefix("records:").partition("/")
@@ -144,14 +144,14 @@ def build_completeness(settings, *, version: str, validation: str, last_year: in
 
     import pyarrow as pa
 
-    from .modelled import ModelledManifest, write_modelled
+    from ..modelled import ModelledManifest, write_modelled
 
 
     pub = published()
     ill_dataset, ill = ill_defined_shares(settings, log)
     ill_system = ill_dataset.split("-")[0]                    # the system the share is a covariate of (SIM-DO: SIM)
 
-    from .modelled import read_modelled
+    from ..modelled import read_modelled
 
     # the latest version as `read_modelled` orders them (by number: a text sort put -10 before -6)
     table, acct_manifest = read_modelled("registration_completeness", settings=settings)

@@ -39,7 +39,7 @@ def member_inputs(root: str | Path, places: Places) -> dict[str, np.ndarray]:
     """Per municipality (``places.municipalities`` order): the raw census by sex
     and single age 2010 and 2022 (a zero row where the municipality did not exist yet), the census-2000 total (NaN where
     it did not exist) and the Contagem-2007 total (NaN where absent)."""
-    from .cubes import cube
+    from ..cubes import cube
     from .population_account import _settings, census_table
 
     ms = places.municipalities
@@ -271,8 +271,8 @@ def load_race(root: str | Path, places: Places) -> dict[int, np.ndarray]:
     """Self-declared race by municipality × sex × age × race (5): the 2010 and 2022 universe by single age 0..100 (SIDRA table
     9606) and the 2000 sample by IBGE's bands spread flat over the band's ages (table 2093). A cell IBGE did not publish is
     counted 0 and tallied in ``loss`` (the five races miss the people with no declared race: a few thousand a census)."""
-    from .sidra.series import build_series
-    from .sidra.session import Sidra
+    from ..sidra.series import build_series
+    from ..sidra.session import Sidra
 
     s = Sidra(root)
     idx = {m: i for i, m in enumerate(places.municipalities)}
@@ -717,9 +717,9 @@ def build_population_account(settings, *, version: str, validation: str, only: t
     5. the rows of 1991-1999, then 2000-2030, written as one version, never over a stored one.
 
     ``only`` restricts the 2000-2030 rows to states (a development run: the product is then partial)."""
-    from . import __version__
-    from . import population_backcast as pb
-    from .modelled import ModelledManifest, write_modelled
+    from .. import __version__
+    from .. import population_backcast as pb
+    from ..modelled import ModelledManifest, write_modelled
     from .population_account import (
         assemble,
         fit_calibration,

@@ -79,14 +79,14 @@ class Places:
 
 
 def _settings(root: str | Path) -> object:
-    from .config import load_settings
+    from ..config import load_settings
 
     return load_settings(root=Path(root))
 
 
 def census_table(root: str | Path, year: int, columns: list[str]):
     """A census's counts by municipality, sex and single age (``load_population``'s CENSO series), ``columns`` of it."""
-    from .api import load_population
+    from ..api import load_population
 
     return load_population(series="CENSO", years=year, by=["sex", "age"], settings=_settings(root)).select(columns)
 
@@ -183,7 +183,7 @@ def vital_inputs() -> dict[str, dict[str, Any]]:
     """What the account counts (``inputs`` of its product, `curation/products.yml`): per input, its event type
     (``records:<dataset>/<event>``), its strata (a name for each role it is stratified by), the first year its system
     publishes (``first``, 0 when it always has) and the dataset that holds the years before it (``earlier``, or None)."""
-    from .semantics.curation import product
+    from ..semantics.curation import product
 
     def split(events: str) -> tuple[str, str]:
         dataset, _, event = str(events).removeprefix("records:").partition("/")
@@ -203,7 +203,7 @@ def sex_of(dataset: str, column: str, year: int, codes: list[str | None], root: 
     never read as a sex by itself. A code whose label is neither (ignorado) is None."""
     import pyarrow as pa
 
-    from .semantics.categories import canonical_sex, code_labels
+    from ..semantics.categories import canonical_sex, code_labels
 
     present = sorted({str(c).strip() for c in codes if c is not None and str(c).strip()})
     labels = code_labels(dataset, column, year, present, root)
@@ -223,9 +223,9 @@ def vital_events(settings: Any, name: str, year: int, place: str) -> dict[str, A
     (read by municipality), and those of no state or of no date. None where the system publishes nothing that year (no births
     before 1994)."""
 
-    from .cubes import cube, manifest
-    from .semantics.column_roles import column_of
-    from .semantics.curation import semantics_for
+    from ..cubes import cube, manifest
+    from ..semantics.column_roles import column_of
+    from ..semantics.curation import semantics_for
 
     spec = vital_inputs()[name]
     dataset = spec["dataset"] if year >= spec["first"] else spec["earlier"]
@@ -404,7 +404,7 @@ def reconciled_coverage(root: str | Path, year: int, census: np.ndarray, state_o
 def pes_coverage(raw_entity: np.ndarray, entity_state: np.ndarray) -> np.ndarray:
     """Coverage factors (corrected / raw) of the 2022 Census by entity × sex × age, from IBGE's PES margins raked onto
     cells (``sources.pes.corrected_census``), applied to the single ages of each band in proportion."""
-    from .sources.pes import corrected_census
+    from ..sources.pes import corrected_census
 
     rb = to_bands(raw_entity)
     corrected = corrected_census(rb, entity_state)
@@ -418,7 +418,7 @@ def pes_coverage(raw_entity: np.ndarray, entity_state: np.ndarray) -> np.ndarray
 def parameters() -> dict[str, Any]:
     """The analytic choices of the account (``parameters:`` of ``population_account`` in `curation/products.yml`): the lag
     groups whose cohort migration is a regressor, the national level term, the trend window and the backcast's widening."""
-    from .modelled import product_parameters
+    from ..modelled import product_parameters
 
     return product_parameters("population_account")
 
@@ -426,7 +426,7 @@ def parameters() -> dict[str, Any]:
 def national(product: str = "population_account") -> tuple[float, float]:
     """``(sd, drift)``: the log sd common to every cell (how complete the base census was) and the drift of the national
     total per year of horizon (``parameters: national``)."""
-    from .modelled import product_parameters
+    from ..modelled import product_parameters
 
     declared = product_parameters(product)["national"]
     return float(declared["sd"]), float(declared["drift"])
@@ -457,7 +457,7 @@ def lag_series(root: str | Path, places: Places) -> tuple[dict[int, np.ndarray],
     fetch 200 --variables 93 --periods 1991,2000,2010 --level N6 --class 2=4,5 --class 1=0 --class 58=1140,…,1155,2503``."""
     import pegasus_data as pg
 
-    from .cubes import cube
+    from ..cubes import cube
 
     rows = [(r["place"], int(r["period"]), r["c2"], r["c58"], r["value"])
             for r in cube("sidra:200/93", by=["c2", "c58"], labels=False, settings=_settings(root)).to_pylist()
@@ -571,7 +571,7 @@ def lag_features(c0: np.ndarray, c1: np.ndarray, length: float, m: np.ndarray, s
 def static_covariates(root: str | Path, members: list[list[int]], census_year: int, gdp_year: int, population: np.ndarray):
     """Urban share at the census opening a period (SIDRA 202) and log GDP per head (5938, R$ 1000) of ``gdp_year`` over
     ``population``, per row; both centred on their median. A row with no value takes the median."""
-    from .cubes import cube
+    from ..cubes import cube
 
     settings = _settings(root)
     pop = {(r["place"], r["c1"]): r["value"] for r in cube("sidra:202/93", by=["c1"], periods=[census_year], labels=False,
@@ -995,8 +995,8 @@ def build_registration_completeness(settings: Any, *, version: str, validation: 
 
     import pyarrow as pa
 
-    from . import __version__
-    from .modelled import ModelledManifest, write_modelled
+    from .. import __version__
+    from ..modelled import ModelledManifest, write_modelled
 
     inp = assemble(settings, log)
     rows = birth_registration(inp)
