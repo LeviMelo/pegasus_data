@@ -43,17 +43,42 @@ from pathlib import Path
 import pyarrow as pa
 import pyarrow.compute as pc
 
-#: Column aliases across vintages, mapped to the canonical name.
-CANONICAL_COLUMNS: dict[str, str] = {
-    "COD_MUN": "municipality", "MUNIC_RES": "municipality", "MUNICIPIO": "municipality",
-    "CODMUNRES": "municipality", "CO_MUNICIP": "municipality", "MUNIC": "municipality",
-    "ANO": "year", "ANOS": "year", "NU_ANO": "year",
-    "SEXO": "sex", "TP_SEXO": "sex",
-    "IDADE": "age", "FXETARIA": "age_group", "FAIXA_ETARIA": "age_group",
-    "POP": "population", "POPULACAO": "population", "QTD": "population",
-    "POPULAÇÃO": "population",
-    "UF": "uf", "SIGLA_UF": "uf", "COD_UF": "uf_code",
+#: The name a population table's column takes, by the role ``curation/roles`` declares for it (``population.*``). A
+#: column with another role keeps its own name, lower-cased (``POPALFAB`` -> ``popalfab``). ``population.residence`` is
+#: named by what its codes are (``_place_name``).
+_ROLE_NAMES: dict[str, str] = {
+    "population.year": "year",
+    "population.sex": "sex",
+    "population.count": "population",
+    "population.age_band": "age",
+    "population.age_band_legacy": "age_group",
 }
+
+
+@lru_cache(maxsize=1)
+def _population_roles() -> dict[str, str]:
+    """``COLUMN -> role`` of every column a population record declares (``curation/roles``, roles ``population.*``).
+    The vintages spell a column differently (``COD_MUN``, ``MUNIC_RES``, ``MUNCOD``) and their roles say it is one."""
+    from ..semantics.column_roles import load_column_roles
+
+    out: dict[str, str] = {}
+    for columns in load_column_roles().values():
+        for column in columns:
+            if not column.role.startswith("population."):
+                continue
+            prior = out.setdefault(column.column.upper(), column.role)
+            if prior != column.role:
+                raise ValueError(f"{column.column}: declared {prior} and {column.role} in two population tables")
+    return out
+
+
+def _place_name(values: pa.ChunkedArray | pa.Array) -> str:
+    """``uf`` when every code of a residence column is a state's IBGE code (projpop's UFCOD), ``municipality`` else."""
+    from ..config import UF_NUMERIC
+
+    codes = {str(v).strip() for v in pc.unique(values).to_pylist() if v is not None and str(v).strip()}
+    states = set(UF_NUMERIC)
+    return "uf" if codes and codes <= states else "municipality"
 
 
 @dataclass(frozen=True, slots=True)
@@ -140,7 +165,7 @@ def series_documentation(name: str) -> dict[str, object]:
 #: An axis is available when ONE of its columns is in the files.
 _AXIS_COLUMNS: dict[str, tuple[str, ...]] = {
     "municipality": ("municipality",),
-    "uf": ("uf", "ufcod"),
+    "uf": ("uf", "ufcod"),   # projpop files built before 2026-11-21 name the state by its file column, ufcod
     "year": ("year",),
     "sex": ("sex",),
     "age": ("age",),
@@ -246,9 +271,15 @@ def materialised(directory: Path) -> Materialised | None:
 
 
 def canonicalize(table: pa.Table) -> pa.Table:
-    """Rename a population table's columns to the shared vocabulary."""
+    """Rename a population table's columns to the shared vocabulary, by their declared roles."""
     names = table.schema.names
-    renamed = [CANONICAL_COLUMNS.get(n.upper(), n.lower()) for n in names]
+    declared = _population_roles()
+    renamed = []
+    for n in names:
+        role = declared.get(n.upper())
+        renamed.append(
+            _place_name(table.column(n)) if role == "population.residence" else _ROLE_NAMES.get(role or "", n.lower())
+        )
     seen: dict[str, int] = {}
     final: list[str] = []
     for n in renamed:

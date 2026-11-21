@@ -738,7 +738,8 @@ def constrained_to_ibge(tables, settings, log=print):
     ibge = np.zeros_like(own)
     for year in range(lo, hi + 1):
         t = load_population(series="projpop", years=[year], by=["sex", "age"], settings=settings)
-        for uf, sex, age, n in zip(t["ufcod"].to_pylist(), t["sex"].to_pylist(), t["age"].to_pylist(), t["population"].to_pylist(), strict=True):
+        state = "uf" if "uf" in t.column_names else "ufcod"   # files built before 2026-11-21 name the state ufcod
+        for uf, sex, age, n in zip(t[state].to_pylist(), t["sex"].to_pylist(), t["age"].to_pylist(), t["population"].to_pylist(), strict=True):
             ibge[int(uf), year - lo, 0 if sex == "M" else 1, min(int(age), 90)] += n
     factor = np.where(own > 0, ibge / np.maximum(own, 1e-9), 1.0)
     log(f"constrained to IBGE's states: factors {np.quantile(factor[own > 0], [0.01, 0.5, 0.99]).round(3).tolist()} (1%, median, 99%)")

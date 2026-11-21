@@ -62,3 +62,4 @@ Line numbers are from the tree as read (2026-11-21).
 | 4 | fixed: `curation/resources.yml`; one provider; `cnes_registry` pseudo-resource removed |
 | 22 | fixed with #3 (the ICD universe is the `icd10` reference of `kit_tables`) |
 | 16 | fixed: `formats.py` is the one suffix/container declaration; the six lists are gone |
+| 7 | fixed: population columns renamed by declared role |
