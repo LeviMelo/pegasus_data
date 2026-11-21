@@ -145,73 +145,81 @@ def write_sheet(
         )
 
 
-def build(artifact: str, out: Path, *, settings: Any = None) -> Path:
-    """Write ``artifact``'s workbook to ``out`` and return the path."""
-    capability = capabilities(artifact, settings=settings)
-    caps = capability.as_dict()
-    measures = caps["measures"]
-    mids = [m["id"] for m in measures]
+class _Readme:
+    """A cursor over the Leia-me sheet: key/value lines, headings, gaps."""
 
-    # Territory names, indexed by the 6-digit code the artifact stores.
+    def __init__(self, ws: Any) -> None:
+        self.ws = ws
+        self.row = 1
+
+    def kv(self, k: str, v: str, bold: bool = False) -> None:
+        """One key (column A) and its wrapped value (column B)."""
+        a = self.ws.cell(row=self.row, column=1, value=k)
+        a.font = Font(bold=True, size=10, color=INK)
+        b = self.ws.cell(row=self.row, column=2, value=v)
+        b.alignment = Alignment(wrap_text=True, vertical="top")
+        if bold:
+            b.font = Font(bold=True)
+        self.row += 1
+
+    def gap(self, n: int = 1) -> None:
+        """Skip ``n`` rows."""
+        self.row += n
+
+    def head(self, text: str) -> None:
+        """A section heading."""
+        c = self.ws.cell(row=self.row, column=1, value=text)
+        c.font = Font(bold=True, size=12, color=ACCENT)
+        self.row += 1
+
+
+def _territory_names() -> tuple[dict[str, dict], dict[Any, str]]:
+    """Municipality attributes by 6-digit code, and state names by UF sigla."""
     by6: dict[str, dict] = {}
     uf_name: dict[Any, str] = {}
     for code6, muni in municipalities().items():
         by6[code6] = {"name": muni["name"], "uf": muni["uf_sigla"], "macroregion": muni["macroregion"]}
         uf_name[muni["uf_sigla"]] = muni["uf_name"]
+    return by6, uf_name
 
-    # Dimension labels, from the artifact's own codelists.
-    codelists = {d.id: {lv.code: lv.label for lv in d.levels} for d in capability.dimensions}
-    cut = functools.partial(_cut, settings=settings)
 
-    wb = Workbook()
-    wb.remove(wb.active)
-
-    # ------------------------------------------------------------ Leia-me
+def _write_readme(wb: Workbook, caps: dict, measures: list[dict]) -> None:
+    """The Leia-me sheet: title, provenance, measures and how to read the other sheets."""
     ws = wb.create_sheet("Leia-me")
     ws.column_dimensions["A"].width = 26
     ws.column_dimensions["B"].width = 96
-    row = 1
+    page = _Readme(ws)
 
-    def kv(k: str, v: str, bold: bool = False) -> None:
-        nonlocal row
-        a = ws.cell(row=row, column=1, value=k)
-        a.font = Font(bold=True, size=10, color=INK)
-        b = ws.cell(row=row, column=2, value=v)
-        b.alignment = Alignment(wrap_text=True, vertical="top")
-        if bold:
-            b.font = Font(bold=True)
-        row += 1
-
-    def gap(n: int = 1) -> None:
-        nonlocal row
-        row += n
-
-    def head(text: str) -> None:
-        nonlocal row
-        c = ws.cell(row=row, column=1, value=text)
-        c.font = Font(bold=True, size=12, color=ACCENT)
-        row += 1
-
-    title = ws.cell(row=row, column=1, value=caps["label"])
+    title = ws.cell(row=page.row, column=1, value=caps["label"])
     title.font = Font(bold=True, size=16, color=INK)
-    row += 1
-    ws.cell(row=row, column=1, value=caps.get("description") or "").font = Font(
+    page.row += 1
+    ws.cell(row=page.row, column=1, value=caps.get("description") or "").font = Font(
         size=10, color="6B7280"
     )
-    row += 2
+    page.row += 2
 
-    head("Procedência")
-    kv("Fonte", f"DATASUS {caps['dataset']} ({caps['system']} · {caps['series']})")
-    kv("Artefato", caps["id"])
-    kv("Impressão digital", caps["fingerprint"])
-    kv("Vintage (build)", caps["vintage"])
+    _readme_provenance(page, caps)
+    _readme_measures(page, measures)
+    _readme_how_to_read(page, caps)
+
+
+def _readme_provenance(page: _Readme, caps: dict) -> None:
+    """Where the numbers come from: source, artifact, fingerprint, vintage, period."""
+    page.head("Procedência")
+    page.kv("Fonte", f"DATASUS {caps['dataset']} ({caps['system']} · {caps['series']})")
+    page.kv("Artefato", caps["id"])
+    page.kv("Impressão digital", caps["fingerprint"])
+    page.kv("Vintage (build)", caps["vintage"])
     period = caps["period"]
-    kv("Período", f"{period['from']} a {period['to']} (grão: {period['grain']})")
-    kv("Unidade observada", caps["observation_unit"])
-    kv("Exportado em", dt.datetime.now().astimezone().isoformat(timespec="seconds"))
-    gap()
+    page.kv("Período", f"{period['from']} a {period['to']} (grão: {period['grain']})")
+    page.kv("Unidade observada", caps["observation_unit"])
+    page.kv("Exportado em", dt.datetime.now().astimezone().isoformat(timespec="seconds"))
+    page.gap()
 
-    head("Medidas")
+
+def _readme_measures(page: _Readme, measures: list[dict]) -> None:
+    """One line per measure, with the warning a mean or a stock needs."""
+    page.head("Medidas")
     for m in measures:
         kind = {
             "count": "contagem",
@@ -232,61 +240,76 @@ def build(artifact: str, out: Path, *, settings: Any = None) -> Path:
                 f"Onde o tempo foi colapsado, a coluna traz o "
                 f"{words.get(m['time_reducer'], m['time_reducer'])} dos valores mensais."
             )
-        kv(m["label"], f"{kind} · unidade: {m['unit']} · fórmula: {m['formula']}{extra}")
-    gap()
+        page.kv(m["label"], f"{kind} · unidade: {m['unit']} · fórmula: {m['formula']}{extra}")
+    page.gap()
 
-    head("Como ler")
-    kv(
+
+def _readme_how_to_read(page: _Readme, caps: dict) -> None:
+    """The reading rules: own cuts, blank is not zero, totals, coverage, credit."""
+    page.head("Como ler")
+    page.kv(
         "Cada aba é um recorte próprio",
         "Nenhuma aba foi derivada de outra. Cada uma foi recalculada a partir "
         "do agregado, porque somar ou tirar média de uma coluna que já é média "
         "(permanência) produz um número plausível e errado.",
     )
-    kv(
+    page.kv(
         "Célula vazia ≠ zero",
         "Um município sem célula não foi observado naquele recorte — ele não "
         "reportou zero. Vazio foi mantido vazio de propósito; preencher com 0 "
         "faria qualquer média subsequente mentir.",
     )
-    kv(
+    page.kv(
         "Totais",
         "As linhas de Total vêm de uma agregação separada no nível mais amplo, "
         "não da soma da coluna acima.",
     )
     cov = caps["spatial"]["coverage"]
-    kv(
+    page.kv(
         "Cobertura",
         f"{cov['kind']} · {cov.get('municipalities', '?')} municípios no escopo do build."
         + (f" Observação: {cov['note']}" if cov.get("note") else ""),
     )
-    gap()
-    kv(
+    page.gap()
+    page.kv(
         "Gerado por",
         "PegaSUS — pegasus_data (agregação; pegasus-data workbook). "
         "Os valores aqui são os mesmos servidos por pegasus_data.serve.",
     )
 
-    # ------------------------------------------------- Resumo (Brasil/ano)
-    national = cut(artifact, [], measures)
-    if national:
-        n = national[0]
-        write_sheet(
-            wb,
-            "Resumo Brasil",
-            ["Medida", "Valor", "Unidade"],
-            [
-                [h, n.get(m["id"]), m["unit"]]
-                for h, m in zip(headers_for(measures, False), measures, strict=True)
-            ],
-            {2: "#,##0.00"},
-            note=f"Brasil · {period['from']} a {period['to']}. Uma agregação nacional única.",
-        )
-        # Per-measure formats differ, so set them cell by cell.
-        sheet = wb["Resumo Brasil"]
-        for i, m in enumerate(measures):
-            sheet.cell(row=4 + i, column=2).number_format = number_format(m)
 
-    # ------------------------------------------------------ tempo (mês)
+def _write_national_summary(wb: Workbook, national: list[dict], measures: list[dict], period: dict) -> None:
+    """Resumo Brasil: one national aggregation, one row per measure."""
+    n = national[0]
+    write_sheet(
+        wb,
+        "Resumo Brasil",
+        ["Medida", "Valor", "Unidade"],
+        [
+            [h, n.get(m["id"]), m["unit"]]
+            for h, m in zip(headers_for(measures, False), measures, strict=True)
+        ],
+        {2: "#,##0.00"},
+        note=f"Brasil · {period['from']} a {period['to']}. Uma agregação nacional única.",
+    )
+    # Per-measure formats differ, so set them cell by cell.
+    sheet = wb["Resumo Brasil"]
+    for i, m in enumerate(measures):
+        sheet.cell(row=4 + i, column=2).number_format = number_format(m)
+
+
+def _write_time_and_territory_sheets(
+    wb: Workbook,
+    cut: Any,
+    artifact: str,
+    measures: list[dict],
+    national: list[dict],
+    by6: dict[str, dict],
+    uf_name: dict[Any, str],
+) -> None:
+    """Por mês, Por UF, Por UF e mês and Por município, each its own aggregation."""
+    mids = [m["id"] for m in measures]
+
     monthly = cut(artifact, ["month"], measures)
     monthly.sort(key=lambda r: r.get("month") or "")
     write_sheet(
@@ -299,7 +322,6 @@ def build(artifact: str, out: Path, *, settings: Any = None) -> Path:
         total_row=["Total"] + [national[0].get(i) for i in mids] if national else None,
     )
 
-    # ------------------------------------------------------------- por UF
     per_uf = cut(artifact, ["uf"], measures)
     per_uf.sort(key=lambda r: -(r.get(mids[0]) or 0))
     write_sheet(
@@ -315,7 +337,6 @@ def build(artifact: str, out: Path, *, settings: Any = None) -> Path:
         total_row=["", "Total"] + [national[0].get(i) for i in mids] if national else None,
     )
 
-    # -------------------------------------------------------- UF x mês
     uf_month = cut(artifact, ["uf", "month"], measures)
     uf_month.sort(key=lambda r: (r.get("uf") or "", r.get("month") or ""))
     write_sheet(
@@ -331,7 +352,6 @@ def build(artifact: str, out: Path, *, settings: Any = None) -> Path:
         note="Série mensal por estado.",
     )
 
-    # ------------------------------------------------------ municípios
     per_mun = cut(artifact, ["municipality"], measures)
     per_mun.sort(key=lambda r: -(r.get(mids[0]) or 0))
     mun_rows = []
@@ -355,7 +375,18 @@ def build(artifact: str, out: Path, *, settings: Any = None) -> Path:
         total_row=["", "", "", "Total"] + [national[0].get(i) for i in mids] if national else None,
     )
 
-    # ------------------------------------------------- uma aba por dimensão
+
+def _write_dimension_sheets(
+    wb: Workbook,
+    cut: Any,
+    artifact: str,
+    caps: dict,
+    codelists: dict[str, dict],
+    national: list[dict],
+) -> None:
+    """One sheet per dimension of the artifact, labelled from its own codelist."""
+    measures = caps["measures"]
+    mids = [m["id"] for m in measures]
     for dim in caps["dimensions"]:
         did, dlabel = dim["id"], dim["label"]
         table = cut(artifact, [did], measures)
@@ -379,6 +410,30 @@ def build(artifact: str, out: Path, *, settings: Any = None) -> Path:
             note=note,
             total_row=["", "Total"] + [national[0].get(i) for i in mids] if national else None,
         )
+
+
+def build(artifact: str, out: Path, *, settings: Any = None) -> Path:
+    """Write ``artifact``'s workbook to ``out`` and return the path."""
+    capability = capabilities(artifact, settings=settings)
+    caps = capability.as_dict()
+    measures = caps["measures"]
+
+    by6, uf_name = _territory_names()
+    # Dimension labels, from the artifact's own codelists.
+    codelists = {d.id: {lv.code: lv.label for lv in d.levels} for d in capability.dimensions}
+    cut = functools.partial(_cut, settings=settings)
+
+    wb = Workbook()
+    wb.remove(wb.active)
+
+    _write_readme(wb, caps, measures)
+
+    # Resumo (Brasil): one national aggregation, also the source of every Total row.
+    national = cut(artifact, [], measures)
+    if national:
+        _write_national_summary(wb, national, measures, caps["period"])
+    _write_time_and_territory_sheets(wb, cut, artifact, measures, national, by6, uf_name)
+    _write_dimension_sheets(wb, cut, artifact, caps, codelists, national)
 
     out.parent.mkdir(parents=True, exist_ok=True)
     wb.save(out)
