@@ -25,8 +25,9 @@ from __future__ import annotations
 import hashlib
 import json
 from collections.abc import Mapping, Sequence
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, NamedTuple
 
 import pyarrow as pa
 
@@ -278,28 +279,69 @@ def _cached(settings: Any, key: str, where: Mapping[str, Any], build: Any, stamp
 # ------------------------------------------------------------------------------------------------------ records
 
 
-def _records(ident: str, *, place: str, by: list[str], where: dict[str, Sequence[Any]], periods: Sequence[str | int] | None,
-             labels: bool, settings: Any, at: str | None = None, time: str | None = None, grain: str | None = None,
-             condition: object = None, measure: str | None = None, support: Any = None,
-             geography: str | None = None, derived: Mapping[str, Mapping[str, Any]] | None = None) -> pa.Table:
-    """Events of one type of a record dataset, counted by the event type's own rules (status, duplicates, consolidation,
-    weights: `semantics.event_types`), by place, period and the columns in ``by``. The place and the date are the dataset's
-    declared bindings; a municipality is its IBGE 7 digits, and an event whose place no IBGE municipality has, or that has
-    no date, is counted in the manifest (``unplaced_events``), never dropped silently. An event whose code names its state
-    and no municipality (DATASUS's "Município ignorado - <UF>": `geography.place_states`) is in no municipality's cell
-    and counts in its state's and the country's. A (place, period) with no event has
-    no row: not observed, never zero."""
-    import pyarrow.compute as pc
+@dataclass(frozen=True)
+class _Bindings:
+    """The dataset's place and time bindings a records cube reads its events by."""
 
-    from .geography import place_municipalities
+    at: str
+    time: str
+    place_column: str
+    states: bool          # the place binding's values are states (`code_system: uf`): read at state level, never below
+    state_prefix: str
+    time_fields: list[str]
+    encoding: str
+    century: str
+
+
+@dataclass(frozen=True)
+class _Strata:
+    """What `where`, `measure` and `derived` ask of a records cube, resolved against the columns it reads."""
+
+    exact: dict[str, list[str]]       # a code list on a plain column: read by the query
+    after: dict[str, Any]             # prefixes, exclusions, bounds, two-column and blank codes: applied after counting
+    bands: dict[str, Any]             # derived strata, made after counting
+    group: list[str]                  # the columns the events are counted by
+    cell: list[str]                   # the cell's own keys
+    extra: dict[str, Any]
+    distinct: str | None
+    numbered: str | None
+    summed: str | None
+    extreme: str | None
+    moment: str | None
+    argument: str
+
+
+@dataclass(frozen=True)
+class _Request:
+    """A records cube asked for, with its bindings and strata resolved."""
+
+    ident: str
+    dataset: str
+    event: str
+    place: str
+    by: list[str]
+    where: dict[str, Sequence[Any]]
+    periods: Sequence[str | int]
+    grain: str
+    measure: str | None
+    condition: object
+    support: Any
+    geography: str | None
+    settings: Any
+    bound: _Bindings
+    strata: _Strata
+
+    @property
+    def publications(self) -> str:
+        """`geography` selects the publications read (a state's files), never the records: a test reads the least it needs."""
+        return self.geography or "BR"
+
+
+def _bindings(dataset: str, place: str, at: str | None, time: str | None) -> _Bindings:
+    """The dataset's place and time bindings (its defaults when left out), refused when unknown or not its columns."""
+    from .semantics.column_roles import declared_columns
     from .semantics.curation import semantics_for
-    from .semantics.event_types import count_events
 
-    dataset, _, event = ident.partition("/")
-    if not event:
-        raise ValueError("a records cube is records:<dataset>/<event type>")
-    if not periods:
-        raise ValueError("a records cube names its periods (years): it reads the records of those publications")
     semantics = semantics_for(dataset)
     if semantics is None:
         raise LookupError(f"{dataset}: no curated place and time bindings (semantic_axes) to place and date its events")
@@ -320,8 +362,6 @@ def _records(ident: str, *, place: str, by: list[str], where: dict[str, Sequence
     # a binding inherited from the system names the system's columns; a dataset of another layout (SIM-DOR's MUNIRES and
     # DATAOBITO under SIM's CODMUNRES and DTOBITO) would place and date nothing. The dataset's roles say which columns it
     # has: a bound column they do not declare is refused (the intake's landed binding names columns it makes itself).
-    from .semantics.column_roles import declared_columns
-
     try:
         held = {c.column.upper() for c in declared_columns(dataset)}
     except KeyError:
@@ -332,9 +372,13 @@ def _records(ident: str, *, place: str, by: list[str], where: dict[str, Sequence
         if unheld:
             raise LookupError(f"{dataset}: its bindings {at!r}/{time!r} name {unheld}, columns its roles do not declare; "
                               "declare the dataset's own semantic_axes")
-    grain = grain or "month"
-    if grain not in ("month", "year"):
-        raise ValueError("a records cube's grain is month or year")
+    return _Bindings(at, time, place_column, states, state_prefix, time_fields, encoding,
+                     str(times[time].get("century") or ""))
+
+
+def _strata(dataset: str, bound: _Bindings, by: list[str], where: dict[str, Sequence[Any]], measure: str | None,
+            derived: Mapping[str, Mapping[str, Any]]) -> _Strata:
+    """Split ``where`` into what the query reads and what is applied after counting, parse ``measure`` and resolve ``derived``."""
     # `where` is the record's own codes ({column: [codes]}, read by the query) or a prefix ({column: {prefix: [...]}}, kept
     # after counting): SISAGUA's monthly control keeps the CAMPO rows that are counts ("Número de...", "N de...").
     # A code list on a plain column is read by the query; a prefix, an exclusion or a code made of two columns
@@ -356,21 +400,26 @@ def _records(ident: str, *, place: str, by: list[str], where: dict[str, Sequence
     transform, _, argument = (measure or "").partition(":")
     if transform not in _TRANSFORMS:
         transform, argument = "", ""
-    numbered = argument if transform == "count" else None
-    summed = None if distinct or transform else measure
-    extreme = transform if transform in ("min", "max") else None
-    moment = transform if transform in _TRANSFORMS and transform not in ("count", "min", "max") else None
     # a derived stratum is read from its input columns and made after counting by them (`_derived_dimensions`)
-    bands = _derived_dimensions(dataset, derived or {})
+    bands = _derived_dimensions(dataset, derived)
     missing = [b for b in bands if b not in by]
     if missing:
         raise ValueError(f"derived strata {missing} are not named in by")
     inputs = [c for d in bands.values() for c in (d.fields if hasattr(d, "form") else (d.field_name,))]
-    group = list(dict.fromkeys([place_column, *time_fields, *(b for b in by if b not in bands), *inputs, *filter_columns]))
-    extra = {"rows": exact} if exact else {}
+    group = list(dict.fromkeys([bound.place_column, *bound.time_fields, *(b for b in by if b not in bands), *inputs,
+                                *filter_columns]))
+    # the cell's own keys: a column a filter reads is not one of them (a physician under two CBO codes is one person)
+    cell = list(dict.fromkeys([bound.place_column, "__uf", *bound.time_fields, *by]))
+    return _Strata(exact, after, bands, group, cell, {"rows": exact} if exact else {}, distinct,
+                   argument if transform == "count" else None, None if distinct or transform else measure,
+                   transform if transform in ("min", "max") else None,
+                   transform if transform in _TRANSFORMS and transform not in ("count", "min", "max") else None, argument)
+
+
+def _spans(dataset: str, event: str, periods: Sequence[str | int]) -> tuple[list[Any], list[int], list[str], list[int]]:
+    """The spans to read (runs of consecutive published years, or the months asked), the years asked, the months, and the
+    years asked that the source does not publish."""
     months = sorted({str(p) for p in periods if len(str(p)) == 7 and str(p)[4] == "-"})
-    # `geography` selects the publications read (a state's files), never the records: a test reads the least it needs
-    publications = geography or "BR"
     years = sorted(set(years_of(periods)))
     # Only the years the source publishes are read; a year asked for that has no publication is said in the manifest,
     # never fetched and failed (FA-HUM's file has no case in 2012). Events are read in runs of consecutive years, since an
@@ -392,148 +441,187 @@ def _records(ident: str, *, place: str, by: list[str], where: dict[str, Sequence
             runs.append([y])
     spans: list[Any] = ([m for m in months if year_of(m) in published] if months
                         else [run[0] if len(run) == 1 else (run[0], run[-1]) for run in runs])
+    return spans, years, months, unpublished
 
-    def kept(table: pa.Table) -> pa.Table:
-        """`where`'s prefixes, exclusions, bounds and two-column codes, applied to a table that holds their columns."""
-        for key, rule in after.items():
-            columns = key.split("+")
-            text = pc.fill_null(pc.utf8_trim_whitespace(pc.cast(table.column(columns[0]), pa.string())), "")
-            for column in columns[1:]:
-                text = pc.binary_join_element_wise(
-                    text, pc.fill_null(pc.utf8_trim_whitespace(pc.cast(table.column(column), pa.string())), ""), "")
-            if isinstance(rule, Mapping) and set(rule) & set(BOUNDS):
-                # the typed value against a bound (a potability limit: turbidity above 5 uT); a value not a number fails
-                from .normalize.types import to_number
 
-                number = to_number(table.column(columns[0]))
-                hit = None
-                for bound, op in BOUNDS.items():
-                    if bound in rule:
-                        test = getattr(pc, op)(number, float(rule[bound]))
-                        hit = test if hit is None else pc.and_kleene(hit, test)
-            elif isinstance(rule, Mapping) and "prefix" in rule:
-                starts = [str(x) for x in rule["prefix"]]
-                hit = pc.starts_with(text, starts[0])
-                for start in starts[1:]:
-                    hit = pc.or_kleene(hit, pc.starts_with(text, start))
-            elif isinstance(rule, Mapping):
-                # an exclusion of a value not recorded is unknown, never kept: a facility with no SUS link recorded is
-                # neither SUS nor non-SUS (as the CNES fields counted it)
-                recorded = pc.is_valid(table.column(columns[0]))
-                hit = pc.and_(recorded, pc.invert(pc.is_in(text, pa.array([str(x) for x in rule["not"]]))))
-            else:
-                hit = pc.is_in(text, pa.array([str(x) for x in rule]))
-            table = table.filter(pc.fill_null(hit, False))
-        return table
+def _kept(table: pa.Table, after: Mapping[str, Any]) -> pa.Table:
+    """`where`'s prefixes, exclusions, bounds and two-column codes, applied to a table that holds their columns."""
+    import pyarrow.compute as pc
 
-    # the cell's own keys: a column a filter reads is not one of them (a physician under two CBO codes is one person)
-    cell = list(dict.fromkeys([place_column, "__uf", *time_fields, *by]))
+    for key, rule in after.items():
+        columns = key.split("+")
+        text = pc.fill_null(pc.utf8_trim_whitespace(pc.cast(table.column(columns[0]), pa.string())), "")
+        for column in columns[1:]:
+            text = pc.binary_join_element_wise(
+                text, pc.fill_null(pc.utf8_trim_whitespace(pc.cast(table.column(column), pa.string())), ""), "")
+        if isinstance(rule, Mapping) and set(rule) & set(BOUNDS):
+            # the typed value against a bound (a potability limit: turbidity above 5 uT); a value not a number fails
+            from .normalize.types import to_number
 
-    def banded(table: pa.Table) -> pa.Table:
-        """The derived strata of ``table``'s input columns (`_age.band_column`, `NumericBandDimension.column`)."""
-        from ._age import band_column, years_column
-
-        for name, dim in bands.items():
-            column = band_column(dim, years_column(dim, table)) if hasattr(dim, "form") else dim.column(table)
-            table = table.append_column(name, column)
-        return table
-
-    def placed(table: pa.Table) -> pa.Table:
-        """The place column as the municipality it places (`geography.place_municipalities`), before any grouping: a
-        distinct count is of its municipality, never summed over the codes that place there (the Federal District's PF
-        files code its administrative regions to 2016, and a physician of two regions is one physician of Brasília)."""
-        codes = pc.dictionary_encode(pc.cast(table.column(place_column), pa.string())).combine_chunks()
-        if states:
-            from .geography import uf_codes_by_sigla
-
-            by_abbreviation = {abbr: int(code) for abbr, code in uf_codes_by_sigla().items()}
-            mapped = pa.array([by_abbreviation.get(str(v).strip().removeprefix(state_prefix)) if v else None
-                               for v in codes.dictionary.to_pylist()], pa.int64())
-            state = mapped
+            number = to_number(table.column(columns[0]))
+            hit = None
+            for bound, op in BOUNDS.items():
+                if bound in rule:
+                    test = getattr(pc, op)(number, float(rule[bound]))
+                    hit = test if hit is None else pc.and_kleene(hit, test)
+        elif isinstance(rule, Mapping) and "prefix" in rule:
+            starts = [str(x) for x in rule["prefix"]]
+            hit = pc.starts_with(text, starts[0])
+            for start in starts[1:]:
+                hit = pc.or_kleene(hit, pc.starts_with(text, start))
+        elif isinstance(rule, Mapping):
+            # an exclusion of a value not recorded is unknown, never kept: a facility with no SUS link recorded is
+            # neither SUS nor non-SUS (as the CNES fields counted it)
+            recorded = pc.is_valid(table.column(columns[0]))
+            hit = pc.and_(recorded, pc.invert(pc.is_in(text, pa.array([str(x) for x in rule["not"]]))))
         else:
-            from .geography import place_states
+            hit = pc.is_in(text, pa.array([str(x) for x in rule]))
+        table = table.filter(pc.fill_null(hit, False))
+    return table
 
-            mapped = pa.array(place_municipalities(codes.dictionary.to_pylist()), pa.int64())
-            # the state of each code: its municipality's, or the one a state-only code names
-            state = pa.array(place_states(codes.dictionary.to_pylist()), pa.int64())
-        table = table.set_column(table.schema.get_field_index(place_column), place_column, pc.take(mapped, codes.indices))
-        return table.append_column("__uf", pc.take(state, codes.indices))
 
-    def count(span: Any) -> pa.Table:
-        if event != "rows":
-            if measure:
-                raise ValueError("an event type counts events; a measure is summed over a dataset's rows (records:<dataset>/rows)")
-            # events are counted by the filters' columns too, then filtered and summed over them (events add up)
-            counted = banded(placed(kept(count_events(dataset, event, period=span, geography=publications, by=group,
-                                                      condition=condition, **extra))))
-            return counted.group_by(cell).aggregate([("events", "sum")]).rename_columns([*cell, "events"])
-        if condition is not None:
-            raise ValueError("a condition on roles applies to an event type's records")
-        from ._query_engine import query
+def _banded(table: pa.Table, bands: Mapping[str, Any]) -> pa.Table:
+    """The derived strata of ``table``'s input columns (`_age.band_column`, `NumericBandDimension.column`)."""
+    from ._age import band_column, years_column
 
-        # a sum of several columns ("HORA_AMB+HORAHOSP+HORAOUTR": a professional's weekly hours), a missing part as 0
-        parts_summed = summed.split("+") if summed else []
-        extra_columns = [*parts_summed, *([distinct] if distinct else []), *([numbered] if numbered else []),
-                         *([argument] if moment or extreme else [])]
-        table = banded(placed(kept(query(dataset, period=span, geography=publications,
-                                         select=list(dict.fromkeys([*group, *extra_columns])), present="codes", **extra))))
-        if summed:
-            # one number reader (`normalize.types.to_number`); several columns sum row-wise, a part
-            # with no number contributing nothing and a row where no part holds one staying null (missing is not zero)
-            from .normalize.types import to_number
+    for name, dim in bands.items():
+        column = band_column(dim, years_column(dim, table)) if hasattr(dim, "form") else dim.column(table)
+        table = table.append_column(name, column)
+    return table
 
-            values = [to_number(table.column(part)) for part in parts_summed]
-            total = values[0]
-            for value in values[1:]:
-                total = pc.if_else(pc.or_(pc.is_valid(total), pc.is_valid(value)),
-                                   pc.add(pc.fill_null(total, 0.0), pc.fill_null(value, 0.0)),
-                                   pa.scalar(None, pa.float64()))
-            table = table.append_column("__sum", total)
-            return table.group_by(cell).aggregate([("__sum", "sum")]).rename_columns([*cell, "events"])
-        if extreme:
-            from .normalize.types import to_number
 
-            return table.append_column("__x", to_number(table.column(argument))).group_by(cell).aggregate(
-                [("__x", extreme)]).rename_columns([*cell, "events"])
-        if moment:
-            from .normalize.types import to_number
+def _placed(table: pa.Table, bound: _Bindings) -> pa.Table:
+    """The place column as the municipality it places (`geography.place_municipalities`), before any grouping: a
+    distinct count is of its municipality, never summed over the codes that place there (the Federal District's PF
+    files code its administrative regions to 2016, and a physician of two regions is one physician of Brasília)."""
+    import pyarrow.compute as pc
 
-            number = to_number(table.column(argument))
-            if moment == "sumsq":
-                term = pc.multiply(number, number)
-            else:
-                # a number that is not positive has no logarithm: left out of the state, as a blank is, never clipped
-                positive = pc.fill_null(pc.greater(number, 0.0), False)
-                log = pc.ln(pc.if_else(positive, number, pa.scalar(1.0, pa.float64())))
-                term = (pc.cast(positive, pa.float64()) if moment == "countpos" else
-                        pc.if_else(positive, log if moment == "sumlog" else pc.multiply(log, log),
-                                   pa.scalar(None, pa.float64())))
-            return table.append_column("__m", term).group_by(cell).aggregate([("__m", "sum")]).rename_columns(
-                [*cell, "events"])
-        if numbered:
-            from .normalize.types import to_number
+    from .geography import place_municipalities
 
-            table = table.append_column("__n", pc.cast(pc.is_valid(to_number(table.column(numbered))), pa.float64()))
-            return table.group_by(cell).aggregate([("__n", "sum")]).rename_columns([*cell, "events"])
-        if distinct:
-            # one row per distinct value in its cell (an establishment listed twice in a month is one), then counted
-            values = pc.utf8_trim_whitespace(pc.cast(table.column(distinct), pa.string()))
-            table = table.set_column(table.schema.get_field_index(distinct), distinct, values).filter(
-                pc.fill_null(pc.not_equal(values, ""), False))
-            table = table.group_by([*cell, distinct]).aggregate([])
-            return table.group_by(cell).aggregate([(distinct, "count")]).rename_columns([*cell, "events"])
-        # every row, its place unplaced included (a count of the place column skips nulls: the unplaced vanished)
-        return table.group_by(cell).aggregate([(place_column, "count", pc.CountOptions(mode="all"))]).rename_columns(
+    place_column = bound.place_column
+    codes = pc.dictionary_encode(pc.cast(table.column(place_column), pa.string())).combine_chunks()
+    if bound.states:
+        from .geography import uf_codes_by_sigla
+
+        by_abbreviation = {abbr: int(code) for abbr, code in uf_codes_by_sigla().items()}
+        mapped = pa.array([by_abbreviation.get(str(v).strip().removeprefix(bound.state_prefix)) if v else None
+                           for v in codes.dictionary.to_pylist()], pa.int64())
+        state = mapped
+    else:
+        from .geography import place_states
+
+        mapped = pa.array(place_municipalities(codes.dictionary.to_pylist()), pa.int64())
+        # the state of each code: its municipality's, or the one a state-only code names
+        state = pa.array(place_states(codes.dictionary.to_pylist()), pa.int64())
+    table = table.set_column(table.schema.get_field_index(place_column), place_column, pc.take(mapped, codes.indices))
+    return table.append_column("__uf", pc.take(state, codes.indices))
+
+
+def _count_span(req: _Request, span: Any) -> pa.Table:
+    """The events (or the rows) of one span counted by the cell's keys, in a column ``events``."""
+    from .semantics.event_types import count_events
+
+    s, cell = req.strata, req.strata.cell
+    if req.event != "rows":
+        if req.measure:
+            raise ValueError("an event type counts events; a measure is summed over a dataset's rows (records:<dataset>/rows)")
+        # events are counted by the filters' columns too, then filtered and summed over them (events add up)
+        counted = _banded(_placed(_kept(count_events(req.dataset, req.event, period=span, geography=req.publications,
+                                                     by=s.group, condition=req.condition, **s.extra), s.after),
+                                  req.bound), s.bands)
+        return counted.group_by(cell).aggregate([("events", "sum")]).rename_columns([*cell, "events"])
+    if req.condition is not None:
+        raise ValueError("a condition on roles applies to an event type's records")
+    from ._query_engine import query
+
+    # a sum of several columns ("HORA_AMB+HORAHOSP+HORAOUTR": a professional's weekly hours), a missing part as 0
+    parts_summed = s.summed.split("+") if s.summed else []
+    extra_columns = [*parts_summed, *([s.distinct] if s.distinct else []), *([s.numbered] if s.numbered else []),
+                     *([s.argument] if s.moment or s.extreme else [])]
+    table = _banded(_placed(_kept(query(req.dataset, period=span, geography=req.publications,
+                                        select=list(dict.fromkeys([*s.group, *extra_columns])), present="codes",
+                                        **s.extra), s.after), req.bound), s.bands)
+    return _reduce_rows(table, s, parts_summed, req.bound.place_column)
+
+
+def _reduce_rows(table: pa.Table, s: _Strata, parts_summed: list[str], place_column: str) -> pa.Table:
+    """A dataset's rows reduced to ``events`` by the cell's keys: the measure summed, an extreme, a moment, a count of
+    numbers, the distinct values, or every row."""
+    import pyarrow.compute as pc
+
+    cell = s.cell
+    if s.summed:
+        # one number reader (`normalize.types.to_number`); several columns sum row-wise, a part
+        # with no number contributing nothing and a row where no part holds one staying null (missing is not zero)
+        from .normalize.types import to_number
+
+        values = [to_number(table.column(part)) for part in parts_summed]
+        total = values[0]
+        for value in values[1:]:
+            total = pc.if_else(pc.or_(pc.is_valid(total), pc.is_valid(value)),
+                               pc.add(pc.fill_null(total, 0.0), pc.fill_null(value, 0.0)),
+                               pa.scalar(None, pa.float64()))
+        table = table.append_column("__sum", total)
+        return table.group_by(cell).aggregate([("__sum", "sum")]).rename_columns([*cell, "events"])
+    if s.extreme:
+        from .normalize.types import to_number
+
+        return table.append_column("__x", to_number(table.column(s.argument))).group_by(cell).aggregate(
+            [("__x", s.extreme)]).rename_columns([*cell, "events"])
+    if s.moment:
+        from .normalize.types import to_number
+
+        number = to_number(table.column(s.argument))
+        if s.moment == "sumsq":
+            term = pc.multiply(number, number)
+        else:
+            # a number that is not positive has no logarithm: left out of the state, as a blank is, never clipped
+            positive = pc.fill_null(pc.greater(number, 0.0), False)
+            log = pc.ln(pc.if_else(positive, number, pa.scalar(1.0, pa.float64())))
+            term = (pc.cast(positive, pa.float64()) if s.moment == "countpos" else
+                    pc.if_else(positive, log if s.moment == "sumlog" else pc.multiply(log, log),
+                               pa.scalar(None, pa.float64())))
+        return table.append_column("__m", term).group_by(cell).aggregate([("__m", "sum")]).rename_columns(
             [*cell, "events"])
+    if s.numbered:
+        from .normalize.types import to_number
 
-    parts = [count(span) for span in spans]
-    counts = pa.concat_tables(parts, promote_options="permissive") if len(parts) > 1 else parts[0]
-    century = str(times[time].get("century") or "")
+        table = table.append_column("__n", pc.cast(pc.is_valid(to_number(table.column(s.numbered))), pa.float64()))
+        return table.group_by(cell).aggregate([("__n", "sum")]).rename_columns([*cell, "events"])
+    if s.distinct:
+        distinct = s.distinct
+        # one row per distinct value in its cell (an establishment listed twice in a month is one), then counted
+        values = pc.utf8_trim_whitespace(pc.cast(table.column(distinct), pa.string()))
+        table = table.set_column(table.schema.get_field_index(distinct), distinct, values).filter(
+            pc.fill_null(pc.not_equal(values, ""), False))
+        table = table.group_by([*cell, distinct]).aggregate([])
+        return table.group_by(cell).aggregate([(distinct, "count")]).rename_columns([*cell, "events"])
+    # every row, its place unplaced included (a count of the place column skips nulls: the unplaced vanished)
+    return table.group_by(cell).aggregate([(place_column, "count", pc.CountOptions(mode="all"))]).rename_columns(
+        [*cell, "events"])
+
+
+class _Facts(NamedTuple):
+    """The cube's (place, period, strata, value) facts, with what the placing left out."""
+
+    facts: pa.Table
+    unplaced: float | None
+    unplaced_by_state: dict[str, float]
+    events: float | None
+    unkeyed: bytes | None
+
+
+def _place_facts(counts: pa.Table, req: _Request, years: list[int], months: list[str]) -> _Facts:
+    """Counted cells placed (municipality / state / country) and dated at the grain; what could not be placed, counted."""
+    import pyarrow.compute as pc
+
+    bound, extreme, by = req.bound, req.strata.extreme, req.by
+    time_fields, encoding, century = bound.time_fields, bound.encoding, bound.century
     competencia = competencia_column(counts, time_fields, encoding, century)
     # a period of no month (ANS's file year) leaves the column all null, of no type: it is text that holds nothing
     competencia = pa.nulls(counts.num_rows, pa.string()) if competencia is None else pc.cast(competencia, pa.string())
     year = pc.utf8_slice_codeunits(competencia, 0, 4)
-    period = year if grain == "year" else pc.binary_join_element_wise(
+    period = year if req.grain == "year" else pc.binary_join_element_wise(
         year, pc.utf8_slice_codeunits(competencia, 4, 6), "-")
     # An event whose year is recorded and month is not (a year and a month held apart, a binding that is a year alone:
     # SISAGUA's register by NU_ANO, or a date filed as its year alone: SIM-DO 2000's 496 deaths dated "2000") is kept at
@@ -545,8 +633,8 @@ def _records(ident: str, *, place: str, by: list[str], where: dict[str, Sequence
         missing = pc.is_null(competencia)
         year = pc.if_else(pc.and_(missing, known), filed_year, year)
         period = pc.if_else(pc.and_(missing, known), filed_year, period)
-    places = pc.cast(counts.column(place_column), pa.int64())          # placed before grouping (`placed`)
-    if place in ("uf", "country"):
+    places = pc.cast(counts.column(bound.place_column), pa.int64())          # placed before grouping (`_placed`)
+    if req.place in ("uf", "country"):
         # at a state or the country an event is placed by its state, which a state-only code names too
         places = pc.cast(counts.column("__uf"), pa.int64())
     events = pc.cast(counts.column("events"), pa.float64())
@@ -568,19 +656,27 @@ def _records(ident: str, *, place: str, by: list[str], where: dict[str, Sequence
                                                           strict=True) if n}
     facts = pa.table({"place": pc.filter(places, keep), "period": pc.filter(period, keep),
                       **{k: pc.filter(counts.column(k), keep) for k in by}, "value": pc.filter(events, keep)})
-    if place == "country":
+    if req.place == "country":
         facts = facts.set_column(0, "place", pc.multiply(facts.column("place"), 0))
     keys = ["place", "period", *by]
     facts = (facts.group_by(keys).aggregate([("value", extreme or "sum")]).rename_columns([*keys, "value"])
              .select([*keys, "value"]))
+    unkeyed = (counts.schema.metadata or {}).get(b"UNKEYED")
+    return _Facts(facts, unplaced, unplaced_by_state, None if extreme else float(pc.sum(events).as_py() or 0), unkeyed)
+
+
+def _with_support(facts: pa.Table, req: _Request) -> tuple[pa.Table, list[str]]:
+    """The facts with the status of each cell; with a ``support``, the cells it holds that have no record are a true 0."""
     statuses = ["value"] * facts.num_rows
+    support = req.support
     if support:
         # the places the source could have recorded, per period: inside, a cell with no record is a true 0
-        if by:
+        if req.by:
             raise ValueError("a support fills (place, period) cells; name no strata with it")
-        frame = (cube(support["source"], where=support.get("where"), place=place, periods=periods, grain=grain,
-                      geography=geography, settings=settings) if isinstance(support, Mapping)
-                 else cube(support, place=place, periods=periods, grain=grain, geography=geography, settings=settings))
+        frame = (cube(support["source"], where=support.get("where"), place=req.place, periods=req.periods, grain=req.grain,
+                      geography=req.geography, settings=req.settings) if isinstance(support, Mapping)
+                 else cube(support, place=req.place, periods=req.periods, grain=req.grain, geography=req.geography,
+                           settings=req.settings))
         held = {(r["place"], r["period"]) for r in facts.select(["place", "period"]).to_pylist()}
         missing = sorted({(r["place"], r["period"]) for r in frame.select(["place", "period"]).to_pylist()} - held)
         if missing:
@@ -588,20 +684,50 @@ def _records(ident: str, *, place: str, by: list[str], where: dict[str, Sequence
                 "place": pa.array([m[0] for m in missing], pa.int64()), "period": pa.array([m[1] for m in missing]),
                 "value": pa.array([0.0] * len(missing), pa.float64())})])
         statuses = statuses + ["zero"] * len(missing)
+    return facts, statuses
+
+
+def _records(ident: str, *, place: str, by: list[str], where: dict[str, Sequence[Any]], periods: Sequence[str | int] | None,
+             labels: bool, settings: Any, at: str | None = None, time: str | None = None, grain: str | None = None,
+             condition: object = None, measure: str | None = None, support: Any = None,
+             geography: str | None = None, derived: Mapping[str, Mapping[str, Any]] | None = None) -> pa.Table:
+    """Events of one type of a record dataset, counted by the event type's own rules (status, duplicates, consolidation,
+    weights: `semantics.event_types`), by place, period and the columns in ``by``. The place and the date are the dataset's
+    declared bindings; a municipality is its IBGE 7 digits, and an event whose place no IBGE municipality has, or that has
+    no date, is counted in the manifest (``unplaced_events``), never dropped silently. An event whose code names its state
+    and no municipality (DATASUS's "Município ignorado - <UF>": `geography.place_states`) is in no municipality's cell
+    and counts in its state's and the country's. A (place, period) with no event has
+    no row: not observed, never zero."""
+    dataset, _, event = ident.partition("/")
+    if not event:
+        raise ValueError("a records cube is records:<dataset>/<event type>")
+    if not periods:
+        raise ValueError("a records cube names its periods (years): it reads the records of those publications")
+    bound = _bindings(dataset, place, at, time)
+    grain = grain or "month"
+    if grain not in ("month", "year"):
+        raise ValueError("a records cube's grain is month or year")
+    strata = _strata(dataset, bound, by, where, measure, derived or {})
+    req = _Request(ident, dataset, event, place, by, where, periods, grain, measure, condition, support, geography, settings,
+                   bound, strata)
+    spans, years, months, unpublished = _spans(dataset, event, periods)
+    parts = [_count_span(req, span) for span in spans]
+    counts = pa.concat_tables(parts, promote_options="permissive") if len(parts) > 1 else parts[0]
+    placed = _place_facts(counts, req, years, months)
+    facts, statuses = _with_support(placed.facts, req)
     n = facts.num_rows
     unit_name = measure or ("records" if event == "rows" else "events")
     facts = (facts.append_column("status", pa.array(statuses, pa.string()))
              .append_column("unit", pa.array([unit_name] * n, pa.string()))
              .append_column("source", pa.array([f"{dataset} {event}"] * n, pa.string())))
-    unkeyed = (counts.schema.metadata or {}).get(b"UNKEYED")
     return _with_manifest(facts, {
-        "source": f"records:{ident}", "dataset": dataset, "event": event, "at": at, "time": time,
+        "source": f"records:{ident}", "dataset": dataset, "event": event, "at": bound.at, "time": bound.time,
         "place_level": place, "period_grain": grain, "strata": by, "where": where, "periods": [str(p) for p in periods],
-        "measure": measure, "support": support, "publications": publications,
-        "unplaced_events": unplaced, "unplaced_by_state": unplaced_by_state,
-        "events": None if extreme else float(pc.sum(events).as_py() or 0), "not_published": unpublished,
-        "additive": not extreme,
-        "unkeyed": unkeyed.decode() if unkeyed else None,
+        "measure": measure, "support": support, "publications": req.publications,
+        "unplaced_events": placed.unplaced, "unplaced_by_state": placed.unplaced_by_state,
+        "events": placed.events, "not_published": unpublished,
+        "additive": not strata.extreme,
+        "unkeyed": placed.unkeyed.decode() if placed.unkeyed else None,
     })
 
 

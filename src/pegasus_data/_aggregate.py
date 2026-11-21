@@ -916,6 +916,283 @@ def _time_pushforward(level: str, values: Sequence[str]) -> dict[str, str | None
     )
 
 
+#: Grouping columns get internal names. `by=["municipality"]` and `by=["month"]` would otherwise collide with the
+#: artifact's own key columns -- Arrow raises "Multiple matches for FieldRef" -- and renaming at the end is simpler than
+#: special-casing the identity pushforward.
+_GEO_TMP, _TIME_TMP = "__geo__", "__time__"
+
+
+@dataclass(frozen=True)
+class _Levels:
+    """Which level of ``by`` applies to which axis; an axis with none is marginalised."""
+
+    geography: str | None
+    time: str | None
+    dimensions: list[str]
+    trees: list[str]
+
+    @property
+    def keys(self) -> tuple[str, ...]:
+        """The levels as the result names them."""
+        return (*([self.geography] if self.geography else ()), *([self.time] if self.time else ()),
+                *self.dimensions, *self.trees)
+
+    @property
+    def group_by(self) -> tuple[str, ...]:
+        """The same axes under the internal grouping names."""
+        return (*([_GEO_TMP] if self.geography else ()), *([_TIME_TMP] if self.time else ()),
+                *self.dimensions, *self.trees)
+
+
+def _new_report(name: str, manifest: Mapping[str, Any]) -> AggregateReport:
+    """The report of a read, with what the artifact's manifest says about its support and completeness."""
+    report = AggregateReport(
+        name=name, support=dict(manifest.get("support") or {}),
+        fingerprint=str(manifest.get("fingerprint") or ""),
+        years=tuple(int(y) for y in (manifest.get("years") or ())),
+        uf=tuple(str(u) for u in (manifest.get("uf") or ())),
+        uf_basis_note=str(manifest.get("uf_basis_note") or ""),
+        partial_periods=tuple(str(x) for x in (manifest.get("partial_periods") or ())),
+    )
+    if report.uf:
+        report.warnings.append(
+            f"this artifact was built from {list(report.uf)} only; a municipality "
+            "with no cell was NOT OBSERVED, not observed as zero, and any total "
+            "here is that subset's total rather than a national one"
+        )
+        if report.uf_basis_note:
+            report.warnings.append(report.uf_basis_note)
+    if report.partial_periods:
+        report.warnings.append(
+            f"{len(report.partial_periods)} period(s) in this artifact are known "
+            "to be short because its time axis is a record date and the "
+            "publication years built do not fully contain them: "
+            f"{list(report.partial_periods[:6])}"
+        )
+    return report
+
+
+def _resolve_levels(spec: AggregateSpec, by: Sequence[str] | None) -> _Levels:
+    """Which level applies to which axis; a level the artifact does not offer is refused."""
+    # Deduplicated, order kept: grouping by an axis twice is grouping by it
+    # once, and Arrow would otherwise return two identically named columns --
+    # which downstream reads as a KeyError the route misreports as a missing
+    # artifact.
+    levels = tuple(dict.fromkeys(by or ()))
+    geography_level = next(
+        (level for level in levels
+         if level in (_BASE_LEVEL, _UF_LEVEL, _NATIONAL_LEVEL) or _is_classification(level)),
+        None)
+    time_level = next((level for level in levels if level in ("month", "year")), None)
+    dimension_levels = [level for level in levels if level in spec.dimensions]
+    # `CAUSABAS@category`: a classifier rolled up its code tree (DESIGN §3.4).
+    tree_levels = [level for level in levels
+                   if "@" in level and level.split("@", 1)[0] in spec.dimensions]
+    unknown = [
+        level for level in levels
+        if level not in (geography_level, time_level) and level not in dimension_levels
+        and level not in tree_levels
+    ]
+    if unknown:
+        raise AggregationRefused(
+            f"unknown level(s) {unknown}; this artifact offers geography "
+            f"({_BASE_LEVEL}, {_UF_LEVEL}, {_NATIONAL_LEVEL} or a classification), "
+            f"time (month, year) and dimensions {list(spec.dimensions)}"
+        )
+    return _Levels(geography_level, time_level, dimension_levels, tree_levels)
+
+
+def _check_additivity(spec: AggregateSpec, manifest: Mapping[str, Any], settings: Settings, chosen: Sequence[Measure],
+                      lv: _Levels, finalize: bool) -> list[Measure]:
+    """Refuse a roll-up the measures do not allow; the measures reduced over time (not summed) are returned."""
+    # --- additivity: marginalising an axis is summing along it --------------
+    # Naming no time level marginalises time entirely; naming `year` over a
+    # monthly artifact coarsens it. Both sum along time, which a stock refuses.
+    rolls_up_time = lv.time is None or (lv.time == "year" and spec.time_grain != "year")
+    # A stock with a declared time reducer (CNES beds: mean) is not summed
+    # along time: each month is totalled over the other axes, then the months
+    # are reduced (OQ-14). The reduction yields finished values only.
+    reduced = [m for m in chosen if rolls_up_time and "time" not in m.additive_over and m.time_reducer]
+    if reduced and not finalize:
+        raise AggregationRefused(
+            f"{[m.name for m in reduced]} reduce over time ({reduced[0].time_reducer}); a reduced "
+            "value is finished, not a state. Ask for months (by=[..., 'month']) to keep states.")
+    several_per_row: frozenset[str] | None = None
+    for measure in chosen:
+        if rolls_up_time and measure not in reduced:
+            check_rollup(measure, "time")
+        if lv.geography != _BASE_LEVEL:
+            check_rollup(measure, "geography")
+        for dimension in spec.dimensions:
+            if dimension not in lv.dimensions:
+                check_rollup(measure, "dimensions")
+                if several_per_row is None:
+                    several_per_row = _served_multi_valued(spec, manifest, settings)
+                check_dimension(measure, dimension in several_per_row)
+    return reduced
+
+
+def _apply_map(mapping: dict[str, str | None], column: Any) -> Any:
+    """A pushforward applied to a column: `index_in` + `take`, an unmapped code flowing through as a null."""
+    import pyarrow as pa
+    import pyarrow.compute as pc
+
+    keys = pa.array(list(mapping.keys()), pa.string())
+    values = pa.array(list(mapping.values()), pa.string())
+    return pc.take(values, pc.index_in(column, value_set=keys))
+
+
+def _pushforwards(name: str, spec: AggregateSpec, table: Any, lv: _Levels, system: str | None,
+                  report: AggregateReport) -> tuple[Any, dict[str, Any], Any]:
+    """The base cuboid's geography, tree and time columns mapped to the requested levels (None / empty where unasked)."""
+    # --- pushforward maps ---------------------------------------------------
+    # The RULE for each level is decided in Python over the DISTINCT codes --
+    # a few thousand lookups, where the ownership of `uf_from_code` and
+    # `memberships` lives. Applying it to 400k rows is `index_in` + `take`,
+    # with an unmapped code flowing through as a null.
+    import pyarrow as pa
+    import pyarrow.compute as pc
+
+    geo_column = table.column(GEOGRAPHY_KEY)
+    time_column = table.column(TIME_KEY)
+    geo_map = (
+        _geography_pushforward(lv.geography, pc.unique(geo_column).to_pylist(), system, report)
+        if lv.geography else None
+    )
+    time_map = (
+        _time_pushforward(lv.time, pc.unique(time_column).to_pylist())
+        if lv.time else None
+    )
+    mapped_geo = _apply_map(geo_map, geo_column) if geo_map is not None else None
+    mapped_trees: dict[str, Any] = {}
+    for level in lv.trees:
+        dimension, tree_level = level.split("@", 1)
+        structure = spec.dimension_structures.get(dimension.upper())
+        if structure is None:
+            raise AggregationRefused(
+                f"{dimension} declares no code structure in {name!r}; add it to dimension_structures")
+        column = pc.cast(table.column(dimension), pa.string())
+        mapped_trees[level] = _apply_map(
+            _tree_pushforward(structure, tree_level, tuple(pc.unique(column).drop_null().to_pylist())), column)
+    mapped_time = _apply_map(time_map, time_column) if time_map is not None else None
+    return mapped_geo, mapped_trees, mapped_time
+
+
+def _drop_unmapped(table: Any, chosen: Sequence[Measure], keep: Any, mapped_geo: Any,
+                   mapped_trees: Mapping[str, Any]) -> tuple[Any, dict[str, float]]:
+    """``keep`` narrowed to the rows the pushforwards map, and the mass of the measures lost to a partial mapping."""
+    import pyarrow.compute as pc
+
+    unmapped_mass: dict[str, float] = {}
+    if mapped_geo is not None:
+        # A partial classification -- `metropolitan_region` covers 1,325 of
+        # ~5,570 municipalities -- makes the pushforward non-total. The lost mass
+        # is REPORTED, never silently dropped: a subset total that reads as a
+        # national one is the failure this layer exists to prevent.
+        lost = pc.and_(keep, pc.is_null(mapped_geo))
+        if pc.any(lost).as_py():
+            for measure in chosen:
+                column = table.column(measure.state_columns()[0])
+                total = pc.sum(pc.filter(column, lost)).as_py() or 0.0
+                if total:
+                    unmapped_mass[measure.name] = float(total)
+        keep = pc.and_(keep, pc.is_valid(mapped_geo))
+
+    for level, mapped in mapped_trees.items():
+        # A code the tree does not hold has no ancestor: its mass is reported,
+        # never folded into a neighbour.
+        lost = pc.and_(keep, pc.is_null(mapped))
+        if pc.any(lost).as_py():
+            for measure in chosen:
+                total = pc.sum(pc.filter(table.column(measure.state_columns()[0]), lost)).as_py() or 0.0
+                if total:
+                    unmapped_mass[f"{measure.name} ({level})"] = float(total)
+        keep = pc.and_(keep, pc.is_valid(mapped))
+    return pc.fill_null(keep, False), unmapped_mass
+
+
+def _working_table(table: Any, keep: Any, lv: _Levels, mapped_geo: Any, mapped_trees: Mapping[str, Any],
+                   mapped_time: Any) -> Any:
+    """The rows kept, with the mapped levels as columns under their internal grouping names."""
+    import pyarrow.compute as pc
+
+    working = table.filter(keep)
+    for level, mapped in mapped_trees.items():
+        working = working.append_column(level, pc.filter(mapped, keep))
+    if mapped_geo is not None and lv.geography:
+        working = working.append_column(_GEO_TMP, pc.filter(mapped_geo, keep))
+    if mapped_time is not None and lv.time:
+        working = working.append_column(_TIME_TMP, pc.filter(mapped_time, keep))
+    return working
+
+
+def _reduce_cells(working: Any, chosen: Sequence[Measure], lv: _Levels, reduced: Sequence[Measure],
+                  finalize: bool) -> Any:
+    """The measures reduced over the cells of ``lv``: a stock over time, grouped states, or one total cell."""
+    import pyarrow as pa
+    import pyarrow.compute as pc
+
+    from .measures import finalize as _finalize
+
+    key_names, group_by = lv.keys, lv.group_by
+    emit_as = dict(zip(group_by, key_names, strict=True))
+    state_columns = [c for m in chosen for c in m.state_columns()]
+    # What the result carries: one finished value per measure, or the state
+    # columns that produced it.
+    value_columns = (
+        [m.name for m in chosen] if finalize
+        else [c for m in chosen for c in m.state_columns()]
+    )
+    if reduced:
+        # a reduced-time measure (a bed stock) takes the same tail as every other: the data version, and the mass a
+        # partial classification left unmapped, which returned before either (a roll-up to `metropolitan_region`,
+        # 1,325 of 5,570 municipalities, gave a subset total with no warning)
+        return _reduce_over_time(working, chosen, group_by, emit_as, TIME_KEY)
+    if key_names:
+        # The merge is Arrow's grouped aggregation, not a Python loop over cells.
+        # That is a property of the design rather than an optimisation: every
+        # accumulator here is a commutative monoid whose merge IS a column
+        # aggregate. `count` and `sum` merge by summing one column, `mean` by
+        # summing (n, sum), `ratio` by summing (num, den), `min`/`max` by MIN/MAX.
+        # The whole algebra maps onto group_by().aggregate() with no special cases.
+        #
+        # The loop this replaced cost about 13 s on a realistic national year, which
+        # is not an answer a frontend can wait for.
+        aggregated = working.group_by(list(group_by)).aggregate(
+            [(c, _ARROW_MERGE[_kind_of(chosen, c).name]) for c in state_columns])
+        suffixed = {c: f"{c}_{_ARROW_MERGE[_kind_of(chosen, c).name]}"
+                    for c in state_columns}
+        aggregated = aggregated.sort_by([(n, "ascending") for n in group_by])
+
+        arrays: dict[str, Any] = {}
+        for name in group_by:
+            arrays[emit_as[name]] = pc.cast(aggregated.column(name), pa.string())
+        for measure in chosen:
+            state = tuple(
+                _filled(measure.kind, pc.cast(aggregated.column(suffixed[c]), pa.float64()))
+                for c in measure.state_columns()
+            )
+            if finalize:
+                arrays[measure.name] = _finalize_column(measure, state)
+            else:
+                for column, values in zip(
+                        measure.state_columns(), state, strict=True):
+                    arrays[column] = values
+        return pa.table(arrays)
+    # No axis named at all: one cell, everything totalled.
+    out: dict[str, list[Any]] = {}
+    for measure in chosen:
+        state = tuple(_merge_column(measure, working.column(c))
+                      for c in measure.state_columns())
+        if finalize:
+            out[measure.name] = [_finalize(measure, state)]
+        else:
+            for column, value in zip(measure.state_columns(), state, strict=True):
+                out[column] = [value]
+    return pa.table(
+        {c: pa.array(out[c], pa.float64()) for c in value_columns})
+
+
 def aggregate(
     name: str,
     *,
@@ -945,245 +1222,24 @@ def aggregate(
     mean of means, which is not the mean. Anything crossing a process boundary
     with more aggregation ahead of it should ask for state.
     """
-    import pyarrow as pa
-
     from .config import load_settings
-    from .measures import finalize as _finalize
 
     resolved = settings or load_settings(root=Path(root) if root else None)
     spec = spec_named(name)
     table, manifest = _load_artifact(name, resolved)
-    report = AggregateReport(
-        name=name, support=dict(manifest.get("support") or {}),
-        fingerprint=str(manifest.get("fingerprint") or ""),
-        years=tuple(int(y) for y in (manifest.get("years") or ())),
-        uf=tuple(str(u) for u in (manifest.get("uf") or ())),
-        uf_basis_note=str(manifest.get("uf_basis_note") or ""),
-        partial_periods=tuple(str(x) for x in (manifest.get("partial_periods") or ())),
-    )
-    if report.uf:
-        report.warnings.append(
-            f"this artifact was built from {list(report.uf)} only; a municipality "
-            "with no cell was NOT OBSERVED, not observed as zero, and any total "
-            "here is that subset's total rather than a national one"
-        )
-        if report.uf_basis_note:
-            report.warnings.append(report.uf_basis_note)
-    if report.partial_periods:
-        report.warnings.append(
-            f"{len(report.partial_periods)} period(s) in this artifact are known "
-            "to be short because its time axis is a record date and the "
-            "publication years built do not fully contain them: "
-            f"{list(report.partial_periods[:6])}"
-        )
-
+    report = _new_report(name, manifest)
     wanted = tuple(measures or [m.name for m in spec.measures])
     chosen = [spec.measure_named(m) for m in wanted]
-    # Deduplicated, order kept: grouping by an axis twice is grouping by it
-    # once, and Arrow would otherwise return two identically named columns --
-    # which downstream reads as a KeyError the route misreports as a missing
-    # artifact.
-    levels = tuple(dict.fromkeys(by or ()))
+    lv = _resolve_levels(spec, by)
+    reduced = _check_additivity(spec, manifest, resolved, chosen, lv, finalize)
 
-    # --- which level applies to which axis, and what gets marginalised -------
-    geography_level = next(
-        (level for level in levels
-         if level in (_BASE_LEVEL, _UF_LEVEL, _NATIONAL_LEVEL) or _is_classification(level)),
-        None)
-    time_level = next((level for level in levels if level in ("month", "year")), None)
-    dimension_levels = [level for level in levels if level in spec.dimensions]
-    # `CAUSABAS@category`: a classifier rolled up its code tree (DESIGN §3.4).
-    tree_levels = [level for level in levels
-                   if "@" in level and level.split("@", 1)[0] in spec.dimensions]
-    unknown = [
-        level for level in levels
-        if level not in (geography_level, time_level) and level not in dimension_levels
-        and level not in tree_levels
-    ]
-    if unknown:
-        raise AggregationRefused(
-            f"unknown level(s) {unknown}; this artifact offers geography "
-            f"({_BASE_LEVEL}, {_UF_LEVEL}, {_NATIONAL_LEVEL} or a classification), "
-            f"time (month, year) and dimensions {list(spec.dimensions)}"
-        )
-
-    # --- additivity: marginalising an axis is summing along it --------------
-    # Naming no time level marginalises time entirely; naming `year` over a
-    # monthly artifact coarsens it. Both sum along time, which a stock refuses.
-    rolls_up_time = time_level is None or (
-        time_level == "year" and spec.time_grain != "year")
-    # A stock with a declared time reducer (CNES beds: mean) is not summed
-    # along time: each month is totalled over the other axes, then the months
-    # are reduced (OQ-14). The reduction yields finished values only.
-    reduced = [m for m in chosen if rolls_up_time and "time" not in m.additive_over and m.time_reducer]
-    if reduced and not finalize:
-        raise AggregationRefused(
-            f"{[m.name for m in reduced]} reduce over time ({reduced[0].time_reducer}); a reduced "
-            "value is finished, not a state. Ask for months (by=[..., 'month']) to keep states.")
-    several_per_row: frozenset[str] | None = None
-    for measure in chosen:
-        if rolls_up_time and measure not in reduced:
-            check_rollup(measure, "time")
-        if geography_level != _BASE_LEVEL:
-            check_rollup(measure, "geography")
-        for dimension in spec.dimensions:
-            if dimension not in dimension_levels:
-                check_rollup(measure, "dimensions")
-                if several_per_row is None:
-                    several_per_row = _served_multi_valued(spec, manifest, resolved)
-                check_dimension(measure, dimension in several_per_row)
-
-    # --- pushforward maps ---------------------------------------------------
-    # The RULE for each level is decided in Python over the DISTINCT codes --
-    # a few thousand lookups, where the ownership of `uf_from_code` and
-    # `memberships` lives. Applying it to 400k rows is `index_in` + `take`,
-    # with an unmapped code flowing through as a null.
-    import pyarrow.compute as pc
-
-    geo_column = table.column(GEOGRAPHY_KEY)
-    time_column = table.column(TIME_KEY)
-
-    def _apply(mapping: dict[str, str | None], column: Any) -> Any:
-        keys = pa.array(list(mapping.keys()), pa.string())
-        values = pa.array(list(mapping.values()), pa.string())
-        return pc.take(values, pc.index_in(column, value_set=keys))
-
-    geo_map = (
-        _geography_pushforward(
-            geography_level, pc.unique(geo_column).to_pylist(), system, report)
-        if geography_level else None
-    )
-    time_map = (
-        _time_pushforward(time_level, pc.unique(time_column).to_pylist())
-        if time_level else None
-    )
-    mapped_geo = _apply(geo_map, geo_column) if geo_map is not None else None
-    mapped_trees: dict[str, Any] = {}
-    for level in tree_levels:
-        dimension, tree_level = level.split("@", 1)
-        structure = spec.dimension_structures.get(dimension.upper())
-        if structure is None:
-            raise AggregationRefused(
-                f"{dimension} declares no code structure in {name!r}; add it to dimension_structures")
-        column = pc.cast(table.column(dimension), pa.string())
-        mapped_trees[level] = _apply(
-            _tree_pushforward(structure, tree_level, tuple(pc.unique(column).drop_null().to_pylist())), column)
-    mapped_time = _apply(time_map, time_column) if time_map is not None else None
-
-    filters = dict(where or {})
-    keep = _mask(filters, spec, table, geo_column, time_column, system)
-
-    # The merge is Arrow's grouped aggregation, not a Python loop over cells.
-    # That is a property of the design rather than an optimisation: every
-    # accumulator here is a commutative monoid whose merge IS a column
-    # aggregate. `count` and `sum` merge by summing one column, `mean` by
-    # summing (n, sum), `ratio` by summing (num, den), `min`/`max` by MIN/MAX.
-    # The whole algebra maps onto group_by().aggregate() with no special cases.
-    #
-    # The loop this replaced cost about 13 s on a realistic national year, which
-    # is not an answer a frontend can wait for.
-    key_names = (
-        *([geography_level] if geography_level else ()),
-        *([time_level] if time_level else ()),
-        *dimension_levels,
-        *tree_levels,
-    )
-    # Grouping columns get internal names. `by=["municipality"]` and
-    # `by=["month"]` would otherwise collide with the artifact's own key columns
-    # -- Arrow raises "Multiple matches for FieldRef" -- and renaming at the end
-    # is simpler than special-casing the identity pushforward.
-    GEO_TMP, TIME_TMP = "__geo__", "__time__"
-    group_by = (
-        *([GEO_TMP] if geography_level else ()),
-        *([TIME_TMP] if time_level else ()),
-        *dimension_levels,
-        *tree_levels,
-    )
-    emit_as = dict(zip(group_by, key_names, strict=True))
-
-    unmapped_mass: dict[str, float] = {}
-    if mapped_geo is not None:
-        # A partial classification -- `metropolitan_region` covers 1,325 of
-        # ~5,570 municipalities -- makes the pushforward non-total. The lost mass
-        # is REPORTED, never silently dropped: a subset total that reads as a
-        # national one is the failure this layer exists to prevent.
-        lost = pc.and_(keep, pc.is_null(mapped_geo))
-        if pc.any(lost).as_py():
-            for measure in chosen:
-                column = table.column(measure.state_columns()[0])
-                total = pc.sum(pc.filter(column, lost)).as_py() or 0.0
-                if total:
-                    unmapped_mass[measure.name] = float(total)
-        keep = pc.and_(keep, pc.is_valid(mapped_geo))
-
-    for level, mapped in mapped_trees.items():
-        # A code the tree does not hold has no ancestor: its mass is reported,
-        # never folded into a neighbour.
-        lost = pc.and_(keep, pc.is_null(mapped))
-        if pc.any(lost).as_py():
-            for measure in chosen:
-                total = pc.sum(pc.filter(table.column(measure.state_columns()[0]), lost)).as_py() or 0.0
-                if total:
-                    unmapped_mass[f"{measure.name} ({level})"] = float(total)
-        keep = pc.and_(keep, pc.is_valid(mapped))
-
-    keep = pc.fill_null(keep, False)
-    working = table.filter(keep)
-    for level, mapped in mapped_trees.items():
-        working = working.append_column(level, pc.filter(mapped, keep))
+    mapped_geo, mapped_trees, mapped_time = _pushforwards(name, spec, table, lv, system, report)
+    keep = _mask(dict(where or {}), spec, table, table.column(GEOGRAPHY_KEY), table.column(TIME_KEY), system)
+    keep, unmapped_mass = _drop_unmapped(table, chosen, keep, mapped_geo, mapped_trees)
+    working = _working_table(table, keep, lv, mapped_geo, mapped_trees, mapped_time)
     report.rows_read = working.num_rows
-    if mapped_geo is not None and geography_level:
-        working = working.append_column(GEO_TMP, pc.filter(mapped_geo, keep))
-    if mapped_time is not None and time_level:
-        working = working.append_column(TIME_TMP, pc.filter(mapped_time, keep))
 
-    state_columns = [c for m in chosen for c in m.state_columns()]
-    # What the result carries: one finished value per measure, or the state
-    # columns that produced it.
-    value_columns = (
-        [m.name for m in chosen] if finalize
-        else [c for m in chosen for c in m.state_columns()]
-    )
-    if reduced:
-        # a reduced-time measure (a bed stock) takes the same tail as every other: the data version, and the mass a
-        # partial classification left unmapped, which returned before either (a roll-up to `metropolitan_region`,
-        # 1,325 of 5,570 municipalities, gave a subset total with no warning)
-        result = _reduce_over_time(working, chosen, group_by, emit_as, TIME_KEY)
-    elif key_names:
-        aggregated = working.group_by(list(group_by)).aggregate(
-            [(c, _ARROW_MERGE[_kind_of(chosen, c).name]) for c in state_columns])
-        suffixed = {c: f"{c}_{_ARROW_MERGE[_kind_of(chosen, c).name]}"
-                    for c in state_columns}
-        aggregated = aggregated.sort_by([(n, "ascending") for n in group_by])
-
-        arrays: dict[str, Any] = {}
-        for name in group_by:
-            arrays[emit_as[name]] = pc.cast(aggregated.column(name), pa.string())
-        for measure in chosen:
-            state = tuple(
-                _filled(measure.kind, pc.cast(aggregated.column(suffixed[c]), pa.float64()))
-                for c in measure.state_columns()
-            )
-            if finalize:
-                arrays[measure.name] = _finalize_column(measure, state)
-            else:
-                for column, values in zip(
-                        measure.state_columns(), state, strict=True):
-                    arrays[column] = values
-        result = pa.table(arrays)
-    else:
-        # No axis named at all: one cell, everything totalled.
-        out: dict[str, list[Any]] = {}
-        for measure in chosen:
-            state = tuple(_merge_column(measure, working.column(c))
-                          for c in measure.state_columns())
-            if finalize:
-                out[measure.name] = [_finalize(measure, state)]
-            else:
-                for column, value in zip(measure.state_columns(), state, strict=True):
-                    out[column] = [value]
-        result = pa.table(
-            {c: pa.array(out[c], pa.float64()) for c in value_columns})
+    result = _reduce_cells(working, chosen, lv, reduced, finalize)
     report.cells = result.num_rows
     # The data version: a consumer caches by it (handoff §4).
     result = result.replace_schema_metadata({
@@ -1192,7 +1248,7 @@ def aggregate(
     report.unmapped = {k: v for k, v in unmapped_mass.items() if v}
     if report.unmapped:
         report.warnings.append(
-            f"rolling up to {geography_level!r} left "
+            f"rolling up to {lv.geography!r} left "
             f"{max(report.unmapped.values()):,.0f} of the base measure unmapped: "
             "that classification does not cover every municipality, so this is a "
             "subset total and not a national one."

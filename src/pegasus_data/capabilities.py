@@ -344,46 +344,14 @@ _CAPABILITY_CACHE: OrderedDict[tuple, Capability] = OrderedDict()
 _CAPABILITY_LOCK = threading.Lock()
 
 
-def _capabilities_uncached(
-    name: str,
-    *,
-    settings: Settings | None = None,
-    root: str | Path | None = None,
-) -> Capability:
-    """The projection itself; `capabilities` is the cached front door."""
-    from ._aggregate import ArtifactMissing, artifact_dir, spec_named
-    from ._query_engine.readplan import resolve_family
-    from ._request import parse_dataset
-    from .catalog.store import CatalogStore
-    from .config import load_settings
-    from .geography import DENOMINATOR_COMPATIBLE_ROLES, classifications
-    from .semantics.curation import semantics_for
-    from .view import codelist_levels
-
-    resolved = settings or load_settings(root=Path(root) if root else None)
-    spec = spec_named(name)
-    semantics = semantics_for(spec.dataset)
-    if semantics is None:  # pragma: no cover - build_aggregate refuses first
-        raise ArtifactMissing(f"no curated semantics for {spec.dataset!r}")
-
-    directory = artifact_dir(name, resolved)
-    manifest_path = directory / "manifest.json"
-    if not manifest_path.exists():
-        raise ArtifactMissing(
-            f"{name!r} has no built artifact under {directory}; "
-            f"run `build_aggregate({name!r}, years=[...])` first"
-        )
-    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-
+def _observed(spec: Any, cells: Any) -> tuple[dict[str, list[str]], list[str], list[str]]:
+    """What is actually IN this artifact: the levels each dimension holds, its periods and its municipality codes."""
     # --- what is actually IN this artifact ------------------------------
     # The descriptor describes THIS build, not the classification in the
     # abstract. DIAG_PRINC binds ~14,000 ICD codes; an artifact holding 40 of
     # them must not offer a control with 14,000 levels.
     import pyarrow.compute as pc
 
-    from ._aggregate import _load_artifact
-
-    cells, _ = _load_artifact(name, resolved)
     observed: dict[str, list[str]] = {}
     for dimension in spec.dimensions:
         if dimension in cells.schema.names:
@@ -402,11 +370,20 @@ def _capabilities_uncached(
     municipality_codes = sorted(
         str(c) for c in pc.unique(cells.column("municipality")).drop_null().to_pylist() if c
     )
+    return observed, periods, municipality_codes
 
-    # --- dimensions -----------------------------------------------------
+
+def _dimension_capabilities(spec: Any, semantics: Any, manifest: Mapping[str, Any], observed: Mapping[str, list[str]],
+                            settings: Settings) -> list[Dimension]:
+    """One `Dimension` per spec dimension: its observed levels labelled, its control and its support per year."""
+    from ._query_engine.readplan import resolve_family
+    from ._request import parse_dataset
+    from .catalog.store import CatalogStore
+    from .view import codelist_levels
+
     support = dict(manifest.get("support") or {})
     dimensions: list[Dimension] = []
-    with CatalogStore(resolved.catalog_path) as store:
+    with CatalogStore(settings.catalog_path) as store:
         docs_system = (semantics.system or "").upper()
         try:
             from .semantics.curation import load_variable_docs
@@ -421,9 +398,9 @@ def _capabilities_uncached(
                 # system is weighed (SINAN-ACBI's outcome 3 read "Óbito por LTA", leishmaniasis's, 2026-10-11)
                 family = resolve_family(store, *parse_dataset(spec.dataset), dimension)
                 mapping = codelist_levels(
-                    dimension, store=store, lake_root=resolved.lake_dir,
+                    dimension, store=store, lake_root=settings.lake_dir,
                     system=docs_system, family_id=family[0]["family_id"] if family else None, codes=codes,
-                    registries=resolved.registries_dir,
+                    registries=settings.registries_dir,
                 )
             except Exception:  # pragma: no cover - a missing reference table
                 mapping = {}
@@ -465,14 +442,12 @@ def _capabilities_uncached(
                 note=note,
                 derived=derived,
             ))
+    return dimensions
 
-    # --- measures -------------------------------------------------------
-    geography_bindings = semantics.geography_bindings()
-    active_geography = geography_bindings.get(spec.geography_binding) or {}
-    denominator_ok = _denominator_compatible(
-        spec.geography_binding, active_geography, DENOMINATOR_COMPATIBLE_ROLES)
 
-    measures = tuple(
+def _measure_capabilities(spec: Any) -> tuple[MeasureCapability, ...]:
+    """One `MeasureCapability` per spec measure."""
+    return tuple(
         MeasureCapability(
             id=m.name,
             label=m.label or _humanise(m.name),
@@ -490,7 +465,17 @@ def _capabilities_uncached(
         for m in spec.measures
     )
 
-    # --- geography ------------------------------------------------------
+
+def _spatial(spec: Any, semantics: Any, manifest: Mapping[str, Any], municipality_codes: list[str]) -> dict[str, Any]:
+    """The geography descriptor: bindings, grains, hierarchies and what this build could have seen."""
+    from ._aggregate import _BASE_LEVEL, _NATIONAL_LEVEL, _UF_LEVEL
+    from .geography import DENOMINATOR_COMPATIBLE_ROLES, classifications
+
+    geography_bindings = semantics.geography_bindings()
+    active_geography = geography_bindings.get(spec.geography_binding) or {}
+    denominator_ok = _denominator_compatible(
+        spec.geography_binding, active_geography, DENOMINATOR_COMPATIBLE_ROLES)
+
     # What this build could have SEEN. Distinct from what it found: a
     # municipality outside the fetched UFs was never in view, and reading its
     # absence as a zero turns one state into a country.
@@ -519,8 +504,6 @@ def _capabilities_uncached(
     # `uf` is BOTH a base grain and an IBGE classification, so the two lists
     # overlap. Deduplicated with order kept: the first three are the grains
     # every artifact has, and the rest are what geography.yml declares.
-    from ._aggregate import _BASE_LEVEL, _NATIONAL_LEVEL, _UF_LEVEL
-
     grains = [_BASE_LEVEL, _UF_LEVEL, _NATIONAL_LEVEL]
     hierarchies: dict[str, list[dict[str, Any]]] = {"political": [], "health": []}
     for key, body in declared.items():
@@ -539,7 +522,7 @@ def _capabilities_uncached(
             "what": str(body.get("what") or "").strip(),
         })
 
-    spatial = {
+    return {
         "bindings": [
             asdict(_binding(
                 key, body, active=(key == spec.geography_binding),
@@ -564,11 +547,13 @@ def _capabilities_uncached(
         "coverage": coverage,
     }
 
-    # --- time -----------------------------------------------------------
+
+def _temporal(spec: Any, semantics: Any) -> tuple[dict[str, Any], str]:
+    """The time descriptor, and the encoding of the active time binding."""
     time_bindings = semantics.time_bindings()
     active_time = time_bindings.get(spec.time_binding) or {}
     encoding = str(active_time.get("encoding") or "")
-    temporal = {
+    return {
         "bindings": [
             asdict(_binding(key, body, active=(key == spec.time_binding)))
             for key, body in time_bindings.items()
@@ -577,19 +562,54 @@ def _capabilities_uncached(
         "grains": ["month", "year"] if spec.time_grain == "month" else ["year"],
         "default_grain": spec.time_grain,
         "encoding": encoding,
-    }
+    }, encoding
 
-    partial = [str(p) for p in (manifest.get("partial_periods") or ())]
-    completeness = {
+
+def _completeness(manifest: Mapping[str, Any], encoding: str) -> dict[str, Any]:
+    """Which periods of the build are whole, as the build measured them."""
+    return {
         # `competence` IS the publication coordinate, so every period inside a
         # fetched year is whole. A record date is not, and the artifact says
         # which periods it therefore cannot have filled -- measured during the
         # build, never assumed from a file name.
         "kind": "competence" if encoding in ("year_month", "year") else "record_date",
-        "partial_periods": partial,
-        "support": support,
+        "partial_periods": [str(p) for p in (manifest.get("partial_periods") or ())],
+        "support": dict(manifest.get("support") or {}),
         "warnings": list(manifest.get("warnings") or ()),
     }
+
+
+def _capabilities_uncached(
+    name: str,
+    *,
+    settings: Settings | None = None,
+    root: str | Path | None = None,
+) -> Capability:
+    """The projection itself; `capabilities` is the cached front door."""
+    from ._aggregate import ArtifactMissing, _load_artifact, artifact_dir, spec_named
+    from .config import load_settings
+    from .semantics.curation import semantics_for
+
+    resolved = settings or load_settings(root=Path(root) if root else None)
+    spec = spec_named(name)
+    semantics = semantics_for(spec.dataset)
+    if semantics is None:  # pragma: no cover - build_aggregate refuses first
+        raise ArtifactMissing(f"no curated semantics for {spec.dataset!r}")
+
+    directory = artifact_dir(name, resolved)
+    manifest_path = directory / "manifest.json"
+    if not manifest_path.exists():
+        raise ArtifactMissing(
+            f"{name!r} has no built artifact under {directory}; "
+            f"run `build_aggregate({name!r}, years=[...])` first"
+        )
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+
+    cells, _ = _load_artifact(name, resolved)
+    observed, periods, municipality_codes = _observed(spec, cells)
+    dimensions = _dimension_capabilities(spec, semantics, manifest, observed, resolved)
+    spatial = _spatial(spec, semantics, manifest, municipality_codes)
+    temporal, encoding = _temporal(spec, semantics)
 
     return Capability(
         id=name,
@@ -611,9 +631,9 @@ def _capabilities_uncached(
         },
         spatial=spatial,
         temporal=temporal,
-        completeness=completeness,
+        completeness=_completeness(manifest, encoding),
         dimensions=tuple(dimensions),
-        measures=measures,
+        measures=_measure_capabilities(spec),
         provenance={
             "engine_version": str(manifest.get("engine_version") or ""),
             "cells": int(manifest.get("cells") or 0),
