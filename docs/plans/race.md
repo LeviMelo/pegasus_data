@@ -64,4 +64,10 @@ the product's folder. *Done when* a reader can reproduce every number from the h
   women are recorded alike (Branca 0.70, 0.67); a man white at birth who dies of an external cause, certified by a
   medical examiner, is recorded Parda half the time (stays Branca 0.47). Cause beats sex out of sample; both together
   best. Open: kinds of external death; the examiner apart from the cause; a cause term in the model and the products.
+- **R3, three readings** (the same entry): on 5,579 women with a declared, a hospital and a certificate race, the
+  certificate follows the hospital's record given the declaration (declared Branca: 0.90 when the hospital said Branca,
+  0.59 when it said Parda). The women's structure fits men's hospital deaths as well as the women's own (misfit 0.027
+  against 0.028 at 15-49; 0.025 at 50-69): for deaths in hospital it can be carried to men. Next: a product for
+  hospital deaths of both sexes from this structure, with its intervals; deaths outside hospital and by external
+  causes apart.
 

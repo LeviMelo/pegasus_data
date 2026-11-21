@@ -209,3 +209,42 @@ Out of sample (fit 2014-2019, scored on 2020-2024; log loss, count error), bands
 - Not separated either: the examiner from the cause (96% of the examiner's certificates are external).
 - Consequence for a bridge: at these ages the certificate's race depends on how the person died, so one matrix per age
   is wrong for a cause-specific rate; a bridge for deaths by violence needs its own.
+
+## Three readings of the same woman, and whether they describe men (plan R3; `triples.py`, `transport.py`)
+
+**Scenario.** The women's table with the death's id (`women_table.py`: 106,565 deaths of 2015-2022, 19,332 linked to
+their record as mothers) joined to the hospital-death pairs of the same years (`B_2015` to `B_2022`): 7,611 died in
+hospital with a linked admission, 5,579 with the declared, the hospital's and the certificate's race all filled
+(mean false share of the women's link among them 0.28, taken out as a false pair's declared race being an unrelated
+mother's).
+
+**Given the declared race, the certificate follows the hospital's record** (corrected):
+
+| declared | certificate as declared when the hospital recorded Branca / Preta / Parda | hospital as declared | certificate as declared |
+|---|---|---|---|
+| Branca | 0.90 / 0.36 / 0.59 | 0.80 | 0.83 |
+| Preta | 0.55 / 0.79 / 0.39 | 0.37 | 0.55 |
+| Parda | 0.77 / 0.61 / 0.78 | 0.83 | 0.76 |
+
+The independence the chain assumed is false, directly. The hospital reads these women at death as it reads women at
+delivery (0.80, 0.37, 0.83 against 0.75, 0.37, 0.82 on 1.18 M delivery pairs of 2022).
+
+**Do men look like this?** A group's hospital deaths give only the hospital's and the certificate's race. If the group
+is recorded as these women are, its joint of the two is a mixture of the women's P(hospital, certificate | declared)
+over some declared mix (four free numbers, 24 cells). Total variation between observed and fitted joint, all years:
+
+| group | deaths | misfit |
+|---|---|---|
+| women 15-49 (the control: the population the structure comes from) | 168,386 | 0.028 |
+| men 15-49 | 238,516 | 0.027 |
+| men 15-49, external causes / other causes | 51,034 / 187,482 | 0.035 / 0.025 |
+| women 50-69 / men 50-69 | 441,789 / 596,293 | 0.028 / 0.025 |
+| women 70+ / men 70+ | 746,661 / 720,160 | 0.042 / 0.034 |
+
+- Men's hospital deaths are fitted as well as the women's own, at 15-49 and at 50-69; the same cells miss in the same
+  direction in every group (hospital Parda with certificate Branca: 0.11 observed, 0.10 fitted). Nothing here says men
+  who die in hospital are recorded differently from women.
+- This is evidence for carrying the women's structure to men **for deaths in hospital**: certificate as declared
+  Branca 0.83, Preta 0.55, Parda 0.76. It is not a proof (a declared mix can absorb some differences), and it says
+  nothing of deaths outside hospital, where the examiner's certificates are (previous section).
+- At 70 and over the fit loosens (0.034-0.042): the structure of mothers aged 15-49 describes the old less well.
