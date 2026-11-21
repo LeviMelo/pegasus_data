@@ -34,7 +34,7 @@ __all__ = ["build_extract", "extract_dir", "extract_table"]
 
 
 def _filters(filters: dict[str, Sequence[str]]) -> dict[str, list[str]]:
-    from .api import normalise_prefix
+    from ._query_engine.request import normalise_prefix
 
     return {str(c).upper(): sorted({normalise_prefix(x) for x in codes}) for c, codes in sorted(filters.items())}
 
@@ -169,7 +169,7 @@ def _year_parts(extract_dir: Path, year: int) -> list[Path]:
 
 def _match(table: pa.Table, column: str, prefixes: Sequence[str]) -> pa.Array | None:
     """The rows whose ``column`` starts with one of ``prefixes`` (None: the table has no such column)."""
-    from .api import prefix_match
+    from ._query_engine.request import prefix_match
 
     col = next((c for c in table.column_names if c.upper() == column), None)
     if col is None:
@@ -320,7 +320,7 @@ def extract_table(dataset: str, column: str, codes: Sequence[str], years: Sequen
     from .config import load_settings
 
     settings = settings or load_settings(root=Path(root) if root else None)
-    from .api import normalise_prefix
+    from ._query_engine.request import normalise_prefix
 
     asked = sorted({normalise_prefix(c) for c in codes})
     column = column.upper()

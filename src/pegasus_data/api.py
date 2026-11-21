@@ -34,7 +34,7 @@ from ._query_engine.readplan import (
     plan_lake_read,
     resolve_family,
 )
-from ._query_engine.request import ReadRequest
+from ._query_engine.request import ReadRequest, rows_expression
 from .catalog.store import CatalogStore as _Store
 from .config import Settings, load_settings
 from .lookups import _single_lookup
@@ -667,58 +667,6 @@ def _keeps_companions(profile: str, companions: bool | Sequence[str] | None) -> 
     if isinstance(companions, (list, tuple, set)):
         return bool(companions)
     return resolve_profile(profile, companions=companions).companions
-
-
-def normalise_prefix(code: object) -> str:
-    """A code prefix as every row filter compares it: without dots, trimmed, upper case (``"j18.9"`` is ``"J189"``,
-    the way DATASUS writes the code). The one spelling for the lake's scan, the fetched year and the extracts."""
-    return str(code).replace(".", "").strip().upper()
-
-
-def prefix_match(text: Any, prefixes: Sequence[str]) -> Any:
-    """Is ``text`` (an array, or a scan expression) one of the codes that start with one of the normalised
-    ``prefixes``? The one prefix test of the lake's scan, the fetched year and the extracts."""
-    import pyarrow.compute as pc
-
-    upper = pc.utf8_upper(text)
-    hit = None
-    for prefix in prefixes:
-        one = pc.starts_with(upper, pattern=prefix)
-        hit = one if hit is None else pc.or_kleene(hit, one)
-    return hit
-
-
-def rows_filters(rows: Mapping[str, Sequence[str]] | None) -> dict[str, tuple[str, ...]]:
-    """The row filter, checked: ``{column: code prefixes}``, each a non-empty column name with non-empty prefixes,
-    the prefixes normalised (:func:`normalise_prefix`).
-
-    An empty list of prefixes selects no row, and the filter used to select every row instead (a topic with no codes
-    read a whole year of admissions as its cases); a second empty one crashed in Arrow.
-    """
-    out: dict[str, tuple[str, ...]] = {}
-    for column, prefixes in (rows or {}).items():
-        if not isinstance(column, str) or not column.strip():
-            raise ValueError(f"rows: {column!r} is not a column name")
-        if isinstance(prefixes, str):
-            prefixes = [prefixes]
-        codes = tuple(normalise_prefix(p) for p in prefixes)
-        if not codes:
-            raise ValueError(f"rows[{column!r}] is empty: a filter on no codes selects no record (give prefixes, or drop it)")
-        if any(not p for p in codes):
-            raise ValueError(f"rows[{column!r}] holds a blank prefix, which every value starts with")
-        out[column] = codes
-    return out
-
-
-def rows_expression(rows: Mapping[str, Sequence[str]]) -> ds.Expression:
-    """The rows whose every named column starts with one of its codes (``{column: prefixes}``), as a scan predicate."""
-    import pyarrow.compute as pc
-
-    out = None
-    for column, prefixes in rows_filters(rows).items():
-        hit = prefix_match(pc.field(column).cast(pa.string()), prefixes)
-        out = hit if out is None else (out & hit)
-    return out
 
 
 def _scan_columns(condition: Any, years: Sequence[int]) -> set[str]:
