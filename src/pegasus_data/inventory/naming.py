@@ -267,10 +267,11 @@ def infer_two_digit_epoch(codes: list[str]) -> str:
     values = sorted({int(c) for c in codes if len(c) == 2 and c.isdigit()})
     if not values:
         return "pivot"
+    # a century that reads the codes as the default does is named as that century (the tie goes to it)
     candidates = {
-        "pivot": [_year_from_two_digits(v, "pivot") for v in values],
         "century_2000": [2000 + v for v in values],
         "century_1900": [1900 + v for v in values],
+        "pivot": [_year_from_two_digits(v, "pivot") for v in values],
     }
     best = "pivot"
     best_span = None
