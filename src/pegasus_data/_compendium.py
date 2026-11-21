@@ -1279,10 +1279,10 @@ def _write_products(db: sqlite3.Connection, cfg: Settings, report: CompendiumRep
     each one's stores; the population series (``populations.yml``) and geography memberships (``geography.yml``) from
     their own declarations; and every store folder of the home that nothing describes."""
     from .config import curation_root
-    from .semantics.curation import read_yaml
+    from .semantics.curation import products, read_yaml
 
     base = curation_root()
-    declared = dict((read_yaml(base / "products.yml", missing_ok=True) or {}).get("products") or {})
+    declared = dict(products(base))
     rows = []
     claimed: set[str] = set()
     for pid, spec in sorted(declared.items()):

@@ -16,6 +16,7 @@ claim, and disagreements are reported as warnings for a person to settle.
 Usage::
 
     python scripts/validate_curation.py CATALOG curation/variables/sinan_core.yml
+    python scripts/validate_curation.py --schema     # every curation file against its declared keys (semantics/schema.py)
 """
 
 from __future__ import annotations
@@ -278,12 +279,45 @@ def check(catalog_path: str, file_path: Path) -> dict[str, object]:
     }
 
 
+def check_schemas() -> int:
+    """Every curation file against its declared schema (`semantics/schema.py`): all violations of all files are
+    printed, with the number of files checked per kind. Returns the number of files that violate theirs."""
+    import collections
+
+    from pegasus_data.config import curation_root
+    from pegasus_data.semantics import schema
+    from pegasus_data.semantics.curation import load_yaml_text
+
+    root = curation_root()
+    per_kind: collections.Counter[str] = collections.Counter()
+    bad = 0
+    for path in sorted(root.rglob("*.yml")):
+        relative = path.relative_to(root).as_posix()
+        kind = next((p for p, _ in schema.KINDS if schema.fnmatchcase(relative, p)), "NO KIND")
+        per_kind[kind] += 1
+        try:
+            schema.check(relative, load_yaml_text(path.read_text(encoding="utf-8")) or {})
+        except schema.DeclarationError as error:
+            bad += 1
+            print(error)
+    for kind, count in per_kind.items():
+        print(f"{count:4d}  {kind}")
+    print(f"{sum(per_kind.values())} files checked, {bad} violating")
+    return bad
+
+
 def main() -> None:
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("catalog")
-    parser.add_argument("files", nargs="+")
+    parser.add_argument("--schema", action="store_true",
+                        help="check every curation file against its declared schema and exit (no catalog needed)")
+    parser.add_argument("catalog", nargs="?")
+    parser.add_argument("files", nargs="*")
     args = parser.parse_args()
+    if args.schema:
+        sys.exit(1 if check_schemas() else 0)
+    if not args.catalog or not args.files:
+        parser.error("a catalog and at least one file (or --schema)")
     results = [check(args.catalog, Path(f)) for f in args.files]
     print(json.dumps(results, indent=2, ensure_ascii=False))
     if any(

@@ -183,16 +183,14 @@ def vital_inputs() -> dict[str, dict[str, Any]]:
     """What the account counts (``inputs`` of its product, `curation/products.yml`): per input, its event type
     (``records:<dataset>/<event>``), its strata (a name for each role it is stratified by), the first year its system
     publishes (``first``, 0 when it always has) and the dataset that holds the years before it (``earlier``, or None)."""
-    from .config import curation_root
-    from .semantics.curation import read_yaml
+    from .semantics.curation import product
 
     def split(events: str) -> tuple[str, str]:
         dataset, _, event = str(events).removeprefix("records:").partition("/")
         return dataset, event
 
-    product = (read_yaml(curation_root() / "products.yml").get("products") or {})["population_account"]
     out = {}
-    for name, body in (product.get("inputs") or {}).items():
+    for name, body in (product("population_account").get("inputs") or {}).items():
         dataset, event = split(body["events"])
         out[str(name)] = {"dataset": dataset, "event": event, "strata": {str(k): str(v) for k, v in body["strata"].items()},
                           "first": int(body.get("from", 0)), "earlier": split(body["earlier"])[0] if body.get("earlier") else None}

@@ -996,7 +996,7 @@ sources:
       MES: {description: month requested and distributed, type: integer}
       QTDE: {description: quantity requested and distributed, type: number}
       ORIGEM: {description: request or distribution, type: code, codes: {Solicitado: requested, Distribuido: distributed}}
-      TX_AREA: {description: immunobiologicals and supplies (vaccines, sera, immunoglobulins, supplies), type: label}
+      TX_AREA: {description: "immunobiologicals and supplies (vaccines, sera, immunoglobulins, supplies)", type: label}
     place: {column: TX_SIGLA, type: code, as: ses, states: 'SES-'}   # a state's secretariat: SES- and its abbreviation
     period: {type: parts, year: ANO, month: MES, grain: month, valid: 2018-2026}
     fields:
@@ -2065,12 +2065,12 @@ sources:
       csv: {sep: ";", encoding: mixed, multiline: true}
       files: [{key: events, extension: csv, url: "https://dadosabertos.mdr.gov.br/dataset/1aabd419-5677-4fa2-a0e3-a1a3e1a42234/resource/1c8aac93-f874-4f07-9405-86a0398dadd6/download"}]
     columns:
-      Protocolo_S2iD: {description: the event's protocol (state, type, municipality, COBRADE code and date), type: code}
+      Protocolo_S2iD: {description: "the event's protocol (state, type, municipality, COBRADE code and date)", type: code}
       Cod_IBGE_Mun: {description: IBGE code of the municipality (7 digits), type: municipality}
       Data_Evento: {description: date of the event (dd/mm/yyyy), type: date, format: "%d/%m/%Y"}
       Cod_Cobrade: {description: COBRADE code of the disaster, type: code}
       descricao_tipologia: {description: typology of the disaster, type: label}
-      grupo_de_desastre: {description: group of the disaster (climatological, hydrological, meteorological, ...), type: label}
+      grupo_de_desastre: {description: "group of the disaster (climatological, hydrological, meteorological, ...)", type: label}
       Status: {description: registered (Registro) or federally recognised (Reconhecido), type: code}
       DH_MORTOS: {description: people killed, type: integer}
       DH_FERIDOS: {description: people injured, type: integer}
@@ -2172,7 +2172,7 @@ sources:
       ID_CMPT_MOVEL: {description: the month of the position (yyyy-mm), type: code}
       SG_UF: {description: state of the beneficiary (XX when none), type: code}
       CD_MUNICIPIO: {description: IBGE code of the beneficiary's municipality (6 digits; -1 when none), type: municipality}
-      TP_SEXO: {description: sex of the beneficiary (F, M), type: code}
+      TP_SEXO: {description: "sex of the beneficiary (F, M)", type: code}
       DE_FAIXA_ETARIA: {description: age band of the beneficiary, type: label}
       COBERTURA_ASSIST_PLAN: {description: coverage of the plan (Médico-hospitalar or Odontológico), type: code}
       QT_BENEFICIARIO_ATIVO: {description: active beneficiary links, type: integer}
@@ -2240,14 +2240,14 @@ sources:
       CO_MUNICIPIO: {description: IBGE code of the school's municipality (7 digits), type: municipality}
       CO_ENTIDADE: {description: the school's INEP code, type: code}
       QT_MAT_BAS: {description: enrolments in basic education (total), type: integer}
-      QT_MAT_BAS_FEM: {description: enrolments, female, type: integer}
-      QT_MAT_BAS_MASC: {description: enrolments, male, type: integer}
-      QT_MAT_BAS_BRANCA: {description: enrolments, white, type: integer}
-      QT_MAT_BAS_PRETA: {description: enrolments, black, type: integer}
-      QT_MAT_BAS_PARDA: {description: enrolments, brown, type: integer}
-      QT_MAT_BAS_AMARELA: {description: enrolments, yellow, type: integer}
-      QT_MAT_BAS_INDIGENA: {description: enrolments, indigenous, type: integer}
-      QT_MAT_BAS_ND: {description: enrolments, colour/race not declared, type: integer}
+      QT_MAT_BAS_FEM: {description: "enrolments, female", type: integer}
+      QT_MAT_BAS_MASC: {description: "enrolments, male", type: integer}
+      QT_MAT_BAS_BRANCA: {description: "enrolments, white", type: integer}
+      QT_MAT_BAS_PRETA: {description: "enrolments, black", type: integer}
+      QT_MAT_BAS_PARDA: {description: "enrolments, brown", type: integer}
+      QT_MAT_BAS_AMARELA: {description: "enrolments, yellow", type: integer}
+      QT_MAT_BAS_INDIGENA: {description: "enrolments, indigenous", type: integer}
+      QT_MAT_BAS_ND: {description: "enrolments, colour/race not declared", type: integer}
       QT_MAT_BAS_0_3: {description: enrolments aged 0 to 3, type: integer}
       QT_MAT_BAS_4_5: {description: enrolments aged 4 to 5, type: integer}
       QT_MAT_BAS_6_10: {description: enrolments aged 6 to 10, type: integer}
@@ -2331,7 +2331,7 @@ sources:
     columns:
       co_documento: {description: code of the document in the RNDS (every FHIR document entering the RNDS receives one), type: code}
       co_paciente: {description: pseudonymous code of the patient assigned in the RNDS (a hash; a personal identifier kept as filed), type: code}
-      tp_sexo_paciente: {description: biological sex of the patient (F, M, I), type: code}
+      tp_sexo_paciente: {description: "biological sex of the patient (F, M, I)", type: code}
       co_raca_cor_paciente: {description: code of the patient's race/colour, type: code, label_from: no_raca_cor_paciente}
       no_raca_cor_paciente: {description: name of the patient's race/colour, type: label}
       co_municipio_paciente: {description: IBGE code of the patient's municipality of residence (6 digits), type: municipality}
@@ -2340,7 +2340,7 @@ sources:
       no_pais_paciente: {description: name of the patient's country of residence, type: label}
       sg_uf_paciente: {description: abbreviation of the patient's state, type: code}
       nu_cep_paciente: {description: first five digits of the patient's CEP (postal code), type: code}
-      ds_nacionalidade_paciente: {description: nationality of the patient (B Brazilian, E foreign, as filed), type: code}
+      ds_nacionalidade_paciente: {description: "nationality of the patient (B Brazilian, E foreign, as filed)", type: code}
       no_etnia_indigena_paciente: {description: name of the patient's indigenous ethnicity, type: label}
       co_etnia_indigena_paciente: {description: code of the patient's indigenous ethnicity, type: code, label_from: no_etnia_indigena_paciente}
       co_cnes_estabelecimento: {description: CNES code of the establishment that applied the dose, type: code}
@@ -2354,7 +2354,7 @@ sources:
       sg_imunobiologico: {description: abbreviation of the vaccine applied, type: label}
       dt_vacina: {description: date of vaccination, type: date, format: "%Y-%m-%d"}
       co_dose_vacina: {description: code of the dose applied, type: code, label_from: ds_tipo_dose}
-      ds_tipo_dose: {description: description of the dose applied (1ª Dose, Reforço...), type: label}
+      ds_tipo_dose: {description: "description of the dose applied (1ª Dose, Reforço...)", type: label}
       co_local_aplicacao: {description: code of the body site of application, type: code, label_from: ds_local_aplicacao}
       ds_local_aplicacao: {description: description of the body site of application, type: label}
       co_via_administracao: {description: code of the route of administration, type: code, label_from: ds_via_administracao}
@@ -2363,10 +2363,10 @@ sources:
       ds_vacina_fabricante: {description: manufacturer of the vaccine applied, type: label}
       dt_entrada_rnds: {description: date the record entered the RNDS, type: date, format: "%Y-%m-%d"}
       co_sistema_origem: {description: code of the system the record came from, type: code, label_from: ds_sistema_origem}
-      ds_sistema_origem: {description: description of the system the record came from (ESUS APS, SI-PNI...), type: label}
-      st_documento: {description: status of the document (final, or replaced or altered), type: code}
+      ds_sistema_origem: {description: "description of the system the record came from (ESUS APS, SI-PNI...)", type: label}
+      st_documento: {description: "status of the document (final, or replaced or altered)", type: code}
       co_estrategia_vacinacao: {description: code of the vaccination strategy, type: code, label_from: no_estrategia}
-      no_estrategia: {description: description of the vaccination strategy (Rotina, Campanha...), type: label}
+      no_estrategia: {description: "description of the vaccination strategy (Rotina, Campanha...)", type: label}
       co_origem_registro: {description: code marking the record as a transcription, type: code, label_from: ds_origem_registro}
       ds_origem_registro: {description: description marking the record as a transcription, type: label}
       co_vacina_grupo_atendimento: {description: code of the care group of the vaccination, type: code, label_from: no_grupo_atendimento}
@@ -2375,12 +2375,12 @@ sources:
       ds_categoria: {description: description of the category of the care group, type: label}
       co_vacina_fabricante: {description: code of the manufacturer of the vaccine (mostly empty), type: code}
       ds_nome: {description: full name of the vaccine (immunobiological), type: label}
-      ds_condicao_maternal: {description: description of the patient's maternal condition (pregnant, postpartum), type: label}
+      ds_condicao_maternal: {description: "description of the patient's maternal condition (pregnant, postpartum)", type: label}
       co_tipo_estabelecimento: {description: code of the establishment's type in the CNES, type: code, label_from: ds_tipo_estabelecimento}
       ds_tipo_estabelecimento: {description: description of the establishment's type in the CNES, type: label}
       co_natureza_estabelecimento: {description: code of the establishment's nature in the CNES, type: code, label_from: ds_natureza_estabelecimento}
       ds_natureza_estabelecimento: {description: description of the establishment's nature in the CNES, type: label}
-      nu_idade_paciente: {description: age of the patient in years at the dose (holds -1, 120 and 220), type: integer}
+      nu_idade_paciente: {description: "age of the patient in years at the dose (holds -1, 120 and 220)", type: integer}
       co_condicao_maternal: {description: code of the patient's maternal condition, type: code, label_from: ds_condicao_maternal}
       no_uf_paciente: {description: name of the patient's state, type: label}
       no_uf_estabelecimento: {description: name of the establishment's state, type: label}

@@ -384,6 +384,23 @@ def declared(file: str, *path: str) -> Any:
     return node
 
 
+@curated(rooted=True)
+def products(root: Path | None = None) -> dict[str, dict[str, Any]]:
+    """The declared products of ``products.yml`` (``root``: the curation directory, the one in use when None), by name.
+    Shared by every caller and read once per curation epoch: never edit it, nor hand out its lists and mappings."""
+    from ..config import curation_root
+
+    return read_yaml((root or curation_root()) / "products.yml", shared=True, missing_ok=True).get("products") or {}
+
+
+def product(name: str) -> dict[str, Any]:
+    """One declared product (``products.yml``); a name it does not declare raises ``KeyError`` naming it."""
+    try:
+        return products()[name]
+    except KeyError:
+        raise KeyError(f"products.yml declares no product {name!r}") from None
+
+
 def load_yaml_text(text: str) -> Any:
     """YAML text, parsed by libyaml's safe loader when it is installed (the pure-Python one is ~10x slower)."""
     yaml = _require_yaml()
@@ -409,6 +426,17 @@ def _yaml_cache_dir() -> Path | None:
     return folder
 
 
+def _curation_relative(path: str) -> str | None:
+    """``path`` relative to the curation root in use (``/``-separated), or None for a file outside it (a data-home
+    file, a scratch directory): only the curation's own files have a declared schema."""
+    from ..config import curation_root
+
+    try:
+        return Path(path).resolve().relative_to(curation_root().resolve()).as_posix()
+    except ValueError:
+        return None
+
+
 @lru_cache(maxsize=1024)
 def _parsed_yaml(path: str, mtime_ns: int, size: int) -> dict[str, Any]:
     """The parsed file, from a pickle kept beside the system's temp files when this version of it (path, mtime, size)
@@ -419,12 +447,15 @@ def _parsed_yaml(path: str, mtime_ns: int, size: int) -> dict[str, Any]:
     versions of 365 files, 44 MB, and never shrank); a pickle that cannot be read for any reason is a miss."""
     import pickle
 
+    from . import schema
+
     global _YAML_CACHE_SWEPT
     yaml = _require_yaml()
     folder = _yaml_cache_dir()
     cached = None
     if folder is not None:
-        tag = hashlib.sha1(f"{mtime_ns}|{size}|{yaml.__version__}".encode()).hexdigest()
+        # the declared schema is part of the version: a pickle exists only for a document that passed THIS schema
+        tag = hashlib.sha1(f"{mtime_ns}|{size}|{yaml.__version__}|{schema.fingerprint()}".encode()).hexdigest()
         cached = folder / hashlib.sha1(path.encode()).hexdigest() / f"{tag}.pickle"
         try:
             with open(cached, "rb") as handle:
@@ -434,6 +465,9 @@ def _parsed_yaml(path: str, mtime_ns: int, size: int) -> dict[str, Any]:
     loader = getattr(yaml, "CSafeLoader", yaml.SafeLoader)
     with open(path, encoding="utf-8") as handle:
         doc = yaml.load(handle, Loader=loader) or {}  # noqa: S506 - a safe loader
+    relative = _curation_relative(path)
+    if relative is not None:
+        schema.check(relative, doc)      # an unknown or misspelt key is refused, and never pickled
     if cached is not None and folder is not None:
         try:
             if not _YAML_CACHE_SWEPT:         # the flat layout before one directory per file

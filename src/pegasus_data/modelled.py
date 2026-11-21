@@ -83,11 +83,9 @@ class ModelledManifest:
 def product_parameters(product: str) -> dict[str, Any]:
     """The analytic choices of ``product`` (``parameters:`` of its entry in `curation/products.yml`, each with the rationale
     in a comment beside it): what a builder reads instead of a constant of its own, and what the version's manifest records."""
-    from .config import curation_root
-    from .semantics.curation import read_yaml
+    from .semantics.curation import products
 
-    entry = (read_yaml(curation_root() / "products.yml").get("products") or {}).get(product) or {}
-    return dict(entry.get("parameters") or {})
+    return dict((products().get(product) or {}).get("parameters") or {})
 
 
 def _root(settings: Any) -> Path:
@@ -216,10 +214,9 @@ def build(product: str, *, version: str, validation: str, settings: Any, log=pri
     ``build`` is not rebuildable from the package: the error says so rather than guessing."""
     from importlib import import_module
 
-    from .config import curation_root
-    from .semantics.curation import read_yaml
+    from .semantics.curation import products
 
-    entry = ((read_yaml(curation_root() / "products.yml").get("products") or {}).get(product) or {})
+    entry = products().get(product) or {}
     if entry.get("kind") != "modelled":
         raise ValueError(f"{product!r} is not a modelled product")
     if not entry.get("build"):

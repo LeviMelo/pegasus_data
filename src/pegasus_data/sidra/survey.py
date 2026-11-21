@@ -32,11 +32,10 @@ __all__ = ["rank", "survey", "vintage_families"]
 
 
 def _topics() -> dict[str, dict[str, Any]]:
-    import yaml
-
     from ..config import curation_root
+    from ..semantics.curation import read_yaml
 
-    return (yaml.safe_load((Path(curation_root()) / "sidra" / "topics.yml").read_text("utf-8")) or {}).get("topics") or {}
+    return read_yaml(Path(curation_root()) / "sidra" / "topics.yml").get("topics") or {}
 
 
 def survey(registry: Registry) -> list[dict[str, Any]]:

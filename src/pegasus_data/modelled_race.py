@@ -671,11 +671,9 @@ RACE_LABEL_CODE = {"white": "1", "black": "2", "asian": "3", "brown": "4", "indi
 
 
 def _declaration(product: str) -> dict[str, Any]:
-    from .config import curation_root
-    from .semantics.curation import read_yaml
+    from .semantics.curation import products
 
-    entry = (read_yaml(curation_root() / "products.yml").get("products") or {}).get(product) or {}
-    return dict(entry.get("inputs") or {})
+    return dict((products().get(product) or {}).get("inputs") or {})
 
 
 def _codes(labels: Any) -> list[str | None]:
