@@ -240,6 +240,8 @@ grade_cells(municipality="2704302", resolution=1000)  # IBGE's Grade Estatístic
                                      # municipality, summed into IBGE's 1-500 km cells (`pegasus-data grade` builds it)
 tract_population(municipality="2704302")  # Census 2022 residents per tract by sex and age band; IBGE's suppressed `X` is null
 tract_aggregates("cor_ou_raca", municipality="2704302")  # Census 2022 colour or race per tract, a column per IBGE variable; tract_dictionary("cor_ou_raca") gives the labels
+tract_aggregates("renda_responsavel", municipality="2704302")  # income of the household head per tract (decimals: V06004 mean, V06006 median; suppressed null)
+weighting_area_table("renda_domiciliar_per_capita", municipality="2704302")  # the sample's income by weighting area; tract_weighting_area() maps a tract to its area
 climate_daily(["tmax", "precipitation"], municipality="2704302", start="2024-01-01", weight="population")
                                      # CPTEC's SAMeT and MERGE by municipality and day, where people live (or weight="area");
                                      # as_of="2024-03-01" gives the values as published by then; climate_weekly sums epi weeks
