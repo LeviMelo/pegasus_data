@@ -65,7 +65,7 @@ Line numbers are from the tree as read (2026-11-21).
 | 7 | fixed: population columns renamed by declared role |
 | 8 | fixed: `Kind.parts_sum`; national = every UF; UI control cutoffs and decimals kept as display presets |
 | 29 | fixed: `curation/questions.yml` (`settled`, `open`) replaces `SETTLED`/`UNRESOLVED` |
-| 28 | fixed: `SEED_QUESTIONS` and the V7/V8 resolutions (fixed historical measurements) are in `questions.yml`; answers with run-measured numbers already formatted them. `build.py` reading the V7/V8 texts from it lands once the other session commits its open build.py work |
+| 28 | fixed: `SEED_QUESTIONS` and the V7/V8 resolutions (fixed historical measurements) are in `questions.yml`; answers with run-measured numbers already formatted them. `build.py` reads the V7/V8 texts from it |
 | 20 | fixed: a day needs all 24 readings, measured |
 | 23 | fixed: topic score x coverage |
 | 24 | fixed: research order declared; `infer_kind` kept (SIDRA gives no kind) |

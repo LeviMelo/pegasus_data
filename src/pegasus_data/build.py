@@ -47,6 +47,7 @@ from .persist.staging import prune_dead_staging, staged_tree
 from .pipeline import Pipeline, StageResult
 from .progress import ItemTimeout
 from .representations import RepresentationConflictError, choose_representations, select_publications
+from .semantics.curation import declared
 from .semantics.dictionary import DictionaryCache
 from .sources import demas_api, ibge
 
@@ -845,25 +846,13 @@ class Builder:
         if isinstance(projpop, dict) and projpop.get("rows"):
             self.catalog.resolve_question(
                 "V7.projpop",
-                resolution=(
-                    "IBGE/projpop holds 71 files named PROJUF00…PROJUF70 — IBGE population "
-                    "*projections* keyed by projection year 2000–2070, at UF level with sex "
-                    "and age. They do NOT supersede POPSVS: POPSVS is municipal and projpop "
-                    "is not, so projpop complements it for projected years and for national "
-                    "age structures. Note the two-digit year runs forward to 70, so the usual "
-                    "1900/2000 pivot would misread the later files by a century; the epoch is "
-                    "inferred per directory from contiguity."
-                ),
+                resolution=declared("questions.yml", "resolutions", "V7.projpop"),
                 evidence=json.dumps(projpop),
             )
         if counts:
             self.catalog.resolve_question(
                 "V8.ministry_denominator",
-                resolution=(
-                    "The Ministry's tables divide by POPSVS: TabNet's population form (ibge/cnv/popsvs2024br.def) "
-                    "reads IBGE/POPSVS, and its 2022 equals the local POPSVS in 27 of 27 states (210,862,983). "
-                    "DATA_SOURCES.md, population, 2026-10-03."
-                ),
+                resolution=declared("questions.yml", "resolutions", "V8.ministry_denominator"),
                 evidence=json.dumps(counts),
             )
 
