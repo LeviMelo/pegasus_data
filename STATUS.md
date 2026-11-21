@@ -14,7 +14,7 @@ holds and can do, one space × time object, and the principles audits' defects c
 - **The map** (ADR-0216). `compendium()` and the home's copy (`_compendium.current`) describe:
   - every dataset `query()` serves, each column's query-time codelists and fill;
   - the context fields, roles, events, links, aggregates and SIDRA's tables;
-  - the 46 products of `curation/products.yml`;
+  - the 50 products of `curation/products.yml`;
   - every function and command.
 
   `search()` reads it, and `info()` with no target prints its overview (about 420 lines). It also lists the home's
