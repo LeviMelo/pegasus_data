@@ -1058,8 +1058,8 @@ def _modelled(ident: str, *, place: str, by: list[str], where: dict[str, Sequenc
     table = dataset.to_table(columns=columns, filter=expression)
     raw = pc.cast(table.column(place_column), pa.string())
     if states:
-        codes = {abbr: int(code) for abbr, code in uf_codes_by_sigla().items()}
-        places = pa.array([int(v) if v and v.isdigit() else codes.get(v) for v in raw.to_pylist()], pa.int64())
+        by_sigla = {abbr: int(code) for abbr, code in uf_codes_by_sigla().items()}
+        places = pa.array([int(v) if v and v.isdigit() else by_sigla.get(v) for v in raw.to_pylist()], pa.int64())
     else:
         sole = pc.match_substring_regex(raw, r"^\d{6,7}$")
         places = pa.array(place_municipalities_of(raw, sole), pa.int64())

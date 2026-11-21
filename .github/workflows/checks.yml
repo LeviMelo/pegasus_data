@@ -45,9 +45,7 @@ jobs:
         run: pytest -q
 
       - name: Types
-        # NOT blocking: mypy reported 157 findings on 2026-09-28, mostly
-        # `dict[str, object]` values needing per-site annotations.
-        continue-on-error: true
+        # Blocking since 2026-11-21: 256 findings were cleared, three of them real defects.
         run: mypy src/pegasus_data
 
   distribution:

@@ -257,12 +257,13 @@ def vital_events(settings: Any, name: str, year: int, place: str) -> dict[str, A
     strata = [c for s, c in columns.items() if s != "residence"]
     table = cube(f"records:{dataset}/{spec['event']}", place=place, by=strata, periods=[year], grain="year", labels=False,
                  settings=settings)
-    if manifest(table)["not_published"]:
+    facts = manifest(table)
+    if facts["not_published"]:
         return None
     codes = [None if c is None else str(c) for c in table.column(columns["sex"]).to_pylist()]
     out = {"place": np.array(table.column("place").to_pylist(), dtype=np.int64),
            "sex": np.array([SEX_INDEX.get(s, -1) for s in sex_of(dataset, columns["sex"], year, codes, settings.root)], dtype=np.int_),
-           "events": np.array(table.column("value").to_pylist(), dtype=float), "total": float(manifest["events"])}  # type: ignore[misc,name-defined]  # suspected bug: `manifest` is the imported function, not manifest(table)
+           "events": np.array(table.column("value").to_pylist(), dtype=float), "total": float(facts["events"])}
     if "age" in columns:
         out["age"] = np.array([-1.0 if a is None else float(a) for a in table.column(columns["age"]).to_pylist()])
     return out

@@ -588,12 +588,12 @@ def _declared_key_in(declared: dict[str, tuple[ColumnRole, ...]], dataset: str) 
         system, series = parse_dataset(dataset)
         # the system under each of its declared spellings (SIHSUS is SIH), with its series or alone (CIHA-CIHA is CIHA)
         spellings = system_spellings(system) or [system]
-        candidates = [*(f"{sp}-{series}" for sp in spellings), *spellings, series]
+        candidates = [*((f"{sp}-{series}" for sp in spellings) if series else ()), *spellings, *([series] if series else [])]
         key = next((c for c in candidates if c in declared), key)
         if key not in declared:
             # a roles file declared for a pattern of datasets (SINAN-*: the notification block every agravo carries)
             key = next((k for k in sorted(declared)
-                        if "*" in k and any(fnmatchcase(c, k) for c in candidates)),  # type: ignore[type-var]  # suspected bug: series None puts None in candidates
+                        if "*" in k and any(fnmatchcase(c, k) for c in candidates)),
                        key)
     if key not in declared:
         raise KeyError(f"no column roles declared for {dataset!r}; declared: {sorted(declared)}")

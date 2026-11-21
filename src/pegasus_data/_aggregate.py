@@ -556,8 +556,8 @@ def build_aggregate(
         cells.append(table)
         report.rows_read += int(read.get("events") or 0)
         report.unkeyed_rows += int(read.get("unplaced_events") or 0)
-        for uf, n in (read.get("unplaced_by_state") or {}).items():
-            report.unplaced_by_state[uf] = report.unplaced_by_state.get(uf, 0.0) + float(n)
+        for state, n in (read.get("unplaced_by_state") or {}).items():
+            report.unplaced_by_state[state] = report.unplaced_by_state.get(state, 0.0) + float(n)
         for year in sorted({int(str(c)[:4]) for c in table.column(TIME_KEY).to_pylist()}):
             if year not in report.years:
                 report.years = (*report.years, year)
@@ -635,7 +635,8 @@ def _reductions(spec: AggregateSpec) -> dict[str, str]:
 def _chunks(spec: AggregateSpec, years: Sequence[int], ufs: Sequence[str], settings: Any):
     """``(uf, cells, read, error)`` for each state asked for (the whole publication when none): a chunk whose publication
     is not there is its error, never an absence."""
-    for chunk_uf in (list(ufs) or [None]):
+    whole: list[str | None] = [None]
+    for chunk_uf in (list(ufs) or whole):
         try:
             table, read = cells_from_cubes(spec, list(years), chunk_uf, settings)
         except LookupError as exc:
@@ -675,6 +676,7 @@ def cells_from_cubes(spec: AggregateSpec, years: Sequence[int], uf: str | None, 
     read: dict[str, Any] = {}
     for measure in spec.measures:
         kind, fields = measure.kind.name, list(measure.source_fields)
+        parts: dict[str, str | None]
         if kind == "count":
             parts = {f"{measure.name}_n": None}
         elif kind == "sum":
@@ -1459,7 +1461,7 @@ def _curated_multi_valued(dataset: str, dimensions: Sequence[str], settings: Set
     return frozenset(name for name in dimensions if (doc := docs.get(name.upper())) is not None and doc.multi_valued)
 
 
-def _served_multi_valued(spec: AggregateSpec, manifest: dict[str, Any], settings: Settings) -> frozenset[str]:
+def _served_multi_valued(spec: AggregateSpec, manifest: Mapping[str, Any], settings: Settings) -> frozenset[str]:
     """The dimensions of a built artifact that hold several values per row.
 
     The build records them in the manifest (``multi_valued_dimensions``), so an artifact is served with what its build
