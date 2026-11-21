@@ -24,6 +24,21 @@ holds and can do, one space × time object, and the principles audits' defects c
 - **SI-PNI per-dose records** are declared on request (`PNI.DOSES`, 200 GiB zipped, built by naming years). June 2020 is
   landed and verified. Intake writes are sorted by place and month, about 30% smaller.
 
+## The modelled studies revisited (2026-11-21, ADR-0226; docs/plans/population.md)
+
+- **Population account.** `model-build population_account` had been broken by the move to `studies/` (an import);
+  fixed, and the rebuild equals `population-account-7` in every cell. Its difference from POPSVS is written term by
+  term (evaluation 2026-11-21-account-against-popsvs). It is now an **open research line** (`docs/plans/population.md`,
+  units P1 to P6): first runs of births and the electoral roll as symptoms cut the 2010 to 2022 error by a tenth and do
+  not transfer to 2000 to 2010. Next: the benchmark as one function (P1), the closing census's own error (P4).
+- **Race.** A third reference: a death linked to the dead person's own birth (`sim_deaths_to_own_birth`), giving
+  `race_confusion_child` (ages 1-14, children born from 2012). The birth record's colour is the mother's only from the
+  2011 form. False links are priced per pair, inside the municipality; `race-confusion-women-2` is the women's product
+  under that model. From 15 a man is recorded darker than a woman of the same colour at birth: the women's matrix is
+  not carried to men. Open: adults over 24, and 15-24 under a reference comparable with the census.
+- **Linkage.** A 7-digit municipality code (SINASC to 2005) is placed in link roles; before, a link on residence over
+  those years found nothing, silently. Role tables rebuild once (`ROLE_TABLE_VERSION` 2).
+
 ## The architecture review (2026-11-21, ADR-0222 to ADR-0225)
 
 The author asked for an assessment of the architecture and then handed the work over. What changed, each against the

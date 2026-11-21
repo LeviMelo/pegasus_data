@@ -716,8 +716,8 @@ def build_population_account(settings, *, version: str, validation: str, only: t
 
     ``only`` restricts the 2000-2030 rows to states (a development run: the product is then partial)."""
     from .. import __version__
-    from .. import population_backcast as pb
     from ..modelled import ModelledManifest, write_modelled
+    from . import population_backcast as pb
     from .population_forecast import EVENT_SD_PER_YEAR, forecast_account
 
     root = settings.root

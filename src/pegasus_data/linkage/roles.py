@@ -201,6 +201,19 @@ def _normalise(role: Role, table: pa.Table) -> pa.Array:
             valid = pc.and_(valid, pc.invert(ignored))
         place = pc.if_else(valid, raw, pa.scalar(None, pa.string()))
         if role.type == "municipality":
+            # A file that writes IBGE's 7-digit code (SINASC to 2005: every birth of 2000) is placed by the one rule
+            # (`geography.place_six`), never cut: until 2026-11-21 such a code was no municipality here, so a residence
+            # key met no partner and the link returned nothing, without a word.
+            seven = pc.and_(pc.utf8_is_digit(raw), pc.equal(pc.utf8_length(raw), 7))
+            if ignored is not None:
+                seven = pc.and_(seven, pc.invert(ignored))
+            seven = pc.fill_null(seven, False)
+            if pc.any(seven).as_py():
+                from ..geography import place_six
+
+                codes = pc.unique(pc.filter(raw, seven))
+                placed = pa.array(place_six(codes.to_pylist()), pa.string())
+                place = pc.if_else(seven, pc.take(placed, pc.index_in(raw, value_set=codes)), place)
             # The Federal District has one municipality, Brasília (530010). SIH-RD writes its residents'
             # administrative-region codes (530020 ... 530180) up to 2017-12 (2017: 140,876 of 151,901 DF rows,
             # DATA_SOURCES), so a residence key could never pair a DF resident with SIM or SINASC (530010). Any 53xxxx
@@ -237,7 +250,7 @@ def _normalise(role: Role, table: pa.Table) -> pa.Array:
 #: files and every partition of every year, which made any commit to them, or one new month of another year, discard
 #: all 48 cached national tables (2026-10-14), and not the shipped label pack as a whole, which made the re-windowing
 #: of CIH's labels (a dataset no link reads) discard every stored 2022 run (2026-10-23).
-ROLE_TABLE_VERSION = 1
+ROLE_TABLE_VERSION = 2   # 2: a 7-digit municipality code is placed (was null)
 
 
 def _labelled_columns(wanted: Iterable[Role]) -> set[str]:

@@ -975,3 +975,15 @@ def model_build(
     result = build(product, version=version, validation=validation, settings=settings,
                    log=lambda m: print(m, file=sys.stderr, flush=True))
     _emit(result, as_json, f"model-build {product}")
+
+
+@app.command(name="model-benchmark", rich_help_panel="MAINTENANCE")
+def model_benchmark(root: RootOpt = None, as_json: JsonOpt = False) -> None:
+    """Score the population account on its benchmark: each census forecast from the one before, everything fitted on
+    the other period (`studies.population_benchmark`; docs/plans/population.md). Reads the home; writes nothing."""
+    import sys
+
+    from ..config import load_settings
+    from ..studies.population_benchmark import benchmark
+
+    _emit(benchmark(load_settings(root=root), log=lambda m: print(m, file=sys.stderr, flush=True)), as_json, "model-benchmark")

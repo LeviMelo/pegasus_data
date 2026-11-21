@@ -193,6 +193,32 @@ links:
     validate:
       - {name: death on or after the latest birth, sql: "l.\"death.date\" >= r.\"birth.date\""}
 
+  sim_deaths_to_own_birth:
+    description: >
+      Deaths at ages 1 to 24 to the dead person's own birth record: the source of
+      a reference for race after infancy and for both sexes (the colour on the
+      birth record: the mother's own declaration from the 2011 form on, the
+      newborn's colour before). After the first year a death certificate carries
+      no birth weight or mother's age, so the key is the birth date, the sex and
+      the residence, which a family that moved does not keep. Another child of
+      the same sex born the same day in the municipality is a chance partner:
+      the control is read per municipality size and age, and only small
+      municipalities are used (race_confusion_child, ADR-0226). A death year's
+      partners span every birth year of its ages; the product's build runs the
+      pass one birth cohort at a time.
+    person: [deceased, baby]   # the same person on each side (linkage/entities.py)
+    same_event: false   # a death and the birth years before it
+    left:
+      dataset: SIM-DO
+      where: >
+        "deceased.age_years" BETWEEN 1 AND 24
+    right: {dataset: SINASC-DN, pad_years: [24, 0]}
+    passes:
+      - name: birth date, sex, residence
+        keys: [[deceased.birth_date, baby.birth_date], [deceased.sex, baby.sex],
+               [deceased.residence, mother.residence]]
+    control: {role: deceased.birth_date, shift_days: 7}
+
   sinasc_births_to_delivery_admission:
     description: >
       A birth to the mother's delivery admission. In a delivery AIH the patient

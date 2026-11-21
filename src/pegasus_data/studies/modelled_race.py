@@ -69,6 +69,8 @@ AGE_BANDS = ("0-6 d", "7-27 d", "28-364 d")
 #: Age bands (years) of the women 15-49 product; the model is the same, the bands are the population's.
 WOMEN_AGE_BANDS = ("15-24 y", "25-34 y", "35-49 y")
 WOMEN_AGE_EDGES = (25, 35)
+CHILD_AGE_BANDS = ("1-4 y", "5-9 y", "10-14 y")
+CHILD_AGE_EDGES = (1, 5, 10)
 UF_CODES = tuple(sorted(int(code) for code in UF_NUMERIC))
 
 
@@ -104,6 +106,12 @@ def age_band_years(years: np.ndarray) -> np.ndarray:
     return bands(years, (15, *WOMEN_AGE_EDGES)).astype(np.int8)
 
 
+def age_band_child(years: np.ndarray) -> np.ndarray:
+    """Age in years to the children's product's band index 0 (1-4), 1 (5-9), 2 (10-14); -1 where not known or under one
+    year (the product's deaths stop at its declared ``max_age``)."""
+    return bands(years, CHILD_AGE_EDGES).astype(np.int8)
+
+
 @dataclass(frozen=True)
 class Population:
     """What a confusion product is about: the stored link that gives the reference, the age bands, the table's name."""
@@ -119,6 +127,8 @@ class Population:
 INFANT = Population("race_confusion_infant", MODEL_VERSION, AGE_BANDS, "age_days", age_band, "sim_infant_deaths_to_sinasc")
 WOMEN = Population("race_confusion_women", "race-confusion-women-1", WOMEN_AGE_BANDS, "age_years", age_band_years,
                    "sim_women_deaths_to_sinasc_mothers")
+CHILD = Population("race_confusion_child", "race-confusion-child-1", CHILD_AGE_BANDS, "age_years", age_band_child,
+                   "sim_deaths_to_own_birth")
 
 
 @dataclass(frozen=True)
@@ -173,11 +183,15 @@ class Pairs:
     z: np.ndarray       # (n, 5) standardised composition
     w: np.ndarray       # weights, mean 1
     n_age: int = 3      # number of age bands (the population's)
-    #: Share of false links in each pair's class, and the recorded-class distribution of an unrelated pair, by state
-    #: (27, 6). A false pair's declared race is unrelated to the recorded one, so a pair's recorded class has
-    #: probability (1 - phi) C(k | j) + phi r(k): the contamination measured by the link's negative control.
+    #: Share of false links in each pair's class, and per pair (n, 6) the recorded-class distribution of an unrelated
+    #: pair. A false partner is another record of the same municipality (the key holds the residence), so given the
+    #: municipality its declared race says nothing of the recorded one, and a pair's recorded class has probability
+    #: (1 - phi) C(k | j) + phi r(k), r the recorded colours of the population's deaths in that municipality: the
+    #: contamination measured by the link's negative control. Until 2026-11-21 r was the state's: municipalities differ
+    #: within a state (an indigenous municipality's false pairs agree as its true ones do), so the state's r took too
+    #: little out of the diagonal (the children's Indígena row came out at 1.09).
     phi: np.ndarray | None = None
-    r_state: np.ndarray | None = None
+    r: np.ndarray | None = None
 
 
 def uf_index(uf_codes: np.ndarray) -> np.ndarray:
@@ -221,6 +235,9 @@ def _logits(p: dict[str, Any], j, uf, reg_of_uf, age, z, xp):
     return eta
 
 
+#: Least curvature a direction of the sampler's metric is given (the prior's is 1).
+MASS_FLOOR = 0.2
+
 #: Prior scales of the four groups of effects (state, region, composition, age); chosen on held-out data.
 SCALE_NAMES = ("state", "region", "beta", "age")
 
@@ -249,19 +266,20 @@ def _data(pairs: Pairs):
     import jax.numpy as jnp  # noqa: PLC0415
 
     phi = np.zeros(len(pairs.j)) if pairs.phi is None else np.asarray(pairs.phi)
-    key = np.column_stack([pairs.j, pairs.uf, pairs.age, phi, pairs.z])
+    r = np.full((len(pairs.j), 6), 1 / 6) if pairs.r is None else np.asarray(pairs.r)
+    key = np.column_stack([pairs.j, pairs.uf, pairs.age, phi, r, pairs.z])
     uniq, inv = np.unique(key, axis=0, return_inverse=True)
     counts = np.zeros((len(uniq), 6))
     np.add.at(counts, (inv.ravel(), pairs.k), pairs.w)
     bounds = np.searchsorted(uniq[:, 0], np.arange(7))
-    r_state = np.full((len(UF_CODES), 6), 1 / 6) if pairs.r_state is None else np.asarray(pairs.r_state)
     return {"blocks": [(int(bounds[j]), int(bounds[j + 1])) for j in range(6)], "uf": jnp.asarray(uniq[:, 1].astype(int)),
-            "age": jnp.asarray(uniq[:, 2].astype(int)), "phi": jnp.asarray(uniq[:, 3]), "r": jnp.asarray(r_state[uniq[:, 1].astype(int)]),
-            "z": jnp.asarray(uniq[:, 4:]), "counts": jnp.asarray(counts)}
+            "age": jnp.asarray(uniq[:, 2].astype(int)), "phi": jnp.asarray(uniq[:, 3]), "r": jnp.asarray(uniq[:, 4:10]),
+            "z": jnp.asarray(uniq[:, 10:]), "counts": jnp.asarray(counts)}
 
 
 def _log_lik(par, data, reg_of_uf):
     import jax.numpy as jnp  # noqa: PLC0415
+    from jax.scipy.special import logsumexp  # noqa: PLC0415
 
     reg = jnp.asarray(reg_of_uf)
     total = 0.0
@@ -272,7 +290,9 @@ def _log_lik(par, data, reg_of_uf):
         eta = par["alpha"][j] + par["region"][j][reg[uf]] + par["state"][j][uf] + z @ par["beta"][j]
         eta = eta + jnp.where((age > 0)[:, None], par["age"][j][jnp.maximum(age - 1, 0)], 0.0)
         full = jnp.concatenate([jnp.zeros((hi - lo, 1)), eta], axis=1)
-        p = jnp.exp(full - jnp.log(jnp.sum(jnp.exp(full), axis=1, keepdims=True)))
+        # the stable form: exp(full) overflows single precision past 88, which a wide composition scale reaches in a
+        # municipality far from the mean, and the ratio is then not a number
+        p = jnp.exp(full - logsumexp(full, axis=1, keepdims=True))
         phi = data["phi"][lo:hi, None]
         total = total + jnp.sum(data["counts"][lo:hi] * jnp.log((1 - phi) * p + phi * data["r"][lo:hi]))
     return total
@@ -306,8 +326,8 @@ def mean_log_loss(par: dict[str, np.ndarray], pairs: Pairs) -> float:
     full = np.concatenate([np.zeros((len(pairs.j), 1)), eta], axis=1)
     full -= full.max(1, keepdims=True)
     p = np.exp(full - np.log(np.exp(full).sum(1, keepdims=True)))
-    if pairs.phi is not None and pairs.r_state is not None:
-        p = (1 - pairs.phi[:, None]) * p + pairs.phi[:, None] * pairs.r_state[pairs.uf]
+    if pairs.phi is not None and pairs.r is not None:
+        p = (1 - pairs.phi[:, None]) * p + pairs.phi[:, None] * pairs.r
     return float(-np.average(np.log(p[np.arange(len(pairs.j)), pairs.k]), weights=pairs.w))
 
 
@@ -364,8 +384,8 @@ class Fit:
         return cls(draws, f["z_mean"], f["z_sd"], int(f["n_pairs"]), json.loads(str(f["diagnostics"])), str(f["version"]), bands)
 
 
-def fit(pairs: Pairs, scales: dict[str, float], *, z_mean: np.ndarray, z_sd: np.ndarray, num_warmup: int = 300,
-        num_samples: int = 400, num_chains: int = 2, keep: int = 200, seed: int = 0,
+def fit(pairs: Pairs, scales: dict[str, float], *, z_mean: np.ndarray, z_sd: np.ndarray, num_warmup: int = 500,
+        num_samples: int = 1000, num_chains: int = 2, keep: int = 200, seed: int = 0,
         age_bands: tuple[str, ...] = AGE_BANDS, version: str = MODEL_VERSION) -> Fit:
     """NUTS posterior of the confusion model for the prior scales ``scales`` (requires the ``modelled`` extra).
 
@@ -391,7 +411,14 @@ def fit(pairs: Pairs, scales: dict[str, float], *, z_mean: np.ndarray, z_sd: np.
         return -(_log_lik(_effects(raw, scales, reg, jnp), data, reg) - 0.5 * sum(jnp.sum(v * v) for v in raw.values()))
 
     hessian = np.asarray(jax.hessian(objective)(flat0), dtype=float)
-    inv_mass = np.linalg.inv((hessian + hessian.T) / 2 + 1e-6 * np.eye(len(hessian)))
+    # With false links in the likelihood ((1 - phi) C + phi r) the posterior is not log-concave everywhere and the
+    # Hessian at the mode can hold a direction of curvature near zero or below it; inverted as it is, the metric is not
+    # positive definite and the sampler diverges (the children's first build: 172 divergences, R-hat 1.8; the women's
+    # check build of 2026-11-09, 800 of 800). Each direction's curvature is floored at a fifth of the prior's (the raw
+    # effects are standard normal): any positive definite metric is valid, the step size adapts to it.
+    curvature, axes = np.linalg.eigh((hessian + hessian.T) / 2)
+    inv_mass = (axes / np.maximum(curvature, MASS_FLOOR)) @ axes.T
+    inv_mass = (inv_mass + inv_mass.T) / 2
     kernel = NUTS(lambda: _numpyro_model(pairs, reg, scales), target_accept_prob=0.85, init_strategy=init_to_value(values=start),
                   dense_mass=True, inverse_mass_matrix=inv_mass, adapt_mass_matrix=False)
     mcmc = MCMC(kernel, num_warmup=num_warmup, num_samples=num_samples, num_chains=num_chains, chain_method="sequential",
@@ -451,6 +478,7 @@ def expected_matrix(model: Fit, comp: Composition, mun: np.ndarray, births: np.n
 
     ``mun`` are 6-digit municipality codes and ``births`` (n, 6) their births by declared class, so
     that ``A`` sums C(k | j, municipality, age band) × births over each state ``u`` (index of ``UF_CODES``).
+    ``births`` may be (n, age bands, 6) where the population at risk differs by band (children of several cohorts).
     """
     uf = uf_index(np.asarray(mun) // 10000)
     z = comp.z(np.asarray(mun))
@@ -461,7 +489,7 @@ def expected_matrix(model: Fit, comp: Composition, mun: np.ndarray, births: np.n
         for lo in range(0, len(mun), chunk):
             sl = slice(lo, lo + chunk)
             c = confusion(model, uf[sl], np.full(len(uf[sl]), a), z[sl], draws)      # (S, n, j, k)
-            contrib = np.einsum("snjk,nj->snkj", c, births[sl])
+            contrib = np.einsum("snjk,nj->snkj", c, births[sl] if births.ndim == 2 else births[sl, a])
             for u in np.unique(uf[sl]):
                 out[:, u, a] += contrib[:, uf[sl] == u].sum(1)
     return out
@@ -469,10 +497,11 @@ def expected_matrix(model: Fit, comp: Composition, mun: np.ndarray, births: np.n
 
 def reclassify(a_mat: np.ndarray, deaths: np.ndarray, births: np.ndarray, *, tau: float = 0.5, laplace: int = 3,
                seed: int = 0) -> np.ndarray:
-    """Deaths by declared race from deaths by recorded race: draws of shape (T, 27, 3, 6).
+    """Deaths by declared race from deaths by recorded race: draws of shape (T, 27, age bands, 6).
 
     ``deaths[u, a, k]`` are SIM deaths by state, age band and recorded class, ``births[u, j]`` the
-    births by declared class of the same year, ``a_mat`` from ``expected_matrix`` (one slice per draw
+    births by declared class of the same year (or ``births[u, a, j]``, the population at risk of each band, as
+    ``expected_matrix`` takes it), ``a_mat`` from ``expected_matrix`` (one slice per draw
     of C). For each draw of C the recorded counts are Poisson with mean
 
         sum_j A[u, a, k, j] * r[u, a] * exp(rho[j] + delta[region(u), j])      (rho[Branca] = delta[., Branca] = 0)
@@ -490,8 +519,9 @@ def reclassify(a_mat: np.ndarray, deaths: np.ndarray, births: np.ndarray, *, tau
 
     reg = jnp.asarray(region_of_uf())
     d = jnp.asarray(deaths)
-    b = jnp.asarray(births)
-    r0 = np.log(np.maximum(deaths.sum(-1), 1.0) / np.maximum(births.sum(-1), 1.0)[:, None])
+    by_band = np.asarray(births) if np.ndim(births) == 3 else np.repeat(np.asarray(births)[:, None, :], deaths.shape[1], axis=1)
+    b = jnp.asarray(by_band)
+    r0 = np.log(np.maximum(deaths.sum(-1), 1.0) / np.maximum(by_band.sum(-1), 1.0))
     template = {"log_r": jnp.asarray(r0), "rho": jnp.zeros(5), "delta": jnp.zeros((5, 5))}
     flat0, unravel = ravel_pytree(template)
     rng = np.random.default_rng(seed)
@@ -520,7 +550,7 @@ def reclassify(a_mat: np.ndarray, deaths: np.ndarray, births: np.ndarray, *, tau
         chol = evecs / np.sqrt(np.maximum(evals, 1e-3))                       # covariance factor; flat directions clipped
         for _ in range(laplace):
             f = res.x + chol @ rng.standard_normal(len(res.x))
-            out.append(np.asarray(lam(unravel(jnp.asarray(f))) * b[:, None, :]))
+            out.append(np.asarray(lam(unravel(jnp.asarray(f))) * b))
     return np.stack(out)
 
 
@@ -569,23 +599,32 @@ def prepare(deaths: pa.Table, comp: Composition, population: Population = INFANT
     # a death of no known age has no band: it is left out of the weights and the pairs (an index of -1 would read as the
     # last band, as a missing age once did)
     known = age >= 0
-    w = np.zeros(len(year))
+    w, found = np.zeros(len(year)), np.ones(len(year))
     for y in np.unique(year):
         s = (year == y) & known
         wy = link_weights(uf[s], age[s], rec[s], year[s], linked[s], None if stratum is None else stratum[s], n_age)
+        found[s] = np.where(linked[s], 1.0 / np.maximum(wy, 1e-12), 1.0)        # each linked death's probability of a pair
         w[s] = wy / wy[linked[s]].mean()
 
-    phi = np.asarray(deaths["phi"].to_numpy(zero_copy_only=False), dtype=float) if "phi" in deaths.column_names else None
-    r_state = None
-    if phi is not None:
+    phi, r = None, None
+    if "chance" in deaths.column_names:
+        # each pair's own share of false links: the chance rate of its cell and its own probability of being found
+        phi = _false_share(np.asarray(deaths["chance"].to_numpy(zero_copy_only=False), dtype=float), found)
+        # the recorded colours of the population's deaths in each death's municipality, drawn toward the state's by
+        # ``kappa`` deaths (a municipality of three deaths says little of its own)
         r_state = np.zeros((len(UF_CODES), 6))
         np.add.at(r_state, (uf, rec), 1.0)
         r_state = (r_state + 0.5) / (r_state + 0.5).sum(1, keepdims=True)
+        _, place = np.unique(np.asarray(deaths["mun"].to_pylist(), dtype=str), return_inverse=True)
+        counts = np.zeros((int(place.max()) + 1, 6))
+        np.add.at(counts, (place, rec), 1.0)
+        kappa = race_parameter("kappa")
+        r = ((counts[place] + kappa * r_state[uf]) / (counts[place].sum(1, keepdims=True) + kappa))
 
     def pairs(mask):
         mask = mask & known
         return Pairs(dec[mask], rec[mask], uf[mask], age[mask], z[mask], w[mask], n_age,
-                     None if phi is None else phi[mask], r_state)
+                     None if phi is None else phi[mask], None if r is None else r[mask])
 
     return year, linked, pairs
 
@@ -599,8 +638,9 @@ def build(deaths: pa.Table, births: pa.Table, reference_births: pa.Table, *, set
     the population's age column (``age_days`` or ``age_years``), ``recorded`` (RACACOR code or null),
     ``mun`` (CODMUNRES), ``linked`` (bool), ``declared`` (the linked reference race code, null if
     unlinked or blank), optionally ``stratum`` (int: a class of the link's reliability that also
-    drives linkability, entered in the linkage weights) and ``phi`` (the share of false links in the
-    death's stratum, measured by the link's negative control; see ``Pairs.phi``). ``births``: SINASC births by
+    drives linkability, entered in the linkage weights) and ``chance`` (the rate at which a death of its cell pairs by
+    chance, measured by the link's negative control: with the death's own probability of being linked it gives the
+    pair's share of false links, `_false_share`, ``Pairs.phi``). ``births``: SINASC births by
     (``mun``, ``race``, ``n``) that define the municipal composition. ``reference_births`` the same for
     the year the table is expressed on. ``selection`` = (train years, score years) of the scale selection, declared
     by the product; without it the first year is trained against the last and back. Needs the ``modelled`` extra.
@@ -624,7 +664,11 @@ def build(deaths: pa.Table, births: pa.Table, reference_births: pa.Table, *, set
             tables.append(t)
         mean_table = [{**{n: r[n] for n in SCALE_NAMES}, "held_out_log_loss": float(np.mean([t[i]["held_out_log_loss"] for t in tables]))}
                       for i, r in enumerate(tables[0])]
-        best = min(mean_table, key=lambda r: r["held_out_log_loss"])
+        # the held-out surface is flat near its minimum (the women's: 0.85274 against 0.85276), so of the scales within
+        # ``scale_tolerance`` of the best the tightest is taken: the same prediction with less freedom, and a posterior
+        # the sampler can cross (the widest composition scale did not converge on the children's pairs)
+        floor = min(r["held_out_log_loss"] for r in mean_table) + race_parameter("scale_tolerance")
+        best = min((r for r in mean_table if r["held_out_log_loss"] <= floor), key=lambda r: sum(r[n] for n in SCALE_NAMES))
         scales = {n: best[n] for n in SCALE_NAMES}
     model = fit(pairs(linked), scales, z_mean=comp.mean, z_sd=comp.sd, seed=seed, age_bands=population.age_bands,
                 version=population.version)
@@ -658,6 +702,66 @@ def build(deaths: pa.Table, births: pa.Table, reference_births: pa.Table, *, set
     model.save(target / "draws.npz")
     (target / "scales_table.json").write_text(json.dumps(mean_table, indent=1), encoding="utf-8")
     return target
+
+
+def held_out(deaths: pa.Table, births: pa.Table, population: Population, train: list[int], test: list[int], *,
+             transported: dict[str, tuple[Fit, int]] | None = None, subsets: dict[str, np.ndarray] | None = None) -> dict[str, Any]:
+    """How well the model fitted on the ``train`` years predicts the recorded colour of the linked pairs of the ``test``
+    years, beside what it has to beat: one national matrix, a matrix per state, recorded = declared, and each
+    ``transported`` fit (another population's product read at one of its age bands). Every candidate is scored under the
+    link's contamination (``(1 - phi) C + phi r``), so the comparison is on what the pairs can show. Per candidate the
+    mean log loss and the absolute error of the state x recorded counts as a share of the pairs (cells of five expected
+    or more). The prior scales are chosen inside the training years (first half against second), never on the test.
+    ``subsets`` (name -> a mask over ``deaths``) scores the fitted model on parts of the test pairs (a sex, an age band)
+    against the national matrix of the same part of the training pairs: where a part's own matrix beats the model, the
+    model misses something that part carries."""
+    comp = composition(births)
+    year, linked, pairs = prepare(deaths, comp, population)
+    tr, te = pairs(linked & np.isin(year, train)), pairs(linked & np.isin(year, test))
+    half = np.isin(year, train[:max(1, len(train) // 2)])
+    scales, _ = select_scales(pairs(linked & np.isin(year, train) & half), pairs(linked & np.isin(year, train) & ~half))
+    reg = region_of_uf()
+    par = {k: np.asarray(v) for k, v in _effects(map_fit(tr, scales), scales, reg, np).items()}
+
+    def model(pr: Pairs) -> np.ndarray:
+        full = np.concatenate([np.zeros((len(pr.j), 1)), _logits(par, pr.j, pr.uf, reg, pr.age, pr.z, np)], axis=1)
+        e = np.exp(full - full.max(1, keepdims=True))
+        return e / e.sum(1, keepdims=True)
+
+    def empirical(key: np.ndarray, pr: Pairs, n: int) -> np.ndarray:
+        counts = np.zeros((n, 6, 6))
+        np.add.at(counts, (key, pr.j, pr.k), pr.w)
+        return (counts + 0.5) / (counts + 0.5).sum(2, keepdims=True)
+
+    def score(prob: np.ndarray, pr: Pairs) -> dict[str, float]:
+        prob = np.clip(prob, 1e-6, 1)
+        prob = prob / prob.sum(1, keepdims=True)
+        if pr.phi is not None and pr.r is not None:
+            prob = (1 - pr.phi[:, None]) * prob + pr.phi[:, None] * pr.r
+        expected, observed = np.zeros((len(UF_CODES), 6)), np.zeros((len(UF_CODES), 6))
+        np.add.at(expected, pr.uf, prob * pr.w[:, None])
+        np.add.at(observed, (pr.uf, pr.k), pr.w)
+        cells = expected >= 5
+        return {"log_loss": float(-np.average(np.log(prob[np.arange(len(pr.k)), pr.k]), weights=pr.w)),
+                "count_error": float(np.abs(expected - observed)[cells].sum() / max(observed[cells].sum(), 1e-9))}
+
+    national, by_state = empirical(np.zeros(len(tr.k), int), tr, 1)[0], empirical(tr.uf, tr, len(UF_CODES))
+    out: dict[str, Any] = {"train": [int(y) for y in train], "test": [int(y) for y in test], "scales": scales,
+                           "pairs": {"train": int(len(tr.k)), "test": int(len(te.k))},
+                           "candidates": {"model": score(model(te), te), "one national matrix": score(national[te.j], te),
+                                          "a matrix per state": score(by_state[te.uf, te.j], te),
+                                          "recorded = declared": score(np.eye(6)[te.j], te)}}
+    for name, (other, band) in (transported or {}).items():
+        prob = confusion_row(other, te.j, te.uf, np.full(len(te.j), band, np.int8), te.z, np.arange(0, 200, 10)).mean(0)
+        out["candidates"][f"transported: {name}"] = score(prob, te)
+    for name, mask in (subsets or {}).items():
+        a, b = pairs(linked & np.isin(year, train) & mask), pairs(linked & np.isin(year, test) & mask)
+        if len(a.k) and len(b.k):
+            own = empirical(np.zeros(len(a.k), int), a, 1)[0]
+            out.setdefault("subsets", {})[name] = {"pairs": int(len(b.k)), "model": score(model(b), b)["log_loss"],
+                                                   "national matrix": score(national[b.j], b)["log_loss"],
+                                                   "the part's own matrix": score(own[b.j], b)["log_loss"]}
+    return out
 
 
 # --------------------------------------------------------------------------------------- the products' inputs
@@ -765,8 +869,48 @@ def infant_deaths(settings: Any, name: str, years: list[int], notes: list[str]) 
     return pa.concat_tables(out)
 
 
+def _false_share(chance: Any, found: Any) -> Any:
+    """The probability that a found pair is false, from the ``chance`` rate c at which a record of its cell pairs with an
+    unrelated partner (the pairs the moved key makes, per record) and the probability f that such a record is ``found``
+    paired at all. A record with a true partner (probability t) pairs with it, one without pairs by chance: f = t +
+    (1 - t) c, so the false pairs are (1 - t) c = c (1 - f) / (1 - c) of the records and that over f of the pairs.
+    ``found`` is a cell's linked share or one record's fitted probability (`link_weights`): a group that links more
+    often at the same chance rate (Indígena deaths: 35% against 17%) has fewer false pairs. Capped at 0.95."""
+    chance, found = np.asarray(chance, dtype=float), np.asarray(found, dtype=float)
+    return np.minimum(chance * (1 - found) / np.maximum((1 - chance) * found, 1e-12), 0.95)
+
+
+def _pass_and_control(con: Any, spec: Any, shifts: list[int],
+                      keep: str = "TRUE") -> tuple[pa.Table, dict[int, dict[tuple[int, int], int]]]:
+    """The first pass of a keyed link over the prepared sides ``L`` and ``R``, and its negative control read by size and
+    age. The caller has made ``lpop`` (one row per left record: ``l``, ``mun``, ``uf``, ``age``, ``rec`` and whatever
+    else it wants back), ``ng`` (``mun``, ``ng``: the partners a municipality holds, on which chance agreement grows)
+    and ``rr`` (``r``, ``declared``: the partner's colour). ``keep`` is a condition a pair must meet (over ``l.*``,
+    ``r.*``), applied to the control too. Returns every left record with ``ng``, ``linked`` and ``declared``, and the
+    pairs the same keys make when the control role is moved by each of ``shifts`` days round the shared range
+    (`placebo.rotation`), as ``{shift: {(ng, age): pairs}}``."""
+    from ..linkage import engine, placebo
+
+    con.execute("CREATE TEMP TABLE linked(l VARCHAR, r VARCHAR, pass VARCHAR)")
+    keys = spec.passes[0].keys
+    con.execute(f"""CREATE TEMP TABLE real AS SELECT p.l, p.r FROM ({engine._join(keys, {})}) p JOIN L l ON l._id = p.l
+                    JOIN R r ON r._id = p.r WHERE {keep}""")
+    control = sorted({k for p in spec.passes for k in p.keys if k[0] == spec.control_role})
+    controls: dict[int, dict[tuple[int, int], int]] = {}
+    for d in shifts:
+        moved = {k: sql for k in control if (sql := placebo.rotation(k[0], placebo.shared_range(con, [k[0]], [k[1]]), d))}
+        con.execute("CREATE OR REPLACE TEMP TABLE ctl AS " + engine._join(keys, moved))
+        rows = con.execute(f"""SELECT coalesce(ng.ng, 0), coalesce(CAST(lpop.age AS INTEGER), -1), count(*) FROM (SELECT c.l
+                               FROM ctl c JOIN L l ON l._id = c.l JOIN R r ON r._id = c.r WHERE {keep}) c JOIN lpop USING (l)
+                               LEFT JOIN ng USING (mun) GROUP BY 1, 2""").fetchall()
+        controls[d] = {(int(a), int(b)): int(n) for a, b, n in rows}
+    out = con.execute("""SELECT lpop.*, coalesce(ng.ng, 0) AS ng, real.r IS NOT NULL AS linked, rr.declared
+                         FROM lpop LEFT JOIN ng USING (mun) LEFT JOIN real USING (l) LEFT JOIN rr ON rr.r = real.r""").to_arrow_table()
+    return out, controls
+
+
 def _women_year(settings: Any, name: str, year: int, first_year: int, shifts: list[int],
-                log: Any) -> tuple[pa.Table, dict[int, dict[int, int]]]:
+                log: Any) -> tuple[pa.Table, dict[int, dict[tuple[int, int], int]]]:
     """One death year of the women's link: every eligible death with the mother groups of its municipality (``ng``), the
     partner mother's colour where the spec's pass finds one (a partner born after the death is no partner: the spec's
     validation), and the control read per municipality size: the pairs the same keys make when the death's birth date is
@@ -776,7 +920,7 @@ def _women_year(settings: Any, name: str, year: int, first_year: int, shifts: li
     pairs and prices their false share by municipality size."""
     import time
 
-    from ..linkage import engine, placebo
+    from ..linkage import engine
     from ..linkage.identity import connect
 
     t0 = time.time()
@@ -794,32 +938,17 @@ def _women_year(settings: Any, name: str, year: int, first_year: int, shifts: li
     con.execute('CREATE TEMP TABLE ng AS SELECT "mother.residence" AS mun, count(*) AS ng FROM R GROUP BY 1')
     con.execute("""CREATE TEMP TABLE lpop AS SELECT _id AS l, "deceased.residence" AS mun, "deceased.age_years" AS age,
                    "deceased.race" AS rec, substr("deceased.residence", 1, 2) AS uf FROM L""")
-    con.execute('CREATE TEMP TABLE rr AS SELECT DISTINCT ON (_id) _id AS r, "mother.race" AS mrace FROM R')
-    con.execute("CREATE TEMP TABLE linked(l VARCHAR, r VARCHAR, pass VARCHAR)")
-    keys = spec.passes[0].keys
-    con.execute(f"""CREATE TEMP TABLE real AS SELECT p.l, p.r FROM ({engine._join(keys, {})}) p JOIN L l ON l._id = p.l
-                    JOIN R r ON r._id = p.r WHERE {keep}""")
-    control = sorted({k for p in spec.passes for k in p.keys if k[0] == spec.control_role})
-    controls: dict[int, dict[int, int]] = {}
-    for d in shifts:
-        moved = {k: sql for k in control if (sql := placebo.rotation(k[0], placebo.shared_range(con, [k[0]], [k[1]]), d))}
-        con.execute("CREATE OR REPLACE TEMP TABLE ctl AS " + engine._join(keys, moved))
-        rows = con.execute(f"""SELECT coalesce(ng.ng, 0), count(*) FROM (SELECT c.l FROM ctl c JOIN L l ON l._id = c.l
-                               JOIN R r ON r._id = c.r WHERE {keep}) c JOIN lpop USING (l) LEFT JOIN ng USING (mun)
-                               GROUP BY 1""").fetchall()
-        controls[d] = {int(a): int(b) for a, b in rows}
-    out = con.execute("""SELECT lpop.l, lpop.mun, lpop.uf, lpop.age, lpop.rec, coalesce(ng.ng, 0) AS ng,
-                         real.r IS NOT NULL AS linked, rr.mrace FROM lpop LEFT JOIN ng USING (mun)
-                         LEFT JOIN real USING (l) LEFT JOIN rr ON rr.r = real.r""").to_arrow_table()
+    con.execute('CREATE TEMP TABLE rr AS SELECT DISTINCT ON (_id) _id AS r, "mother.race" AS declared FROM R')
+    out, controls = _pass_and_control(con, spec, shifts, keep)
     log(f"{name} {year}: {out.num_rows} deaths, {sum(out['linked'].to_pylist())} linked, {round(time.time() - t0)} s")
     return out, controls
 
 
 def women_deaths(settings: Any, name: str, years: list[int], decl: dict[str, Any], log: Any) -> pa.Table:
     """The women's deaths table of ``build``: the recorded colour and the partner mother's, whether linked, the death's
-    municipality class (``stratum``: the mother groups the births hold, by ``class_edges``) and ``phi``, the share of false
-    links of its (year, class) read from the negative control: control pairs P (mean over the declared shifts) corrected for
-    the true mothers the moved date also finds, as a share of the pairs found, capped at 0.95. Classes up to ``max_class``."""
+    municipality class (``stratum``: the mother groups the births hold, by ``class_edges``) and ``chance``, the rate at which
+    a death of its (year, class) pairs by chance: the control's pairs (mean over the declared shifts) per death. `prepare`
+    turns it into each pair's share of false links. Classes up to ``max_class``."""
     import pyarrow.compute as pc
 
     edges, max_class = np.asarray(decl["class_edges"]), int(decl["max_class"])
@@ -828,25 +957,104 @@ def women_deaths(settings: Any, name: str, years: list[int], decl: dict[str, Any
         t, controls = _women_year(settings, name, year, int(decl["births_from"]), [int(s) for s in decl["control_shifts"]], log)
         t = t.filter(pc.is_valid(t["uf"]))
         klass = np.digitize(np.asarray(t["ng"].to_numpy(zero_copy_only=False)), edges)
-        linked = np.asarray(t["linked"].to_numpy(zero_copy_only=False), dtype=bool)
-        phi_of = {}
+        chance_of = {}
         for c in range(max_class + 1):
-            n_c, found = int((klass == c).sum()), int((linked & (klass == c)).sum())
+            n_c = int((klass == c).sum())
             if n_c == 0:
                 continue
-            p = sum(n for shift in controls.values() for ng, n in shift.items() if int(np.digitize(ng, edges)) == c) / len(controls)
-            phi_of[c] = min(p * (1 - found / n_c) / (1 - p / n_c) / max(found, 1), 0.95)
+            p = sum(n for shift in controls.values() for (ng, _age), n in shift.items()
+                    if int(np.digitize(ng, edges)) == c) / len(controls)
+            chance_of[c] = p / n_c
         mask = pa.array(klass <= max_class)
         t = t.filter(mask)
         k = klass[klass <= max_class]
         parts.append(pa.table({
-            "phi": [phi_of.get(int(c), 0.0) for c in k], "year": np.full(len(k), year, dtype=np.int64),
+            "chance": [chance_of.get(int(c), 0.0) for c in k], "year": np.full(len(k), year, dtype=np.int64),
             "uf": pc.cast(t["uf"], pa.int64()), "age_years": t["age"],
             "recorded": pa.array([RACE_LABEL_CODE.get(v) for v in t["rec"].to_pylist()], pa.string()),
             "mun": t["mun"], "linked": t["linked"],
-            "declared": pa.array([RACE_LABEL_CODE.get(v) for v in t["mrace"].to_pylist()], pa.string()),
+            "declared": pa.array([RACE_LABEL_CODE.get(v) for v in t["declared"].to_pylist()], pa.string()),
             "stratum": k.astype(np.int64)}))
     return pa.concat_tables(parts)
+
+
+def _own_birth_cohort(settings: Any, spec: Any, born: int, deaths: pa.Table, shifts: list[int],
+                      log: Any) -> tuple[pa.Table, dict[int, dict[tuple[int, int], int]]]:
+    """One birth cohort of the own-birth link: the eligible deaths of people born in ``born`` (``deaths``, the left side's
+    role table) against that year's births. A municipality's ``ng`` is its births of the year: the chance that another
+    child of the same sex was born there on the same day grows with it. The pass is run here for the reason `_women_year`
+    gives (the engine drops a pass its control reproduces), and by cohort because a death year's partners span every
+    birth year of its ages, which no one read holds."""
+    import time
+
+    import pyarrow.compute as pc
+
+    from ..linkage import engine
+    from ..linkage.identity import connect
+
+    t0 = time.time()
+    left = deaths.filter(pc.equal(pc.year(deaths["deceased.birth_date"]), born))
+    right = engine._side_table(spec.right, sorted({*engine._roles_needed(spec, "right"), "baby.race"}), period=born,
+                               geography="BR", root=settings.root)
+    con = connect()
+    engine._prepare(con, "L", left, spec.left)
+    engine._prepare(con, "R", right, spec.right)
+    del left, right
+    con.execute('CREATE TEMP TABLE ng AS SELECT "mother.residence" AS mun, count(*) AS ng FROM R GROUP BY 1')
+    con.execute("""CREATE TEMP TABLE lpop AS SELECT _id AS l, "deceased.residence" AS mun, "deceased.age_years" AS age,
+                   "deceased.race" AS rec, substr("deceased.residence", 1, 2) AS uf, "deceased.sex" AS sex,
+                   year("death.date") AS year FROM L""")
+    con.execute('CREATE TEMP TABLE rr AS SELECT DISTINCT ON (_id) _id AS r, "baby.race" AS declared FROM R')
+    out, controls = _pass_and_control(con, spec, shifts)
+    log(f"{spec.name} born {born}: {out.num_rows} deaths, {sum(out['linked'].to_pylist())} linked, {round(time.time() - t0)} s")
+    return out, controls
+
+
+def own_birth_deaths(settings: Any, population: Population, years: list[int], decl: dict[str, Any], log: Any) -> pa.Table:
+    """The deaths table of ``build`` for a population linked to its own birth record: every death of ``years`` up to
+    ``max_age`` of a person born in ``births_from`` to ``births_to`` (the cohorts whose birth record declares the same
+    thing: see the product), the colour recorded and the colour the linked birth declares, the class of the municipality
+    (``stratum``: its births in the person's birth year, by ``class_edges``; classes up to ``max_class``), and ``chance``,
+    the rate at which a death of its (class, age band) pairs by chance over every cohort: the control's pairs per death.
+    `prepare` turns it into each pair's share of false links. Carries ``sex`` as well."""
+    import pyarrow.compute as pc
+
+    from ..linkage import engine
+
+    spec = engine.load_links()[population.link]
+    edges, max_class = np.asarray(decl["class_edges"]), int(decl["max_class"])
+    shifts = [int(s) for s in decl["control_shifts"]]
+    last_cohort = min(int(decl.get("births_to") or years[-1]), years[-1] - 1)
+    roles = sorted({*engine._roles_needed(spec, "left"), *engine.where_roles(spec.left), "deceased.race", "death.date"})
+    deaths = engine._side_table(spec.left, roles, period=(str(years[0]), str(years[-1])), geography="BR", root=settings.root)
+    deaths = deaths.filter(pc.less_equal(deaths["deceased.age_years"], int(decl["max_age"])))
+    parts, control = [], np.zeros((len(edges) + 1, len(population.age_bands)))
+    for born in range(int(decl["births_from"]), last_cohort + 1):
+        t, controls = _own_birth_cohort(settings, spec, born, deaths, shifts, log)
+        for shift in controls.values():
+            for (ng, age), n in shift.items():
+                b = int(population.band(np.array([age]))[0])
+                if b >= 0:
+                    control[int(np.digitize(ng, edges)), b] += n / len(controls)
+        parts.append(t)
+    t = pa.concat_tables(parts)
+    t = t.filter(pc.is_valid(t["uf"]))
+    klass = np.digitize(np.asarray(t["ng"].to_numpy(zero_copy_only=False)), edges)
+    band = population.band(np.asarray(t["age"].to_numpy(zero_copy_only=False), dtype=float))
+    chance = np.zeros(t.num_rows)
+    for c in range(max_class + 1):
+        for b in range(len(population.age_bands)):
+            cell = (klass == c) & (band == b)
+            if cell.any():
+                chance[cell] = control[c, b] / cell.sum()
+    keep = (klass <= max_class) & (band >= 0)
+    t = t.filter(pa.array(keep))
+    return pa.table({
+        "chance": chance[keep], "year": pc.cast(t["year"], pa.int64()), "uf": pc.cast(t["uf"], pa.int64()), "age_years": t["age"],
+        "recorded": pa.array([RACE_LABEL_CODE.get(v) for v in t["rec"].to_pylist()], pa.string()),
+        "mun": t["mun"], "linked": t["linked"],
+        "declared": pa.array([RACE_LABEL_CODE.get(v) for v in t["declared"].to_pylist()], pa.string()),
+        "stratum": klass[keep].astype(np.int64), "sex": t["sex"]})
 
 
 def _build_product(population: Population, settings: Any, version: str, validation: str, log: Any) -> dict[str, Any]:
@@ -859,12 +1067,22 @@ def _build_product(population: Population, settings: Any, version: str, validati
     notes: list[str] = []
     if population is INFANT:
         deaths = infant_deaths(settings, population.link, years, notes)
+    elif population is CHILD:
+        deaths = own_birth_deaths(settings, population, years, decl, log)
+        notes += [f"links: the pass of {population.link} run one birth cohort at a time over the births of {decl['births_from']} "
+                  f"on; only municipalities with fewer than {int(decl['class_edges'][int(decl['max_class'])])} births in the "
+                  f"person's birth year (class <= {decl['max_class']}) are used; pairs carry the measured share of false links phi "
+                  "of their class and age band (negative control), entered in the likelihood as (1 - phi) C + phi r(municipality)",
+                  "population: deaths at ages 1-14 of children born in the years read who died resident in the municipality their "
+                  "mother lived in at the birth",
+                  "reference: the colour on the birth record, which from the 2011 form on is the mother's own declaration (the "
+                  "infant product's reference); births before 2012 declare the newborn's colour on the old form and are not read"]
     else:
         deaths = women_deaths(settings, population.link, years, decl, log)
         notes += [f"links: runs of {population.link}, one per death year, over the births {decl['births_from']} to that year; only "
                   f"municipalities with fewer than {int(decl['class_edges'][int(decl['max_class'])])} mother groups (class <= "
                   f"{decl['max_class']}) are used; pairs carry the measured share of false links phi (negative control), entered in "
-                  "the likelihood as (1 - phi) C + phi r(state)",
+                  "the likelihood as (1 - phi) C + phi r(municipality)",
                   "population: women dying aged 15-49 who were mothers of a SINASC birth in the years read and kept their municipality; "
                   "transport to women who never gave birth, to men and to older ages is not validated"]
     log(f"{population.product}: {deaths.num_rows} deaths, {sum(deaths['linked'].to_pylist())} linked, years {years}")
@@ -879,6 +1097,11 @@ def _build_product(population: Population, settings: Any, version: str, validati
 def build_infant_product(settings: Any, *, version: str, validation: str, log: Any = print) -> dict[str, Any]:
     """``model-build race_confusion_infant``: the infant deaths with the colour of their linked birth, then `build`."""
     return _build_product(INFANT, settings, version, validation, log)
+
+
+def build_child_product(settings: Any, *, version: str, validation: str, log: Any = print) -> dict[str, Any]:
+    """``model-build race_confusion_child``: deaths at ages 1-14 with the colour their own birth record declares, then `build`."""
+    return _build_product(CHILD, settings, version, validation, log)
 
 
 def build_women_product(settings: Any, *, version: str, validation: str, log: Any = print) -> dict[str, Any]:
