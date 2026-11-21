@@ -80,6 +80,7 @@ from .normalize.geo import MunicipalityIndex
 from .normalize.time import compose, month_of
 from .pipeline import Pipeline
 from .progress import ItemTimeout, record_timeout, run_with_timeout
+from .representations import select_publications
 from .semantics.dictionary import DictionaryCache
 from .view import RenderMode, RenderReport
 
@@ -843,176 +844,63 @@ def _refused_with_alternative(
     return {p for p in refused if logical.get(p, p) in spare}
 
 
-def _select_files(
-    catalog: CatalogStore,
-    families: Sequence[Mapping[str, Any]],
-    *,
-    report: FetchReport,
-    ufs: Sequence[str],
-    years: Sequence[int],
-    months: Sequence[int],
-    max_files: int | None,
-    columns: Sequence[str] | None,
-    on_missing_column: str,
-    municipalities: MunicipalityIndex,
-    cache: DictionaryCache,
-    max_bytes: int | None = None,
-    exclude_paths: frozenset[str] = frozenset(),
-    plans: dict[str, NormalizePlan] | None = None,
-    one_reading: bool = True,
-) -> list[tuple[str, NormalizePlan, dict[str, Any]]]:
-    """Decide WHICH files answer this request, and refuse the ones that cannot.
+def _one_reading(report: FetchReport) -> Callable[[list[dict[str, Any]]], list[dict[str, Any]]]:
+    """The ``narrow`` step of a read that asked no state: a year published nationally AND per state is read from the
+    national file alone; what is left out is said in the report."""
+    from ._query_engine.coverage import national_or_states
 
-    ``plans``, when given, is filled with the plan built for each family that has files, so the caller does not build
-    them a second time.
-
-    With no state asked, a year DATASUS publishes as a national file AND as one file per state (SIM, SINASC) is read
-    from the national file alone: the state files are the same records, and taking both returned every death and every
-    birth twice (the rule of ``query()``, `national_or_states`). ``one_reading=False`` takes every file: a caller that
-    names exact paths (``_only_paths``) must get the file it named.
-
-    Everything before a byte is fetched: matching files to the requested axes,
-    building each generation's normalisation plan, applying the structural
-    missing-column policy, and the debugging truncation. Separated from
-    acquisition and decoding because it is the part that can say "no" — and
-    every one of its refusals is a policy decision the caller must be able to
-    see reasoned about on its own.
-    """
-    selected: list[tuple[str, NormalizePlan, dict[str, Any]]] = []
-    # Built ONCE. These were rebuilt per row inside the comprehension below, so
-    # a family with 5,000 files constructed 15,000 sets to answer the same three
-    # questions. Small against DBC decoding, and free to remove.
-    uf_set = {str(u) for u in ufs} if ufs else None
-    year_set = {int(y) for y in years} if years else None
-    month_set = {int(m) for m in months} if months else None
-    #: family_id -> requested columns its normalisation plan does not carry.
-    absent_by_family: dict[str, list[str]] = {}
-    wanted_columns = {str(c).upper() for c in columns} if columns else set()
-    family_ids = [str(family["family_id"]) for family in families]
-    globally_selected: set[tuple[str, str, str]] = set()
-    if family_ids:
-        marks = ",".join("?" for _ in family_ids)
-        global_rows = catalog.query(
-            f"""
-            SELECT ff.family_id, ff.path, ff.member, fa.geo_code, fa.year,
-                   fa.normalized_date, fa.logical_id, fa.container_format,
-                   files.size, families.schema_signature
-              FROM family_files ff
-              JOIN families ON families.family_id=ff.family_id
-              LEFT JOIN file_facts fa ON fa.path=ff.path
-              LEFT JOIN files ON files.path=ff.path
-             WHERE ff.family_id IN ({marks})
-            """,
-            tuple(family_ids),
-        )
-        asked = [
-            dict(row)
-            for row in global_rows
-            if (uf_set is None or (row["geo_code"] or "") in uf_set)
-            and (year_set is None or row["year"] in year_set)
-            and (month_set is None or month_of(row["normalized_date"]) in month_set)
-        ]
-        global_matched = [row for row in asked if str(row["path"]) not in exclude_paths]
-        if uf_set is None and one_reading:
-            from ._query_engine.coverage import national_or_states
-
-            by_year: dict[object, list[dict[str, Any]]] = {}
-            for row in global_matched:
-                by_year.setdefault(row["year"], []).append(row)
-            kept = {
-                id(row)
-                for rows_of_year in by_year.values()
-                for row in national_or_states(rows_of_year, lambda r: r["geo_code"])
-            }
-            if len(kept) < len(global_matched):
-                left_out = {str(row["logical_id"] or row["path"]) for row in global_matched if id(row) not in kept}
-                report.warnings.append(
-                    f"no state was asked: {len(left_out)} state publication(s) of years that also have a national "
-                    "file were left out; the national file holds the same records (ask for states with uf=)"
-                )
-                global_matched = [row for row in global_matched if id(row) in kept]
-        from .representations import choose_representations
-
-        # the refused ones are evidence for the choice, not candidates: an export refused for its columns puts the
-        # publication's native file ahead of its other exports (ADR-0190)
-        choice = choose_representations(
-            catalog, [*global_matched, *(row for row in asked if str(row["path"]) in exclude_paths)],
-            refused=exclude_paths)
-        globally_selected = {
-            (
-                str(row["family_id"]),
-                str(row["path"]),
-                str(row.get("member") or ""),
-            )
-            for row in choice.selected
+    def narrow(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        by_year: dict[object, list[dict[str, Any]]] = {}
+        for row in rows:
+            by_year.setdefault(row["year"], []).append(row)
+        kept = {
+            id(row)
+            for rows_of_year in by_year.values()
+            for row in national_or_states(rows_of_year, lambda r: r["geo_code"])
         }
-        report.representations_deduplicated.extend(choice.dropped)
-        report.representation_conflicts.extend(choice.conflicts)
-    for family in families:
-        family_id = str(family["family_id"])
-        rows = catalog.query(
-            """
-            SELECT ff.path, ff.member, fa.geo_code, fa.year, fa.normalized_date,
-                   fa.logical_id, fa.container_format, files.size
-              FROM family_files ff
-              LEFT JOIN file_facts fa ON fa.path = ff.path
-              LEFT JOIN files ON files.path = ff.path
-             WHERE ff.family_id = ?
-             ORDER BY fa.year, ff.path
-            """,
-            (family_id,),
-        )
-        matched = [
-            dict(r)
-            for r in rows
-            if (uf_set is None or (r["geo_code"] or "") in uf_set)
-            and (year_set is None or r["year"] in year_set)
-            and (month_set is None or month_of(r["normalized_date"]) in month_set)
-            and (
-                family_id,
-                str(r["path"]),
-                str(r["member"] or ""),
-            ) in globally_selected
-        ]
-        if not matched:
-            continue
-        try:
-            plan = build_plan(
-                catalog, family_id=family_id, municipalities=municipalities, cache=cache
+        if len(kept) < len(rows):
+            left_out = {str(row["logical_id"] or row["path"]) for row in rows if id(row) not in kept}
+            report.warnings.append(
+                f"no state was asked: {len(left_out)} state publication(s) of years that also have a national "
+                "file were left out; the national file holds the same records (ask for states with uf=)"
             )
-        except KeyError as exc:
-            report.warnings.append(f"{family_id}: no normalisation plan ({exc})")
-            continue
-        plan.keep_raw = True  # labels are joined at render time (`emit_labels` stays off)
-        if plans is not None:
-            plans[family_id] = plan
-        report.families.append(family_id)
-        for item in matched:
-            selected.append((family_id, plan, item))
-            year = item.get("year")
-            month = month_of(item.get("normalized_date"))
-            competencia = (
-                compose(year, month) if year is not None and month else None
-            )
-            from .decode.base import logical_source_id
+            return [row for row in rows if id(row) in kept]
+        return rows
 
-            source_id = logical_source_id(
-                str(item["path"]), str(item.get("member") or "")
-            )
-            report.source_facts[source_id] = (
-                family_id,
-                int(year) if year is not None else None,
-                competencia,
-            )
-            if item.get("geo_code"):
-                report.source_ufs[source_id] = str(item["geo_code"]).strip().upper()
-            normalized = int(item.get("normalized_date") or 0)
-            report.source_resolutions[source_id] = (
-                "month" if month else
-                "year" if year is not None and normalized == int(year) * 100 else
-                "unknown"
-            )
+    return narrow
 
+
+def _record_file(report: FetchReport, family_id: str, item: Mapping[str, Any]) -> None:
+    """What a selected file IS, in the report: its family, year, competence, state and publication precision."""
+    year = item.get("year")
+    month = month_of(item.get("normalized_date"))
+    competencia = (
+        compose(year, month) if year is not None and month else None
+    )
+    source_id = logical_source_id(
+        str(item["path"]), str(item.get("member") or "")
+    )
+    report.source_facts[source_id] = (
+        family_id,
+        int(year) if year is not None else None,
+        competencia,
+    )
+    if item.get("geo_code"):
+        report.source_ufs[source_id] = str(item["geo_code"]).strip().upper()
+    normalized = int(item.get("normalized_date") or 0)
+    report.source_resolutions[source_id] = (
+        "month" if month else
+        "year" if year is not None and normalized == int(year) * 100 else
+        "unknown"
+    )
+
+
+def _structurally_absent(
+    catalog: CatalogStore, report: FetchReport, columns: Sequence[str] | None,
+) -> dict[str, list[str]]:
+    """family_id -> the requested columns its schema does not declare, over the selected generations."""
+    wanted_columns = {str(c).upper() for c in columns} if columns else set()
+    absent_by_family: dict[str, list[str]] = {}
     if wanted_columns and report.families:
         # a derived column (a curated recipe: ID_MN_RESI_municipio) is made after decoding, from columns the schema
         # holds: it is no field of any schema, and counting it absent warned that it was null when it was not;
@@ -1050,7 +938,13 @@ def _select_files(
             absent = sorted(c for c in wanted_columns if c not in present)
             if absent:
                 absent_by_family[family_id] = absent
+    return absent_by_family
 
+
+def _apply_missing_column_policy(
+    report: FetchReport, absent_by_family: dict[str, list[str]], on_missing_column: str,
+) -> None:
+    """Null-fill (and say so) or refuse a column missing from some selected generations."""
     # ONE policy for structural absence, shared with load(). A column missing
     # from SOME selected generations used to be null-filled here (concat is
     # permissive) and to make load() drop those generations entirely — the same
@@ -1079,6 +973,11 @@ def _select_files(
                 also_absent=every[1:],
             )
 
+
+def _truncated(
+    selected: list[tuple[str, NormalizePlan, dict[str, Any]]], max_files: int | None, report: FetchReport,
+) -> list[tuple[str, NormalizePlan, dict[str, Any]]]:
+    """The debugging truncation to the first ``max_files`` files, said in the report."""
     if max_files:
         # DEBUGGING TRUNCATION, and it is documented as such: the first N source
         # artifacts in (year, path) order, not a sample. It preferentially keeps
@@ -1103,6 +1002,72 @@ def _select_files(
                     "they are named in report.families but contributed nothing"
                 )
     return selected
+
+
+def _select_files(
+    catalog: CatalogStore,
+    families: Sequence[Mapping[str, Any]],
+    *,
+    report: FetchReport,
+    ufs: Sequence[str],
+    years: Sequence[int],
+    months: Sequence[int],
+    max_files: int | None,
+    columns: Sequence[str] | None,
+    on_missing_column: str,
+    municipalities: MunicipalityIndex,
+    cache: DictionaryCache,
+    max_bytes: int | None = None,
+    exclude_paths: frozenset[str] = frozenset(),
+    plans: dict[str, NormalizePlan] | None = None,
+    one_reading: bool = True,
+) -> list[tuple[str, NormalizePlan, dict[str, Any]]]:
+    """Decide WHICH files answer this request, and refuse the ones that cannot.
+
+    ``plans``, when given, is filled with the plan built for each family that has files, so the caller does not build
+    them a second time.
+
+    With no state asked, a year DATASUS publishes as a national file AND as one file per state (SIM, SINASC) is read
+    from the national file alone: the state files are the same records, and taking both returned every death and every
+    birth twice (the rule of ``query()``, `national_or_states`). ``one_reading=False`` takes every file: a caller that
+    names exact paths (``_only_paths``) must get the file it named.
+
+    Everything before a byte is fetched: matching files to the requested axes,
+    building each generation's normalisation plan, applying the structural
+    missing-column policy, and the debugging truncation. Separated from
+    acquisition and decoding because it is the part that can say "no" — and
+    every one of its refusals is a policy decision the caller must be able to
+    see reasoned about on its own.
+    """
+    selected: list[tuple[str, NormalizePlan, dict[str, Any]]] = []
+    family_ids = [str(family["family_id"]) for family in families]
+    publications = select_publications(
+        catalog, family_ids, ufs=ufs, years=years, months=months, exclude_paths=exclude_paths,
+        narrow=_one_reading(report) if not ufs and one_reading else None,
+    )
+    report.representations_deduplicated.extend(publications.dropped)
+    report.representation_conflicts.extend(publications.conflicts)
+    for family_id in family_ids:
+        matched = publications.families[family_id].selected
+        if not matched:
+            continue
+        try:
+            plan = build_plan(
+                catalog, family_id=family_id, municipalities=municipalities, cache=cache
+            )
+        except KeyError as exc:
+            report.warnings.append(f"{family_id}: no normalisation plan ({exc})")
+            continue
+        plan.keep_raw = True  # labels are joined at render time (`emit_labels` stays off)
+        if plans is not None:
+            plans[family_id] = plan
+        report.families.append(family_id)
+        for item in matched:
+            selected.append((family_id, plan, item))
+            _record_file(report, family_id, item)
+
+    _apply_missing_column_policy(report, _structurally_absent(catalog, report, columns), on_missing_column)
+    return _truncated(selected, max_files, report)
 
 
 def _acquire(

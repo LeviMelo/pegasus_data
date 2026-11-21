@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import sqlite3
-from collections.abc import Collection, Mapping, Sequence, Set
+from collections.abc import Callable, Collection, Mapping, Sequence, Set
 from dataclasses import dataclass
 from pathlib import PurePosixPath
 from typing import Any
@@ -198,6 +198,107 @@ def choose_representations(
             str(row.get("path") or "") for row in candidates if row is not winner
         )
     return RepresentationSelection(tuple(selected), tuple(dropped), tuple(conflicts))
+
+
+@dataclass(frozen=True, slots=True)
+class FamilyFiles:
+    """One family's files: every member the catalog lists, and the ones this request selected (in year, path order)."""
+
+    members: list[dict[str, Any]]
+    selected: list[dict[str, Any]]
+
+
+@dataclass(frozen=True, slots=True)
+class PublicationSelection:
+    """`select_publications`' answer: each family's files, and what choosing among representations dropped or refused."""
+
+    families: dict[str, FamilyFiles]
+    dropped: tuple[str, ...] = ()
+    conflicts: tuple[str, ...] = ()
+
+
+def select_publications(
+    catalog: CatalogStore,
+    family_ids: Sequence[str],
+    *,
+    ufs: Sequence[str] = (),
+    years: Sequence[int] = (),
+    months: Sequence[int] = (),
+    exclude_paths: frozenset[str] = frozenset(),
+    narrow: Callable[[list[dict[str, Any]]], list[dict[str, Any]]] | None = None,
+) -> PublicationSelection:
+    """The files of ``family_ids`` that answer states, years and months (an empty axis asks for all), one
+    representation per publication, chosen once across the families: a publication filed under two families (the
+    same file in two generations) is chosen once.
+
+    ``exclude_paths`` are files read and refused (ADR-0190): never selected, and the evidence that puts a native file
+    ahead of its exports. ``narrow`` is applied to the matching rows before the choice (the reader that wants one
+    reading of a year published nationally and per state); it may report what it leaves out."""
+    from .normalize.time import month_of
+
+    uf_set = {str(u) for u in ufs} if ufs else None
+    year_set = {int(y) for y in years} if years else None
+    month_set = {int(m) for m in months} if months else None
+
+    def on_axes(row: Mapping[str, Any]) -> bool:
+        return (
+            (uf_set is None or (row["geo_code"] or "") in uf_set)
+            and (year_set is None or row["year"] in year_set)
+            and (month_set is None or month_of(row["normalized_date"]) in month_set)
+        )
+
+    chosen: set[tuple[str, str, str]] = set()
+    dropped: tuple[str, ...] = ()
+    conflicts: tuple[str, ...] = ()
+    if family_ids:
+        marks = ",".join("?" for _ in family_ids)
+        global_rows = catalog.query(
+            f"""
+            SELECT ff.family_id, ff.path, ff.member, fa.geo_code, fa.year,
+                   fa.normalized_date, fa.logical_id, fa.container_format,
+                   files.size, families.schema_signature
+              FROM family_files ff
+              JOIN families ON families.family_id=ff.family_id
+              LEFT JOIN file_facts fa ON fa.path=ff.path
+              LEFT JOIN files ON files.path=ff.path
+             WHERE ff.family_id IN ({marks})
+            """,
+            tuple(family_ids),
+        )
+        asked = [dict(row) for row in global_rows if on_axes(row)]
+        matched = [row for row in asked if str(row["path"]) not in exclude_paths]
+        if narrow is not None:
+            matched = narrow(matched)
+        # the refused ones are evidence for the choice, not candidates: an export refused for its columns puts the
+        # publication's native file ahead of its other exports (ADR-0190)
+        choice = choose_representations(
+            catalog, [*matched, *(row for row in asked if str(row["path"]) in exclude_paths)],
+            refused=exclude_paths)
+        chosen = {(str(row["family_id"]), str(row["path"]), str(row.get("member") or "")) for row in choice.selected}
+        dropped, conflicts = choice.dropped, choice.conflicts
+    families: dict[str, FamilyFiles] = {}
+    for family_id in family_ids:
+        members = [
+            dict(r)
+            for r in catalog.query(
+                """
+                SELECT ff.path, ff.member, fa.geo_code, fa.year, fa.normalized_date,
+                       fa.logical_id, fa.container_format, files.size
+                  FROM family_files ff
+                  LEFT JOIN file_facts fa ON fa.path = ff.path
+                  LEFT JOIN files ON files.path = ff.path
+                 WHERE ff.family_id = ?
+                 ORDER BY fa.year, ff.path
+                """,
+                (family_id,),
+            )
+        ]
+        selected = [
+            m for m in members
+            if on_axes(m) and (str(family_id), str(m["path"]), str(m["member"] or "")) in chosen
+        ]
+        families[family_id] = FamilyFiles(members=members, selected=selected)
+    return PublicationSelection(families, dropped, conflicts)
 
 
 def _wire_cost(row: Mapping[str, Any], cached: set[str]) -> tuple[int, int, int, str]:

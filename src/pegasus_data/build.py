@@ -45,7 +45,7 @@ from .persist.lake import Lake
 from .persist.staging import staged_tree
 from .pipeline import Pipeline, StageResult
 from .progress import ItemTimeout
-from .representations import RepresentationConflictError, choose_representations
+from .representations import RepresentationConflictError, choose_representations, select_publications
 from .semantics.dictionary import DictionaryCache
 from .sources import demas_api, ibge
 
@@ -553,42 +553,11 @@ class Builder:
             f"SELECT family_id, system, series, schema_signature, field_count FROM families{where}", params
         )
 
-        selected_units: set[tuple[str, str, str]] = set()
-        selected_family_ids = [str(family["family_id"]) for family in families]
-        if selected_family_ids:
-            marks = ",".join("?" for _ in selected_family_ids)
-            rows = self.catalog.query(
-                f"""
-                SELECT ff.family_id, ff.path, ff.member, fa.geo_code, fa.year,
-                       fa.normalized_date, fa.logical_id, fa.container_format,
-                       files.size, families.schema_signature
-                  FROM family_files ff
-                  JOIN families ON families.family_id=ff.family_id
-                  LEFT JOIN file_facts fa ON fa.path=ff.path
-                  LEFT JOIN files ON files.path=ff.path
-                 WHERE ff.family_id IN ({marks})
-                """,
-                tuple(selected_family_ids),
-            )
-            uf_set = set(ufs or ())
-            year_set = set(years or ())
-            candidates = [
-                dict(row)
-                for row in rows
-                if (not uf_set or (row["geo_code"] or "") in uf_set)
-                and (not year_set or row["year"] in year_set)
-            ]
-            choice = choose_representations(self.catalog, candidates)
-            selected_units = {
-                (
-                    str(row["family_id"]),
-                    str(row["path"]),
-                    str(row.get("member") or ""),
-                )
-                for row in choice.selected
-            }
-            stats.representations_deduplicated += len(choice.dropped)
-            stats.representation_conflicts.extend(choice.conflicts)
+        # one reading of every selected family's files (the choice among representations is made across them all)
+        publications = select_publications(
+            self.catalog, [str(family["family_id"]) for family in families], ufs=ufs or (), years=years or ())
+        stats.representations_deduplicated += len(publications.dropped)
+        stats.representation_conflicts.extend(publications.conflicts)
 
         for family in families:
             family_id = family["family_id"]
@@ -604,29 +573,9 @@ class Builder:
             plan.keep_raw = True if keep_raw is None else keep_raw
             plan.emit_labels = emit_labels
 
-            members = self.catalog.query(
-                """
-                SELECT ff.path, ff.member, fa.geo_code, fa.year, fa.normalized_date,
-                       fa.logical_id, fa.container_format, files.size
-                  FROM family_files ff
-                  LEFT JOIN file_facts fa ON fa.path = ff.path
-                  LEFT JOIN files ON files.path = ff.path
-                 WHERE ff.family_id = ?
-                 ORDER BY fa.year, ff.path
-                """,
-                (family_id,),
-            )
-            selected = [
-                dict(m)
-                for m in members
-                if (not ufs or (m["geo_code"] or "") in set(ufs))
-                and (not years or (m["year"] in set(years)))
-                and (
-                    str(family_id),
-                    str(m["path"]),
-                    str(m["member"] or ""),
-                ) in selected_units
-            ]
+            files = publications.families[str(family_id)]
+            members = files.members
+            selected = files.selected
             if not ufs:
                 # A year DATASUS publishes as one national file is built from it
                 # alone: SIM and SINASC also publish every state's file, and
