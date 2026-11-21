@@ -80,8 +80,8 @@ variables:
     official_name: Cartão Nacional de Saúde do paciente
     translated_name: Patient national health card number
     description: 'The patient''s CNS — the national health card number that identifies
-      a person across every SUS system. It is what makes this panel able to follow
-      one patient from diagnosis to treatment.
+      a person across every SUS system. Empty in every public file (2013-2025, measured
+      2026-11-21): the published panel cannot be joined to another system by it.
 
       '
     code_system: none
@@ -89,10 +89,11 @@ variables:
     source_ref: 'Dicionário ''Estrutura do Painel-Oncologia para tabulação'' (DATASUS) —
       ftp://ftp.datasus.gov.br/dissemin/publicos/painel_oncologia/Doc/Dicionario_Painel_Oncologia.pdf,
       seq 19 cns_pac CHAR(15) ''Cartão Nacional de Saúde'''
-    notes: 'UNVERIFIED whether this holds a readable CNS. The equivalent SIASUS column
-      (AP_CNSPCN) was measured and is obfuscated — fifteen non-numeric bytes, not a
-      CNS — but that result is SIASUS''s and has not been tested here, so do not assume
-      it either way. Whatever it holds, it passes through this module unmodified: no
+    notes: 'Measured 2026-11-21: null in every row of every year held (2013-2025; e.g. the
+      5,405 C71 rows of 2023). The SIASUS APAC column (AP_CNSPCN) is filled but obfuscated,
+      fifteen non-numeric bytes, the same token across APAC systems (2,198 C71 patients
+      of 2021-2024 in both the radiotherapy and the chemotherapy APACs), so APACs join to
+      each other and not to this panel. Whatever it holds, it passes through this module unmodified: no
       masking, hashing or dropping, because that decision belongs to the Ministry and
       not to a library. Beside DT_NASC and a diagnosis the row is re-identifying regardless
       of whether this column is readable.
@@ -242,10 +243,11 @@ variables:
   TEMPO_TRAT:
     official_name: Tempo até o tratamento
     translated_name: Time to treatment
-    description: 'Days from diagnosis to first treatment, banded up to 30, 31 to 60,
-      and more than 60. The last band is the legal breach the panel exists to count.
-      Negative bands also occur, meaning treatment was recorded before the diagnosis
-      date — a data problem, not a fast service.
+    description: 'Days from diagnosis to first treatment, as a signed count (+0042),
+      or 99999 where no treatment is recorded (331,000 of the 2023 rows). The tabulator''s
+      table bands it (up to 30, 31 to 60, more than 60: the last band is the legal breach
+      the panel exists to count). A negative count means treatment was recorded before the
+      diagnosis date — a data problem, not a fast service.
 
       '
     code_system: internal

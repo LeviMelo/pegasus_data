@@ -650,6 +650,8 @@ def drop_redundant_partitions(catalog: CatalogStore, lake_dir: str | Path, *, dr
         candidates += [(root / str(r["relative_path"]), refs, r) for r in rows if id(r) not in kept]
 
     out = {"partitions": 0, "rows": 0, "bytes": 0, "unlisted_kept": 0, "listed_kept": 0}
+    hashed: dict[tuple[tuple[str, ...], tuple[str, ...]], str] = {}
+    serial = iter(range(1 << 30))
     con = duckdb.connect()
     con.execute("SET memory_limit='1GB'; SET threads=2; SET enable_progress_bar=false")
     for path, refs, row in candidates:
@@ -660,12 +662,19 @@ def drop_redundant_partitions(catalog: CatalogStore, lake_dir: str | Path, *, dr
                           and c not in {"schema_signature", "uf", "year"})
             if cols:
                 key = "md5(concat_ws('|', " + ", ".join(f"coalesce(\"{c}\"::VARCHAR, '~')" for c in cols) + "))"
-                files = ", ".join(f"'{f.as_posix()}'" for f in refs)
+                # the reference's multiset is hashed once per (files, columns): the 27 state partitions of a year
+                # checked against one national file read it once, not 27 times
+                ref_key = (tuple(str(f) for f in refs), tuple(cols))
+                if ref_key not in hashed:
+                    while len(hashed) >= 2:      # two years' references at most in memory
+                        con.execute(f"DROP TABLE {hashed.pop(next(iter(hashed)))}")
+                    hashed[ref_key] = f"_ref{next(serial)}"
+                    files = ", ".join(f"'{f.as_posix()}'" for f in refs)
+                    con.execute(f"CREATE TEMP TABLE {hashed[ref_key]} AS SELECT {key} k, count(*) n "
+                                f"FROM read_parquet([{files}], union_by_name=true) GROUP BY 1")
                 short = con.execute(
-                    f"""WITH s AS (SELECT {key} k, count(*) n FROM read_parquet('{path.as_posix()}') GROUP BY 1),
-                             b AS (SELECT {key} k, count(*) n FROM read_parquet([{files}], union_by_name=true)
-                                   WHERE {key} IN (SELECT k FROM s) GROUP BY 1)
-                        SELECT coalesce(sum(s.n - coalesce(b.n, 0)), 0) FROM s LEFT JOIN b USING (k)
+                    f"""WITH s AS (SELECT {key} k, count(*) n FROM read_parquet('{path.as_posix()}') GROUP BY 1)
+                        SELECT coalesce(sum(s.n - coalesce(b.n, 0)), 0) FROM s LEFT JOIN {hashed[ref_key]} b USING (k)
                         WHERE s.n > coalesce(b.n, 0)""").fetchone()[0]  # type: ignore[index]
                 contained = not short
         if not contained and refs:
