@@ -38,7 +38,7 @@ from typing import Any
 from ..catalog.store import CatalogStore, utcnow
 from ..textenc import fold
 from .cnv_parser import CnvFile
-from .tabkit import _KIT_ERAS, ParsedKit, kit_folder, kit_validity
+from .tabkit import ParsedKit, kit_folder, kit_validity
 
 #: Authority ranking. A lower number wins a disagreement; the loser is still
 #: written to ``dictionary_conflicts`` so nothing is lost.
@@ -277,10 +277,76 @@ def supersede_source(catalog: CatalogStore, prefixes: Sequence[str]) -> int:
     return removed
 
 
+def _data_span(catalog: CatalogStore, folder: str, *, months_only: bool = False) -> tuple[int, int] | None:
+    """The first and last ``normalized_date`` (YYYYMM, YYYY00 for a year) of the data files filed under ``folder``;
+    ``months_only`` leaves out the files dated by a year alone."""
+    # LIKE would read the folder's `_` and `%` as wildcards: a range comparison is exact
+    span = catalog.query(
+        "SELECT MIN(normalized_date) AS lo, MAX(normalized_date) AS hi FROM file_facts WHERE role = 'data'"
+        " AND path >= ? AND path < ? AND normalized_date BETWEEN 190000 AND 210012 AND normalized_date % 100 BETWEEN ? AND 12",
+        (folder, folder + "􏿿", 1 if months_only else 0),
+    )[0]
+    return None if span["lo"] is None else (int(span["lo"]), int(span["hi"]))
+
+
+def _data_root(catalog: CatalogStore, kit_path: str) -> tuple[str, tuple[int, int], frozenset[str]] | None:
+    """The nearest folder above a kit that holds data files, with their span and series: the data the kit was filed
+    beside (``/SIM/CID9/TAB/OBITOS_CID9_TAB.zip`` -> ``/SIM/CID9/``, 1979-1995, DOR, DOEXT, ...)."""
+    parts = PurePosixPath(kit_path).parent.parts
+    for depth in range(len(parts), 1, -1):
+        folder = str(PurePosixPath(*parts[:depth])).rstrip("/") + "/"
+        span = _data_span(catalog, folder)
+        if span is not None:
+            series = catalog.query(
+                "SELECT DISTINCT series_prefix FROM file_facts WHERE role = 'data' AND path >= ? AND path < ?"
+                " AND series_prefix IS NOT NULL",
+                (folder, folder + "􏿿"),
+            )
+            return folder, span, frozenset(str(r["series_prefix"]) for r in series)
+    return None
+
+
+def era_windows(catalog: CatalogStore) -> dict[str, tuple[str, str]]:
+    """The era each superseded kit describes, learned from the data filed beside the kits.
+
+    A kit whose name and path give no window describes an era when a disjoint folder of the same system continues one
+    of its data series from a later start: SIM's ``/CID9/`` (DOR, DOEXT, ... 1979-1995) before ``/CID10/`` (DOEXT, ...
+    1996-), SINASC's ``/ANT/`` and ``/1994_1995/`` before ``/NOV/`` and ``/1996_/`` (DN). The era runs from the first data
+    month under its folder to the month before the successor's first; a stray later file under the old folder
+    (``SINASC/ANT/DNRES/DNAC2014.dbc``) does not move it. Folders that share no series are parallel sub-systems
+    (SISCAN's SISCOLO4 and SISMAMA), and a folder that contains the other (``/CMD/`` holding ``/CMD/201701_/``) is not
+    succeeded by it. The current kit stays unwindowed (it is "the current vintage").
+    """
+    roots: dict[str, list[tuple[str, str, tuple[int, int], frozenset[str]]]] = {}
+    for row in catalog.query("SELECT kit_path, system FROM tab_kits"):
+        kit = str(row["kit_path"])
+        root = _data_root(catalog, kit)
+        if root is not None:
+            roots.setdefault(str(row["system"]), []).append((kit, *root))
+    eras: dict[str, tuple[str, str]] = {}
+    for kits in roots.values():
+        for kit, folder, (lo, hi), series in kits:
+            if kit_validity(kit) != (None, None):
+                continue
+            later = [
+                other_lo
+                for _, other, (other_lo, _), other_series in kits
+                if other_lo > lo and series & other_series
+                and not other.startswith(folder) and not folder.startswith(other)
+            ]
+            if not later:
+                continue
+            year, month = divmod(min(later), 100)
+            year, month = (year - 1, 12) if month <= 1 else (year, month - 1)
+            end = min(hi if hi % 100 else hi + 12, year * 100 + month)
+            eras[kit] = (f"{lo + 1 if lo % 100 == 0 else lo}", f"{end}")
+    return eras
+
+
 def settle_era_windows(catalog: CatalogStore) -> dict[str, int]:
     """Bound a superseded kit's codelist to its era only where a current one shares its name.
 
-    An era kit (``tabkit._KIT_ERAS``: SIM/CID9, SINASC/ANT) is windowed so that its
+    An era kit (:func:`era_windows`: SIM/CID9, SINASC/ANT) is windowed so that its
     ``LOCOCOR`` and the current kit's ``LOCOCOR`` both survive (ADR-0152). Windowing
     the WHOLE kit went further than the collision: the 1994-95 SINASC kit ships the
     current geography (``BR_MUNICIP``, ``BR_REGSAUD`` …, 25,732 rows each) and no current
@@ -294,11 +360,7 @@ def settle_era_windows(catalog: CatalogStore) -> dict[str, int]:
     arrives first and settles both ways when DATASUS adds or drops a codelist.
     """
     settled = {"bounded": 0, "released": 0}
-    era_kits = [
-        (str(r["kit_path"]), kit_validity(str(r["kit_path"])))
-        for r in catalog.query("SELECT kit_path FROM tab_kits")
-    ]
-    era_kits = [(kit, window) for kit, window in era_kits if window[0] and _is_era_kit(kit)]
+    era_kits = list(era_windows(catalog).items())
     for kit, (valid_from, valid_to) in era_kits:
         prefix = f"{kit}!"
         groups = [
@@ -345,15 +407,10 @@ def settle_folder_windows(catalog: CatalogStore) -> dict[str, int]:
         valid_from, valid_to = kit_validity(kit)
         if folder is None or not valid_from or not valid_to:
             continue
-        # LIKE would read the folder's `_` and `%` as wildcards: a range comparison is exact
-        span = catalog.query(
-            "SELECT MIN(normalized_date) AS lo, MAX(normalized_date) AS hi FROM file_facts WHERE role = 'data'"
-            " AND path >= ? AND path < ? AND normalized_date BETWEEN 190001 AND 210012 AND normalized_date % 100 BETWEEN 1 AND 12",
-            (folder, folder + "\U0010ffff"),
-        )[0]
-        if span["lo"] is None:
+        span = _data_span(catalog, folder, months_only=True)
+        if span is None:
             continue
-        window = (min(valid_from, str(span["lo"])), max(valid_to, str(span["hi"])))
+        window = (min(valid_from, str(span[0])), max(valid_to, str(span[1])))
         if window == (valid_from, valid_to):
             continue
         prefix = f"{kit}!"
@@ -365,10 +422,6 @@ def settle_folder_windows(catalog: CatalogStore) -> dict[str, int]:
         widened["kits"] += 1
         widened["rows"] += cursor.rowcount or 0
     return widened
-
-
-def _is_era_kit(kit_path: str) -> bool:
-    return any(marker in kit_path for marker in _KIT_ERAS)
 
 
 def persist_entries(catalog: CatalogStore, entries: Sequence[DictionaryEntry]) -> dict[str, int]:
@@ -896,32 +949,25 @@ def observed_values(
     return {str(r["value"]): int(r["count"]) for r in rows}
 
 
-#: Semantic verdicts that justify binding a field to a reference code table even
-#: where no ``.DEF`` names it. The binding rests on the detector's *measured*
-#: membership rate in that table, and is recorded with ``source='semantic_match'``
-#: so the weaker basis stays visible next to the ``.DEF``-sourced bindings.
-SEMANTIC_CODELISTS: dict[str, tuple[str, ...]] = {
-    "icd10": ("CID10",),
-    "procedure_code": ("TPROC10", "TPROC"),
-    "cnes_establishment": ("TCNESBR",),
-    "municipality_code_6": ("MUNICBR",),
-    "municipality_code_7": ("MUNICBR",),
-}
+def _declared(block: str) -> dict[str, tuple[str, ...]]:
+    from ..config import curation_root
+    from .curation import read_yaml
+
+    declared = (read_yaml(curation_root() / "codelists.yml", shared=True) or {}).get(block) or {}
+    return {str(key): tuple(str(v) for v in values) for key, values in declared.items()}
 
 
-#: Words a record layout uses to name the classification a column belongs to,
-#: mapped to the reference table that classification lives in. This is what lets
-#: a distributional match be *corroborated* rather than merely asserted.
-CLASSIFICATION_MENTIONS: dict[str, tuple[str, ...]] = {
-    "CID10": ("cid10", "cid-10", "cid 10", "classificacao internacional de doencas"),
-    "CID9": ("cid9", "cid-9", "cid 9"),
-    "TPROC10": ("procedimento", "sigtap", "tabela unificada"),
-    "TPROC": ("procedimento", "sigtap"),
-    "CBO": ("cbo", "classificacao brasileira de ocupacoes", "ocupacao"),
-    "CBO2002": ("cbo", "classificacao brasileira de ocupacoes", "ocupacao"),
-    "MUNICBR": ("municipio", "ibge"),
-    "TCNESBR": ("cnes", "estabelecimento"),
-}
+def semantic_types() -> dict[str, tuple[str, ...]]:
+    """``detector verdict -> codelists`` a verdict binds a field to even where no ``.DEF`` names it, from
+    ``codelists.yml``'s ``semantic_types``. The binding rests on the detector's *measured* membership rate, and is
+    recorded with ``source='semantic_match'`` so the weaker basis stays visible next to the ``.DEF``-sourced ones."""
+    return _declared("semantic_types")
+
+
+def classification_mentions() -> dict[str, tuple[str, ...]]:
+    """``codelist -> words`` a record layout uses to name the classification it holds (``codelists.yml``'s
+    ``mentions``): what lets a distributional match be *corroborated* rather than merely asserted."""
+    return _declared("mentions")
 
 
 def corroborate_semantic_bindings(catalog: CatalogStore) -> int:
@@ -942,6 +988,7 @@ def corroborate_semantic_bindings(catalog: CatalogStore) -> int:
     candidates = catalog.query(
         "SELECT system, field_name, codelist, confidence FROM field_codelists WHERE source = 'semantic_match'"
     )
+    declared = classification_mentions()
     by_field: dict[tuple[str | None, str], tuple[str, str]] = {}
     for row in documented:
         by_field[(row["system"], row["field_name"])] = (
@@ -956,7 +1003,7 @@ def corroborate_semantic_bindings(catalog: CatalogStore) -> int:
         if entry is None:
             continue
         description, source_ref = entry
-        mentions = CLASSIFICATION_MENTIONS.get(str(row["codelist"]).upper(), ())
+        mentions = declared.get(str(row["codelist"]).upper(), ())
         if not any(fold(m) in description for m in mentions):
             continue
         promoted.append(
@@ -990,6 +1037,7 @@ def bind_by_semantic_type(catalog: CatalogStore) -> int:
     layout document corroborates the same table. What they *are* good for is
     steering the reference join and telling a consumer where to look.
     """
+    types = semantic_types()
     known = {
         str(r["value_group"])
         for r in catalog.query("SELECT DISTINCT value_group FROM dictionary WHERE value_group IS NOT NULL")
@@ -1000,12 +1048,12 @@ def bind_by_semantic_type(catalog: CatalogStore) -> int:
           FROM variable_profiles vp
           JOIN families f ON f.family_id = vp.family_id
          WHERE vp.semantic_type IN ({})
-        """.format(",".join("?" * len(SEMANTIC_CODELISTS))),
-        list(SEMANTIC_CODELISTS),
+        """.format(",".join("?" * len(types))),
+        list(types),
     )
     payload: list[tuple[object, ...]] = []
     for row in rows:
-        for candidate in SEMANTIC_CODELISTS.get(str(row["semantic_type"]), ()):
+        for candidate in types[str(row["semantic_type"])]:
             if candidate not in known:
                 continue
             payload.append(

@@ -122,6 +122,29 @@ kit_tables:
   CNAENET: {code: CLASS_CNAE, label: DS_CNAE, reference: cnae}
   UNIDINVEST: {code: ID_UNIDADE, label: NM_UNIDADE, reference: sinan_unit}
 
+# What a detector's verdict on a column (profile/detectors.py) binds it to: the codelists the verdict binds the column to
+# as a candidate (`bind_by_semantic_type`, source 'semantic_match', the first one the dictionary holds). The reference
+# universe the detector measures membership in is the `reference` of `kit_tables` above.
+semantic_types:
+  icd10: [CID10]
+  procedure_code: [TPROC10, TPROC]
+  cnes_establishment: [TCNESBR]
+  municipality_code_6: [MUNICBR]
+  municipality_code_7: [MUNICBR]
+
+# The words a record layout uses to name the classification a codelist holds. A layout naming it corroborates a
+# semantic-match candidate into a usable binding (`corroborate_semantic_bindings`, source 'layout_doc'); nothing is
+# promoted on the inference alone. Matched on folded text (no accents, lower case).
+mentions:
+  CID10: [cid10, cid-10, cid 10, classificacao internacional de doencas]
+  CID9: [cid9, cid-9, cid 9]
+  TPROC10: [procedimento, sigtap, tabela unificada]
+  TPROC: [procedimento, sigtap]
+  CBO: [cbo, classificacao brasileira de ocupacoes, ocupacao]
+  CBO2002: [cbo, classificacao brasileira de ocupacoes, ocupacao]
+  MUNICBR: [municipio, ibge]
+  TCNESBR: [cnes, estabelecimento]
+
 roles:
   registry:
     what: >

@@ -410,7 +410,7 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
 - `linkage/annotators.py`: settings as annotators. Dawid–Skene EM over persons classified by several settings (a latent consensus class, a confusion matrix per setting), optionally hierarchical (a hospital shrunk toward its system); race and other clerk-recorded categories (docs/plans/linkage-theory.md §5, T4).
 - `linkage/uncertainty.py`: linkage error into analyses: `p_match` weights, `link_draws()` (plausible link sets from the match probabilities), Rubin's rules (docs/plans/linkage-theory.md §6, T5).
 - `crosswalk.py`: CNES↔CNPJ enrichment. Reads the registry first (windows from inclusion to exclusion), then the label pack's historical claims where the registry is silent; compares with the record's own CNPJ when the layout has one (ADR-0100).
-- `providers.py`: optional attribute providers (CNES names).
+- `providers.py`: what the planner says of a resource a route requires, from `curation/resources.yml`.
 - `_age.py`: age in fractional years from measured unit tables (ADR-0070), and age bands.
 - `_vintage.py`: vintage resolution helpers.
 - `_explore.py`: `explore()`, what is on DATASUS; `lake_coverage()`, what the lake holds by year; `publications()`, the files it holds a dataset's records from (path, server size and date, digest decoded, fetch, rows, preliminary or final; read from the lake rows' own `_source_path` and `_blob_sha256`) and the files listed but not held (ADR-0181).
@@ -421,7 +421,7 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
 - `_unknowns.py`: `gaps()`, `questions()`.
 - `_compendium.py`: `compendium()`, the map of everything the package holds and can do, as a SQLite file; `current()` keeps the home's copy (`_catalog/compendium.sqlite`) fresh; `entries` is the index `search()` reads (ADR-0216).
 - `_search.py`: `search()`, over the catalog's docs and the shipped label pack (ADR-0069).
-- `_resources.py`: resource status, validation, `ensure`, `build`.
+- `_resources.py`: resource status, validation, `ensure`, `build` (the local resources `curation/resources.yml` declares).
 - `labelpack.py`: distils the catalog's labels into `resources/labels.parquet`; `packed_fingerprint` is the digest of the rows a system reads of one codelist, in every window (ADR-0202).
 - `ontology.py`: the declared systems and datasets, bound to crawl evidence.
 - `snapshot.py`: `pegasus-data snapshot`, the versions of preliminary and current-year files (declared in `curation/snapshots.yml`) kept as they change; `versions()` and `digests_as_of()` behind `query(as_of=)` (ADR-0141).

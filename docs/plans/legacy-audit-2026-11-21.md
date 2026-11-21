@@ -52,3 +52,12 @@ Line numbers are from the tree as read (2026-11-21).
 - `linkage/levels.py:283` `_ICD_SIZE`: cites ICD-10 P07.x definitions.
 - The 2-digit-year pivots and 1900/2100 bounds in normalize/time.py epi-week code: commented and bounded by the epi calendar (but see #10 for duplication).
 - Docstring and comment mentions of SIH/SIM etc.: ignored as asked.
+
+## Disposition (updated as the units land; evidence in docs/evaluation/2026-11-21-legacy-audit-fixes.md)
+
+| # | state |
+|---|---|
+| 1 | fixed: `dictionary.era_windows` from the catalog's data folders and series |
+| 3 | fixed: `kit_tables` `reference:` feeds the reference sets and the ICD universe; `semantic_types:`, `mentions:` declared (the detector name hints of `detectors.py:531` go with #5) |
+| 4 | fixed: `curation/resources.yml`; one provider; `cnes_registry` pseudo-resource removed |
+| 22 | fixed with #3 (the ICD universe is the `icd10` reference of `kit_tables`) |

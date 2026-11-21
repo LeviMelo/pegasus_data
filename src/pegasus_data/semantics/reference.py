@@ -10,15 +10,7 @@ from __future__ import annotations
 
 from ..catalog.store import CatalogStore
 from ..profile.detectors import ReferenceSets
-
-#: Which ``code_tables`` entries feed which reference set. Table ids come from
-#: the kit member names, so a prefix match covers the per-UF variants
-#: (``TCNESBR``, ``TCNESAC``, …) without enumerating 27 of them.
-_TABLE_PREFIXES: dict[str, tuple[str, ...]] = {
-    "icd10": ("CID10",),
-    "procedures": ("TPROC", "EMUSO", "SIGTAP", "TB_PROCEDIMENTO"),
-    "cnes": ("TCNES",),
-}
+from .tabkit import reference_prefixes
 
 
 def _codes_for(catalog: CatalogStore, prefixes: tuple[str, ...]) -> tuple[frozenset[str], str | None]:
@@ -61,9 +53,12 @@ def _municipalities(catalog: CatalogStore) -> tuple[frozenset[str], str | None]:
 
 def load_reference_sets(catalog: CatalogStore) -> ReferenceSets:
     """Build the detectors' reference sets from whatever the catalog knows."""
-    icd10, icd_ref = _codes_for(catalog, _TABLE_PREFIXES["icd10"])
-    procedures, proc_ref = _codes_for(catalog, _TABLE_PREFIXES["procedures"])
-    cnes, cnes_ref = _codes_for(catalog, _TABLE_PREFIXES["cnes"])
+    # Which ``code_tables`` feed which set is ``codelists.yml``'s ``kit_tables`` (``reference:``); a prefix covers the
+    # per-UF variants (``TCNESBR``, ``TCNESAC``, ...) without enumerating 27 of them.
+    prefixes = reference_prefixes()
+    icd10, icd_ref = _codes_for(catalog, prefixes.get("icd10", ()))
+    procedures, proc_ref = _codes_for(catalog, prefixes.get("procedures", ()))
+    cnes, cnes_ref = _codes_for(catalog, prefixes.get("cnes", ()))
     municipalities, mun_ref = _municipalities(catalog)
     provenance = {
         k: v

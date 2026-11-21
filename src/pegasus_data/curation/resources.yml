@@ -1,0 +1,31 @@
+# Runtime resources besides the record lake: what the planner says of each (`providers.py`) and how a person builds the
+# ones the wheel does not ship (`_resources.ResourceManager`). The packs the wheel ships are listed with their checksums
+# in resources/manifest.json; this file says what each one IS. A record dataset is not a resource: whether its years are
+# held is the lake's answer (`plan()`, `pegasus-data build --systems CNES`), not a second registry of it.
+#
+#   authority  who publishes what the resource holds
+#   temporal   how its rows are dated (what a period asked of it means)
+#   namespace  the identifier space its keys live in
+#
+# A `local` resource is compiled into the data home's resources/ folder by `pegasus-data resources build <name>`:
+#   file       its file there, recorded with its checksum in the home's resources/manifest.json
+#   builder    module:function called as builder(catalog, out_path, years=...) -> (rows, bytes)
+#   schema     the `pegasus_resource_schema` its parquet metadata must carry
+#   years      true when the file lists the years it covers (`pegasus_covered_years`): a period asked must lie inside them
+#   estimate   planning size before it exists: dictionary rows of these codelist groups (SQL LIKE) times bytes per row
+#              (a conservative compressed-pack figure, not measured; the builder reports the exact size)
+resources:
+  cnes_cnpj:
+    authority: Ministério da Saúde / DATASUS
+    temporal: validity-window as-of competence
+    namespace: CNES
+  cnes_names:
+    authority: Ministério da Saúde / DATASUS registry codelists
+    temporal: validity-window as-of competence
+    namespace: CNES
+    local:
+      file: cnes_registry.parquet
+      builder: pegasus_data.labelpack:build_cnes_registry_pack
+      schema: "1"
+      years: true
+      estimate: {groups: CADGER%, bytes_per_row: 32}

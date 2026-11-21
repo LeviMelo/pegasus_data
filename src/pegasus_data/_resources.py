@@ -85,29 +85,8 @@ class ResourceManager:
                     sha256=_digest(path) if path.is_file() else None,
                 )
             )
-        cnes_path = self.settings.lake_dir / "CNES"
-        records.append(
-            ResourceRecord(
-                name="cnes_registry",
-                path=str(cnes_path),
-                tier="D",
-                bundled=False,
-                available=cnes_path.exists() and any(cnes_path.rglob("*.parquet")),
-                bytes=sum(path.stat().st_size for path in cnes_path.rglob("*.parquet")) if cnes_path.exists() else 0,
-            )
-        )
-        names_path = self.local_dir / "cnes_registry.parquet"
-        records.append(
-            ResourceRecord(
-                name="cnes_names",
-                path=str(names_path),
-                tier="D",
-                bundled=False,
-                available=names_path.is_file(),
-                bytes=names_path.stat().st_size if names_path.is_file() else 0,
-                sha256=_digest(names_path) if names_path.is_file() else None,
-            )
-        )
+        for name in sorted(set(local_resources()) - set(declared)):
+            records.append(self._local_record(name))
         return ResourceStatus(
             schema_version=int(manifest.get("resource_schema_version", 1)),
             content_version=str(manifest.get("resource_content_version", "unknown")),
@@ -155,35 +134,35 @@ class ResourceManager:
                 path.stat().st_size if path.is_file() else 0,
                 _digest(path) if path.is_file() else None,
             )
-        if wanted == "cnes_names":
-            path = self.local_dir / "cnes_registry.parquet"
-            return ResourceRecord(
-                wanted, str(path), "D", False, path.is_file(),
-                path.stat().st_size if path.is_file() else 0,
-                _digest(path) if path.is_file() else None,
-            )
-        if wanted == "cnes_registry":
-            path = self.settings.lake_dir / "CNES"
-            available = path.exists() and any(path.rglob("*.parquet"))
-            return ResourceRecord(wanted, str(path), "D", False, available)
+        if wanted in local_resources():
+            return self._local_record(wanted)
         return None
+
+    def _local_record(self, name: str) -> ResourceRecord:
+        """A resource compiled into the home's resources/ folder (``curation/resources.yml`` ``local:``)."""
+        path = self.local_dir / str(local_resources()[name]["file"])
+        return ResourceRecord(
+            name, str(path), "D", False, path.is_file(),
+            path.stat().st_size if path.is_file() else 0,
+            _digest(path) if path.is_file() else None,
+        )
 
     def _validate(
         self, record: ResourceRecord, *, period: tuple[int, int] | None = None
     ) -> None:
         """Validate bundled digests or a local bundle's compatibility manifest."""
-        if record.name == "cnes_registry":
-            return  # lake integrity is owned by lake verification/fingerprints
-        if record.name == "cnes_names":
+        local = local_resources().get(record.name)
+        if local is not None:
             import pyarrow.parquet as pq
 
             self._validate_local_manifest(record)
             metadata = pq.ParquetFile(record.path).schema_arrow.metadata or {}
-            if metadata.get(b"pegasus_resource_schema") != b"1":
+            schema = str(local.get("schema") or "")
+            if schema and metadata.get(b"pegasus_resource_schema") != schema.encode():
                 raise ResourceIntegrityError(
-                    "cnes_names resource has no compatible pegasus_resource_schema=1"
+                    f"{record.name} resource has no compatible pegasus_resource_schema={schema}"
                 )
-            if period is not None:
+            if period is not None and local.get("years"):
                 start, end = period
                 requested = set(range(start // 100, end // 100 + 1))
                 covered = {
@@ -194,7 +173,7 @@ class ResourceManager:
                 if not requested <= covered:
                     missing = sorted(requested - covered)
                     raise ResourceIntegrityError(
-                        f"cnes_names resource has a coverage hole for year(s) {missing}"
+                        f"{record.name} resource has a coverage hole for year(s) {missing}"
                     )
             return
         bundled_manifest = json.loads(
@@ -232,63 +211,61 @@ class ResourceManager:
             )
 
     def build(self, name: str, *, years: list[int] | None = None) -> dict[str, Any]:
-        """Compile a bounded optional slice from local maintainer evidence.
+        """Compile a declared local resource (``curation/resources.yml`` ``local:``) from local maintainer evidence.
 
-        This is not remote acquisition. The CNES names compiler refuses clearly
-        when the local catalog lacks the documentary registry evidence.
+        This is not remote acquisition: the declared builder refuses clearly when the local catalog lacks the
+        documentary evidence it compiles (the CNES names pack needs the registry codelists).
         """
-        wanted = str(name).upper().replace("-", "_")
-        if wanted in {"CNES_NAMES", "CNES_NAME"}:
-            from .catalog.store import CatalogStore, utcnow
-            from .labelpack import build_cnes_registry_pack
+        wanted = str(name).lower().replace("-", "_")
+        local = local_resources().get(wanted)
+        if local is None:
+            raise KeyError(
+                f"{name!r} is not a buildable resource; buildable: {sorted(local_resources())}. A record dataset is"
+                " held by building it: pegasus-data build --systems <SYSTEM> --years ..."
+            )
+        import importlib
 
-            store = CatalogStore(self.settings.catalog_path)
-            try:
-                rows, bytes_out = build_cnes_registry_pack(
-                    store, self.local_dir / "cnes_registry.parquet", years=years
-                )
-            finally:
-                store.close()
-            path = self.local_dir / "cnes_registry.parquet"
-            bundled_manifest = json.loads(
-                (self.bundled_dir / "manifest.json").read_text(encoding="utf-8")
-            )
-            local_manifest_path = self.local_dir / "manifest.json"
-            local_manifest = (
-                json.loads(local_manifest_path.read_text(encoding="utf-8"))
-                if local_manifest_path.is_file()
-                else {}
-            )
-            local_manifest.update(
-                {
-                    "resource_schema_version": RESOURCE_SCHEMA_VERSION,
-                    "resource_content_version": local_manifest.get(
-                        "resource_content_version",
-                        bundled_manifest.get("resource_content_version"),
-                    ),
-                }
-            )
-            local_manifest.setdefault("resources", {})["cnes_names"] = {
-                "file": path.name,
-                "bytes": bytes_out,
-                "sha256": _digest(path),
-                "content_version": utcnow(),
-            }
-            local_manifest_path.write_text(
-                json.dumps(local_manifest, indent=2, sort_keys=True) + "\n",
-                encoding="utf-8",
-            )
-            return {"resource": "cnes_names", "rows": rows, "bytes": bytes_out}
-        if wanted != "CNES":
-            raise KeyError("optional builders: CNES (history) or cnes_names (directory)")
-        from .build import Builder
-        from .pipeline import Pipeline
+        from .catalog.store import CatalogStore, utcnow
 
-        pipeline = Pipeline(self.settings)
+        module, _, function = str(local["builder"]).partition(":")
+        builder = getattr(importlib.import_module(module), function)
+        path = self.local_dir / str(local["file"])
+        store = CatalogStore(self.settings.catalog_path)
         try:
-            return Builder(pipeline).build(systems=["CNES"], years=years).counts
+            rows, bytes_out = builder(store, path, years=years)
         finally:
-            pipeline.close()
+            store.close()
+        bundled_manifest = json.loads((self.bundled_dir / "manifest.json").read_text(encoding="utf-8"))
+        local_manifest_path = self.local_dir / "manifest.json"
+        local_manifest = (
+            json.loads(local_manifest_path.read_text(encoding="utf-8")) if local_manifest_path.is_file() else {}
+        )
+        local_manifest.update(
+            {
+                "resource_schema_version": RESOURCE_SCHEMA_VERSION,
+                "resource_content_version": local_manifest.get(
+                    "resource_content_version", bundled_manifest.get("resource_content_version")
+                ),
+            }
+        )
+        local_manifest.setdefault("resources", {})[wanted] = {
+            "file": path.name, "bytes": bytes_out, "sha256": _digest(path), "content_version": utcnow(),
+        }
+        local_manifest_path.write_text(json.dumps(local_manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        return {"resource": wanted, "rows": rows, "bytes": bytes_out}
+
+
+def resource_declarations() -> dict[str, dict[str, Any]]:
+    """``name -> declaration`` of every runtime resource (``curation/resources.yml``)."""
+    from .config import curation_root
+    from .semantics.curation import read_yaml
+
+    return dict((read_yaml(curation_root() / "resources.yml", shared=True) or {}).get("resources") or {})
+
+
+def local_resources() -> dict[str, dict[str, Any]]:
+    """The resources a person compiles into the home (``local:``), by name."""
+    return {name: dict(body["local"]) for name, body in resource_declarations().items() if body.get("local")}
 
 
 def _digest(path: Path) -> str:

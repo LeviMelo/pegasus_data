@@ -138,23 +138,6 @@ class KitMember:
 #: covers 1992-01 to 1997-12, while a bare ``TAB_SIH.zip`` is the current one.
 _KIT_PERIOD = re.compile(r"(\d{6})\s*[-_]\s*(\d{6})")
 
-#: Kits whose directory names an ERA instead of a competência window. The
-#: current kit stays unwindowed (it is "the current vintage", ``labelpack``);
-#: only the superseded one is bounded, so both survive in the dictionary.
-#: Left unwindowed, SIM's CID9 kit and CID10 kit both wrote ``LOCOCOR`` and
-#: ``TIPOVIOL`` at the same key, the one ingested later erased the other, and
-#: every SIM death since 1996 was labelled with the 1979-95 codes: CIRCOBITO 1
-#: "Homicídio" (it is accident), LOCOCOR 2 "Via pública" (it is another health
-#: establishment). The dates are those of the data under each directory
-#: (``Obito_1979_95_CID-09.DEF``; SIM/CID9 holds 1979-1995, SINASC "até 1995"
-#: holds 1994-1995; checked against the catalog's file list, 2026-10-05).
-_KIT_ERAS: dict[str, tuple[str, str]] = {
-    "/SIM/CID9/TAB/": ("197901", "199512"),
-    "/SINASC/ANT/TAB/": ("199401", "199512"),
-    "/SINASC/1994_1995/": ("199401", "199512"),
-}
-
-
 def kit_folder(kit_path: str) -> str | None:
     """The directory whose name gives a kit its window, when the window comes from the folder and not from the kit's own
     file name (``/CIH/200801_201012/Auxiliar/TAB_CIH.zip`` -> ``/CIH/200801_201012/``); None for a kit named for its window
@@ -190,9 +173,8 @@ def kit_validity(kit_path: str) -> tuple[str | None, str | None]:
     match = _KIT_PERIOD.search(name) or _KIT_PERIOD.search(str(kit_path))
     if match:
         return match.group(1), match.group(2)
-    for marker, window in _KIT_ERAS.items():
-        if marker in str(kit_path):
-            return window
+    # A kit filed under an era's folder (``/SIM/CID9/TAB/``) names no window: the era is learned from the data filed
+    # beside it once the catalog holds them (`dictionary.settle_era_windows`).
     return None, None
 
 
@@ -229,12 +211,26 @@ def _table_id(member_name: str) -> str:
     return PurePosixPath(member_name).stem.upper()
 
 
-def _reference_name(table_id: str) -> tuple[str, str, str] | None:
-    """Match a lookup table to its declared code/label columns (``codelists.yml``'s ``kit_tables``), longest prefix first."""
+def _kit_tables() -> dict[str, dict[str, str]]:
     from ..config import curation_root
     from .curation import read_yaml
 
-    declared = (read_yaml(curation_root() / "codelists.yml", shared=True) or {}).get("kit_tables") or {}
+    return (read_yaml(curation_root() / "codelists.yml", shared=True) or {}).get("kit_tables") or {}
+
+
+def reference_prefixes() -> dict[str, tuple[str, ...]]:
+    """``reference set -> table-name prefixes`` from ``codelists.yml``'s ``kit_tables``: the kit tables whose codes
+    make each reference universe (``icd10``: CID10; ``procedures``: TPROC, TPROC10, EMUSO, EMUSO10; ``cnes``: TCNES)."""
+    out: dict[str, list[str]] = {}
+    for prefix, body in _kit_tables().items():
+        if body.get("reference"):
+            out.setdefault(str(body["reference"]), []).append(str(prefix))
+    return {name: tuple(prefixes) for name, prefixes in out.items()}
+
+
+def _reference_name(table_id: str) -> tuple[str, str, str] | None:
+    """Match a lookup table to its declared code/label columns (``codelists.yml``'s ``kit_tables``), longest prefix first."""
+    declared = _kit_tables()
     for prefix in sorted(declared, key=len, reverse=True):
         if table_id.startswith(str(prefix)):
             body = declared[prefix]
@@ -384,7 +380,7 @@ def parse_kit(data: bytes, *, kit_path: str, system: str | None = None) -> Parse
     icd_universe = frozenset(
         code
         for table_id, rows in kit.code_tables.items()
-        if table_id.startswith("CID10")
+        if (_reference_name(table_id) or ("", "", ""))[2] == "icd10"
         for code, _, _ in rows
     )
 

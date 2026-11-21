@@ -21,11 +21,8 @@ def test_resource_manifest_accounts_for_every_packaged_runtime_artifact(tmp_path
     assert status.schema_version == RESOURCE_SCHEMA_VERSION
     packaged = {path.name for path in resources.glob("*.parquet")}
     packaged |= {"catalog_seed.sqlite.gz"}
-    assert {Path(item.path).name for item in status.resources} == packaged | {
-        "CNES", "cnes_registry.parquet"
-    }
+    assert {Path(item.path).name for item in status.resources} == packaged | {"cnes_registry.parquet"}
     assert all(item.available and item.sha256 for item in status.resources if item.bundled)
-    assert next(item for item in status.resources if item.name == "cnes_registry").tier == "D"
 
 
 def test_resource_budget_covers_current_artifacts() -> None:

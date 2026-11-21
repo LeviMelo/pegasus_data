@@ -221,10 +221,14 @@ KINDS: tuple[tuple[str, Any], ...] = (
         ("intake.yml", obj("dictionaries sources", sub={
             "dictionaries": free(free(obj("aliases decimal description format formats take tokens type"))),
             "sources": free(_SOURCE)})),
+        ("resources.yml", obj("resources", sub={"resources": free(obj(
+            "authority local namespace temporal", required="authority namespace temporal",
+            sub={"local": obj("builder estimate file schema years", required="builder file",
+                              sub={"estimate": obj("bytes_per_row groups", required="bytes_per_row groups")})}))})),
         ("products.yml", obj("products", sub={"products": free(obj(
             "build call grain inputs kind label parameters period source stores systems what",
             required="call grain kind label period source stores what"))})),
-        ("codelists.yml", obj("bridges code_windows codebook kit_tables label_bindings roles", sub={
+        ("codelists.yml", obj("bridges code_windows codebook kit_tables label_bindings mentions roles semantic_types", sub={
             "bridges": obj("names targets unique", sub={"targets": free(obj("classification width"))}),
             "codebook": obj("max_codes max_width"),
             "kit_tables": free(obj("code label reference")),

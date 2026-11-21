@@ -50,7 +50,7 @@ def resources_status(root: RootOpt = None, as_json: JsonOpt = False) -> None:
 
 @resources_app.command("ensure")
 def resources_ensure(
-    name: Annotated[str, typer.Argument(help="Resource name, e.g. CNES")],
+    name: Annotated[str, typer.Argument(help="Resource name, e.g. cnes_cnpj or cnes_names")],
     period: Annotated[str | None, typer.Option("--period")] = None,
     policy: Annotated[str, typer.Option("--policy", help="local | auto | remote")] = "local",
     root: RootOpt = None,
@@ -69,7 +69,7 @@ def resources_ensure(
 
 @resources_app.command("build")
 def resources_build(
-    name: Annotated[str, typer.Argument(help="Optional registry name, currently CNES")],
+    name: Annotated[str, typer.Argument(help="A local resource curation/resources.yml declares, e.g. cnes_names")],
     years: Annotated[
         str | None,
         typer.Option(
@@ -80,11 +80,10 @@ def resources_build(
     root: RootOpt = None,
     as_json: JsonOpt = False,
 ) -> None:
-    """Explicitly build a local registry.
+    """Explicitly build a local resource (``curation/resources.yml`` ``local:``).
 
-    CNES history is a bounded acquisition/materialization operation. cnes_names
-    is currently a maintainer compilation from local documentary evidence and
-    requires explicit verified-complete source years.
+    cnes_names is a maintainer compilation from local documentary evidence and requires explicit verified-complete
+    source years. A record dataset (the CNES history) is held by ``pegasus-data build``, not here.
     """
     from .._resources import ResourceManager
 
