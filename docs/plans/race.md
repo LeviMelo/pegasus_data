@@ -74,4 +74,8 @@ the product's folder. *Done when* a reader can reproduce every number from the h
   small municipalities for a true 1.18). Where the link works the linked deaths by declared race are the estimate
   themselves, no matrix needed (ages 1-4, municipalities under 400 births a year: Branca 0.79 of Parda, Preta 1.18,
   Indígena 4.3). Open: the large municipalities (a key that tells children apart there), and Preta's conditioning.
+- **R1, kinds of external death** (the same entry): white at birth and killed by assault, certified Branca 0.33
+  (Parda 0.64); transport 0.59; natural 0.69; the examiner lowers a natural death to 0.55. Competing reading not
+  excluded: people white at birth who would declare Parda are the more exposed to violence. R1 is concluded for what
+  the pre-2011 reference can say; the declared-race version waits for the 2011-form cohorts to reach 15 (2026 on).
 

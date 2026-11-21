@@ -262,3 +262,36 @@ certified Preta, and a deconvolution multiplies whatever it gets wrong by four. 
 not needed: the linked deaths by declared race *are* the estimate (Branca 0.79 of Parda, 0.76-0.83; Preta 1.18,
 1.05-1.26; Indígena 4.3 at ages 1-4), for the municipalities under 400 births a year. The open problem is the large
 municipalities, not the matrix.
+
+## Which external deaths, and the examiner apart from the cause (plan R1; `external_kinds.py`)
+
+Old-form cohorts, ages 15-24, both sexes unless said; share recorded as at birth, corrected (90% bootstrap; true pairs):
+
+| kind of death | deaths | Branca stays | Parda stays | Branca recorded Parda |
+|---|---|---|---|---|
+| natural | 10,569 | 0.69 (0.67-0.70) | 0.63 | 0.28 |
+| transport | 7,882 | 0.59 (0.56-0.61) | 0.81 | 0.39 |
+| suicide | 2,721 | 0.56 (0.51-0.60) | 0.76 | 0.39 |
+| other accident | 2,463 | 0.47 (0.43-0.52) | 0.78 | 0.47 |
+| **assault** | 9,589 | **0.33 (0.30-0.36)** | 0.88 | **0.64** |
+| assault, men / women | 8,778 / 811 | 0.31 / 0.49 | 0.88 / 0.86 | 0.66 / 0.51 |
+| transport, men / women | 6,616 / 1,266 | 0.56 / 0.71 | 0.83 / 0.75 | 0.41 / 0.30 |
+
+| certifier and cause | deaths | Branca stays |
+|---|---|---|
+| natural, not the examiner | 8,698 | 0.71 (0.69-0.73) |
+| natural, the examiner | 903 | 0.55 (0.48-0.62) |
+| external, not the examiner | 2,626 | 0.43 (0.37-0.49) |
+| external, the examiner | 20,285 | 0.50 (0.48-0.52) |
+
+At 5-14: natural 0.72, transport 0.66, assault 0.46.
+
+- A person white at birth who is killed is certified Branca a third of the time and Parda two thirds; by transport
+  0.59; by natural causes 0.69. The order assault < other accident < suicide, transport < natural holds for both sexes,
+  and men are below women within assault and within transport.
+- Both the cause and the examiner carry it: a natural death the examiner certifies is at 0.55 against 0.71; an external
+  death certified by someone else is at 0.43.
+- **Competing reading, not excluded.** The reference here is the newborn's colour on the pre-2011 form, not what the
+  person would declare. If, among people white at birth, those who would call themselves Parda at 20 are the ones more
+  exposed to violence, the same table follows with no error of the certificate. Separating the two needs a declared
+  race near death for these people, which the cohorts of the 2011 form will give from 2026 on (they reach 15 then).
