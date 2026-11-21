@@ -32,6 +32,7 @@ __all__ = [
     "fallback_vintages",
     "note_borrowed",
     "note_fallback",
+    "unrecorded",
     "note_pack_fallback",
 ]
 
@@ -68,6 +69,22 @@ def collecting() -> Iterator[dict[str, set]]:
         _COLLECTOR.reset(token)
 
 
+#: Set while a memoised read runs for the month that STANDS FOR a validity window (`lookups._vintage_of`): what
+#: that read decides is about the standing month, not the month asked, whose own decisions were recorded already.
+_UNRECORDED: ContextVar[bool] = ContextVar("pegasus_reference_unrecorded", default=False)
+
+
+@contextmanager
+def unrecorded() -> Iterator[None]:
+    """Record no vintage fallback inside this block (a borrowed copy is the same for every month, and stays recorded). A 2009 read that built a table memoised under January 2023
+    (the first month its window answered) reported "no codelist window covers 202301" (2026-11-21)."""
+    token = _UNRECORDED.set(True)
+    try:
+        yield
+    finally:
+        _UNRECORDED.reset(token)
+
+
 def _record(kind: str, item: tuple) -> None:
     box = _COLLECTOR.get()
     if box is not None:
@@ -82,6 +99,8 @@ def note_borrowed(table_id: str, requested_system: str) -> None:
 
 def note_fallback(table_id: str, asked: str, served: str) -> None:
     """A vintage answered by a window other than the one asked for."""
+    if _UNRECORDED.get():
+        return
     _FALLBACK_VINTAGE.add((table_id, asked, served))
     _record("fallback", (table_id, asked, served))
 

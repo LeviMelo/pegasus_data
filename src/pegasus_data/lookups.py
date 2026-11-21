@@ -20,6 +20,7 @@ import pyarrow as pa
 import pyarrow.compute as pc
 
 from .identifiers import LABEL_PREFIX
+from .persist.decisions import unrecorded
 from .persist.reference import read_reference_table, reference_vintage
 
 # ------------------------------------------------------------------ labelling
@@ -179,10 +180,11 @@ def _cached_lookup_map(
     lake_root: str, registries: str | None, codelist: str, system: str | None, year: int | None,
     competencia: int | None, code_width: int | None, version: tuple[int, ...],
 ) -> Mapping[str, str]:
-    return _lookup_map_uncached(
-        Path(lake_root), codelist, system=system, year=year, competencia=competencia, code_width=code_width,
-        registries=None if registries is None else Path(registries),
-    )
+    with unrecorded():      # the month here stands for its window; the month asked was judged by `_vintage_of`
+        return _lookup_map_uncached(
+            Path(lake_root), codelist, system=system, year=year, competencia=competencia, code_width=code_width,
+            registries=None if registries is None else Path(registries),
+        )
 
 
 @lru_cache(maxsize=32)
@@ -192,10 +194,11 @@ def _cached_registry(
 ) -> tuple[pa.Array, pa.Array, frozenset[int]] | None:
     """A registry's cleaned codes and labels, or None for a table small enough
     to become one dict (``REGISTRY_ROWS``)."""
-    table = read_reference_table(
-        Path(lake_root), codelist, system=system, year=year, competencia=competencia, code_width=code_width,
-        registries=registries,
-    )
+    with unrecorded():
+        table = read_reference_table(
+            Path(lake_root), codelist, system=system, year=year, competencia=competencia, code_width=code_width,
+            registries=registries,
+        )
     if table.num_rows <= REGISTRY_ROWS:
         return None
     # Asked month by month, a registry is usually one table twelve times.
@@ -233,10 +236,11 @@ def _cached_contradictions(
     lake_root: str, registries: str | None, codelist: str, system: str | None, year: int | None,
     competencia: int | None, code_width: int | None, version: tuple[int, ...],
 ) -> Mapping[str, set[str]]:
-    return _contradictions_uncached(
-        Path(lake_root), codelist, system=system, year=year, competencia=competencia, code_width=code_width,
-        registries=None if registries is None else Path(registries),
-    )
+    with unrecorded():
+        return _contradictions_uncached(
+            Path(lake_root), codelist, system=system, year=year, competencia=competencia, code_width=code_width,
+            registries=None if registries is None else Path(registries),
+        )
 
 
 def _lookup_map_uncached(
