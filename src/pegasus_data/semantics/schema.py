@@ -119,7 +119,7 @@ _AXES = obj("default_geography default_time geography time", sub={"geography": _
 _EVENT = obj(
     "classifiers consolidation duplicates evidence exposure grain kind marks name note persons present source_notes "
     "status weight",
-    sub={"classifiers": seq(obj("column recodes role structure")), "consolidation": obj("chain key", sub={"chain": obj("continues end evidence facility gap_days person reason start transfer")}),
+    sub={"classifiers": seq(obj("column recodes role structure")), "consolidation": obj("chain key", sub={"chain": obj("continues end evidence facility gap gap_days person reason start transfer")}),
          "duplicates": obj("evidence except flag"), "exposure": obj("events evidence per"),
          "source_notes": obj("definition final_after_years form known_errors limitations source valid_from valid_to"),
          "status": obj("column evidence exclude values"),
@@ -224,7 +224,7 @@ KINDS: tuple[tuple[str, Any], ...] = (
         ("products.yml", obj("products", sub={"products": free(obj(
             "build call grain inputs kind label parameters period source stores systems what",
             required="call grain kind label period source stores what"))})),
-        ("codelists.yml", obj("bridges codebook kit_tables label_bindings roles", sub={
+        ("codelists.yml", obj("bridges code_windows codebook kit_tables label_bindings roles", sub={
             "bridges": obj("names targets unique", sub={"targets": free(obj("classification width"))}),
             "codebook": obj("max_codes max_width"),
             "kit_tables": free(obj("code label reference")),

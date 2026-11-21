@@ -611,8 +611,9 @@ def record_places(ceps: Sequence[str | None], municipalities: Sequence[str | Non
 
     A record (an admission, a notification) carries the residence CEP and the residence municipality. The CEP places the
     person at its addresses' median point (CNEFE 2022, `cep_points`) only when it is **specific**: found in the CNEFE
-    within the record's own municipality, not a generic municipal CEP (``xxxxx-000``, written for a whole town), and its
-    addresses within ``max_radius_m`` (their p90 radius). Otherwise the place is the municipality's population centre
+    within the record's own municipality, with its addresses within ``max_radius_m`` (their measured p90 radius). The
+    spread decides, not the CEP's spelling: a town's single CEP (``xxxxx-000``) is as specific as its addresses are close.
+    Otherwise the place is the municipality's population centre
     (`geography.municipality_point`). Neurosurgical and TBI admissions of 2023-2024 had a generic CEP on 39% and 47%, a CEP
     in one census tract on 17%, and an address spread under 600 m for half and over 9 km for a quarter (evaluation
     2026-11-21-record-places): a CEP's point is precise for about half of a national cohort and absent, not at random,
@@ -631,7 +632,7 @@ def record_places(ceps: Sequence[str | None], municipalities: Sequence[str | Non
     six = place_six([m for m in munis if m])
     six_of = dict(zip([m for m in munis if m], six, strict=True))
     clean = [str(c).strip() if c is not None else "" for c in ceps]
-    wanted = sorted({c for c in clean if len(c) == 8 and c.isdigit() and not c.endswith("000")})
+    wanted = sorted({c for c in clean if len(c) == 8 and c.isdigit()})
     found: dict[tuple[str, str], dict[str, Any]] = {}
     if wanted:
         try:

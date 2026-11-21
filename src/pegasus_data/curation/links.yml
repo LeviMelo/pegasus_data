@@ -586,7 +586,7 @@ links:
       residence.
     same_event: false   # an admission and the person's death, possibly months later
     params:
-      codes: {side: left, role: admission.diagnosis, any: admission.diagnoses, procedure: admission.procedure}
+      codes: {side: left, roles: {principal: admission.diagnosis, any: admission.diagnoses, procedure: admission.procedure}}
     outcome: {origin: admission.start, event: death.date}
     left:
       dataset: SIH-RD
@@ -639,7 +639,7 @@ links:
       stands for each person, the first admission of the period; a person is a birth date, sex and residence.
     same_event: false   # two admissions of one person
     params:
-      codes: {side: left, role: admission.diagnosis, any: admission.diagnoses, procedure: admission.procedure}
+      codes: {side: left, roles: {principal: admission.diagnosis, any: admission.diagnoses, procedure: admission.procedure}}
     outcome: {origin: admission.end, event: admission.start, first: true, differ: admission.aih}
     left:
       dataset: SIH-RD
@@ -679,8 +679,8 @@ links:
     same_event: false   # an operation and the radiotherapy after it
     params:
       # the diagnosis codes filter the APAC's treated topography too: a glioma's surgery meets a glioma's radiotherapy
-      codes: {side: left, role: admission.diagnosis, any: admission.diagnoses, procedure: admission.procedure,
-              partner: authorisation.tumour_topography}
+      codes: {side: left, roles: {principal: admission.diagnosis, any: admission.diagnoses, procedure: admission.procedure},
+              partner: {principal: authorisation.tumour_topography, any: authorisation.tumour_topography}}
     outcome: {origin: admission.end, event: authorisation.start, first: true}
     left:
       dataset: SIH-RD

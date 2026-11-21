@@ -447,10 +447,10 @@ def _link(name: str, cfg: Settings) -> Info:
               f"  right: {spec.right.dataset}" + (f" where {spec.right.where}" if spec.right.where else "")
               + (f"; one record per {', '.join(spec.right.group)}" if spec.right.group else "")]
     if spec.params:
-        modes = ["principal diagnosis"] + (["any diagnosis"] if spec.params.any_role else []) + (
-            ["procedure (SIGTAP)"] if spec.params.procedure_role else [])
-        lines.append(f"  run per set of codes: {', '.join(modes)}" + (
-            f"; the codes also filter {spec.params.partner_role} on the other side" if spec.params.partner_role else ""))
+        modes = [f"{m} ({r})" for m, r in spec.params.roles.items()]
+        also = ", ".join(f"{m}: {r}" for m, r in spec.params.partner.items())
+        lines.append(f"  run per set of codes, match= {', '.join(modes)}"
+                     + (f"; the codes also filter the other side ({also})" if also else ""))
     if spec.outcome:
         lines.append(f"  follows: {spec.outcome.origin} → {spec.outcome.event}" + (" (the first)" if spec.outcome.first else ""))
     lines += ["", "  passes (exact keys, in order; a pass whose control finds too many pairs is dropped):"]

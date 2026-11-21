@@ -803,52 +803,60 @@ def _lookup(
                 f"{len(codelists)} bound tables; no version at all of {', '.join(absent)}"
             )
     if merged:
-        merged = _within_procedure_windows(ctx, field_name, merged)
+        merged = _within_code_windows(ctx, field_name, codelists, merged)
     ctx.lookups[key] = merged
     return merged or None
 
 
-@lru_cache(maxsize=4)
-def _procedure_windows(registry_home: str) -> tuple[dict[str, tuple[int, int]], int]:
-    """``code -> (first, last)`` competências of every SIGTAP procedure (``registries/sigtap``, `sigtap --history`), the
-    newest export's code open-ended; and the first export (200801). Empty when the history is not built."""
+def _declared_code_windows() -> dict[str, dict[str, str]]:
+    """``codelists.yml`` ``code_windows``: the codelists whose codes carry their own validity windows."""
+    return {str(k): {kk: str(vv) for kk, vv in v.items()} for k, v in
+            ((read_yaml(curation_root() / "codelists.yml") or {}).get("code_windows") or {}).items()}
+
+
+@lru_cache(maxsize=8)
+def _code_windows(registry_home: str, registry: str, file: str, code: str) -> tuple[dict[str, tuple[int, int]], int]:
+    """``code -> (first, last)`` of one declared window table, the newest export's codes open-ended, and the first
+    competência it can judge. Empty when the table is not built."""
     import pyarrow.parquet as _pq
 
-    path = Path(registry_home) / "sigtap" / "procedure_windows.parquet"
+    path = Path(registry_home) / registry / file
     if not path.is_file():
         return {}, 0
-    rows = _pq.read_table(path, columns=["CO_PROCEDIMENTO", "first", "last"]).to_pylist()
+    rows = _pq.read_table(path, columns=[code, "first", "last"]).to_pylist()
     newest = max(int(r["last"]) for r in rows)
-    return ({str(r["CO_PROCEDIMENTO"]): (int(r["first"]), 999912 if int(r["last"]) == newest else int(r["last"]))
-             for r in rows}, min(int(r["first"]) for r in rows))
+    return ({str(r[code]): (int(r["first"]), 999912 if int(r["last"]) == newest else int(r["last"])) for r in rows},
+            min(int(r["first"]) for r in rows))
 
 
-def _within_procedure_windows(ctx: _RenderContext, field_name: str, merged: Mapping[str, str]) -> Mapping[str, str]:
-    """``merged`` without the SIGTAP procedures that did not exist in the period read: a label is joined by validity
-    window (ARCHITECTURE invariant), and `levels("SIH-RD", "PROC_REA", ["0403070171"], year=2015)` labelled mechanical
-    thrombectomy, a procedure SIGTAP lists from 202312. A procedure is a 10-digit code the SIGTAP history knows; outside
-    its window it is undecoded, visibly, and the report counts it. Periods before the first export are not judged."""
+def _within_code_windows(ctx: _RenderContext, field_name: str, codelists: Sequence[str],
+                         merged: Mapping[str, str]) -> Mapping[str, str]:
+    """``merged`` without the codes that did not exist in the period read, for every bound codelist ``codelists.yml``
+    declares dated code by code (`code_windows`): a label is joined by validity window (ARCHITECTURE invariant), and
+    SIH's PROC_REA labelled mechanical thrombectomy in 2015, a procedure SIGTAP lists from 202312. A code outside its
+    window is undecoded, visibly, and the report counts it; periods before the table's first competência are not
+    judged. Which columns this applies to is what they are bound to, never the shape of their codes."""
     if ctx.registry_home is None or (ctx.year is None and ctx.competencia is None):
         return merged
-    windows, first_export = _procedure_windows(str(ctx.registry_home))
-    if not windows:
+    declared = _declared_code_windows()
+    bound = [name for name in codelists if name in declared]
+    if not bound:
         return merged
     lo, hi = ((int(ctx.competencia), int(ctx.competencia)) if ctx.competencia
               else (int(ctx.year) * 100 + 1, int(ctx.year) * 100 + 12))  # type: ignore[arg-type]
-    if hi < first_export:
+    gone: set[str] = set()
+    for name in bound:
+        spec = declared[name]
+        windows, first_known = _code_windows(str(ctx.registry_home), spec["registry"], spec["file"], spec.get("code", "code"))
+        if not windows or hi < first_known:
+            continue
+        gone |= {code for code in merged if code in windows and not (windows[code][0] <= hi and lo <= windows[code][1])}
+    if not gone:
         return merged
-    outside = [code for code in merged
-               if len(code) == 10 and code.isdigit() and code in windows
-               and not (windows[code][0] <= hi and lo <= windows[code][1])]
-    if not outside:
-        return merged
-    example = sorted(outside)[0]
-    first, last = windows[example]
+    example = sorted(gone)[0]
     ctx.report.warnings.append(
-        f"{field_name}: {len(outside)} SIGTAP procedure code(s) did not exist in {lo}-{hi} and are left undecoded "
-        f"(e.g. {example}, listed {first}-{'' if last == 999912 else last})"
-    )
-    gone = set(outside)
+        f"{field_name}: {len(gone)} code(s) of {', '.join(bound)} did not exist in {lo}-{hi} and are left undecoded "
+        f"(e.g. {example})")
     return {code: label for code, label in merged.items() if code not in gone}
 
 

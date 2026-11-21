@@ -1059,7 +1059,8 @@ def own_birth_deaths(settings: Any, population: Population, years: list[int], de
 
 
 def candidate_counts(settings: Any, name: str, years: list[int], *, births_from: int, births_to: int, max_age: int | None,
-                     log: Any = print) -> pa.Table:
+                     death_by: tuple[str, ...] = (), birth_by: tuple[str, ...] = (), annotate_deaths: Any = None,
+                     annotate_births: Any = None, log: Any = print) -> pa.Table:
     """The own-birth link without a one-to-one match (ADR-0229): for the deaths of ``years`` up to ``max_age`` of people
     born ``births_from`` to ``births_to``, the births that share each death's birth date and municipality, counted by the
     colour the certificate records (``recorded``) and the colour the birth declares (``declared``).
@@ -1070,42 +1071,65 @@ def candidate_counts(settings: Any, name: str, years: list[int], *, births_from:
     makes many people and so many deaths, which a moved date does not share) and none is the person. Their difference,
     summed over any group of deaths, is t x the group's deaths by (declared, recorded) (`candidate_difference`),
     whatever the municipality's size: no false-link model, and the unique link is the case of one candidate.
-    Columns: ``born``, ``control``, ``mun``, ``births`` (the municipality's of that year), ``age``, ``sex``,
-    ``recorded``, ``declared``, ``n``; and the deaths themselves as rows with ``declared`` null and ``control`` null."""
+    Columns: ``born``, ``control``, ``mun``, ``births`` (the municipality's of that year), ``age``, ``sex``, ``cause`` (the
+    underlying cause's three-character ICD-10 category), ``year`` (of death), ``recorded``, ``declared``, ``n``; and the deaths themselves as rows with ``declared`` null and ``control`` null.
+    ``death_by`` and ``birth_by`` name further columns of the death and of the birth to count by (a column each, the
+    name with ``.`` as ``_``): the difference then holds within any class of either. A name is a role the role table
+    serves (one with ``compare:``) or a column that ``annotate_deaths(table)`` / ``annotate_births(table, year)`` add
+    to the side's table, which carries each record's identity (`linkage.identity.record_ids`)."""
     import pyarrow.compute as pc
 
     from ..linkage import engine
     from ..linkage.identity import connect
+    from ..linkage.roles import dataset_roles
+
+    def col(role: str) -> str:
+        return role.replace(".", "_")
+
+    def served(side: Any) -> Any:
+        return dataset_roles(side.dataset).roles
 
     spec = engine.load_links()[name]
-    deaths = engine._side_table(spec.left, ["deceased.birth_date", "deceased.sex", "deceased.residence", "deceased.race", "deceased.age_years"],
+    deaths = engine._side_table(spec.left, ["deceased.birth_date", "deceased.sex", "deceased.residence", "deceased.race", "deceased.age_years",
+                                            "death.cause", "death.date", *(r for r in death_by if r in served(spec.left))],
                                 period=(str(years[0]), str(years[-1])), geography="BR", root=settings.root)
     if max_age is not None:           # None: the link's own filter says the ages (an infant's age in years is not filled)
         deaths = deaths.filter(pc.less_equal(deaths["deceased.age_years"], max_age))
+    if annotate_deaths is not None:
+        deaths = annotate_deaths(deaths)
     con = connect()
     con.register("d_all", deaths)
+    d_sel = "".join(f', CAST("{r}" AS VARCHAR) {col(r)}' for r in death_by)
+    b_sel = "".join(f', CAST("{r}" AS VARCHAR) {col(r)}' for r in birth_by)
+    d_out = "".join(f", d.{col(r)}" for r in death_by)
+    b_out = "".join(f", b.{col(r)}" for r in birth_by)
+    b_null = "".join(f", NULL AS {col(r)}" for r in birth_by)
     parts = []
     for born in range(births_from, min(births_to, years[-1]) + 1):
-        births = engine._side_table(spec.right, ["baby.birth_date", "baby.sex", "mother.residence", "baby.race"], period=born,
-                                    geography="BR", root=settings.root)
+        births = engine._side_table(spec.right, ["baby.birth_date", "baby.sex", "mother.residence", "baby.race", *(r for r in birth_by if r in served(spec.right))],
+                                    period=born, geography="BR", root=settings.root)
+        if annotate_births is not None:
+            births = annotate_births(births, born)
         con.register("b_raw", births)
-        con.execute("""CREATE OR REPLACE TEMP TABLE b AS SELECT "baby.birth_date" dn, "baby.sex" sex, "mother.residence" mun, "baby.race" j,
+        con.execute(f"""CREATE OR REPLACE TEMP TABLE b AS SELECT "baby.birth_date" dn, "baby.sex" sex, "mother.residence" mun, "baby.race" j{b_sel},
                        count(*) n FROM b_raw WHERE "mother.residence" IS NOT NULL AND "baby.sex" IS NOT NULL GROUP BY ALL""")
         con.execute("CREATE OR REPLACE TEMP TABLE bs AS SELECT mun, sex, sum(n) n FROM b GROUP BY ALL")
         con.execute("CREATE OR REPLACE TEMP TABLE bm AS SELECT mun, sum(n) births FROM b GROUP BY ALL")
         con.execute(f"""CREATE OR REPLACE TEMP TABLE d AS SELECT "deceased.birth_date" dn, "deceased.sex" sex, "deceased.residence" mun,
-                        "deceased.race" k, CAST("deceased.age_years" AS INTEGER) age, count(*) n FROM d_all
+                        "deceased.race" k, CAST("deceased.age_years" AS INTEGER) age, substr("death.cause", 1, 3) cause, year("death.date") dy{d_sel},
+                        count(*) n FROM d_all
                         WHERE year("deceased.birth_date") = {born} AND "deceased.residence" IS NOT NULL AND "deceased.sex" IS NOT NULL
                         GROUP BY ALL""")
         parts.append(con.execute(f"""
-            SELECT {born} AS born, false AS control, d.mun, bm.births, d.age, d.sex, d.k AS recorded, b.j AS declared, CAST(sum(d.n * b.n) AS DOUBLE) AS n
+            SELECT {born} AS born, false AS control, d.mun, bm.births, d.age, d.sex, d.cause, d.dy AS year{d_out}{b_out}, d.k AS recorded, b.j AS declared,
+                   CAST(sum(d.n * b.n) AS DOUBLE) AS n
             FROM d JOIN b ON b.dn = d.dn AND b.sex = d.sex AND b.mun = d.mun JOIN bm ON bm.mun = d.mun GROUP BY ALL
             UNION ALL
-            SELECT {born}, true, d.mun, bm.births, d.age, d.sex, d.k, b.j, sum(d.n * b.n * same.n / opp.n)
+            SELECT {born}, true, d.mun, bm.births, d.age, d.sex, d.cause, d.dy{d_out}{b_out}, d.k, b.j, sum(d.n * b.n * same.n / opp.n)
             FROM d JOIN b ON b.dn = d.dn AND b.sex <> d.sex AND b.mun = d.mun JOIN bm ON bm.mun = d.mun
             JOIN bs same ON same.mun = d.mun AND same.sex = d.sex JOIN bs opp ON opp.mun = d.mun AND opp.sex = b.sex GROUP BY ALL
             UNION ALL
-            SELECT {born}, NULL, d.mun, bm.births, d.age, d.sex, d.k, NULL, CAST(sum(d.n) AS DOUBLE) FROM d LEFT JOIN bm ON bm.mun = d.mun GROUP BY ALL
+            SELECT {born}, NULL, d.mun, bm.births, d.age, d.sex, d.cause, d.dy{d_out}{b_null}, d.k, NULL, CAST(sum(d.n) AS DOUBLE) FROM d LEFT JOIN bm ON bm.mun = d.mun GROUP BY ALL
         """).to_arrow_table())
         con.unregister("b_raw")
         log(f"{name} candidates, born {born}: {deaths.num_rows} deaths read, {parts[-1].num_rows} cells")

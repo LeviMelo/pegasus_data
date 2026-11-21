@@ -104,6 +104,9 @@ class Chain:
     transfer: tuple[str, ...]
     gap_days: int
     evidence: str
+    #: the earliest the next record may start relative to the previous end: a transfer's next AIH often starts the day
+    #: before the last one closes (Pernambuco 2019-2020: 886 of 16,324 transfers at -1 day)
+    gap_min: int = 0
 
     @property
     def columns(self) -> tuple[str, ...]:
@@ -369,13 +372,17 @@ def _chain(spec: dict[str, Any] | None, where: str) -> Chain | None:
     """A declared chain, complete or refused: every column named, the reasons listed, the evidence given."""
     if not spec:
         return None
-    needed = ("person", "start", "end", "reason", "facility", "continues", "gap_days", "evidence")
+    needed = ("person", "start", "end", "reason", "facility", "continues", "evidence")
     missing = [k for k in needed if spec.get(k) in (None, "", [])]
+    if spec.get("gap") is None and spec.get("gap_days") is None:
+        missing.append("gap")
     if missing:
         raise ValueError(f"{where}: a consolidation chain declares {list(needed)}; missing {missing}")
     return Chain(tuple(str(c).upper() for c in spec["person"]), str(spec["start"]).upper(), str(spec["end"]).upper(),
                  str(spec["reason"]).upper(), str(spec["facility"]).upper(), tuple(str(c) for c in spec["continues"]),
-                 tuple(str(c) for c in spec.get("transfer") or ()), int(spec["gap_days"]), str(spec["evidence"]))
+                 tuple(str(c) for c in spec.get("transfer") or ()),
+                 int(spec["gap"][1] if spec.get("gap") is not None else spec["gap_days"]), str(spec["evidence"]),
+                 int(spec["gap"][0]) if spec.get("gap") is not None else 0)
 
 
 def _chained_first(table: pa.Table, chain: Chain) -> pa.Table:
@@ -399,7 +406,7 @@ def _chained_first(table: pa.Table, chain: Chain) -> pa.Table:
                           trim(CAST({q(chain.facility)} AS VARCHAR)) AS f FROM t),
              o AS (SELECT *, lag(d_out) OVER w AS po, lag(r) OVER w AS pr, lag(f) OVER w AS pf
                    FROM a WINDOW w AS (PARTITION BY p ORDER BY d_in NULLS LAST, d_out, __i))
-        SELECT __i FROM o WHERE NOT (po IS NOT NULL AND d_in IS NOT NULL AND date_diff('day', po, d_in) BETWEEN 0 AND {chain.gap_days}
+        SELECT __i FROM o WHERE NOT (po IS NOT NULL AND d_in IS NOT NULL AND date_diff('day', po, d_in) BETWEEN {chain.gap_min} AND {chain.gap_days}
                                       AND ((pr IN ({cont}) AND pf = f) OR pr IN ({tr})))
         ORDER BY __i""").fetchnumpy()["__i"]
     return table.take(pa.array(keep, pa.int64()))

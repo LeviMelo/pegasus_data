@@ -1570,11 +1570,24 @@ def _held_periods(cfg: Settings) -> Any:
 
     this_year = date.today().year
 
+    def published_years(code: str) -> range:
+        """The years the catalog lists a file of ``code`` for (its own span, not a fixed range)."""
+        from .retrieve import parse_dataset
+
+        system, series = parse_dataset(code)
+        con = sqlite3.connect(f"file:{cfg.catalog_path.as_posix()}?mode=ro", uri=True)
+        try:
+            lo, hi = con.execute("SELECT min(year), max(year) FROM file_facts WHERE system = ? AND series_prefix = ? "
+                                 "AND role = 'data'", (system, series or system)).fetchone()
+        finally:
+            con.close()
+        return range(int(lo), min(int(hi), this_year) + 1) if lo and hi else range(0)
+
     @cache
     def held(dataset: str, month: int) -> frozenset[int]:
         code = dataset.replace("-", ".", 1)
         out = set()
-        for year in range(1994, this_year + 1):
+        for year in published_years(code):
             try:
                 r = _plan(code, period=f"{year}-{month:02d}", settings=cfg).retrieval
             except Exception:  # noqa: BLE001 - a period nothing is published for is not held

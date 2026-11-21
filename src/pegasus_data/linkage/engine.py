@@ -97,18 +97,20 @@ class Validation:
 
 @dataclass(frozen=True, slots=True)
 class CodesParam:
-    """A spec's declared parameter: the caller's codes (ICD-10) filter ``role`` of ``side`` by prefix (`bind`). ``any_role``
-    is the broader role the caller may choose instead (every diagnosis of an admission, not only the principal one);
-    ``procedure_role`` the procedure performed, whose codes are SIGTAP's (a cohort of craniotomies or embolisations is
-    named by what was done, not by a diagnosis)."""
+    """A spec's declared parameter: the caller's codes filter, by prefix, the role a ``match`` names on ``side``
+    (`bind`). ``roles`` maps each match the spec offers to its role ("principal": the principal diagnosis, "any": every
+    diagnosis, "procedure": the procedure performed, or whatever the declaration names); the first is the default.
+    ``partner`` maps a match to the other side's role the same codes also filter (a glioma's surgery meets only a glioma's
+    radiotherapy, not every cancer's: 606 pairs against 310 by chance before, Sao Paulo 2021); a match it does not name
+    filters one side only."""
 
     side: str
-    role: str
-    any_role: str = ""
-    procedure_role: str = ""
-    #: the other side's role the same diagnosis codes also filter (a glioma's surgery meets only a glioma's radiotherapy,
-    #: not every cancer's: 606 pairs against 310 by chance before, São Paulo 2021); unused by a procedure cohort
-    partner_role: str = ""
+    roles: dict[str, str]
+    partner: dict[str, str] = field(default_factory=dict)
+
+    @property
+    def role(self) -> str:
+        return next(iter(self.roles.values()))
 
 
 @dataclass(frozen=True, slots=True)
@@ -257,29 +259,35 @@ def load_links() -> dict[str, LinkSpec]:
 
 
 def _params(name: str, body: dict[str, Any]) -> CodesParam | None:
-    """The parameters a spec declares. Only ``codes`` exists: the role of a side the caller's codes filter by prefix."""
+    """The parameters a spec declares. Only ``codes`` exists: the roles of a side the caller's codes filter by prefix,
+    by match name (``roles``: {match: role}, the first the default), and the other side's role each match also filters
+    (``partner``: {match: role}). The older spelling (``role`` the default, ``any`` beside it) reads as roles
+    {principal, any}."""
     declared = body.get("params")
     if not declared:
         return None
     if set(declared) != {"codes"}:
         raise ValueError(f"links.yml: {name}: params can only declare `codes`, not {sorted(declared)}")
     item = declared["codes"]
-    side, role = str(item["side"]), str(item["role"])
+    side = str(item["side"])
     if side not in ("left", "right"):
         raise ValueError(f"links.yml: {name}: params.codes.side is left or right, not {side!r}")
-    roles = dataset_roles(str(body[side]["dataset"])).roles
-    for r in (role, str(item.get("any") or role), str(item.get("procedure") or role)):
-        if r not in roles or roles[r].type not in ("code", "codes"):
-            raise ValueError(f"links.yml: {name}: params.codes names {r!r}, which is not a code or codes role of "
-                             f"{body[side]['dataset']}")
-    partner = str(item.get("partner") or "")
-    if partner:
-        other = "right" if side == "left" else "left"
-        proles = dataset_roles(str(body[other]["dataset"])).roles
-        if partner not in proles or proles[partner].type not in ("code", "codes"):
-            raise ValueError(f"links.yml: {name}: params.codes.partner names {partner!r}, which is not a code or codes "
-                             f"role of {body[other]['dataset']}")
-    return CodesParam(side, role, str(item.get("any") or ""), str(item.get("procedure") or ""), partner)
+    roles = {str(k): str(v) for k, v in (item.get("roles") or {}).items()}
+    if not roles:
+        roles = {"principal": str(item["role"]), **({"any": str(item["any"])} if item.get("any") else {})}
+    own = dataset_roles(str(body[side]["dataset"])).roles
+    for match, r in roles.items():
+        if r not in own or own[r].type not in ("code", "codes"):
+            raise ValueError(f"links.yml: {name}: params.codes match {match!r} names {r!r}, which is not a code or codes "
+                             f"role of {body[side]['dataset']}")
+    partner = {str(k): str(v) for k, v in (item.get("partner") or {}).items()}
+    other = "right" if side == "left" else "left"
+    theirs = dataset_roles(str(body[other]["dataset"])).roles
+    for match, r in partner.items():
+        if match not in roles or r not in theirs or theirs[r].type not in ("code", "codes"):
+            raise ValueError(f"links.yml: {name}: params.codes.partner {match!r}: {r!r} is not a match of this spec or not "
+                             f"a code role of {body[other]['dataset']}")
+    return CodesParam(side, roles, partner)
 
 
 def _outcome(body: dict[str, Any]) -> Outcome | None:
@@ -287,23 +295,21 @@ def _outcome(body: dict[str, Any]) -> Outcome | None:
     return Outcome(str(item["origin"]), str(item["event"]), bool(item.get("first")), str(item.get("differ") or ""))         if item else None
 
 
-_CODE = re.compile(r"[A-Z][0-9A-Z]{0,4}")
-#: a SIGTAP procedure prefix: group (2 digits) to the whole 10-digit code, written with or without its dots
-_PROCEDURE = re.compile(r"[0-9]{2,10}")
+#: a code prefix as DATASUS writes codes: letters and digits, up to 15 (ICD-10 I210, SIGTAP 0403070171, CBO 225260)
+_CODE = re.compile(r"[0-9A-Z]{1,15}")
 
 
-def normalise_codes(codes: Iterable[str] | str, kind: str = "icd") -> tuple[str, ...]:
-    """The caller's codes as prefixes, sorted and unique: ICD-10 (``kind`` "icd") upper case without the dot ("i21.0"
-    is I210), or SIGTAP procedures ("sigtap", "04.03.07" is 040307). A code that is not one (a range, a word) is
-    refused: the codes become SQL, and a prefix filter that matched nothing would read as a cohort of none."""
+def normalise_codes(codes: Iterable[str] | str) -> tuple[str, ...]:
+    """The caller's codes as prefixes, upper case, sorted and unique, written with or without their separators
+    ("i21.0" is I210, "04.03.07" is 040307). A code that is not one (a range, a word with spaces) is refused: the codes
+    become SQL, and a prefix filter that matched nothing would read as a cohort of none."""
     items = [codes] if isinstance(codes, str) else list(codes)
     out = tuple(sorted({str(c).replace(".", "").replace(" ", "").replace("-", "").upper()
                         for c in items if str(c).strip()}))
-    grammar, example = (_PROCEDURE, "0403070171 or 040307") if kind == "sigtap" else (_CODE, "I21 or I210")
-    bad = [c for c in out if not grammar.fullmatch(c)]
+    bad = [c for c in out if not _CODE.fullmatch(c)]
     if bad or not out:
-        raise ValueError(f"codes are {'SIGTAP procedure' if kind == 'sigtap' else 'ICD-10'} prefixes such as {example} "
-                         f"(a range is the caller's list); got {bad or 'none'}")
+        raise ValueError(f"codes are prefixes such as I21, I210 or 0403070171 (a range is the caller's list); got "
+                         f"{bad or 'none'}")
     return out
 
 
@@ -327,28 +333,21 @@ def bind(spec: LinkSpec, codes: Iterable[str] | str | None = None, match: str = 
         return spec
     if codes is None:
         raise ValueError(f"{spec.name} is run per set of codes (params.codes: {spec.params.role}); give codes=")
-    if match not in ("principal", "any", "procedure"):
-        raise ValueError(f"match is 'principal', 'any' or 'procedure', not {match!r}")
-    role = spec.params.role
-    if match == "any":
-        if not spec.params.any_role:
-            raise ValueError(f"{spec.name} declares no broader role to match codes against")
-        role = spec.params.any_role
-    if match == "procedure":
-        if not spec.params.procedure_role:
-            raise ValueError(f"{spec.name} declares no procedure role to match codes against")
-        role = spec.params.procedure_role
+    if match not in spec.params.roles:
+        raise ValueError(f"{spec.name} matches codes on {sorted(spec.params.roles)}, not {match!r}")
+    role = spec.params.roles[match]
     side = spec.left if spec.params.side == "left" else spec.right
-    chosen = normalise_codes(codes, "sigtap" if match == "procedure" else "icd")
+    chosen = normalise_codes(codes)
     cond = _codes_condition(role, dataset_roles(side.dataset).roles[role].type, chosen)
     filtered = replace(side, where=f"({side.where}) AND {cond}" if side.where else cond)
     bound = replace(spec, bound=Codes(chosen, match),
-                    **{"left" if spec.params.side == "left" else "right": filtered})  # type: ignore[arg-type]  # replace() with a computed field name
-    if spec.params.partner_role and match != "procedure":
+                    **{"left" if spec.params.side == "left" else "right": filtered})  # type: ignore[arg-type]
+    partner = spec.params.partner.get(match)
+    if partner:
         other_name = "right" if spec.params.side == "left" else "left"
         other = getattr(bound, other_name)
-        kind = dataset_roles(other.dataset).roles[spec.params.partner_role].type
-        pcond = _codes_condition(spec.params.partner_role, kind, chosen)
+        kind = dataset_roles(other.dataset).roles[partner].type
+        pcond = _codes_condition(partner, kind, chosen)
         bound = replace(bound, **{other_name: replace(other, where=f"({other.where}) AND {pcond}" if other.where else pcond)})  # type: ignore[arg-type]
     return bound
 

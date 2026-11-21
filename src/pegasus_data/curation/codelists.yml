@@ -74,6 +74,13 @@ label_bindings:
   # The form's own dictionary is taken when it decodes this share of the ROWS. Not measured.
   form_dictionary_rows: 0.95
 
+# Codelists whose codes have their own validity windows, and the table that dates them (in the data home's registries,
+# columns `code` (or CO_PROCEDIMENTO), `first`, `last` as YYYYMM): a column bound to one of these labels a code only in a
+# period inside its window, and leaves it undecoded, visibly and counted, outside (view._within_code_windows). A
+# classification whose versions are whole tables (a kit's .CNV) is dated by its vintages instead.
+code_windows:
+  SIGTAP: {registry: sigtap, file: procedure_windows.parquet, code: CO_PROCEDIMENTO}   # 227 monthly exports, `sigtap --history`
+
 # Bridges between classifications (`view._bridge_code`): a recipe's short name for a bridge, the classification each
 # lands in and the width of its codes there, and the share of the evidence a claim must hold to cross (a code the old
 # classification held several meanings of crosses only when one meaning has that share). SIA's (A) and SIH's (H) old
