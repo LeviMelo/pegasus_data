@@ -344,7 +344,7 @@ def _update_locked(settings: Any, product: Product, start: dt.date, end: dt.date
     variable = product.variable
     first = max(start, product.first)
     manifest = _manifest(settings, variable)
-    held = {}
+    held: dict[Any, set[Any]] = {}
     if manifest is not None:
         for row in manifest.select(["file", "listed"]).to_pylist():
             held.setdefault(row["file"], set()).add(row["listed"])

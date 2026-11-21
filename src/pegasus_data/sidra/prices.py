@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import json
 import re
+from collections.abc import Callable
 from pathlib import Path
 
 import pyarrow as pa
@@ -65,6 +66,7 @@ def price_index(root: str | Path | None = None, *, grain: str = "month", years: 
                         "year": pa.array(years_of(periods), pa.int32()),
                         "month": pa.array([month_of(p) for p in periods], pa.int32()),
                         "index": series.column("value").take(order).cast(pa.float64())})
+    parse: Callable[[str | int], str | int]
     if grain == "month":
         table, key, parse = monthly, "period", _month_key
     else:

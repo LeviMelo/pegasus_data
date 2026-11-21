@@ -20,6 +20,7 @@ Every function takes arrays; the build is ``build_tensor``.
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any, cast
 
 import numpy as np
 
@@ -118,7 +119,7 @@ def calibrate_split(places: Places, mi: dict[str, np.ndarray], seed: int = 1) ->
         big = np.flatnonzero(ok & (micro == micro[j]) & (p10 >= 3 * p10[j]) & (p10 <= 60 * p10[j]))
         if len(big):
             pairs.append((j, int(rng.choice(big))))
-    e = {"e00": [], "e07": [], "c00": [], "c07": [], "k10": [], "k00": []}
+    e: dict[str, list[Any]] = {"e00": [], "e07": [], "c00": [], "c07": [], "k10": [], "k00": []}
     size = []
     for j, i in pairs:
         tot10, tot22 = p10[[j, i]], p22[[j, i]]
@@ -148,7 +149,7 @@ def calibrate_split(places: Places, mi: dict[str, np.ndarray], seed: int = 1) ->
     return cal
 
 
-def split_sigma(cal: dict, member_pop: np.ndarray, dist: np.ndarray, *, census_year: np.ndarray | bool = False) -> np.ndarray:
+def split_sigma(cal: dict, member_pop: np.ndarray, dist: np.ndarray | float, *, census_year: np.ndarray | bool = False) -> np.ndarray:
     """Logit-share sd of members with anchor populations ``member_pop`` at ``dist`` years from their nearest count:
     σ² = k·dist (+ σ₀², the noise of a count that is not the census itself). Beyond the 12 years the calibration reaches,
     the random-walk term simply continues."""
@@ -361,12 +362,13 @@ def z_at(t: int, anchors: dict[int, np.ndarray], rho_back: dict[int, np.ndarray]
         aL = ages - (t - L)
         has_L = aL >= 0
     if U is None:                                            # after the last census
-        zl = anchors[L][:, :, np.clip(aL, 0, AGES - 1)]
+        last = cast(int, L)
+        zl = anchors[last][:, :, np.clip(aL, 0, AGES - 1)]
         dr = drift_fwd[k_state][:, :, np.clip(aL, 0, AGES - 1)] if drift_fwd is not None else 0.0
-        z = zl + dr * (t - L)
+        zf = zl + dr * (t - last)
         # a newborn since L: the youngest cohort of the last census, unmoved
-        z = np.where(has_L[None, None, :, None], z, anchors[L][:, :, :1])
-        return z, np.full(AGES, (t - L) / 10.0), np.full(AGES, 3)
+        zf = np.where(has_L[None, None, :, None], zf, anchors[last][:, :, :1])
+        return zf, np.full(AGES, (t - last) / 10.0), np.full(AGES, 3)
     zu = anchors[U][:, :, aU]
     if L is None:
         has_L = np.zeros(AGES, bool)
@@ -442,7 +444,7 @@ def calibrate_race(ctx: dict) -> dict:
         e = np.log(np.where(ok, so, 1) / np.where(ok, sp, 1))[ok]
         u = ((1 - sp) / (np.maximum(sp, 1e-9) * np.maximum(nb[..., None], 1)))[ok]
         return e, u
-    out = {}
+    out: dict[str, tuple[np.ndarray, np.ndarray]] = {}
     z, _, _ = z_at(2010, {2000: Z[2000], 2022: Z[2022]}, None, None, k_state)
     out["bridge"] = run(z, 10, 80)
     z, _, _ = z_at(2010, {2022: Z[2022]}, {2022: rho0010}, None, k_state)
@@ -511,7 +513,7 @@ def group_shares(places: Places, mi: dict, split_cal: dict) -> dict[int, dict]:
         if anchor == 2022:
             sig = np.repeat((split_cal["k22"] * dist)[:, None], len(mem), 1)
         else:
-            sig = split_sigma(split_cal, pop[None, :], dist[:, None], census_year=(anchor == YEARS)[:, None])
+            sig = split_sigma(split_cal, pop[None, :], dist[:, None], census_year=np.equal(YEARS, anchor)[:, None])
         if anchor == 2010:                                  # from 2010 on a member is its own entity: no split
             S[ai:], sig[ai:] = 1.0, 0.0
         else:
@@ -606,13 +608,13 @@ def tensor_tables(inp, cal, fc: dict, mi: dict, split_cal: dict, shape_cal: dict
         idx = np.flatnonzero(ctx["state"] == st)
         anchors = {y: ctx["Z"][y][idx] for y in ctx["Z"]}
         ks = ctx["k_state"][idx]
-        pi, fr, kd = [], [], []
+        pi_l, fr_l, kd_l = [], [], []
         for t in YEARS:
             z, f, kk = z_at(int(t), anchors, rho_back, ctx["drift"][(2010, 2022)], ks)
-            pi.append(softmax(z).astype(np.float32))
-            fr.append(f)
-            kd.append(kk)
-        pi, fr, kd = np.stack(pi), np.stack(fr), np.stack(kd)                            # (NY, n, 2, 101, 5), (NY, 101)
+            pi_l.append(softmax(z).astype(np.float32))
+            fr_l.append(f)
+            kd_l.append(kk)
+        pi, fr, kd = np.stack(pi_l), np.stack(fr_l), np.stack(kd_l)                            # (NY, n, 2, 101, 5), (NY, 101)
         A2, B2 = a2[kd], b2[kd]
         for c0 in range(0, len(idx), chunk):
             sel = idx[c0:c0 + chunk]

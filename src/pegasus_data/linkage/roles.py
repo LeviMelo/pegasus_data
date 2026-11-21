@@ -42,7 +42,7 @@ from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, field
 from functools import lru_cache
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import pyarrow as pa
 import pyarrow.compute as pc
@@ -590,7 +590,7 @@ def _compute_roles(spec: DatasetRoles, names: list[str], *, period: object, geog
     years = _whole_years(period)
     parts: list[pa.Table] = []
     strategies: list[str] = []
-    for unit in _state_partitions(spec.dataset, geography, settings) or [geography]:
+    for unit in _state_partitions(spec.dataset, geography, settings) or cast(list[str], [geography]):
         origin = unit.upper() if isinstance(unit, str) and len(unit) == 2 else "BR"
         for scope in years if len(years) > 1 else (period,):
             table, strategy = _compute_roles_year(spec, names, period=scope, geography=unit, **query_kwargs)
@@ -609,7 +609,8 @@ def _carried(dataset: str, columns: set[str], period: object, query_kwargs: dict
     from .._query_engine.model import _period
 
     found = availability(dataset, root=query_kwargs.get("root"), settings=query_kwargs.get("settings"))
-    years = _period(period).years if period is not None else tuple(found.decoded_years)
+    resolved = _period(period)
+    years = resolved.years if resolved is not None else tuple(found.decoded_years)
     return {c for c in columns if (w := found.fields.get(c.upper())) is None or any(w.state(y) != "absent" for y in years)}
 
 
@@ -673,7 +674,8 @@ def _check_labels_named(dataset: str, labelled: set[str], report: Any, period: o
         return
     settings = query_kwargs.get("settings") or load_settings(root=query_kwargs.get("root"))
     try:
-        years = _period(period).years if period is not None else ()
+        resolved = _period(period)
+        years = resolved.years if resolved is not None else ()
     except Exception:  # noqa: BLE001 - an unusual period is answered, and not cached
         return
     named: set[str] = set()

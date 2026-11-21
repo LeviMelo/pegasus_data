@@ -343,7 +343,7 @@ def dispensed(codes: list[str], years: list[int] | None = None, root: str | Path
         years = held[-1:]
     names = procedure_names(root)
     meds: dict[str, dict] = {}
-    scanned = {"apacs": 0, "cids": set()}
+    scanned: dict[str, Any] = {"apacs": 0, "cids": set()}
     for y in years:
         for r in authorisations(y, root, download=download, dataset=dataset).to_pylist():
             scanned["apacs"] += r["apacs"]

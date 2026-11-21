@@ -23,7 +23,7 @@ is neither a group nor read here. Everything here is computed per vintage and gr
 from __future__ import annotations
 
 from collections import defaultdict
-from typing import Any
+from typing import Any, cast
 
 import pyarrow as pa
 
@@ -254,7 +254,7 @@ def compare_flow_regions(flows: pa.Table, communities: pa.Table, *, against: str
             by_comm[unit][comm[u]] += w
         n_mun: dict[str, int] = defaultdict(int)
         for m in both:
-            n_mun[official[m]] += 1
+            n_mun[cast(str, official[m])] += 1
         for unit in sorted(resident):
             main = max(by_comm[unit], key=lambda c: (by_comm[unit][c], c))
             region_rows.append({"vintage": key[0], **tag, "region": unit, "municipalities": n_mun[unit],

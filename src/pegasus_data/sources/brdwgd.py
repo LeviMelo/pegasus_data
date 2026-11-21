@@ -34,7 +34,7 @@ import os
 import time
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from ..transport import get_json, read_range
 
@@ -230,10 +230,10 @@ def municipality_months(cache_dir: str | Path, log: Any = None) -> tuple[Any, di
     con = duckdb.connect()
     for name, path in files.items():
         con.execute(f"CREATE VIEW {name} AS SELECT * FROM read_parquet('{Path(path).as_posix()}')")
-    differing = con.execute("""SELECT count(*) FROM tmax JOIN tmin USING (municipality7, year, month)
+    differing = cast(tuple[Any, ...], con.execute("""SELECT count(*) FROM tmax JOIN tmin USING (municipality7, year, month)
         JOIN precipitation_mm USING (municipality7, year, month)
-        WHERE tmax.days <> tmin.days OR tmax.days <> precipitation_mm.days""").fetchone()[0]
-    rows = [con.execute(f"SELECT count(*) FROM {n}").fetchone()[0] for n in files]
+        WHERE tmax.days <> tmin.days OR tmax.days <> precipitation_mm.days""").fetchone())[0]
+    rows = [con.execute(f"SELECT count(*) FROM {n}").fetchone()[0] for n in files]  # type: ignore[index]  # duckdb stub: fetchone is Optional; an aggregate returns one row
     if differing or len(set(rows)) != 1:
         raise ValueError(f"BR-DWGD {release['version']}: the variables do not hold the same days "
                          f"({differing} municipality-months differ, rows {dict(zip(files, rows, strict=True))})")

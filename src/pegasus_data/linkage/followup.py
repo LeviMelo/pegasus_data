@@ -22,7 +22,7 @@ from __future__ import annotations
 import datetime
 from collections.abc import Iterable
 from dataclasses import dataclass, replace
-from typing import Any
+from typing import Any, cast
 
 import pyarrow as pa
 import pyarrow.compute as pc
@@ -209,7 +209,7 @@ def linked_deaths(
     seconds = report.get("seconds")
     quality = {
         "link": name, "params": spec.bound.as_dict() if spec.bound else {},
-        "period": [period] if isinstance(period, str) else list(period), "geography": area,
+        "period": [period] if isinstance(period, str) else list(cast(Iterable[Any], period)), "geography": area,
         "verdict": report.get("verdict"), "verdict_reasons": report.get("verdict_reasons") or [],
         "false_match_percent": report.get("chance_percent"), "false_match_upper95_percent": report.get("chance_upper95_percent"),
         "horizons": report.get("horizons") or [], "window_days": _window(spec),

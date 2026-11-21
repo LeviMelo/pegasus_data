@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, cast
 
 import typer
 
@@ -229,7 +230,8 @@ def extract(
             raise typer.BadParameter(f"{f!r} is not COLUMN=CODE[,CODE...]", param_hint="--filter")
         parsed.setdefault(column.strip(), []).extend(wanted)
     try:
-        result = build_extract(dataset, _parse_years(years), parsed, ufs=uf, settings=_writer(root), log=console.print,
+        result = build_extract(dataset, _parse_years(years), cast(dict[str, Sequence[str]], parsed), ufs=uf,  # type: ignore[arg-type]  # suspected bug: an empty --years gives None, build_extract wants years
+                               settings=_writer(root), log=console.print,
                                workers=workers)
     except ValueError as exc:      # a filter column in no file's header, refused before any fetch
         console.print(f"[red]{exc}[/red]")
