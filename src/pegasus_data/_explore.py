@@ -129,6 +129,7 @@ def _scope(system: str | None, role: str | None, uf: str | None = None, year: in
     """The WHERE clause narrowing the crawl's files in SQL to ``system``, ``role``, a state, a year and, for a dataset,
     the filename series that belong to it. The map holds 207,000 files: every call used to read them all into Python
     and filter there (an `explore`: 2.8 s); it now asks the store for the counts it prints (about 0.1 s)."""
+    params: list[Any]
     where, params = "", []
     if system:
         where += " AND upper(fa.system) = ?"
@@ -469,7 +470,7 @@ def _span(years: list[Any]) -> str:
 
 
 def lake_coverage(dataset: str, *, root: str | Path | None = None,
-                  settings: Settings | None = None) -> dict[int, dict[str, int]]:
+                  settings: Settings | None = None) -> dict[int, dict[str, int | list[str]]]:
     """What the lake already holds of ``dataset``, by year: partitions, states, rows and bytes (the catalog's
     ``lake_partitions`` whose Parquet is on disk). A caller deciding what a reading costs needs it beside ``explore``'s
     published volume: a year in the lake is read in seconds, a year outside it is a download and a decode. A partition
@@ -690,7 +691,8 @@ def publications(
     for path in paths:
         of_file = {**facts.get(path, {}), **listed.get(path, {})}
         geo, year, month = str(of_file.get("geo_code") or "") or None, of_file.get("year"), of_file.get("normalized_date")
-        for sha, cell in [(s, c) for (p, s), c in sorted(held.items()) if p == path] or [(None, None)]:
+        shas: list[tuple[str | None, Any]] = [(s, c) for (p, s), c in sorted(held.items()) if p == path] or [(None, None)]
+        for sha, cell in shas:
             fetch = next((f for f in fetches.get(path, []) if f["sha256"] == sha), None) if sha else None
             if cell is not None:
                 note = None

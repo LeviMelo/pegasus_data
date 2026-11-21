@@ -219,7 +219,7 @@ def _garbage_table(key: str) -> pa.Table:
                 rows = in_packages.get(code)
                 members[code] = [(c, p, t, None) for c, p, t in rows] if rows else [(None, None, token, None)]
     spelled = {c: (c if len(c) == 3 else c[:3] + "." + c[3:]) for c in members}
-    flat = [(code, *row) for code in sorted(members, key=spelled.get) for row in members[code]]
+    flat = [(code, *row) for code in sorted(members, key=lambda c: spelled[c]) for row in members[code]]
     n = len(flat)
     table = pa.table({
         "code": pa.array([r[0] for r in flat], pa.string()),

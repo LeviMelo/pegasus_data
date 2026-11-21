@@ -272,7 +272,7 @@ def _mirror_matches(
     from .acquire.fetcher import MIRROR_HOST, MIRROR_PREFIX
     from .discovery.https_client import HttpsClient
 
-    kept = []
+    kept: list[tuple[str, str, int | None, str]] = []
     with HttpsClient(MIRROR_HOST, timeout=resolved.timeout, strip_prefix=MIRROR_PREFIX) as mirror:
         for name, path, size, modified in queue:
             part = report.series[name]

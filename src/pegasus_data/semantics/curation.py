@@ -509,7 +509,7 @@ def form_types_a_date(system: str, series: str, field_name: str) -> bool:
     system-wide curated doc says (SINAN's TRATAMENTO is the treatment's start date on visceral leishmaniasis and the type
     of entry on tuberculosis, and a doc is one per system and column, not per form)."""
     form = harvested_field(system, series, field_name) if series else None
-    return bool(form) and form.get("type") == "date" and not form.get("codes")
+    return form is not None and form.get("type") == "date" and not form.get("codes")
 
 
 def harvested_codelist(system: str, series: str, field_name: str) -> str | None:

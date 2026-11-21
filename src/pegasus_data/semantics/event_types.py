@@ -59,7 +59,7 @@ import dataclasses
 import warnings
 from collections.abc import Callable, Iterable
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, cast
 
 import pyarrow as pa
 import pyarrow.compute as pc
@@ -349,16 +349,16 @@ def _classifiers(specs: list[dict[str, Any]] | None, where: str) -> tuple[Classi
     primaries = [c for c in classifiers if c.role == "primary"]
     if len(primaries) > 1 or any(c.role not in ("primary", "alternative") for c in classifiers):
         raise ValueError(f"{where}: one primary classifier at most, the others alternative")
-    for c in classifiers:
-        if c.recodes is None:
+    for cl in classifiers:
+        if cl.recodes is None:
             continue
-        if c.role != "alternative":
-            raise ValueError(f"{where}: {c.column} recodes {c.recodes}, so it is an alternative classifier")
-        if not primaries or primaries[0].column != c.recodes:
-            raise ValueError(f"{where}: {c.column} recodes {c.recodes}, which is not this event's primary classifier")
-        if not c.structure or c.structure != primaries[0].structure:
-            raise ValueError(f"{where}: {c.column} recodes {c.recodes} and must be in its code structure "
-                             f"({primaries[0].structure!r}), not {c.structure!r}")
+        if cl.role != "alternative":
+            raise ValueError(f"{where}: {cl.column} recodes {cl.recodes}, so it is an alternative classifier")
+        if not primaries or primaries[0].column != cl.recodes:
+            raise ValueError(f"{where}: {cl.column} recodes {cl.recodes}, which is not this event's primary classifier")
+        if not cl.structure or cl.structure != primaries[0].structure:
+            raise ValueError(f"{where}: {cl.column} recodes {cl.recodes} and must be in its code structure "
+                             f"({primaries[0].structure!r}), not {cl.structure!r}")
     return tuple(classifiers)
 
 
@@ -441,7 +441,7 @@ def _grid(spec: dict[str, Any] | None, dataset: str,
         raise ValueError(f"{where}: no grid {spec['grid']!r} in the roles of {dataset}")
     sx, ag = spec.get("sex") or {}, spec.get("age") or {}
     axes = [a for a, _ in g.axes]
-    if sorted(axes) != sorted([sx.get("axis"), ag.get("axis")]):
+    if sorted(axes) != sorted(cast(list[str], [sx.get("axis"), ag.get("axis")])):
         raise ValueError(f"{where}: the weight reads the grid's axes {axes} as its sex and age")
     sex_of = {str(sx.get("male")): 1, str(sx.get("female")): 2}
     unknown_age = {str(u) for u in ag.get("unknown") or ()}

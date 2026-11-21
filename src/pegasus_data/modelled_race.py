@@ -76,7 +76,7 @@ Z_NAMES = ("share_Branca", "share_Preta", "share_Parda", "share_Indigena", "log1
 
 def encode_race(codes: Any) -> np.ndarray:
     """RACACOR codes ('1'..'5', null or anything else) to 0..4, 5 for a blank."""
-    return np.array([CODE.get(None if c is None else str(c).strip().lstrip("0"), UNKNOWN) for c in codes], dtype=np.int8)
+    return np.array([CODE.get("" if c is None else str(c).strip().lstrip("0"), UNKNOWN) for c in codes], dtype=np.int8)
 
 
 def age_band(days: np.ndarray) -> np.ndarray:
@@ -341,7 +341,7 @@ class Fit:
     def save(self, path: Path) -> None:
         np.savez_compressed(path, z_mean=self.z_mean, z_sd=self.z_sd, n_pairs=self.n_pairs,
                             diagnostics=json.dumps(self.diagnostics), version=self.version,
-                            age_bands=np.array(self.age_bands), **self.draws)
+                            age_bands=np.array(self.age_bands), **self.draws)  # type: ignore[arg-type]  # numpy stub types **kwds as the bool flag
 
     @classmethod
     def load(cls, path: Path) -> Fit:

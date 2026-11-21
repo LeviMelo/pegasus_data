@@ -299,7 +299,7 @@ def bind(spec: LinkSpec, codes: Iterable[str] | str | None = None, match: str = 
     cond = _codes_condition(role, dataset_roles(side.dataset).roles[role].type, chosen)
     filtered = replace(side, where=f"({side.where}) AND {cond}" if side.where else cond)
     return replace(spec, bound=Codes(chosen, match),
-                   **{"left" if spec.params.side == "left" else "right": filtered})
+                   **{"left" if spec.params.side == "left" else "right": filtered})  # type: ignore[arg-type]  # replace() with a computed field name
 
 
 def _roles_needed(spec: LinkSpec, side: str) -> list[str]:

@@ -28,7 +28,7 @@ from __future__ import annotations
 import os
 import re
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 SOURCE = "https://geoftp.ibge.gov.br/recortes_para_fins_estatisticos/grade_estatistica/censo_2022/"
 NOTE = SOURCE + "Notas_metodologicas_grade_estatistica_2022.pdf"
@@ -59,7 +59,7 @@ def _quadrants() -> list[str]:
     return sorted(set(re.findall(r'href="(grade_id\d+\.zip)"', get_text(SOURCE + "grade_estatistica/"))))
 
 
-def _read_quadrant(path: Path, polygons: Any, tree: Any, codes: Any) -> tuple[Any, dict[str, int]]:
+def _read_quadrant(path: Path, polygons: Any, tree: Any, codes: Any) -> tuple[Any, dict[str, int | float]]:
     """One quadrant's cells with their municipalities and shares (a pyarrow table) and what was found on the way."""
     import geopandas as gpd
     import numpy as np
@@ -80,7 +80,7 @@ def _read_quadrant(path: Path, polygons: Any, tree: Any, codes: Any) -> tuple[An
     # The geometry is the authority; the identifier must say the same (the 1 km name is the south-west corner in km, the
     # 200 m name the west edge and the NORTH edge in hectometres: 200ME63250N88392 spans N 8,839,000-8,839,200 m), and
     # the 5 km name is the floor of the corner in kilometres to a multiple of 5.
-    parsed = np.array([re.fullmatch(r"(?:200M|1KM)E(\d+)N(\d+)", i).groups() for i in ids], dtype=np.int64)
+    parsed = np.array([cast(re.Match[str], re.fullmatch(r"(?:200M|1KM)E(\d+)N(\d+)", i)).groups() for i in ids], dtype=np.int64)
     unit = np.where(size == 200, 100, 1000)
     north = np.where(size == 200, y + 200, y)
     mismatched = int(((parsed[:, 0] * unit != x) | (parsed[:, 1] * unit != north)).sum())
@@ -103,8 +103,8 @@ def _read_quadrant(path: Path, polygons: Any, tree: Any, codes: Any) -> tuple[An
     split = np.flatnonzero(counts[cell_index] > 1)
     if len(split):
         offsets = (np.arange(SAMPLES) + 0.5) / SAMPLES
-        ox, oy = np.meshgrid(offsets, offsets)
-        ox, oy = ox.ravel(), oy.ravel()
+        grid_x, grid_y = np.meshgrid(offsets, offsets)
+        ox, oy = grid_x.ravel(), grid_y.ravel()
         cells_ = cell_index[split]
         px = (x[cells_][:, None] + ox[None, :] * size[cells_][:, None]).ravel()
         py = (y[cells_][:, None] + oy[None, :] * size[cells_][:, None]).ravel()
@@ -183,6 +183,7 @@ def build(root: str | Path | None = None, log: Any = None) -> dict[str, Any]:
     codes = mesh["codarea"].astype(str).to_numpy(dtype=object)
     shapely.prepare(polygons)
     tree = shapely.STRtree(polygons)
+    report: dict[str, Any]
     parts, report = [], {"quadrants": len(names), "municipalities_in_mesh": len(codes)}
     for name in names:
         table, found = _read_quadrant(directory / name, polygons, tree, codes)

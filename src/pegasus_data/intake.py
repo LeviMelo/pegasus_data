@@ -45,7 +45,7 @@ import zipfile
 from collections.abc import Iterator, Sequence
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 from urllib.parse import urlsplit
 
 import pyarrow as pa
@@ -280,7 +280,7 @@ def _partition_values(level: dict[str, Any], params: dict[str, Any]) -> list[str
         return sorted({row["uf_code"] for row in universe.values()})
     if level["values"] == "uf_sigla":
         return sorted({row["uf_sigla"] for row in universe.values()})
-    inside = str(params.get(level.get("within"), ""))
+    inside = str(params.get(cast(str, level.get("within")), ""))
     return sorted(code for code in universe if code.startswith(inside))
 
 
@@ -424,7 +424,7 @@ def _duck(settings: Any, spec: dict[str, Any]) -> Any:
         found = {k: v for k, v in keys.items() if v}
         con.register("names", pa.table({"key": pa.array([f"{u}|{n}" for (u, n) in found], pa.string()),
                                         "code": pa.array(list(found.values()), pa.string())}))
-        con.create_function("fold", fold, ["VARCHAR"], "VARCHAR", null_handling="special")
+        con.create_function("fold", fold, ["VARCHAR"], "VARCHAR", null_handling="special")  # type: ignore[call-overload]  # duckdb stub types null_handling as an enum; the string is accepted
     return con
 
 
@@ -583,7 +583,7 @@ def _land(settings: Any, source: str, spec: dict[str, Any], unit: dict[str, Any]
         place = spec.get("place") or {}
         placed = place.get("type") in ("municipality", "municipality_name")
         raw_place = _ident((place.get("column") or "").upper())
-        stats = {"rows": 0, "undated": 0, "unplaced": 0, "unallocated": 0}
+        stats: dict[str, Any] = {"rows": 0, "undated": 0, "unplaced": 0, "unallocated": 0}
         if staged:
             select = "count(*), count_if(year = 0)"
             if placed:
@@ -843,7 +843,7 @@ LANDED_KEYS = ("type", "take", "format", "formats", "decimal", "tokens", "aliase
 def _fingerprint(spec: dict[str, Any], unit: dict[str, Any]) -> str:
     """What a landed unit is a function of: the file or piece, the columns' `LANDED_KEYS`, the place, the period, the
     origin, and the period derivation's version."""
-    version = PERIOD_DERIVATION.get((spec.get("period") or {}).get("type"))
+    version = PERIOD_DERIVATION.get(cast(str, (spec.get("period") or {}).get("type")))
     columns = {c: {k: (d or {})[k] for k in LANDED_KEYS if (d or {}).get(k) is not None} for c, d in (spec.get("columns") or {}).items()}
     return _digest({"columns": columns, **{k: spec.get(k) for k in ("place", "period", "origin")}}, unit.get("url"), unit.get("key"),
                    *([{"period_derivation": version}] if version else []))
@@ -855,7 +855,7 @@ def _current(side: Path, known: dict[str, Any], spec: dict[str, Any], unit: dict
     `_fingerprint`; differing, the unit is landed again, as it was then."""
     if known.get("fingerprint") == unit["fingerprint"]:
         return True
-    version = PERIOD_DERIVATION.get((spec.get("period") or {}).get("type"))
+    version = PERIOD_DERIVATION.get(cast(str, (spec.get("period") or {}).get("type")))
     whole = _digest({k: spec.get(k) for k in ("columns", "place", "period", "origin")}, unit.get("url"), unit.get("key"),
                     *([{"period_derivation": version}] if version else []))
     if known.get("fingerprint") != whole:
@@ -899,7 +899,8 @@ def _file_relation(path: Path, origin: dict[str, Any], unit: dict[str, Any]) -> 
     mixed = csv.get("encoding") == "mixed"
     source, extracted = path, None
     if path.suffix.lower() == ".zip" or mixed:
-        opener, name = (path.open, path.name) if path.suffix.lower() != ".zip" else (None, None)
+        opener: Any = path.open      # a zip names its member and opens it below
+        name = path.name
         if path.suffix.lower() == ".zip":
             archive = zipfile.ZipFile(path)
             members = [m for m in archive.namelist() if m.lower().endswith((".csv", ".txt"))]
@@ -910,8 +911,10 @@ def _file_relation(path: Path, origin: dict[str, Any], unit: dict[str, Any]) -> 
                 raise ValueError(f"{path.name}: expected one CSV member, found {members}")
             name = Path(members[0]).name
 
-            def opener(mode="rb", archive=archive, member=members[0]):
+            def open_member(mode="rb", archive=archive, member=members[0]):
                 return archive.open(member)
+
+            opener = open_member
         extracted = path.with_name(name + (".utf8.csv" if mixed else ""))
         with opener("rb") as src, extracted.open("wb") as dst:
             if mixed:
@@ -1028,7 +1031,7 @@ def _held_records(settings: Any, spec: dict[str, Any], unit: dict[str, Any]) -> 
         found = con.execute(f"SELECT DISTINCT _SOURCE_PATH, _READ_ON FROM {relation}").fetchall()
         if len(found) != 1 or found[0][0] != unit["path"]:
             return None
-        rows = con.execute(f"SELECT count(*) FROM {relation}").fetchone()[0]
+        rows = con.execute(f"SELECT count(*) FROM {relation}").fetchone()[0]  # type: ignore[index]  # duckdb stub: fetchone is Optional; an aggregate returns one row
     finally:
         con.close()
     filed = [n for n in names if not n.startswith("_") and not n.endswith(("__RAW", "__FLAG"))]

@@ -168,9 +168,9 @@ def municipal_check(root: str | Path | None = None) -> dict[str, Any]:
                count(*) FILTER (WHERE residents > 0 AND 1 - coalesce(banded, 0) / residents > 0.05),
                max(1 - coalesce(banded, 0) / residents) FILTER (WHERE residents > 0)
         FROM r LEFT JOIN b USING (municipality7)""").fetchone()
-    return {"municipal_file_people": file_row[0], "tracts_unsuppressed_people": file_row[1], "cells_differing": file_row[2],
-            "residents": short[0], "residents_in_published_bands": short[1], "municipalities_short": short[2],
-            "municipalities_short_over_5pct": short[3], "largest_share_short": round(float(short[4] or 0), 4)}
+    return {"municipal_file_people": file_row[0], "tracts_unsuppressed_people": file_row[1], "cells_differing": file_row[2],  # type: ignore[index]  # duckdb stub: fetchone is Optional; an aggregate returns one row
+            "residents": short[0], "residents_in_published_bands": short[1], "municipalities_short": short[2],  # type: ignore[index]  # duckdb stub: fetchone is Optional; an aggregate returns one row
+            "municipalities_short_over_5pct": short[3], "largest_share_short": round(float(short[4] or 0), 4)}  # type: ignore[index]  # duckdb stub: fetchone is Optional; an aggregate returns one row
 
 
 def _where(municipality: Any, uf: Any) -> str:

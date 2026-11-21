@@ -21,6 +21,7 @@ from __future__ import annotations
 import re
 import sqlite3
 from pathlib import Path
+from typing import cast
 
 from .config import Settings, load_settings
 from .textenc import fold, fold_sql
@@ -87,7 +88,7 @@ def search(
     if kind is None:
         # Codes share the list: up to a quarter of it, label matches that are exact or begin the label.
         codes = [{k: v for k, v in c.items() if k != "_rank"}
-                 for c in _code_hits(needle, wanted_system, limit) if c["_rank"] < 2][: max(3, limit // 4)]
+                 for c in _code_hits(needle, wanted_system, limit) if cast(int, c["_rank"]) < 2][: max(3, limit // 4)]
         out = out[: max(0, limit - len(codes))] + codes
     return out
 

@@ -489,6 +489,7 @@ def care_flows(dataset: str, *, period: object, geography: object = "BR", by: st
         resolved = pa.array([code7.get(u) or (u if u in known7 else None) for u in uniques.to_pylist()], pa.string())
         return pc.take(resolved, pc.index_in(text, value_set=uniques))
 
+    accounting: dict[str, dict[str, Any]]
     pieces, accounting, events_total, unplaced_total, unresolved_total = [], {}, 0, 0, 0
     for year in span.years:
         generation = next((g for g in generations if g.covers(year)), None)

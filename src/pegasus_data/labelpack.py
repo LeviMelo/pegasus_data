@@ -43,11 +43,11 @@ import re
 import sqlite3
 import tempfile
 import unicodedata
-from collections.abc import Sequence
+from collections.abc import Iterator, Sequence
 from dataclasses import dataclass, field
 from functools import lru_cache
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from .catalog.store import CatalogStore
 from .identifiers import strip_label_prefix
@@ -305,7 +305,7 @@ def _recoded_kit_pairs(catalog: CatalogStore) -> dict[tuple[str, str], list[tupl
             continue
         a = strip_label_prefix(_unescape_accents(str(row["claim_a"] or ""))) or ""
         b = strip_label_prefix(_unescape_accents(str(row["claim_b"] or ""))) or ""
-        key = (str(row["system"] or ""), str(row["field_name"]).upper(), *sorted((kit_a, kit_b)))
+        key = cast(tuple[str, str, str, str], (str(row["system"] or ""), str(row["field_name"]).upper(), *sorted((kit_a, kit_b))))
         (word if _same_meaning(a, b) else sem).setdefault(key, set()).add(str(row["value_raw"]))
     recoded: dict[tuple[str, str], list[tuple[str, str]]] = {}
     for (sys_name, group, kit_a, kit_b), codes in sem.items():
@@ -525,7 +525,7 @@ def build_label_pack(
     # Merge consecutive numeric codes that share a label into one run.
     # Keyed by window too: two vintages of one codelist are two run sets, and
     # merging them would recreate the contradiction the warehouse avoids.
-    def _buckets():  # noqa: ANN202
+    def _buckets() -> Iterator[Any]:
         bucket: tuple[str | None, str, str, str] | None = None
         pairs: list[tuple[str, str]] = []
         for flat_system, group, valid_from, valid_to, code, label in work.execute(
@@ -1280,7 +1280,7 @@ def _read_packed(
         span = (int(competencia), int(competencia))
     elif year is not None:
         span = (int(year) * 100 + 1, int(year) * 100 + 12)
-    runs, served = _vintage_runs(codelist, system, span)
+    found_runs, served = _vintage_runs(codelist, system, span)
     if not has_windows and asked is not None and _is_historical(asked) and policy == "refuse":
         # REFUSE, rather than answer 1995 with today's mapping. This pack
         # carries no validity windows, so it cannot choose the historically
@@ -1297,7 +1297,7 @@ def _read_packed(
         )
     if served is not None and (has_windows or asked is not None):
         note = (codelist, str(asked) if asked is not None else "unscoped", served, has_windows)
-    runs = list(runs)
+    runs = list(found_runs)
     if not runs:
         # Nothing answers this request (note: "unresolved"): an empty table, as
         # the warehouse returns, never a merge of whichever windows exist.

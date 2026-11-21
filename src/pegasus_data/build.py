@@ -247,7 +247,7 @@ class Builder:
                 return
             for owner in (outcome, *getattr(outcome, "tables", ())):
                 keeper = getattr(owner, "retains", None)
-                if hasattr(keeper, "cleanup"):
+                if keeper is not None and hasattr(keeper, "cleanup"):
                     try:
                         keeper.cleanup()
                     except OSError:  # pragma: no cover - Windows may still hold a handle; the janitor takes it

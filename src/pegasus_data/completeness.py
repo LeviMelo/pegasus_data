@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import csv
 from pathlib import Path
+from typing import cast
 
 import numpy as np
 
@@ -114,9 +115,9 @@ def growth_balance(n1: np.ndarray, n2: np.ndarray, deaths: np.ndarray, years: fl
         r_.append(r)
         d_.append(deaths[x:].sum() / py)
         b_.append(entrants * years / py)
-    r_, d_, b_ = np.array(r_), np.array(d_), np.array(b_)
-    y = b_ - r_
-    slope, intercept, lo, hi = theilslopes(y, d_, alpha=0.9)
+    r_arr, d_arr, b_arr = np.array(r_), np.array(d_), np.array(b_)
+    y = b_arr - r_arr
+    slope, intercept, lo, hi = theilslopes(y, d_arr, alpha=0.9)
     return {"completeness": float(1 / slope), "lo": float(1 / hi) if hi > 0 else float("nan"),
             "hi": float(1 / lo) if lo > 0 else float("nan"), "intercept": float(intercept)}
 
@@ -253,7 +254,7 @@ def build_completeness(root: str | Path, ill_cells_path: str | Path, *, version:
                              "basis": basis, "horizon": h, "published_ratio": published_ratio,
                              "ill_defined_share": ill.get((u, y)) if system == "SIM" else None,
                              "census_based_estimate": independent.get((u, y)) if system == "SINASC" else None})
-    gap = {name: [r["census_based_estimate"] - r["completeness"] for r in rows if r["system"] == "SINASC"
+    gap = {name: [cast(float, r["census_based_estimate"]) - cast(float, r["completeness"]) for r in rows if r["system"] == "SINASC"
                   and r["census_based_estimate"] is not None and sel(r["year"])]
            for name, sel in (("2000-2011", lambda y: y <= 2011), ("2012-2021", lambda y: y > 2011))}
     gap_note = "; ".join(f"{k}: {np.mean(v) * 100:+.1f} points (SD {np.std(v) * 100:.1f}, n={len(v)})" for k, v in gap.items() if v)

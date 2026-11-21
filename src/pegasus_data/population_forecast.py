@@ -18,6 +18,7 @@ from __future__ import annotations
 
 from dataclasses import replace
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 
@@ -168,6 +169,7 @@ def forecast_account(inp, cal, events_dir: str | Path, steps: int = 8) -> dict:
     ref = [y - 2010 for y in tr.ref]
     mult = municipal_multipliers(tr, inp.start22, ev["deaths"][ref].sum(0), ev["births"][ref].sum((0, 2)))
     path = project_vital(inp.start22, tr, mult, ev["deaths"][12:], ev["births"][12:], steps, 2022)
+    off: dict[Any, tuple[list[Any], list[Any]]]
     X, bands, off = [], [], {lv: ([], []) for lv in LEVELS}
     for h in range(1, steps + 1):
         vb = to_bands(path[h])

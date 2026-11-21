@@ -23,7 +23,7 @@ from __future__ import annotations
 
 from collections import Counter
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, cast
 
 import numpy as np
 import pyarrow as pa
@@ -104,7 +104,7 @@ def _stored_edges(settings: Any, period: object, geography: object, method: str 
     if memo in _EDGES:
         return _EDGES[memo]
     con = connect()
-    parts = []
+    parts: list[str] = []
     for name, (lds, lrole, rds, rrole), key in runs:
         stored = load(settings, key)               # through the store: only a current run
         if stored is None or stored[1].get("verdict") == "not viable":
@@ -172,7 +172,7 @@ def build_entities(*, period: object, geography: object, method: str | None = No
         drawn = rng.random(len(p)) < p      # over the whole set: each edge keeps its own draw, seeded or not
         edges = edges.filter(pa.array(drawn if keep is None else drawn & keep))
         if keep is not None and edges.num_rows:
-            edges = edges.filter(pa.array(_component_mask(edges, seeds)))   # the draw may split a seed's component
+            edges = edges.filter(pa.array(_component_mask(edges, cast(tuple[str, str, Any], seeds))))   # the draw may split a seed's component
     elif keep is not None:
         edges = edges.filter(pa.array(keep))
     return _merge(edges)
@@ -387,7 +387,7 @@ def triangles(*, period: object, geography: object, settings: Any = None,
             FROM (SELECT d.l, bool_or(o.r = d.r) AS agree FROM d JOIN o USING (l) GROUP BY d.l, d.r)""").fetchone()
         con.unregister("d")
         con.unregister("o")
-        agree, disagree = int(row[0]), int(row[1])
+        agree, disagree = int(row[0]), int(row[1])  # type: ignore[index]  # duckdb stub: fetchone is Optional; an aggregate returns one row
         out[name] = {"pairs": direct.num_rows, "with_route": agree + disagree, "agree": agree, "disagree": disagree,
                      "agreement": round(agree / (agree + disagree), 4) if agree + disagree else None}
     return out

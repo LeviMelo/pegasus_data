@@ -45,7 +45,7 @@ import sqlite3
 from dataclasses import dataclass
 from dataclasses import field as _field
 from pathlib import Path
-from typing import Any, Literal
+from typing import Any, Literal, cast
 
 from .catalog.store import CatalogStore as _Store
 from .config import Settings, load_settings
@@ -431,7 +431,7 @@ def field_coverage(
     }
 
 
-def field_fill(dataset: str, fields: list[str] | str, years: list[int] | range, **query_kwargs: object):
+def field_fill(dataset: str, fields: list[str] | str, years: list[int] | range, **query_kwargs: Any):
     """How much of each year a column FILLS (OPEN_QUESTIONS 71): per (year, field) the records, those holding a value
     (not empty, not one of the column's declared missing codes in its roles), and their share. Presence is not fill:
     SIH-RD's CID_MORTE and CID_ASSO are present every year and hold 0000 in every record from 2015, and SIM-DO's CB_PRE
@@ -452,13 +452,13 @@ def field_fill(dataset: str, fields: list[str] | str, years: list[int] | range, 
         roles = {r.column: r for r in column_roles.load_column_roles().get(dataset.upper().replace(".", "-"), ())}
     except Exception:  # noqa: BLE001 - a dataset without roles has no declared missing codes
         roles = {}
-    out = {"year": [], "field": [], "records": [], "filled": [], "share": []}
+    out: dict[str, list[Any]] = {"year": [], "field": [], "records": [], "filled": [], "share": []}
     for year in years:
         cols = list(wanted)
         table, unread = None, False
         while cols:
             try:
-                table = query(dataset, period=int(year), select=cols, present="codes", **query_kwargs)
+                table = cast(pa.Table, query(dataset, period=int(year), select=cols, present="codes", **query_kwargs))
                 break
             except (NothingPublished, PublishedEmpty) as exc:
                 table, unread = None, "could not be fetched or decoded" in str(exc)

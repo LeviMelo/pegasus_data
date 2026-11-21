@@ -21,7 +21,7 @@ import time
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path, PurePosixPath
-from typing import Any
+from typing import Any, cast
 
 from .acquire.cache import BlobStore
 from .acquire.fetcher import Fetcher
@@ -682,7 +682,7 @@ class Pipeline:
                 continue  # its family's file did not profile: the stratum stays outstanding and is tried again
             record_stratum_schema(
                 self.catalog, str(row["stratum_id"]), schema_sig=str(row["schema_signature"]),
-                field_count=int(row["field_count"] or 0), status="ok",
+                field_count=int(cast(Any, row["field_count"]) or 0), status="ok",
             )
             counts["schema_only"] += 1
             counts["profiled"] += 1

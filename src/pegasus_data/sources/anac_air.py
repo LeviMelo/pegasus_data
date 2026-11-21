@@ -43,6 +43,7 @@ from __future__ import annotations
 import csv
 import io
 import json
+import typing
 import zipfile
 from collections.abc import Callable
 from pathlib import Path
@@ -201,7 +202,7 @@ def build(root: str | Path | None = None, log: Callable[[str], None] | None = No
     con.execute(f"""CREATE VIEW stats AS SELECT * FROM read_csv('{(raw / "Dados_Estatisticos.csv").as_posix()}', delim=';', quote='"',
                     header=true, skip=1, all_varchar=true, encoding='utf-8')""")
     cast = lambda c: f"TRY_CAST({c} AS BIGINT)"  # noqa: E731
-    bad = con.execute("SELECT count(*) FROM stats WHERE " + " OR ".join(
+    bad = con.execute("SELECT count(*) FROM stats WHERE " + " OR ".join(  # type: ignore[index]  # duckdb stub: fetchone is Optional; an aggregate returns one row
         f"({c} <> '' AND {cast(c)} IS NULL)" for c in ("PASSAGEIROS_PAGOS", "PASSAGEIROS_GRATIS", "DECOLAGENS", "ANO", "MES"))).fetchone()[0]
     con.execute(f"""CREATE TABLE legs AS SELECT {cast('ANO')} AS y, {cast('MES')} AS m,
         AEROPORTO_DE_ORIGEM_SIGLA AS o, AEROPORTO_DE_DESTINO_SIGLA AS d,
@@ -209,7 +210,7 @@ def build(root: str | Path | None = None, log: Callable[[str], None] | None = No
         AEROPORTO_DE_ORIGEM_PAIS = 'BRASIL' AND AEROPORTO_DE_DESTINO_PAIS = 'BRASIL' AS br, NATUREZA AS nat, GRUPO_DE_VOO AS grp,
         coalesce({cast('PASSAGEIROS_PAGOS')}, 0) AS paid, coalesce({cast('PASSAGEIROS_GRATIS')}, 0) AS free,
         coalesce({cast('DECOLAGENS')}, 0) AS dep FROM stats""")
-    total_rows = con.execute("SELECT count(*) FROM legs").fetchone()[0]
+    total_rows = con.execute("SELECT count(*) FROM legs").fetchone()[0]  # type: ignore[index]  # duckdb stub: fetchone is Optional; an aggregate returns one row
     months = con.execute("SELECT min(y*100+m), max(y*100+m), count(DISTINCT y*100+m) FROM legs").fetchone()
     # Each leg names its airports' city and UF as well as their code. ANAC reuses a code for another aerodrome over the
     # years (SNQY: JUAZEIRO DO NORTE/CE in the file, an airfield of Ribeirão Preto in OurAirports today), so a placement
@@ -244,7 +245,7 @@ def build(root: str | Path | None = None, log: Callable[[str], None] | None = No
             verdict = "same UF (named city not a municipality)" if pack[code]["uf_sigla"] == uf else "contradicts the named UF"
         verdicts[verdict] = verdicts.get(verdict, 0) + 1
         if verdict in ("named city", "neighbour of the named city", "same UF (named city not a municipality)"):
-            keys.append((icao, name, uf, code))
+            keys.append((icao, name, uf, typing.cast(str, code)))
         else:
             where = located.get(icao)
             unplaced_why[(icao, name, uf)] = verdict + (f": {where['lat']}, {where['lon']} ({where['from']})" + (f" in {pack[code]['name']}/{pack[code]['uf_sigla']}" if code else "") if where else "")
@@ -271,8 +272,8 @@ def build(root: str | Path | None = None, log: Callable[[str], None] | None = No
     unplaced = con.execute("""SELECT ap, nm, uf, sum(p) AS pax, count(*) AS legs FROM (
         SELECT o AS ap, o_name AS nm, o_uf AS uf, paid+free AS p FROM br_legs WHERE cf IS NULL
         UNION ALL SELECT d, d_name, d_uf, paid+free FROM br_legs WHERE ct IS NULL) GROUP BY ALL ORDER BY pax DESC""").fetchall()
-    unplaced_pax = int(con.execute("SELECT coalesce(sum(paid+free), 0) FROM br_legs WHERE cf IS NULL OR ct IS NULL").fetchone()[0])
-    same = int(con.execute("SELECT coalesce(sum(paid+free), 0) FROM br_legs WHERE cf = ct").fetchone()[0])
+    unplaced_pax = int(con.execute("SELECT coalesce(sum(paid+free), 0) FROM br_legs WHERE cf IS NULL OR ct IS NULL").fetchone()[0])  # type: ignore[index]  # duckdb stub: fetchone is Optional; an aggregate returns one row
+    same = int(con.execute("SELECT coalesce(sum(paid+free), 0) FROM br_legs WHERE cf = ct").fetchone()[0])  # type: ignore[index]  # duckdb stub: fetchone is Optional; an aggregate returns one row
     kept = con.execute(f"""SELECT cf AS "from", ct AS "to", sum(paid+free)::DOUBLE AS weight, '{KIND}' AS kind, (y*100+m)::INTEGER AS vintage,
         sum(dep)::BIGINT AS flights, sum(paid)::BIGINT AS passengers_paid, sum(free)::BIGINT AS passengers_free
         FROM br_legs WHERE cf IS NOT NULL AND ct IS NOT NULL AND cf <> ct GROUP BY ALL ORDER BY vintage, "from", "to" """).fetch_arrow_table()
@@ -289,7 +290,7 @@ def build(root: str | Path | None = None, log: Callable[[str], None] | None = No
         check[edition] = {y: {"anuario": n, "csv_paid_domestic": dom_paid.get(y, 0), "difference": dom_paid.get(y, 0) - n,
                               "percent": round(100 * (dom_paid.get(y, 0) - n) / n, 3)} for y, n in sorted(figures.items())}
     report = {
-        "file": str(target), "rows": kept.num_rows, "source_rows": total_rows, "months": {"first": months[0], "last": months[1], "count": months[2]},
+        "file": str(target), "rows": kept.num_rows, "source_rows": total_rows, "months": {"first": months[0], "last": months[1], "count": months[2]},  # type: ignore[index]  # duckdb stub: fetchone is Optional; an aggregate returns one row
         "source": {n: {k: held[n][k] for k in ("last_modified", "content_length", "bytes")} for n in held},
         "statistics_refreshed": refreshed, "cells_neither_empty_nor_integer": int(bad),
         "weight": "passengers_paid + passengers_free (people carried on the stage)",

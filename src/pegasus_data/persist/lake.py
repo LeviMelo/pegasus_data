@@ -21,6 +21,7 @@ import re
 from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
+from typing import TYPE_CHECKING
 
 import pyarrow as pa
 import pyarrow.parquet as pq
@@ -29,7 +30,10 @@ from .._lazy import LazyModule
 from ..catalog.store import CatalogStore, utcnow
 from .staging import staged_file, staged_tree
 
-ds = LazyModule("pyarrow.dataset")
+if TYPE_CHECKING:
+    import pyarrow.dataset as ds
+else:
+    ds = LazyModule("pyarrow.dataset")
 
 _SAFE = re.compile(r"[^A-Za-z0-9_.=-]+")
 

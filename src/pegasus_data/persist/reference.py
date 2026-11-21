@@ -41,7 +41,7 @@ import re
 from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import pyarrow as pa
 import pyarrow.compute as pc
@@ -583,7 +583,7 @@ def _read_reference_table(
             else (year * 100 + 1, year * 100 + 12) if year is not None else None
         )
         windows = inline_windows(table_id) if span is not None else {}
-        codes = [c for c in inline if c not in windows or _window_overlaps(windows[c], span)]
+        codes = [c for c in inline if c not in windows or _window_overlaps(windows[c], cast(tuple[int, int], span))]
         return pa.table({"code": codes, "label": [inline[c] for c in codes]})
     base = Path(lake_root) / "reference" / _SAFE.sub("_", table_id)
     if not base.exists():
@@ -615,12 +615,12 @@ def _read_reference_table(
         return table.filter(pc.fill_null(pc.equal(pc.cast(table.column("valid_from"), pa.string()), valid_from), False))
     # The vintage: which validity windows answer the request is `labelpack.select_windows`, the one rule the shipped pack
     # follows too. A competencia is one month; a year is any window overlapping it; no period is the current vintage.
-    span: tuple[int, int] | None = None
+    vintage_span: tuple[int, int] | None = None
     if competencia is not None:
-        span = (int(competencia), int(competencia))
+        vintage_span = (int(competencia), int(competencia))
     elif year is not None:
-        span = (year * 100 + 1, year * 100 + 12)
-    return _in_answering_windows(table, table_id, span, str(competencia if competencia is not None else year))
+        vintage_span = (year * 100 + 1, year * 100 + 12)
+    return _in_answering_windows(table, table_id, vintage_span, str(competencia if competencia is not None else year))
 
 
 def reference_fingerprint(lake_root: str | Path, table_id: str, system: str | None = None) -> str:
@@ -800,6 +800,8 @@ def reference_vintage(
         live = tuple(sorted(code for code, window in windowed.items() if _window_overlaps(window, span)))
         return _VINTAGES.setdefault(("inline", table_id.upper(), live), (year, competencia))
 
+    covering: Sequence[int]
+    scope: tuple[Any, ...]
     try:
         if base.is_dir():
             table, scope = _scoped_table(base, table_id, system, code_width)

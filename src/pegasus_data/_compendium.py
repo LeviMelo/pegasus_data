@@ -1165,8 +1165,8 @@ def _held(store: _Store, onto: Ontology, wanted: set[str], lake_dir: Path) -> _H
                 continue
             for path in family.glob("schema_signature=*/uf=*/year=*/*.parquet"):
                 uf = path.parent.parent.name.split("=", 1)[1]
-                year = path.parent.name.split("=", 1)[1]
-                parts.append((code, int(year) if year.isdigit() else 0, uf, path))
+                year_text = path.parent.name.split("=", 1)[1]
+                parts.append((code, int(year_text) if year_text.isdigit() else 0, uf, path))
 
     def footer(part: tuple[str, int, str, Path]) -> tuple[tuple[str, int, str, Path], Any]:
         try:
@@ -1296,7 +1296,7 @@ def _write_products(db: sqlite3.Connection, cfg: Settings, report: CompendiumRep
     db.executemany("INSERT INTO products VALUES (?,?,?,?,?,?,?,?,?,?,?)", rows)
     report.rows["products"] = len(rows)
 
-    members = []
+    members: list[tuple[str, Any, str | None, Any, str]] = []
     for name, spec in sorted(((_read_yaml(base / "populations.yml") or {}).get("series") or {}).items()):
         what = " ".join(str(spec.get(k) or "") for k in ("kind", "authority", "notes")).strip()
         members.append(("population_series", name, what, spec.get("axes") and json.dumps(spec["axes"]),

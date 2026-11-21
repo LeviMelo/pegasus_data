@@ -151,7 +151,7 @@ def _pf_groups(jobs: pa.Table, people: pa.Table) -> pa.Table:
 def _digest(dataset: str, year: int) -> str:
     """What a cached aggregate depends on besides its file: the columns read, the Federal District's remap of the year and,
     for PF, the professional groups of the curation (the other datasets are summed without any group)."""
-    depends = {"columns": _COLUMNS[dataset], "remap": _remap(year)}
+    depends: dict[str, Any] = {"columns": _COLUMNS[dataset], "remap": _remap(year)}
     if dataset == "PF":
         depends["professional_groups"] = groups().get("professional_groups")
         depends["grouping"] = "nested"     # groups may overlap (ADR-0215); aggregates of the exclusive rule are rebuilt

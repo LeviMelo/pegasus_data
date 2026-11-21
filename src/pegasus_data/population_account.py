@@ -32,7 +32,7 @@ import time
 from collections import defaultdict
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import Any, Protocol, cast
 
 import numpy as np
 
@@ -52,6 +52,21 @@ POST_2010_CREATIONS = {
 
 
 # --------------------------------------------------------------------------------------- geography
+
+class PlaceIndex(Protocol):
+    """What ``load_census`` and ``load_events`` read of a unit system: ``Places``, or the backcast's comparable areas."""
+
+    @property
+    def municipalities(self) -> list[int]: ...
+    @property
+    def unit_of(self) -> dict[int, int]: ...
+    @property
+    def entity_of(self) -> dict[int, int]: ...
+    @property
+    def n_units(self) -> int: ...
+    @property
+    def n_entities(self) -> int: ...
+
 
 @dataclass
 class Places:
@@ -141,7 +156,7 @@ def build_places(municipalities: list[int]) -> Places:
 
 # ------------------------------------------------------------------------------------------ inputs
 
-def load_census(root: str | Path, year: int, places: Places, by: str = "unit") -> np.ndarray:
+def load_census(root: str | Path, year: int, places: PlaceIndex, by: str = "unit") -> np.ndarray:
     """The census by (unit or entity) × sex × age 0..79,80+ — a gap (``None``) is not zero: a municipality
     without a value (created after the census) must lie inside a unit whose other members have one."""
     import pegasus_data as pg
@@ -211,7 +226,7 @@ def _place(codes: list[str | None], keys: np.ndarray, targets: np.ndarray) -> np
     return np.where(keys[pos] == c6, targets[pos], -1)
 
 
-def load_events(events_dir: str | Path, years: list[int], places: Places, by: str = "unit") -> dict[str, Any]:
+def load_events(events_dir: str | Path, years: list[int], places: PlaceIndex, by: str = "unit") -> dict[str, Any]:
     """Deaths ``[Y, n, 2, A]`` and births ``[Y, n, 2]`` per year, with what could not be placed counted, not dropped.
 
     Deaths of unknown sex or age are spread over the known cells of the same unit and year, in proportion
@@ -227,7 +242,7 @@ def load_events(events_dir: str | Path, years: list[int], places: Places, by: st
     sex_code = {"1": 0, "M": 0, "2": 1, "F": 1}
     deaths = np.zeros((len(years), n, 2, A))
     births = np.zeros((len(years), n, 2))
-    report: dict[str, dict[str, int]] = {}
+    report: dict[str, dict[str, int | None]] = {}
     for k, y in enumerate(years):
         t = pq.read_table(Path(events_dir) / f"deaths_{y}.parquet")
         i = _place(t["CODMUNRES"].to_pylist(), keys, targets)
@@ -236,7 +251,7 @@ def load_events(events_dir: str | Path, years: list[int], places: Places, by: st
         age = np.where(ag >= 0, np.minimum(np.floor(ag), A - 1), -1).astype(int)
         e = np.array(t["events"].to_pylist(), dtype=float)
         placed = i >= 0
-        rep = {"deaths_total": int(e.sum()), "deaths_unplaced": int(e[~placed].sum()),
+        rep: dict[str, int | None] = {"deaths_total": int(e.sum()), "deaths_unplaced": int(e[~placed].sum()),
                "deaths_sex_unknown": int(e[placed & (sx < 0)].sum()), "deaths_age_unknown": int(e[placed & (age < 0)].sum())}
         full = placed & (sx >= 0) & (age >= 0)
         np.add.at(deaths[k], (i[full], sx[full], age[full]), e[full])
@@ -256,11 +271,11 @@ def load_events(events_dir: str | Path, years: list[int], places: Places, by: st
             share = np.divide(known[:, s], tot, out=np.full((n, A), 0.5), where=tot > 0)
             deaths[k, :, s] += unk * share
         m = placed & (sx < 0) & (age < 0)                   # unknown both: over the unit's cells
-        unk = np.zeros(n)
-        np.add.at(unk, i[m], e[m])
+        unk_cells = np.zeros(n)
+        np.add.at(unk_cells, i[m], e[m])
         tot = known.sum((1, 2))
         share = np.divide(known, tot[:, None, None], out=np.full((n, 2, A), 1 / (2 * A)), where=tot[:, None, None] > 0)
-        deaths[k] += unk[:, None, None] * share
+        deaths[k] += unk_cells[:, None, None] * share
         if not (Path(events_dir) / f"births_{y}.parquet").exists():      # before SINASC (1994): no births, said so
             report[str(y)] = rep | {"births_total": None}
             continue
@@ -273,9 +288,9 @@ def load_events(events_dir: str | Path, years: list[int], places: Places, by: st
                 "births_sex_unknown": int(e[placed & (sx < 0)].sum())}
         np.add.at(births[k], (i[placed & (sx >= 0)], sx[placed & (sx >= 0)]), e[placed & (sx >= 0)])
         known = births[k].copy()
-        unk = np.zeros(n)
+        unk_births = np.zeros(n)
         m = placed & (sx < 0)
-        np.add.at(unk, i[m], e[m])
+        np.add.at(unk_births, i[m], e[m])
         tot = known.sum(1)
         births[k] += unk[:, None] * np.divide(known, tot[:, None], out=np.full((n, 2), 0.5), where=tot[:, None] > 0)
         report[str(y)] = rep
@@ -284,7 +299,7 @@ def load_events(events_dir: str | Path, years: list[int], places: Places, by: st
 
 # ------------------------------------------------------------------------------- the account itself
 
-def step_terms(N: np.ndarray, D: np.ndarray, B: np.ndarray):
+def step_terms(N: np.ndarray, D: np.ndarray, B: np.ndarray | None):
     """One step's pieces. ``dr`` is each starting age's share of the step's deaths (Lexis), ``dr0`` the newborns'."""
     dr = np.zeros_like(N)
     dr[..., :A - 2] = 0.5 * (D[..., :A - 2] + D[..., 1:A - 1])
@@ -581,7 +596,7 @@ class Period:
     @property
     def y(self) -> np.ndarray:
         """log(truth / vital) of the total, per year of the period."""
-        return np.log(self.truth.sum((1, 2)) / np.maximum(self.vital.sum((1, 2)), 1)) / self.T
+        return np.log(cast(np.ndarray, self.truth).sum((1, 2)) / np.maximum(self.vital.sum((1, 2)), 1)) / self.T
 
 
 def make_period(name, T, state, micro, size, vital, truth, lag: Lag, root: np.ndarray, urb, lgdp, members=()) -> Period:
@@ -658,7 +673,7 @@ def _fit_cells(Ps: list[Period], yhats: list[np.ndarray], mask: list[np.ndarray]
         for g in range(17):
             Xs, ys, ws = [], [], []
             for i, (P, yh) in enumerate(zip(Ps, yhats, strict=True)):
-                v, t = P.vital[:, x, g], P.truth[:, x, g]
+                v, t = P.vital[:, x, g], cast(np.ndarray, P.truth)[:, x, g]
                 ok = (v > 20) & (t > 20) & (True if mask is None else mask[i])
                 Xs.append(_band_design(P, g, yh)[ok])
                 ys.append(np.log(t[ok] / v[ok]) / P.T)
@@ -696,7 +711,7 @@ def fit_calibration(Ps: list[Period]) -> Calibration:
             c = _fit_cells([P], [yh], [~held])
             for x in range(2):
                 for a in range(17):
-                    v, t = P.vital[:, x, a], P.truth[:, x, a]
+                    v, t = P.vital[:, x, a], cast(np.ndarray, P.truth)[:, x, a]
                     ok = held & (v > 20) & (t > 20)
                     r[ok, x, a] = (np.log(t[ok] / v[ok]) / P.T - _band_design(P, a, yh)[ok] @ c[x, a]) * np.sqrt(P.T)
         R.append(r)
@@ -896,8 +911,9 @@ def band_coverage(P: Period, cal: Calibration, bands: np.ndarray, level: float, 
     c2 = cal if scale is None else Calibration(cal.b, cal.s_total, cal.gm, cal.q_total, cal.coef,
                                                cal.s_band * scale[None, :], cal.q_band, cal.widened, cal.periods)
     lo, hi = interval(P, c2, bands, P.T, level, total=False, band_region=band_region)
-    t = np.log(np.maximum(P.truth, 1e-9))
-    ok = (P.vital > 20) & (P.truth > 20)
+    truth = cast(np.ndarray, P.truth)
+    t = np.log(np.maximum(truth, 1e-9))
+    ok = (P.vital > 20) & (truth > 20)
     return np.array([float(((t >= lo) & (t <= hi))[:, :, g][ok[:, :, g]].mean()) for g in range(17)])
 
 

@@ -50,7 +50,7 @@ def _unplaced(root: str | Path, year: int) -> int:
     pattern = (Path(root) / "lake" / "ANS" / "ANS_ICB_*" / "schema_signature=*" / "uf=BR" / f"year={year}" / "*.parquet").as_posix()
     row = duckdb.sql(f"SELECT sum(QT_BENEFICIARIO_ATIVO) FROM read_parquet('{pattern}', union_by_name=true) "
                      "WHERE COBERTURA_ASSIST_PLAN LIKE 'M%' AND _MUNICIPALITY IS NULL").fetchone()
-    return int(row[0] or 0)
+    return int(row[0] or 0)  # type: ignore[index]  # duckdb stub: fetchone is Optional; an aggregate returns one row
 
 
 def load_ans(root: str | Path, years: list[int]) -> tuple[dict[tuple, int], dict[int, dict[str, int]]]:

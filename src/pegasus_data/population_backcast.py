@@ -18,6 +18,7 @@ from __future__ import annotations
 
 from pathlib import Path
 from types import SimpleNamespace
+from typing import cast
 
 import numpy as np
 
@@ -25,6 +26,7 @@ from .population_account import (
     BANDS,
     A,
     Period,
+    PlaceIndex,
     Places,
     lag_series,
     load_census,
@@ -41,10 +43,11 @@ SPAN = 9                                          # 1 August 1991 to 1 August 20
 CONTAGEM_GROUPS = (1140, 1141, 1142, 1143, 1144, 1145, 1146, 1147, 1148, 1149, 1150, 1151, 1152, 1153, 3244)
 
 
-def area_places(places: Places, area_of: dict[int, int], n_areas: int) -> SimpleNamespace:
+def area_places(places: Places, area_of: dict[int, int], n_areas: int) -> PlaceIndex:
     """What ``load_census`` and ``load_events`` need of a unit system: here the 1991-2010 comparable areas."""
-    return SimpleNamespace(n_units=n_areas, unit_of={m: area_of[m] for m in places.municipalities}, n_entities=n_areas,
-                           entity_of={m: area_of[m] for m in places.municipalities}, municipalities=places.municipalities)
+    return cast(PlaceIndex, SimpleNamespace(
+        n_units=n_areas, unit_of={m: area_of[m] for m in places.municipalities}, n_entities=n_areas,
+        entity_of={m: area_of[m] for m in places.municipalities}, municipalities=places.municipalities))
 
 
 def load_contagem(root: str | Path, municipalities: list[int]) -> np.ndarray:

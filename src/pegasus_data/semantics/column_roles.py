@@ -58,9 +58,10 @@ two uses).
 from __future__ import annotations
 
 import re
+from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from .epoch import curated
 
@@ -547,7 +548,7 @@ def roles(dataset: str, period: object = None) -> list[dict[str, Any]]:
     rows = _all_roles(dataset)
     if period is None:
         return rows
-    ys = [int(period)] if isinstance(period, (int, str)) else [int(y) for y in period]
+    ys = [int(period)] if isinstance(period, (int, str)) else [int(y) for y in cast(Iterable[Any], period)]
     lo, hi = min(ys), max(ys)
     return [r for r in rows if (r["first_year"] is None or r["first_year"] <= hi)
             and (r["last_year"] is None or r["last_year"] >= lo)]
