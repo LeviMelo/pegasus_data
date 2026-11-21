@@ -249,6 +249,19 @@ products:
     call: "tract_population(uf=33)"
     stores: [registries/ibge_tracts/tract_population_2022.parquet]
 
+  procedure_history:
+    label: "SIGTAP procedures across every monthly export"
+    kind: codes
+    source: "DATASUS, SIGTAP Tabela Unificada, 227 monthly exports 2008-01 to 2026-11 (ftp2.datasus.gov.br/public/sistemas/tup/downloads)"
+    what: >
+      Every SUS procedure code with its name, complexity, financing, sex and age bounds, days and the listed hospital (VL_SH),
+      outpatient (VL_SA) and professional (VL_SP) values in reais, one row per run of identical attributes with its first and
+      last competência; and each code's window of existence (first, last, months absent). Procedure labels are joined by
+      these windows (codelists.yml code_windows): a code is labelled only in a period it existed.
+    grain: "procedure code x run of identical attributes; procedure code (windows)"
+    period: "2008-01 to the newest export"
+    call: 'procedure_history(["0403010020"]); procedure_window("0403070171")'
+    stores: [registries/sigtap/procedure_history.parquet, registries/sigtap/procedure_windows.parquet]
   tract_aggregates:
     label: "Tract literacy, household and colour or race counts"
     kind: population
