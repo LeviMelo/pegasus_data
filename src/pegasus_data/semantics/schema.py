@@ -213,7 +213,7 @@ KINDS: tuple[tuple[str, Any], ...] = (
                 "placebo": obj("block_min_expected block_reach days key_reach")}),
             "verdict": obj("caution viable")})),
         ("fields.yml", obj("cnes fields", sub={
-            "cnes": obj("equipment facility_groups families icu_bed_codes neonatal_icu_bed_codes professional_groups "
+            "cnes": obj("accreditation_groups equipment facility_groups families icu_bed_codes neonatal_icu_bed_codes neurology_bed_codes neurosurgery_bed_codes professional_groups specialised_service_groups "
                         "support team_groups team_not_deactivated", sub={
                 "families": free(obj("dataset fixed group measure measure_by sector"))}),
             "fields": free(obj("classification equipment family gaps group kind label law measure over sector series "
