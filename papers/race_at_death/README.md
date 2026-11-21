@@ -43,7 +43,7 @@ An independent audit of the first build and what was done with it: `out/audit_re
 3. **A target journal**, then its dossier, limits and checkers (word and reference caps, abstract structure, table and
    figure caps, citation style). The current build is 4,400 words including tables and references, 17 references,
    4 tables, 3 figures, 6 supplementary tables.
-4. **References read against the sentences they support.** All 17 journal references exist at Crossref with matching
+4. **References read against the sentences they support.** All 16 journal references exist at Crossref with matching
    metadata; none was re-read in full for this draft. Each must be read by an author before submission; a real paper
    cited for a claim it does not make is still a wrong citation.
 5. **Keywords** checked against MeSH/DeCS.
