@@ -1560,42 +1560,48 @@ def _write_fields(db: sqlite3.Connection, cfg: Settings, report: CompendiumRepor
 
 
 def _held_periods(cfg: Settings) -> Any:
-    """``held(dataset, month) -> {years}``: the years whose files for that month are all on this machine, in the lake or
-    downloaded, as `plan()` decides it for `query()` (every byte the read needs is cached, or the lake holds it). One
-    rule for any dataset held whole, by month or by year, built or only downloaded."""
-    from datetime import date
+    """``held(dataset, month) -> {years}``: the years whose every publication of that month is on this machine,
+    downloaded (its bytes in the blob store) or built (a lake partition names it among its sources). One rule for any
+    dataset, by month or by year, built or only downloaded, read from the catalog in one pass per dataset: asking
+    `plan()` once per dataset and year took the map from 32 s to 6.5 min (2026-11-21). A publication is a logical file:
+    the copies of one file in two trees are one publication, held when any copy is."""
+    import json
     from functools import cache
 
-    from ._query_engine.planner import plan as _plan
+    from .retrieve import parse_dataset
 
-    this_year = date.today().year
+    def present(con: sqlite3.Connection) -> set[str]:
+        have = {str(r[0]) for r in con.execute("SELECT DISTINCT f.source_path, f.sha256 FROM fetches f").fetchall()
+                if r[1] and (cfg.blobs_dir / "sha256" / str(r[1])[:2] / str(r[1])).is_file()}
+        for (sources,) in con.execute("SELECT source_paths FROM lake_partitions").fetchall():
+            have.update(json.loads(sources or "[]"))
+        return have
 
-    def published_years(code: str) -> range:
-        """The years the catalog lists a file of ``code`` for (its own span, not a fixed range)."""
-        from .retrieve import parse_dataset
-
-        system, series = parse_dataset(code)
-        con = sqlite3.connect(f"file:{cfg.catalog_path.as_posix()}?mode=ro", uri=True)
-        try:
-            lo, hi = con.execute("SELECT min(year), max(year) FROM file_facts WHERE system = ? AND series_prefix = ? "
-                                 "AND role = 'data'", (system, series or system)).fetchone()
-        finally:
-            con.close()
-        return range(int(lo), min(int(hi), this_year) + 1) if lo and hi else range(0)
+    con = sqlite3.connect(f"file:{cfg.catalog_path.as_posix()}?mode=ro", uri=True)
+    try:
+        on_machine = present(con)
+    finally:
+        con.close()
 
     @cache
     def held(dataset: str, month: int) -> frozenset[int]:
-        code = dataset.replace("-", ".", 1)
-        out = set()
-        for year in published_years(code):
-            try:
-                r = _plan(code, period=f"{year}-{month:02d}", settings=cfg).retrieval
-            except Exception:  # noqa: BLE001 - a period nothing is published for is not held
+        system, series = parse_dataset(dataset.replace("-", ".", 1))
+        con = sqlite3.connect(f"file:{cfg.catalog_path.as_posix()}?mode=ro", uri=True)
+        try:
+            rows = con.execute(
+                "SELECT ff.year, COALESCE(ff.logical_id, ff.path), ff.path FROM file_facts ff JOIN files f ON f.path = ff.path "
+                "WHERE ff.system = ? AND ff.series_prefix = ? AND ff.role = 'data' AND f.gone_at IS NULL "
+                "AND CAST(substr(CAST(ff.normalized_date AS TEXT), 5, 2) AS INTEGER) = ?",
+                (system, series or system, month)).fetchall()
+        finally:
+            con.close()
+        by_year: dict[int, dict[str, bool]] = {}
+        for year, publication, path in rows:
+            if year is None:
                 continue
-            in_lake = bool(r.lake_years) and not r.fetch_years
-            if in_lake or (r.download_bytes and r.cached_bytes >= r.download_bytes):
-                out.add(year)
-        return frozenset(out)
+            slot = by_year.setdefault(int(year), {})
+            slot[str(publication)] = slot.get(str(publication), False) or str(path) in on_machine
+        return frozenset(y for y, pubs in by_year.items() if pubs and all(pubs.values()))
 
     return held
 
