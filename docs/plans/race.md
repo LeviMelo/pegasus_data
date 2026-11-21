@@ -51,3 +51,7 @@ the product's folder. *Done when* a reader can reproduce every number from the h
 - The 2011 form: `RACACOR` is the newborn's colour to 2010 and the mother's own declaration from 2012 (DATA_SOURCES).
 - From 15, a man is recorded darker than a woman of the same colour at birth (0.54 against 0.66 stay Branca at 15-19),
   beyond state and local composition.
+- **R3, first run** (the same entry): the chain through the hospital's record under independence is rejected by the
+  women's direct measurement (Branca 0.99 against 0.74-0.79, Preta 0.78 against 0.59-0.63). The hospital and the
+  certificate agree with each other more than either agrees with the declaration: an observer's reading is one
+  quantity, the declaration another. Next: the three readings of the same woman (`data/probes/race_chain/women_table.py`).

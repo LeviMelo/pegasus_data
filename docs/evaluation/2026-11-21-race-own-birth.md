@@ -105,3 +105,36 @@ summing to 1.
 **`race-confusion-women-2`**: building when this entry was written (about two hours: one pass per death year); its
 numbers are added to this section when it ends. `race-confusion-women-1` stays the stored and shipped version until
 then.
+
+## Adults through the hospital's record: the independence assumption fails (plan R3; `data/probes/race_chain/`)
+
+**Scenario.** `assemble.py 2022`, `chain.py 2022` (artifacts `A_2022.parquet`, `B_2022.parquet`, `chain_2022.json`), branch
+`research-2`. Two stored national links of 2022: a woman's declaration against her delivery admission
+(`sinasc_births_to_delivery_admission`, 1,531,545 pairs, 1,176,188 with both races) and the admission of a person who
+died in hospital against the certificate (`sih_deaths_to_sim`, 546,733 pairs, 422,699 with both; 199,405 women and
+223,294 men). 223 hospitals whose records are over a tenth "amarela" are left out (ADR-0128). The stored run of
+`sih_deaths_to_sim` sits under the key of an earlier form of its spec (`1cf164a9304d`; the spec now computes
+`f32141d14489`) and was read from its file.
+
+**The hospital against the declaration** (women at delivery; share recorded as declared): Branca 0.75, Parda 0.82,
+Preta 0.37 (0.54 recorded Parda), Indígena 0.58.
+
+**The test.** If, given the declared race, the certificate were written independently of the hospital's record, the
+joint of the two records would be the declared race passed through both, and the certificate against the declaration
+follows by EM. Known answer: women 15-49, measured directly by `race-confusion-women-1`.
+
+| women 15-49, certified as declared | Branca | Preta | Parda |
+|---|---|---|---|
+| the chain under independence | 0.99 | 0.78 | 0.96 |
+| measured directly (mothers' own declaration) | 0.74-0.79 | 0.59-0.63 | 0.68 |
+| the two records against each other, raw | 0.80 | 0.59 | 0.68 |
+
+The chain is rejected: it puts the certificate far closer to the declaration than it is. The hospital and the
+certificate agree with each other (0.59 for Preta) more than the hospital agrees with the person (0.37): the two
+records share what the declaration does not hold. Read: a race assigned by an observer is one thing, read twice; the
+declared race is another. Men and women, and every age from 15 to 70 and over, give the same picture under the chain
+(Preta 0.64-0.79), so it carries no evidence on sex either.
+
+**What can identify adults.** People with all three readings: a woman's declaration and certificate
+(`sim_women_deaths_to_sinasc_mothers`) joined to her hospital record by the death's id, which gives the certificate
+given the declaration *and* the hospital's record. `women_table.py` assembles it (the women's table now keeps the id).
