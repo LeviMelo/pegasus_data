@@ -38,7 +38,7 @@ from collections.abc import Callable, Iterable, Mapping, Sequence
 from dataclasses import dataclass, field, replace
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal, cast
 
 import pyarrow as pa
 import pyarrow.compute as pc
@@ -61,6 +61,9 @@ from .normalize.time import year_bounds
 from .persist.reference import read_reference_table
 from .semantics.curation import VariableDoc, form_types_a_date, load_variable_docs
 from .semantics.label_bindings import _bindings, _family_series, _key_columns, compose_key
+
+if TYPE_CHECKING:
+    from ._age import AgeDimension
 
 RenderMode = Literal["code", "label", "both"]
 
@@ -1399,7 +1402,7 @@ def _age_years(recipe: Mapping[str, Any], name: str, inputs: Sequence[str], sour
     if not isinstance(body, dict):
         return None
     body = {**body, "lookup": body.get("lookup") or recipe.get("lookup")}
-    return years_column(parse_age(body, tuple(inputs), name=name), source)
+    return years_column(cast("AgeDimension", parse_age(body, tuple(inputs), name=name)), source)
 
 
 def derived_age_years(docs: Mapping[str, VariableDoc], name: str, source: pa.Table) -> Any:

@@ -274,7 +274,7 @@ def _fetch_years_of(retrieval: Any, as_of: object) -> tuple[int, ...] | tuple[No
 def _read_fetched(
     tables: list[pa.Table], source_reports: list[Any], report: QueryReport, dataset: str, request: Any,
     query_plan: Any, fetch_years: tuple[int, ...] | tuple[None, ...], resolved: Settings, *,
-    allow_partial: bool, as_of: object,
+    allow_partial: bool, as_of: str | date | datetime | None,
 ) -> None:
     """Read each fetched year from the published files; tables and reports are appended, a short year is warned."""
     from .._request import _as_years, _clean_months, _clean_ufs

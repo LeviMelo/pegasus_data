@@ -43,7 +43,7 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import numpy as np
 import pyarrow as pa
@@ -63,7 +63,7 @@ RACES = ("Branca", "Preta", "Amarela", "Parda", "Indígena")
 DECLARED = (*RACES, "Ignorado")
 #: Recorded classes (columns of C): the five colours and "blank" (a blank in SIM).
 RECORDED = (*RACES, "Ignorado")
-CODE = {"1": 0, "2": 1, "3": 2, "4": 3, "5": 4}
+CODE: dict[str | None, int] = {"1": 0, "2": 1, "3": 2, "4": 3, "5": 4}
 UNKNOWN = 5
 AGE_BANDS = ("0-6 d", "7-27 d", "28-364 d")
 #: Age bands (years) of the women 15-49 product; the model is the same, the bands are the population's.
@@ -354,7 +354,7 @@ class Fit:
     def save(self, path: Path) -> None:
         np.savez_compressed(path, z_mean=self.z_mean, z_sd=self.z_sd, n_pairs=self.n_pairs,
                             diagnostics=json.dumps(self.diagnostics), version=self.version,
-                            age_bands=np.array(self.age_bands), **self.draws)
+                            age_bands=np.array(self.age_bands), **self.draws)  # type: ignore[arg-type]  # numpy stub: **kwargs checked against savez_compressed's bool parameters
 
     @classmethod
     def load(cls, path: Path) -> Fit:
@@ -695,7 +695,7 @@ def _residence(settings: Any, dataset: str, role: str, table: pa.Table, ids: lis
     if not pc.any(gaps).as_py():
         return value
     column = column_of(dataset, role)
-    raw = query(dataset, period=year, geography="BR", select=[column], present="codes", provenance="all", root=settings.root)
+    raw = cast("pa.Table", query(dataset, period=year, geography="BR", select=[column], present="codes", provenance="all", root=settings.root))
     found = dict(zip(record_ids(raw).to_pylist(), raw[column].cast(pa.string()).to_pylist(), strict=True))
     return pa.array([v if v is not None else found.get(i) for v, i in zip(value.to_pylist(), ids, strict=True)], pa.string())
 

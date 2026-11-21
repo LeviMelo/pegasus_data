@@ -22,7 +22,7 @@ import json
 from collections.abc import Iterator, Mapping, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, cast
+from typing import TYPE_CHECKING, Any, cast
 
 import pyarrow as pa
 
@@ -68,7 +68,10 @@ from .view import (
     RenderReport,
 )
 
-ds = LazyModule("pyarrow.dataset")
+if TYPE_CHECKING:
+    import pyarrow.dataset as ds
+else:
+    ds = LazyModule("pyarrow.dataset")
 
 __all__ = [
     "Catalog",

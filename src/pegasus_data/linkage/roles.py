@@ -313,7 +313,7 @@ def partition_files(dataset: str, year: int, settings: Any) -> tuple[Path, list[
     from ..retrieve import parse_dataset
 
     system, series = parse_dataset(dataset)
-    return published_files(settings.lake_dir, system, series, year)
+    return published_files(settings.lake_dir, system, cast(str, series), year)
 
 
 def table_key(dataset: str, year: int, settings: Any) -> str | None:

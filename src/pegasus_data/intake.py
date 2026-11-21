@@ -699,7 +699,7 @@ def register_held(settings: Any, source: str | None = None) -> dict[str, Any]:
             signature = parts[0].parents[2].name.split("=", 1)[1]
             names = [n for n in pq.read_schema(parts[0]).names if n != "year"]
             unit["fingerprint"] = _fingerprint(spec, unit)
-            _register(settings, name, spec, unit, unit["key"], family, signature, names, parts, lake_root)
+            _register(settings, name, spec, unit, unit["key"], cast(str, family), signature, names, parts, lake_root)
             registered += 1
         if registered or missing:
             out[name] = {"registered": registered, "missing": missing}

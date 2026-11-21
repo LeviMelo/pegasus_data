@@ -22,6 +22,7 @@ from __future__ import annotations
 import csv
 import re
 from pathlib import Path
+from typing import cast
 
 import numpy as np
 
@@ -157,7 +158,7 @@ def build_completeness(settings, *, version: str, validation: str, last_year: in
     table, acct_manifest = read_modelled("registration_completeness", settings=settings)
     acct = table.to_pylist()
     independent = {(r["system"], r["uf"], y): r["completeness"] for r in acct
-                   for y in range(*(int(v) + i for i, v in enumerate(re.fullmatch(r"(\d{4})-(\d{4})", r["period"]).groups())))}
+                   for y in range(*(int(v) + i for i, v in enumerate(cast("re.Match[str]", re.fullmatch(r"(\d{4})-(\d{4})", r["period"])).groups())))}
     #  ^ the years the cohort was born in: the period "2000-2004" is 2000 to 2004 inclusive
     rows, calibration = [], {}
     for system in systems():

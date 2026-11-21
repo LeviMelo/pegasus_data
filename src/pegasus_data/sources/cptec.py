@@ -49,7 +49,7 @@ from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from email.utils import parsedate_to_datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 BASE = "https://ftp.cptec.inpe.br/modelos/tempo/"
 
@@ -429,7 +429,7 @@ def _clause(start: Any, end: Any, municipality: Any, uf: Any, as_of: Any) -> str
         if None in placed:
             raise ValueError(f"not municipality codes (6 or 7 digits naming a municipality): "
                              f"{[v for v, p in zip(values, placed, strict=True) if p is None]}")
-        where.append("municipality7 IN (" + ",".join(repr(str(p)) for p in sorted(set(placed))) + ")")
+        where.append("municipality7 IN (" + ",".join(repr(str(p)) for p in sorted(cast("set[str]", set(placed)))) + ")")
     if uf is not None:
         states = [str(s).strip() for s in ([uf] if isinstance(uf, (str, int)) else uf)]
         where.append("substr(municipality7, 1, 2) IN (" + ",".join(repr(s) for s in states) + ")")
@@ -458,7 +458,7 @@ def _latest(con: Any, name: str, weight: str, clause: str, settings: Any, start:
     files = ([f"'{folder.as_posix()}/year={y}/month=*/*.parquet'" for y in years if (folder / f"year={y}").is_dir()]
              if years is not None else [f"'{folder.as_posix()}/year=*/month=*/*.parquet'"])
     if not files:
-        raise FileNotFoundError(f"no {name} is held in {folder} for {years[0]}-{years[-1]}")
+        raise FileNotFoundError(f"no {name} is held in {folder} for {cast(range, years)[0]}-{cast(range, years)[-1]}")
     con.execute(f"""CREATE OR REPLACE VIEW {name} AS
         SELECT municipality7, date, value_{weight} AS {name}, coverage_{weight} AS {name}_coverage,
                stations AS {name}_stations, published AS {name}_published, file

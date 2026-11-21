@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Protocol
+from typing import Protocol, cast
 
 from .config import Settings
 from .normalize.time import year_of
@@ -68,7 +68,7 @@ class LocalCnesRegistryProvider:
                 )
                 family_ids = [str(row["family_id"]) for row in family_rows]
                 requested_years = (
-                    set(range(year_of(period[0]), year_of(period[1]) + 1))
+                    set(range(cast(int, year_of(period[0])), cast(int, year_of(period[1])) + 1))
                     if period else set()
                 )
                 held_years: set[int] = set()
@@ -137,7 +137,7 @@ class LocalCnesRegistryProvider:
                 parameters: list[int] = []
                 if period:
                     where += "AND file_facts.year BETWEEN ? AND ? "
-                    parameters = [year_of(period[0]), year_of(period[1])]
+                    parameters = [cast(int, year_of(period[0])), cast(int, year_of(period[1]))]
                 total_rows = store.query(
                     "SELECT COALESCE(SUM(files.size),0) total FROM files "
                     "JOIN file_facts ON file_facts.path=files.path "

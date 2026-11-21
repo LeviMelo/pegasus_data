@@ -124,10 +124,10 @@ def schema_presence(store: CatalogStore, families: Sequence[Mapping[str, Any]]) 
                 found.setdefault(str(row["sig"]), set()).add(str(row["fld"]))
         unindexed = [sig for sig in signatures if sig not in found]
         for start in range(0, len(unindexed), 500):
-            chunk = unindexed[start:start + 500]
-            marks = ",".join("?" for _ in chunk)
+            pending = unindexed[start:start + 500]
+            marks = ",".join("?" for _ in pending)
             for row in store.query(
-                f"SELECT schema_signature AS sig, fields_json FROM schemas WHERE schema_signature IN ({marks})", chunk,
+                f"SELECT schema_signature AS sig, fields_json FROM schemas WHERE schema_signature IN ({marks})", pending,
             ):
                 try:
                     names = json.loads(row["fields_json"] or "[]")

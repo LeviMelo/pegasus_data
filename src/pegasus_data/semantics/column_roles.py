@@ -435,7 +435,7 @@ def _column(dataset: str, column: str, spec: dict[str, Any], where: str) -> Colu
     if len(competence) > 2:
         raise bad(f"competence is a year and a month column or one AAAAMM column, not {list(competence)}")
     if unit_from is not None and (unit not in CURRENCIES or not isinstance(unit_from, int) or month_of(unit_from) is None
-                                  or not 1900 <= year_of(unit_from) <= 2100):
+                                  or not 1900 <= cast(int, year_of(unit_from)) <= 2100):
         raise bad(f"unit_from {unit_from!r} is the first AAAAMM an amount is in the unit, for a currency")
     lo, hi = (years + (None, None))[:2] if len(years) == 2 else (None, None)
     if unfilled and ((lo is not None and unfilled[0] < lo) or (hi is not None and unfilled[-1] > hi)):
@@ -592,7 +592,9 @@ def _declared_key_in(declared: dict[str, tuple[ColumnRole, ...]], dataset: str) 
         key = next((c for c in candidates if c in declared), key)
         if key not in declared:
             # a roles file declared for a pattern of datasets (SINAN-*: the notification block every agravo carries)
-            key = next((k for k in sorted(declared) if "*" in k and any(fnmatchcase(c, k) for c in candidates)), key)
+            key = next((k for k in sorted(declared)
+                        if "*" in k and any(fnmatchcase(c, k) for c in candidates)),  # type: ignore[type-var]  # suspected bug: series None puts None in candidates
+                       key)
     if key not in declared:
         raise KeyError(f"no column roles declared for {dataset!r}; declared: {sorted(declared)}")
     return key

@@ -38,7 +38,7 @@ import time
 from collections.abc import Iterable
 from dataclasses import dataclass, field, replace
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import duckdb
 import numpy as np
@@ -207,7 +207,7 @@ def padded_period(period: object, side: Side) -> object:
     if p is None:
         return period
 
-    return (str(year_of(p.start) - before), str(year_of(p.end) + after))
+    return (str(cast(int, year_of(p.start)) - before), str(cast(int, year_of(p.end)) + after))
 
 
 @curated

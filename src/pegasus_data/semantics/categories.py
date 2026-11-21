@@ -8,6 +8,7 @@ beginning with f was female).
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from pathlib import Path
 
 import pyarrow as pa
@@ -31,7 +32,7 @@ def canonical_sex(labels: pa.Array | pa.ChunkedArray) -> pa.Array:
     return pc.take(pa.array(categories, pa.string()), pc.index_in(text, value_set=pa.array(spellings, pa.string())))
 
 
-def code_labels(dataset: str, column: str, year: int, codes: list[str | None], root: str | Path | None = None) -> dict[str, str]:
+def code_labels(dataset: str, column: str, year: int, codes: Sequence[str | None], root: str | Path | None = None) -> dict[str, str]:
     """``code -> label`` of the distinct ``codes`` of ``column`` in ``dataset``'s ``year`` (the codelist the renderer
     chooses for that family and year); a code the codelist does not decode is absent."""
     from .._request import parse_dataset

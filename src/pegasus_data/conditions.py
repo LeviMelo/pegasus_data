@@ -44,7 +44,7 @@ import json
 import math
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, cast
 
 import pyarrow as pa
 import pyarrow.compute as pc
@@ -235,7 +235,7 @@ class Condition:
                     f"{where}: {role.role} ({role.column}) does not declare which of its values mean 'not recorded'"
                     f"{' (' + role.missing_unknown + ')' if role.missing_unknown else ''}; a condition cannot tell a "
                     "measurement from a filler without it")
-            return tuple(_in_role_unit(v, clause.unit, role, where) for v in raw)
+            return tuple(_in_role_unit(v, clause.unit, role, where) for v in cast("Sequence[float]", raw))
         if role.kind in ("date", "identifier"):
             raise ValueError(f"{where}: {role.role} ({role.column}) has kind {role.kind}; a condition tests a number or a category")
         if role.kind == "number" and clause.op in _ORDER:
@@ -252,7 +252,7 @@ class Condition:
         if role.missing and (hit := sorted(set(raw) & set(role.missing))):
             raise ValueError(f"{where}: {hit} are codes {role.column} files for 'not recorded'; a missing code is "
                              "never a value a record satisfies")
-        return tuple(raw)
+        return tuple(cast("Sequence[str]", raw))
 
     def bind(self, year: int | None) -> tuple[Bound | None, ...]:
         """Each clause on the column that carries its role in ``year`` (None: no year known, any declared span);
@@ -297,7 +297,7 @@ class Condition:
     def scan(self, years: Sequence[int]) -> ds.Expression | None:
         """The lake scan's predicate: the records the raw columns do not rule out (true or unknown). A derived column
         is not in the scan; a clause whose column the family lacks cannot rule anything out."""
-        by_year = {y: self.bind(y) for y in years} or {None: self.bind(None)}
+        by_year: dict[int | None, tuple[Bound | None, ...]] = {y: self.bind(y) for y in years} or {None: self.bind(None)}
         signatures = {tuple(b.column if b is not None else None for b in bound) for bound in by_year.values()}
         if len(signatures) != 1:
             return None                     # the columns change inside the family's years: tested after the read
@@ -323,7 +323,7 @@ class Condition:
         else:
             column, held = None, sorted({int(y) for y in years or ()})
         groups: dict[tuple[str | None, ...], list[Any]] = {}
-        for y in held or [None]:
+        for y in cast("list[int | None]", held) or [None]:
             bound = self.bind(y)
             groups.setdefault(tuple(b.column if b else None for b in bound), []).append(y)
         if len(groups) == 1:

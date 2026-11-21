@@ -573,9 +573,9 @@ def download_estimate(
             f"SELECT DISTINCT f.path, f.size, x.sha256 FROM files f JOIN fetches x ON x.source_path = f.path "
             f"WHERE f.path IN ({marks})", tuple(paths))
         held: dict[str, int] = {}
-        for row in fetched:
-            digest = str(row["sha256"])
+        for blob_row in fetched:
+            digest = str(blob_row["sha256"])
             if (blobs / digest[:2] / digest).exists():
-                held[str(row["path"])] = int(row["size"] or 0)
+                held[str(blob_row["path"])] = int(blob_row["size"] or 0)
         cached = sum(held.values())
     return total, cached

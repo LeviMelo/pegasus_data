@@ -44,13 +44,13 @@ class Period:
 
     @property
     def years(self) -> tuple[int, ...]:
-        return tuple(range(year_of(self.start), year_of(self.end) + 1))
+        return tuple(range(cast(int, year_of(self.start)), cast(int, year_of(self.end)) + 1))
 
     def months_in(self, year: int) -> tuple[int, ...]:
         """The months of ``year`` the period covers: the stretch of a month-precision period that falls in it, every
         month for a whole year of it (and for a period given in years)."""
-        lo = month_of(self.start) if year == year_of(self.start) else 1
-        hi = month_of(self.end) if year == year_of(self.end) else 12
+        lo = cast(int, month_of(self.start)) if year == year_of(self.start) else 1
+        hi = cast(int, month_of(self.end)) if year == year_of(self.end) else 12
         return tuple(range(lo, hi + 1))
 
     def __str__(self) -> str:

@@ -1338,6 +1338,7 @@ class DatasetSemantics:
 
             wanted = str(dataset_key(self.dataset_id)).upper().replace(".", "-", 1)
             century = next((c.century for c in chosen if c.century), None)
+            form: dict[str, Any] | None
             if kind == "time":
                 form = {"encoding": "year_month" if len(chosen) > 1 else
                         _date_encoding(wanted, chosen[0].column, chosen[0].role,

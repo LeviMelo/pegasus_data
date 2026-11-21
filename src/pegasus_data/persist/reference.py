@@ -41,7 +41,7 @@ import re
 from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import pyarrow as pa
 import pyarrow.compute as pc
@@ -588,12 +588,13 @@ def _read_reference_table(
         # Written in the curation itself; one vintage, no system copies (ADR-0079). A code written with a window
         # decodes in the years of that window only: elsewhere it is undecoded, visibly, never labelled by a table that
         # does not cover its year.
-        span = (
+        window_span = (
             (int(competencia), int(competencia)) if competencia is not None
             else year_bounds(year) if year is not None else None
         )
-        windows = inline_windows(table_id) if span is not None else {}
-        codes = [c for c in inline if c not in windows or _window_overlaps(windows[c], span)]
+        windows = inline_windows(table_id) if window_span is not None else {}
+        codes = [c for c in inline if c not in windows
+                 or (window_span is not None and _window_overlaps(windows[c], window_span))]
         return pa.table({"code": codes, "label": [inline[c] for c in codes]})
     base = Path(lake_root) / "reference" / _SAFE.sub("_", table_id)
     if not base.exists():
@@ -799,7 +800,7 @@ def reference_vintage(
     if competencia is not None:
         span, asked = (int(competencia), int(competencia)), str(int(competencia))
     else:
-        span, asked = year_bounds(year), str(year)       # type: ignore[operator]
+        span, asked = year_bounds(cast("int | str", year)), str(year)
     from ..labelpack import read_packed, select_windows, windows_answering
     from ..semantics.curation import inline_windows
 
@@ -809,6 +810,8 @@ def reference_vintage(
         live = tuple(sorted(code for code, window in windowed.items() if _window_overlaps(window, span)))
         return _VINTAGES.setdefault(("inline", table_id.upper(), live), (year, competencia))
 
+    covering: Sequence[Any]
+    scope: tuple[Any, ...]
     try:
         if base.is_dir():
             table, scope = _scoped_table(base, table_id, system, code_width)

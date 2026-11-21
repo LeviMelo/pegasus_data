@@ -26,7 +26,7 @@ and a person without a plan may use a private clinic. It is the population a pla
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import numpy as np
 import pyarrow as pa
@@ -43,7 +43,7 @@ def _links_field() -> tuple[str, dict, dict]:
 
     name = str(product("population_without_private_coverage")["inputs"]["links"]["field"])
     spec = declared_fields()[name]
-    return name, spec, intake_cube(name, spec)
+    return name, spec, cast(dict, intake_cube(name, spec))
 
 
 def ans_band(label: str | None, labels: list[str]) -> str | None:

@@ -20,7 +20,7 @@ from __future__ import annotations
 import hashlib
 import json
 import time
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from pathlib import Path
 from typing import Any
 
@@ -33,13 +33,13 @@ from .persist.kept import write_parquet_atomic
 __all__ = ["build_extract", "extract_dir", "extract_table"]
 
 
-def _filters(filters: dict[str, Sequence[str]]) -> dict[str, list[str]]:
+def _filters(filters: Mapping[str, Sequence[str]]) -> dict[str, list[str]]:
     from ._query_engine.request import normalise_prefix
 
     return {str(c).upper(): sorted({normalise_prefix(x) for x in codes}) for c, codes in sorted(filters.items())}
 
 
-def extract_dir(settings: Any, dataset: str, filters: dict[str, Sequence[str]]) -> Path:
+def extract_dir(settings: Any, dataset: str, filters: Mapping[str, Sequence[str]]) -> Path:
     """Where the extract of ``dataset`` by ``filters`` (column -> code prefixes) is kept."""
     from ._request import parse_dataset
 
@@ -72,12 +72,12 @@ def _files(settings: Any, dataset: str, years: Sequence[int], ufs: Sequence[str]
                 WHERE ff.system = ? AND ff.series_prefix = ? AND ff.role = 'data' AND f.gone_at IS NULL
                 AND ff.year IN ({marks}) ORDER BY ff.year, ff.normalized_date, ff.geo_code""",
             [system, series or system, *map(int, years)])
-        rows = [dict(r) for r in rows if not ufs or r["geo_code"] in set(ufs)]
-        chosen = {str(r["path"]) for r in choose_representations(store, rows, on_conflict="all").selected}
+        file_rows = [dict(r) for r in rows if not ufs or r["geo_code"] in set(ufs)]
+        chosen = {str(r["path"]) for r in choose_representations(store, file_rows, on_conflict="all").selected}
         keep = ("path", "geo_code", "year", "normalized_date")
         seen: set[str] = set()
         out = []
-        for r in rows:
+        for r in file_rows:
             if r["path"] in chosen and r["path"] not in seen:
                 seen.add(r["path"])
                 out.append({k: r[k] for k in keep})
@@ -331,6 +331,7 @@ def extract_table(dataset: str, column: str, codes: Sequence[str], years: Sequen
         held = ((m or {}).get("filters") or {}).get(column)
         if not held or not all(any(a.startswith(p) for p in held) for a in asked):
             continue
+        assert m is not None  # held is non-empty only when the manifest was read
         read = {int(v["year"]) for v in m["files"].values()}
         want = sorted(set(map(int, years))) if years else sorted(read)
         listed = {f["path"] for f in _files(settings, dataset, want)}

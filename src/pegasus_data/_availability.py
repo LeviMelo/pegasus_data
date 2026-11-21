@@ -534,9 +534,9 @@ def field_available(
         if not recipes:
             return "absent"
         rank = {"absent": 0, "unknown": 1, "present": 2}
-        states = [min((field_available(dataset, c, year, root=root, settings=settings) for c in inputs), key=rank.get)
+        states = [min((field_available(dataset, c, year, root=root, settings=settings) for c in inputs), key=rank.__getitem__)
                   for inputs in recipes]
-        return max(states, key=rank.get)
+        return max(states, key=rank.__getitem__)
     return window.state(year)
 
 
