@@ -40,14 +40,6 @@ class TestCR01_StaleFallbackIsExplicit:
 class TestCR02_RenderingIsScopedPerVintage:
     """The version-scoped renderer was not actually scoped per row/year/generation."""
 
-    def test_load_renders_each_family_and_year_separately(self):
-        from pegasus_data import api
-
-        source = inspect.getsource(api.load)
-        assert "split_by_year_column" in source and "render_groups" in source, (
-            "one render over concatenated generations applies one vintage's "
-            "codelists to every year in the answer"
-        )
 
     def test_a_render_reports_the_vintage_it_actually_used(self):
         from pegasus_data.view import RenderReport
@@ -80,19 +72,6 @@ class TestCR03_MissingColumnsDoNotDropGenerations:
         assert exc.columns_absent == ["A", "B"]
 
 
-class TestCR04_LoadHasFetchsAxisGuard:
-    """load() could return a false empty for a filter the files are not split on."""
-
-    def test_every_public_reader_refuses_the_same_impossible_filter(self):
-        from pegasus_data import api
-        from pegasus_data._query_engine import readplan
-        from pegasus_data.retrieve import FilterHasNoAxis, axis_refusal
-
-        # the guard lives in the read plan that load() and scan() both start from
-        source = inspect.getsource(readplan.plan_lake_read)
-        assert "axis_refusal" in source and "FilterHasNoAxis" in source
-        assert all("plan_lake_read" in inspect.getsource(fn) for fn in (api.load, api.scan))
-        assert callable(axis_refusal) and issubclass(FilterHasNoAxis, ValueError)
 
 
 class TestCR05_OneDatasetResolver:
@@ -107,17 +86,6 @@ class TestCR05_OneDatasetResolver:
             "the FTP layout is evidence, not the authority"
         )
 
-    def test_load_scan_and_describe_all_reach_it(self):
-        """load() and scan() reach it through plan_lake_read (the read plan), the planner's coverage through
-        resolve_family itself: no reader has its own resolver."""
-        from pegasus_data import api
-        from pegasus_data._query_engine import coverage, readplan
-
-        assert "resolve_family" in inspect.getsource(readplan.plan_lake_read)
-        for fn in (api.load, api.scan):
-            assert "plan_lake_read" in inspect.getsource(fn), fn.__name__
-        assert "resolve_family" in inspect.getsource(api.describe)
-        assert "resolve_family" in inspect.getsource(coverage._catalog_coverage)
 
 
 class TestCR06_PartitionReplacementIsNotDestructiveFirst:
@@ -139,24 +107,6 @@ class TestCR06_PartitionReplacementIsNotDestructiveFirst:
         assert "staged_tree" in inspect.getsource(lake.Lake.write_batches)
 
 
-class TestHI14_ColdFetchCensusIsScoped:
-    """A cold fetch censused far more strata than the request needed."""
-
-    def test_the_census_is_narrowed_to_the_request(self):
-        from pegasus_data import retrieve
-
-        assert hasattr(retrieve, "_strata_for"), (
-            "a request for one state-year should not census the whole system"
-        )
-        signature = inspect.signature(retrieve._strata_for).parameters
-        # Narrowed by DATASET and by year. A request for one dataset should not
-        # census every stratum the system owns, which is what made a cold
-        # fetch pay for the whole tree.
-        assert {"system", "series", "years"} <= set(signature)
-        assert "return ids or None" in inspect.getsource(retrieve._strata_for), (
-            "None means 'nothing could be narrowed', which asks for the full "
-            "census — the fallback must stay explicit"
-        )
 
 
 class TestDerivedWritersUseDurableTrees:

@@ -15,7 +15,6 @@ from pegasus_data.measures import (
     MAX,
     MEAN,
     MIN,
-    RATIO,
     SUM,
     AggregationRefused,
     Measure,
@@ -30,7 +29,7 @@ from pegasus_data.measures import (
 )
 from pegasus_data.semantics.curation import parse_grain
 
-ALL_KINDS = (COUNT, SUM, MEAN, RATIO, MIN, MAX)
+ALL_KINDS = (COUNT, SUM, MEAN, MIN, MAX)
 SAMPLE = (3.0, 1.0, 4.0, 1.0, 5.0, 9.0)
 
 
@@ -89,14 +88,6 @@ class TestFinalizeSaysTheHonestThing:
         measure = Measure("los", MEAN, "DIAS_PERM")
         states = [MEAN.lift(v) for v in (4.0, "", None, "  ", 6.0)]
         assert finalize(measure, merge_all(measure, states)) == pytest.approx(5.0)
-
-    def test_a_rate_combines_as_summed_parts_not_as_a_mean_of_rates(self) -> None:
-        """The combined rate of two places is not the mean of their rates."""
-        measure = Measure("r", RATIO, "x")
-        big = (90.0, 100.0)      # 0.9 over a large denominator
-        small = (0.0, 1.0)       # 0.0 over a tiny one
-        assert finalize(measure, RATIO.merge(big, small)) == pytest.approx(90 / 101)
-        assert finalize(measure, RATIO.merge(big, small)) != pytest.approx(0.45)
 
     def test_an_unobserved_extreme_is_undefined(self) -> None:
         assert finalize(Measure("m", MIN, "x"), MIN.identity()) is None

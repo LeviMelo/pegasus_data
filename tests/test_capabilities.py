@@ -13,7 +13,7 @@ import json
 import pytest
 
 from pegasus_data.capabilities import _control_for, _decimals_for, capabilities, catalogue
-from pegasus_data.measures import COUNT, MAX, MEAN, MIN, RATIO, SUM
+from pegasus_data.measures import COUNT, MAX, MEAN, MIN, SUM
 
 
 class TestFormulaMatchesFinalize:
@@ -31,7 +31,6 @@ class TestFormulaMatchesFinalize:
             (SUM, (12.5,)),
             (MEAN, (4.0, 10.0)),
             (MEAN, (1.0, 3.0)),
-            (RATIO, (3.0, 12.0)),
             (MIN, (2.0,)),
             (MAX, (9.0,)),
         ],
@@ -52,7 +51,7 @@ class TestFormulaMatchesFinalize:
         A formula reaching for a column the payload does not carry would be a
         promise the wire cannot keep.
         """
-        for kind in (COUNT, SUM, MEAN, RATIO, MIN, MAX):
+        for kind in (COUNT, SUM, MEAN, MIN, MAX):
             allowed = {f"m_{field}" for field in kind.state_fields}
             names = {
                 token for token in kind.formula("m").replace("/", " ").split()
@@ -63,7 +62,6 @@ class TestFormulaMatchesFinalize:
     def test_a_zero_denominator_is_undefined_not_zero(self) -> None:
         """0/0 is a claim nobody made, and both sides must agree it is absent."""
         assert MEAN.finalize((0.0, 0.0)) is None
-        assert RATIO.finalize((0.0, 0.0)) is None
 
 
 class TestControlChoice:

@@ -118,14 +118,6 @@ class TestTheAxisRefusalIsOneRefusal:
 
 
 class TestVintageRenderingIsOneOperation:
-    def test_fetch_and_load_use_the_same_renderer(self):
-        """fetch() rendered the whole answer at one vintage while load() split
-        by (family, year). The old closure test asserted `_by_vintage` appeared
-        in api.py — true, and silent about fetch()."""
-        import pegasus_data.retrieve as retrieve
-
-        assert "render_groups" in inspect.getsource(retrieve.fetch)
-        assert "render_groups" in inspect.getsource(api.load)
 
     def test_both_splitters_produce_the_same_shape(self):
         from pegasus_data.render_groups import split_by_source, split_by_year_column

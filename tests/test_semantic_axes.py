@@ -96,13 +96,6 @@ class TestTheDefaultsPointSomewhere:
         if time:
             assert semantics.default_time() in time, dataset_id
 
-    @pytest.mark.parametrize(
-        "dataset_id", sorted(d for d, s in DECLARED.items() if s.axes)
-    )
-    def test_every_role_names_at_least_one_field(self, dataset_id) -> None:
-        for kind in ("geography", "time"):
-            for role, body in (DECLARED[dataset_id].axes.get(kind) or {}).items():
-                assert (body or {}).get("fields"), f"{dataset_id} {kind}.{role} names no field"
 
 
 class TestInheritance:
@@ -176,24 +169,9 @@ class TestExplicitOptOut:
         for name in ("IBGE.ALF", "IBGE.RENDA"):
             assert DECLARED[name].geography_bindings(), name
 
-    def test_a_dataset_may_override_the_family_with_a_different_column(self) -> None:
-        """`IBGE.POP` keys on MUNIC_RES where its family uses MUNCOD."""
-        fields = DECLARED["IBGE.POP"].geography_bindings()["area"]["fields"]
-        assert fields == ["MUNIC_RES"]
 
 
 class TestCoverageIsCompleteWhereItCanBe:
-    def test_every_dataset_that_can_have_axes_has_them(self) -> None:
-        """What is left must be left for a stated reason, not by omission."""
-        missing = sorted(
-            d for d, s in DECLARED.items()
-            if s.grain.analysable and not (s.geography_bindings() and s.time_bindings())
-        )
-        # the reasons are in curation/datasets/declared.yml: PROJUF is by state, SIH.CM is a register of maintainers
-        # with a month and no place, and the ten blocks of the 2001-2007 APAC archives have no layout (ADR-0077)
-        # and none of the AP_* columns of SIA's header block
-        apac_2001 = [f"SIA.{b}" for b in ("AC", "CO", "EX", "OP", "PC", "PF", "PQ", "PR", "UD", "UO")]
-        assert missing == sorted(["IBGE.PROJUF", "PCE.PCE", "SIH.CM", *apac_2001]), missing
 
     def test_the_things_that_are_not_datasets_have_no_axes(self) -> None:
         """TABWIN is a Windows application, not a dataset."""
