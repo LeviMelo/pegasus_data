@@ -48,6 +48,7 @@ columns:
     - 2008
     - 2026
   AP_CEPPCN:
+    compare: {patient.postcode: {type: code}}
     role: patient.postcode
     kind: place
     model: link_only
@@ -132,6 +133,7 @@ columns:
     - 2008
     - 2026
   AP_CNSPCN:
+    compare: {patient.cns: {type: code}}
     role: patient.cns
     kind: identifier
     model: link_only
@@ -154,6 +156,7 @@ columns:
     - 2008
     - 2026
   AP_CODUNI:
+    compare: {authorisation.facility: {type: facility}}
     role: authorisation.facility
     kind: institution
     model: institution
@@ -215,6 +218,7 @@ columns:
     - 2008
     - 2026
   AP_DTINIC:
+    compare: {authorisation.start: {type: date, format: YYYYMMDD}}
     role: authorisation.start
     kind: date
     model: when
@@ -327,6 +331,7 @@ columns:
     - 2008
     - 2026
   AP_MUNPCN:
+    compare: {patient.residence: {type: municipality}}
     role: patient.residence
     kind: place
     model: stratum
@@ -370,6 +375,7 @@ columns:
     - 2011
     - 2026
   AP_NUIDADE:
+    compare: {patient.age: {type: code}}
     missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: patient.age
     kind: number
@@ -445,6 +451,7 @@ columns:
     - 2008
     - 2026
   AP_SEXO:
+    compare: {patient.sex: {type: sex}}
     role: patient.sex
     kind: category
     model: stratum
@@ -596,6 +603,7 @@ columns:
     - 2008
     - 2026
   AR_CID10:
+    compare: {authorisation.tumour_topography: {type: code}}
     role: authorisation.tumour_topography
     kind: code_tree
     model: mark
@@ -701,6 +709,7 @@ columns:
     - 2008
     - 2026
   AR_DTIDEN:
+    compare: {authorisation.pathology_date: {type: date, format: YYYYMMDD}}
     role: authorisation.pathology_date
     kind: date
     model: when

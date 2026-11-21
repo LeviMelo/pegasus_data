@@ -106,6 +106,9 @@ class CodesParam:
     role: str
     any_role: str = ""
     procedure_role: str = ""
+    #: the other side's role the same diagnosis codes also filter (a glioma's surgery meets only a glioma's radiotherapy,
+    #: not every cancer's: 606 pairs against 310 by chance before, São Paulo 2021); unused by a procedure cohort
+    partner_role: str = ""
 
 
 @dataclass(frozen=True, slots=True)
@@ -269,7 +272,14 @@ def _params(name: str, body: dict[str, Any]) -> CodesParam | None:
         if r not in roles or roles[r].type not in ("code", "codes"):
             raise ValueError(f"links.yml: {name}: params.codes names {r!r}, which is not a code or codes role of "
                              f"{body[side]['dataset']}")
-    return CodesParam(side, role, str(item.get("any") or ""), str(item.get("procedure") or ""))
+    partner = str(item.get("partner") or "")
+    if partner:
+        other = "right" if side == "left" else "left"
+        proles = dataset_roles(str(body[other]["dataset"])).roles
+        if partner not in proles or proles[partner].type not in ("code", "codes"):
+            raise ValueError(f"links.yml: {name}: params.codes.partner names {partner!r}, which is not a code or codes "
+                             f"role of {body[other]['dataset']}")
+    return CodesParam(side, role, str(item.get("any") or ""), str(item.get("procedure") or ""), partner)
 
 
 def _outcome(body: dict[str, Any]) -> Outcome | None:
@@ -332,8 +342,15 @@ def bind(spec: LinkSpec, codes: Iterable[str] | str | None = None, match: str = 
     chosen = normalise_codes(codes, "sigtap" if match == "procedure" else "icd")
     cond = _codes_condition(role, dataset_roles(side.dataset).roles[role].type, chosen)
     filtered = replace(side, where=f"({side.where}) AND {cond}" if side.where else cond)
-    return replace(spec, bound=Codes(chosen, match),
-                   **{"left" if spec.params.side == "left" else "right": filtered})  # type: ignore[arg-type]  # replace() with a computed field name
+    bound = replace(spec, bound=Codes(chosen, match),
+                    **{"left" if spec.params.side == "left" else "right": filtered})  # type: ignore[arg-type]  # replace() with a computed field name
+    if spec.params.partner_role and match != "procedure":
+        other_name = "right" if spec.params.side == "left" else "left"
+        other = getattr(bound, other_name)
+        kind = dataset_roles(other.dataset).roles[spec.params.partner_role].type
+        pcond = _codes_condition(spec.params.partner_role, kind, chosen)
+        bound = replace(bound, **{other_name: replace(other, where=f"({other.where}) AND {pcond}" if other.where else pcond)})  # type: ignore[arg-type]
+    return bound
 
 
 def _roles_needed(spec: LinkSpec, side: str) -> list[str]:

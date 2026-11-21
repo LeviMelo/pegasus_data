@@ -27,3 +27,16 @@ continues the previous one when it starts within `gap_days` of its end and that 
 same facility or a transfer. SIH-RD's `stay` chains AIHs by birth date, sex and CEP, reasons 21-29 and 31, one day:
 Pernambuco 2019-2020 971,336 stays against 1,065,304 hospitalisations (principal AIHs, unchanged; TabNet's
 "Internações"). A stay crossing the period's edge is cut there.
+
+**Surgery to radiotherapy (same day; OPEN_QUESTIONS #97 resolved).** `sih_admissions_to_radiotherapy` links a tumour's
+admission to the first radiotherapy APAC (SIA-AR, its roles now comparable) whose pathology date falls within 60 days,
+by sex and CEP. The control shifts the day by 180, beyond the window. Against every cancer's APACs the pass found 606
+pairs and 310 by chance; the cohort's codes now filter the APAC's treated topography too (`params.codes.partner`):
+São Paulo 2021, C71: 177 pairs, 11 by chance (6.2%, upper 11.1%: use with caution), the same municipality of
+residence 177/177 and the APAC's age within a year of the SIH birth date 98.9%, neither a key. A national side read
+state by state skips a state-year the catalog lists no file for (Amapá's radiotherapy 2021), recorded in the table's
+`unpublished`; a listed file not read still raises.
+
+National linked mortality for a procedure cohort (`sih_admissions_to_sim`, decompressive craniectomy, Brazil 2019):
+viable at 30 days (1,075 pairs, 12 by chance) and 90 (1,348, 47), use with caution at 180 and 365 (chance 13.8% at a
+year); in-hospital deaths' certificates in hospital 98.9%, in the hospital's municipality 99.2% (995 pairs).

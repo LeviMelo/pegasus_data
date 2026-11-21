@@ -586,13 +586,49 @@ def _compute_roles(spec: DatasetRoles, names: list[str], *, period: object, geog
     years = _whole_years(period)
     parts: list[pa.Table] = []
     strategies: list[str] = []
-    for unit in _state_partitions(spec.dataset, geography, settings) or cast(list[str], [geography]):
+    from .._request import NothingPublished
+
+    states = _state_partitions(spec.dataset, geography, settings)
+    unpublished: list[str] = []
+    for unit in states or cast(list[str], [geography]):
         origin = unit.upper() if isinstance(unit, str) and len(unit) == 2 else "BR"
         for scope in years if len(years) > 1 else (period,):
-            table, strategy = _compute_roles_year(spec, names, period=scope, geography=unit, **query_kwargs)
+            try:
+                table, strategy = _compute_roles_year(spec, names, period=scope, geography=unit, **query_kwargs)
+            except NothingPublished:
+                # A nation read state by state: a state that publishes nothing for the year (Amapá has no radiotherapy
+                # APAC in 2021, and one in 2022) holds no records then, when the catalog lists no file of that state and
+                # year. A file listed and not read is a gap, and still raises.
+                if not states or _listed(spec.dataset, unit, scope, settings):
+                    raise
+                unpublished.append(f"{origin}:{scope}")
+                continue
             parts.append(table.append_column("_uf", pa.array([origin] * table.num_rows, pa.string())))
             strategies.append(strategy)
-    return _stack(parts), ("lake" if all(s == "lake" for s in strategies) else "other")
+    out = _stack(parts)
+    if unpublished:
+        out = out.replace_schema_metadata({**(out.schema.metadata or {}), b"unpublished": ",".join(unpublished).encode()})
+    return out, ("lake" if all(s == "lake" for s in strategies) else "other")
+
+
+def _listed(dataset: str, uf: str, period: object, settings: Any) -> bool:
+    """Whether the catalog lists a data file of ``dataset`` for state ``uf`` in ``period``'s year."""
+    from .._query_engine.model import _period
+    from ..retrieve import parse_dataset
+
+    system, series = parse_dataset(dataset)
+    resolved = _period(period)
+    years = resolved.years if resolved is not None else ()
+    store = CatalogStore(settings.catalog_path, read_only=True)
+    try:
+        marks = ",".join("?" for _ in years) or "NULL"
+        row = store.query(
+            f"SELECT count(*) AS n FROM file_facts ff JOIN files f ON f.path = ff.path WHERE ff.system = ? AND "
+            f"ff.series_prefix = ? AND upper(ff.geo_code) = ? AND ff.role = 'data' AND f.gone_at IS NULL AND ff.year IN ({marks})",
+            (system, series or system, uf.upper(), *years))
+        return bool(row and row[0]["n"])
+    finally:
+        store.close()
 
 
 def _carried(dataset: str, columns: set[str], period: object, query_kwargs: dict[str, Any]) -> set[str]:

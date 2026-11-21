@@ -664,6 +664,46 @@ links:
         right: patient.race
       - {name: readmission after the discharge, sql: "r.\"admission.start\" >= l.\"admission.end\""}
 
+  # A tumour's surgery to the patient's first radiotherapy: the SIH admission (by the caller's diagnosis or procedure,
+  # a glioma's microsurgery) to the radiotherapy APAC whose pathology date (AR_DTIDEN, the histological identification)
+  # falls in the 60 days from the admission, with the same sex and residence CEP. The APAC has the patient's age, not a
+  # birth date, and its patient token reaches no other system, so the key is the CEP and the date. The control shifts the
+  # day by 180, three times the window: a week's shift inside a 60-day window would reproduce most true pairs. The first
+  # course of a token is the APAC side's record.
+  sih_admissions_to_radiotherapy:
+    description: >
+      Admissions with the caller's codes (params.codes: ICD-10 prefixes on the principal diagnosis or on every diagnosis,
+      or SIGTAP prefixes on the procedure) to the patient's first radiotherapy APAC (SIA-AR) whose pathology date falls
+      within 60 days of the admission: the surgery-to-radiotherapy interval of a tumour. One record stands for each
+      person (birth date, sex, residence) and, on the APAC side, for each patient token's first course.
+    same_event: false   # an operation and the radiotherapy after it
+    params:
+      # the diagnosis codes filter the APAC's treated topography too: a glioma's surgery meets a glioma's radiotherapy
+      codes: {side: left, role: admission.diagnosis, any: admission.diagnoses, procedure: admission.procedure,
+              partner: authorisation.tumour_topography}
+    outcome: {origin: admission.end, event: authorisation.start, first: true}
+    left:
+      dataset: SIH-RD
+      where: "\"admission.aih_type\" IS DISTINCT FROM '5'"
+      group: [patient.birth_date, patient.sex, patient.residence]
+      earliest: admission.start
+      explode_days: [admission.start, 60, follow_up.day]
+    right: {dataset: SIASUS-AR, pad_years: [0, 1], group: [patient.cns], earliest: authorisation.start}
+    passes:
+      - name: sex, CEP, pathology date within 60 days of the admission
+        keys: [[patient.sex, patient.sex], [patient.postcode, patient.postcode],
+               [follow_up.day, authorisation.pathology_date]]
+    control: {role: follow_up.day, shift_days: 180}
+    validate:
+      # held out: the APAC's residence and age, and the treated topography
+      - name: the radiotherapy is recorded in the same municipality of residence
+        sql: "r.\"patient.residence\" = l.\"patient.residence\""
+      - name: the APAC's age agrees with the birth date within a year
+        sql: "abs(try_cast(r.\"patient.age\" AS INTEGER) - date_diff('year', l.\"patient.birth_date\", r.\"authorisation.start\")) <= 1"
+      - name: the radiotherapy treats the admission's tumour (same ICD-10 category)
+        sql: "substr(r.\"authorisation.tumour_topography\", 1, 3) = substr(l.\"admission.diagnosis\", 1, 3)"
+      - {name: radiotherapy after the admission, sql: "r.\"authorisation.start\" >= l.\"admission.start\""}
+
   # The same mechanism on a notification system: the cases of the caller's agravo codes (TOXC's ID_AGRAVO holds P371, B58
   # and O986) to the death certificate of any cause within a year of the notification, so that a case's survival does
   # not depend on SINAN closing it as a death (EVOLUCAO is blank or ignored for 55% of the 20,968 TOXC of 2019-2023).
