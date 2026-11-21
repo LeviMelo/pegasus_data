@@ -78,4 +78,9 @@ the product's folder. *Done when* a reader can reproduce every number from the h
   (Parda 0.64); transport 0.59; natural 0.69; the examiner lowers a natural death to 0.55. Competing reading not
   excluded: people white at birth who would declare Parda are the more exposed to violence. R1 is concluded for what
   the pre-2011 reference can say; the declared-race version waits for the 2011-form cohorts to reach 15 (2026 on).
+- **R4, concluded at the national level** (the same entry): every cohort born 1940-2009 is less Branca and more Preta at
+  each later census; the cohort of 2000-2004 goes from 53.4% Branca on its birth records to 39.0% at 18-22, so at
+  least 27% of those white at birth are no longer declared so, which is the share of natural deaths white at birth
+  that are certified Parda (0.26-0.29). The excess at death is the external causes'. By state it is what the account
+  already carries (ADR-0151).
 

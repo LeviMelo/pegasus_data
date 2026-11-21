@@ -295,3 +295,32 @@ At 5-14: natural 0.72, transport 0.66, assault 0.46.
   person would declare. If, among people white at birth, those who would call themselves Parda at 20 are the ones more
   exposed to violence, the same table follows with no error of the certificate. Separating the two needs a declared
   race near death for these people, which the cohorts of the 2011 form will give from 2026 on (they reach 15 then).
+
+## Race over a life: the same birth cohorts at birth, in 2000, 2010 and 2022 (plan R4)
+
+**Scenario.** `population-account-8` (the censuses' race by age, at IBGE's totals), Brazil, five-year birth cohorts, share
+of each colour among those with one; the birth record's colour for the cohorts born 2000-2009 (SINASC lake; the newborn's
+colour, old form). One DuckDB query each (in the session; the product and the lake are the artifacts).
+
+| born | Branca 2000 / 2010 / 2022 | Parda | Preta |
+|---|---|---|---|
+| 1950-54 | 0.573 / 0.532 / 0.515 | 0.348 / 0.371 / 0.374 | 0.070 / 0.082 / 0.099 |
+| 1970-74 | 0.535 / 0.478 / 0.439 | 0.390 / 0.423 / 0.439 | 0.067 / 0.085 / 0.113 |
+| 1985-89 | 0.497 / 0.453 / 0.411 | 0.437 / 0.449 / 0.466 | 0.058 / 0.081 / 0.115 |
+| 1995-99 | 0.533 / 0.422 / 0.395 | 0.412 / 0.494 / 0.480 | 0.047 / 0.069 / 0.115 |
+| 2000-04 (birth record 0.534, 0.427, 0.027) | - / 0.435 / 0.390 | - / 0.488 / 0.491 | - / 0.061 / 0.108 |
+| 2005-09 (birth record 0.481, 0.492, 0.019) | - / 0.472 / 0.392 | - / 0.461 / 0.507 | - / 0.051 / 0.090 |
+
+- Every cohort born 1940 to 2009 is less Branca and more Preta at each later census: 3 to 6 points of Branca lost in
+  22 years by those born before 1960, 10 to 14 by those born after 1985. Mortality cannot do it at these ages (it
+  works the other way at old ages) and migration is nil for the country: people are declared differently as they age
+  and as the years pass.
+- The cohort born 2000-2004 is 53.4% Branca on its birth records, 43.5% at the 2010 Census (ages 6-10) and 39.0% at
+  the 2022 Census (ages 18-22): at least 27% of those white at birth are no longer declared so at 20. Preta goes from
+  2.7% to 6.1% to 10.8%.
+- **This is the size of what the certificates show for natural deaths.** Of people white at birth who die of natural
+  causes at 15-24, 0.26-0.29 are certified Parda (sections above): the same share that the censuses say the cohort has
+  moved. For natural deaths at these ages the certificate is in step with how the cohort is declared; the excess is
+  the external deaths' (0.39 transport, 0.64 assault). Margins, not the same people: it bounds, it does not prove.
+- The account carries this as each cohort's race shares moving between censuses (ADR-0151 item 3); a rate that divides
+  deaths by a census population by race rests on the declared race at that census, not at birth.
