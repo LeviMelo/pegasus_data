@@ -5,6 +5,11 @@ accurate population figures, rigorously, robustly and accurately modelled"). The
 (`population-account-7`, ADR-0145, 0148, 0151, 0220) stays what readers get until a successor beats it on the
 benchmarks of section 3 and answers everything it answers.
 
+**The census is the truth to model on (author, 2026-11-21).** The work is the modelling between and after censuses,
+not a dispute with the counts: a census year's population is taken as given, and a method is judged by how well it
+reaches the next census. The counts' own error (unit P4 and the "census's own part" of evaluation
+2026-11-21-population-symptoms) is a separate line, parked, and gates nothing here.
+
 ## 1. The object and what observes it
 
 `N[m, s, a, t]`: residents of municipality `m`, sex `s`, age `a`, at the reference date of year `t`. The accounting
