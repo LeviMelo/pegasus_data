@@ -54,6 +54,8 @@ _EXPORTS: dict[str, str] = {
     "MissingColumnError": ".api",
     "LabelUnavailable": ".api",
     "RenderReport": ".api",
+    "procedure_history": ".sources.sigtap",
+    "procedure_window": ".sources.sigtap",
     "explore": "._explore",
     "lake_coverage": "._explore",
     "publications": "._explore",
