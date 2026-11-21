@@ -36,6 +36,10 @@ jobs:
       - name: Documents are consistent
         run: python scripts/check_docs.py
 
+      - name: Layers hold
+        # no module-level import from a higher layer, no unplaced module (ADR-0225)
+        run: python scripts/layers.py
+
       - name: Tests
         # Offline by default. Nothing here reaches ftp.datasus.gov.br.
         run: pytest -q

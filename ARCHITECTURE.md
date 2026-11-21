@@ -8,7 +8,7 @@ The previous architecture document (129 KB) is
 `docs/history/pegasus_data_ARCHITECTURE.md`; code comments citing "§N" point
 there.
 
-Contents: 1 the shape · 2 the runtime paths · 3 persistent objects · 4 how a
+Contents: 1 the shape · 1a the layers · 2 the runtime paths · 3 persistent objects · 4 how a
 label is chosen today · 5 what overlaps, and what becomes of it · 6 the module
 map · invariants.
 
@@ -16,36 +16,42 @@ map · invariants.
 
 ## 1. The shape
 
-About 45,000 lines in 120 modules under `src/pegasus_data`, plus data that is
-reviewed like code: `curation/` (180 YAML files) and `resources/` (the shipped
-snapshot, 41 MB).
+About 81,000 lines in 214 modules under `src/pegasus_data` (recounted 2026-11-21; the "45,000 lines in 120 modules"
+written here was of 2026-09-28), plus data that is reviewed like code: `curation/` (338 YAML files, each of a declared
+shape, ADR-0223) and `resources/` (the shipped snapshot, 62 MB).
 
 ```text
  entry      cli/ (pegasus-data …)        serve/ (HTTP /api/v1 transport)
               │                                │
- public API __init__.py: 66 lazily exported names
+ public API __init__.py: 121 lazily exported names
               │
- read       query() ─► _query_engine/ (plan, execute) ─► retrieve.fetch() ─┐
-            load()/scan() (api.py) ─► lake ─────────────────────────────────┤
-                                                    render_groups ─► view.render_table
- metadata   info (_info) · explore (_explore) · availability (_availability)
-            describe (api) · DataDictionary (_dictionary) · search (_search)
-            compendium (_compendium) · gaps/questions (_unknowns) · translate (_translate)
- aggregate  aggregate() (_aggregate) · measures · capabilities · suggest
+ studies    studies/: the builders of the modelled products (population account, race, completeness)
+ describe   compendium (_compendium) · info (_info) · search (_search) · gaps/questions (_unknowns) · translate
+ derive     cube() (cubes) · fields · aggregate() (_aggregate, measures) · linkage/ · proximity · concepts
               │
- build      pipeline.Pipeline: crawl → inventory → semantics → sample → profile → families
-            build.py: lake, population, DEMAS
-            labelpack.py, catalog/seed.py: the shipped snapshot
+ read       query() ─► _query_engine/ (plan, one ReadRequest) ─► api.read_lake ─────┐
+                                                               ─► retrieve.read_source ┤ ─► request.finish
+                                                                    (render_groups ─► view.render_table)
+            build.py, intake.py: what writes the lake · pipeline.Pipeline: the maintainer's stages
               │
- layers     discovery/ → acquire/ → decode/ → normalize/ → persist/
-            inventory/  profile/  semantics/  sources/  linkage/  catalog/ (SQLite, the memory)
+ meaning    semantics/ (curation, roles, event types, schema) · ontology · labelpack · lookups · geography
+            sidra/ · sources/ · persist/reference (the code tables)
+ ingest     discovery/ → acquire/ → decode/ → normalize/ → persist/   inventory/  profile/
+            catalog/ (SQLite, the memory)
+ base       config · locate · transport · textenc · normalize/time · persist/staging, persist/kept
 ```
 
-The **ingest half** (discovery → acquire → decode → normalize → persist, with
-the catalog as memory) is coherent: one job per subpackage, one decode entry
-point (`decode/service.py`). The **read and metadata half** grew a new
-top-level door for each question and re-implements orchestration in several
-of them (§5).
+## 1a. The layers
+
+The order above is declared in `scripts/layers.py` (`LAYERS`) and checked (ADR-0225): a module imports at module
+level only from its own layer or a lower one. `python scripts/layers.py` fails on an upward module-level import or a
+module no layer places; `--lazy` lists the upward imports written inside functions, which are the two-way relations
+kept on purpose (2026-11-21: none at module level, 34 inside functions in 20 module pairs; the largest is
+`semantics.event_types`, whose `read_events` and `count_events` run the query engine and are imported from there by
+PegaSUS). A module is placed by the longest prefix that names it, so `persist.reference` is meaning and the rest of
+`persist/` ingest.
+
+Each layer has one job per module (§6). What was duplicated across them, and what became of it, is §5.
 
 ---
 
@@ -74,7 +80,8 @@ system's directory when the catalog has never seen that system
 1. `query()` (`_query_engine/executor.py`) builds a `QuerySpec`, plans it
    (`_query_engine/planner.py`): lake, fetch, or a year-level hybrid, after
    checking every expected source unit is covered.
-2. A fetch plan calls `retrieve.fetch()`:
+2. The executor builds one `ReadRequest` (ADR-0222) and reads each source through it: the lake's years by
+   `api.read_lake`, the others by `retrieve.read_source`, which does this:
    - resolve the dataset through the ontology (`ontology.py`,
      `curation/ontology.yml`);
    - discover if needed; select files by UF/year/month (`_select_files`);
@@ -87,7 +94,8 @@ system's directory when the catalog has never seen that system
      structural nulls;
    - re-apply curation when the shipped YAML changed since the catalog was
      built (`_ensure_reference_tables`);
-   - render labels (`render_groups.py` → `view.render_table`, §4).
+   - render labels (`request.finish`: `render_groups.py` → `view.render_table`, §4), the stage the lake's read
+     finishes with too.
 3. Back in the executor: `_query_engine/semantics.py` applies dimensions and
    enrichments (CNES↔CNPJ, `crosswalk.py`), and assembles a `QueryReport`.
    - **Code roll-ups** (`CAUSABAS.chapter`) go through `joins.yml` relations

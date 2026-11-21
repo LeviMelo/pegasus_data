@@ -82,7 +82,9 @@ There are two halves.
    cut that way (a national SINAN file has no state axis). For each year it
    chooses the lake, if every expected publication is there, or a fetch.
    `plan(...).explain()` shows this without reading anything.
-3. **Fetch** (`retrieve.fetch`, internal):
+3. **Read.** What is asked (columns, record filters, a condition, the rendering) is one request
+   (`_query_engine/request.py`, ADR-0222), read from the lake (`api.read_lake`) for the years it holds whole and
+   from the published files (`retrieve.read_source`) for the others:
    - select the files of the dataset's families for those coordinates, and one
      representation per publication: the cached copy, else the fewest bytes,
      ADR-0133; the newest edition when DATASUS republished one;
