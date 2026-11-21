@@ -34,8 +34,9 @@ from ._query_engine.readplan import (
     plan_lake_read,
     resolve_family,
 )
-from ._query_engine.request import ReadRequest, rows_expression
+from ._query_engine.request import ReadRequest, finish, public_form, rows_expression
 from .catalog.store import CatalogStore as _Store
+from .conditions import CONDITION
 from .config import Settings, load_settings
 from .lookups import _single_lookup
 from .normalize.engine import MissingColumnError
@@ -66,6 +67,8 @@ from .view import (
     LabelUnavailable,
     RenderMode,
     RenderReport,
+    codelist_levels,
+    resolve_profile,
 )
 
 if TYPE_CHECKING:
@@ -678,7 +681,6 @@ def levels(
     the same renderer, so a level named here and the same level in a cell cannot disagree). A code no chosen table
     decodes is absent: its label is unknown, never guessed."""
     from ._request import parse_dataset
-    from .view import codelist_levels
 
     system, series = parse_dataset(dataset)
     own = catalog is None
@@ -696,8 +698,6 @@ def levels(
 
 def _keeps_companions(profile: str, companions: bool | Sequence[str] | None) -> bool:
     """Will the render keep companion columns (``X_uf``, ``X_ibge7`` ...)? If not they are not worth reading."""
-    from .view import resolve_profile
-
     if isinstance(companions, (list, tuple, set)):
         return bool(companions)
     return resolve_profile(profile, companions=companions).companions
@@ -806,8 +806,6 @@ def _read_generations(
             partitions=parts,
         )
         if condition is not None:
-            from .conditions import CONDITION
-
             state = condition.state(table, request.docs, years=sorted({p.year for p in parts}))
             sure = pc.coalesce(state, pa.scalar(True))
             table = table.filter(sure).append_column(CONDITION, state.filter(sure))
@@ -837,7 +835,6 @@ def read_lake(
     partition column in the lake, so the scoping is row-level, not a hint about the request. A plausible wrong label
     is worse than a missing one, and classification vintages are exactly where that bites.
     """
-    from ._query_engine.request import finish
     from .render_groups import split_by_year_column
     from .retrieve import NothingPublished
 
@@ -952,8 +949,6 @@ def load(
     (:class:`MissingColumnError`) rather than returning empty — an empty result
     looks legitimate and is the easiest way to publish a wrong number (§13).
     """
-    from ._query_engine.request import public_form
-
     if isinstance(years, int):
         years = [years]
     if isinstance(uf, str):

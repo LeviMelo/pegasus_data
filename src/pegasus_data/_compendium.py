@@ -59,8 +59,9 @@ from pathlib import Path
 from typing import Any, Literal
 
 from .catalog.store import CatalogStore as _Store
-from .config import Settings, load_settings
+from .config import Settings, curation_root, load_settings
 from .ontology import Ontology
+from .semantics.epoch import curation_epoch
 
 CodesOption = Literal["none", "internal", "bound", "all"] | bool
 
@@ -578,8 +579,6 @@ def fingerprint(settings: Settings, options: dict[str, Any] | None = None) -> st
     """What the map was built from: the catalog, the curation, every lake partition folder, the context fields,
     the links, the SIDRA registry, the options and this module. Any change makes a stored map stale."""
     import hashlib
-
-    from .semantics.epoch import curation_epoch
 
     digest = hashlib.blake2b(digest_size=16)
 
@@ -1381,7 +1380,6 @@ def _write_products(db: sqlite3.Connection, cfg: Settings, report: CompendiumRep
     """What the package serves besides datasets and fields (``curation/products.yml``), with whether this install holds
     each one's stores; the population series (``populations.yml``) and geography memberships (``geography.yml``) from
     their own declarations; and every store folder of the home that nothing describes."""
-    from .config import curation_root
     from .semantics.curation import products, read_yaml
 
     base = curation_root()
@@ -1474,7 +1472,6 @@ def _write_fields(db: sqlite3.Connection, cfg: Settings, report: CompendiumRepor
 
 
 def _write_roles(db: sqlite3.Connection, report: CompendiumReport) -> None:
-    from .config import curation_root
     from .semantics.column_roles import roles
     from .semantics.event_types import event_types
 
