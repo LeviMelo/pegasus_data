@@ -38,8 +38,8 @@ __all__ = ["build_fields", "declared_fields", "field_rate", "load_field", "share
 def declared_fields(root: Path | None = None) -> dict[str, dict[str, Any]]:
     """The declared fields (``fields.yml`` and the intake sources'), once per curation epoch. Shared: not to be edited."""
     from .config import curation_root
-    from .intake import intake_fields
     from .semantics.curation import read_yaml
+    from .semantics.intake_declarations import intake_fields
 
     base = root or curation_root()
     return {**dict((read_yaml(base / "fields.yml", missing_ok=True) or {}).get("fields") or {}), **intake_fields(base)}
@@ -97,7 +97,7 @@ def build_fields(settings: Any, names: list[str] | None = None, years: list[int]
     if chosen_brdwgd:
         report.update(_build_climate_brdwgd(settings, chosen_brdwgd, years))
     chosen_intake: dict[str, list[str]] = {}
-    from .intake import declared_sources
+    from .semantics.intake_declarations import declared_sources
 
     sources = declared_sources()
     for name, spec in declared.items():
@@ -199,8 +199,9 @@ def intake_cube(name: str, spec: dict[str, Any]) -> dict[str, Any] | None:
     `by`, over a landed dataset placed by a municipality's code or name, with place and time bindings (curated, read
     from its roles, or the place and period it was landed by). Shares (`outcome`), unpivoted margins and row registers are not yet cubes; neither is a field whose dataset
     holds no landed records, whose stored copy is then the only form of its data (ANS's beneficiaries)."""
-    from .intake import _strata, declared_sources
     from .semantics.curation import semantics_for
+    from .semantics.intake_declarations import declared_sources
+    from .semantics.intake_declarations import strata as _strata
 
     if spec.get("source") != "intake":
         return None
@@ -306,7 +307,7 @@ def _field_from_records(name: str, spec: dict[str, Any], plan: dict[str, Any], y
 def rows_view(name: str, spec: dict[str, Any]) -> dict[str, Any] | None:
     """A field that is a register of records (``rows:`` in its intake declaration: the field's column -> the record's), as
     a view of the landed records, or None while the source has none landed."""
-    from .intake import declared_sources
+    from .semantics.intake_declarations import declared_sources
 
     if spec.get("source") != "intake":
         return None
@@ -337,7 +338,7 @@ def margins_view(name: str, spec: dict[str, Any]) -> dict[str, Any] | None:
     """A field whose margins the source publishes as columns (``unpivot:`` in its intake declaration: a column -> its
     margin and category; INEP's enrolments by sex, race and age band, each summing to the total), as one records cube
     per column over the landed records, or None while the source has none landed."""
-    from .intake import declared_sources
+    from .semantics.intake_declarations import declared_sources
 
     if spec.get("source") != "intake":
         return None

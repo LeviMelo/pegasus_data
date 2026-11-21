@@ -501,6 +501,7 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
   `semantics/defnames.py`, `semantics/pdf_harvest.py`: harvesting (§2.3).
 - `semantics/dictionary.py`: merges sources by authority.
 - `semantics/curation.py`: loads `curation/`.
+- `semantics/intake_declarations.py`: what `curation/intake.yml` declares (`declared_sources`, the fields, ontology nodes and docs its sources define); read by the curation, the ontology and `fields`, and by `intake.py`, which lands the records (2026-11-21: these were in `intake.py`, which the curation then had to import).
 - `semantics/schema.py`: the declared keys of every kind of curation file (a plain-data schema per kind); the loader checks each file
   against it when parsing it (`semantics/curation.py`), so a misspelt or unknown key is refused with its file, path and closest key
   (`scripts/validate_curation.py --schema` checks all). A new curation file declares its kind there.

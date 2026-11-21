@@ -506,7 +506,7 @@ def _inline_tables() -> dict[str, tuple[dict[str, str], dict[str, tuple[str, str
                     out[curated_codelist_id(system, str(name))] = (
                         codes, _code_windows(path, str(name), body["codes"]))
     # the code lists of the sources the intake mechanism reads (ADR-0162) are written in curation/intake.yml, and served the same way
-    from ..intake import curation_docs
+    from .intake_declarations import curation_docs
 
     for data in curation_docs(root)[0]:
         for name, body in (data.get("variables") or {}).items():
@@ -754,7 +754,7 @@ def _load_curation(catalog: CatalogStore, root: Path) -> dict[str, object]:
                 systems_map[str(prefix).upper()] = str(system).upper()
 
     # The columns and datasets of the sources read by the intake mechanism (ADR-0162) are documented in curation/intake.yml.
-    from ..intake import curation_docs
+    from .intake_declarations import curation_docs
 
     intake_variables, intake_datasets = curation_docs(root)
     for data in intake_variables:
@@ -1603,7 +1603,7 @@ def _place_code_system(dataset: str, column: str, body: Mapping[str, Any]) -> di
     codelists = {str(c).upper() for c in body.get("codelists") or ()}
     if codelists:
         return {"code_system": "uf"} if codelists <= _STATE_CODELISTS else {"code_system": "ibge_municipality"}
-    from ..intake import declared_sources
+    from .intake_declarations import declared_sources
 
     system, _, series = dataset.partition("-")
     for spec in declared_sources().values():
@@ -1622,7 +1622,7 @@ def _landed_axes(dataset: str) -> dict[str, Any] | None:
     IBGE code, a name matched within its state, the sole-municipality rule for Brasília's administrative regions) and
     ``year`` with ``_MONTH`` (its declared period). Written by `intake._records_sql` beside the raw columns, so a source
     placed by a name, or with no roles file, has a place and a time without a second declaration."""
-    from ..intake import declared_sources
+    from .intake_declarations import declared_sources
 
     system, _, series = dataset.partition("-")
     for spec in declared_sources().values():
@@ -1642,7 +1642,7 @@ def _landed_axes(dataset: str) -> dict[str, Any] | None:
 
 def _lake_year_columns(dataset: str) -> set[str]:
     """The column an intake source declares its period by when that period is a year (``period: {type: year}``)."""
-    from ..intake import declared_sources
+    from .intake_declarations import declared_sources
 
     system, _, series = dataset.partition("-")
     for spec in declared_sources().values():
@@ -1654,7 +1654,7 @@ def _lake_year_columns(dataset: str) -> set[str]:
 
 def _lake_period_columns(dataset: str) -> set[str]:
     """The columns an intake source's lake is dated by (its declared ``period``), upper-cased as they land."""
-    from ..intake import declared_sources
+    from .intake_declarations import declared_sources
 
     system, _, series = dataset.partition("-")
     for spec in declared_sources().values():

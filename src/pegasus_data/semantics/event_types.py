@@ -202,7 +202,7 @@ def _declarations() -> dict[str, tuple[str, str, dict[str, Any]]]:
             out[f"{_canonical_system(str(body.get('system') or ''))}-{str(body.get('series') or '').upper()}"] = (
                 path.name, str(key), body)
     # the sources the intake mechanism reads (ADR-0162) are documented in curation/intake.yml, as the catalog's loader reads them
-    from ..intake import curation_docs
+    from .intake_declarations import curation_docs
 
     for data in curation_docs()[1]:
         for key, body in data["datasets"].items():

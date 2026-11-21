@@ -550,7 +550,7 @@ def check_population(catalog: CatalogStore, settings: Settings) -> Check:
 
 def check_demas(catalog: CatalogStore, settings: Settings) -> Check:
     """§12.9 — the DEMAS OpenAPI document persisted; the crosswalk (a declared intake source) landed in the lake."""
-    from .intake import declared_sources
+    from .semantics.intake_declarations import declared_sources
 
     c = Check("DEMAS spec persisted and the crosswalk landed", 9)
     endpoints = catalog.count("api_endpoints")

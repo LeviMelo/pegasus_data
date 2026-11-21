@@ -51,7 +51,8 @@ def swagger() -> dict[str, Any]:
 def declared_endpoints() -> dict[str, str]:
     """``endpoint path -> source name`` for every DEMAS endpoint ``curation/intake.yml`` reads (the used origin or its
     ``compare`` origin)."""
-    from ..intake import _origin, declared_sources
+    from ..intake import _origin
+    from ..semantics.intake_declarations import declared_sources
 
     out: dict[str, str] = {}
     for name, spec in declared_sources().items():

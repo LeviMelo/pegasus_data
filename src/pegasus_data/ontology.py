@@ -573,7 +573,7 @@ class Ontology:
                 )
 
         # Sources read by the intake mechanism (ADR-0162) declare their system and series in curation/intake.yml.
-        from .intake import ontology_nodes
+        from .semantics.intake_declarations import ontology_nodes
 
         intake_systems, intake_datasets = ontology_nodes(root)
         for code, body in intake_systems.items():

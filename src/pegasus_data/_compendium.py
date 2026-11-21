@@ -1205,7 +1205,7 @@ def _held(store: _Store, onto: Ontology, wanted: set[str], lake_dir: Path) -> _H
 def _declared_columns(onto: Ontology, wanted: set[str]) -> dict[str, set[str]]:
     """The columns an intake declaration lists (``curation/intake.yml``), as they land (upper-cased): known before a
     single record is read, so a source not yet landed still says what it holds."""
-    from .intake import declared_sources
+    from .semantics.intake_declarations import declared_sources
 
     out: dict[str, set[str]] = {}
     for spec in declared_sources().values():
@@ -1219,7 +1219,8 @@ def _declared_columns(onto: Ontology, wanted: set[str]) -> dict[str, set[str]]:
 
 def _declared_publications(onto: Ontology, wanted: set[str]) -> dict[str, tuple[int, int, int]]:
     """Per intake dataset with a files origin, the publications its declaration lists: (files, first year, last year)."""
-    from .intake import _units, declared_sources
+    from .intake import _units
+    from .semantics.intake_declarations import declared_sources
 
     out: dict[str, tuple[int, int, int]] = {}
     for spec in declared_sources().values():
@@ -1311,7 +1312,7 @@ def _write_products(db: sqlite3.Connection, cfg: Settings, report: CompendiumRep
     report.rows["product_members"] = len(members)
 
     # Every store of the home is claimed by something that describes it; what is not is listed, a visible defect.
-    from .intake import declared_sources
+    from .semantics.intake_declarations import declared_sources
 
     sources = declared_sources()
     claimed |= {f"registries/{name}" for name in sources}
