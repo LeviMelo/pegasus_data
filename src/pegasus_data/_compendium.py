@@ -683,7 +683,7 @@ def overview(*, settings: Settings | None = None, root: str | Path | None = None
             out += [f"  {path}  {bytes_ / 2**20:,.0f} MB" for path, bytes_ in unclaimed]
 
         links = q("SELECT name, left_dataset, right_dataset, runs_held, description FROM links ORDER BY name").fetchall()
-        out += ["", f"RECORD LINKS ({len(links)}): pegasus-data link <name>"]
+        out += ["", f"RECORD LINKS ({len(links)}): info <name> describes one and its runs; link(<name>, ...) runs it"]
         for name, left, right, runs, what in links:
             first = str(what or "").split(". ")[0][:80]
             out.append(f"  {name:<40} {left} -> {right}  ({runs} runs held)  {first}")

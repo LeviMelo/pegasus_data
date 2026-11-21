@@ -286,6 +286,8 @@ class Info:
     def __repr__(self) -> str:  # pragma: no cover - presentation
         if self.kind == "overview" and self.documentation.get("map"):
             return str(self.documentation["map"])  # the whole map's overview (_compendium.overview)
+        if self.kind == "link" and self.documentation.get("text"):
+            return str(self.documentation["text"])
         out = self._identity_lines()
         out += self._definition_lines()
         out += self._coverage_lines()
@@ -373,6 +375,8 @@ def info(
             return _overview(store, onto, cfg)
 
         found = onto.resolve(text)
+        if found is None and _is_link(text):
+            return _link(text, cfg)
         if found is None:
             near = onto.suggest(text)
             notes = [f"'{target}' does not resolve to a system, dataset or alias."]
@@ -395,6 +399,79 @@ def info(
 
 
 # ------------------------------------------------------------------ builders
+
+
+def _is_link(name: str) -> bool:
+    from .linkage.engine import load_links
+
+    try:
+        return name in load_links()
+    except Exception:  # noqa: BLE001 - no links file is no link
+        return False
+
+
+def _link(name: str, cfg: Settings) -> Info:
+    """A declared record link as data: what it joins and how (keys, control, held-out validations, parameters, outcome),
+    and every stored run of it, with its scope, verdict, false-match rate and how much it linked. A link is not a
+    dataset: it is a measured relation between two, and how far its pairs can be trusted is part of what it is."""
+    import json
+
+    from .linkage.engine import load_links
+
+    spec = load_links()[name]
+    runs: list[dict[str, Any]] = []
+    folder = Path(cfg.lake_dir) / "links" / name
+    for path in sorted(folder.glob("*.json")) if folder.is_dir() else ():
+        try:
+            d = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        run = d.get("run") or {}
+        rate = d.get("chance_percent") if d.get("chance_percent") is not None else d.get("estimated_fdr_percent")
+        upper = d.get("chance_upper95_percent") if d.get("chance_upper95_percent") is not None else d.get("fdr_upper95_percent")
+        horizons = [(h.get("days"), h.get("pairs"), h.get("control_pairs"), h.get("verdict")) for h in d.get("horizons") or []]
+        runs.append({
+            "method": run.get("method") or d.get("method"), "period": run.get("period"), "geography": run.get("geography"),
+            "params": d.get("params"), "verdict": d.get("verdict"), "left": d.get("left_records"), "right": d.get("right_records"),
+            "pairs": d.get("pairs"), "linked_share": d.get("linked_share"), "false_match_percent": rate,
+            "false_match_upper95": upper, "horizons": horizons, "file": path.name,
+        })
+    keys = [{"pass": p.name, "keys": [f"{a} = {b}" for a, b in p.keys]} for p in spec.passes]
+    validations = [v.name for v in spec.validations]
+    lines = [f"link: {name} — {spec.left.dataset} → {spec.right.dataset}", ""]
+    lines += ["  " + line for line in _wrap(spec.description, 76)]
+    lines += ["", "  what one pair is: " + ("the same event in both datasets" if spec.same_event
+                                              else "two events of one person"),
+              f"  left: {spec.left.dataset}" + (f" where {spec.left.where}" if spec.left.where else "")
+              + (f"; one record per {', '.join(spec.left.group)}" if spec.left.group else ""),
+              f"  right: {spec.right.dataset}" + (f" where {spec.right.where}" if spec.right.where else "")
+              + (f"; one record per {', '.join(spec.right.group)}" if spec.right.group else "")]
+    if spec.params:
+        modes = ["principal diagnosis"] + (["any diagnosis"] if spec.params.any_role else []) + (
+            ["procedure (SIGTAP)"] if spec.params.procedure_role else [])
+        lines.append(f"  run per set of codes: {', '.join(modes)}" + (
+            f"; the codes also filter {spec.params.partner_role} on the other side" if spec.params.partner_role else ""))
+    if spec.outcome:
+        lines.append(f"  follows: {spec.outcome.origin} → {spec.outcome.event}" + (" (the first)" if spec.outcome.first else ""))
+    lines += ["", "  passes (exact keys, in order; a pass whose control finds too many pairs is dropped):"]
+    for k in keys:
+        lines.append(f"    {k['pass']}")
+        lines += [f"      {key}" for key in k["keys"]]
+    lines += [f"  control: {spec.control_role} shifted by {spec.control_shift_days} days (its pairs are chance)",
+              "  held out (fields no pass reads; true pairs agree):"] + [f"    {v}" for v in validations]
+    lines += ["", f"  stored runs ({len(runs)}):" if runs else "  stored runs: none (link() computes and stores one)"]
+    for r in runs[:40]:
+        share = f"{100 * r['linked_share']:.1f}% linked" if isinstance(r["linked_share"], (int, float)) else ""
+        rate = f", chance {r['false_match_percent']:.2f}%" if isinstance(r["false_match_percent"], (int, float)) else ""
+        lines.append(f"    {r['method'] or '?':<13} {r['period'] or '':<22} {r['geography'] or '':<8} {r['verdict'] or '':<17} "
+                     f"{r['pairs'] or 0:>9,} pairs of {r['left'] or 0:,} {share}{rate}")
+    if len(runs) > 40:
+        lines.append(f"    ... and {len(runs) - 40} more")
+    lines += ["", f"  call: link({name!r}, period=..., geography=...{', codes=[...]' if spec.params else ''}); "
+              "a run's pairs and report are kept under lake/links; build_entities() merges links into persons"]
+    return Info(kind="link", code=name, identity={"what_it_is": spec.description},
+                evidence={"passes": keys, "control": {"role": spec.control_role, "shift_days": spec.control_shift_days},
+                          "validations": validations}, coverage={"runs": runs}, documentation={"text": chr(10).join(lines)})
 
 
 def _map_rows(settings: Settings, sql: str, params: tuple[Any, ...] = ()) -> list[dict[str, Any]]:
