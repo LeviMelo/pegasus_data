@@ -1058,7 +1058,7 @@ def own_birth_deaths(settings: Any, population: Population, years: list[int], de
         "stratum": klass[keep].astype(np.int64), "sex": t["sex"], "id": t["l"]})
 
 
-def candidate_counts(settings: Any, name: str, years: list[int], *, births_from: int, births_to: int, max_age: int,
+def candidate_counts(settings: Any, name: str, years: list[int], *, births_from: int, births_to: int, max_age: int | None,
                      log: Any = print) -> pa.Table:
     """The own-birth link without a one-to-one match (ADR-0229): for the deaths of ``years`` up to ``max_age`` of people
     born ``births_from`` to ``births_to``, the births that share each death's birth date and municipality, counted by the
@@ -1080,11 +1080,12 @@ def candidate_counts(settings: Any, name: str, years: list[int], *, births_from:
     spec = engine.load_links()[name]
     deaths = engine._side_table(spec.left, ["deceased.birth_date", "deceased.sex", "deceased.residence", "deceased.race", "deceased.age_years"],
                                 period=(str(years[0]), str(years[-1])), geography="BR", root=settings.root)
-    deaths = deaths.filter(pc.less_equal(deaths["deceased.age_years"], max_age))
+    if max_age is not None:           # None: the link's own filter says the ages (an infant's age in years is not filled)
+        deaths = deaths.filter(pc.less_equal(deaths["deceased.age_years"], max_age))
     con = connect()
     con.register("d_all", deaths)
     parts = []
-    for born in range(births_from, min(births_to, years[-1] - 1) + 1):
+    for born in range(births_from, min(births_to, years[-1]) + 1):
         births = engine._side_table(spec.right, ["baby.birth_date", "baby.sex", "mother.residence", "baby.race"], period=born,
                                     geography="BR", root=settings.root)
         con.register("b_raw", births)

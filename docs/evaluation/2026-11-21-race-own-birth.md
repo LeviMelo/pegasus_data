@@ -431,3 +431,36 @@ Old-form cohorts (born 2000-2010), deaths 2014-2024 at 15-24 in every municipali
 through the package keeps the certificates without a race in the rows' sums: ages 1-4 Branca 0.66 ± 0.06, Preta 1.11 ± 0.16,
 Indígena 4.6 ± 0.3; ages 5-9 0.67 ± 0.11, 1.05 ± 0.29, 2.0 ± 0.5 (the probe's, on certificates with a race: 0.69, 1.08, 4.9 and
 0.69, 1.02, 2.2). Under 400 births a year: Branca 0.81 ± 0.02, Preta 0.22 ± 0.02, Parda 0.60 ± 0.01. ADR-0229.
+
+## The candidate estimator checked before it is published on (`validate_infants.py`, `jackknife.py`, `movers.py`)
+
+**Against a known answer in every municipality.** Infant deaths of 2021-2022 have a one-to-one link by birth weight and
+mother's age (`sim_infant_deaths_to_sinasc`, 50,545 linked with a declared race, false links about 1%). The candidate
+estimator uses only the date, the sex and the municipality, on all 63,379 deaths. Share recorded as declared,
+candidates (± se) | link:
+
+| births a year | deaths | Branca | Preta | Parda | declared mix (Branca, Preta, Parda): candidates / link |
+|---|---|---|---|---|---|
+| under 400 | 14,198 | 0.79 ± 0.02 / 0.78 | 0.16 ± 0.02 / 0.16 | 0.67 ± 0.01 / 0.68 | 0.272 0.061 0.640 / 0.275 0.061 0.643 |
+| 400-1,600 | 16,703 | 0.76 ± 0.02 / 0.77 | 0.17 ± 0.02 / 0.20 | 0.68 ± 0.02 / 0.69 | 0.272 0.066 0.613 / 0.256 0.070 0.633 |
+| 1,600-6,400 | 15,088 | 0.80 ± 0.04 / 0.77 | 0.23 ± 0.02 / 0.21 | 0.62 ± 0.03 / 0.63 | 0.314 0.093 0.586 / 0.321 0.098 0.573 |
+| 6,400-25,600 | 9,639 | 0.69 ± 0.11 / 0.72 | 0.26 ± 0.05 / 0.18 | 0.68 ± 0.06 / 0.66 | 0.248 0.082 0.668 / 0.280 0.099 0.617 |
+| over 25,600 | 7,751 | 0.42 ± 0.19 / 0.64 | 0.16 ± 0.08 / 0.24 | 0.53 ± 0.14 / 0.62 | 0.333 0.153 0.511 / 0.250 0.143 0.604 |
+| every municipality | 63,379 | 0.71 ± 0.04 / 0.75 | 0.19 ± 0.02 / 0.20 | 0.65 ± 0.02 / 0.66 | 0.287 0.087 0.606 / 0.279 0.088 0.614 |
+
+It agrees with the link within its standard error in every class up to 25,600 births a year and for the country; in
+the largest municipalities it is too noisy cell by cell (and finds the person 1.15 times, a small surplus). An infant
+is found 0.92-0.96 of the time (a child of 1-9, 0.6-0.7: families move).
+
+**Standard errors.** A delete-one-state jackknife of the children's rate ratios against the count-based errors: ages
+1-4 Branca 0.07 for 0.06, Preta 0.13 for 0.16, Indígena 0.59 for 0.31; ages 5-9 0.07 / 0.11, 0.21 / 0.29, 0.57 / 0.47.
+No state moves Branca outside 0.63-0.70. The larger of the two is the one to print.
+
+**Movers.** A child who moved municipality is not among its candidates. The certificate's municipality of birth does
+not identify them: it differs from the residence on 37% of deaths at 1-9, and half of those are still found among the
+births of their residence (it is where the birth took place, a hospital elsewhere). Their matrix there equals the
+others' (Branca 0.93 ± 0.09 and 0.87 ± 0.07, Preta 0.24 and 0.29, Parda 0.60 and 0.60). Whether true movers are
+recorded differently cannot be told; the estimates are of children who died where they were born.
+
+**Twins.** A twin of the same sex is a candidate and one of the other sex is in the control; both carry the same
+mother's declaration as the person, so neither moves the declared-by-recorded table.
