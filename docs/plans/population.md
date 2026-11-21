@@ -101,3 +101,6 @@ settles.
   of evaluation 2026-10-05-population-account-v2). Left of P1: the Contagens and the surviving births.
 - **Next:** the rest of P1, then the roll of every election year as a path (P2b) and a third adult
   series for P4.
+- **The 2022 anchor is IBGE's** (ADR-0227, evaluation 2026-11-21-account-on-ibge-census): `population-account-8`. Against
+  POPSVS only the within-state allocation (1.7% at census years) and the timing between censuses are left. The
+  benchmark under this truth: 0.0511 / 0.0590 (births and deaths alone 0.0730 / 0.0671).
