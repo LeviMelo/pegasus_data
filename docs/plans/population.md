@@ -85,7 +85,7 @@ settles.
   the 2010 to 2022 error to 0.0504-0.0509; neither transfers to 2000 to 2010 (their weights differ between the
   decades); deaths add nothing. A roll two years old does nearly as well as the census year's.
 - **Sources assessed** (the same entry): the roll usable from 2008 by age; the 2007 Contagem totals only; the 2022
-  fixed-date migration published; INEP unreachable from this machine; vaccine doses only as person-level files.
+  fixed-date migration published; INEP's school census reachable (a firewall page met a burst of requests, not an outage); vaccine doses only as person-level files.
 - **Against POPSVS** (evaluation 2026-11-21-account-against-popsvs): the difference is the census correction, the
   municipal allocation and the timing, each 1-2.5%.
 - **P4, first reading** (the same entry): of a municipality's departure at a census (sd 0.108-0.113), 0.055-0.059 is

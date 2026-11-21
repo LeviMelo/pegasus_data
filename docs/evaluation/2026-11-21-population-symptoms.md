@@ -37,7 +37,7 @@ municipality, sex and, from 2008, 23 age groups; TSE's own crosswalk to IBGE cod
 2010, 147.92 M in 2020, 156.45 M in 2022; the 2022 archive holds the national file beside the 27 states' (summing
 every member doubles it). Ages 90 and over are inflated (732,187 voters aged 90-94 in 2020 against 158,295 in 2010).
 Also assessed: the 2007 Contagem is totals only by municipality; the 2022 Census's fixed-date migration is published
-(SIDRA 10160, in-migrants by sex and age); INEP's download host refuses this machine; first vaccine doses exist only
+(SIDRA 10160, in-migrants by sex and age); INEP's school census microdata answer (`download.inep.gov.br/dados_abertos/microdados_censo_escolar_2023.zip`, 32,094,587 bytes, a zip; the assessment's burst of requests had met the host's firewall page, "Request Rejected", and one request in eight here was reset: retry, do not conclude); first vaccine doses exist only
 as person-level monthly files of 1.4-4.6 GB.
 
 **Read.** Symptoms help by a tenth each, not by half: twelve years after a census the municipal total stays near 5%.
