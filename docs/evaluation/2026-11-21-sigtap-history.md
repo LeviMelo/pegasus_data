@@ -31,3 +31,9 @@ A reader that wants price changes only should compare the VL columns, not trust 
 eight exports (a login per export, or one connection throughout, took tens of minutes). `cache_dir=` keeps the zips for a resumable run.
 
 **Not done.** Label gating by window in `view.py` (another session, on this registry); the relations (`rl_procedimento_*`) over time.
+
+**Labels joined by the window (same day, OPEN_QUESTIONS #95 resolved).** The view drops from a column's lookup every
+10-digit SIGTAP procedure whose window does not meet the period read, and reports how many. `levels("SIH-RD",
+"PROC_REA", ...)`: 0403070171 labelled in 2024, not in 2009, 2015 or 2020; 0403070023 (8-15 mm coiling, to 201105) in
+2009 only; 0304010219 (radiosurgery, to 201906) in 2009 and 2015, not 2020; 0403010020 in every year. Periods before
+200801, the first export, are not judged.

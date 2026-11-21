@@ -802,8 +802,54 @@ def _lookup(
                 f"{field_name}: labelled from {len(codelists) - len(missing)} of "
                 f"{len(codelists)} bound tables; no version at all of {', '.join(absent)}"
             )
+    if merged:
+        merged = _within_procedure_windows(ctx, field_name, merged)
     ctx.lookups[key] = merged
     return merged or None
+
+
+@lru_cache(maxsize=4)
+def _procedure_windows(registry_home: str) -> tuple[dict[str, tuple[int, int]], int]:
+    """``code -> (first, last)`` competências of every SIGTAP procedure (``registries/sigtap``, `sigtap --history`), the
+    newest export's code open-ended; and the first export (200801). Empty when the history is not built."""
+    import pyarrow.parquet as _pq
+
+    path = Path(registry_home) / "sigtap" / "procedure_windows.parquet"
+    if not path.is_file():
+        return {}, 0
+    rows = _pq.read_table(path, columns=["CO_PROCEDIMENTO", "first", "last"]).to_pylist()
+    newest = max(int(r["last"]) for r in rows)
+    return ({str(r["CO_PROCEDIMENTO"]): (int(r["first"]), 999912 if int(r["last"]) == newest else int(r["last"]))
+             for r in rows}, min(int(r["first"]) for r in rows))
+
+
+def _within_procedure_windows(ctx: _RenderContext, field_name: str, merged: Mapping[str, str]) -> Mapping[str, str]:
+    """``merged`` without the SIGTAP procedures that did not exist in the period read: a label is joined by validity
+    window (ARCHITECTURE invariant), and `levels("SIH-RD", "PROC_REA", ["0403070171"], year=2015)` labelled mechanical
+    thrombectomy, a procedure SIGTAP lists from 202312. A procedure is a 10-digit code the SIGTAP history knows; outside
+    its window it is undecoded, visibly, and the report counts it. Periods before the first export are not judged."""
+    if ctx.registry_home is None or (ctx.year is None and ctx.competencia is None):
+        return merged
+    windows, first_export = _procedure_windows(str(ctx.registry_home))
+    if not windows:
+        return merged
+    lo, hi = ((int(ctx.competencia), int(ctx.competencia)) if ctx.competencia
+              else (int(ctx.year) * 100 + 1, int(ctx.year) * 100 + 12))  # type: ignore[arg-type]
+    if hi < first_export:
+        return merged
+    outside = [code for code in merged
+               if len(code) == 10 and code.isdigit() and code in windows
+               and not (windows[code][0] <= hi and lo <= windows[code][1])]
+    if not outside:
+        return merged
+    example = sorted(outside)[0]
+    first, last = windows[example]
+    ctx.report.warnings.append(
+        f"{field_name}: {len(outside)} SIGTAP procedure code(s) did not exist in {lo}-{hi} and are left undecoded "
+        f"(e.g. {example}, listed {first}-{'' if last == 999912 else last})"
+    )
+    gone = set(outside)
+    return {code: label for code, label in merged.items() if code not in gone}
 
 
 def _undecoded(name: str, column: Any, doc: Any, *, with_label: bool = True) -> _Emitted:
