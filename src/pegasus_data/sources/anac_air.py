@@ -50,11 +50,11 @@ from typing import Any
 
 import duckdb
 import pyarrow as pa
-import pyarrow.parquet as pq
 
 from .. import transport
 from ..config import load_settings
 from ..geography import municipalities, place_points
+from ..persist.kept import write_json_atomic, write_parquet_atomic
 from ..proximity import proximity_graph
 from ..textenc import fold
 
@@ -191,7 +191,7 @@ def build(root: str | Path | None = None, log: Callable[[str], None] | None = No
                 say(f"downloading {name}")
                 transport.download(url, raw / name)
             held[name] = {"url": url, **meta, "bytes": (raw / name).stat().st_size}
-    held_path.write_text(json.dumps(held, indent=1, ensure_ascii=False), encoding="utf8")
+    write_json_atomic(held, held_path, indent=1, ensure_ascii=False)
 
     ufs = _uf_sigla_by_name()
     registered = _register(raw / "AerodromosPrivados.csv", ufs)
@@ -280,7 +280,7 @@ def build(root: str | Path | None = None, log: Callable[[str], None] | None = No
                                 ("vintage", pa.int32()), ("flights", pa.int64()), ("passengers_paid", pa.int64()),
                                 ("passengers_free", pa.int64())]))
     target = out / "air_passengers.parquet"
-    pq.write_table(kept, target, compression="zstd")
+    write_parquet_atomic(kept, target, compression="zstd")
     kept_year = {y: int(v) for y, v in con.execute("SELECT y, sum(paid+free) FROM br_legs WHERE cf IS NOT NULL AND ct IS NOT NULL AND cf <> ct GROUP BY y ORDER BY y").fetchall()}
 
     dom_paid = {y: int(v) for y, v in con.execute("SELECT y, sum(paid) FROM legs WHERE nat = 'DOMÉSTICA' GROUP BY y ORDER BY y").fetchall()}
@@ -299,5 +299,5 @@ def build(root: str | Path | None = None, log: Callable[[str], None] | None = No
                                "reason": unplaced_why.get((a, nm, uf))} for a, nm, uf, p, n in unplaced],
         "placement": placement, "register_airports": len(registered), "check": check,
     }
-    (raw / "air_passengers_report.json").write_text(json.dumps(report, indent=1, ensure_ascii=False, default=str), encoding="utf8")
+    write_json_atomic(report, raw / "air_passengers_report.json", indent=1, ensure_ascii=False, default=str)
     return report

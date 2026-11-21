@@ -24,10 +24,10 @@ mesh with the basic counts, ``registries/ibge_points/tracts.gpkg`` (`tract_mesh`
 
 from __future__ import annotations
 
-import os
 from pathlib import Path
 from typing import Any
 
+from ..persist.kept import write_parquet_atomic
 from ..semantics.curation import declared
 
 SOURCE = "https://ftp.ibge.gov.br/Censos/Censo_Demografico_2022/Agregados_por_Setores_Censitarios/"
@@ -89,7 +89,6 @@ def build(root: str | Path | None = None) -> dict[str, Any]:
     each file, the suppressed cells and the check of the tracts' sums against IBGE's municipal file."""
     import pyarrow as pa
     import pyarrow.compute as pc
-    import pyarrow.parquet as pq
 
     from ..transport import download
 
@@ -128,12 +127,7 @@ def build(root: str | Path | None = None) -> dict[str, Any]:
     population = pa.concat_tables(parts).sort_by([("tract", "ascending"), ("sex", "ascending"), ("age_from", "ascending")])
     residents, residents_suppressed = _count(demo.column("V01006"))
     for table, name in ((identity, "tracts_2022.parquet"), (population, "tract_population_2022.parquet")):
-        tmp = directory / f"_{name}.{os.getpid()}.tmp"
-        try:
-            pq.write_table(table, tmp, compression="zstd")
-            os.replace(tmp, directory / name)
-        finally:
-            tmp.unlink(missing_ok=True)
+        write_parquet_atomic(table, directory / name, compression="zstd")
     return {"tracts": identity.num_rows, "tracts_with_demography": len(tract),
             "residents_basic": int(pc.sum(identity.column("v0001")).as_py()),
             "residents_demography_unsuppressed": int(pc.sum(residents).as_py()),

@@ -764,6 +764,22 @@ def _flag_partial_periods(spec: AggregateSpec, semantics: Any, report: Aggregate
     )
 
 
+def geography_pack_checksum(names: tuple[str, ...] = ("geography.parquet",)) -> str:
+    """The checksum of the packaged geography file(s) (``""`` when one is absent): the version of whatever was placed
+    through them."""
+    from importlib.resources import files
+
+    out = ""
+    for name in names:
+        try:
+            pack = Path(str(files("pegasus_data.resources") / name))
+            if pack.exists():
+                out += hashlib.sha256(pack.read_bytes()).hexdigest()
+        except (ModuleNotFoundError, FileNotFoundError):  # pragma: no cover
+            pass
+    return out
+
+
 def _fingerprint(spec: AggregateSpec, blob_digests: set[str], settings: Settings) -> str:
     """Identity of an artifact: the spec, its sources, and its semantics.
 
@@ -771,8 +787,6 @@ def _fingerprint(spec: AggregateSpec, blob_digests: set[str], settings: Settings
     every health-region roll-up derived from this artifact, and an artifact that
     does not notice is stale in a way nobody can see.
     """
-    from importlib.resources import files
-
     from .config import curation_root
     from .semantics.curation import curation_fingerprint
 
@@ -780,12 +794,7 @@ def _fingerprint(spec: AggregateSpec, blob_digests: set[str], settings: Settings
     digest.update(json.dumps(spec.fingerprint_payload(), sort_keys=True).encode())
     digest.update(ENGINE_VERSION.encode())
     digest.update(curation_fingerprint(curation_root()).encode())
-    try:
-        pack = Path(str(files("pegasus_data.resources") / "geography.parquet"))
-        if pack.exists():
-            digest.update(hashlib.sha256(pack.read_bytes()).hexdigest().encode())
-    except (ModuleNotFoundError, FileNotFoundError):  # pragma: no cover
-        pass
+    digest.update(geography_pack_checksum().encode())
     for blob in sorted(blob_digests):
         digest.update(blob.encode())
     return digest.hexdigest()

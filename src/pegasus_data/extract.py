@@ -28,6 +28,8 @@ import pyarrow as pa
 import pyarrow.compute as pc
 import pyarrow.parquet as pq
 
+from .persist.kept import write_parquet_atomic
+
 __all__ = ["build_extract", "extract_dir", "extract_table"]
 
 
@@ -184,11 +186,9 @@ EXTRACT_WORKERS = 6
 def _write_manifest(path: Path, manifest: dict[str, Any]) -> None:
     """The manifest written whole or not at all (a temporary file replaced): rewritten in place every few files, a
     reader caught it half written and took the extract for absent (PegaSUS's tests, 2026-10-12)."""
-    import os
+    from .persist.kept import write_json_atomic
 
-    tmp = path.with_suffix(".json.tmp")
-    tmp.write_text(json.dumps(manifest, indent=1), encoding="utf-8")
-    os.replace(tmp, path)
+    write_json_atomic(manifest, path, indent=1)
 
 
 def _read_manifest(path: Path) -> dict[str, Any] | None:
@@ -295,7 +295,7 @@ def _build_extract(dataset: str, years: Sequence[int], filters: dict[str, Sequen
         if kept.num_rows:
             part = _part_path(target, f["year"], f["geo_code"], f["normalized_date"])
             part.parent.mkdir(parents=True, exist_ok=True)
-            pq.write_table(kept, part, compression="zstd")
+            write_parquet_atomic(kept, part, compression="zstd")
         manifest["files"][f["path"]] = {"year": int(f["year"]), "uf": f["geo_code"], "period": f["normalized_date"],
                                         "rows": rows, "kept": kept.num_rows,
                                         "downloaded": int(getattr(report, "bytes_downloaded", 0) or 0)}

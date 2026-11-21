@@ -34,7 +34,7 @@ from typing import Any
 import pyarrow as pa
 import pyarrow.parquet as pq
 
-from .fields import write_parquet_atomic
+from .persist.kept import write_parquet_atomic
 from .semantics.epoch import curated
 from .textenc import fold
 

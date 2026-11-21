@@ -440,14 +440,11 @@ def _parsed_yaml(path: str, mtime_ns: int, size: int) -> dict[str, Any]:
                 _YAML_CACHE_SWEPT = True
                 for old in folder.glob("*.pickle"):
                     old.unlink(missing_ok=True)
-            cached.parent.mkdir(parents=True, exist_ok=True)
-            tmp = cached.with_suffix(f".{os.getpid()}.tmp")
-            with open(tmp, "wb") as handle:
-                pickle.dump(doc, handle, protocol=pickle.HIGHEST_PROTOCOL)
-            tmp.replace(cached)
-            for version in cached.parent.iterdir():     # another version of this file is out of date
-                if version != cached and version.suffix == ".pickle":
-                    version.unlink(missing_ok=True)
+            from ..persist.kept import prune_siblings, write_atomic
+
+            write_atomic(cached, lambda tmp: tmp.write_bytes(pickle.dumps(doc, protocol=pickle.HIGHEST_PROTOCOL)))
+            # another version of this file is out of date
+            prune_siblings(cached, (v for v in cached.parent.iterdir() if v.suffix == ".pickle"))
         except OSError:                   # a read-only or full temp directory, a file in use: parsed each time, never wrong
             pass
     return doc

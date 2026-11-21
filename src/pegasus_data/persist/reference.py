@@ -305,8 +305,8 @@ _FINGERPRINTS: dict[tuple, str] = {}
 
 
 def dictionary_fingerprint(catalog: CatalogStore, system: str) -> str:
-    """What a system's lookups are written from: its dictionary rows (count and the lengths of their codes and labels)
-    and the curation (curated codelists are inline). A lookup written from another fingerprint is stale. Computed once
+    """What a system's lookups are written from: its dictionary rows (a digest of their content) and the curation
+    (curated codelists are inline). A lookup written from another fingerprint is stale. Computed once
     per process for a catalog file's state (its modification time): a check on every read cost 27 s a call."""
     import hashlib
 
@@ -317,33 +317,47 @@ def dictionary_fingerprint(catalog: CatalogStore, system: str) -> str:
     state = (str(path), Path(path).stat().st_mtime_ns if path and Path(path).exists() else None, system)
     if state[1] is not None and state in _FINGERPRINTS:
         return _FINGERPRINTS[state]
-    row = catalog.query("SELECT count(*) AS n, coalesce(sum(length(value_label)), 0) AS l, "
-                        "coalesce(sum(length(value_raw)), 0) AS r FROM dictionary WHERE system = ?", (system,))[0]
-    text = f"{row['n']}|{row['l']}|{row['r']}|{codelist_fingerprint(curation_root())}"
+    digest = hashlib.sha256()
+    # the dictionary's CONTENT, streamed in a stable order: a label edited to the same length changes it
+    for row in catalog.query(
+            "SELECT field_name, value_group, value_raw, value_label, family_id, valid_from, valid_to FROM dictionary"
+            " WHERE system = ? ORDER BY field_name, value_group, value_raw, value_label, family_id, valid_from, valid_to",
+            (system,)):
+        digest.update("".join("" if v is None else str(v) for v in tuple(row)).encode())
+        digest.update(b"")
+    text = f"{digest.hexdigest()}|{codelist_fingerprint(curation_root())}"
     out = hashlib.sha256(text.encode()).hexdigest()[:16]
     if state[1] is not None:
         _FINGERPRINTS[state] = out
     return out
 
 
-def _write_stamps(catalog: CatalogStore, root: Path, systems: Sequence[str]) -> None:
+def _read_stamps(path: Path) -> dict[str, str]:
+    """The stamps file, or no stamps (everything stale) when it is absent or torn."""
     import json
 
+    try:
+        stamps = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+    return stamps if isinstance(stamps, dict) else {}
+
+
+def _write_stamps(catalog: CatalogStore, root: Path, systems: Sequence[str]) -> None:
+    from .kept import write_json_atomic
+
     path = root / STAMPS
-    stamps = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+    stamps = _read_stamps(path)
     for system in systems:
         stamps[str(system).upper()] = dictionary_fingerprint(catalog, str(system).upper())
-    path.write_text(json.dumps(stamps, indent=1, sort_keys=True), encoding="utf-8")
+    write_json_atomic(stamps, path, indent=1, sort_keys=True)
 
 
 def stale_systems(catalog: CatalogStore, lake_root: str | Path, systems: Sequence[str]) -> list[str]:
     """The systems among ``systems`` whose lookups were written from another dictionary than the catalog holds now (or
     carry no stamp). The lookups were written once and never again: SINAN's labels kept the codelist's match
     expression ("Ign/Branco ,9 ,09,99,") for weeks after the dictionary was corrected (2026-10-07)."""
-    import json
-
-    path = Path(lake_root) / "reference" / STAMPS
-    stamps = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+    stamps = _read_stamps(Path(lake_root) / "reference" / STAMPS)
     return [s for s in (str(x).upper() for x in systems) if stamps.get(s) != dictionary_fingerprint(catalog, s)]
 
 
