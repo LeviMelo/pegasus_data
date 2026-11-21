@@ -111,3 +111,24 @@ registration was still rising in the North and Northeast, so their changes were 
 not a forecast. The account's regression (the previous decade's migration) is the one term that transfers across the
 three truths (0.0511 / 0.0590 / 0.0644 against 0.0730 / 0.0671 / 0.0713). To revisit when a fourth truth exists (the
 next census or count), with the roll of 2022 onward.
+
+## An interval for a sum of municipalities (plan P6; `aggregate_intervals.py`)
+
+**Test.** The benchmark's two forecasts, each under the other period's fit. For every micro-region (538), state (26)
+and region (5): the log error of the group's total against the spread its municipalities' own intervals imply.
+
+| | 2000 to 2010 | 2010 to 2022 |
+|---|---|---|
+| spread of the standardized group error if municipal errors were independent: micro-regions / states / regions | 1.64 / 1.52 / 1.78 | 1.77 / 2.64 / 2.10 |
+| 80% coverage under independence | 0.68 / 0.69 / 0.60 | 0.62 / 0.50 / 0.60 |
+| correlation inside a micro-region that brings its spread to 1 | 0.450 | 0.500 |
+| the other period's correlation applied: micro-regions, 80% / 95% coverage | 0.88 / 0.96 | 0.83 / 0.93 |
+| a second correlation inside the state, beyond the micro-region | 0.022 | 0.133 |
+| both correlations of the other period applied: states, 80% / 95% | 0.96 / 0.96 | 0.65 / 0.85 |
+
+- Municipal errors move together inside a micro-region, with a correlation that is the same in both decades (0.45,
+  0.50) and transfers: one law gives a calibrated interval for any group of municipalities inside a state
+  (`population_benchmark.group_log_sd`, correlation 0.47).
+- The state's own component does not transfer (0.02 against 0.13; coverage 0.65 one way, 0.96 the other): an interval
+  for a state's total cannot be had from these two periods. Under ADR-0228 it is not needed: a state's total is IBGE's.
+- Not done: the same for age groups and for race (their spreads are per cell; ADR-0220's open item stays for them).

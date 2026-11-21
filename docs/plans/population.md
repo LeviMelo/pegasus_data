@@ -111,3 +111,6 @@ settles.
 - **P2 concluded: the signals stay out of the forecast** (evaluation 2026-11-21-population-symptoms, last section). On the
   third truth (2007 forecast from 2000) births and the roll make the forecast worse (0.0728 and 0.0794 against the
   account's 0.0644). Only the previous decade's migration transfers across the three truths.
+- **P6, totals of groups of municipalities, concluded** (evaluation 2026-11-21-population-symptoms): errors correlate 0.45-0.50
+  inside a micro-region in both periods and the law transfers (`population_benchmark.group_log_sd`); a state's total is
+  IBGE's. Left of P6: age groups and race.

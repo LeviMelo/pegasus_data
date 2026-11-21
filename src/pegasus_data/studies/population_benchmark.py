@@ -74,3 +74,22 @@ def benchmark(settings: Any, log: Any = print) -> dict[str, Any]:
     """``pegasus-data model-benchmark``: the shipped account on the benchmark, from the home."""
     inputs = pa.assemble(settings, log=log)
     return {"method": "the account: births, deaths and the previous decade's migration", **transfer(inputs.A, inputs.B)}
+
+
+#: Correlation of the forecast errors of two municipalities of one micro-region (0.450 fitted on 2000-2010, 0.500 on
+#: 2010-2022; evaluation 2026-11-21-population-symptoms).
+MICRO_CORRELATION = 0.47
+
+
+def group_log_sd(total: np.ndarray, log_sd: np.ndarray, micro: np.ndarray, correlation: float = MICRO_CORRELATION) -> float:
+    """The log sd of a sum of municipalities' totals inside one state, from each one's own ``log_sd``.
+
+    Municipal errors are not independent: those of a micro-region move together. With a_i = share_i x sd_i,
+    var = (1 - rho) sum a_i^2 + rho sum over micro-regions (sum a_i)^2. Fitted on one intercensal forecast and applied to
+    the other, the 80% and 95% intervals of the micro-regions' totals cover 0.83 / 0.94 and 0.91 / 0.97. A state's total
+    is not this function's: its error did not transfer between the periods, and from `population-account-9` it is
+    IBGE's figure (ADR-0228)."""
+    a = np.asarray(total, dtype=float) / float(np.sum(total)) * np.asarray(log_sd, dtype=float)
+    together = sum(float(a[micro == m].sum()) ** 2 for m in np.unique(micro))
+    return float(np.sqrt((1 - correlation) * float((a**2).sum()) + correlation * together))
+
