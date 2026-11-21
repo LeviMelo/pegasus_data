@@ -41,7 +41,27 @@ Also assessed: the 2007 Contagem is totals only by municipality; the 2022 Census
 as person-level monthly files of 1.4-4.6 GB.
 
 **Read.** Symptoms help by a tenth each, not by half: twelve years after a census the municipal total stays near 5%.
-What is not yet known is how much of that 5% is the closing census's own error (the truth is a corrected count, sd
-assumed 2%) rather than the forecast's: until that floor is measured (plan P4), no method can be said to be near or
-far from it. Next: the roll of every election year as a path, not two points (plan P2b), and the benchmark as one
-function (P1).
+How much of that 5% is the closing census's own error rather than the forecast's is read next (plan P4): until
+that floor is known, no method can be said to be near or far from it.
+
+## The closing census's own part (plan P4, first reading; `census_error.py`, artifacts `census_error_A.json`, `census_error_B.json`)
+
+Three readings of one change, a municipality's adults beyond births and deaths, each less its state's: the census (c),
+the roll (r), births per accounted woman (b). With independent errors one common factor is identified by the three
+covariances (var of the signal in c = cov(c,r) cov(c,b) / cov(r,b)); what is left of var(c) is the census's alone.
+
+| | sd of c | common signal | the census's alone | the roll's alone | births' alone (counting) |
+|---|---|---|---|---|---|
+| 2010 to 2022, ages 20-69 | 0.108 | 0.091 | **0.059** | 0.070 | 0.129 (0.068) |
+| 2000 to 2010, all adults (the roll has no age) | 0.113 | 0.099 | **0.055** | 0.106 | 0.167 (0.064) |
+
+By size (2010 to 2022): 0.052, 0.058, 0.052 under 100,000; 0.033 at 100-500,000.
+
+- A quarter to a third of the variance of a municipality's departure at a census is shared by neither the roll nor the
+  births. It is an **upper bound** on the census's municipal error (opening and closing counts together): it also holds
+  any real change that voters and births do not follow.
+- Competing readings, not separated: (1) coverage error of the counts; (2) people who moved without moving their voter
+  registration and had no birth. Against (1) dominating: the part is the same for 2010 (a census IBGE found near
+  complete) as for 2022 (8.3% net error). A third adult series would separate them (plan P4).
+- If it were all error, a forecast that followed the common signal perfectly would still score a median 0.037 against
+  such a truth; the account scores 0.056 and with a symptom 0.050.

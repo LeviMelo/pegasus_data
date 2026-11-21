@@ -88,4 +88,8 @@ settles.
   fixed-date migration published; INEP unreachable from this machine; vaccine doses only as person-level files.
 - **Against POPSVS** (evaluation 2026-11-21-account-against-popsvs): the difference is the census correction, the
   municipal allocation and the timing, each 1-2.5%.
-- **Open after these:** how much of the 5% is the closing census's own error (P4 before more of P2).
+- **P4, first reading** (the same entry): of a municipality's departure at a census (sd 0.108-0.113), 0.055-0.059 is
+  shared by neither the roll nor the births, in 2010 as in 2022: an upper bound on the counts' municipal error, or
+  moves the two do not follow. A third adult series separates them.
+- **Next:** P1 (the benchmark as a function), then the roll of every election year as a path (P2b) and a third adult
+  series for P4.
