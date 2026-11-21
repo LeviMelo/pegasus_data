@@ -164,7 +164,7 @@ Z_LEVEL = {0.8: 1.2816, 0.95: 1.96}
 
 
 def forecast_account(inp, cal, settings: Any, steps: int = 8) -> dict:
-    """The account ``steps`` years after the PES-corrected 2022 census (2023 is the first, with observed events).
+    """The account ``steps`` years after the reconciled 2022 census (2023 is the first, with observed events).
 
     Returns ``X`` (steps, entities, 2, A) single ages, ``bands`` (steps, entities, 2, 17) and, per level, the log offsets
     ``off[level] = (lower, upper)`` of the band intervals (steps, entities, 2, 17): the account's own interval at the horizon
