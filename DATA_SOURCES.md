@@ -696,6 +696,9 @@ TabNet's state forms classify by `territorio/{UF}_macsaud.cnv` and `{UF}_regsaud
 - Exports are on `ftp2.datasus.gov.br/public/sistemas/tup/downloads`: 224
   monthly vintages, 200801 to 202608. Every table ships its own fixed-width
   layout file, and the layout drifts between vintages (ARCH §14c).
+- **History** (2026-11-21, `docs/evaluation/2026-11-21-sigtap-history.md`): 227 exports 200801 to 202611, one file per month (names carry a
+  `_v<yymmddhhmm>` stamp from 201301), 5,785 procedure codes ever. `tb_procedimento` has three layouts (a column added 201209; money 10 to
+  12 characters from 202506), money in centavos; the FTP stalls a session after about twenty transfers.
 - The newest export gave 44,984 entries; `tb_ocupacao` holds 2,719 occupation
   codes at one width.
 

@@ -326,6 +326,7 @@ def sigtap(
     root: RootOpt = None,
     competencia: Annotated[list[str] | None, typer.Option("--competencia", help="YYYYMM vintages to ingest; default is the newest")] = None,
     latest: Annotated[int, typer.Option("--latest", help="How many of the newest exports to ingest")] = 1,
+    history: Annotated[bool, typer.Option("--history", help="Instead, read every monthly export and write registries/sigtap (procedure_history, procedure_windows)")] = False,
     as_json: JsonOpt = False,
 ) -> None:
     """Ingest the SIGTAP Tabela Unificada — procedures, occupations and CID, first-party.
@@ -335,9 +336,17 @@ def sigtap(
     mixes two classifications. Lands at source='sigtap', which outranks a lookup
     DBF and never a .CNV/.DEF.
     """
-    from ..sources.sigtap import SigtapUnavailable, ingest
+    from ..sources.sigtap import SigtapUnavailable, build_history, ingest
 
     settings = _writer(root)
+    if history:
+        try:
+            with console.status("reading every SIGTAP export…"):
+                _emit(build_history(settings), as_json, "sigtap history")
+        except SigtapUnavailable as exc:
+            console.print(f"[red]SIGTAP unavailable: {exc}[/red]")
+            raise typer.Exit(code=1) from exc
+        return
     store = CatalogStore(settings.catalog_path)
     try:
         with console.status("fetching SIGTAP…"):
