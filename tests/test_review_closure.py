@@ -109,6 +109,26 @@ class TestCR06_PartitionReplacementIsNotDestructiveFirst:
 
 
 
+class TestHI14_ColdFetchCensusIsScoped:
+    """A cold fetch censused far more strata than the request needed."""
+
+    def test_the_census_is_narrowed_to_the_request(self):
+        from pegasus_data import retrieve
+
+        assert hasattr(retrieve, "_strata_for"), (
+            "a request for one state-year should not census the whole system"
+        )
+        signature = inspect.signature(retrieve._strata_for).parameters
+        # Narrowed by DATASET and by year. A request for one dataset should not
+        # census every stratum the system owns, which is what made a cold
+        # fetch pay for the whole tree.
+        assert {"system", "series", "years"} <= set(signature)
+        assert "return ids or None" in inspect.getsource(retrieve._strata_for), (
+            "None means 'nothing could be narrowed', which asks for the full "
+            "census — the fallback must stay explicit"
+        )
+
+
 class TestDerivedWritersUseDurableTrees:
     def test_population_publishes_complete_directories(self):
         from pegasus_data.build import Builder
