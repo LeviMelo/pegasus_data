@@ -102,9 +102,19 @@ intervals are indicative, as the women's). Brazil, share recorded as declared (9
 child declared Preta is recorded Parda 0.64-0.68 of the time. 3,024 rows (27 states and Brazil), each declared row
 summing to 1.
 
-**`race-confusion-women-2`**: building when this entry was written (about two hours: one pass per death year); its
-numbers are added to this section when it ends. `race-confusion-women-1` stays the stored and shipped version until
-then.
+**`race-confusion-women-2`** (`model-build race_confusion_women`, 0554f32; 106,565 deaths of 2015-2022, 19,332 linked;
+the same scales; no divergence, R-hat 1.012, least effective sample 122: the best-mixed of the three fits). Against
+`-1` (false links priced per class with the state's colours; R-hat 1.023, effective sample 53), Brazil, share certified
+as declared:
+
+| | Branca | Parda | Preta | Indígena |
+|---|---|---|---|---|
+| `-1`, ages 15-24 / 25-34 / 35-49 | 0.79 / 0.79 / 0.74 | 0.68 / 0.68 / 0.66 | 0.59 / 0.63 / 0.60 | 0.85 / 0.86 / 0.83 |
+| `-2` | 0.70 / 0.69 / 0.70 | 0.72 / 0.70 / 0.75 | 0.60 / 0.59 / 0.63 | 0.86 / 0.86 / 0.86 |
+
+Pricing a false link per pair inside its municipality moves Branca down by 0.04-0.10 and Parda up by 0.02-0.09; Preta
+and Indígena stay. Mean absolute change over the 3,024 cells 0.027 (largest 0.36, a small state's cell). `-2` is the
+current version; `-1` stays stored.
 
 ## Adults through the hospital's record: the independence assumption fails (plan R3; `data/probes/race_chain/`)
 
