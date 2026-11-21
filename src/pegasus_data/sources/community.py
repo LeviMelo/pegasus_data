@@ -36,22 +36,19 @@ MICRODATASUS_REPO = "https://github.com/rfsaldanha/microdatasus"
 _RAW = "https://raw.githubusercontent.com/rfsaldanha/microdatasus"
 _API = "https://api.github.com/repos/rfsaldanha/microdatasus"
 
-#: ``process_<name>.R`` → the system this project calls it. SINAN's per-disease
-#: files all describe the same system; the disease is the series, not a system.
-FILE_SYSTEMS: dict[str, str] = {
-    "process_sia": "SIASUS",
-    "process_sih": "SIHSUS",
-    "process_sim": "SIM",
-    "process_sinasc": "SINASC",
-    "process_cnes": "CNES",
-    "process_sinan_chagas": "SINAN",
-    "process_sinan_chikungunya": "SINAN",
-    "process_sinan_dengue": "SINAN",
-    "process_sinan_leishmaniose_tegumentar": "SINAN",
-    "process_sinan_leishmaniose_visceral": "SINAN",
-    "process_sinan_malaria": "SINAN",
-    "process_sinan_zika": "SINAN",
-}
+def file_system(stem: str) -> str | None:
+    """The system a ``process_<system>[_<disease>].R`` file recodes, as the catalog spells it: ``process_sia`` ->
+    SIASUS, ``process_sinan_dengue`` -> SINAN (the disease is the series, not a system). The name is resolved by the
+    ontology's system aliases; a name it does not know is no system."""
+    from ..ontology import Ontology
+
+    if not stem.startswith("process_"):
+        return None
+    node = Ontology.load().system_of(stem.removeprefix("process_").split("_")[0])
+    if node is None:
+        return None
+    return str(node.crawled_as[0] if node.crawled_as else node.code)
+
 
 #: ``if ("PA_SEXO" %in% variables_names) {`` — opens the block that recodes one
 #: column, and is what lets a pair be attributed to the right field.
@@ -131,7 +128,7 @@ def entries_from_source(
     entries: list[DictionaryEntry] = []
     for filename, text in source.files.items():
         stem = filename[:-2] if filename.endswith(".R") else filename
-        system = FILE_SYSTEMS.get(stem)
+        system = file_system(stem)
         if system is None or (wanted and system not in wanted):
             continue
         for field_name, code, label in parse_r_recodes(text):

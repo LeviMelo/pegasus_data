@@ -73,3 +73,6 @@ Line numbers are from the tree as read (2026-11-21).
 | 5 | after the migration: 22,279 of 22,286 catalogued columns (99.97%) have a declared role (SINASC-DN's 7 do not), so the general fix is to type a declared column from its role (kind, codelists) and run the detectors on the undeclared ones only. The verdict picks date parsing, numeric casting and the `_ibge7`/epi-week columns in `normalize/engine`, so it changes lake normalisation: done after the record-identity migration |
 | 18 | fixed: `structures:` declaration, `LevelLabels` |
 | 2 | lookups half fixed (`structures:`); `persist/reference.HIERARCHICAL_TABLES` and the 200-label cutoff after the migration |
+| 35 | fixed: system from the file name through the ontology |
+| 15 | part: the month-like line is a majority, measured; directory tokens kept (ordering hint only) |
+| 12, 21, 26, 27, 31, 32 | kept, reasons in the evaluation entry |

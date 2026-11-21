@@ -211,9 +211,12 @@ def infer_date_convention(date_codes: list[str], *, group_keys: list[tuple[str, 
     #    Reading "any outlier ⇒ annual" flipped all 22,807 to annual and dated
     #    `CHBR1901.dbc` to the year 1901 instead of 2019-01. The convention is
     #    the dominant pattern; the outliers are the anomaly, and they are left
-    #    undated rather than forced into the majority reading.
+    #    undated rather than forced into the majority reading. Dominant is a
+    #    majority: of the catalog's 77 directories with 4-digit codes (2026-11-21)
+    #    the year-coded hold at most 44% month-like tails (SINASC/NOV/DNRES; years
+    #    run 96..24) and the month-coded at least 99.99%, so the line falls in a gap.
     month_like = sum(1 for t in tails if 1 <= t <= 12) / len(tails)
-    if month_like < 0.98:
+    if month_like <= 0.5:
         return "annual"
 
     # 2. A leading pair that is not a plausible century marker cannot be a year
