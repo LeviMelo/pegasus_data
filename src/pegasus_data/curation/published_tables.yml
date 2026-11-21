@@ -43,6 +43,14 @@ ibge_tracts:
   as_of: "2026-05-20 (the date IBGE put in the basic file's name)"
   basic_file: "Agregados_por_Setor_csv/Agregados_por_setores_basico_BR_20260520.zip"
   # The variables of each sex's eleven age bands of the demography file, in the bands' order (0-4 ... 70+): V01009-V01019 men, V01020-V01030 women.
+  dictionary_file: "dicionario_de_dados_agregados_por_setores_censitarios_20261113.xlsx"
+  # The wide themes: topic -> [zip under Agregados_por_Setor_csv/, the theme's name in the dictionary's sheet "Dicionário não PCT"].
+  aggregate_files:
+    alfabetizacao: ["Agregados_por_setores_alfabetizacao_BR.zip", "Alfabetização"]
+    domicilio1: ["Agregados_por_setores_caracteristicas_domicilio1_BR_20261021.zip", "Características do Domicílio - Parte 1"]
+    domicilio2: ["Agregados_por_setores_caracteristicas_domicilio2_BR_20250417.zip", "Características do Domicílio - Parte 2"]
+    domicilio3: ["Agregados_por_setores_caracteristicas_domicilio3_BR_20250417.zip", "Características do Domicílio - Parte 3"]
+    cor_ou_raca: ["Agregados_por_setores_cor_ou_raca_BR.zip", "Cor ou Raça"]
   sex_band_variables: {"1": [V01009, V01010, V01011, V01012, V01013, V01014, V01015, V01016, V01017, V01018, V01019],
                        "2": [V01020, V01021, V01022, V01023, V01024, V01025, V01026, V01027, V01028, V01029, V01030]}
 
