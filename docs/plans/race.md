@@ -60,4 +60,8 @@ the product's folder. *Done when* a reader can reproduce every number from the h
   0.79) and overcorrects Preta (1.78 for 1.18); nationally it extrapolates from small municipalities and fails. Open:
   a well-conditioned estimate for Preta (the matrix and the rates fitted together), and a link that reaches large
   municipalities.
+- **R1, cause of death** (the same entry): at 15-24 the sex difference is the external deaths'. Outside them men and
+  women are recorded alike (Branca 0.70, 0.67); a man white at birth who dies of an external cause, certified by a
+  medical examiner, is recorded Parda half the time (stays Branca 0.47). Cause beats sex out of sample; both together
+  best. Open: kinds of external death; the examiner apart from the cause; a cause term in the model and the products.
 

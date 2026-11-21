@@ -179,3 +179,33 @@ and `reclassify` with `race-confusion-child-1`. As ratios to Parda:
   composition and size terms carry the model to the large ones, unchecked.
 - **Use, as it stands:** Branca against Preta and Parda together, inside small municipalities. Not for Preta alone, and
   not for national rates. `reclassify`'s mean over draws is not usable (a few draws run away); the median is.
+
+## The sex difference at 15-24 is mostly the cause of death's (plan R1; `cause_test.py`, log `cause_test.log`)
+
+**Scenario.** The old-form cohorts' table rebuilt with the deaths' ids (47,804 deaths in municipalities under 400
+births a year, 2014-2024); the underlying cause and the certifier joined from SIM-DO by record id. External causes
+(V01-Y98) are 77% of men's deaths at 15-24 and 41% of women's; a medical examiner (`ATESTANTE` 3) certifies 21,188 of
+the 34,122 deaths at 15-24, 96% of them external.
+
+Share recorded as at birth, ages 15-24, corrected for false links (true pairs):
+
+| | Branca | Parda | Preta | Branca recorded Parda |
+|---|---|---|---|---|
+| women, not external | 0.67 (752) | 0.61 (609) | 0.39 (47) | 0.29 |
+| men, not external | 0.70 (917) | 0.65 (794) | 0.35 (67) | 0.26 |
+| women, external | 0.63 (531) | 0.78 (367) | 0.24 (28) | 0.36 |
+| men, external | **0.47** (2,973) | **0.84** (2,686) | 0.34 (229) | **0.49** |
+
+Out of sample (fit 2014-2019, scored on 2020-2024; log loss, count error), bands of the model:
+
+| age | age x sex | age x external | age x sex x external |
+|---|---|---|---|
+| 0.7757, 13.2% | 0.7629, 11.4% | 0.7584, 11.2% | **0.7550, 10.9%** |
+
+- Outside external causes men and women are recorded alike (Branca 0.70 and 0.67). The difference found earlier is
+  the external deaths': a man white at birth who dies of an external cause is recorded Parda half the time.
+- The cause predicts better than the sex (0.7584 against 0.7629), and the two together best: among external deaths a
+  sex difference remains (0.47 against 0.63), not yet separated into kinds of external death (homicide, transport).
+- Not separated either: the examiner from the cause (96% of the examiner's certificates are external).
+- Consequence for a bridge: at these ages the certificate's race depends on how the person died, so one matrix per age
+  is wrong for a cause-specific rate; a bridge for deaths by violence needs its own.
