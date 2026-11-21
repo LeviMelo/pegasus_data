@@ -89,6 +89,28 @@ class GridCell:
 
 
 @dataclass(frozen=True, slots=True)
+class Chain:
+    """One event made of a person's consecutive records: a record continues the previous one of its ``person`` when it
+    starts at most ``gap_days`` after that one ends and that one closed with a ``continues`` reason in the same
+    ``facility``, or with a ``transfer`` reason in any. A record missing a person column is its own person (null keys
+    partitioned together would chain strangers). The event is the chain's first record."""
+
+    person: tuple[str, ...]
+    start: str
+    end: str
+    reason: str
+    facility: str
+    continues: tuple[str, ...]
+    transfer: tuple[str, ...]
+    gap_days: int
+    evidence: str
+
+    @property
+    def columns(self) -> tuple[str, ...]:
+        return (*self.person, self.start, self.end, self.reason, self.facility)
+
+
+@dataclass(frozen=True, slots=True)
 class EventType:
     dataset: str          # the datasets-file key (SIHSUS_RD)
     system: str
@@ -103,6 +125,8 @@ class EventType:
     #: (a SINAN notification still under investigation is a probable case).
     status_excluded: tuple[str, ...] = ()
     consolidation_key: tuple[str, ...] = ()
+    #: Records chained into one event (`Chain`): SIH's AIHs of one stay; None when the key alone consolidates
+    chain: Chain | None = None
     #: Duplicate entries: rows equal on every column but these (entry metadata) are one record (``None``: no rule)
     duplicates_except: tuple[str, ...] | None = None
     #: The source's own duplicate flag: (column, codes that mean "do not count")
@@ -135,7 +159,11 @@ class EventType:
                            for c in self.classifiers],
             "status": ({"column": self.status_column, "values": list(self.status_values),
                         "excluded": list(self.status_excluded)} if self.status_column else None),
-            "consolidation": {"key": list(self.consolidation_key)} if self.consolidation_key else None,
+            "consolidation": ({"key": list(self.consolidation_key)} if self.consolidation_key else
+                              {"chain": {"person": list(self.chain.person), "start": self.chain.start, "end": self.chain.end,
+                                         "reason": self.chain.reason, "facility": self.chain.facility,
+                                         "continues": list(self.chain.continues), "transfer": list(self.chain.transfer),
+                                         "gap_days": self.chain.gap_days}} if self.chain else None),
             **({"duplicates": {**({"except": list(self.duplicates_except)} if self.duplicates_except is not None else {}),
                                 **({"flag": {"column": self.duplicates_flag[0], "codes": list(self.duplicates_flag[1])}}
                                    if self.duplicates_flag else {})}}
@@ -325,6 +353,7 @@ def _event(key: str, body: dict[str, Any], spec: dict[str, Any], where: str) -> 
         status_values=tuple(str(v) for v in status.get("values") or ()),
         status_excluded=tuple(str(v) for v in status.get("exclude") or ()),
         consolidation_key=tuple(str(c).upper() for c in (spec.get("consolidation") or {}).get("key") or ()),
+        chain=_chain((spec.get("consolidation") or {}).get("chain"), f"{where}: {key}.{name}"),
         duplicates_except=_duplicates(spec.get("duplicates"), f"{where}: {key}.{name}"),
         duplicates_flag=_duplicate_flag(spec.get("duplicates"), f"{where}: {key}.{name}"),
         weight=str(weight["column"]).upper() if weight.get("column") else None, grid=grid, bands=bands, grid_total=total, grid_margin=margin,
@@ -334,6 +363,46 @@ def _event(key: str, body: dict[str, Any], spec: dict[str, Any], where: str) -> 
         source_notes=_source_notes(spec.get("source_notes"), f"{where}: {key}.{name}"),
         exposure=_exposure(spec.get("exposure"), f"{where}: {key}.{name}"),
     )
+
+
+def _chain(spec: dict[str, Any] | None, where: str) -> Chain | None:
+    """A declared chain, complete or refused: every column named, the reasons listed, the evidence given."""
+    if not spec:
+        return None
+    needed = ("person", "start", "end", "reason", "facility", "continues", "gap_days", "evidence")
+    missing = [k for k in needed if spec.get(k) in (None, "", [])]
+    if missing:
+        raise ValueError(f"{where}: a consolidation chain declares {list(needed)}; missing {missing}")
+    return Chain(tuple(str(c).upper() for c in spec["person"]), str(spec["start"]).upper(), str(spec["end"]).upper(),
+                 str(spec["reason"]).upper(), str(spec["facility"]).upper(), tuple(str(c) for c in spec["continues"]),
+                 tuple(str(c) for c in spec.get("transfer") or ()), int(spec["gap_days"]), str(spec["evidence"]))
+
+
+def _chained_first(table: pa.Table, chain: Chain) -> pa.Table:
+    """The first record of each chain of ``table`` (`Chain`), in the table's order."""
+    import duckdb
+
+    missing = [c for c in chain.columns if c not in table.column_names]
+    if missing:
+        raise KeyError(f"chain columns {missing} are not in the table")
+    con = duckdb.connect()
+    con.register("t", table.append_column("__i", pa.array(range(table.num_rows), pa.int64())))
+    q = lambda c: '"' + c + '"'  # noqa: E731
+    keyed = " AND ".join(f"nullif(trim(CAST({q(c)} AS VARCHAR)), '') IS NOT NULL" for c in chain.person)
+    person = " || '|' || ".join(f"trim(CAST({q(c)} AS VARCHAR))" for c in chain.person)
+    cont = ", ".join(f"'{c}'" for c in chain.continues) or "NULL"
+    tr = ", ".join(f"'{c}'" for c in chain.transfer) or "NULL"
+    day = lambda c: f"try_strptime(trim(CAST({q(c)} AS VARCHAR)), '%Y%m%d')::DATE"  # noqa: E731
+    keep = con.execute(f"""
+        WITH a AS (SELECT __i, CASE WHEN {keyed} THEN {person} ELSE 'row:' || __i END AS p, {day(chain.start)} AS d_in,
+                          {day(chain.end)} AS d_out, trim(CAST({q(chain.reason)} AS VARCHAR)) AS r,
+                          trim(CAST({q(chain.facility)} AS VARCHAR)) AS f FROM t),
+             o AS (SELECT *, lag(d_out) OVER w AS po, lag(r) OVER w AS pr, lag(f) OVER w AS pf
+                   FROM a WINDOW w AS (PARTITION BY p ORDER BY d_in NULLS LAST, d_out, __i))
+        SELECT __i FROM o WHERE NOT (po IS NOT NULL AND d_in IS NOT NULL AND date_diff('day', po, d_in) BETWEEN 0 AND {chain.gap_days}
+                                      AND ((pr IN ({cont}) AND pf = f) OR pr IN ({tr})))
+        ORDER BY __i""").fetchnumpy()["__i"]
+    return table.take(pa.array(keep, pa.int64()))
 
 
 def _classifiers(specs: list[dict[str, Any]] | None, where: str) -> tuple[Classifier, ...]:
@@ -578,6 +647,8 @@ def events_of(table: pa.Table, event: EventType, *, flag_absent_ok: bool = False
         n_unkeyed = pc.sum(unkeyed).as_py() or 0
         if n_unkeyed:
             table = table.replace_schema_metadata({**(table.schema.metadata or {}), UNKEYED: str(n_unkeyed).encode()})
+    if event.chain is not None and table.num_rows:
+        table = _chained_first(table, event.chain)
     return table
 
 
@@ -692,7 +763,7 @@ def read_events(dataset: str, event: EventType, columns: Iterable[str] = (), *, 
 
     columns = list(columns)
     flag = event.duplicates_flag[0] if event.duplicates_flag else None
-    rule = event if consolidate else dataclasses.replace(event, consolidation_key=())
+    rule = event if consolidate else dataclasses.replace(event, consolidation_key=(), chain=None)
     cond = prepare_condition(dataset, condition)
     # columns the dataset reads through a key (SIH-SP's sex and age: `semantics.through`) come with `query`'s selection;
     # neither a table already read nor a whole-row comparison selects them, and a missing one must not read as a column of nulls
@@ -711,7 +782,8 @@ def read_events(dataset: str, event: EventType, columns: Iterable[str] = (), *, 
     else:
         from .._query_engine.executor import query
 
-        needed = {c for c in (*columns, rule.status_column, *rule.consolidation_key, *rule.present, rule.weight, rule.grid_total,
+        needed = {c for c in (*columns, rule.status_column, *rule.consolidation_key, *(rule.chain.columns if rule.chain else ()),
+                              *rule.present, rule.weight, rule.grid_total,
                               rule.grid_margin, *(c.column for c in rule.grid)) if c}
         select = None if rule.duplicates_except is not None else (sorted(needed) or None)
         if select is None or flag is None:

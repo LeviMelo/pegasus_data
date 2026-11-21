@@ -91,6 +91,37 @@ datasets:
               Procedure Table, without bonuses, replacement factors, or state and municipal incentives and
               complements, and in current reais of each year.
           form: Autorização de Internação Hospitalar (AIH).
+      - name: stay
+        kind: hospitalisation
+        grain: one hospital stay, its AIHs chained; a transfer continues the stay in the next hospital
+        classifiers:
+          - {column: DIAG_PRINC, role: primary, structure: ICD10}
+          - {column: PROC_REA, role: alternative, structure: SIGTAP}
+        status:
+          column: IDENT
+          values: ["1"]
+          evidence: >-
+            The principal AIHs, as the hospitalisation event counts them; a long stay's continuation AIHs (IDENT 5)
+            share the N_AIH and are not records of their own.
+        consolidation:
+          chain:
+            person: [NASC, SEXO, CEP]
+            start: DT_INTER
+            end: DT_SAIDA
+            reason: COBRANCA
+            facility: CNES
+            continues: ["21", "22", "23", "24", "25", "26", "27", "28", "29"]
+            transfer: ["31"]
+            gap_days: 1
+            evidence: >-
+              A stay whose procedure changes or needs a reoperation closes its AIH with a "permanência" discharge reason
+              (COBRANCA 21-29: 26 mudança de procedimento, 27 reoperação) and opens another; 31 is a transfer to another
+              establishment (SIH's MOTSAI table). A person is a birth date, sex and residence CEP, the key of the link
+              sih_readmissions (Pernambuco 2019 shunts: chance 1.77%, race agreement 99.53%). Pernambuco 2019-2020:
+              1,065,304 AIHs form 971,334 stays; a stay with a shunt holds a median 2 AIHs (OPEN_QUESTIONS #96).
+        note: >-
+          A stay is chained inside the period read: one that crosses the period's edge is cut there. hospitalisation
+          (one event per principal AIH) is TabNet's "Internações" and stays as it was.
     system: SIHSUS
     series: RD
     asserted_by: pegasus_data

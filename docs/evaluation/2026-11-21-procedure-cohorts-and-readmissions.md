@@ -21,3 +21,9 @@ that must differ in a pair: the index AIH is not its own readmission). SIH-RD's 
 - What a partner is: 178 of the 283 began within 7 days of the discharge, 98% of them in the same hospital, often a
   clinical or multiple-surgery code (0303040157, 0415010012): an AIH opened for the same stay when the procedure
   changed. Counting readmissions joins consecutive AIHs into an episode by the discharge reason first (`links.yml`).
+
+**Stays (same day; OPEN_QUESTIONS #96 resolved).** An event type may consolidate by a chain: a person's record
+continues the previous one when it starts within `gap_days` of its end and that one closed with a stay reason at the
+same facility or a transfer. SIH-RD's `stay` chains AIHs by birth date, sex and CEP, reasons 21-29 and 31, one day:
+Pernambuco 2019-2020 971,336 stays against 1,065,304 hospitalisations (principal AIHs, unchanged; TabNet's
+"Internações"). A stay crossing the period's edge is cut there.
