@@ -1140,6 +1140,219 @@ def _acquire(
     return digests
 
 
+def _alternative_plans(
+    catalog: CatalogStore, families: Sequence[Mapping[str, Any]], plans: dict[str, NormalizePlan],
+    municipalities: MunicipalityIndex, cache: DictionaryCache,
+) -> list[tuple[str, NormalizePlan]]:
+    """Every layout of the dataset, for a member the catalog placed in the wrong one."""
+    # Every layout of the dataset, for a member the catalog placed in the wrong
+    # one: SIA's 2001-2007 APAC archives were assigned by a sampled stratum, and
+    # a member in the other layout was dropped as a schema mismatch (22 of 27
+    # states of SIASUS-CO 2005-01, 2026-09-29).
+    alternatives: list[tuple[str, NormalizePlan]] = []
+    for family in families:
+        family_id = str(family["family_id"])
+        alt = plans.get(family_id)  # the plan the selection already built, not a second one
+        if alt is None:
+            try:
+                alt = build_plan(catalog, family_id=family_id, municipalities=municipalities, cache=cache)
+            except KeyError:
+                continue
+            alt.keep_raw = True
+        alternatives.append((family_id, alt))
+    return alternatives
+
+
+def _measure_selection(
+    catalog: CatalogStore, selected: Sequence[tuple[str, NormalizePlan, dict[str, Any]]], report: FetchReport,
+    max_bytes: int | None,
+) -> None:
+    """Record how many sources and bytes were selected, and refuse a selection over ``max_bytes`` before any download."""
+    report.sources_selected = len({str(item["path"]) for _f, _p, item in selected})
+    unique_paths = {str(item["path"]) for _f, _p, item in selected}
+    if unique_paths:
+        marks = ",".join("?" for _ in unique_paths)
+        sized = catalog.query(
+            f"SELECT COALESCE(SUM(size), 0) AS total FROM files WHERE path IN ({marks})",
+            tuple(unique_paths),
+        )
+        report.bytes_selected = int(sized[0]["total"] or 0) if sized else 0
+    if max_bytes and report.bytes_selected > max_bytes:
+        # BEFORE downloading, not after. The catalog already knows how big the
+        # selection is; failing here costs nothing and failing later costs the
+        # whole transfer.
+        raise RequestTooLarge(report.sources_selected, report.bytes_selected, max_bytes)
+
+
+def _decode_selected_file(
+    position: int, triple: tuple[str, NormalizePlan, dict[str, Any]], digest: str, *,
+    pipeline: Pipeline, registry: ReaderRegistry, memo: dict[tuple[str, str, str], dict[str, Any]] | None,
+    decoded_cache: dict[tuple[str, frozenset[str] | None], Future[tuple[Any, int]]], cache_lock: threading.Lock,
+    keep_columns: frozenset[str] | None, members_by_path: Mapping[str, frozenset[str] | None],
+    alternatives: Sequence[tuple[str, NormalizePlan]], record_key: bool,
+) -> dict[str, object]:
+    """Decode one selected file. Returns what the caller needs to fold in.
+
+    Pure with respect to `report`: the caller applies the outcome in the
+    original order, so a concurrent decode cannot reorder the result table
+    or interleave warnings.
+    """
+    settings = pipeline.settings
+    _family_id, plan, item = triple
+    path = str(item["path"])
+    member = str(item["member"] or "")
+    remembered = memo.get((path, member, digest)) if memo is not None else None
+    if remembered is not None:
+        return {**remembered, "position": position}
+    try:
+        work = functools.partial(
+                _decode_one,
+                pipeline,
+                registry,
+                plan,
+                path=path,
+                digest=digest,
+                member=member,
+                decoded_cache=decoded_cache,
+                cache_lock=cache_lock,
+                keep_columns=keep_columns,
+                decode_members=members_by_path.get(path),
+                alternatives=alternatives,
+                record_key=record_key,
+        )
+        decoded_batches, matched_here, read_bytes, used_family, failure = (
+            work()
+            if settings.decode_isolation
+            else run_with_timeout(work, seconds=settings.item_timeout, label=path)
+        )
+    except ItemTimeout:
+        return {"position": position, "path": path, "timed_out": True}
+    except (IsolatedDecodeError, DecodeError, OSError) as exc:
+        # One source the decoder could not take (its process ended, its file vanished) is that source's gap, not
+        # the end of the request.
+        return {"position": position, "path": path, "item": item, "failure": f"{type(exc).__name__}: {exc}"}
+    done = {
+        "position": position,
+        "path": path,
+        "batches": decoded_batches,
+        "matched": matched_here,
+        "read_bytes": read_bytes,
+        "item": item,
+        "family": used_family,
+        "failure": failure,
+    }
+    if memo is not None and matched_here and not failure:
+        memo[(path, member, digest)] = done
+    return done
+
+
+def _acquire_and_decode(
+    pipeline: Pipeline, selected: Sequence[tuple[str, NormalizePlan, dict[str, Any]]],
+    positions_by_path: Mapping[str, list[int]], decode: Callable[..., dict[str, object]], *,
+    report: FetchReport, on_progress: Callable[[str, int, int], None] | None,
+    as_of: str | date | datetime | None,
+) -> list[dict[str, Any]]:
+    """Download the selected files and decode each as it lands; one outcome per selected file, in no order."""
+    # Decode files CONCURRENTLY. decode/dbc.py has said "parallelise across
+    # files, never within one" from the beginning, and this loop nevertheless
+    # took them one at a time — twelve independent monthly DBCs decoded in
+    # series. run_with_timeout() creates a thread per call and joins it
+    # immediately; it is a watchdog, not a pool.
+    #
+    # Bounded deliberately low. Each decode transiently holds a whole
+    # decompressed DBF, so matching CPU count trades wall time for peak RSS on
+    # exactly the wide requests where memory is already the binding constraint.
+    #
+    # Decoding starts on each file as it lands (`_acquire(on_ready=...)`), so the wall clock is the larger of download
+    # and decode instead of their sum.
+    workers = max(1, min(4, len(selected), (os.cpu_count() or 2)))
+    outcomes: list[dict[str, Any]] = []
+    futures: dict[Future[dict[str, Any]], int] = {}
+    gate = threading.Lock()
+    acquiring = [True]
+    pool = ThreadPoolExecutor(max_workers=workers, thread_name_prefix="decode")
+
+    def _on_ready(path: str, digest: str) -> None:
+        with gate:
+            if not acquiring[0]:  # a transfer that landed after the batch was closed is not decoded
+                return
+            for position in positions_by_path.get(path, ()):
+                futures[pool.submit(decode, position, selected[position], digest)] = position
+
+    try:
+        digests = _acquire(
+            pipeline, selected, report=report, on_progress=on_progress, as_of=as_of, on_ready=_on_ready
+        )
+        with gate:
+            acquiring[0] = False
+            submitted = dict(futures)
+        for path, positions in positions_by_path.items():
+            if path not in digests:
+                outcomes.extend({"position": p, "path": path, "missing": True} for p in positions)
+        for finished, future in enumerate(as_completed(submitted), start=1):
+            outcomes.append(future.result())
+            if on_progress:
+                on_progress("decoding", finished, len(selected))
+    finally:
+        pool.shutdown(wait=True, cancel_futures=True)
+    return outcomes
+
+
+def _fold_outcomes(
+    catalog: CatalogStore, settings: Settings, outcomes: list[dict[str, Any]], report: FetchReport,
+) -> tuple[list[pa.RecordBatch], set[int], set[str], set[str]]:
+    """The decoded batches, the years, states and sources that contributed; gaps and refusals go into the report."""
+    batches: list[pa.RecordBatch] = []
+    seen_years: set[int] = set()
+    seen_ufs: set[str] = set()
+    #: Unique physical artifacts that contributed, as opposed to (file, member)
+    #: records: one archive with seven members is one source.
+    read_sources: set[str] = set()
+    # Folded in ORIGINAL order, whatever order they finished in.
+    for outcome in sorted(outcomes, key=lambda o: o["position"]):
+        path = str(outcome["path"])
+        if outcome.get("missing"):
+            report.undecoded.append(path)
+            continue
+        if outcome.get("timed_out"):
+            record_timeout(catalog, stage="get", item=path, seconds=settings.item_timeout)
+            report.undecoded.append(path)
+            report.warnings.append(f"{path}: gave up after {settings.item_timeout:.0f}s")
+            continue
+        item = outcome["item"]
+        if outcome.get("failure"):
+            # The source (or its member) exists and could not be read: named and recorded, never "not published".
+            source_id = logical_source_id(path, str(item.get("member") or ""))
+            reason = record_decode_failure(
+                catalog, path, member=str(item.get("member") or ""), reason=str(outcome["failure"])
+            )
+            report.undecoded.append(source_id)
+            report.warnings.append(f"{source_id}: could not be decoded ({reason})")
+            report.bytes_read += int(outcome.get("read_bytes") or 0)
+            continue
+        report.bytes_read += int(outcome["read_bytes"] or 0)
+        batches.extend(outcome["batches"])
+        if outcome.get("family") == ABSENT_MEMBER:
+            report.members_absent.append(f"{path}!{item.get('member')}")
+            continue
+        if outcome["matched"]:
+            if outcome.get("family"):
+                source_id = logical_source_id(path, str(item.get("member") or ""))
+                facts = report.source_facts.get(source_id)
+                if facts:
+                    report.source_facts[source_id] = (str(outcome["family"]), facts[1], facts[2])
+                report.refamilied.append(source_id)
+            report.files_read += 1
+            read_sources.add(path)
+            if item["year"] is not None:
+                seen_years.add(int(item["year"]))
+            if item["geo_code"]:
+                seen_ufs.add(str(item["geo_code"]))
+        else:
+            report.schema_mismatch.append(path)
+    return batches, seen_years, seen_ufs, read_sources
+
+
 def _read_families(
     pipeline: Pipeline,
     families: Sequence[Mapping[str, Any]],
@@ -1201,35 +1414,8 @@ def _read_families(
         wanted = set(only_paths)
         selected = [triple for triple in selected if str(triple[2]["path"]) in wanted]
     report.files_matched = len(selected)
-    # Every layout of the dataset, for a member the catalog placed in the wrong
-    # one: SIA's 2001-2007 APAC archives were assigned by a sampled stratum, and
-    # a member in the other layout was dropped as a schema mismatch (22 of 27
-    # states of SIASUS-CO 2005-01, 2026-09-29).
-    alternatives: list[tuple[str, NormalizePlan]] = []
-    for family in families:
-        family_id = str(family["family_id"])
-        alt = plans.get(family_id)  # the plan the selection already built, not a second one
-        if alt is None:
-            try:
-                alt = build_plan(catalog, family_id=family_id, municipalities=municipalities, cache=cache)
-            except KeyError:
-                continue
-            alt.keep_raw = True
-        alternatives.append((family_id, alt))
-    report.sources_selected = len({str(item["path"]) for _f, _p, item in selected})
-    unique_paths = {str(item["path"]) for _f, _p, item in selected}
-    if unique_paths:
-        marks = ",".join("?" for _ in unique_paths)
-        sized = catalog.query(
-            f"SELECT COALESCE(SUM(size), 0) AS total FROM files WHERE path IN ({marks})",
-            tuple(unique_paths),
-        )
-        report.bytes_selected = int(sized[0]["total"] or 0) if sized else 0
-    if max_bytes and report.bytes_selected > max_bytes:
-        # BEFORE downloading, not after. The catalog already knows how big the
-        # selection is; failing here costs nothing and failing later costs the
-        # whole transfer.
-        raise RequestTooLarge(report.sources_selected, report.bytes_selected, max_bytes)
+    alternatives = _alternative_plans(catalog, families, plans, municipalities, cache)
+    _measure_selection(catalog, selected, report, max_bytes)
     if not selected:
         return pa.table({}), report
 
@@ -1244,12 +1430,6 @@ def _read_families(
         members = {str(selected[i][2]["member"] or "") for i in positions}
         members_by_path[path] = None if "" in members else frozenset(members)
 
-    batches: list[pa.RecordBatch] = []
-    seen_years: set[int] = set()
-    seen_ufs: set[str] = set()
-    #: Unique physical artifacts that contributed, as opposed to (file, member)
-    #: records: one archive with seven members is one source.
-    read_sources: set[str] = set()
     # The same watchdog and heartbeat every pipeline stage runs under. This is a
     # user-facing entry point that decodes arbitrary files off a slow server, so
     # the project's own rule applies to it too: nothing may hang silently. A file
@@ -1266,147 +1446,14 @@ def _read_families(
     #: digest -> (DecodeOutcome, payload size). Lives for this call only, and is
     #: shared across decode workers, so it is guarded.
     decoded_cache: dict[tuple[str, frozenset[str] | None], Future[tuple[Any, int]]] = {}
-    cache_lock = threading.Lock()
-
-    def _decode_at(position: int, triple, digest: str) -> dict[str, object]:
-        """Decode one selected file. Returns what the caller needs to fold in.
-
-        Pure with respect to `report`: the caller applies the outcome in the
-        original order, so a concurrent decode cannot reorder the result table
-        or interleave warnings.
-        """
-        _family_id, plan, item = triple
-        path = str(item["path"])
-        member = str(item["member"] or "")
-        remembered = memo.get((path, member, digest)) if memo is not None else None
-        if remembered is not None:
-            return {**remembered, "position": position}
-        try:
-            work = functools.partial(
-                    _decode_one,
-                    pipeline,
-                    registry,
-                    plan,
-                    path=path,
-                    digest=digest,
-                    member=member,
-                    decoded_cache=decoded_cache,
-                    cache_lock=cache_lock,
-                    keep_columns=keep_columns,
-                    decode_members=members_by_path.get(path),
-                    alternatives=alternatives,
-                    record_key=record_key,
-            )
-            decoded_batches, matched_here, read_bytes, used_family, failure = (
-                work()
-                if settings.decode_isolation
-                else run_with_timeout(work, seconds=settings.item_timeout, label=path)
-            )
-        except ItemTimeout:
-            return {"position": position, "path": path, "timed_out": True}
-        except (IsolatedDecodeError, DecodeError, OSError) as exc:
-            # One source the decoder could not take (its process ended, its file vanished) is that source's gap, not
-            # the end of the request.
-            return {"position": position, "path": path, "item": item, "failure": f"{type(exc).__name__}: {exc}"}
-        done = {
-            "position": position,
-            "path": path,
-            "batches": decoded_batches,
-            "matched": matched_here,
-            "read_bytes": read_bytes,
-            "item": item,
-            "family": used_family,
-            "failure": failure,
-        }
-        if memo is not None and matched_here and not failure:
-            memo[(path, member, digest)] = done
-        return done
-
-    # Decode files CONCURRENTLY. decode/dbc.py has said "parallelise across
-    # files, never within one" from the beginning, and this loop nevertheless
-    # took them one at a time — twelve independent monthly DBCs decoded in
-    # series. run_with_timeout() creates a thread per call and joins it
-    # immediately; it is a watchdog, not a pool.
-    #
-    # Bounded deliberately low. Each decode transiently holds a whole
-    # decompressed DBF, so matching CPU count trades wall time for peak RSS on
-    # exactly the wide requests where memory is already the binding constraint.
-    #
-    # Decoding starts on each file as it lands (`_acquire(on_ready=...)`), so the wall clock is the larger of download
-    # and decode instead of their sum.
-    workers = max(1, min(4, len(selected), (os.cpu_count() or 2)))
-    outcomes: list[dict[str, Any]] = []
-    futures: dict[Future[dict[str, Any]], int] = {}
-    gate = threading.Lock()
-    acquiring = [True]
-    pool = ThreadPoolExecutor(max_workers=workers, thread_name_prefix="decode")
-
-    def _on_ready(path: str, digest: str) -> None:
-        with gate:
-            if not acquiring[0]:  # a transfer that landed after the batch was closed is not decoded
-                return
-            for position in positions_by_path.get(path, ()):
-                futures[pool.submit(_decode_at, position, selected[position], digest)] = position
-
-    try:
-        digests = _acquire(
-            pipeline, selected, report=report, on_progress=on_progress, as_of=as_of, on_ready=_on_ready
-        )
-        with gate:
-            acquiring[0] = False
-            submitted = dict(futures)
-        for path, positions in positions_by_path.items():
-            if path not in digests:
-                outcomes.extend({"position": p, "path": path, "missing": True} for p in positions)
-        for finished, future in enumerate(as_completed(submitted), start=1):
-            outcomes.append(future.result())
-            if on_progress:
-                on_progress("decoding", finished, len(selected))
-    finally:
-        pool.shutdown(wait=True, cancel_futures=True)
-
-    # Folded in ORIGINAL order, whatever order they finished in.
-    for outcome in sorted(outcomes, key=lambda o: o["position"]):
-        path = str(outcome["path"])
-        if outcome.get("missing"):
-            report.undecoded.append(path)
-            continue
-        if outcome.get("timed_out"):
-            record_timeout(catalog, stage="get", item=path, seconds=settings.item_timeout)
-            report.undecoded.append(path)
-            report.warnings.append(f"{path}: gave up after {settings.item_timeout:.0f}s")
-            continue
-        item = outcome["item"]
-        if outcome.get("failure"):
-            # The source (or its member) exists and could not be read: named and recorded, never "not published".
-            source_id = logical_source_id(path, str(item.get("member") or ""))
-            reason = record_decode_failure(
-                catalog, path, member=str(item.get("member") or ""), reason=str(outcome["failure"])
-            )
-            report.undecoded.append(source_id)
-            report.warnings.append(f"{source_id}: could not be decoded ({reason})")
-            report.bytes_read += int(outcome.get("read_bytes") or 0)
-            continue
-        report.bytes_read += int(outcome["read_bytes"] or 0)
-        batches.extend(outcome["batches"])
-        if outcome.get("family") == ABSENT_MEMBER:
-            report.members_absent.append(f"{path}!{item.get('member')}")
-            continue
-        if outcome["matched"]:
-            if outcome.get("family"):
-                source_id = logical_source_id(path, str(item.get("member") or ""))
-                facts = report.source_facts.get(source_id)
-                if facts:
-                    report.source_facts[source_id] = (str(outcome["family"]), facts[1], facts[2])
-                report.refamilied.append(source_id)
-            report.files_read += 1
-            read_sources.add(path)
-            if item["year"] is not None:
-                seen_years.add(int(item["year"]))
-            if item["geo_code"]:
-                seen_ufs.add(str(item["geo_code"]))
-        else:
-            report.schema_mismatch.append(path)
+    decode = functools.partial(
+        _decode_selected_file, pipeline=pipeline, registry=registry, memo=memo, decoded_cache=decoded_cache,
+        cache_lock=threading.Lock(), keep_columns=keep_columns, members_by_path=members_by_path,
+        alternatives=alternatives, record_key=record_key,
+    )
+    outcomes = _acquire_and_decode(
+        pipeline, selected, positions_by_path, decode, report=report, on_progress=on_progress, as_of=as_of)
+    batches, seen_years, seen_ufs, read_sources = _fold_outcomes(catalog, settings, outcomes, report)
 
     # Every member has been read into memory; the decoder spools on disk can go
     # now instead of whenever the garbage collector notices them.
