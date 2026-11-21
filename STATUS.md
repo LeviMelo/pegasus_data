@@ -2,14 +2,14 @@
 
 What is true now. This file is rewritten in place, never appended to. Its
 history is in git; measurements are in `EVALUATION.md` and decisions in
-`DECISIONS.md`. The opening sections rewritten 2026-11-09; the declarations section 2026-10-08; the population and
+`DECISIONS.md`. The opening section and the architecture review written 2026-11-21, the next sections 2026-11-09; the declarations section 2026-10-08; the population and
 climate section 2026-10-24.
 
 ## Where the project is
 
-One branch, **`master`**: every branch and worktree was merged and removed (2026-11-08), and `master` is on GitHub to
-bd867e4; the commits since are local. The work is the release: one map of what the package holds and can do, one
-space × time object, and the principles audit's defects closed one by one.
+One branch, **`master`**. It is on GitHub to bd867e4; the commits since are local (the author pushes). The work of
+2026-11-21 was an architecture review of the whole package (below); before it, the release: one map of what the package
+holds and can do, one space × time object, and the principles audits' defects closed one by one.
 
 - **The map** (ADR-0216). `compendium()` and the home's copy (`_compendium.current`) describe:
   - every dataset `query()` serves, each column's query-time codelists and fill;
@@ -23,6 +23,40 @@ space × time object, and the principles audit's defects closed one by one.
   `OPEN_QUESTIONS.md`.
 - **SI-PNI per-dose records** are declared on request (`PNI.DOSES`, 200 GiB zipped, built by naming years). June 2020 is
   landed and verified. Intake writes are sorted by place and month, about 30% smaller.
+
+## The architecture review (2026-11-21, ADR-0222 to ADR-0225)
+
+The author asked for an assessment of the architecture and then handed the work over. What changed, each against the
+outputs it replaced (evaluation 2026-11-21-architecture-review):
+- **One read path.** A read is one `ReadRequest`, two sources (`api.read_lake`, `retrieve.read_source`) and one
+  finishing stage; `load` and `fetch` carry no private switch. `scripts/read_equivalence.py` (thirty real reads) is the
+  gate of any change to it. The file selection the builder and the reader each wrote is one function
+  (`representations.select_publications`).
+- **Declared shapes.** Every curation file is checked against its kind's schema where it is parsed; a misspelt key is
+  refused by name. It found twenty `intake.yml` descriptions cut at a comma.
+- **Kept artefacts.** One atomic-write and build-on-miss mechanism (`persist/kept.py`) for about twenty copies; a cube's
+  version leaves out the layers above it, so an edit to a command or a study rebuilds no cube.
+- **Layers.** Declared and checked (`scripts/layers.py`, in CI): no module-level upward import; 34 function-level ones
+  listed. The study builders are `studies/`; `intake.yml`'s declarations are read in the meaning layer; 152
+  function-level imports hoisted with start-up unchanged.
+- **Types.** `mypy` is clean and blocking in CI (256 findings cleared).
+- **Long functions.** Sixteen over 200 lines became three, each split verified on its outputs.
+
+**Defects found on the way, fixed.**
+- `population_account.vital_events` raised on every call since 5fbfe1d (2026-11-09): the population account could not
+  be built. Found by the type checker.
+- A read reported label-fallback warnings for months it never asked (a memoised table's month).
+- Twenty intake column descriptions truncated by YAML.
+- The cube cache shared one temp name between processes and deleted the old version before writing the new one; the
+  reference stamp missed a label edited to the same length; the records cube's version left out the geography pack.
+- A pattern-declared roles file was matched against `None` for a dataset with no series.
+
+**Left, with reasons.** Three build functions over 200 lines (`labelpack.build_label_pack`,
+`Builder._materialise_partition`, `Builder.build`): a split is verified only by a label-pack or lake build of hours.
+`scan()` and `export()` keep their own parameters. `read_events` and `count_events` stay in `semantics/event_types.py`
+(PegaSUS imports them there). Modules are not grouped into folders per layer, and the 121 public names are unchanged
+(PegaSUS and 225 records name them). **To do after this merge on the real home:** `pegasus-data curate` (the
+`intake.yml` descriptions changed), and records cubes and reference stamps rebuild once on their next read.
 
 ## The space × time unification (docs/plans/cubes.md, ADR-0217)
 

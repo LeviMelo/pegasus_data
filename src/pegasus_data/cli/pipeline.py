@@ -229,8 +229,12 @@ def extract(
             # a filter without a column or without a code matches nothing: every file would be fetched and kept as zero rows
             raise typer.BadParameter(f"{f!r} is not COLUMN=CODE[,CODE...]", param_hint="--filter")
         parsed.setdefault(column.strip(), []).extend(wanted)
+    wanted_years = _parse_years(years)
+    if not wanted_years:
+        # an extract reads the files of the years it names; `--years ""` reached the builder as None and raised a TypeError
+        raise typer.BadParameter("an extract names its years, e.g. 2010-2025", param_hint="--years")
     try:
-        result = build_extract(dataset, _parse_years(years), cast(dict[str, Sequence[str]], parsed), ufs=uf,  # type: ignore[arg-type]  # suspected bug: an empty --years gives None, build_extract wants years
+        result = build_extract(dataset, wanted_years, cast(dict[str, Sequence[str]], parsed), ufs=uf,
                                settings=_writer(root), log=console.print,
                                workers=workers)
     except ValueError as exc:      # a filter column in no file's header, refused before any fetch
