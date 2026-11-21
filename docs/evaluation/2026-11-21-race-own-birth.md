@@ -356,3 +356,52 @@ races, false pairs taken out by region; learned on one half of the years, applie
 3. What these women show fits men's hospital deaths as well as women's (misfit 0.027 against 0.028).
 4. No product is built: no model here improves on rule 2, and deaths outside hospital, where the examiner certifies,
    have no second reading. The measured bridge for adults stays `race-confusion-women-2` (women 15-49).
+
+## Children in every municipality: candidates instead of a one-to-one link (plan R2; `candidates.py`, `candidates_rates.py`)
+
+**Why.** After infancy a certificate carries nothing a birth record shares but the birth date, the sex and the place
+(SIM-DO 2022: birth weight, mother's age, gestation, delivery filled on 0.0% of the deaths at 1-14, 88-92% under one
+year). A one-to-one link exists only where a day's births of one sex are few.
+
+**The estimator.** A death's candidates are the births of its date, sex and municipality; one is the person (with
+probability t), the rest chance. A control holds only chance. For every declared j and recorded k,
+T(j, k) = [candidates declared j, over deaths recorded k] - [the same in the control] = t x N(j, k), at any size of
+municipality; the unique link is the case of one candidate; no false-link model. Children born 2012-2023, deaths
+2013-2024, 60,151 at ages 1-4 and 17,549 at 5-9, 21 candidates a death on average (128 in municipalities over 25,600
+births a year).
+
+**The control matters.** With the birth date moved by whole weeks the person is "found" 0.70 of the time under 400
+births a year but 1.39 at 6,400-25,600 and 6.2 above: a day of many births makes many people and so many deaths,
+which a moved date does not share, and the surplus (chance births of the municipality's mix) pulls the large
+municipalities' matrices toward their mix. **The births of the other sex on the same day in the same municipality**
+share the day and cannot be the person: with them t is 0.68, 0.74, 0.72, 0.65, 0.61 from the smallest class to the
+largest.
+
+**Recorded as declared, ages 1-4, by the municipality's births a year** (other-sex control; ± one standard error):
+
+| | under 400 | 400-1,600 | 1,600-6,400 | 6,400-25,600 | over 25,600 |
+|---|---|---|---|---|---|
+| Branca | 0.84±0.02 | 0.83±0.03 | 0.84±0.06 | 0.77±0.13 | (3.0±1.2) |
+| Parda | 0.63±0.01 | 0.65±0.02 | 0.57±0.04 | 0.65±0.09 | 0.68±0.17 |
+| Preta | 0.23±0.02 | 0.20±0.03 | 0.25±0.03 | 0.32±0.08 | 0.45±0.17 |
+
+Under 400 births it reproduces the unique link's figures (0.81, 0.62, 0.23) with no model of false links. The matrix
+is the same up to 6,400 births a year; above, the noise takes over cell by cell, but sums over all municipalities hold.
+
+**Mortality by declared race, the whole country** (deaths by declared race from T's rows; over the births of the same
+cohorts by the mother's colour; relative to Parda):
+
+| | Branca | Preta | Indígena |
+|---|---|---|---|
+| ages 1-4, declared | **0.69 ± 0.07** | **1.08 ± 0.17** | **4.9 ± 0.3** |
+| ages 1-4, by the certificate | 1.43 | 0.81 | 6.0 |
+| ages 5-9, declared | 0.69 ± 0.11 | 1.02 ± 0.30 | 2.2 ± 0.5 |
+| ages 5-9, by the certificate | 1.21 | 1.11 | 3.1 |
+
+- By declared race a Branca child dies at 0.69 the rate of a Parda child at 1-4 and at 5-9; the certificates say 1.43
+  and 1.21. Preta and Parda children die at the same rate within the error (the certificate has Preta lower at 1-4).
+  Indígena children at 4.9 times Parda at 1-4.
+- This answers the national question the bridges could not (sections above), without a matrix: the standard errors
+  are from the counts (real plus control), not from a model.
+- Limits: a child who moved municipality is not among its candidates (t = 0.6-0.7), and movers may differ; twins
+  of the same sex are each other's candidates (not removed); the standard errors treat the cells as Poisson.

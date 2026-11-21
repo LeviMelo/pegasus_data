@@ -87,4 +87,9 @@ the product's folder. *Done when* a reader can reproduce every number from the h
   group's declared mix better than the certificate (1-3% misallocated against 7%) and better than any inversion of
   the two records tried (a national table; the race model with the hospital's record). No adult product: the rule
   needs none, and deaths outside hospital have one reading only. Men: the women's structure fits them equally.
+- **R2 concluded for children, nationally** (the same entry): candidates instead of a one-to-one link, with the births
+  of the other sex on the same day as the control. Model-free, any municipality size. Ages 1-4, relative to Parda:
+  Branca 0.69 ± 0.07 (certificates: 1.43), Preta 1.08 ± 0.17 (0.81), Indígena 4.9 ± 0.3 (6.0). The same estimator
+  applies to every keyed link here (the women's, the old-form cohorts to 24). Next: it as a package function and the
+  products' builders on it.
 
