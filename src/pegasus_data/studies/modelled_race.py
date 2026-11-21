@@ -235,6 +235,9 @@ def _logits(p: dict[str, Any], j, uf, reg_of_uf, age, z, xp):
     return eta
 
 
+#: Least curvature a direction of the sampler's metric is given (the prior's is 1).
+MASS_FLOOR = 0.2
+
 #: Prior scales of the four groups of effects (state, region, composition, age); chosen on held-out data.
 SCALE_NAMES = ("state", "region", "beta", "age")
 
@@ -276,6 +279,7 @@ def _data(pairs: Pairs):
 
 def _log_lik(par, data, reg_of_uf):
     import jax.numpy as jnp  # noqa: PLC0415
+    from jax.scipy.special import logsumexp  # noqa: PLC0415
 
     reg = jnp.asarray(reg_of_uf)
     total = 0.0
@@ -286,7 +290,9 @@ def _log_lik(par, data, reg_of_uf):
         eta = par["alpha"][j] + par["region"][j][reg[uf]] + par["state"][j][uf] + z @ par["beta"][j]
         eta = eta + jnp.where((age > 0)[:, None], par["age"][j][jnp.maximum(age - 1, 0)], 0.0)
         full = jnp.concatenate([jnp.zeros((hi - lo, 1)), eta], axis=1)
-        p = jnp.exp(full - jnp.log(jnp.sum(jnp.exp(full), axis=1, keepdims=True)))
+        # the stable form: exp(full) overflows single precision past 88, which a wide composition scale reaches in a
+        # municipality far from the mean, and the ratio is then not a number
+        p = jnp.exp(full - logsumexp(full, axis=1, keepdims=True))
         phi = data["phi"][lo:hi, None]
         total = total + jnp.sum(data["counts"][lo:hi] * jnp.log((1 - phi) * p + phi * data["r"][lo:hi]))
     return total
@@ -378,8 +384,8 @@ class Fit:
         return cls(draws, f["z_mean"], f["z_sd"], int(f["n_pairs"]), json.loads(str(f["diagnostics"])), str(f["version"]), bands)
 
 
-def fit(pairs: Pairs, scales: dict[str, float], *, z_mean: np.ndarray, z_sd: np.ndarray, num_warmup: int = 300,
-        num_samples: int = 400, num_chains: int = 2, keep: int = 200, seed: int = 0,
+def fit(pairs: Pairs, scales: dict[str, float], *, z_mean: np.ndarray, z_sd: np.ndarray, num_warmup: int = 500,
+        num_samples: int = 1000, num_chains: int = 2, keep: int = 200, seed: int = 0,
         age_bands: tuple[str, ...] = AGE_BANDS, version: str = MODEL_VERSION) -> Fit:
     """NUTS posterior of the confusion model for the prior scales ``scales`` (requires the ``modelled`` extra).
 
@@ -405,7 +411,14 @@ def fit(pairs: Pairs, scales: dict[str, float], *, z_mean: np.ndarray, z_sd: np.
         return -(_log_lik(_effects(raw, scales, reg, jnp), data, reg) - 0.5 * sum(jnp.sum(v * v) for v in raw.values()))
 
     hessian = np.asarray(jax.hessian(objective)(flat0), dtype=float)
-    inv_mass = np.linalg.inv((hessian + hessian.T) / 2 + 1e-6 * np.eye(len(hessian)))
+    # With false links in the likelihood ((1 - phi) C + phi r) the posterior is not log-concave everywhere and the
+    # Hessian at the mode can hold a direction of curvature near zero or below it; inverted as it is, the metric is not
+    # positive definite and the sampler diverges (the children's first build: 172 divergences, R-hat 1.8; the women's
+    # check build of 2026-11-09, 800 of 800). Each direction's curvature is floored at a fifth of the prior's (the raw
+    # effects are standard normal): any positive definite metric is valid, the step size adapts to it.
+    curvature, axes = np.linalg.eigh((hessian + hessian.T) / 2)
+    inv_mass = (axes / np.maximum(curvature, MASS_FLOOR)) @ axes.T
+    inv_mass = (inv_mass + inv_mass.T) / 2
     kernel = NUTS(lambda: _numpyro_model(pairs, reg, scales), target_accept_prob=0.85, init_strategy=init_to_value(values=start),
                   dense_mass=True, inverse_mass_matrix=inv_mass, adapt_mass_matrix=False)
     mcmc = MCMC(kernel, num_warmup=num_warmup, num_samples=num_samples, num_chains=num_chains, chain_method="sequential",
@@ -651,7 +664,11 @@ def build(deaths: pa.Table, births: pa.Table, reference_births: pa.Table, *, set
             tables.append(t)
         mean_table = [{**{n: r[n] for n in SCALE_NAMES}, "held_out_log_loss": float(np.mean([t[i]["held_out_log_loss"] for t in tables]))}
                       for i, r in enumerate(tables[0])]
-        best = min(mean_table, key=lambda r: r["held_out_log_loss"])
+        # the held-out surface is flat near its minimum (the women's: 0.85274 against 0.85276), so of the scales within
+        # ``scale_tolerance`` of the best the tightest is taken: the same prediction with less freedom, and a posterior
+        # the sampler can cross (the widest composition scale did not converge on the children's pairs)
+        floor = min(r["held_out_log_loss"] for r in mean_table) + race_parameter("scale_tolerance")
+        best = min((r for r in mean_table if r["held_out_log_loss"] <= floor), key=lambda r: sum(r[n] for n in SCALE_NAMES))
         scales = {n: best[n] for n in SCALE_NAMES}
     model = fit(pairs(linked), scales, z_mean=comp.mean, z_sd=comp.sd, seed=seed, age_bands=population.age_bands,
                 version=population.version)

@@ -91,5 +91,8 @@ settles.
 - **P4, first reading** (the same entry): of a municipality's departure at a census (sd 0.108-0.113), 0.055-0.059 is
   shared by neither the roll nor the births, in 2010 as in 2022: an upper bound on the counts' municipal error, or
   moves the two do not follow. A third adult series separates them.
-- **Next:** P1 (the benchmark as a function), then the roll of every election year as a path (P2b) and a third adult
+- **P1, the two census forecasts** are `studies/population_benchmark.py` and `pegasus-data model-benchmark`: they
+  reproduce the shipped figures (0.0521 / 0.0562; 80% coverage 0.791 / 0.838; 95% 0.936 / 0.966; the band coverages
+  of evaluation 2026-10-05-population-account-v2). Left of P1: the Contagens and the surviving births.
+- **Next:** the rest of P1, then the roll of every election year as a path (P2b) and a third adult
   series for P4.

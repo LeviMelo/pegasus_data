@@ -592,6 +592,7 @@ products:
     parameters: &race_model
       kappa: 20.0       # pseudo-count that smooths a municipality's racial shares toward its state's
       alpha_sd: 3.0     # prior scale of the intercepts (chosen on held-out data, with the other scales the fit selects)
+      scale_tolerance: 0.002   # held-out log loss within which the tightest prior scales are preferred to the best
 
   race_confusion_women:
     label: "Race recording confusion, women's deaths"
