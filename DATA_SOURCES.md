@@ -953,6 +953,11 @@ TabNet's state forms classify by `territorio/{UF}_macsaud.cnv` and `{UF}_regsaud
   46.8 of the 106.8 million addresses. São Paulo's 01001-000 (Praça da Sé) holds 6,973 addresses, all in the city, half within 17.8 km of
   their median; the Congresso Nacional's 70160-900 is in neither the CNEFE nor the aggregate.
 
+- **A record's CEP places half the people at a point** (2026-11-21, evaluation 2026-11-21-record-places): of SIH
+  neurosurgical and TBI admissions 2023-2024, 39% and 47% carry a generic municipal CEP (xxxxx-000) and 7% one the CNEFE
+  does not list; a specific CEP's addresses lie within 600 m (p90) for half. Small and rural places write the town's
+  CEP, so CEP-level context is missing not at random.
+
 ### 6.6 Mobility between municipalities (read 2026-10-25; ADR-0211)
 
 - **IBGE Ligações rodoviárias e hidroviárias 2016** (`geoftp.ibge.gov.br/organizacao_do_territorio/redes_e_fluxos_geograficos/ligacoes_rodoviarias_e_hidroviarias/base_de_dados/`, `xls/` and `ods/` identical; latin-1 `leiame.txt`; methodology only in the book liv100602.pdf): one row per pair, both directions summed; `VAR05` waterway, `VAR06` road, `VAR07` their sum; frequencies weighted by vehicle and period; 35 South American cities (codes 80xxxxx-92xxxxx) among the nodes; 320 "sem objeto" municipalities listed apart.

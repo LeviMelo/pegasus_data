@@ -48,7 +48,7 @@ import shutil
 import time
 import warnings
 import zipfile
-from collections.abc import Callable, Iterable
+from collections.abc import Callable, Iterable, Sequence
 from concurrent.futures import ThreadPoolExecutor
 from datetime import UTC, datetime
 from pathlib import Path
@@ -603,3 +603,61 @@ def cep_points(*, municipality: str | int | Iterable[str] | None = None, uf: str
     if table.num_rows == 0 and not asked_ceps and (six or seven or uf is not None):
         raise LookupError(f"the CNEFE holds no CEP for municipality {[*six, *seven] or '(any)'} in {wanted}")
     return table
+
+
+def record_places(ceps: Sequence[str | None], municipalities: Sequence[str | None], *, max_radius_m: float = 2000.0,
+                  settings: Settings | None = None) -> pa.Table:
+    """Where a record's person lives, at the finest place the record supports: one row per input pair, in order.
+
+    A record (an admission, a notification) carries the residence CEP and the residence municipality. The CEP places the
+    person at its addresses' median point (CNEFE 2022, `cep_points`) only when it is **specific**: found in the CNEFE
+    within the record's own municipality, not a generic municipal CEP (``xxxxx-000``, written for a whole town), and its
+    addresses within ``max_radius_m`` (their p90 radius). Otherwise the place is the municipality's population centre
+    (`geography.municipality_point`). Neurosurgical and TBI admissions of 2023-2024 had a generic CEP on 39% and 47%, a CEP
+    in one census tract on 17%, and an address spread under 600 m for half and over 9 km for a quarter (evaluation
+    2026-11-21-record-places): a CEP's point is precise for about half of a national cohort and absent, not at random,
+    for the rest (small and rural places write the town's CEP), so the municipality is the place every record has.
+
+    Columns: ``cep``, ``municipality`` (as given), ``lat``, ``lon``, ``source`` ("cep", "municipality" or null when neither
+    places it), ``radius_p90_m`` (the CEP's spread, when it is the source), ``n_tracts`` (census tracts the CEP's
+    addresses lie in; with `cep_points(..., tracts=True)` they are named)."""
+    import pyarrow as pa
+
+    from ..geography import municipality_point, place_six
+
+    if len(ceps) != len(municipalities):
+        raise ValueError("record_places: one municipality per CEP")
+    munis = [None if m is None else str(m).strip() for m in municipalities]
+    six = place_six([m for m in munis if m])
+    six_of = dict(zip([m for m in munis if m], six, strict=True))
+    clean = [str(c).strip() if c is not None else "" for c in ceps]
+    wanted = sorted({c for c in clean if len(c) == 8 and c.isdigit() and not c.endswith("000")})
+    found: dict[tuple[str, str], dict[str, Any]] = {}
+    if wanted:
+        try:
+            table = cep_points(cep=wanted, tracts=False, shares=False, settings=settings)
+        except ValueError:   # no CEP of them is in the CNEFE: every record falls back to its municipality
+            table = None
+        if table is not None:
+            for row in table.select(["cep", "municipality", "lat", "lon", "radius_p90_m", "n_tracts"]).to_pylist():
+                found[(str(row["cep"]), str(row["municipality"]))] = row
+    centres: dict[str, tuple[float, float] | None] = {}
+    out: dict[str, list[Any]] = {k: [] for k in ("cep", "municipality", "lat", "lon", "source", "radius_p90_m", "n_tracts")}
+    for c, m in zip(clean, munis, strict=True):
+        m6 = six_of.get(m) if m else None
+        hit = found.get((c, str(m6))) if m6 else None
+        out["cep"].append(c or None)
+        out["municipality"].append(m)
+        if hit is not None and hit["radius_p90_m"] is not None and float(hit["radius_p90_m"]) <= max_radius_m:
+            out["lat"].append(hit["lat"]); out["lon"].append(hit["lon"]); out["source"].append("cep")  # noqa: E702
+            out["radius_p90_m"].append(hit["radius_p90_m"]); out["n_tracts"].append(hit["n_tracts"])  # noqa: E702
+            continue
+        if m6 and m6 not in centres:
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                centres[m6] = municipality_point(m6)
+        point = centres.get(m6) if m6 else None
+        out["lat"].append(point[1] if point else None); out["lon"].append(point[0] if point else None)  # noqa: E702
+        out["source"].append("municipality" if point else None)
+        out["radius_p90_m"].append(None); out["n_tracts"].append(None)  # noqa: E702
+    return pa.table(out)
