@@ -65,3 +65,26 @@ By size (2010 to 2022): 0.052, 0.058, 0.052 under 100,000; 0.033 at 100-500,000.
   complete) as for 2022 (8.3% net error). A third adult series would separate them (plan P4).
 - If it were all error, a forecast that followed the common signal perfectly would still score a median 0.037 against
   such a truth; the account scores 0.056 and with a symptom 0.050.
+
+## The years between: do yearly signals time the departure? (`path_2007.py`, artifact `path_2007.json`)
+
+**Test.** The 2007 Contagem (counted 6.67 years into 2000-2010) on 5,179 comparable areas under 100,000. Each area's
+departure from births and deaths is known at 2010 (zT, sd 0.095) and at 2007 (z07, sd 0.071); a timing rule says what
+share of zT had happened by 2007, and its error is what is left of z07 (robust sd).
+
+| timing rule | error at 2007 | by size (under 5,000; 5-20,000; 20-100,000) |
+|---|---|---|
+| nothing by 2007 | 0.0713 | 0.080 0.074 0.058 |
+| even (0.667 of it) | **0.0367** | 0.039 0.039 0.030 |
+| all of it by 2007 | 0.0488 | 0.048 0.051 0.043 |
+| the best single share (0.639, fitted on these areas) | 0.0366 | 0.040 0.039 0.030 |
+| even + the electoral roll's own timing (2000, 2006, 2008, 2010) | 0.0373 | 0.040 0.039 0.030 |
+| even + births per accounted woman's own timing | 0.0364 | 0.039 0.039 0.030 |
+
+- For the municipal total the even rule is already the best share, and neither the roll's path nor the births' path
+  moves it (their weights, fitted leaving each region out, are 0.00-0.07). The 3.7% left is not timing that these
+  signals see: it is each area's wandering between the censuses, with whatever the Contagem and the censuses count
+  differently.
+- So the yearly signals matter after the last census (0.056 to 0.050), not between two. Between two, the open part is
+  the age pattern (the 1996 Contagem by age favoured the age schedule, evaluation 2026-10-05-population-account-3), not
+  the total.

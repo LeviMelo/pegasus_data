@@ -765,7 +765,7 @@ def build_population_account(settings, *, version: str, validation: str, only: t
               "; the intercensal residual is carried along the cohorts by an age schedule of migration",
         estimates={"population": ["population_lo", "population_hi", "population_lo95", "population_hi95"]},
         place="municipality", period="year", strata=["sex", "age", "race"], additive=["population"],
-        inputs={"population-account-2 inputs": "see that version's manifest (census 2000/2010/2022, SIM, SINASC, PES, POPSVS, SIDRA 200)",
+        inputs={"population-account-2 inputs": "see that version's manifest (census 2000/2010/2022, SIM, SINASC, POPSVS, SIDRA 200)",
                 "CENSO 2010, 2022 race by single age": "SIDRA table 9606", "CENSO 2000 race by age band (sample)": "SIDRA table 2093",
                 "Contagem 2007 (municipal totals, the split's second anchor)": "SIDRA table 793",
                 "SINASC births by residence": f"pegasus_data {__version__} (tried as a split indicator and discarded)", **pb.INPUTS},
@@ -785,7 +785,7 @@ def build_population_account(settings, *, version: str, validation: str, only: t
                + ", ".join(f"{p[0]:.4f}" for p in par) + "; k per year " + ", ".join(f"{p[1]:.4f}" for p in par)
                + f" (classes of the member's population: <{MEMBER_CUTS[0]}, <{MEMBER_CUTS[1]}, <{MEMBER_CUTS[2]}, above); quantiles of "
                f"its standardized errors {split_cal['zq'][0.8]:.2f} (80%) and {split_cal['zq'][0.95]:.2f} (95%).",
-               "Forecast (2023-2030): the vital account from the PES-corrected 2022 census with the SINASC and SIM events to 2023 and "
+               "Forecast (2023-2030): the vital account from the reconciled 2022 census with the SINASC and SIM events to 2023 and "
                "projected births and deaths after (national death rate by sex and band and births per woman 15-44, log-linear over ten "
                "non-COVID years; each municipality's level from the three reference years), moved by the migration regression at "
                f"the horizon; interval: the account's at the horizon plus {EVENT_SD_PER_YEAR} per year (the measured spread of the "

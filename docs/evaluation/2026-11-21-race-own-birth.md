@@ -102,6 +102,80 @@ intervals are indicative, as the women's). Brazil, share recorded as declared (9
 child declared Preta is recorded Parda 0.64-0.68 of the time. 3,024 rows (27 states and Brazil), each declared row
 summing to 1.
 
-**`race-confusion-women-2`**: building when this entry was written (about two hours: one pass per death year); its
-numbers are added to this section when it ends. `race-confusion-women-1` stays the stored and shipped version until
-then.
+**`race-confusion-women-2`** (`model-build race_confusion_women`, 0554f32; 106,565 deaths of 2015-2022, 19,332 linked;
+the same scales; no divergence, R-hat 1.012, least effective sample 122: the best-mixed of the three fits). Against
+`-1` (false links priced per class with the state's colours; R-hat 1.023, effective sample 53), Brazil, share certified
+as declared:
+
+| | Branca | Parda | Preta | Indígena |
+|---|---|---|---|---|
+| `-1`, ages 15-24 / 25-34 / 35-49 | 0.79 / 0.79 / 0.74 | 0.68 / 0.68 / 0.66 | 0.59 / 0.63 / 0.60 | 0.85 / 0.86 / 0.83 |
+| `-2` | 0.70 / 0.69 / 0.70 | 0.72 / 0.70 / 0.75 | 0.60 / 0.59 / 0.63 | 0.86 / 0.86 / 0.86 |
+
+Pricing a false link per pair inside its municipality moves Branca down by 0.04-0.10 and Parda up by 0.02-0.09; Preta
+and Indígena stay. Mean absolute change over the 3,024 cells 0.027 (largest 0.36, a small state's cell). `-2` is the
+current version; `-1` stays stored.
+
+## Adults through the hospital's record: the independence assumption fails (plan R3; `data/probes/race_chain/`)
+
+**Scenario.** `assemble.py 2022`, `chain.py 2022` (artifacts `A_2022.parquet`, `B_2022.parquet`, `chain_2022.json`), branch
+`research-2`. Two stored national links of 2022: a woman's declaration against her delivery admission
+(`sinasc_births_to_delivery_admission`, 1,531,545 pairs, 1,176,188 with both races) and the admission of a person who
+died in hospital against the certificate (`sih_deaths_to_sim`, 546,733 pairs, 422,699 with both; 199,405 women and
+223,294 men). 223 hospitals whose records are over a tenth "amarela" are left out (ADR-0128). The stored run of
+`sih_deaths_to_sim` sits under the key of an earlier form of its spec (`1cf164a9304d`; the spec now computes
+`f32141d14489`) and was read from its file.
+
+**The hospital against the declaration** (women at delivery; share recorded as declared): Branca 0.75, Parda 0.82,
+Preta 0.37 (0.54 recorded Parda), Indígena 0.58.
+
+**The test.** If, given the declared race, the certificate were written independently of the hospital's record, the
+joint of the two records would be the declared race passed through both, and the certificate against the declaration
+follows by EM. Known answer: women 15-49, measured directly by `race-confusion-women-1`.
+
+| women 15-49, certified as declared | Branca | Preta | Parda |
+|---|---|---|---|
+| the chain under independence | 0.99 | 0.78 | 0.96 |
+| measured directly (mothers' own declaration) | 0.74-0.79 | 0.59-0.63 | 0.68 |
+| the two records against each other, raw | 0.80 | 0.59 | 0.68 |
+
+The chain is rejected: it puts the certificate far closer to the declaration than it is. The hospital and the
+certificate agree with each other (0.59 for Preta) more than the hospital agrees with the person (0.37): the two
+records share what the declaration does not hold. Read: a race assigned by an observer is one thing, read twice; the
+declared race is another. Men and women, and every age from 15 to 70 and over, give the same picture under the chain
+(Preta 0.64-0.79), so it carries no evidence on sex either.
+
+**What can identify adults.** People with all three readings: a woman's declaration and certificate
+(`sim_women_deaths_to_sinasc_mothers`) joined to her hospital record by the death's id, which gives the certificate
+given the declaration *and* the hospital's record. `women_table.py` assembles it (the women's table now keeps the id).
+
+## Does the children's bridge recover rates? (plan R2; `bridge_check.py`, `linked_truth.py`, `child_rates.py`)
+
+**The test.** In the municipalities where the link works (under 400 births a year; 13,704 deaths at 1-4 and 4,025 at
+5-9, 2013-2024), three rates over the births of the same cohorts by the mother's colour: by the certificate's race
+(raw); by the linked birth's declared race, each linked death counted w(1 - phi) (truth; 6,278 and 1,714 true pairs);
+and `reclassify` with `race-confusion-child-1`. As ratios to Parda:
+
+| ages 1-4 | Branca raw / bridged / truth | Preta raw / bridged / truth |
+|---|---|---|
+| all | 1.49 / 0.86 / **0.79** | 0.90 / 1.78 / **1.18** |
+| North | 2.49 / 1.03 / 0.74 | 1.10 / 1.94 / 1.08 |
+| Northeast | 3.04 / 0.86 / 0.82 | 1.09 / 1.92 / 1.11 |
+| Southeast | 1.43 / 0.91 / 0.80 | 0.78 / 1.59 / 1.32 |
+| South | 1.45 / 0.88 / 0.82 | 0.76 / 1.99 / 1.18 |
+| Centre-West | 2.01 / 1.55 / 0.82 | 0.93 / 2.50 / 1.24 |
+| ages 5-9, all | 1.28 / 0.82 / **0.82** | 1.25 / 3.44 / **1.15** |
+
+- **The certificates invert the picture.** They say a Branca child dies 49% more often than a Parda one at 1-4 (three
+  times more in the Northeast); by declared race it is 21% less, and a Preta child 18% more. Indígena 4.4 times Parda.
+- **The bridge recovers Branca against Parda** (0.86 for 0.79; every region but the Centre-West) and **overcorrects
+  Preta** (1.78 for 1.18; 3.44 for 1.15 at 5-9): with a quarter of Preta children recorded Preta, each Preta
+  certificate stands for four deaths, and the small share of Parda children recorded Preta (0.03-0.05) is multiplied
+  with it. Mean absolute log error of the Branca and Preta ratios over regions and bands: raw 0.57, bridged 0.37.
+  The truth here is the fit's own pairs, so this is the model's best case.
+- **Outside its domain the bridge extrapolates.** Applied to every municipality (deaths 2021-2024, `child_rates.py`), it
+  gives per 100,000 person-years at 1-4 Branca 64.6 raw and 56.9 bridged (36-78), Parda 42.8 and 41.1, Preta 33.7 and
+  65.6 (15-133): Branca still above Parda, against the linked truth. The link sees only small municipalities; the
+  composition and size terms carry the model to the large ones, unchecked.
+- **Use, as it stands:** Branca against Preta and Parda together, inside small municipalities. Not for Preta alone, and
+  not for national rates. `reclassify`'s mean over draws is not usable (a few draws run away); the median is.

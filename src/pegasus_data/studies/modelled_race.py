@@ -974,7 +974,7 @@ def women_deaths(settings: Any, name: str, years: list[int], decl: dict[str, Any
             "recorded": pa.array([RACE_LABEL_CODE.get(v) for v in t["rec"].to_pylist()], pa.string()),
             "mun": t["mun"], "linked": t["linked"],
             "declared": pa.array([RACE_LABEL_CODE.get(v) for v in t["declared"].to_pylist()], pa.string()),
-            "stratum": k.astype(np.int64)}))
+            "stratum": k.astype(np.int64), "id": t["l"]}))
     return pa.concat_tables(parts)
 
 
@@ -1016,7 +1016,8 @@ def own_birth_deaths(settings: Any, population: Population, years: list[int], de
     thing: see the product), the colour recorded and the colour the linked birth declares, the class of the municipality
     (``stratum``: its births in the person's birth year, by ``class_edges``; classes up to ``max_class``), and ``chance``,
     the rate at which a death of its (class, age band) pairs by chance over every cohort: the control's pairs per death.
-    `prepare` turns it into each pair's share of false links. Carries ``sex`` as well."""
+    `prepare` turns it into each pair's share of false links. Carries ``sex`` and the death's record ``id`` as well (any
+    other field of the certificate joins by it)."""
     import pyarrow.compute as pc
 
     from ..linkage import engine
@@ -1054,7 +1055,7 @@ def own_birth_deaths(settings: Any, population: Population, years: list[int], de
         "recorded": pa.array([RACE_LABEL_CODE.get(v) for v in t["rec"].to_pylist()], pa.string()),
         "mun": t["mun"], "linked": t["linked"],
         "declared": pa.array([RACE_LABEL_CODE.get(v) for v in t["declared"].to_pylist()], pa.string()),
-        "stratum": klass[keep].astype(np.int64), "sex": t["sex"]})
+        "stratum": klass[keep].astype(np.int64), "sex": t["sex"], "id": t["l"]})
 
 
 def _build_product(population: Population, settings: Any, version: str, validation: str, log: Any) -> dict[str, Any]:

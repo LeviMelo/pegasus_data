@@ -420,18 +420,6 @@ def reconciled_coverage(root: str | Path, year: int, census: np.ndarray, state_o
     return g[[index[int(u)] for u in state_of]][:, :, BANDS]
 
 
-def pes_coverage(raw_entity: np.ndarray, entity_state: np.ndarray) -> np.ndarray:
-    """Coverage factors (corrected / raw) of the 2022 Census by entity × sex × age, from IBGE's PES margins raked onto
-    cells (``sources.pes.corrected_census``), applied to the single ages of each band in proportion."""
-    from ..sources.pes import corrected_census
-
-    rb = to_bands(raw_entity)
-    corrected = corrected_census(rb, entity_state)
-    return (corrected / np.maximum(rb, 1e-9))[:, :, BANDS]
-
-
-
-
 # ======================================================================================= the model
 
 def parameters() -> dict[str, Any]:
@@ -814,18 +802,20 @@ class Inputs:
     path_a: np.ndarray           # (11, units, 2, A) vital account from the reconciled 2000 census
     close_a: np.ndarray          # the reconciled 2010 census, (units, 2, A)
     path_b: np.ndarray           # (13, entities, 2, A) vital account from the reconciled 2010 census
-    close_b: np.ndarray          # the PES-corrected 2022 census, (entities, 2, A)
-    start22: np.ndarray          # the PES-corrected 2022 census (the projection's opening)
+    close_b: np.ndarray          # the reconciled 2022 census, (entities, 2, A)
+    start22: np.ndarray          # the reconciled 2022 census (the projection's opening)
     m_rate: np.ndarray           # national death rates used for the lag (2000)
-    vit22: np.ndarray            # the vital account one step from the PES-corrected 2022 census, (entities, 2, A) single ages
+    vit22: np.ndarray            # the vital account one step from the reconciled 2022 census, (entities, 2, A) single ages
 
 
 def assemble(settings: Any, log=print) -> Inputs:
     """Load the censuses, bring them to coverage, run the vital account and build the three periods' rows.
 
-    Coverage: 2022 by IBGE's PES (published margins, raked onto cells), 2000 and 2010 by IBGE's reconciliation
-    (POPSVS / raw; a sensitivity, since it was made with the PES). The regression's period B opens on the *raw* 2010
-    census (the protocol that was scored); the account's interior opens on the reconciled one."""
+    Coverage: every census by IBGE's own reconciliation (POPSVS / raw by state, sex and age: the population IBGE's
+    Projeções, Revisão 2024 give the census year), so a census year is IBGE's corrected population spread over the
+    municipalities as the census counted them (ADR-0227; to `population-account-7` the 2022 census was raked to the
+    PES margins instead). The regression's period B opens on the *raw* 2010 census (the protocol that was scored); the
+    account's interior opens on the reconciled one."""
     root = settings.root
     t22 = census_table(root, 2022, ["municipality"])
     places = build_places(sorted(set(int(m) for m in t22["municipality"].to_pylist())))
@@ -840,7 +830,7 @@ def assemble(settings: Any, log=print) -> Inputs:
     c00r = c00u * reconciled_coverage(root, 2000, c00u, places.unit_uf)
     c10ur = c10u * reconciled_coverage(root, 2010, c10u, places.unit_uf)
     c10er = c10e * reconciled_coverage(root, 2010, c10e, ent_state)
-    c22t = c22e * pes_coverage(c22e, ent_state)
+    c22t = c22e * reconciled_coverage(root, 2022, c22e, ent_state)
     log("events")
     ev0 = load_events(settings, list(range(2000, 2011)), places, "unit")
     ev1 = load_events(settings, list(range(2010, 2024)), places, "entity")
@@ -865,7 +855,7 @@ def assemble(settings: Any, log=print) -> Inputs:
     B_ = make_period("B", 12, ent_state, ent_micro, c10e.sum((1, 2)), to_bands(vit_b), to_bands(c22t), lag_b, root_b, urb, lg,
                      places.entity_members)
     path_b = run_account(c10er, ev1["deaths"], ev1["births"], 12, keep_path=True)[1]
-    # the projection: lag 2010 -> 2022 of the entities themselves (raw counts), one step from the PES-corrected 2022 census
+    # the projection: lag 2010 -> 2022 of the entities themselves (raw counts), one step from the reconciled 2022 census
     pop_mid = (to_bands(c10e).sum(0) + to_bands(c22e).sum(0)) / 2
     m16 = mortality_rates(settings, 2016, pop_mid)
     E = places.n_entities
@@ -991,7 +981,7 @@ def birth_registration(inp: Inputs) -> list[dict[str, Any]]:
     migration than the 0-4 one."""
     rows: list[dict[str, Any]] = []
     blocks = [("2010", "reconciled 2000 and 2010", inp.path_a[-1], inp.close_a, inp.places.unit_uf, 2005, 2000),
-              ("2022", "reconciled 2010 and PES 2022", inp.path_b[-1], inp.close_b,
+              ("2022", "reconciled 2010 and 2022", inp.path_b[-1], inp.close_b,
                np.array([int(str(m[0])[:2]) for m in inp.places.entity_members]), 2017, 2012)]
     for census, basis, vital, close, state, y04, y59 in blocks:
         v, c = to_bands(vital), to_bands(close)
@@ -1033,7 +1023,7 @@ def build_registration_completeness(settings: Any, *, version: str, validation: 
         estimates={"completeness": ["completeness_lo", "completeness_hi"]},
         place="uf", period="period", strata=["system", "census_basis", "cohort"],
         inputs={"CENSO 2010, 2022 (raw)": "SIDRA tables 1378, 9514", "SIM.DO deaths and SINASC births 2000-2023": f"pegasus_data {__version__}",
-                "PES 2022 net-error margins": "IBGE liv102110 (sources/pes.py)", "population_account": "population-account-2 (same inputs)"},
+                "population_account": "population-account-2 (same inputs)"},
         validation=validation,
         notes=["Net of the census coverage assumed for the period's censuses: with other coverage, other completeness.",
                "A value above 1 is not registration: the census counted fewer children than the registered births imply.",

@@ -31,6 +31,8 @@ holds and can do, one space × time object, and the principles audits' defects c
   term (evaluation 2026-11-21-account-against-popsvs). It is now an **open research line** (`docs/plans/population.md`,
   units P1 to P6): first runs of births and the electoral roll as symptoms cut the 2010 to 2022 error by a tenth and do
   not transfer to 2000 to 2010. Next: the benchmark as one function (P1), the closing census's own error (P4).
+- **`population-account-8`** (ADR-0227): the 2022 census at IBGE's corrected population, as 2000 and 2010; 210.863 M in
+  2022, 0.0167 RMS from POPSVS at 2022. `-7` stays stored.
 - **Race.** A third reference: a death linked to the dead person's own birth (`sim_deaths_to_own_birth`), giving
   `race_confusion_child` (ages 1-14, children born from 2012). The birth record's colour is the mother's only from the
   2011 form. False links are priced per pair, inside the municipality; `race-confusion-women-2` is the women's product
