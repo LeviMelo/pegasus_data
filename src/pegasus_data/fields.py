@@ -657,6 +657,12 @@ def load_field(name: str, *, years: list[int] | int | None = None, settings: Any
         return _field_from_climate(name, spec, wanted, settings)
     register = rows_view(name, spec)
     if register is not None:                      # a register (S2iD's events) is its landed records, renamed
+        # only the years the field declares: a register that begins in 2023 (ANS's remuneration models) asked for 2022 holds no
+        # publication of it, and the query would raise "nothing published" instead of answering empty
+        if wanted and str(spec.get("years") or "").strip():
+            wanted = [y for y in wanted if y in _years(spec["years"])]
+            if not wanted:
+                return pa.table({**{alias: pa.array([], pa.string()) for alias in register["rows"]}, "year": pa.array([], pa.int32())})
         return _field_from_rows(register, wanted, settings)
     margins = margins_view(name, spec)
     if margins is not None:                       # margins published as columns (INEP's) are one cube per column

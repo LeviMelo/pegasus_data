@@ -2197,6 +2197,439 @@ sources:
           where: {coverage: Médico-hospitalar}
           verified: {year: 2022, month: 12, medical_hospital: 50530569, equals: "ANS TabNet tabnet_02 Assistência Médica, 28 of 28 UF files", measured: 2026-10-04}
 
+  ans_tiss_hosp_cons:
+    system: ANS
+    series: TISS_HOSP_CONS
+    official_name: "Procedimentos hospitalares por UF, consolidado (TISS)"
+    translated_name: "Hospital events of private health plans by state, consolidated (TISS)"
+    what: >
+      Hospital admissions of private health-plan beneficiaries as operators reported them to ANS under the TISS standard, one row per
+      event, 2015-2025: the beneficiary's municipality of residence, sex and age band, the operator's size and modality, the provider's
+      municipality and state, the month, the length of stay, the character, type and regime of the admission, up to four ICD-10
+      diagnoses and the days in intensive care, and (from 2023) the value billed, paid and refused.
+    one_row: "one hospital event (admission) of a private-plan beneficiary, in one month, with its residence, provider, stay and diagnoses"
+    unit_of_analysis: hospital event
+    use: context
+    why_no_event_type: >-
+      An admission of a private plan with the beneficiary's residence: the care of the people the plans cover, which SIH (the public
+      system's admissions) never holds. It is an event, but no event type is declared until roles type these columns as a study's event.
+    known_biases: >-
+      These are the events operators sent to ANS under the TISS standard, not a census of private care: an event the operator never sent
+      is absent, and ANS rewrites the files (the 2023 and later files were rebuilt in 2026 with payment columns added).
+      Residence (sex, municipality) is filled by a crossing with the SIB or CNS, so it is empty for beneficiaries that crossing did not find.
+      An identifier of the beneficiary is not published: events of one person cannot be linked, nor can one plan's events across operators.
+    gotchas:
+      - "An event is one row of the CONS table; its DET rows are its items (procedures, medicines, materials), joined by ID_EVENTO_ATENCAO_SAUDE, so joining and counting rows counts items, not events."
+      - "Two layouts: files to 2022 lack the payment columns (VL_EVENTO_*, QT_ITEM_EVENTO_PAGO, VL_ITEM_EVENTO_PAGO), UNIDADE_MEDIDA, REGIME_ATENDIMENTO and SAUDE_OCUPACIONAL, which exist from 2023 (the dictionary: new message fields from May 2023, payment fields published in 2026 for 2023 on). FAIXA_ETARIA is spelled '30 a 39' to 2022 and '30 a 39 anos' from 2023."
+      - "Events of pre-established-value contracts (LG_VALOR_PREESTABELECIDO = 1) are in the files with zero item values or only a bonus: sums of value understate what those contracts cost."
+      - "FAIXA_ETARIA is also filed '<1' and 'Menos de 1 ano', '80 ou mais' and '80 anos ou mais', and 'N¿o identificado' (the file's mangled 'Não identificado'; the dictionary's word for it is 'Informada Incorretamente'): read it as filed, never by a code."
+      - "A beneficiary with no residence has no sex either (both come from one crossing with the SIB or CNS), and such an event is unplaced in the field."
+      - "Code lists the dictionary names by TUSS table number (23, 57, 41, 39, 50, 76, 52, 24, 77, 36, 60, 79) are not in it: those codes stay undecoded, as filed."
+      - "A beneficiary municipality ending in 0000 (140000, 350000) is a state's ignored municipality: unallocated, not a place."
+      - "A hospital event is one admission (an event exists when there is an admission-summary guide; guides of fees and of SP/SADT join it by the admission request number)."
+      - "CID_1 to CID_4 are optional to send (by court order): most hospital events carry none, so a diagnosis count is a lower bound of unknown size."
+    citation: ANS PDA, TISS (D-TISS), Procedimentos hospitalares por UF, consolidado (TISS) (dadosabertos.ans.gov.br)
+    dictionary: https://dadosabertos.ans.gov.br/FTP/PDA/TISS/DICIONARIO/ (Dicionario_de_variaveis_ate_2022.ods and Dicionario_de_variaveis_a_partir_de_2023.ods)
+    origin:
+      kind: files
+      format: csv
+      csv: {sep: ";", encoding: utf8}
+      pattern: https://dadosabertos.ans.gov.br/FTP/PDA/TISS/HOSPITALAR/{year}/{uf}/{uf}_{period}_HOSP_CONS.zip
+      months: 201501-202512
+      across:
+        uf: [AC, AL, AM, AP, BA, CE, DF, ES, GO, MA, MG, MS, MT, PA, PB, PE, PI, PR, RJ, RN, RO, RR, RS, SC, SE, SP, TO]
+    columns:
+      ID_EVENTO_ATENCAO_SAUDE: {description: "the event's identifier, the key between the consolidated (CONS) and detailed (DET) tables and the remuneration table (REM); ANS's own number, a pseudonymous identifier kept as filed", type: code}
+      ID_PLANO: {description: "ANS's identifier of the beneficiary's plan, valid only inside these files (the key of DADOS_DE_PLANOS/PLANOS.zip); a pseudonymous identifier kept as filed", type: code}
+      FAIXA_ETARIA: {description: "age band of the beneficiary; the spelling differs by layout ('30 a 39' to 2022, '30 a 39 anos' from 2023)", type: label}
+      SEXO: {description: "sex of the beneficiary (Masculino, Feminino; empty when the SIB or CNS crossing did not find it)", type: code}
+      CD_MUNICIPIO_BENEFICIARIO: {description: "IBGE code (6 digits) of the beneficiary's municipality of residence; empty when the SIB or CNS crossing did not find it", type: municipality}
+      PORTE: {description: "size class of the operator by active beneficiary links in the latest month of the SIB (GRANDE from 100,000, MÉDIO 20,000 to 99,999, PEQUENO below 20,000, SEM BENEFICIÁRIOS)", type: code}
+      CD_MODALIDADE: {description: "code of the operator's modality", type: code, codes: {"21": "Administradora", "55": "Administradora", "22": "Cooperativa médica", "23": "Cooperativa odontológica", "24": "Autogestão", "25": "Medicina de grupo", "26": "Odontologia de grupo", "27": "Filantropia", "28": "Seguradora especializada em saúde", "29": "Seguradora especializada em saúde"}}
+      NM_MODALIDADE: {description: "the operator's modality, by legal status", type: label}
+      CD_MUNICIPIO_PRESTADOR: {description: "IBGE code (6 digits) of the municipality of the provider that executed the care; omitted where one hospital provider served the municipality in the year", type: municipality}
+      UF_PRESTADOR: {description: "state of the provider that executed the care", type: code}
+      TEMPO_DE_PERMANENCIA: {description: "days between admission and discharge (-1 when it could not be computed; same-day stays count 1)", type: integer}
+      ANO_MES_EVENTO: {description: "year and month of the event (yyyy-mm)", type: date, format: "%Y-%m"}
+      CD_CARATER_ATENDIMENTO: {description: "character of the care (TUSS 23)", type: int_code, codes: {"1": "Eletivo", "2": "Urgência/Emergência"}}
+      CD_TIPO_INTERNACAO: {description: "type of admission (TUSS 57; the dictionary lists no codes)", type: int_code}
+      CD_REGIME_INTERNACAO: {description: "regime of admission (TUSS 41; the dictionary lists no codes)", type: int_code}
+      CD_MOTIVO_SAIDA: {description: "reason the stay ended (TUSS 39; the dictionary lists no codes)", type: int_code}
+      CID_1: {description: "ICD-10 code of the first diagnosis (diagnoses are sent to ANS optionally, by court order: most events have none)", type: code, codelist: "ICD10"}
+      CID_2: {description: "ICD-10 code of the second diagnosis (diagnoses are sent to ANS optionally, by court order: most events have none)", type: code, codelist: "ICD10"}
+      CID_3: {description: "ICD-10 code of the third diagnosis (diagnoses are sent to ANS optionally, by court order: most events have none)", type: code, codelist: "ICD10"}
+      CID_4: {description: "ICD-10 code of the fourth diagnosis (diagnoses are sent to ANS optionally, by court order: most events have none)", type: code, codelist: "ICD10"}
+      QT_DIARIA_ACOMPANHANTE: {description: "number of companion daily stays (diárias)", type: number, decimal: ","}
+      QT_DIARIA_UTI: {description: "number of intensive-care daily stays (diárias)", type: number, decimal: ","}
+      IND_ACIDENTE_DOENCA: {description: "whether the care is due to an accident or a related disease (TUSS 36; the dictionary lists no codes)", type: int_code}
+      VL_EVENTO_INFORMADO: {description: "total assistance expense billed by the provider for the event (reais, nominal; from 2023, filed to the earlier years in 2026)", type: number, decimal: ",", optional: true}
+      VL_EVENTO_PAGO: {description: "total the operator paid the provider for the event (reais, nominal; from 2023, filed to the earlier years in 2026)", type: number, decimal: ",", optional: true}
+      VL_EVENTO_GLOSA: {description: "total billed whose payment the operator refused (reais, nominal; from 2023, filed to the earlier years in 2026)", type: number, decimal: ",", optional: true}
+      LG_VALOR_PREESTABELECIDO: {description: "whether the event belongs to a pre-established-value contract (the operator pays the contracted amount whether or not care is given); its items then have zero value or only a bonus", type: code, codes: {"0": "no", "1": "yes"}}
+    place: {column: CD_MUNICIPIO_BENEFICIARIO, type: municipality}
+    period: {type: date, column: ANO_MES_EVENTO, format: "%Y-%m", grain: month, valid: 2015-2025}
+    fields:
+      ans_tiss_hospital_events:
+        label: "Private-plan hospital events by residence"
+        measure: count
+        by: [{SEXO: sex}, {CD_CARATER_ATENDIMENTO: care_character}]
+        unit: hospital events (admissions) reported to ANS
+        grain: month
+        law: sum
+        what: >
+          Hospital events of private health plans reported to ANS (TISS), by the beneficiary's municipality of residence and month,
+          sex and character of the care (1 elective, 2 urgent or emergency). Events with no residence are not in the field (the
+          records count them as unplaced).
+        years: 2015-2025
+      ans_tiss_hospital_events_by_cid:
+        label: "Private-plan hospital events by diagnosis"
+        measure: count
+        by: [{CID_1: cid_1}]
+        unit: hospital events, by first diagnosis
+        grain: month
+        law: sum
+        what: >
+          The same events by the first ICD-10 diagnosis. The diagnosis is sent optionally (by court order): events with none are
+          here with cid_1 empty (9,462 of 13,244 in the 2022-2023 sample of AC and RR), so the field sums to the events field.
+        years: 2015-2025
+
+  ans_tiss_hosp_det:
+    system: ANS
+    series: TISS_HOSP_DET
+    official_name: "Procedimentos hospitalares por UF, detalhado (TISS)"
+    translated_name: "Hospital events of private health plans by state, itemised (TISS)"
+    what: >
+      The items (procedures, medicines, materials, groups) of the hospital events of private health plans reported to ANS under the
+      TISS standard, 2015-2025: one row per item of an event, with the TUSS code and table, the quantity and value billed (and, from
+      2023, paid), whether it belongs to a package, and the provider's state. Joined to the consolidated table by the event's identifier.
+    one_row: "one item (procedure, medicine, material or group) billed within one hospital event, with its TUSS table and code, quantity and value"
+    unit_of_analysis: event item
+    use: context
+    why_no_event_type: >-
+      Items of events, not events: a row is a procedure, a medicine or a material billed within an admission. The event is the CONS row.
+    known_biases: >-
+      These are the events operators sent to ANS under the TISS standard, not a census of private care: an event the operator never sent
+      is absent, and ANS rewrites the files (the 2023 and later files were rebuilt in 2026 with payment columns added).
+      Residence (sex, municipality) is filled by a crossing with the SIB or CNS, so it is empty for beneficiaries that crossing did not find.
+      An identifier of the beneficiary is not published: events of one person cannot be linked, nor can one plan's events across operators.
+    gotchas:
+      - "CD_PROCEDIMENTO is a TUSS procedure code only where CD_TABELA_REFERENCIA is 22 (19 OPME, 20 medicines); 63 is a group of procedures and 90 and 98 are operators' own packages. A code of one table can equal one of another: always read the pair."
+      - "Items inside a package (IND_PACOTE = 1) carry the item and its table but no quantity or value; the package's own line carries them."
+      - "CD_TABELA_REFERENCIA is also '0' or '00' (the same thing filed twice) wherever IND_TABELA_PROPRIA is 1, and CD_PROCEDIMENTO then reads 'TABELA PROPRIA': an operator's own item, which cannot be identified (16% of the hospital items and 4% of the outpatient items of the AC and RR sample)."
+      - "CD_PROCEDIMENTO keeps its leading zeros ('031'); read it as text."
+      - "There is no beneficiary municipality in DET, only the provider's state: join CONS on ID_EVENTO_ATENCAO_SAUDE for residence, sex and age."
+      - "Two layouts: files to 2022 lack the payment columns (VL_EVENTO_*, QT_ITEM_EVENTO_PAGO, VL_ITEM_EVENTO_PAGO), UNIDADE_MEDIDA, REGIME_ATENDIMENTO and SAUDE_OCUPACIONAL, which exist from 2023 (the dictionary: new message fields from May 2023, payment fields published in 2026 for 2023 on). FAIXA_ETARIA is spelled '30 a 39' to 2022 and '30 a 39 anos' from 2023."
+      - "Events of pre-established-value contracts (LG_VALOR_PREESTABELECIDO = 1) are in the files with zero item values or only a bonus: sums of value understate what those contracts cost."
+      - "FAIXA_ETARIA is also filed '<1' and 'Menos de 1 ano', '80 ou mais' and '80 anos ou mais', and 'N¿o identificado' (the file's mangled 'Não identificado'; the dictionary's word for it is 'Informada Incorretamente'): read it as filed, never by a code."
+      - "A beneficiary with no residence has no sex either (both come from one crossing with the SIB or CNS), and such an event is unplaced in the field."
+      - "Code lists the dictionary names by TUSS table number (23, 57, 41, 39, 50, 76, 52, 24, 77, 36, 60, 79) are not in it: those codes stay undecoded, as filed."
+    citation: ANS PDA, TISS (D-TISS), Procedimentos hospitalares por UF, detalhado (TISS) (dadosabertos.ans.gov.br)
+    dictionary: https://dadosabertos.ans.gov.br/FTP/PDA/TISS/DICIONARIO/ (Dicionario_de_variaveis_ate_2022.ods and Dicionario_de_variaveis_a_partir_de_2023.ods)
+    origin:
+      kind: files
+      format: csv
+      csv: {sep: ";", encoding: utf8}
+      pattern: https://dadosabertos.ans.gov.br/FTP/PDA/TISS/HOSPITALAR/{year}/{uf}/{uf}_{period}_HOSP_DET.zip
+      months: 201501-202512
+      across:
+        uf: [AC, AL, AM, AP, BA, CE, DF, ES, GO, MA, MG, MS, MT, PA, PB, PE, PI, PR, RJ, RN, RO, RR, RS, SC, SE, SP, TO]
+    columns:
+      ID_EVENTO_ATENCAO_SAUDE: {description: "the event's identifier, the key between the consolidated (CONS) and detailed (DET) tables and the remuneration table (REM); ANS's own number, a pseudonymous identifier kept as filed", type: code}
+      UF_PRESTADOR: {description: "state of the provider", type: code}
+      TEMPO_DE_PERMANENCIA: {description: "days between admission and discharge (-1 when not computed); filed with a decimal comma ('1,0') in 2022", type: number, decimal: ","}
+      ANO_MES_EVENTO: {description: "year and month of the event (yyyy-mm)", type: date, format: "%Y-%m"}
+      CD_PROCEDIMENTO: {description: "code of the procedure or item, by the table CD_TABELA_REFERENCIA names (TUSS 19, 20, 22), or of a group (TUSS 63) or an operator's package (tables 90, 98)", type: code}
+      CD_TABELA_REFERENCIA: {description: "the TUSS table CD_PROCEDIMENTO belongs to", type: code, codes: {"19": "TUSS 19, OPME and special materials", "20": "TUSS 20, medicines", "22": "TUSS 22, procedures and health events", "63": "TUSS 63, groups of procedures and items (a group, not a procedure)", "90": "a package created by the operator (not a TUSS code)", "98": "a package created by the operator (not a TUSS code)"}}
+      QT_ITEM_EVENTO_INFORMADO: {description: "quantity of the item billed by the provider", type: number, decimal: ","}
+      VL_ITEM_EVENTO_INFORMADO: {description: "value billed for the item (reais, nominal)", type: number, decimal: ","}
+      QT_ITEM_EVENTO_PAGO: {description: "quantity of the item the operator paid (from 2023)", type: number, decimal: ",", optional: true}
+      VL_ITEM_EVENTO_PAGO: {description: "value the operator paid for the item (reais, nominal; from 2023)", type: number, decimal: ",", optional: true}
+      VL_ITEM_PAGO_FORNECEDOR: {description: "value the operator paid directly to suppliers (reais, nominal)", type: number, decimal: ","}
+      UNIDADE_MEDIDA: {description: "unit of measure of the item (TUSS 60; from 2023)", type: code, optional: true}
+      IND_PACOTE: {description: "whether the item is part of a package of procedures", type: code, codes: {"0": "no", "1": "yes"}}
+      IND_TABELA_PROPRIA: {description: "whether the operator reported its own code, not a TUSS one: the item then cannot be identified", type: code, codes: {"0": "no", "1": "yes"}}
+    period: {type: date, column: ANO_MES_EVENTO, format: "%Y-%m", grain: month, valid: 2015-2025}
+    fields:
+      ans_tiss_hospital_items:
+        label: "Private-plan hospital items billed"
+        rows:
+          event: ID_EVENTO_ATENCAO_SAUDE
+          month: ANO_MES_EVENTO
+          provider_uf: UF_PRESTADOR
+          table: CD_TABELA_REFERENCIA
+          procedure: CD_PROCEDIMENTO
+          quantity: QT_ITEM_EVENTO_INFORMADO
+          value: VL_ITEM_EVENTO_INFORMADO
+          package: IND_PACOTE
+          own_table: IND_TABELA_PROPRIA
+        unit: item lines (one row per item of an event)
+        grain: month
+        what: >
+          The itemised lines of private-plan hospital events reported to ANS (TISS): the TUSS table and code, quantity and value billed,
+          package and own-table flags, by event and month. A register of lines, not an aggregate.
+        years: 2015-2025
+
+  ans_tiss_hosp_rem:
+    system: ANS
+    series: TISS_HOSP_REM
+    official_name: "Modelo de remuneração, hospitalar (TISS)"
+    translated_name: "Remuneration model of hospital events of private health plans (TISS)"
+    what: >
+      How operators remunerate providers for hospital events, 2023-2025: one row per event and remuneration model, with the value the
+      model covers. Published from May 2023, when the field entered the message.
+    one_row: "the value of one hospital event under one remuneration model (TUSS 79)"
+    unit_of_analysis: event x remuneration model
+    use: context
+    why_no_event_type: >-
+      A property of an event's payment (model and value), keyed by the event's identifier; it has no place or month of its own.
+    known_biases: >-
+      These are the events operators sent to ANS under the TISS standard, not a census of private care: an event the operator never sent
+      is absent, and ANS rewrites the files (the 2023 and later files were rebuilt in 2026 with payment columns added).
+      Residence (sex, municipality) is filled by a crossing with the SIB or CNS, so it is empty for beneficiaries that crossing did not find.
+      An identifier of the beneficiary is not published: events of one person cannot be linked, nor can one plan's events across operators.
+    gotchas:
+      - "REM exists from 2023 only (the field entered the TISS message in May 2023) and the dictionary says it may be absent for events."
+      - "It has no municipality, state or month: join CONS or DET on ID_EVENTO_ATENCAO_SAUDE. The file's month is the publication's month."
+      - "CD_MODELO_REMUNERACAO is TUSS table 79, which the dictionary does not reproduce: the codes stay undecoded."
+    citation: ANS PDA, TISS (D-TISS), Modelo de remuneração, hospitalar (TISS) (dadosabertos.ans.gov.br)
+    dictionary: https://dadosabertos.ans.gov.br/FTP/PDA/TISS/DICIONARIO/ (Dicionario_de_variaveis_ate_2022.ods and Dicionario_de_variaveis_a_partir_de_2023.ods)
+    origin:
+      kind: files
+      format: csv
+      csv: {sep: ";", encoding: utf8}
+      pattern: https://dadosabertos.ans.gov.br/FTP/PDA/TISS/HOSPITALAR/{year}/{uf}/{uf}_{period}_HOSP_REM.zip
+      months: 202301-202512
+      across:
+        uf: [AC, AL, AM, AP, BA, CE, DF, ES, GO, MA, MG, MS, MT, PA, PB, PE, PI, PR, RJ, RN, RO, RR, RS, SC, SE, SP, TO]
+    columns:
+      ID_EVENTO_ATENCAO_SAUDE: {description: "the event's identifier, the key between the consolidated (CONS) and detailed (DET) tables and the remuneration table (REM); ANS's own number, a pseudonymous identifier kept as filed", type: code}
+      CD_MODELO_REMUNERACAO: {description: "remuneration model between operator and provider (TUSS 79; the dictionary lists no codes)", type: code}
+      VL_TOTAL_REMUNERACAO: {description: "value of the procedures and items of the event under the remuneration model (reais, nominal)", type: number, decimal: ","}
+    period: {type: file}
+    fields:
+      ans_tiss_hospital_remuneration:
+        label: "Private-plan hospital remuneration models"
+        rows:
+          event: ID_EVENTO_ATENCAO_SAUDE
+          model: CD_MODELO_REMUNERACAO
+          value: VL_TOTAL_REMUNERACAO
+        unit: remuneration lines (one row per event and model)
+        what: >
+          The remuneration model of private-plan hospital events and the value it covers (TISS, from 2023), by event. A register of
+          lines, not an aggregate.
+        years: 2023-2025
+
+  ans_tiss_amb_cons:
+    system: ANS
+    series: TISS_AMB_CONS
+    official_name: "Procedimentos ambulatoriais por UF, consolidado (TISS)"
+    translated_name: "Outpatient events of private health plans by state, consolidated (TISS)"
+    what: >
+      Outpatient events (consultations and SP/SADT services not linked to an admission) of private health-plan beneficiaries as
+      operators reported them to ANS under the TISS standard, one row per event, 2015-2025: the beneficiary's municipality of residence,
+      sex and age band, the operator's size and modality, the provider's municipality and state, the month, the character and type of
+      the care, the professional's CBO, the type of consultation, and (from 2023) the value billed, paid and refused.
+    one_row: "one outpatient event (a consultation or an SP/SADT service) of a private-plan beneficiary, in one month, with its residence, provider and professional"
+    unit_of_analysis: outpatient event
+    use: context
+    why_no_event_type: >-
+      An outpatient event of a private plan with the beneficiary's residence: care that SIA (the public system's outpatient production)
+      never holds. It is an event, but no event type is declared until roles type these columns as a study's event.
+    known_biases: >-
+      These are the events operators sent to ANS under the TISS standard, not a census of private care: an event the operator never sent
+      is absent, and ANS rewrites the files (the 2023 and later files were rebuilt in 2026 with payment columns added).
+      Residence (sex, municipality) is filled by a crossing with the SIB or CNS, so it is empty for beneficiaries that crossing did not find.
+      An identifier of the beneficiary is not published: events of one person cannot be linked, nor can one plan's events across operators.
+    gotchas:
+      - "An event is one row of the CONS table; its DET rows are its items (procedures, medicines, materials), joined by ID_EVENTO_ATENCAO_SAUDE, so joining and counting rows counts items, not events."
+      - "Two layouts: files to 2022 lack the payment columns (VL_EVENTO_*, QT_ITEM_EVENTO_PAGO, VL_ITEM_EVENTO_PAGO), UNIDADE_MEDIDA, REGIME_ATENDIMENTO and SAUDE_OCUPACIONAL, which exist from 2023 (the dictionary: new message fields from May 2023, payment fields published in 2026 for 2023 on). FAIXA_ETARIA is spelled '30 a 39' to 2022 and '30 a 39 anos' from 2023."
+      - "Events of pre-established-value contracts (LG_VALOR_PREESTABELECIDO = 1) are in the files with zero item values or only a bonus: sums of value understate what those contracts cost."
+      - "FAIXA_ETARIA is also filed '<1' and 'Menos de 1 ano', '80 ou mais' and '80 anos ou mais', and 'N¿o identificado' (the file's mangled 'Não identificado'; the dictionary's word for it is 'Informada Incorretamente'): read it as filed, never by a code."
+      - "A beneficiary with no residence has no sex either (both come from one crossing with the SIB or CNS), and such an event is unplaced in the field."
+      - "Code lists the dictionary names by TUSS table number (23, 57, 41, 39, 50, 76, 52, 24, 77, 36, 60, 79) are not in it: those codes stay undecoded, as filed."
+      - "A beneficiary municipality ending in 0000 (140000, 350000) is a state's ignored municipality: unallocated, not a place."
+      - "An outpatient event is a consultation guide or an SP/SADT guide not linked to an admission."
+      - "The ambulatory files are large: 197.6 GiB zipped for 2015-2025 (CONS 105.9, DET 79.7, REM 11.9), so every ambulatory source is declared on request."
+    citation: ANS PDA, TISS (D-TISS), Procedimentos ambulatoriais por UF, consolidado (TISS) (dadosabertos.ans.gov.br)
+    dictionary: https://dadosabertos.ans.gov.br/FTP/PDA/TISS/DICIONARIO/ (Dicionario_de_variaveis_ate_2022.ods and Dicionario_de_variaveis_a_partir_de_2023.ods)
+    origin:
+      kind: files
+      format: csv
+      csv: {sep: ";", encoding: utf8}
+      pattern: https://dadosabertos.ans.gov.br/FTP/PDA/TISS/AMBULATORIAL/{year}/{uf}/{uf}_{period}_AMB_CONS.zip
+      months: 201501-202512
+      on_request: true
+      across:
+        uf: [AC, AL, AM, AP, BA, CE, DF, ES, GO, MA, MG, MS, MT, PA, PB, PE, PI, PR, RJ, RN, RO, RR, RS, SC, SE, SP, TO]
+    columns:
+      ID_EVENTO_ATENCAO_SAUDE: {description: "the event's identifier, the key between the consolidated (CONS) and detailed (DET) tables and the remuneration table (REM); ANS's own number, a pseudonymous identifier kept as filed", type: code}
+      ID_PLANO: {description: "ANS's identifier of the beneficiary's plan, valid only inside these files (the key of DADOS_DE_PLANOS/PLANOS.zip); a pseudonymous identifier kept as filed", type: code}
+      FAIXA_ETARIA: {description: "age band of the beneficiary; the spelling differs by layout ('30 a 39' to 2022, '30 a 39 anos' from 2023)", type: label}
+      SEXO: {description: "sex of the beneficiary (Masculino, Feminino; empty when the SIB or CNS crossing did not find it)", type: code}
+      CD_MUNICIPIO_BENEFICIARIO: {description: "IBGE code (6 digits) of the beneficiary's municipality of residence; empty when the SIB or CNS crossing did not find it", type: municipality}
+      PORTE: {description: "size class of the operator by active beneficiary links in the latest month of the SIB (GRANDE from 100,000, MÉDIO 20,000 to 99,999, PEQUENO below 20,000, SEM BENEFICIÁRIOS)", type: code}
+      CD_MODALIDADE: {description: "code of the operator's modality", type: code, codes: {"21": "Administradora", "55": "Administradora", "22": "Cooperativa médica", "23": "Cooperativa odontológica", "24": "Autogestão", "25": "Medicina de grupo", "26": "Odontologia de grupo", "27": "Filantropia", "28": "Seguradora especializada em saúde", "29": "Seguradora especializada em saúde"}}
+      NM_MODALIDADE: {description: "the operator's modality, by legal status", type: label}
+      CD_MUNICIPIO_PRESTADOR: {description: "IBGE code (6 digits) of the municipality of the provider that executed the care", type: municipality}
+      UF_PRESTADOR: {description: "state of the provider that executed the care", type: code}
+      DT_REALIZACAO: {description: "year and month the care was given (yyyy-mm)", type: date, format: "%Y-%m"}
+      CD_CARATER_ATENDIMENTO: {description: "character of the care (TUSS 23)", type: int_code, codes: {"1": "Eletivo", "2": "Urgência/Emergência"}}
+      TIPO_ATENDIMENTO: {description: "type of care (TUSS 50; the dictionary lists no codes)", type: int_code}
+      REGIME_ATENDIMENTO: {description: "regime of care (TUSS 76; from 2023, the dictionary lists no codes)", type: int_code, optional: true}
+      CD_MOTIVO_SAIDA: {description: "reason the care ended (TUSS 39; the dictionary lists no codes)", type: int_code}
+      CBO: {description: "occupation of the professional, CBO (TUSS 24)", type: code, codelist: "CBO2002"}
+      TIPO_CONSULTA: {description: "type of consultation (TUSS 52; the dictionary lists no codes)", type: int_code}
+      SAUDE_OCUPACIONAL: {description: "occupational-health marker (TUSS 77; from 2023, the dictionary lists no codes)", type: int_code, optional: true}
+      IND_ACIDENTE_DOENCA: {description: "whether the care is due to an accident or a related disease (TUSS 36; the dictionary lists no codes)", type: int_code}
+      VL_EVENTO_INFORMADO: {description: "total assistance expense billed by the provider for the event (reais, nominal; from 2023, filed to the earlier years in 2026)", type: number, decimal: ",", optional: true}
+      VL_EVENTO_PAGO: {description: "total the operator paid the provider for the event (reais, nominal; from 2023, filed to the earlier years in 2026)", type: number, decimal: ",", optional: true}
+      VL_EVENTO_GLOSA: {description: "total billed whose payment the operator refused (reais, nominal; from 2023, filed to the earlier years in 2026)", type: number, decimal: ",", optional: true}
+      LG_VALOR_PREESTABELECIDO: {description: "whether the event belongs to a pre-established-value contract (the operator pays the contracted amount whether or not care is given); its items then have zero value or only a bonus", type: code, codes: {"0": "no", "1": "yes"}}
+    place: {column: CD_MUNICIPIO_BENEFICIARIO, type: municipality}
+    period: {type: date, column: DT_REALIZACAO, format: "%Y-%m", grain: month, valid: 2015-2025}
+    fields:
+      ans_tiss_outpatient_events:
+        label: "Private-plan outpatient events by residence"
+        measure: count
+        by: [{SEXO: sex}, {CD_CARATER_ATENDIMENTO: care_character}]
+        unit: outpatient events reported to ANS
+        grain: month
+        law: sum
+        what: >
+          Outpatient events of private health plans reported to ANS (TISS), by the beneficiary's municipality of residence and month,
+          sex and character of the care (1 elective, 2 urgent or emergency). Events with no residence are not in the field (the
+          records count them as unplaced).
+        years: 2015-2025
+
+  ans_tiss_amb_det:
+    system: ANS
+    series: TISS_AMB_DET
+    official_name: "Procedimentos ambulatoriais por UF, detalhado (TISS)"
+    translated_name: "Outpatient events of private health plans by state, itemised (TISS)"
+    what: >
+      The items (procedures, medicines, materials, groups) of the outpatient events of private health plans reported to ANS under the
+      TISS standard, 2015-2025: one row per item of an event, with the TUSS code and table, the quantity and value billed (and, from
+      2023, paid), whether it belongs to a package, and the provider's state. Joined to the consolidated table by the event's identifier.
+    one_row: "one item (procedure, medicine, material or group) billed within one outpatient event, with its TUSS table and code, quantity and value"
+    unit_of_analysis: event item
+    use: context
+    why_no_event_type: >-
+      Items of events, not events: a row is a procedure, a medicine or a material billed within an outpatient event. The event is the CONS row.
+    known_biases: >-
+      These are the events operators sent to ANS under the TISS standard, not a census of private care: an event the operator never sent
+      is absent, and ANS rewrites the files (the 2023 and later files were rebuilt in 2026 with payment columns added).
+      Residence (sex, municipality) is filled by a crossing with the SIB or CNS, so it is empty for beneficiaries that crossing did not find.
+      An identifier of the beneficiary is not published: events of one person cannot be linked, nor can one plan's events across operators.
+    gotchas:
+      - "CD_PROCEDIMENTO is a TUSS procedure code only where CD_TABELA_REFERENCIA is 22 (19 OPME, 20 medicines); 63 is a group of procedures and 90 and 98 are operators' own packages. A code of one table can equal one of another: always read the pair."
+      - "Items inside a package (IND_PACOTE = 1) carry the item and its table but no quantity or value; the package's own line carries them."
+      - "CD_TABELA_REFERENCIA is also '0' or '00' (the same thing filed twice) wherever IND_TABELA_PROPRIA is 1, and CD_PROCEDIMENTO then reads 'TABELA PROPRIA': an operator's own item, which cannot be identified (16% of the hospital items and 4% of the outpatient items of the AC and RR sample)."
+      - "CD_PROCEDIMENTO keeps its leading zeros ('031'); read it as text."
+      - "There is no beneficiary municipality in DET, only the provider's state: join CONS on ID_EVENTO_ATENCAO_SAUDE for residence, sex and age."
+      - "Two layouts: files to 2022 lack the payment columns (VL_EVENTO_*, QT_ITEM_EVENTO_PAGO, VL_ITEM_EVENTO_PAGO), UNIDADE_MEDIDA, REGIME_ATENDIMENTO and SAUDE_OCUPACIONAL, which exist from 2023 (the dictionary: new message fields from May 2023, payment fields published in 2026 for 2023 on). FAIXA_ETARIA is spelled '30 a 39' to 2022 and '30 a 39 anos' from 2023."
+      - "Events of pre-established-value contracts (LG_VALOR_PREESTABELECIDO = 1) are in the files with zero item values or only a bonus: sums of value understate what those contracts cost."
+      - "FAIXA_ETARIA is also filed '<1' and 'Menos de 1 ano', '80 ou mais' and '80 anos ou mais', and 'N¿o identificado' (the file's mangled 'Não identificado'; the dictionary's word for it is 'Informada Incorretamente'): read it as filed, never by a code."
+      - "A beneficiary with no residence has no sex either (both come from one crossing with the SIB or CNS), and such an event is unplaced in the field."
+      - "Code lists the dictionary names by TUSS table number (23, 57, 41, 39, 50, 76, 52, 24, 77, 36, 60, 79) are not in it: those codes stay undecoded, as filed."
+      - "An outpatient event is a consultation guide or an SP/SADT guide not linked to an admission."
+      - "The ambulatory files are large: 197.6 GiB zipped for 2015-2025 (CONS 105.9, DET 79.7, REM 11.9), so every ambulatory source is declared on request."
+    citation: ANS PDA, TISS (D-TISS), Procedimentos ambulatoriais por UF, detalhado (TISS) (dadosabertos.ans.gov.br)
+    dictionary: https://dadosabertos.ans.gov.br/FTP/PDA/TISS/DICIONARIO/ (Dicionario_de_variaveis_ate_2022.ods and Dicionario_de_variaveis_a_partir_de_2023.ods)
+    origin:
+      kind: files
+      format: csv
+      csv: {sep: ";", encoding: utf8}
+      pattern: https://dadosabertos.ans.gov.br/FTP/PDA/TISS/AMBULATORIAL/{year}/{uf}/{uf}_{period}_AMB_DET.zip
+      months: 201501-202512
+      on_request: true
+      across:
+        uf: [AC, AL, AM, AP, BA, CE, DF, ES, GO, MA, MG, MS, MT, PA, PB, PE, PI, PR, RJ, RN, RO, RR, RS, SC, SE, SP, TO]
+    columns:
+      ID_EVENTO_ATENCAO_SAUDE: {description: "the event's identifier, the key between the consolidated (CONS) and detailed (DET) tables and the remuneration table (REM); ANS's own number, a pseudonymous identifier kept as filed", type: code}
+      UF_PRESTADOR: {description: "state of the provider", type: code}
+      DT_REALIZACAO: {description: "year and month the care was given (yyyy-mm)", type: date, format: "%Y-%m"}
+      CD_PROCEDIMENTO: {description: "code of the procedure or item, by the table CD_TABELA_REFERENCIA names (TUSS 19, 20, 22), or of a group (TUSS 63) or an operator's package (tables 90, 98)", type: code}
+      CD_TABELA_REFERENCIA: {description: "the TUSS table CD_PROCEDIMENTO belongs to", type: code, codes: {"19": "TUSS 19, OPME and special materials", "20": "TUSS 20, medicines", "22": "TUSS 22, procedures and health events", "63": "TUSS 63, groups of procedures and items (a group, not a procedure)", "90": "a package created by the operator (not a TUSS code)", "98": "a package created by the operator (not a TUSS code)"}}
+      QT_ITEM_EVENTO_INFORMADO: {description: "quantity of the item billed by the provider", type: number, decimal: ","}
+      VL_ITEM_EVENTO_INFORMADO: {description: "value billed for the item (reais, nominal)", type: number, decimal: ","}
+      QT_ITEM_EVENTO_PAGO: {description: "quantity of the item the operator paid (from 2023)", type: number, decimal: ",", optional: true}
+      VL_ITEM_EVENTO_PAGO: {description: "value the operator paid for the item (reais, nominal; from 2023)", type: number, decimal: ",", optional: true}
+      VL_ITEM_PAGO_FORNECEDOR: {description: "value the operator paid directly to suppliers (reais, nominal)", type: number, decimal: ","}
+      UNIDADE_MEDIDA: {description: "unit of measure of the item (TUSS 60; from 2023)", type: code, optional: true}
+      IND_PACOTE: {description: "whether the item is part of a package of procedures", type: code, codes: {"0": "no", "1": "yes"}}
+      IND_TABELA_PROPRIA: {description: "whether the operator reported its own code, not a TUSS one: the item then cannot be identified", type: code, codes: {"0": "no", "1": "yes"}}
+    period: {type: date, column: DT_REALIZACAO, format: "%Y-%m", grain: month, valid: 2015-2025}
+    fields:
+      ans_tiss_outpatient_items:
+        label: "Private-plan outpatient items billed"
+        rows:
+          event: ID_EVENTO_ATENCAO_SAUDE
+          month: DT_REALIZACAO
+          provider_uf: UF_PRESTADOR
+          table: CD_TABELA_REFERENCIA
+          procedure: CD_PROCEDIMENTO
+          quantity: QT_ITEM_EVENTO_INFORMADO
+          value: VL_ITEM_EVENTO_INFORMADO
+          package: IND_PACOTE
+          own_table: IND_TABELA_PROPRIA
+        unit: item lines (one row per item of an event)
+        grain: month
+        what: >
+          The itemised lines of private-plan outpatient events reported to ANS (TISS): the TUSS table and code, quantity and value
+          billed, package and own-table flags, by event and month. A register of lines, not an aggregate.
+        years: 2015-2025
+
+  ans_tiss_amb_rem:
+    system: ANS
+    series: TISS_AMB_REM
+    official_name: "Modelo de remuneração, ambulatorial (TISS)"
+    translated_name: "Remuneration model of outpatient events of private health plans (TISS)"
+    what: >
+      How operators remunerate providers for outpatient events, 2023-2025: one row per event and remuneration model, with the value the
+      model covers. Published from May 2023, when the field entered the message.
+    one_row: "the value of one outpatient event under one remuneration model (TUSS 79)"
+    unit_of_analysis: event x remuneration model
+    use: context
+    why_no_event_type: >-
+      A property of an event's payment (model and value), keyed by the event's identifier; it has no place or month of its own.
+    known_biases: >-
+      These are the events operators sent to ANS under the TISS standard, not a census of private care: an event the operator never sent
+      is absent, and ANS rewrites the files (the 2023 and later files were rebuilt in 2026 with payment columns added).
+      Residence (sex, municipality) is filled by a crossing with the SIB or CNS, so it is empty for beneficiaries that crossing did not find.
+      An identifier of the beneficiary is not published: events of one person cannot be linked, nor can one plan's events across operators.
+    gotchas:
+      - "REM exists from 2023 only (the field entered the TISS message in May 2023) and the dictionary says it may be absent for events."
+      - "It has no municipality, state or month: join CONS or DET on ID_EVENTO_ATENCAO_SAUDE. The file's month is the publication's month."
+      - "CD_MODELO_REMUNERACAO is TUSS table 79, which the dictionary does not reproduce: the codes stay undecoded."
+    citation: ANS PDA, TISS (D-TISS), Modelo de remuneração, ambulatorial (TISS) (dadosabertos.ans.gov.br)
+    dictionary: https://dadosabertos.ans.gov.br/FTP/PDA/TISS/DICIONARIO/ (Dicionario_de_variaveis_ate_2022.ods and Dicionario_de_variaveis_a_partir_de_2023.ods)
+    origin:
+      kind: files
+      format: csv
+      csv: {sep: ";", encoding: utf8}
+      pattern: https://dadosabertos.ans.gov.br/FTP/PDA/TISS/AMBULATORIAL/{year}/{uf}/{uf}_{period}_AMB_REM.zip
+      months: 202301-202512
+      on_request: true
+      across:
+        uf: [AC, AL, AM, AP, BA, CE, DF, ES, GO, MA, MG, MS, MT, PA, PB, PE, PI, PR, RJ, RN, RO, RR, RS, SC, SE, SP, TO]
+    columns:
+      ID_EVENTO_ATENCAO_SAUDE: {description: "the event's identifier, the key between the consolidated (CONS) and detailed (DET) tables and the remuneration table (REM); ANS's own number, a pseudonymous identifier kept as filed", type: code}
+      CD_MODELO_REMUNERACAO: {description: "remuneration model between operator and provider (TUSS 79; the dictionary lists no codes)", type: code}
+      VL_TOTAL_REMUNERACAO: {description: "value of the procedures and items of the event under the remuneration model (reais, nominal)", type: number, decimal: ","}
+    period: {type: file}
+    fields:
+      ans_tiss_outpatient_remuneration:
+        label: "Private-plan outpatient remuneration models"
+        rows:
+          event: ID_EVENTO_ATENCAO_SAUDE
+          model: CD_MODELO_REMUNERACAO
+          value: VL_TOTAL_REMUNERACAO
+        unit: remuneration lines (one row per event and model)
+        what: >
+          The remuneration model of private-plan outpatient events and the value it covers (TISS, from 2023), by event. A register of
+          lines, not an aggregate.
+        years: 2023-2025
+
   inep:
     system: INEP
     series: EDBASICA
