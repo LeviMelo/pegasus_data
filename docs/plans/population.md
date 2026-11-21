@@ -108,3 +108,6 @@ settles.
   2007 Contagem the even share is the best share (error 0.0367) and the roll's and the births' own timing add nothing.
   The between-census work left is by age. Under the census as truth the account's within-state allocation at a census
   year is the census's own; POPSVS's differs by its smoothing.
+- **P2 concluded: the signals stay out of the forecast** (evaluation 2026-11-21-population-symptoms, last section). On the
+  third truth (2007 forecast from 2000) births and the roll make the forecast worse (0.0728 and 0.0794 against the
+  account's 0.0644). Only the previous decade's migration transfers across the three truths.

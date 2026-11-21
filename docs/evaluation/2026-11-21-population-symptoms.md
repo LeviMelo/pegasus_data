@@ -88,3 +88,26 @@ share of zT had happened by 2007, and its error is what is left of z07 (robust s
 - So the yearly signals matter after the last census (0.056 to 0.050), not between two. Between two, the open part is
   the age pattern (the 1996 Contagem by age favoured the age schedule, evaluation 2026-10-05-population-account-3), not
   the total.
+
+## The signals on a third truth: 2007 forecast from 2000 (`forecast_2007.py`): they stay out of the forecast
+
+The 2007 Contagem (6.67 years after the 2000 census) forecast without the 2010 census, weights fitted on 2010 to 2022
+per year of horizon; 5,180 areas under 100,000; robust sd of the error:
+
+| | all | under 5,000 | 5-20,000 | 20-100,000 |
+|---|---|---|---|---|
+| births and deaths alone | 0.0713 | 0.080 | 0.074 | 0.058 |
+| the account (previous decade's migration) | **0.0644** | 0.074 | 0.067 | 0.051 |
+| + births per accounted woman | 0.0728 | 0.087 | 0.075 | 0.056 |
+| + the electoral roll | 0.0794 | 0.087 | 0.084 | 0.061 |
+| + both | 0.0738 | 0.085 | 0.079 | 0.055 |
+
+With the weights 2010-2022 gives them, both signals make the 2000s forecast worse than the account, and worse than
+births and deaths alone. Three truths now say the same: they help 2010 to 2022 (0.059 to 0.052-0.053) and hurt or do
+nothing in 2000 to 2010 and at 2007. Likely why (not tested): in the 2000s the roll was being cleaned and birth
+registration was still rising in the North and Northeast, so their changes were the systems', not the people's.
+
+**Conclusion of P2.** The signals are not put into the forecast: a regressor whose weight holds in one decade only is
+not a forecast. The account's regression (the previous decade's migration) is the one term that transfers across the
+three truths (0.0511 / 0.0590 / 0.0644 against 0.0730 / 0.0671 / 0.0713). To revisit when a fourth truth exists (the
+next census or count), with the roll of 2022 onward.
