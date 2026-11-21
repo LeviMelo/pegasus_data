@@ -501,6 +501,9 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
   `semantics/defnames.py`, `semantics/pdf_harvest.py`: harvesting (§2.3).
 - `semantics/dictionary.py`: merges sources by authority.
 - `semantics/curation.py`: loads `curation/`.
+- `semantics/schema.py`: the declared keys of every kind of curation file (a plain-data schema per kind); the loader checks each file
+  against it when parsing it (`semantics/curation.py`), so a misspelt or unknown key is refused with its file, path and closest key
+  (`scripts/validate_curation.py --schema` checks all). A new curation file declares its kind there.
 - `semantics/categories.py`: the one reading of a category from its whole label (`curation/categories.yml`: `canonical_sex`,
   shared by linkage's `sex` type and the population account; a label outside the map is unknown) and of a code's label in a
   dataset and year (`code_labels`). Thresholds and cause groups of the quality checks are declared in `curation/quality.yml`.

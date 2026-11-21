@@ -50,10 +50,9 @@ def systems() -> dict[str, dict]:
     """Each system the product extends past 2011 and its declared model (``curation/products.yml``, ``system_completeness``:
     ``systems``): ``anchor_sd``, the standard deviation (probability scale) of the published ratio itself, and ``extension``,
     ``drift`` or ``persist``, each with the evidence it rests on."""
-    from .config import curation_root
-    from .semantics.curation import read_yaml
+    from .semantics.curation import product
 
-    return read_yaml(curation_root() / "products.yml", shared=True)["products"]["system_completeness"]["systems"]
+    return product("system_completeness")["systems"]
 
 
 def _logit(p):
@@ -120,9 +119,9 @@ def ill_defined_shares(settings, log=print) -> tuple[str, dict[tuple[int, int], 
     from .cubes import cube
     from .fields import _years
     from .semantics.column_roles import column_of
-    from .semantics.curation import read_yaml
+    from .semantics.curation import product, read_yaml
 
-    spec = read_yaml(curation_root() / "products.yml", shared=True)["products"]["system_completeness"]["inputs"]["ill_defined"]
+    spec = product("system_completeness")["inputs"]["ill_defined"]
     dataset, _, event = str(spec["events"]).removeprefix("records:").partition("/")
     rule = read_yaml(curation_root() / "quality.yml", shared=True)["ill_defined_causes"][dataset]
     cause = column_of(dataset, str(rule["cause"]))

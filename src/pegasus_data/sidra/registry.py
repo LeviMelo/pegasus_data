@@ -331,10 +331,9 @@ def _is_total_name(name: str) -> bool:
 
 def load_compendium_file(registry: Registry, curation_dir: Path) -> int:
     """Read ``curation/sidra/compendium.yml`` into the registry's overlay."""
-    import yaml
+    from ..semantics.curation import read_yaml
 
-    path = Path(curation_dir) / "sidra" / "compendium.yml"
-    entries = (yaml.safe_load(path.read_text("utf-8")) or {}).get("tables") or {}
+    entries = read_yaml(Path(curation_dir) / "sidra" / "compendium.yml").get("tables") or {}
     return registry.load_compendium({str(k): v for k, v in entries.items()})
 
 

@@ -38,11 +38,10 @@ def _links_field() -> tuple[str, dict, dict]:
     """The field of plan links the product subtracts (``inputs: links`` of its entry in ``curation/products.yml``) and its
     declaration: the declared ``where`` names the coverage that insures hospital care, the declared ``years`` the years;
     and its records cube plan (the measure column, the stratum columns by their names)."""
-    from .config import curation_root
     from .fields import declared_fields, intake_cube
-    from .semantics.curation import read_yaml
+    from .semantics.curation import product
 
-    name = str(read_yaml(curation_root() / "products.yml")["products"]["population_without_private_coverage"]["inputs"]["links"]["field"])
+    name = str(product("population_without_private_coverage")["inputs"]["links"]["field"])
     spec = declared_fields()[name]
     return name, spec, intake_cube(name, spec)
 
@@ -129,15 +128,14 @@ def build_sus_dependent(settings, *, version: str, validation: str, draws: int =
     from .modelled import ModelledManifest, write_modelled
 
     root = settings.root
-    from .config import curation_root
     from .fields import _years
     from .modelled import read_modelled
-    from .semantics.curation import read_yaml
+    from .semantics.curation import product
 
     # the years the links field declares; those the account holds are built (it does not extrapolate, ADR-0145)
     years = _years(str(_links_field()[1]["years"]))
     # the account's own five-year-band estimate with its band intervals (`population_account_bands`, the version declared)
-    account = read_yaml(curation_root() / "products.yml")["products"]["population_without_private_coverage"]["inputs"]["population_account_bands"]["version"]
+    account = product("population_without_private_coverage")["inputs"]["population_account_bands"]["version"]
     estimates, pm = read_modelled("population_account_bands", str(account), settings=settings)
     import pyarrow.compute as pc
 

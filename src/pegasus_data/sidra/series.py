@@ -26,11 +26,10 @@ __all__ = ["axis_map", "build_series", "check_axes", "declared_series", "fetch_s
 
 
 def _curation(name: str) -> dict[str, Any]:
-    import yaml
-
     from ..config import curation_root
+    from ..semantics.curation import read_yaml
 
-    return yaml.safe_load((Path(curation_root()) / "sidra" / name).read_text("utf-8")) or {}
+    return read_yaml(Path(curation_root()) / "sidra" / name)
 
 
 def declared_series() -> dict[str, dict[str, Any]]:
