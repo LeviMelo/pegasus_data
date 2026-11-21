@@ -38,7 +38,7 @@ holds and can do, one space × time object, and the principles audits' defects c
   +3% in the smallest against `-7`), so `field_rate` and the `modelled:population_account` cube changed with it (name
   `population-account-7` to keep the old one); `load_population` (POPSVS, the census) is untouched. The latest
   `race_confusion_women` is `-2`. Link role tables rebuild once (7-digit municipality codes placed).
-  **SIM and SINASC** (ADR-0228): SIM-DO 2009, 2011 and 2013-2017 and SINASC-DN 2006-2012 are now read from the 27 state
+  **SIM and SINASC** (ADR-0230): SIM-DO 2009, 2011 and 2013-2017 and SINASC-DN 2006-2012 are now read from the 27 state
   files, where the national file cut the cause lines (`LINHAA`..`LINHAII`) or the anomaly codes (`CODANOMAL`); the
   records and every other column are the same, row counts unchanged, and the lake holds one reading per year (the
   national partitions of those years were pruned, as were 40 unlisted leftovers). A run that read those partitions

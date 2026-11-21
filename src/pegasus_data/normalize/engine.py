@@ -30,7 +30,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-from collections.abc import Iterator, Sequence
+from collections.abc import Iterable, Iterator, Sequence
 from dataclasses import dataclass, field
 
 import pyarrow as pa
@@ -59,22 +59,32 @@ from .types import arrow_type_for, cast_boolean, cast_numeric
 PROVENANCE_COLUMNS = ("_source_path", "_blob_sha256", "_row", "_ingested_at", "_schema_signature", "_record_key")
 
 
-def record_keys(batch: pa.RecordBatch) -> pa.Array:
-    """The content key of each record: MD5 over its fields in name order.
+def key_fields(names: Iterable[str]) -> list[str]:
+    """The fields a record key hashes, in hash order: the source's own fields, without provenance (``_*``), companion
+    labels (``*_label``) or the lake's Hive partition columns, which are not in a partition file."""
+    return sorted(n for n in names if not n.startswith("_") and not n.endswith("_label"))
 
-    Companion label columns and provenance are left out, so the key depends
-    only on what the source published for the record. A null is hashed as a
-    distinct marker, never as an empty string.
-    """
+
+def record_key_sql(fields: Sequence[str]) -> str:
+    """The record key as SQL over ``fields`` (`key_fields`): MD5 over the fields in name order, a null hashed as a
+    distinct marker, never as an empty string. The one definition: the decoder stamps it (`record_keys`) and the lake
+    computes it on read from a partition file's own columns (`persist.lake`), which reproduces the stamped key on every
+    file (2026-11-21, OQ #99)."""
+    parts = ", ".join(f'coalesce(CAST("{n}" AS VARCHAR), chr(0))' for n in fields)
+    return f"md5(concat_ws('|', {parts}))"
+
+
+def record_keys(batch: pa.RecordBatch, fields: Sequence[str] | None = None) -> pa.Array:
+    """The content key of each record (`record_key_sql`) over ``fields``, by default every field of the batch
+    (`key_fields`), so the key depends only on what the source published for the record."""
     import duckdb
 
-    names = sorted(n for n in batch.schema.names if not n.startswith("_") and not n.endswith("_label"))
+    names = key_fields(batch.schema.names) if fields is None else list(fields)
     if not names:
         return pa.nulls(batch.num_rows, pa.string())
-    parts = ", ".join(f'coalesce(CAST("{n}" AS VARCHAR), chr(0))' for n in names)
     con = duckdb.connect()
     con.register("b", pa.Table.from_batches([batch.select(names)]))
-    return con.execute(f"SELECT md5(concat_ws('|', {parts})) AS k FROM b").to_arrow_table().column("k").combine_chunks()
+    return con.execute(f"SELECT {record_key_sql(names)} AS k FROM b").to_arrow_table().column("k").combine_chunks()
 
 
 @dataclass(slots=True)

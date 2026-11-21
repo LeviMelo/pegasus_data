@@ -11,6 +11,8 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+from collections.abc import Iterator
+from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -236,3 +238,49 @@ def load_params(settings: Any, key: RunKey) -> dict[str, Any] | None:
 
 __all__ = ["LINKAGE_VERSION", "RunKey", "StoredResult", "fingerprint", "links_dir", "load", "load_params", "run_key",
            "runs", "save", "save_params"]
+
+
+@contextmanager
+def carried_currency(settings: Any) -> Iterator[dict[str, int]]:
+    """Keep current, across a rewrite of the lake's storage that changes no record (`persist.lake.reencode_lake`), the
+    role tables and stored runs that were current before it. Their keys hash the lake files' sizes and times
+    (`roles.table_key`), which a rewrite changes while every record, and so every identity, stays the same: without
+    this, 13 GB of role tables and every stored run would be stale and recomputed for nothing. Only what was current
+    before is carried; a role table is moved to its new key in the cache's stored form (`roles.stored_form`), a run's
+    report takes the new fingerprint."""
+    from .roles import stored_form, table_key
+
+    caches: list[tuple[Path, str, int]] = []
+    stale: list[Path] = []      # a table under a key no lake state can give again is never served: it goes
+    for path in sorted((Path(settings.lake_dir) / "roles").glob("*/*.parquet")):
+        head, _, key = path.stem.partition("__")
+        if re.fullmatch(r"\d{4}_BR", head) and table_key(path.parent.name, int(head[:4]), settings) == key:
+            caches.append((path, path.parent.name, int(head[:4])))
+        else:
+            stale.append(path)
+    current: list[tuple[Path, RunKey]] = []
+    for path in sorted(links_dir(settings).glob("*/*.json")):
+        run = (json.loads(path.read_text(encoding="utf-8")).get("run") or {})
+        try:
+            key = RunKey(str(run["spec"]), str(run["method"]), str(run["period"]), str(run["geography"]),
+                         str(run["spec_digest"]), str(run.get("params", "")))
+        except KeyError:
+            continue
+        if key.stem == path.stem and report(settings, key) is not None:
+            current.append((path, key))
+    counts = {"role_tables_carried": len(caches), "role_tables_stale_removed": len(stale), "runs_carried": len(current)}
+    yield counts
+    for path in stale:
+        path.unlink(missing_ok=True)
+    for path, dataset, year in caches:
+        new = table_key(dataset, year, settings)
+        if new is None:
+            continue
+        target = path.with_name(f"{year}_BR__{new}.parquet")
+        write_parquet_atomic(stored_form(pq.read_table(path)), target, compression="zstd")
+        if target != path:
+            path.unlink()
+    for path, key in current:
+        body = json.loads(path.read_text(encoding="utf-8"))
+        body["run"]["fingerprint"] = fingerprint(settings, key)
+        write_json_atomic(body, path, ensure_ascii=False, indent=1, default=str)

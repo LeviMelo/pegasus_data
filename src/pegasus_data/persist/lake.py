@@ -45,6 +45,23 @@ def _safe(part: str) -> str:
     return _SAFE.sub("_", str(part))
 
 
+#: A record's content key (`normalize.engine.record_key_sql`): computed on read, not stored (`Lake._read_keyed`).
+RECORD_KEY = "_record_key"
+
+
+def parquet_writer(path: Path, schema: pa.Schema, compression: str = "zstd") -> pq.ParquetWriter:
+    """The lake's Parquet encoding, for every writer of a partition file. `_row` counts up within each file:
+    delta-encoded it is a few bits a row, against 4.6% of an SIH partition dictionary-encoded (measured 2026-10-04,
+    SP 2022). Delta encoding excludes the dictionary."""
+    sequential = [n for n in schema.names if n == "_row"]
+    return pq.ParquetWriter(
+        path, schema, compression=compression,
+        use_dictionary=[n for n in schema.names if n not in sequential],
+        column_encoding=dict.fromkeys(sequential, "DELTA_BINARY_PACKED"),
+        write_statistics=True, version="2.6",
+    )
+
+
 @dataclass(slots=True)
 class WrittenPartition:
     family_id: str
@@ -215,7 +232,10 @@ class Lake:
         # boundary is streamed" comment below described the writer while the
         # caller had already paid the whole partition in memory. Only the first
         # batch is held, and only to learn the schema the writer needs.
-        stream = iter(batches)
+        # the record key is a function of the record's fields and is computed on read (`_read_keyed`): stored, it was
+        # 40% of the lake (OQ #99)
+        stream = (b.select([n for n in b.schema.names if n != RECORD_KEY]) if RECORD_KEY in b.schema.names else b
+                  for b in batches)
         first = None
         for candidate in stream:
             if candidate.num_rows:
@@ -248,19 +268,7 @@ class Lake:
         extra_files: list[Path] = []
 
         def open_writer(staged: Path, schema: pa.Schema) -> pq.ParquetWriter:
-            # `_row` counts up within each file: delta-encoded it is a few bits a
-            # row, against 4.6% of an SIH partition dictionary-encoded (measured
-            # 2026-10-04, SP 2022). Delta encoding excludes the dictionary.
-            sequential = [n for n in schema.names if n == "_row"]
-            return pq.ParquetWriter(
-                staged,
-                schema,
-                compression=self.compression,
-                use_dictionary=[n for n in schema.names if n not in sequential],
-                column_encoding=dict.fromkeys(sequential, "DELTA_BINARY_PACKED"),
-                write_statistics=True,
-                version="2.6",
-            )
+            return parquet_writer(staged, schema, self.compression)
 
         def write_parquet(staged: Path, *, split: bool) -> None:
             """The batches into ``staged``; with ``split`` a batch whose schema differs from the file's opens the next
@@ -523,6 +531,9 @@ class Lake:
         expression = where              # a caller's own predicate on the data columns, pushed into the scan
         if axes is not None:
             expression = axes if expression is None else (expression & axes)
+        wants_key = (columns is None or RECORD_KEY in columns or RECORD_KEY in (optional_columns or ()))
+        if wants_key and RECORD_KEY not in dataset.schema.names:
+            return self._read_keyed(dataset, family_id, columns, optional_columns, expression)
         # `None` means EVERYTHING; `[]` means NOTHING. Testing truthiness
         # conflated them, so a generation where none of the requested fields
         # physically exists asked for an empty projection and got every column
@@ -539,6 +550,42 @@ class Lake:
             back = {v: k for k, v in alias.items()}
             table = table.rename_columns([back.get(name, name) for name in table.column_names])
         return table
+
+    def _read_keyed(
+        self, dataset: ds.Dataset, family_id: str, columns: Sequence[str] | None,
+        optional_columns: Sequence[str] | None, expression: ds.Expression | None,
+    ) -> pa.Table:
+        """`read` with each record's key computed from its file's own fields (`normalize.engine.record_key_sql`): the
+        lake does not store the key, which is a function of the record (OQ #99: 40% of the lake as 32 hex characters a
+        row; recomputed, it equals the stored key on every file of the 2026-11-21 lake). File by file, because the
+        key hashes the fields of the file the record was written in, and batch by batch, so a wide file is never held
+        whole for the few columns asked. A file that still stores a key gives it as stored."""
+        from ..normalize.engine import key_fields, record_keys
+
+        asked = None if columns is None else [c for c in columns if c != RECORD_KEY]
+        optional = [c for c in (optional_columns or ()) if c != RECORD_KEY]
+        projection = self._projection(dataset, family_id, asked, optional)
+        pieces: list[pa.Table] = []
+        for fragment in dataset.get_fragments():
+            physical = fragment.physical_schema
+            stored = RECORD_KEY in physical.names
+            fields = key_fields(physical.names)
+            schema = pa.unify_schemas([dataset.schema, physical])
+            keep = projection if projection is not None else [n for n in schema.names if n != RECORD_KEY]
+            read = list(dict.fromkeys([*keep, *([RECORD_KEY] if stored else fields)]))
+            batches = []
+            for batch in fragment.to_batches(schema=schema, columns=read, filter=expression):
+                if not batch.num_rows:
+                    continue
+                key = batch.column(RECORD_KEY) if stored else record_keys(batch, fields)
+                batches.append(pa.RecordBatch.from_arrays([*(batch.column(c) for c in keep), key], names=[*keep, RECORD_KEY]))
+            if batches:
+                pieces.append(pa.Table.from_batches(batches))
+        if not pieces:
+            empty = dataset.schema
+            names = [n for n in (projection if projection is not None else empty.names) if n != RECORD_KEY]
+            return pa.table({n: pa.array([], empty.field(n).type) for n in names} | {RECORD_KEY: pa.array([], pa.string())})
+        return pa.concat_tables(pieces, promote_options="default")
 
     def _projection(
         self,
@@ -689,8 +736,9 @@ def drop_redundant_partitions(catalog: CatalogStore, lake_dir: str | Path, *, dr
         contained = False
         if refs:
             shared = set.intersection(*(set(pq.read_schema(f).names) for f in refs))
-            cols = sorted(c for c in pq.read_schema(path).names if c in shared and not c.startswith("_")
-                          and c not in {"schema_signature", "uf", "year"})
+            # the files' own fields, read without Hive columns: DuckDB matches names case-insensitively, and a file's
+            # own `UF` (SINAN's national dengue and chikungunya files) read as the partition's `uf`, "BR"
+            cols = sorted(c for c in pq.read_schema(path).names if c in shared and not c.startswith("_"))
             if cols:
                 key = "md5(concat_ws('|', " + ", ".join(f"coalesce(\"{c}\"::VARCHAR, '~')" for c in cols) + "))"
                 # the reference's multiset is hashed once per (files, columns): the 27 state partitions of a year
@@ -702,9 +750,9 @@ def drop_redundant_partitions(catalog: CatalogStore, lake_dir: str | Path, *, dr
                     hashed[ref_key] = f"_ref{next(serial)}"
                     files = ", ".join(f"'{f.as_posix()}'" for f in refs)
                     con.execute(f"CREATE TEMP TABLE {hashed[ref_key]} AS SELECT {key} k, count(*) n "
-                                f"FROM read_parquet([{files}], union_by_name=true) GROUP BY 1")
+                                f"FROM read_parquet([{files}], union_by_name=true, hive_partitioning=false) GROUP BY 1")
                 short = con.execute(
-                    f"""WITH s AS (SELECT {key} k, count(*) n FROM read_parquet('{path.as_posix()}') GROUP BY 1)
+                    f"""WITH s AS (SELECT {key} k, count(*) n FROM read_parquet('{path.as_posix()}', hive_partitioning=false) GROUP BY 1)
                         SELECT coalesce(sum(s.n - coalesce(b.n, 0)), 0) FROM s LEFT JOIN {hashed[ref_key]} b USING (k)
                         WHERE s.n > coalesce(b.n, 0)""").fetchone()[0]  # type: ignore[index]
                 contained = not short
@@ -733,4 +781,63 @@ def drop_redundant_partitions(catalog: CatalogStore, lake_dir: str | Path, *, dr
                 conn.execute("DELETE FROM lake_partitions WHERE family_id=? AND schema_signature=? AND uf=? AND year=?",
                              (row["family_id"], row["schema_signature"], row["uf"], row["year"]))
     con.close()
+    return out
+
+
+def reencode_lake(catalog: CatalogStore, lake_dir: str | Path, *, dry_run: bool = False,
+                  compression: str = "zstd") -> dict[str, int]:
+    """Rewrite the listed partition files that store what the lake now computes, value for value: the record key
+    (`Lake._read_keyed`). Row group by row group, into a temporary file beside the partition that replaces it in one
+    rename, so a reader sees the old file or the new one; the catalog's byte size follows. A file is rewritten only
+    when the key its fields hash to is the key it stores, on every row (`record_key_sql`): one that differed would
+    change the identity of its records, and is kept and counted instead."""
+    import os
+
+    import duckdb
+
+    from ..normalize.engine import key_fields, record_key_sql
+
+    root = Path(lake_dir)
+    out = {"files": 0, "rewritten": 0, "kept_differing": 0, "bytes_before": 0, "bytes_after": 0}
+    rows = list(catalog.query("SELECT relative_path FROM lake_partitions ORDER BY relative_path"))
+    con = duckdb.connect()
+    con.execute("SET memory_limit='2GB'; SET threads=4; SET enable_progress_bar=false")
+    for row in rows:
+        path = root / str(row["relative_path"])
+        if not path.is_file():
+            continue
+        source = pq.ParquetFile(path)
+        names = source.schema_arrow.names
+        if RECORD_KEY not in names:
+            continue
+        out["files"] += 1
+        fields = key_fields(names)
+        differ = con.execute(
+            f"SELECT count(*) FROM read_parquet('{path.as_posix()}', hive_partitioning=false) "
+            f"WHERE _record_key IS DISTINCT FROM {record_key_sql(fields) if fields else 'NULL'}").fetchone()[0]  # type: ignore[index]
+        if differ:
+            out["kept_differing"] += 1
+            continue
+        before = path.stat().st_size
+        out["bytes_before"] += before
+        if dry_run:
+            continue
+        keep = [n for n in names if n != RECORD_KEY]
+        schema = source.schema_arrow.remove(names.index(RECORD_KEY))
+        temporary = path.with_name(f".{path.name}.reencode")
+        writer = parquet_writer(temporary, schema, compression)
+        try:
+            for group in range(source.metadata.num_row_groups):
+                table = source.read_row_group(group, columns=keep)
+                writer.write_table(table, row_group_size=max(table.num_rows, 1))
+        finally:
+            writer.close()
+        source.close()
+        os.replace(temporary, path)
+        after = path.stat().st_size
+        out["bytes_after"] += after
+        out["rewritten"] += 1
+        with catalog.write() as conn:
+            conn.execute("UPDATE lake_partitions SET byte_size = byte_size - ? + ? WHERE relative_path = ?",
+                         (before, after, str(row["relative_path"])))
     return out

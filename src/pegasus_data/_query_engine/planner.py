@@ -87,7 +87,7 @@ def plan(
             "DATASUS publishes this dataset per state only; the nation is read as every state",
         ))
     if capabilities.year_geography:
-        # one reading of each such year (coverage.national_or_states, ADR-0228): the national file, or the state files
+        # one reading of each such year (coverage.national_or_states, ADR-0230): the national file, or the state files
         # where the national file cuts a column they hold whole
         by_national = [str(y) for y, ufs in capabilities.year_geography if tuple(ufs) == ("BR",)]
         by_states = [str(y) for y, ufs in capabilities.year_geography if tuple(ufs) != ("BR",)]

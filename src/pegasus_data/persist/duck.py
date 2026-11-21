@@ -73,9 +73,22 @@ class DuckLake:
             return None
         name = view or _SAFE_NAME.sub("_", family_id.lower())
         glob = str(base / "**" / "*.parquet").replace("\\", "/")
+        # The partition keys from the path, not by DuckDB's Hive detection: DuckDB matches names case-insensitively, and
+        # a file's own field of a key's name (SINAN's national dengue files carry `UF`) read as the partition's value,
+        # "BR". A key a file's field already names is `partition_<key>`. The record key is not here: the lake computes
+        # it per file (`Lake._read_keyed`), and over files of different columns a view would hash a missing one as null.
+        import pyarrow.parquet as pq
+
+        first = next(base.rglob("*.parquet"), None)
+        taken = {f.lower() for f in (pq.read_schema(first).names if first is not None else [])}
+        keys = []
+        for key in ("schema_signature", "uf", "year"):
+            value = "regexp_extract(filename, '" + key + r"=([^/\\]+)', 1)"
+            keys.append(f"{f'CAST({value} AS INTEGER)' if key == 'year' else value} AS "
+                        f"{f'partition_{key}' if key in taken else key}")
         self.conn.execute(
-            f'CREATE OR REPLACE VIEW "{name}" AS '
-            f"SELECT * FROM read_parquet('{glob}', hive_partitioning = true, union_by_name = true)"
+            f'CREATE OR REPLACE VIEW "{name}" AS SELECT * EXCLUDE (filename), {", ".join(keys)} '
+            f"FROM read_parquet('{glob}', hive_partitioning = false, union_by_name = true, filename = true)"
         )
         return name
 

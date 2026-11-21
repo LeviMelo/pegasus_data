@@ -1,4 +1,4 @@
-# One reading of a twice-published year, chosen on the files' widths (2026-11-21; ADR-0228)
+# One reading of a twice-published year, chosen on the files' widths (2026-11-21; ADR-0230)
 
 **Regime.** `master` adc4285 → e5d8088; home `pegasus_core_data`; header census of 3,149 SIM and SINASC files
 (`schemas --all-files -s SIM -s SINASC`, widths now in `file_schemas.widths_json`); rebuild by `build --uf` of every

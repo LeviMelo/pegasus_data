@@ -205,7 +205,7 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
 - SIM publishes 27 per-state files plus a consolidated `DOBR` file for the same
   year (commit `2e85e97`, 2026-08-30).
 - **The national file cuts what the state files hold** (header census of all 3,149 SIM and SINASC files, 2026-11-21;
-  ADR-0228). The national DBF should be at least as wide as the widest state file, and is not: SIM's cause lines in
+  ADR-0230). The national DBF should be at least as wide as the widest state file, and is not: SIM's cause lines in
   1999-2008 and 2011-2017 (`DOBR2012` `LINHAA` 10 characters, `DOES2012` 20; `LINHAII` 15-20 against 30) and
   SINASC's `CODANOMAL` (congenital anomalies) in 2006-2013 (9-16 against 20). On ES 2012 the two readings are equal as
   multisets on every column but `LINHAA` (18 rows), `LINHAC` (2), `LINHAD` (28), `LINHAII` (8): `*I10X*E149*I420`

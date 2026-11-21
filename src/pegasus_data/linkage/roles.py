@@ -422,7 +422,9 @@ def _read_cached(path: Path, columns: list[str], ufs: tuple[str, ...], where: st
             return None
         conds.append("_uf IN (" + ", ".join("'" + u + "'" for u in ufs) + ")")
     have = set(schema.names)
-    select = ", ".join(f'"{c}"' for c in columns if c in have)
+    binary = "_record_key" in have and not pa.types.is_string(schema.field("_record_key").type)
+    select = ", ".join('lower(hex("_record_key")) AS "_record_key"' if c == "_record_key" and binary else f'"{c}"'
+                       for c in columns if c in have)
     sql = f"SELECT {select} FROM {source}" + (f" WHERE {' AND '.join(conds)}" if conds else "")
     return con.execute(sql).to_arrow_table().replace_schema_metadata(schema.metadata)
 
@@ -525,7 +527,7 @@ def _national_year(spec: DatasetRoles, year: int, ufs: tuple[str, ...], geograph
     full, strategy = _compute_roles(spec, list(spec.roles), period=str(year), geography="BR", **query_kwargs)
     if strategy != "lake":
         return None
-    write_parquet_atomic(full, path, compression="zstd")   # a unique temp per process and call: two studies building one year
+    write_parquet_atomic(stored_form(full), path, compression="zstd")   # a unique temp per process and call
     # The same year under an older key can never be served again (its lake files or roles changed): 4.3 GB of them
     # had piled up. A table of any other scope than one national year can neither (the layout before 2026-10-04
     # kept states and multi-year periods beside the nation).
@@ -536,6 +538,20 @@ def _national_year(spec: DatasetRoles, year: int, ufs: tuple[str, ...], geograph
     _cap_cache(Path(settings.lake_dir) / "roles", float(getattr(settings, "role_cache_gb", 20.0)), keep=path)
     kept = full.select([c for c in columns if c in full.column_names]).replace_schema_metadata(full.schema.metadata)
     return _filtered(kept, where)
+
+
+def stored_form(table: pa.Table) -> pa.Table:
+    """A role table as the cache keeps it: the record key as its 16 bytes, not 32 hex characters (half the table's
+    bytes, OQ #99); `_read_cached` gives the same lower-case hex back."""
+    if "_record_key" not in table.column_names or not pa.types.is_string(table.schema.field("_record_key").type):
+        return table
+    from .identity import connect
+
+    con = connect()
+    con.register("t", table.select(["_record_key"]))
+    raw = con.execute("SELECT unhex(_record_key) AS k FROM t").to_arrow_table().column("k").cast(pa.binary(16))
+    at = table.column_names.index("_record_key")
+    return table.set_column(at, pa.field("_record_key", pa.binary(16)), raw).replace_schema_metadata(table.schema.metadata)
 
 
 def _cap_cache(root: Path, limit_gb: float, *, keep: Path) -> None:

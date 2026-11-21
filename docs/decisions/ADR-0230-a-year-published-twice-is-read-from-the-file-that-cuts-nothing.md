@@ -1,6 +1,6 @@
-## ADR-0228: a year published twice is read from the publication that cuts nothing
+## ADR-0230: a year published twice is read from the publication that cuts nothing
 
-**Date:** 2026-11-21. **Status:** active. **Amends** the one-reading rule of `coverage.national_or_states` (the national
+**Date:** 2026-11-21 (numbered 0228 when written; renumbered the same day, the number having been taken twice). **Status:** active. **Amends** the one-reading rule of `coverage.national_or_states` (the national
 file always). **Request:** the author, 2026-11-21: open problems are fixed, not left open (OPEN_QUESTIONS #94).
 
 **Context.** SIM and SINASC publish a year as a national file and as 27 state files, the same records. `query()` read

@@ -14,7 +14,7 @@ fixes a number by hand.
 | `sources.ibge_cnefe.record_places` | a CEP ending in 000 treated as generic by spelling | the addresses' measured spread decides |
 | `stay` chain | a 0-1 day window by hand | -1..1 from the measured gaps: after a 2x reason 78,500 at 0-1 days and 577 at 2-10; after a transfer 886 of 16,324 start the day before |
 
-**Kept, with the reason.** The reading rule of a twice-published year (ADR-0228) names no dataset: it reads the file
+**Kept, with the reason.** The reading rule of a twice-published year (ADR-0230) names no dataset: it reads the file
 census's widths for any dataset published nationally and per state (today SIM and SINASC). `drop_redundant_partitions`
 decides by record containment or the server's listing, for any dataset. The 2 km radius of `record_places` and the
 60-day window of `sih_admissions_to_radiotherapy` are declared parameters still set by hand: the window should be

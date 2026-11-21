@@ -415,6 +415,34 @@ def prune(
         catalog.close()
 
 
+@app.command(name="reencode-lake", rich_help_panel="MAINTENANCE")
+def reencode_lake(
+    root: RootOpt = None,
+    dry_run: Annotated[bool, typer.Option("--dry-run", help="Count what would be rewritten, write nothing")] = False,
+    as_json: JsonOpt = False,
+) -> None:
+    """Rewrite lake files that store what the lake now computes on read (the record key), value for value.
+
+    A file is rewritten only when the key its fields hash to is the key it stores on every row; one that differs is
+    kept and counted. The role tables and stored link runs current before stay current (`linkage.store.carried_currency`).
+    """
+    from ..linkage.store import carried_currency
+    from ..persist.lake import reencode_lake as rewrite
+
+    settings = _writer(root)
+    catalog = CatalogStore(settings.catalog_path)
+    try:
+        if dry_run:
+            result = rewrite(catalog, settings.lake_dir, dry_run=True)
+        else:
+            with carried_currency(settings) as carried:
+                result = rewrite(catalog, settings.lake_dir)
+            result.update(carried)
+        _emit(result, as_json, "reencode-lake (dry run)" if dry_run else "reencode-lake")
+    finally:
+        catalog.close()
+
+
 @app.command(name="reencode-modelled", rich_help_panel="MAINTENANCE")
 def reencode_modelled(
     product: Annotated[str, typer.Argument(help="Modelled product, e.g. population_account")],
