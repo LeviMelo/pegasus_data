@@ -602,10 +602,9 @@ def drop_redundant_partitions(catalog: CatalogStore, lake_dir: str | Path, *, dr
     (2026-11-21). And a listed state partition of a year whose listed national partition holds the same records is
     the second reading of a year SIM and SINASC publish twice (``coverage.national_or_states``).
 
-    A listed partition goes only when the reference (the listed national partitions of its year) contains each of
-    its rows, compared as a multiset on every published column the two share. An unlisted one goes when it is so
-    contained, or when its year has a listed reading and every file it was built from is still on the server (the
-    catalog's crawl lists it): nothing reads it, and a build reproduces it. SIM's state and national files of a year are
+    A partition goes when its year's reading (the listed partitions ``query()`` reads) contains each of its rows,
+    compared as a multiset on every published column the two share, or when every file it was built from is still on
+    the server (the catalog's crawl lists it): nothing reads it, and a build reproduces it. SIM's state and national files of a year are
     not always the same records: the national DBF of 2011-2017 declares the cause lines narrower than the state files
     (``LINHAA`` 10 characters in DOBR2012, 20 in DOES2012), so a third cause on a line is cut (DATA_SOURCES.md). An
     unlisted partition whose year has no listed reading holds records the catalog lost: kept and counted under
@@ -634,11 +633,21 @@ def drop_redundant_partitions(catalog: CatalogStore, lake_dir: str | Path, *, dr
             continue
         refs = by_year.get((dataset(path.parts[-5]), int(path.parent.name.split("=", 1)[1])), [])
         candidates.append((path, [root / str(r["relative_path"]) for r in refs], None))
+    # a listed partition outside its year's one reading (coverage.national_or_states, on the files' declared widths):
+    # a state file beside the national one, or the narrower national file once the state files are built
+    from .._query_engine.coverage import declared_widths, national_or_states
+
+    widths = declared_widths(catalog)
+    sources: dict[str, list[str]] = {
+        str(r["relative_path"]): json.loads(r["source_paths"] or "[]")
+        for r in catalog.query("SELECT relative_path, source_paths FROM lake_partitions")
+    }
     for rows in by_year.values():
-        national = [root / str(r["relative_path"]) for r in rows if str(r["uf"]).upper() == "BR"]
-        if national:
-            candidates += [(root / str(r["relative_path"]), national, r) for r in rows
-                           if str(r["uf"]).upper() not in {"", "BR", "NA"}]
+        reading = national_or_states(rows, lambda r: r["uf"], sources_of=lambda r: sources.get(str(r["relative_path"]), []),
+                                     widths=widths)
+        kept = {id(r) for r in reading}
+        refs = [root / str(r["relative_path"]) for r in reading]
+        candidates += [(root / str(r["relative_path"]), refs, r) for r in rows if id(r) not in kept]
 
     out = {"partitions": 0, "rows": 0, "bytes": 0, "unlisted_kept": 0, "listed_kept": 0}
     con = duckdb.connect()
@@ -659,7 +668,7 @@ def drop_redundant_partitions(catalog: CatalogStore, lake_dir: str | Path, *, dr
                         SELECT coalesce(sum(s.n - coalesce(b.n, 0)), 0) FROM s LEFT JOIN b USING (k)
                         WHERE s.n > coalesce(b.n, 0)""").fetchone()[0]  # type: ignore[index]
                 contained = not short
-        if not contained and row is None and refs:
+        if not contained and refs:
             sources = [str(r[0]) for r in con.execute(
                 f"SELECT DISTINCT _source_path FROM read_parquet('{path.as_posix()}')").fetchall()]
             marks = ",".join("?" for _ in sources) or "NULL"

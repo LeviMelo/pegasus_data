@@ -47,6 +47,7 @@ columns:
     - 2002
     - 2026
   CEP:
+    compare: {patient.postcode: {type: code}}   # the 8-digit CEP as filed: a person key of the readmission link (links.yml)
     role: patient.postcode
     kind: place
     model: link_only
@@ -672,6 +673,7 @@ columns:
     - 1992
     - 2026
   IDENT:
+    compare: {admission.aih_type: {type: code}}   # 5 is a long stay's continuation AIH, not an admission
     missing: []
     # proposed from DATASUS's labels (2022): no value labelled as not recorded
     role: admission.aih_type

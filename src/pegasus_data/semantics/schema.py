@@ -155,7 +155,7 @@ _SOURCE = obj(
 _LINK_SIDE = obj("dataset where group latest earliest explode_days pad_years")
 _LINK = obj(
     "control description left outcome params passes person probabilistic right same_event sensitivity validate",
-    sub={"control": obj("role shift_days"), "left": _LINK_SIDE, "right": _LINK_SIDE, "outcome": obj("event origin"),
+    sub={"control": obj("role shift_days"), "left": _LINK_SIDE, "right": _LINK_SIDE, "outcome": obj("differ event first origin"),
          "passes": seq(obj("keys name")), "validate": seq(obj("among left name right sql tolerance")),
          "probabilistic": obj("blocks compare inherit target_fdr", sub={
              "inherit": obj("right", sub={"right": seq(obj("as role via"))})})})

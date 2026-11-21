@@ -204,13 +204,14 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   (2026-08-30, F §3w).
 - SIM publishes 27 per-state files plus a consolidated `DOBR` file for the same
   year (commit `2e85e97`, 2026-08-30).
-- **SIM's national and state files of a year differ in the cause lines** (measured 2026-11-21 on ES 2012:
-  21,616 deaths in each, every column equal as a multiset except `LINHAA` 18 rows, `LINHAC` 2, `LINHAD` 28,
-  `LINHAII` 8). The DBF widths differ: `DOBR2011`-`DOBR2017` declare `LINHAA` 10 to 20 characters by year
-  (2012: 10) where the state files of 2012 declare 20, so a third code on a line is cut
-  (`*I10X*E149*I420` becomes `*I10X*E149`); in 2009 the state files are the narrower (`LINHAD` 10 against 15).
-  `DOBR2018` on declares 20/20/20/20/30. The underlying cause is not affected; a count of a cause anywhere on
-  the certificate is, by about 0.1-1% of lines in those years (OPEN_QUESTIONS #94).
+- **The national file cuts what the state files hold** (header census of all 3,149 SIM and SINASC files, 2026-11-21;
+  ADR-0228). The national DBF should be at least as wide as the widest state file, and is not: SIM's cause lines in
+  1999-2008 and 2011-2017 (`DOBR2012` `LINHAA` 10 characters, `DOES2012` 20; `LINHAII` 15-20 against 30) and
+  SINASC's `CODANOMAL` (congenital anomalies) in 2006-2013 (9-16 against 20). On ES 2012 the two readings are equal as
+  multisets on every column but `LINHAA` (18 rows), `LINHAC` (2), `LINHAD` (28), `LINHAII` (8): `*I10X*E149*I420`
+  becomes `*I10X*E149`. In 2009 each cuts something (national `LINHAA`/`LINHAB`, states `LINHAD`/`LINHAII`). SINASC
+  2014-2017 is published in two trees (`NOV`, `1996_`) whose state files pad some fields (`SEXO` 4 characters).
+  The underlying cause is equal in both.
 - **SIM's DOINF, DOMAT and DOEXT are copies of DO rows** (checked nationally
   for 2022, 2026-09-30, after omnisus reported it for RR and SP). Every row
   equals a DO row on all 87 shared columns: DOINF 32,257 of 32,257, DOMAT

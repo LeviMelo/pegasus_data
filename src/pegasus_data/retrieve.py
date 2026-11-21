@@ -852,10 +852,13 @@ def _refused_with_alternative(
     return {p for p in refused if logical.get(p, p) in spare}
 
 
-def _one_reading(report: FetchReport) -> Callable[[list[dict[str, Any]]], list[dict[str, Any]]]:
-    """The ``narrow`` step of a read that asked no state: a year published nationally AND per state is read from the
-    national file alone; what is left out is said in the report."""
-    from ._query_engine.coverage import national_or_states
+def _one_reading(report: FetchReport, catalog: Any) -> Callable[[list[dict[str, Any]]], list[dict[str, Any]]]:
+    """The ``narrow`` step of a read that asked no state: a year published nationally AND per state is read once,
+    from the national file unless its declared widths cut what the state files hold (``national_or_states``); what is
+    left out is said in the report."""
+    from ._query_engine.coverage import declared_widths, national_or_states
+
+    widths = declared_widths(catalog)
 
     def narrow(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
         by_year: dict[object, list[dict[str, Any]]] = {}
@@ -864,13 +867,14 @@ def _one_reading(report: FetchReport) -> Callable[[list[dict[str, Any]]], list[d
         kept = {
             id(row)
             for rows_of_year in by_year.values()
-            for row in national_or_states(rows_of_year, lambda r: r["geo_code"])
+            for row in national_or_states(rows_of_year, lambda r: r["geo_code"],
+                                          sources_of=lambda r: [str(r["path"])], widths=widths)
         }
         if len(kept) < len(rows):
             left_out = {str(row["logical_id"] or row["path"]) for row in rows if id(row) not in kept}
             report.warnings.append(
-                f"no state was asked: {len(left_out)} state publication(s) of years that also have a national "
-                "file were left out; the national file holds the same records (ask for states with uf=)"
+                f"no state was asked: {len(left_out)} publication(s) of years published both nationally and per "
+                "state were left out; one reading of each year is read (ask for states with uf=)"
             )
             return [row for row in rows if id(row) in kept]
         return rows
@@ -1047,7 +1051,7 @@ def _select_files(
     family_ids = [str(family["family_id"]) for family in families]
     publications = select_publications(
         catalog, family_ids, ufs=ufs, years=years, months=months, exclude_paths=exclude_paths,
-        narrow=_one_reading(report) if not ufs and one_reading else None,
+        narrow=_one_reading(report, catalog) if not ufs and one_reading else None,
     )
     report.representations_deduplicated.extend(publications.dropped)
     report.representation_conflicts.extend(publications.conflicts)

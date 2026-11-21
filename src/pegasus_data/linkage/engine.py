@@ -98,11 +98,14 @@ class Validation:
 @dataclass(frozen=True, slots=True)
 class CodesParam:
     """A spec's declared parameter: the caller's codes (ICD-10) filter ``role`` of ``side`` by prefix (`bind`). ``any_role``
-    is the broader role the caller may choose instead (every diagnosis of an admission, not only the principal one)."""
+    is the broader role the caller may choose instead (every diagnosis of an admission, not only the principal one);
+    ``procedure_role`` the procedure performed, whose codes are SIGTAP's (a cohort of craniotomies or embolisations is
+    named by what was done, not by a diagnosis)."""
 
     side: str
     role: str
     any_role: str = ""
+    procedure_role: str = ""
 
 
 @dataclass(frozen=True, slots=True)
@@ -128,6 +131,11 @@ class Outcome:
 
     origin: str
     event: str
+    #: the person's first event, not their only one: a later admission happens many times to one person, and a cohort
+    #: whose record pairs with two partners keeps the earliest (a death happens once: two candidates pair with neither)
+    first: bool = False
+    #: a role both sides carry that must differ in a pair: the index admission is not its own readmission (the AIH)
+    differ: str = ""
 
 
 @dataclass(frozen=True, slots=True)
@@ -257,31 +265,35 @@ def _params(name: str, body: dict[str, Any]) -> CodesParam | None:
     if side not in ("left", "right"):
         raise ValueError(f"links.yml: {name}: params.codes.side is left or right, not {side!r}")
     roles = dataset_roles(str(body[side]["dataset"])).roles
-    for r in (role, str(item.get("any") or role)):
+    for r in (role, str(item.get("any") or role), str(item.get("procedure") or role)):
         if r not in roles or roles[r].type not in ("code", "codes"):
             raise ValueError(f"links.yml: {name}: params.codes names {r!r}, which is not a code or codes role of "
                              f"{body[side]['dataset']}")
-    return CodesParam(side, role, str(item.get("any") or ""))
+    return CodesParam(side, role, str(item.get("any") or ""), str(item.get("procedure") or ""))
 
 
 def _outcome(body: dict[str, Any]) -> Outcome | None:
     item = body.get("outcome")
-    return Outcome(str(item["origin"]), str(item["event"])) if item else None
+    return Outcome(str(item["origin"]), str(item["event"]), bool(item.get("first")), str(item.get("differ") or ""))         if item else None
 
 
 _CODE = re.compile(r"[A-Z][0-9A-Z]{0,4}")
+#: a SIGTAP procedure prefix: group (2 digits) to the whole 10-digit code, written with or without its dots
+_PROCEDURE = re.compile(r"[0-9]{2,10}")
 
 
-def normalise_codes(codes: Iterable[str] | str) -> tuple[str, ...]:
-    """The caller's ICD-10 codes as prefixes: upper case, without the dot ("i21.0" is I210), sorted and unique. A code
-    that is not one (a range, a word) is refused: the codes become SQL, and a prefix filter that matched nothing would
-    read as a cohort of none."""
+def normalise_codes(codes: Iterable[str] | str, kind: str = "icd") -> tuple[str, ...]:
+    """The caller's codes as prefixes, sorted and unique: ICD-10 (``kind`` "icd") upper case without the dot ("i21.0"
+    is I210), or SIGTAP procedures ("sigtap", "04.03.07" is 040307). A code that is not one (a range, a word) is
+    refused: the codes become SQL, and a prefix filter that matched nothing would read as a cohort of none."""
     items = [codes] if isinstance(codes, str) else list(codes)
-    out = tuple(sorted({str(c).replace(".", "").replace(" ", "").upper() for c in items if str(c).strip()}))
-    bad = [c for c in out if not _CODE.fullmatch(c)]
+    out = tuple(sorted({str(c).replace(".", "").replace(" ", "").replace("-", "").upper()
+                        for c in items if str(c).strip()}))
+    grammar, example = (_PROCEDURE, "0403070171 or 040307") if kind == "sigtap" else (_CODE, "I21 or I210")
+    bad = [c for c in out if not grammar.fullmatch(c)]
     if bad or not out:
-        raise ValueError(f"codes are ICD-10 prefixes such as I21 or I210 (a range is the caller's list); got "
-                         f"{bad or 'none'}")
+        raise ValueError(f"codes are {'SIGTAP procedure' if kind == 'sigtap' else 'ICD-10'} prefixes such as {example} "
+                         f"(a range is the caller's list); got {bad or 'none'}")
     return out
 
 
@@ -305,15 +317,19 @@ def bind(spec: LinkSpec, codes: Iterable[str] | str | None = None, match: str = 
         return spec
     if codes is None:
         raise ValueError(f"{spec.name} is run per set of codes (params.codes: {spec.params.role}); give codes=")
-    if match not in ("principal", "any"):
-        raise ValueError(f"match is 'principal' or 'any', not {match!r}")
+    if match not in ("principal", "any", "procedure"):
+        raise ValueError(f"match is 'principal', 'any' or 'procedure', not {match!r}")
     role = spec.params.role
     if match == "any":
         if not spec.params.any_role:
             raise ValueError(f"{spec.name} declares no broader role to match codes against")
         role = spec.params.any_role
+    if match == "procedure":
+        if not spec.params.procedure_role:
+            raise ValueError(f"{spec.name} declares no procedure role to match codes against")
+        role = spec.params.procedure_role
     side = spec.left if spec.params.side == "left" else spec.right
-    chosen = normalise_codes(codes)
+    chosen = normalise_codes(codes, "sigtap" if match == "procedure" else "icd")
     cond = _codes_condition(role, dataset_roles(side.dataset).roles[role].type, chosen)
     filtered = replace(side, where=f"({side.where}) AND {cond}" if side.where else cond)
     return replace(spec, bound=Codes(chosen, match),
@@ -339,6 +355,8 @@ def _roles_needed(spec: LinkSpec, side: str) -> list[str]:
         names.add(s.earliest)
     if spec.outcome:
         names.add(spec.outcome.origin if side == "left" else spec.outcome.event)
+        if spec.outcome.differ:
+            names.add(spec.outcome.differ)
     declared = dataset_roles(s.dataset).roles
     for text in (s.where, *(t for v in spec.validations for t in (v.sql or "", v.among or ""))):
         names.update(r for r in declared if f'"{r}"' in text)
@@ -475,7 +493,8 @@ def _prepare(con: duckdb.DuckDBPyConnection, name: str, table: pa.Table, side: S
     return con.execute(f"SELECT count(DISTINCT _id) FROM {name}").fetchone()[0]  # type: ignore[index]
 
 
-def _join(keys: tuple[tuple[str, str], ...], moved: dict[tuple[str, str], str], one_each: bool = False) -> str:
+def _join(keys: tuple[tuple[str, str], ...], moved: dict[tuple[str, str], str], one_each: bool = False,
+          outcome: Outcome | None = None) -> str:
     """SQL for the 1:1 join of the still-unlinked records on `keys`; a key in ``moved`` joins on its moved left value
     (the control, `placebo.rotation`). With ``one_each`` a record that pairs with two partners pairs with neither: a
     cohort's person dies once, and a namesake who died inside the person's window is another candidate for the one
@@ -485,14 +504,24 @@ def _join(keys: tuple[tuple[str, str], ...], moved: dict[tuple[str, str], str], 
     rk = [f"{quote(right)} AS k_{i}" for i, (_l, right) in enumerate(keys)]
     kn = ", ".join(f"k_{i}" for i in range(len(keys)))
     notnull = " AND ".join(f"k_{i} IS NOT NULL" for i in range(len(keys)))
-    each = (" QUALIFY count(*) OVER (PARTITION BY ua._id) = 1 AND count(*) OVER (PARTITION BY ub._id) = 1"
-            if one_each else "")
+    differ = outcome.differ if outcome is not None else ""
+    lx = f", {quote(differ)} AS _differ" if differ else ""
+    on = " WHERE ua._differ IS DISTINCT FROM ub._differ" if differ else ""
+    if one_each and outcome is not None and outcome.first:
+        # the earliest of the person's partners (by the right side's event), each partner one person's
+        event = next((f"k_{i}" for i, (_l, right) in enumerate(keys) if right == outcome.event), "ub._id")
+        each = (f" QUALIFY count(*) OVER (PARTITION BY ub._id) = 1 AND row_number() OVER (PARTITION BY ua._id "
+                f"ORDER BY ub.{event}, ub._id) = 1" if event != "ub._id" else
+                " QUALIFY count(*) OVER (PARTITION BY ub._id) = 1 AND row_number() OVER (PARTITION BY ua._id ORDER BY ub._id) = 1")
+    else:
+        each = (" QUALIFY count(*) OVER (PARTITION BY ua._id) = 1 AND count(*) OVER (PARTITION BY ub._id) = 1"
+                if one_each else "")
     return f"""
-        WITH a AS (SELECT DISTINCT _id, {', '.join(lk)} FROM L WHERE _id NOT IN (SELECT l FROM linked)),
-             b AS (SELECT DISTINCT _id, {', '.join(rk)} FROM R WHERE _id NOT IN (SELECT r FROM linked)),
+        WITH a AS (SELECT DISTINCT _id, {', '.join(lk)}{lx} FROM L WHERE _id NOT IN (SELECT l FROM linked)),
+             b AS (SELECT DISTINCT _id, {', '.join(rk)}{lx} FROM R WHERE _id NOT IN (SELECT r FROM linked)),
              ua AS (SELECT * FROM a WHERE {notnull} QUALIFY count(*) OVER (PARTITION BY {kn}) = 1),
              ub AS (SELECT * FROM b WHERE {notnull} QUALIFY count(*) OVER (PARTITION BY {kn}) = 1)
-        SELECT ua._id AS l, ub._id AS r FROM ua JOIN ub USING ({kn}){each}"""
+        SELECT ua._id AS l, ub._id AS r FROM ua JOIN ub USING ({kn}){on}{each}"""
 
 
 def where_roles(side: Side) -> set[str]:
@@ -531,9 +560,9 @@ def run(spec: LinkSpec, left: pa.Table, right: pa.Table) -> LinkResult:
             reports.append(PassReport(p.name, 0, 0, None, False, skipped=why_skipped[p.name]))
             continue
         one = spec.outcome is not None      # a cohort: a person has one event
-        real = con.execute(f"SELECT * FROM ({_join(p.keys, {}, one)})").to_arrow_table()
+        real = con.execute(f"SELECT * FROM ({_join(p.keys, {}, one, spec.outcome)})").to_arrow_table()
         if one:
-            coincidences = con.execute(_join(p.keys, moved, one)).to_arrow_table()
+            coincidences = con.execute(_join(p.keys, moved, one, spec.outcome)).to_arrow_table()
             control = coincidences.num_rows
         else:
             control = con.execute(f"SELECT count(*) FROM ({_join(p.keys, moved)})").fetchone()[0]  # type: ignore[index]

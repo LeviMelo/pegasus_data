@@ -575,7 +575,13 @@ def file_census_targets(
         "lower(f.extension) IN ('.dbc', '.dbf')",
         # a file never read, republished since, or whose read failed for a reason that says nothing about the file
         # (a cut transfer, a dropped connection): a header that is not a DBF's stays recorded as it was
-        "(fs.path IS NULL OR f.modified > fs.read_at OR fs.error LIKE 'retry:%')",
+        "(fs.path IS NULL OR f.modified > fs.read_at OR fs.error LIKE 'retry:%'"
+        # a file of a year its dataset also publishes nationally, read before widths were recorded: the year's reading
+        # is chosen on them (coverage.national_or_states)
+        " OR (fs.widths_json IS NULL AND fs.error IS NULL AND EXISTS (SELECT 1 FROM file_facts nat"
+        "     WHERE nat.system = fa.system AND nat.series_prefix = fa.series_prefix AND nat.year = fa.year"
+        "       AND upper(nat.geo_code) = 'BR' AND nat.role = 'data')"
+        "     AND upper(COALESCE(fa.geo_code, '')) NOT IN ('', 'NA')))",
     ]
     params: list[object] = []
     if systems:
@@ -641,10 +647,11 @@ def run_file_census(
     def _flush() -> None:
         catalog.executemany(
             """
-            INSERT INTO file_schemas (path, schema_signature, field_count, read_at, error)
-            VALUES (?,?,?,?,?)
+            INSERT INTO file_schemas (path, schema_signature, field_count, read_at, error, widths_json)
+            VALUES (?,?,?,?,?,?)
             ON CONFLICT(path) DO UPDATE SET schema_signature=excluded.schema_signature,
-                field_count=excluded.field_count, read_at=excluded.read_at, error=excluded.error
+                field_count=excluded.field_count, read_at=excluded.read_at, error=excluded.error,
+                widths_json=excluded.widths_json
             """,
             pending,
         )
@@ -659,7 +666,7 @@ def run_file_census(
             counts["bytes"] += size
             if header is None:
                 counts["failed"] += 1
-                pending.append((path, None, None, utcnow(), error))
+                pending.append((path, None, None, utcnow(), error, None))
             else:
                 counts["read"] += 1
                 signature = schema_signature(header.field_names)
@@ -668,7 +675,8 @@ def run_file_census(
                     "VALUES (?,?,?, datetime('now')) ON CONFLICT(schema_signature) DO NOTHING",
                     (signature, len(header.fields), json.dumps(header.field_names)),
                 )
-                pending.append((path, signature, len(header.fields), utcnow(), None))
+                widths = json.dumps({f.name: int(f.width) for f in header.fields})
+                pending.append((path, signature, len(header.fields), utcnow(), None, widths))
             if len(pending) >= 500:
                 _flush()
             if on_item:

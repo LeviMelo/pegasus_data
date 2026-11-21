@@ -586,7 +586,7 @@ links:
       residence.
     same_event: false   # an admission and the person's death, possibly months later
     params:
-      codes: {side: left, role: admission.diagnosis, any: admission.diagnoses}
+      codes: {side: left, role: admission.diagnosis, any: admission.diagnoses, procedure: admission.procedure}
     outcome: {origin: admission.start, event: death.date}
     left:
       dataset: SIH-RD
@@ -618,6 +618,51 @@ links:
         among: "l.\"admission.death\" = '1'"
         sql: "r.\"death.date\" = l.\"admission.end\""
       - {name: death on or after the admission, sql: "r.\"death.date\" >= l.\"admission.start\""}
+
+  # A person's next admission after a cohort admission: a ventricular shunt's revision, a cranioplasty after a
+  # decompressive craniectomy, a reoperation, any readmission within a year of discharge. The public SIH has no person
+  # identifier, so a person is a birth date, sex and the CEP of residence (`patient.postcode`): the municipality in its
+  # place found more pairs by chance than real ones (Pernambuco 2019, shunts: 35 against 38) and is not a pass; the
+  # readmission must start inside the year after the discharge, and an admission is
+  # never its own readmission (`differ`: the AIH). A person admitted again several times keeps the first (`first`); the
+  # later ones are the first's own readmissions, a run of that cohort. Every other admission of any cause is a candidate:
+  # the reader filters the readmissions by what was done in them. A partner is an AIH, not yet a new hospitalisation: of
+  # Pernambuco's 283 shunt patients of 2019 with a partner, 178 began it within 7 days of the discharge and 98% of those in
+  # the same hospital, often a clinical or multiple-surgery code: an AIH opened for the same stay when the procedure
+  # changed. A reader counting readmissions joins such consecutive AIHs into one episode by the discharge reason
+  # (COBRANCA: discharge, stay, transfer) before counting.
+  sih_readmissions:
+    description: >
+      Admissions with the caller's codes (params.codes: ICD-10 prefixes on the principal diagnosis or on every diagnosis,
+      or SIGTAP prefixes on the procedure performed) to the same person's next SIH admission of any cause that starts
+      within a year of the discharge: a shunt revision, a cranioplasty, a reoperation or any readmission. One record
+      stands for each person, the first admission of the period; a person is a birth date, sex and residence.
+    same_event: false   # two admissions of one person
+    params:
+      codes: {side: left, role: admission.diagnosis, any: admission.diagnoses, procedure: admission.procedure}
+    outcome: {origin: admission.end, event: admission.start, first: true, differ: admission.aih}
+    left:
+      dataset: SIH-RD
+      # an AIH of type 5 continues a long stay: it is the same admission, neither an index nor a readmission
+      where: "\"admission.aih_type\" IS DISTINCT FROM '5'"
+      group: [patient.birth_date, patient.sex, patient.residence]
+      earliest: admission.start
+      explode_days: [admission.end, 365, follow_up.day]   # one row per day of the year after the discharge
+    right: {dataset: SIH-RD, pad_years: [0, 1], where: "\"admission.aih_type\" IS DISTINCT FROM '5'"}
+    passes:
+      - name: birth date, sex, CEP, admission in the year after the discharge
+        keys: [[patient.birth_date, patient.birth_date], [patient.sex, patient.sex],
+               [patient.postcode, patient.postcode], [follow_up.day, admission.start]]
+    control: {role: patient.birth_date, shift_days: 7}
+    validate:
+      # held out by the first pass: a CEP lies in one municipality, so a true pair's residence agrees
+      - name: the readmission is recorded in the same municipality of residence
+        sql: "r.\"patient.residence\" = l.\"patient.residence\""
+      # race is no key: where both admissions state it, one person's two records mostly agree, a namesake's by chance
+      - name: both admissions record the same race
+        left: patient.race
+        right: patient.race
+      - {name: readmission after the discharge, sql: "r.\"admission.start\" >= l.\"admission.end\""}
 
   # The same mechanism on a notification system: the cases of the caller's agravo codes (TOXC's ID_AGRAVO holds P371, B58
   # and O986) to the death certificate of any cause within a year of the notification, so that a case's survival does

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable, Iterable, Iterator, Sequence
+from collections.abc import Callable, Iterable, Iterator, Mapping, Sequence
 from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
@@ -58,14 +58,28 @@ class _Coverage:
 _NOT_A_STATE = frozenset({"", "BR", "NA"})
 
 
-def national_or_states(items: Iterable[Any], geo_of: Callable[[Any], object]) -> list[Any]:
+def national_or_states(
+    items: Iterable[Any],
+    geo_of: Callable[[Any], object],
+    *,
+    sources_of: Callable[[Any], Iterable[str]] | None = None,
+    widths: Mapping[str, Mapping[str, int]] | None = None,
+) -> list[Any]:
     """The items of ONE year that are a single reading of the dataset when no state was asked.
 
     DATASUS publishes SIM and SINASC both as a national file (``DOBR2019``) and as one file per state (``DOAC2019`` ..
     ``DOTO2019``): the same records twice. With no state asked every file was selected, and ``plan("SIM.DO",
-    period=2019)`` planned 206 MiB (the national file is 103) and a query returned every death twice. The national
-    file is the dataset's reading, as ``geography="BR"`` gives it; the state files are read only when the year has
-    no national one. Items with no state axis (documentation rows, ``NA`` partitions) are always kept.
+    period=2019)`` planned 206 MiB (the national file is 103) and a query returned every death twice. One reading is
+    kept: the national file, as ``geography="BR"`` gives it, unless it cuts what the state files hold. The national
+    file is the states' records put together, so each of its columns should be at least as wide as the widest state
+    file's; ``DOBR2012`` declares ``LINHAA`` 10 characters where ``DOES2012`` declares 20 and holds longer lines, and a
+    third cause on a line is cut (DATA_SOURCES.md 1.7: SIM's cause lines 1999-2008 and 2011-2017, SINASC's
+    ``CODANOMAL`` 2006-2012). Given each file's declared widths (``widths``, path -> field -> width, from the file
+    census; ``sources_of`` names an item's files), a year whose national file declares a column narrower than the
+    widest state file, and none wider than every state file, is read from its 27 state files. A year where each cuts
+    something (SIM 2009: the national file ``LINHAA``, the states ``LINHAD``) keeps the national file. The state files
+    are read alone when the year has no national file. Items with no state axis (documentation rows, ``NA``
+    partitions) are always kept.
     """
     items = list(items)
     geos = [str(geo_of(item) or "").upper() for item in items]
@@ -73,15 +87,71 @@ def national_or_states(items: Iterable[Any], geo_of: Callable[[Any], object]) ->
     has_states = any(g not in _NOT_A_STATE for g in geos)
     if not (has_national and has_states):
         return items
-    return [item for item, g in zip(items, geos, strict=True) if g in _NOT_A_STATE]
+    neutral = [item for item, g in zip(items, geos, strict=True) if g in _NOT_A_STATE and g != "BR"]
+    national = [item for item, g in zip(items, geos, strict=True) if g == "BR"]
+    states = [(item, g) for item, g in zip(items, geos, strict=True) if g not in _NOT_A_STATE]
+    if sources_of is not None and widths is not None and _states_are_wider(national, states, sources_of, widths):
+        return [item for item, _ in states] + neutral
+    return national + neutral
 
 
-def one_reading(parts: Iterable[LakePartition]) -> list[LakePartition]:
-    """The partitions one reading of each year opens when no state was asked (:func:`national_or_states`, per year)."""
+def _states_are_wider(
+    national: list[Any], states: list[tuple[Any, str]], sources_of: Callable[[Any], Iterable[str]],
+    widths: Mapping[str, Mapping[str, int]],
+) -> bool:
+    """Whether the state files are the wider reading of a year: all 27 states, every file's widths known, the national
+    file narrower than the widest state file in some column and wider than every state file in none."""
+    from ..config import UF_ABBREVIATIONS
+
+    if {g for _, g in states} < set(UF_ABBREVIATIONS):
+        return False
+
+    def declared(item: Any) -> list[Mapping[str, int]] | None:
+        found = [widths.get(str(path)) for path in sources_of(item)]
+        return None if not found or any(w is None for w in found) else [w for w in found if w is not None]
+
+    nat = [w for item in national for w in (declared(item) or [None])]  # type: ignore[list-item]
+    per_state = [w for item, _ in states for w in (declared(item) or [None])]  # type: ignore[list-item]
+    if not nat or not per_state or any(w is None for w in (*nat, *per_state)):
+        return False
+    narrower = False
+    for field in set().union(*(set(w) for w in nat)):
+        nat_width = max(w.get(field, 0) for w in nat)
+        state_widths = [w[field] for w in per_state if field in w]
+        if not state_widths:
+            continue
+        if max(state_widths) < nat_width:
+            return False
+        if nat_width < max(state_widths):
+            narrower = True
+    return narrower
+
+
+def declared_widths(store: Any) -> dict[str, dict[str, int]]:
+    """``path -> {field: declared width}`` of every file the census read with its widths (``file_schemas``)."""
+    import json
+
+    def load() -> dict[str, dict[str, int]]:
+        return {
+            str(r["path"]): json.loads(r["widths_json"])
+            for r in store.query("SELECT path, widths_json FROM file_schemas WHERE widths_json IS NOT NULL")
+        }
+
+    return store.memo(("declared_widths",), load)  # type: ignore[no-any-return]
+
+
+def one_reading(
+    parts: Iterable[LakePartition], widths: Mapping[str, Mapping[str, int]] | None = None
+) -> list[LakePartition]:
+    """The partitions one reading of each year opens when no state was asked (:func:`national_or_states`, per year,
+    on the declared widths of the files each partition was built from)."""
     by_year: dict[int, list[LakePartition]] = {}
     for part in parts:
         by_year.setdefault(part.year, []).append(part)
-    return [part for items in by_year.values() for part in national_or_states(items, lambda p: p.uf)]
+    return [
+        part for items in by_year.values()
+        for part in national_or_states(items, lambda p: p.uf, sources_of=lambda p: p.sources, widths=widths)
+    ]
 
 
 def _filed(publications: Iterable[dict[str, Any]]) -> dict[tuple[str, str], int]:
@@ -410,9 +480,12 @@ def _catalog_coverage(
         ufs_year = tuple(sorted(wanted_ufs))
         if not wanted_ufs:
             # no state asked: one reading of the year (a national file beside its state files is the same records)
-            reading = national_or_states(candidates, lambda row: row.get("geo_code"))
+            reading = national_or_states(candidates, lambda row: row.get("geo_code"),
+                                         sources_of=lambda row: [str(row.get("path") or "")], widths=declared_widths(store))
             if len(reading) < len(candidates):
-                candidates, ufs_year = reading, ("BR",)
+                national = any(str(row.get("geo_code") or "").upper() == "BR" for row in reading)
+                candidates, ufs_year = reading, (("BR",) if national else tuple(sorted(
+                    {str(row.get("geo_code") or "").upper() for row in reading} - {"", "NA"})))
                 year_geography.append((year, ufs_year))
         selected = list(choose_representations(store, candidates).selected) if candidates else []
         month_marks = {month_of(row.get("normalized_date")) or 0 for row in selected}
@@ -424,7 +497,7 @@ def _catalog_coverage(
         resolutions.append((year, resolution))
         year_parts = Lake.narrow(parts, ufs_year or None, [year])
         if not ufs_year:
-            year_parts = one_reading(year_parts)        # no reading decided from the publications: the lake's own
+            year_parts = one_reading(year_parts, declared_widths(store))        # no reading decided from the publications: the lake's own
         if selected:
             expected = {_publication_identity(row) for row in selected}
             # a partition built from a version the server has since replaced covers nothing: the year is read from the

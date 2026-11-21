@@ -833,10 +833,10 @@ def link_cmd(
         bool, typer.Option("--refresh", help="Recompute even when a stored run of this spec and scope exists")
     ] = False,
     codes: Annotated[
-        str | None, typer.Option("--codes", help="ICD-10 prefixes of a cohort link (I21,I22): the spec is run per codes")
+        str | None, typer.Option("--codes", help="Codes of a cohort link: ICD-10 prefixes (I21,I22), or SIGTAP procedure prefixes with --match procedure (0403070171)")
     ] = None,
     match: Annotated[
-        str, typer.Option("--match", help="principal | any: the codes on the principal diagnosis or on every diagnosis")
+        str, typer.Option("--match", help="principal | any | procedure: the codes on the principal diagnosis, on every diagnosis, or on the procedure performed")
     ] = "principal",
     root: RootOpt = None,
     as_json: JsonOpt = False,

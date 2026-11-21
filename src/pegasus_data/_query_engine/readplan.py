@@ -20,7 +20,7 @@ from ..normalize.engine import MissingColumnError
 from ..persist.lake import Lake, LakePartition, listed_partitions
 from ..semantics.curation import system_spellings
 from ..view import COMPANION_SUFFIXES
-from .coverage import one_reading
+from .coverage import declared_widths, one_reading
 
 
 def resolve_family(store: CatalogStore, system: str, series: str | None, field_name: str | None) -> list[dict[str, Any]]:
@@ -255,7 +255,7 @@ def plan_lake_read(
     if partitions is None:
         listed = listed_partitions(store, sorted(ids))
         asked = Lake.narrow((p for fam in sorted(ids) for p in listed.get(fam, ())), uf or None, years or None)
-        chosen = asked if uf else one_reading(asked)
+        chosen = asked if uf else one_reading(asked, declared_widths(store))
         if len(chosen) < len(asked):
             notes = [*notes, (
                 f"{system}.{series or ''}: the lake holds {len(asked) - len(chosen)} state partition(s) of years that "

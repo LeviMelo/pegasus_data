@@ -178,7 +178,11 @@ CREATE TABLE IF NOT EXISTS file_schemas (     -- ADR-0081: every file's own head
   schema_signature  TEXT,               -- NULL when the header could not be read
   field_count       INTEGER,
   read_at           TEXT NOT NULL,
-  error             TEXT
+  error             TEXT,
+  -- the file's own declared widths, {field: width}: a signature is the column names only, so two files of one
+  -- signature can declare a column at different widths (SIM's national file of 2012 cuts LINHAA at 10 characters
+  -- where its state files hold 20); the reading of a year published twice is chosen on them (coverage.national_or_states)
+  widths_json       TEXT
 );
 CREATE INDEX IF NOT EXISTS ix_file_schemas_signature ON file_schemas (schema_signature);
 

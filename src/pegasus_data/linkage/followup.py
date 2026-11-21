@@ -173,7 +173,8 @@ def linked_deaths(
     year of their first admission of the period, or none. Computes the run if it is not stored (``compute=False`` raises
     `RunNotStored` instead); ``refresh`` computes it again.
 
-    ``match`` "principal" takes the codes on the principal diagnosis, "any" on every diagnosis of the admission. ``roles``
+    ``match`` "principal" takes the codes on the principal diagnosis, "any" on every diagnosis of the admission,
+    "procedure" SIGTAP prefixes on the procedure performed (a cohort of decompressive craniectomies). ``roles``
     names further roles of the cohort's records to return (those the link reads come back anyway). The result's quality
     holds the false-match rate and verdict of each horizon; the cohort is the first admission of each person in the
     period (a person is a birth date, sex and residence), so a readmission is not a second person.
