@@ -77,8 +77,9 @@ def national_or_states(
     ``CODANOMAL`` 2006-2012). Given each file's declared widths (``widths``, path -> field -> width, from the file
     census; ``sources_of`` names an item's files), a year whose national file declares a column narrower than the
     widest state file, and none wider than every state file, nor any the state files lack, is read from its 27 state
-    files. A year where each cuts something (SIM 2009: the national file ``LINHAA``, the states ``LINHAD``; SIM 2012:
-    ten state files without 17 of the national file's columns) keeps the national file. The state files
+    files. Columns outrank characters: a year whose state files lack a national column keeps the national file (SIM
+    2012: ten state files without 17 of its columns), a year whose national file lacks a column of every state file is
+    read from the states (SIM 2009: 55 columns nationally, 59 per state), and only then do widths decide. The state files
     are read alone when the year has no national file. Items with no state axis (documentation rows, ``NA``
     partitions) are always kept.
     """
@@ -115,8 +116,16 @@ def _states_are_wider(
     per_state = [w for item, _ in states for w in (declared(item) or [None])]  # type: ignore[list-item]
     if not nat or not per_state or any(w is None for w in (*nat, *per_state)):
         return False
+    # columns outrank characters: a state file without a national column keeps the national reading (below); a
+    # column every state file has and the national file lacks moves the year to the states (SIM 2009: DOBR2009 has 55
+    # columns, its state files 59), whatever the widths
+    nat_fields = set().union(*(set(w) for w in nat))
+    if any(not nat_fields <= set(w) for w in per_state):
+        return False
+    if set.intersection(*(set(w) for w in per_state)) - nat_fields:
+        return True
     narrower = False
-    for field in set().union(*(set(w) for w in nat)):
+    for field in nat_fields:
         nat_width = max(w.get(field, 0) for w in nat)
         state_widths = [w[field] for w in per_state if field in w]
         if len(state_widths) < len(per_state):

@@ -15,12 +15,13 @@ so the header facts kept per signature had hidden it.
 **Decision.**
 1. The census records each file's declared widths (`file_schemas.widths_json`), and re-reads the headers of years a
    dataset publishes both nationally and per state.
-2. One reading of such a year is the national file unless it declares a column narrower than the widest of the 27 state
-   files, none wider than every state file, and none a state file lacks; then the year is read from the state files.
-   Where each cuts something, the national file is kept and the loss is recorded here: SIM 2009 (the national file
-   `LINHAA` and `LINHAB`, the states `LINHAD` and `LINHAII`); SIM 2012 (ten state files, ES GO MG MS MT PR RJ RS SC SP,
-   have 68 of the national file's 85 columns); SINASC 2013-2017 (state files without some columns, or narrower in
-   two). The years read from the state files: SIM 1999-2008, 2011, 2013-2017; SINASC 2006-2012. The same rule decides the
+2. One reading of such a year is decided in order. Columns outrank characters: a year whose state files lack a column
+   of the national file keeps the national file (SIM 2012: ten state files, ES GO MG MS MT PR RJ RS SC SP, have 68 of
+   its 85 columns; SINASC 2013-2017); a year whose national file lacks a column every state file has is read from the
+   states (SIM 2009: `DOBR2009` has 55 columns, its state files 59, though its `LINHAD` is wider). Otherwise the year is
+   read from the 27 state files when the national file declares a column narrower than the widest state file and none
+   wider than every state file. The years read from the state files: SIM 1999-2009, 2011, 2013-2017; SINASC 2006-2012.
+   The same rule decides the
    planner (`_catalog_coverage`), the read (`retrieve._one_reading`), the lake's reading (`one_reading`) and `prune`,
    which deletes a partition outside its year's reading when its records are held or its sources are still listed.
 3. A width the state files only pad (`SEXO` declared 4 in some SINASC state files, 1 nationally) would move a year to the
