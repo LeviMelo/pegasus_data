@@ -132,3 +132,25 @@ and region (5): the log error of the group's total against the spread its munici
 - The state's own component does not transfer (0.02 against 0.13; coverage 0.65 one way, 0.96 the other): an interval
   for a state's total cannot be had from these two periods. Under ADR-0228 it is not needed: a state's total is IBGE's.
 - Not done: the same for age groups and for race (their spreads are per cell; ADR-0220's open item stays for them).
+
+## An interval for an age group of a municipality (plan P6; `age_group_intervals.py`)
+
+The benchmark's two forecasts by five-year band (each under the other period's fit); for groups of bands of one
+municipality and sex, the log error of the group's sum against what its bands' intervals imply.
+
+| group | correlation between bands, fitted 2000-2010 / 2010-2022 | 80% coverage, bands independent | 80% / 95% with one correlation of 0.6, 2000-2010 | 2010-2022 |
+|---|---|---|---|---|
+| 0-14 | 0.71 / 0.29 | 0.59, 0.69 | 0.75 / 0.89 | 0.83 / 0.95 |
+| 15-29 | 0.93 / 0.55 | 0.55, 0.63 | 0.72 / 0.87 | 0.78 / 0.92 |
+| 15-49 | 0.64 / 0.58 | 0.46, 0.47 | 0.76 / 0.89 | 0.78 / 0.91 |
+| 30-59 | 0.48 / 0.61 | 0.53, 0.49 | 0.78 / 0.90 | 0.76 / 0.89 |
+| 60+ | 0.57 / 0.28 | 0.54, 0.63 | 0.77 / 0.90 | 0.84 / 0.94 |
+| all ages | 0.42 / 0.34 | 0.40, 0.43 | 0.81 / 0.91 | 0.85 / 0.94 |
+
+- A municipality's bands err together (the same migration moves neighbouring ages): treated as independent, an age
+  group's 80% interval covers half the truths. The correlation is not one number (0.3 to 0.9 by group and period); a
+  single 0.6 brings every group to 0.72-0.85 at 80% and 0.87-0.95 at 95% in both periods
+  (`population_benchmark.age_group_log_sd`). It is a working law, somewhat narrow for 15-29 in the 2000s.
+- **Race** has no such test: a race share is observed at the censuses only, its spread was measured there (ADR-0151),
+  and no second period exists to transfer a correlation to. An interval for a group of races or of municipalities by
+  race stays the cells' own, unvalidated in sum. This is the part of P6 the data cannot close before the next census.

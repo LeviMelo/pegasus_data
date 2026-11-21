@@ -116,3 +116,10 @@ settles.
   IBGE's. Left of P6: age groups and race.
 - **Every state, year, sex and age is IBGE's** (ADR-0228): `population-account-9`. The account's own part is the spread
   inside a state. Against POPSVS only that is left (median municipality 0.7-1.0%).
+- **P6 concluded as far as the data allow**: age groups of a municipality take one correlation of 0.6 between bands
+  (`age_group_log_sd`; 80% coverage 0.72-0.85 in both periods, 0.40-0.69 if independent). Race has no second period to
+  test a law on: open until the next census.
+- **P5** (the age pattern between censuses) stands as tested in 2026-10 on the 1996 Contagem by age (the schedule over
+  even timing); the 2007 Contagem has no ages by municipality, so no further truth exists for it.
+- **P3** (one estimation of everything) is not pursued: its purpose was to bring in the symptoms, and they do not
+  transfer (P2). **P4** is parked by the author's direction.

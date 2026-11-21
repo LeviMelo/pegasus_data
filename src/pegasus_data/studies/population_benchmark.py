@@ -93,3 +93,16 @@ def group_log_sd(total: np.ndarray, log_sd: np.ndarray, micro: np.ndarray, corre
     together = sum(float(a[micro == m].sum()) ** 2 for m in np.unique(micro))
     return float(np.sqrt((1 - correlation) * float((a**2).sum()) + correlation * together))
 
+
+#: Correlation of the forecast errors of two five-year bands of one municipality and sex (evaluation
+#: 2026-11-21-population-symptoms: 0.3 to 0.9 by group and period; 0.6 covers 0.72-0.85 at 80% and 0.87-0.95 at 95%).
+BAND_CORRELATION = 0.6
+
+
+def age_group_log_sd(bands: np.ndarray, band_log_sd: np.ndarray, correlation: float = BAND_CORRELATION) -> np.ndarray:
+    """The log sd of a sum of five-year bands of a municipality and sex (last axis), from each band's own. The bands'
+    errors move together (the same migration carries a place's neighbouring ages): independent, an 80% interval of an
+    age group covered 0.40-0.69 of the benchmark's truths; with one correlation, 0.72-0.85."""
+    a = np.asarray(bands, dtype=float) / np.maximum(np.sum(bands, axis=-1, keepdims=True), 1e-9) * np.asarray(band_log_sd, dtype=float)
+    return np.sqrt((1 - correlation) * (a**2).sum(-1) + correlation * a.sum(-1) ** 2)
+
