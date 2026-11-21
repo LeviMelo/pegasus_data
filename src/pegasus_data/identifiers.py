@@ -55,10 +55,14 @@ def _digits(value: object) -> str:
     return re.sub(r"\D", "", str(value or ""))
 
 
+#: Digits of a CNPJ (eight of the firm, four of the establishment, two check digits).
+CNPJ_DIGITS = 14
+
+
 def valid_cnpj(value: object) -> bool:
     """A 14-digit CNPJ whose two check digits hold."""
     digits = _digits(value)
-    if len(digits) != 14 or len(set(digits)) == 1:
+    if len(digits) != CNPJ_DIGITS or len(set(digits)) == 1:
         return False
     numbers = [int(char) for char in digits]
     for length in (12, 13):

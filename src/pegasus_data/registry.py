@@ -50,6 +50,15 @@ def _patterns() -> tuple[str, ...]:
 CNPJ_TABLE = "CNPJ_BR"
 
 
+def establishment_register() -> tuple[str, str]:
+    """``(table, owner)`` of the national establishment register (``codelists.yml`` registry ``establishments.register``,
+    its owner by ``owners``): ``("CADGERBR", "CNES")``."""
+    declared = _registry_declarations()
+    name = str(declared["establishments"]["register"])
+    owner = next(str(o) for prefix, o in (declared.get("owners") or {}).items() if name.startswith(str(prefix)))
+    return name, owner
+
+
 def is_registry(codelist: str) -> bool:
     name = codelist.upper()
     return name == CNPJ_TABLE or any(fnmatch.fnmatch(name, p) for p in _patterns())
@@ -152,8 +161,9 @@ def build(system: str, *, refresh: bool = False, settings: Settings | None = Non
             continue
         if f"{prefix}BR" not in tables:
             tables[f"{prefix}BR"] = pa.concat_tables(states, promote_options="default")
-    if "CADGERBR" in tables:
-        registry = tables["CADGERBR"]
+    register, _ = establishment_register()
+    if register in tables:
+        registry = tables[register]
         # CNPJ -> legal name, for the fields that carry a legal entity rather
         # than an establishment (CIH CGC_HOSP, SIA PA_CNPJMNT). Only identifiers
         # that pass the CNPJ check digits: CPF_CNPJ holds zero-padded CPFs too
@@ -359,7 +369,7 @@ def facility_names(registries: str | Path, codes: Iterable[object] | None = None
     import pyarrow as pa
     import pyarrow.compute as pc
 
-    table = lookup("CADGERBR", "CNES", registries)
+    table = lookup(*establishment_register(), registries)
     if table is None:
         return {}
     if codes is not None:

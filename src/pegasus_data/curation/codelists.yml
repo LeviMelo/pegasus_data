@@ -178,6 +178,9 @@ roles:
     # else legal name). `excluded.open_end`: an exclusion date starting with it means the establishment was never
     # excluded; CADGERBR 2026-11-09, 692,005 rows: the 636,189 DATAEXCL 9999xxxx are exactly the rows with EXCLUIDO 0
     establishments:
+      # the national register: the table establishment columns are bound to (roles' `codelists`), names read from, and
+      # CNES <-> CNPJ resolved through; its owner is `owners` below
+      register: CADGERBR
       label: [FANTASIA, RAZ_SOCI]
       legal: RAZ_SOCI
       maintainer: RSOC_MAN

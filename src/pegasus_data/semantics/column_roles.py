@@ -617,11 +617,13 @@ def column_of(dataset: str, role: str) -> str:
 
 def facility_code_field(dataset: str) -> str | None:
     """The column that holds the record's own establishment as a CNES code: the one column of the dataset typed
-    ``kind: institution`` with the CNES register's codelist (``CADGERBR``); when a layout files several (APAC's
+    ``kind: institution`` with the establishment register's codelist (``registry.establishment_register``); when a layout files several (APAC's
     executing and requesting units, SINAN's notifying and treating units), the one whose role property is the
     record's own ``facility`` or ``cnes``. None when the roles name none or leave it ambiguous: the caller says so
     and asks for the column, it does not guess one."""
-    return _institution_field(dataset, "CADGERBR", ("facility", "cnes"))
+    from ..registry import establishment_register
+
+    return _institution_field(dataset, establishment_register()[0], ("facility", "cnes"))
 
 
 def facility_cnpj_field(dataset: str) -> str | None:

@@ -14,7 +14,7 @@ from typing import TYPE_CHECKING, Any
 import pyarrow as pa
 
 from ._vintage import SourceVintage, vintage_groups, window_covers, window_overlaps
-from .identifiers import valid_cnpj
+from .identifiers import CNPJ_DIGITS, valid_cnpj
 
 if TYPE_CHECKING:
     from .config import Settings
@@ -142,7 +142,7 @@ def _crosswalk_slice(
     # The pack writes CNPJs punctuated (14.354.955/0001-51); the question comes
     # in digits. Asking for digits alone matched nothing, so CNPJ->CNES never
     # resolved a row (ADR-0100).
-    wanted = set(codes) | ({_punctuated(c) for c in codes if len(c) == 14} if reverse else set())
+    wanted = set(codes) | ({_punctuated(c) for c in codes if len(c) == CNPJ_DIGITS} if reverse else set())
     expression = ds.field(key_field).isin(sorted(wanted))
     known: list[int] = []
     for value in vintages:
@@ -219,13 +219,13 @@ def _registry_slice(
     """
     import pyarrow.compute as pc
 
-    from .registry import lookup
+    from .registry import establishment_register, lookup
 
     if not codes:
         return {}, False
     if registries is None:
         return {}, True
-    table = lookup("CADGERBR", "CNES", registries)
+    table = lookup(*establishment_register(), registries)
     if table is None or "cnpj" not in table.column_names:
         return {}, True
     key = "cnpj" if reverse else "code"

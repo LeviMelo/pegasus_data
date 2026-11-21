@@ -629,10 +629,13 @@ def declared_verdict(dataset: str | None, name: str) -> SemanticVerdict | None:
         columns = declared_columns(dataset)
     except KeyError:
         return None
+    from ..registry import CNPJ_TABLE, establishment_register
+
+    registers = ((establishment_register()[0], "cnes_establishment"), (CNPJ_TABLE, "personal_identifier_cnpj"))
     for column in columns:
         if column.column.upper() != name.upper() or column.kind != "institution":
             continue
-        for codelist, semantic_type in (("CADGERBR", "cnes_establishment"), ("CNPJ_BR", "personal_identifier_cnpj")):
+        for codelist, semantic_type in registers:
             if codelist in column.codelists:
                 return SemanticVerdict(semantic_type, 1.0, {"rule": "declared_role", "role": column.role,
                                                             "codelist": codelist, "dataset": dataset})
