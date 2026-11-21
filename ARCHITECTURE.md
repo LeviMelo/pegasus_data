@@ -317,6 +317,8 @@ the milestone that removes the duplicate; an ADR is written when it is done.
 | re-export the query engine | ~~three layers~~ | **done** (ADR-0073): `_query_engine/` only |
 | stock time reducers | ~~refused in `measures.py`, implemented in `tools/export_workbook.py`~~ | **done** (2026-10-04): `_aggregate` reduces a stock over time (OQ-14); the workbook (`workbook.py`, `pegasus-data workbook`) calls it |
 | choose a publication's files | ~~`Builder.build` and `retrieve._select_files` each read a family's files, filter by state, year and month, and call `choose_representations`~~ | **done** (2026-11-21): `representations.select_publications` returns each family's selected rows; the build and `_select_files` call it (they keep their own national-year rule: the build after the choice and per family, the read before it with a report line); the retry after a refusal for columns is shared since ADR-0190 |
+| write a derived file | ~~about twenty hand-written temp-and-rename copies, some sharing a temp name between processes, some deleting the old version first, some writing in place~~ | **done** (ADR-0224): `persist/kept.py` (`write_atomic`, `kept`, `cap_by_recency`) |
+| check a declaration's keys | ~~each loader's own checks; only `column_roles` refused an unknown key~~ | **done** (ADR-0223): one declared shape per kind of file (`semantics/schema.py`), checked where the file is parsed |
 | spell a dataset id; read a curation YAML; reach a server | ~~`.upper().replace(".", "-")` in ten modules; `ontology._read_yaml` imported by twelve; `snapshot`'s own httpx client, `sigtap`'s own ftplib~~ | **done** (2026-11-09): `ontology.dataset_key`; `semantics.curation.read_yaml(missing_ok=)`; `transport.get_text` and `discovery.ftp_client.FtpClient` |
 
 Also known, not duplicates:
@@ -336,7 +338,7 @@ Also known, not duplicates:
 
 ## 5a. The public surface
 
-`__init__.py` exports 111 names (`_EXPORTS`, resolved lazily; the "79" written here was stale, recounted 2026-10-15, as the "56" was on 2026-10-04); the data engines (`retrieve.fetch`, `api.load`, `api.scan`) are internal (ADR-0073). Grouped by the
+`__init__.py` exports 121 names (`_EXPORTS`, resolved lazily; `scripts/check_docs.py` counts them; the "111" written here was of 2026-10-15); the data engines (`retrieve.fetch`, `api.load`, `api.scan`) are internal (ADR-0073). Grouped by the
 question they answer; the overlap is §5's first rows.
 
 | Question | Functions | Types and errors |
