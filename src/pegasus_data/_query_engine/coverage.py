@@ -76,8 +76,9 @@ def national_or_states(
     third cause on a line is cut (DATA_SOURCES.md 1.7: SIM's cause lines 1999-2008 and 2011-2017, SINASC's
     ``CODANOMAL`` 2006-2012). Given each file's declared widths (``widths``, path -> field -> width, from the file
     census; ``sources_of`` names an item's files), a year whose national file declares a column narrower than the
-    widest state file, and none wider than every state file, is read from its 27 state files. A year where each cuts
-    something (SIM 2009: the national file ``LINHAA``, the states ``LINHAD``) keeps the national file. The state files
+    widest state file, and none wider than every state file, nor any the state files lack, is read from its 27 state
+    files. A year where each cuts something (SIM 2009: the national file ``LINHAA``, the states ``LINHAD``; SIM 2012:
+    ten state files without 17 of the national file's columns) keeps the national file. The state files
     are read alone when the year has no national file. Items with no state axis (documentation rows, ``NA``
     partitions) are always kept.
     """
@@ -118,8 +119,10 @@ def _states_are_wider(
     for field in set().union(*(set(w) for w in nat)):
         nat_width = max(w.get(field, 0) for w in nat)
         state_widths = [w[field] for w in per_state if field in w]
-        if not state_widths:
-            continue
+        if len(state_widths) < len(per_state):
+            # a state file without the column: the states would lose it (SIM 2012: ten state files of 68 columns where
+            # the national file has 85), so the national file is the fuller reading
+            return False
         if max(state_widths) < nat_width:
             return False
         if nat_width < max(state_widths):
