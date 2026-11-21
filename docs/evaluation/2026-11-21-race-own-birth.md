@@ -88,4 +88,20 @@ than the municipality's mix says (villages inside a municipality); not modelled.
 
 ## Products
 
-(filled by the builds: `race-confusion-child-1`, `race-confusion-women-2`)
+**The sampler.** The first build of the children's product was refused by its own guard (R-hat 1.80, 172 divergences).
+Two faults, both older than this work: the likelihood's softmax overflowed single precision where a wide composition
+scale met a municipality far from the mean (after the fix R-hat 1.27, 31 divergences at composition scale 1.5; none at
+0.5), and the sampler's metric was the inverse of a Hessian that the false-link mixture does not keep positive
+definite (now floored). The held-out surface is flat in the scales, so the tightest within 0.002 of the best are taken
+(`scale_tolerance`); chains are 500 + 1,000 draws (were 300 + 400).
+
+**`race-confusion-child-1`** (`model-build race_confusion_child`, 0554f32; 18,363 deaths, 10,503 linked; scales state
+0.15, region 0.3, composition 0.5, age 0.15; no divergence, R-hat 1.065, least effective sample 33 of 2,000 draws: the
+intervals are indicative, as the women's). Brazil, share recorded as declared (90% interval): ages 1-4 Branca 0.77
+(0.70-0.84), Parda 0.66 (0.60-0.71), Preta 0.24 (0.11-0.46), Indígena 0.97 (0.92-1.00); 5-9 0.75, 0.69, 0.25, 0.97; a
+child declared Preta is recorded Parda 0.64-0.68 of the time. 3,024 rows (27 states and Brazil), each declared row
+summing to 1.
+
+**`race-confusion-women-2`**: building when this entry was written (about two hours: one pass per death year); its
+numbers are added to this section when it ends. `race-confusion-women-1` stays the stored and shipped version until
+then.
