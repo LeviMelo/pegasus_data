@@ -32,9 +32,9 @@ from ._query_engine.readplan import (
     LakeRead,
     generation_columns,
     plan_lake_read,
-    require_known_columns,
     resolve_family,
 )
+from ._query_engine.request import ReadRequest
 from .catalog.store import CatalogStore as _Store
 from .config import Settings, load_settings
 from .lookups import _single_lookup
@@ -688,7 +688,7 @@ def prefix_match(text: Any, prefixes: Sequence[str]) -> Any:
     return hit
 
 
-def _rows_filters(rows: Mapping[str, Sequence[str]] | None) -> dict[str, tuple[str, ...]]:
+def rows_filters(rows: Mapping[str, Sequence[str]] | None) -> dict[str, tuple[str, ...]]:
     """The row filter, checked: ``{column: code prefixes}``, each a non-empty column name with non-empty prefixes,
     the prefixes normalised (:func:`normalise_prefix`).
 
@@ -710,23 +710,15 @@ def _rows_filters(rows: Mapping[str, Sequence[str]] | None) -> dict[str, tuple[s
     return out
 
 
-def _rows_expression(rows: Mapping[str, Sequence[str]]) -> ds.Expression:
+def rows_expression(rows: Mapping[str, Sequence[str]]) -> ds.Expression:
     """The rows whose every named column starts with one of its codes (``{column: prefixes}``), as a scan predicate."""
     import pyarrow.compute as pc
 
     out = None
-    for column, prefixes in _rows_filters(rows).items():
+    for column, prefixes in rows_filters(rows).items():
         hit = prefix_match(pc.field(column).cast(pa.string()), prefixes)
         out = hit if out is None else (out & hit)
     return out
-
-
-def _condition_inputs(condition: Any, docs: Any) -> set[str]:
-    """The upper-case lake columns a condition reads: its columns, and a derived one's inputs (`required_columns`)."""
-    from .semantics.curation import required_columns
-
-    names = condition.columns()
-    return set(required_columns(docs, sorted(names))) | {c.upper() for c in names}
 
 
 def _scan_columns(condition: Any, years: Sequence[int]) -> set[str]:
@@ -737,18 +729,12 @@ def _scan_columns(condition: Any, years: Sequence[int]) -> set[str]:
 def _read_generations(
     cat: Catalog,
     resolved: LakeRead,
+    request: ReadRequest,
     *,
-    system: str,
-    wanted: list[str] | None,
-    on_missing_column: str,
-    rows: Mapping[str, Sequence[str]] | None = None,
     companion_probes: bool = True,
     leave_out: frozenset[str] = frozenset(),
-    also_read: Sequence[str] = (),
-    condition: Any = None,
-    docs: Any = None,
 ) -> tuple[list, dict[str, list[str]]]:
-    """Read each generation, applying the structural missing-column policy.
+    """Read each generation the request needs, applying the structural missing-column policy.
 
     Returns ``(tables, structurally_absent)``. Generations are read separately
     and combined by the caller: two generations do not share a schema, and
@@ -756,21 +742,21 @@ def _read_generations(
     (``on_missing_column``), not something a reader should settle quietly.
 
     Every file the catalog lists for the request must be on disk (`PartialLakeError`): a generation is never skipped
-    because its file went missing. ``leave_out``: stored columns not worth decoding when ``wanted`` is None (the
-    provenance the caller drops, labels the renderer ignores). ``also_read``: columns read only if a generation
-    carries them, for the render to use (a label's key parts) and the caller to drop; never required, never reported.
-    ``condition`` (:class:`~pegasus_data.conditions.Condition`): its raw columns are tested in the scan (the records it
-    rules out are not read), the rest after the read, and every table returned carries the record's answer in
-    ``conditions.CONDITION`` (True, or null: not decidable); ``docs`` are the variable docs a derived column needs.
+    because its file went missing. ``leave_out``: stored columns not worth decoding when every column is asked for (the
+    provenance the caller drops, labels the renderer ignores). The request's helper columns are read only if a
+    generation carries them, for the render to use and the caller to drop; never required, never reported. The raw
+    columns of its condition are tested in the scan (the records it rules out are not read), the rest after the read,
+    and every table returned carries the record's answer in ``conditions.CONDITION`` (True, or null: not decidable).
     """
     import pyarrow.compute as pc
 
     lake = cat.lake
+    wanted = request.lake_columns
+    condition = request.condition
     structurally_absent: dict[str, list[str]] = {}
     tables: list[pa.Table] = []
-    filters = _rows_filters(rows)
-    where = _rows_expression(filters) if filters else None
-    condition_columns = sorted(_condition_inputs(condition, docs)) if condition is not None else []
+    filters = request.filters
+    where = rows_expression(filters) if filters else None
     for family in resolved.families:
         fid = str(family["family_id"])
         parts = resolved.partitions[fid]
@@ -792,7 +778,8 @@ def _read_generations(
             present = resolved.presence.get(str(family["schema_signature"]), frozenset())
             if not present:
                 present = frozenset(lake.columns_of(parts))
-            projection, absent = generation_columns(resolved, family, wanted, present | LAKE_COLUMNS, on_missing_column)
+            projection, absent = generation_columns(
+                resolved, family, wanted, present | LAKE_COLUMNS, request.on_missing_column)
             if absent:
                 structurally_absent[fid] = absent
         elif leave_out:
@@ -807,16 +794,11 @@ def _read_generations(
         # `year` is an internal SEMANTIC DEPENDENCY of rendering, not a column
         # the caller asked for. Rendering splits the answer so 1995 records are
         # translated with the 1995 codebook, and that split reads the `year`
-        # partition column. A projection dropped it, so a projected multi-year
-        # load silently fell back to translating everything at the earliest
-        # requested vintage — reintroducing the exact defect the split fixes.
-        # Requested as OPTIONAL so a generation without the column is not an
-        # error, and dropped again before the result is returned.
-        optional.append("year")
-        optional.append("_competencia")
-        optional.append("_source_resolution")
-        optional.extend(also_read)
-        optional.extend(condition_columns)
+        # partition column. Requested as OPTIONAL so a generation without the
+        # column is not an error, and dropped again before the result is returned.
+        optional.extend(["year", "_competencia", "_source_resolution"])
+        optional.extend(request.lake_optional)
+        optional.extend(sorted(request.condition_inputs))
         # a row filter needs its columns in the generation. One without them cannot say which of its rows match: none
         # is returned, unread, and the absence is RECORDED, never an empty generation that looks like no records (a
         # residence filter on SIM-DOFET's 1995 files, whose residence is MUNIRES, had read as no foetal deaths)
@@ -834,7 +816,7 @@ def _read_generations(
             if predicate is not None and all(c.upper() in physical_names for c in _scan_columns(condition, years_of)):
                 scan = predicate if scan is None else (scan & predicate)
         table = lake.read(
-            system=system,
+            system=request.system,
             family_id=fid,
             columns=projection,
             optional_columns=optional,
@@ -844,14 +826,92 @@ def _read_generations(
         if condition is not None:
             from .conditions import CONDITION
 
-            state = condition.state(table, docs, years=sorted({p.year for p in parts}))
-            table = table.filter(pc.coalesce(state, pa.scalar(True))).append_column(
-                CONDITION, state.filter(pc.coalesce(state, pa.scalar(True))))
+            state = condition.state(table, request.docs, years=sorted({p.year for p in parts}))
+            sure = pc.coalesce(state, pa.scalar(True))
+            table = table.filter(sure).append_column(CONDITION, state.filter(sure))
         # A generation read and filtered to nothing is a result (zero records of the codes asked), kept so the answer
         # can be an empty table with its schema; without a filter an empty read has nothing to say.
         if table.num_rows or scan is not None:
             tables.append((fid, table))
     return tables, structurally_absent
+
+
+def read_lake(
+    cat: Catalog,
+    request: ReadRequest,
+    *,
+    uf: Sequence[str] | None = None,
+    years: Sequence[int] | None = None,
+    family_id: str | None = None,
+    partitions: Sequence[LakePartition] | None = None,
+    leave_out: frozenset[str] = frozenset(),
+) -> tuple[pa.Table, RenderReport]:
+    """The lake's rows for ``request``, rendered, in the engine's form: the columns the engine carries (``year``,
+    ``_competencia``, ``_source_resolution``) still on the rows, and each record's answer to the condition in
+    ``conditions.CONDITION``. `load` is this in the public form; ``query`` reads the files its plan chose
+    (``partitions``) through it.
+
+    Each (family, year) is rendered with ITS OWN bindings and codelist vintage, then combined: ``year`` is a Hive
+    partition column in the lake, so the scoping is row-level, not a hint about the request. A plausible wrong label
+    is worse than a missing one, and classification vintages are exactly where that bites.
+    """
+    from ._query_engine.request import finish
+    from .render_groups import split_by_year_column
+    from .retrieve import NothingPublished
+
+    store = cat.store
+    resolved = plan_lake_read(
+        store, request.system, request.series, family_id=family_id, uf=uf, years=years, partitions=partitions,
+    )
+    # A column NO generation carries is a typo or a renamed field, never a structural absence to fill with nulls;
+    # likewise a row filter on one. (A column some generations lack stays the recorded, null-filled case.)
+    if request.on_missing_column == "null_fill" or request.filters:
+        request.require_known(store, resolved.dataset_families)
+    if not resolved.families:
+        raise NothingPublished(
+            f"no lake data for system={request.system!r} series={request.series!r}"
+            + (f", uf={list(uf)}" if uf else "") + (f", years={list(years)}" if years else "")
+            + "; the catalog lists no lake partition for it. Run `pegasus-data build` first"
+        )
+    tables, structurally_absent = _read_generations(
+        cat, resolved, request,
+        companion_probes=_keeps_companions(request.profile, request.companions), leave_out=leave_out,
+    )
+    if not tables:
+        # Every generation in play lacks a column the filter is on: the rows asked for cannot be told from the
+        # others, and an empty answer would read as "none of those codes" (recorded in structural_absence).
+        names = sorted({c.removesuffix(" (row filter)") for cols in structurally_absent.values() for c in cols})
+        if request.filters and names:
+            carriers = [
+                str(f["family_id"]) for f in resolved.dataset_families
+                if all(c in resolved.presence.get(str(f["schema_signature"]), frozenset()) for c in names)
+            ]
+            raise MissingColumnError(
+                names[0], ", ".join(sorted(structurally_absent)), carriers, also_absent=names[1:],
+            )
+        raise NothingPublished(
+            f"no lake data for system={request.system!r} series={request.series!r}; run "
+            "`pegasus-data build` first"
+        )
+    groups = [
+        group
+        for generation, table in tables
+        for group in split_by_year_column(table, years, generation)
+    ]
+    rendered, render_report = finish(request, groups, store=store, settings=cat.settings)
+    if request.file_state and "uf" in rendered.schema.names and "UF" not in request.asked:
+        rendered = rendered.drop_columns(["uf"])        # read for a key's "@UF" part, not asked for
+    for note in resolved.notes:
+        render_report.warnings.append(note)
+    if structurally_absent:
+        render_report.structural_absence = dict(sorted(structurally_absent.items()))
+        for fam, cols in sorted(structurally_absent.items()):
+            render_report.warnings.append(
+                f"{', '.join(cols)}: absent from the schema of generation {fam}; "
+                "those rows are null here STRUCTURALLY — the field does not "
+                "exist for them, it was not left blank"
+            )
+    return rendered, render_report
 
 
 def load(
@@ -875,12 +935,9 @@ def load(
     allow_borrowed_labels: bool = False,
     on_missing_column: str = "raise",
     report: bool = False,
-    _preserve_internal: bool = False,
     rows: Mapping[str, Sequence[str]] | None = None,
-    _leave_out: frozenset[str] = frozenset(),
     partitions: Sequence[LakePartition] | None = None,
     condition: object = None,
-    _condition_state: bool = False,
 ) -> pa.Table | tuple[pa.Table, RenderReport]:
     """Read a family out of the lake, rendered for reading. ``partitions`` are the files to read, chosen by the planner
     (``plan(...).retrieval.lake_partitions``, which ``query`` passes); without them the catalog's list is narrowed to
@@ -893,8 +950,7 @@ def load(
     ``condition`` (a list of clauses on roles, :mod:`pegasus_data.conditions`) keeps the records that satisfy it: a
     number tested as the role's unit says, a category as filed, the declared not-recorded values never satisfying a clause;
     the raw columns in the scan, the rest before anything is rendered. Records it cannot decide are not returned, and are
-    counted in the result's metadata (``conditions.condition_report``); ``_condition_state`` (the engine's) keeps them,
-    with each record's answer in ``conditions.CONDITION``.
+    counted in the result's metadata (``conditions.condition_report``).
 
     Labels are produced **here**, at read time, by joining the version-scoped
     reference table for the years being read — not projected out of the Parquet.
@@ -914,21 +970,13 @@ def load(
     (:class:`MissingColumnError`) rather than returning empty — an empty result
     looks legitimate and is the easiest way to publish a wrong number (§13).
     """
-    # One normalisation, stated once. `labels` and `profile` are two ways to
-    # say the same thing and the precedence was never defined: `labels=True`
-    # did not override `profile="codes"`, and the `labels is True` branch below
-    # was a literal no-op (`strict_labels or False` is `strict_labels`).
-    #
-    # `profile` is the richer control, so an explicit non-default profile wins.
-    # `labels` only decides between rendering and not.
-    # `fetch(years=2024)` works; `load(years=2024)` used to reach
-    # `list(years)` and raise. Public functions that present themselves as
-    # parallel should accept the same filters.
+    from ._query_engine.request import public_form
+
     if isinstance(years, int):
         years = [years]
     if isinstance(uf, str):
         uf = [uf]
-
+    # `labels` only decides between rendering and not; an explicit non-default profile is the richer control.
     if labels is False:
         profile = "codes"
     elif labels is True and profile == "codes":
@@ -936,171 +984,24 @@ def load(
     own = catalog is None
     cat = catalog or Catalog(root=root, settings=settings)
     try:
-        store = cat.store
-        resolved = plan_lake_read(
-            store, system, series, family_id=family_id, uf=uf, years=years, partitions=partitions,
-        )
-        filters = _rows_filters(rows)
-        wanted: list[str] | None = None
-        helpers: frozenset[str] = frozenset()
-        derived_names: frozenset[str] = frozenset()
-        file_state = False
-        prepared = None
-        condition_docs: Any = None
-        if condition is not None:
-            from .conditions import prepare
-            from .semantics.curation import load_variable_docs as _docs_of
-
-            prepared = prepare(f"{system}-{series}" if series else system, condition)
-            if not _condition_state:            # the engine (`query`) has asked it of the whole period already
-                prepared.require(list(years or ()))
-            condition_docs = _docs_of(store, system)
-        if columns:
-            # What a projection reads is `required_columns`, the rule fetch() follows too: a curated derived column
-            # (IDADE_anos from IDADE and COD_IDADE) is made at render from its inputs, and a label from the columns of
-            # its key, its sibling or its establishment. A select= that left them out labelled the column for fetched
-            # years and not for lake years (2026-10-03: 0 newborn admissions, link "not viable"; CNES CLASS_SR
-            # keyed by SERV_ESP + CLASS_SR came back undecoded). They are read, used, and dropped again below.
-            from .semantics.curation import derived_inputs, load_variable_docs, required_columns
-            from .view import resolve_profile
-
-            docs = load_variable_docs(store, system)
-            inputs_of = derived_inputs(docs)
-            produced = isinstance(derived, (list, tuple, set)) and bool(derived) or (
-                derived if isinstance(derived, bool) else resolve_profile(profile).derived)
-            if produced:
-                derived_names = frozenset(inputs_of)
-            asked = {str(c).upper() for c in columns}
-            needed = required_columns(docs, columns)
-            # read only to render, and the derived columns the extra reads made possible: a projection means what it says
-            helpers = frozenset((needed - asked) | (set(inputs_of) - asked))
-            if prepared is not None:
-                # the condition's columns are read to test it and dropped again, unless asked for
-                helpers = helpers | (_condition_inputs(prepared, docs) - asked)
-            # a derived column is made after reading: its inputs are read, it is not
-            wanted = [c for c in columns if str(c).upper() not in derived_names]
-            file_state = any("@UF" in (docs[c].key or []) for c in needed if c in docs)
-        # A column NO generation carries is a typo or a renamed field, never a structural absence to fill with nulls;
-        # likewise a row filter on one. (A column some generations lack stays the recorded, null-filled case.)
-        if columns and on_missing_column == "null_fill":
-            require_known_columns(store, system, series, resolved.dataset_families, list(columns), exempt=derived_names)
-        if filters:
-            require_known_columns(store, system, series, resolved.dataset_families, list(filters))
-        if not resolved.families:
-            from .retrieve import NothingPublished
-
-            raise NothingPublished(
-                f"no lake data for system={system!r} series={series!r}"
-                + (f", uf={list(uf)}" if uf else "") + (f", years={list(years)}" if years else "")
-                + "; the catalog lists no lake partition for it. Run `pegasus-data build` first"
-            )
-        tables, structurally_absent = _read_generations(
-            cat,
-            resolved,
-            system=system,
-            wanted=wanted,
+        request = ReadRequest.build(
+            cat.store, system, series, columns=columns, rows=rows, condition=condition, years=list(years or ()),
+            profile=profile, render=render, companions=companions, derived=derived, strict_labels=strict_labels,
+            historical_labels=historical_labels, allow_borrowed_labels=allow_borrowed_labels,
             on_missing_column=on_missing_column,
-            rows=filters,
-            companion_probes=_keeps_companions(profile, companions),
-            leave_out=_leave_out,
-            also_read=[*sorted(helpers), *(["uf"] if file_state else [])],
-            condition=prepared,
-            docs=condition_docs,
         )
-        if not tables:
-            # Every generation in play lacks a column the filter is on: the rows asked for cannot be told from the
-            # others, and an empty answer would read as "none of those codes" (recorded in structural_absence).
-            names = sorted({c.removesuffix(" (row filter)") for cols in structurally_absent.values() for c in cols})
-            if filters and names:
-                carriers = [
-                    str(f["family_id"]) for f in resolved.dataset_families
-                    if all(c in resolved.presence.get(str(f["schema_signature"]), frozenset()) for c in names)
-                ]
-                raise MissingColumnError(
-                    names[0], ", ".join(sorted(structurally_absent)), carriers, also_absent=names[1:],
-                )
-            # The same class fetch() raises for the same situation. load() used
-            # to raise a bare FileNotFoundError here and KeyError above, so
-            # robust downstream handling depended on which retrieval path the
-            # caller happened to use.
-            from .retrieve import NothingPublished
-
-            raise NothingPublished(
-                f"no lake data for system={system!r} series={series!r}; run "
-                "`pegasus-data build` first"
-            )
-
-        # Render each (family, year) with ITS OWN bindings and codelist vintage,
-        # then combine. This used to concatenate everything first and render the
-        # lot once with `min(years)` and `family_id=None`, which meant
-        # `load(years=range(1995, 2025))` labelled every row with the 1995
-        # vintage, `years=None` labelled historical rows with today's codelist,
-        # and any family-specific binding was discarded the moment two families
-        # were combined. A plausible wrong label is worse than a missing one,
-        # and classification vintages are exactly where that bites.
-        #
-        # `year` is a Hive partition column in the lake, so the scoping is
-        # row-level rather than a hint about the request.
-        # The same operation fetch() uses. Two implementations of one rule is
-        # how fetch() kept the cross-vintage bug this fixed in load().
-        from .persist.decisions import borrowed_label_policy, historical_label_policy
-        from .render_groups import render_groups, split_by_year_column
-
-        groups = [
-            group
-            for family_id, table in tables
-            for group in split_by_year_column(table, years, family_id)
-        ]
-        with (
-            historical_label_policy(historical_labels),
-            borrowed_label_policy(allow_borrowed_labels),
-        ):
-            rendered, render_report = render_groups(
-                groups,
-                store=store,
-                lake_root=cat.settings.lake_dir,
-                system=system,
-                profile=profile,
-                render=render,
-                companions=companions,
-                derived=derived,
-                strict=strict_labels,
-                registries=cat.settings.registries_dir,
-            )
-        if helpers:
-            from .view import drop_helper_columns
-
-            rendered = drop_helper_columns(rendered, helpers)
-        if prepared is not None and not _condition_state:
-            from .conditions import settle
-
-            rendered, _ = settle(rendered, prepared, keep_unknown=False)
-        if file_state and "uf" in rendered.schema.names and "UF" not in {str(c).upper() for c in columns or ()}:
-            rendered = rendered.drop_columns(["uf"])        # read for a key's "@UF" part, not asked for
-        if not _preserve_internal and wanted is not None and "YEAR" not in {c.upper() for c in wanted} and (
-            "year" in rendered.schema.names
-        ):
-            # Carried for the vintage split, not requested. Dropped so a
-            # projection means what it says.
+        rendered, render_report = read_lake(
+            cat, request, uf=uf, years=years, family_id=family_id, partitions=partitions)
+        # `year` was carried for the vintage split; under a projection that does not name it, it goes
+        keep = () if request.columns is not None and "YEAR" not in request.asked else ("year",)
+        rendered = public_form(rendered, request)
+        if not keep and "year" in rendered.schema.names:
             rendered = rendered.drop_columns(["year"])
-        if not _preserve_internal and "_competencia" in rendered.column_names:
-            rendered = rendered.drop_columns(["_competencia"])
-        if not _preserve_internal and "_source_resolution" in rendered.column_names:
-            rendered = rendered.drop_columns(["_source_resolution"])
-        for note in resolved.notes:
-            render_report.warnings.append(note)
-        if structurally_absent and render_report is not None:
-            render_report.structural_absence = dict(sorted(structurally_absent.items()))
-            for fam, cols in sorted(structurally_absent.items()):
-                render_report.warnings.append(
-                    f"{', '.join(cols)}: absent from the schema of generation {fam}; "
-                    "those rows are null here STRUCTURALLY — the field does not "
-                    "exist for them, it was not left blank"
-                )
         return (rendered, render_report) if report else rendered
     finally:
         if own:
             cat.close()
+
 
 
 def load_population(

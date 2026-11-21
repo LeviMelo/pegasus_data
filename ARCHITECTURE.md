@@ -297,6 +297,7 @@ the milestone that removes the duplicate; an ADR is written when it is done.
 | Job | Mechanisms today | Plan |
 |---|---|---|
 | read a dataset | ~~`fetch`, `load`, `scan`, `open_lake`, `export` as public doors~~ | **done** (ADR-0073): `query` is the one door; the engines are internal; one identifier resolver |
+| prepare and finish a read | ~~`load` and `fetch` each normalised the row filter, prepared the condition, derived the helper columns, rendered and trimmed, and `query` steered them with private switches (`_preserve_internal`, `_leave_out`, `_condition_state`, `_record_key`)~~ | **done** (2026-11-21): one `ReadRequest` and one `finish` (`_query_engine/request.py`); the sources are `api.read_lake` and `retrieve.read_source`, and `load`/`fetch` are those in the public form |
 | decide a column's codelist | ~~read-time weighing per file, capped at 12~~; ~~the query-time gate~~ | **done** (ADR-0061, ADR-0072): curation, then one stored binding per family and field |
 | bootstrap a fresh catalog | ~~inside `fetch`, `_translate.py` separately, `tree.parquet` for `explore`, nothing for `info`~~ | **done** (ADR-0067): `Catalog.__init__` installs the seed |
 | export the semantic layer | ~~the bundle and the dictionary database~~ | **done** (ADR-0075): the seed and label pack ship; `compendium()` is the researcher's map; `persist/reference` the lake's tables |
@@ -428,6 +429,7 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
 - `_query_engine/model.py`: `QuerySpec`, `QueryPlan`, `QueryReport`, warnings.
 - `_query_engine/planner.py`: `plan()`.
 - `_query_engine/executor.py`: `query()`.
+- `_query_engine/request.py`: `ReadRequest`, what a read asks of a dataset (columns, record filters, a condition on roles, the rendering), settled once and shared by both sources: it derives what the lake (`api.read_lake`) and the published files (`retrieve.read_source`) must bring and which helper columns are dropped again; `finish` is the one stage that renders a source's groups; `public_form` is what `load` and `fetch` add to return a table outside the engine.
 - `_query_engine/filters.py`: publication-period filters.
 - `_query_engine/semantics.py`: dimensions, enrichments, the `label_of` gate.
 - `_query_engine/coverage.py`: which datasets `query` can serve, and which years the lake holds whole (files looked at on disk); `national_or_states`: a year published nationally and per state is read once; `in_months`: a month's query opens the lake files built from that month's publications (a monthly intake unit is one part file), and `sole_competence` gives the records of a file built from one publication of a month their competence, which an intake record does not store.

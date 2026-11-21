@@ -7,7 +7,7 @@ prefixes) matches, whole, write them, and release the file's blob unless a snaps
 filters are one pass (SIA-PA's serology procedures and its records coded B58 on PA_CIDPRI). Peak disk is one file; the
 extract is each filter's complete records, never a sample.
 
-An extract reads the published files through ``fetch`` (``_only_paths``), one at a time, never the lake or ``query()``: its
+An extract reads the published files through ``fetch`` (``only_paths``), one at a time, never the lake or ``query()``: its
 point is a dataset the lake cannot hold, and the planner's lake/fetch choice has nothing to choose.
 
 An extract lives apart from the lake (``<lake>/extracts/<dataset>/<digest>/``): a query for other codes must never read
@@ -262,7 +262,7 @@ def _build_extract(dataset: str, years: Sequence[int], filters: dict[str, Sequen
     def read(f: dict[str, Any]) -> tuple[dict[str, Any], Any, int, Any]:
         """One file fetched, decoded and filtered in the worker: only its kept records wait for their turn."""
         try:
-            table, report = fetch(dataset, labels=False, provenance=True, _only_paths=[f["path"]], report=True,
+            table, report = fetch(dataset, labels=False, provenance=True, only_paths=[f["path"]], report=True,
                                   max_bytes=None, settings=settings, on_missing_column="null_fill")
         except Exception as exc:  # noqa: BLE001 - a file that does not open is a recorded gap, not an absence
             return f, exc, 0, None

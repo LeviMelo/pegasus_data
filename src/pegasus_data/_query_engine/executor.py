@@ -132,11 +132,11 @@ def query(
     both before anything is rendered. Records the condition cannot decide (a missing weight is not "under 2,500") are not in the
     result; their number is ``report.condition["unknown"]`` and the table's `conditions.condition_report`.
     ``_keep_unknown`` (the event readers') leaves them in, each record's answer in ``conditions.CONDITION``."""
-    from ..api import _rows_filters
-    from ..conditions import prepare
+    from ..normalize.engine import PROVENANCE_COLUMNS
     from ..presentation import resolve as resolve_presentation
+    from .readplan import resolve_family
+    from .request import ReadRequest
 
-    rows = _rows_filters(rows) or None          # a filter that selects no record is refused, not read as "every record"
     resolved_settings = settings or load_settings(root=Path(root) if root else None)
     # How the result is shown (ADR-0084): the engine always builds the
     # canonical form (codes + labels), and the presentation is applied last.
@@ -154,10 +154,24 @@ def query(
     )
     resolved = resolved_settings
     retrieval = query_plan.retrieval
-    # before any file moves: a role the dataset does not declare, a number compared with a code, an ambiguous column
-    prepared = prepare(f"{retrieval.system}-{retrieval.series}" if retrieval.series else retrieval.system, condition)
-    if prepared is not None:
-        prepared.require([*retrieval.lake_years, *retrieval.fetch_years, *(retrieval.years or ())])
+    # `_competencia`, `year` and `_source_resolution` are DERIVED downstream by `_with_competence` out of
+    # `_source_path` and the source report. They are columns of no DATASUS family, so they are never asked of a
+    # source. `_source_path` stays in the projection: it IS a real column of both sources.
+    columns = (
+        set(query_plan.spec.select or ()) | set(retrieval.hidden_dependencies)
+    ) - SYNTHESISED_COLUMNS
+    requested_columns = sorted(columns) if query_plan.spec.select is not None else None
+    # ONE request for both sources (the lake's years and the fetched ones), checked before any file moves: an empty
+    # row filter, a role the dataset does not declare, a number compared with a code, an ambiguous column. Derived
+    # columns travel with labels; under the codes presentation only the ones the caller selected are built, as codes.
+    with shared_catalog(resolved) as known_store:
+        request = ReadRequest.build(
+            known_store, retrieval.system, retrieval.series, columns=requested_columns, rows=rows,
+            condition=condition,
+            years=[*retrieval.lake_years, *retrieval.fetch_years, *(retrieval.years or ())],
+            profile="audit" if labels else "codes", render=render, companions=False,
+            derived=labels or list(query_plan.spec.select or []), on_missing_column="null_fill",
+        )
     # No period first: the more specific refusal, and the one that says what
     # to change (it was masked by the budget's 22 GiB message, 2026-10-04).
     if not query_plan.spec.period and (
@@ -224,73 +238,37 @@ def query(
         publication_resolution=retrieval.publication_resolution,
         adaptations=[asdict(item) for item in retrieval.adaptations],
     )
-    # `_competencia`, `year` and `_source_resolution` are DERIVED downstream by
-    # `_with_competence` out of `_source_path` and the source report. They are
-    # not columns of any DATASUS family, so asking a source for them makes the
-    # read refuse:
-    #
-    #   query("SIH-RD", period="2022-01", geography="AC", select=[...])
-    #   -> MissingColumnError: column '_competencia' is not present in family
-    #      SIHSUS_RD_e2f7244ae5 (also absent: _source_resolution, year)
-    #
-    # It only bit when `select=` was given, because without it nothing is
-    # projected and everything arrives anyway. `_source_path` stays in the
-    # projection: it IS a real column, supplied by `provenance=True` on the
-    # fetch path and present in the lake.
-    columns = (
-        set(query_plan.spec.select or ()) | set(retrieval.hidden_dependencies)
-    ) - SYNTHESISED_COLUMNS
-    requested_columns = sorted(columns) if query_plan.spec.select is not None else None
-    if requested_columns or rows:
+    if requested_columns or request.filters:
         # a column NO generation of the dataset carries is a typo or a renamed field: refused here, for the lake and
         # the fetch path alike, instead of coming back as an all-null column with a warning
-        from ..semantics.curation import derived_inputs, load_variable_docs
-        from .readplan import require_known_columns, resolve_family
-
         with shared_catalog(resolved) as known_store:
-            dataset_families = resolve_family(known_store, retrieval.system, retrieval.series, None)
-            derived_names = frozenset(derived_inputs(load_variable_docs(known_store, retrieval.system)))
-            require_known_columns(
-                known_store, retrieval.system, retrieval.series, dataset_families,
-                [*(requested_columns or []), *(rows or {})], exempt=derived_names,
-            )
-    # Derived columns travel with labels; under the codes presentation only the
-    # ones the caller selected are built, as codes (view._apply_derived).
-    derived: bool | list[str] = labels or list(query_plan.spec.select or [])
+            request.require_known(known_store, resolve_family(known_store, retrieval.system, retrieval.series, None))
     tables: list[pa.Table] = []
     source_reports: list[Any] = []
     if as_of is None and retrieval.lake_years:
         from ..api import Catalog as PublicCatalog
-        from ..api import load
+        from ..api import read_lake
 
         cat = PublicCatalog(settings=resolved)
-        # Provenance is a promise about every row on both paths: the fetch path
-        # asks for it (provenance=True below); the lake stores it, but a
-        # projection that names only the selected fields dropped it, and a
-        # linkage over a built lake had no record identity (2026-10-03).
-        lake_columns = requested_columns
-        if lake_columns is not None and query_plan.spec.provenance == "all":
-            from ..normalize.engine import PROVENANCE_COLUMNS
-
-            lake_columns = sorted(set(lake_columns) | set(PROVENANCE_COLUMNS))
+        # Provenance is a promise about every row on both paths: the published files' read keeps it; the lake stores
+        # it, but a projection that names only the selected fields dropped it, and a linkage over a built lake had
+        # no record identity (2026-10-03).
+        lake_request = request
+        if requested_columns is not None and query_plan.spec.provenance == "all":
+            lake_request = replace(request, columns=tuple(sorted(set(requested_columns) | set(PROVENANCE_COLUMNS))))
         # a full-width read decodes what the answer then drops: the record key (32 hex characters a row), the blob
         # digest, the stored labels the renderer ignores
         leave_out: frozenset[str] = frozenset()
-        if lake_columns is None and query_plan.spec.provenance != "all":
-            from ..normalize.engine import PROVENANCE_COLUMNS
-
+        if requested_columns is None and query_plan.spec.provenance != "all":
             leave_out = frozenset(c for c in PROVENANCE_COLUMNS if c != "_source_path")
         try:
             # the files the plan chose, read once: one reading of each year (the national file beside its state files
             # is one), whatever mix of national and state years the plan holds
-            local_table, local_report = load(
-                retrieval.system, retrieval.series,
+            local_table, local_report = read_lake(
+                cat, lake_request,
                 uf=list(retrieval.physical_geography) or None,
-                years=list(retrieval.lake_years) or None, columns=lake_columns,
-                labels=labels, profile="audit" if labels else "codes", render=render,
-                companions=False, derived=derived, on_missing_column="null_fill",
-                report=True, catalog=cat, _preserve_internal=True, rows=rows, _leave_out=leave_out,
-                partitions=retrieval.lake_partitions, condition=prepared, _condition_state=True,
+                years=list(retrieval.lake_years) or None,
+                partitions=retrieval.lake_partitions, leave_out=leave_out,
             )
             # the lake's report says where its rows came from as a fetch's does: the source files of the partitions read
             competence = dict(retrieval.lake_competence)
@@ -311,38 +289,25 @@ def query(
     if (retrieval.source_strategy == "fetch" or as_of is not None) and not retrieval.years:
         fetch_years = (None,)
     if fetch_years:
-        from ..retrieve import fetch
+        from .._request import _as_years, _clean_months, _clean_ufs
+        from ..retrieve import read_source
 
         months_by_year = dict(retrieval.year_months)
         for fetch_year in fetch_years:
-            fetch_months = months_by_year.get(fetch_year) or None  # type: ignore[arg-type]
-            fetched_table, fetched_report = fetch(
-                dataset,
-                uf=list(retrieval.geography_for(fetch_year)) or None,
-                years=[fetch_year] if fetch_year is not None else None,
-                months=fetch_months,
-                columns=requested_columns,
-                labels=labels,
-                profile="audit" if labels else "codes",
-                render=render,
-                companions=False,
-                # Curated derivations (IDADE_anos) are declarations like labels
-                # are, so they travel with them.
-                derived=derived,
-                provenance=True,
-                # the key is hashed per row (about 9 us each) and kept only for the caller who asked for provenance
-                _record_key=query_plan.spec.provenance == "all",
-                on_missing_column="null_fill",
-                # A file that would not download or open is a recorded gap
-                # (report.excluded), never a silent absence; accepting a short
-                # table is the caller's explicit choice.
+            fetched_table, fetched_report = read_source(
+                dataset, request,
+                uf=_clean_ufs(list(retrieval.geography_for(fetch_year)) or None),
+                years=_as_years([fetch_year] if fetch_year is not None else None),
+                months=_clean_months(months_by_year.get(fetch_year) or None),  # type: ignore[arg-type]
+                settings=resolved,
+                # every provenance column rides to the end of the query; the key is hashed per row (about 9 us each)
+                # and kept only for the caller who asked for provenance
+                provenance=True, record_key=query_plan.spec.provenance == "all",
+                # A file that would not download or open is a recorded gap (report.excluded), never a silent
+                # absence; accepting a short table is the caller's explicit choice.
                 allow_partial=allow_partial,
                 max_bytes=None,  # the budget is max_download, checked above on NEW bytes
                 as_of=as_of,
-                settings=resolved,
-                report=True,
-                rows=rows,                  # tested on the decoded codes, before the year is rendered
-                condition=prepared, _condition_state=True,
             )
             tables.append(_with_competence(fetched_table, fetched_report))
             source_reports.append(fetched_report)
@@ -397,11 +362,11 @@ def query(
     table = _filter_source_period(
         table, query_plan.spec.period, retain_annual_enclosures=coarsening
     )
-    if prepared is not None:
+    if request.condition is not None:
         # after the period: a record outside it is neither satisfied nor unknown
         from ..conditions import settle
 
-        table, report.condition = settle(table, prepared, keep_unknown=_keep_unknown)
+        table, report.condition = settle(table, request.condition, keep_unknown=_keep_unknown)
     table = _apply_dimensions(table, query_plan, report, resolved)
     for request in query_plan.spec.enrichments:
         dataset = query_plan.spec.dataset

@@ -494,7 +494,7 @@ def compile_bindings(
                     system, series=series or None, uf=sample["geo_code"] or None,
                     years=[int(sample["year"])], months=[month] if month else None,
                     labels=False, provenance=True, settings=settings, max_bytes=None,
-                    on_missing_column="null_fill", _only_paths=[str(sample["path"])],
+                    on_missing_column="null_fill", only_paths=[str(sample["path"])],
                 ))
             except Exception as exc:  # noqa: BLE001 - one bad sample is not the compile
                 counts["failed"] += 1

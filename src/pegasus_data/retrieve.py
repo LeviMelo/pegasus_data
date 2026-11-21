@@ -44,7 +44,7 @@ from contextlib import AbstractContextManager
 from dataclasses import dataclass, field, replace
 from datetime import date, datetime
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import pyarrow as pa
 
@@ -82,6 +82,9 @@ from .pipeline import Pipeline
 from .progress import ItemTimeout, record_timeout, run_with_timeout
 from .semantics.dictionary import DictionaryCache
 from .view import RenderMode, RenderReport
+
+if TYPE_CHECKING:  # pragma: no cover - typing only
+    from ._query_engine.request import ReadRequest
 
 __all__ = [
     "fetch", "FetchReport", "DatasetUnknown", "NothingPublished", "FilterHasNoAxis",
@@ -254,6 +257,202 @@ class FetchReport:
 
 
 #: How people write a dataset: "SIH-RD", "SIH/RD", "SIHSUS RD", "sih_rd".
+def read_source(
+    dataset: str,
+    request: ReadRequest,
+    *,
+    uf: Sequence[str] | None = None,
+    years: Sequence[int] | None = None,
+    months: Sequence[int] | None = None,
+    settings: Settings,
+    provenance: bool = True,
+    record_key: bool = True,
+    max_files: int | None = None,
+    allow_partial: bool = False,
+    max_bytes: int | None = DEFAULT_MAX_EAGER_BYTES,
+    discover: bool = True,
+    on_progress: Callable[[str, int, int], None] | None = None,
+    only_paths: Sequence[str] | None = None,
+    as_of: str | date | datetime | None = None,
+) -> tuple[pa.Table, FetchReport]:
+    """The published files' rows for ``request``, downloaded, decoded, normalised and rendered, in the engine's form:
+    the provenance columns on the rows (all of them with ``provenance``, ``_source_path`` alone without; the record
+    key only with ``record_key``) and each record's answer to the condition in ``conditions.CONDITION``. `fetch` is
+    this in the public form; ``query`` reads each year its plan fetches through it.
+
+    ``uf``, ``years`` and ``months`` are already cleaned (`_request`). The request's docs are read again here, after
+    the catalog's curation is brought up to the shipped YAML (`_ensure_curation`).
+    """
+    from ._query_engine.request import finish
+    from .api import rows_expression
+    from .normalize.engine import PROVENANCE_COLUMNS, MissingColumnError
+    from .render_groups import split_by_source
+    from .semantics.curation import load_variable_docs, required_columns
+
+    system, series_name = request.system, request.series
+    want_ufs, want_years, want_months = list(uf or ()), list(years or ()), list(months or ())
+    pipeline = Pipeline(settings)
+    fetch_report = FetchReport(system=system, series=series_name, years_requested=want_years)
+    try:
+        # Refuse a name the ontology cannot resolve BEFORE any network work: fetch("CNES-ZZ") spent 18.3 seconds
+        # crawling before saying it does not exist, and no amount of crawling could have made it exist.
+        _reject_unresolvable(system, series_name)
+        _ensure_curation(pipeline, fetch_report)
+        request = replace(request, docs=load_variable_docs(pipeline.catalog, system))
+        # Before any work: is this dataset even split the way the caller asked?
+        _check_axes(
+            pipeline.catalog, dataset, system, series_name,
+            uf=bool(want_ufs), years=bool(want_years), months=bool(want_months),
+            report=fetch_report,
+        )
+        families = _families(pipeline.catalog, system, series_name)
+        if not families and discover:
+            _discover(
+                pipeline, system, fetch_report, on_progress,
+                series=series_name, years=want_years,
+            )
+            families = _families(pipeline.catalog, system, series_name)
+        if not families:
+            raise DatasetUnknown(
+                f"nothing catalogued for system={system!r} series={series_name!r}"
+                + ("" if discover else "; discovery is off, so nothing was looked up")
+            )
+        columns = request.source_columns
+
+        def read(report: FetchReport, exclude: frozenset[str] = frozenset()) -> tuple[pa.Table, FetchReport]:
+            return _read_families(
+                pipeline,
+                families,
+                report=report,
+                ufs=want_ufs,
+                years=want_years,
+                months=want_months,
+                max_files=max_files,
+                on_progress=on_progress,
+                columns=columns,
+                on_missing_column=request.on_missing_column,
+                max_bytes=max_bytes,
+                only_paths=only_paths,
+                exclude_paths=exclude,
+                as_of=as_of,
+                memo=decoded_before,
+                record_key=record_key,
+            )
+
+        decoded_before: dict[tuple[str, str, str], dict[str, Any]] = {}
+        table, fetch_report = read(fetch_report)
+        refused: set[str] = set()
+        while fetch_report.schema_mismatch and fetch_report.representations_deduplicated:
+            # A representation its family's schema refused (SINAN dengue 2010 and 2013: the
+            # Dados_Abertos CSV, chosen as the cheapest, does not carry the family's columns)
+            # must not end the read when the publication has another representation: read again
+            # without it, so the next one answers. A publication has up to four (CSV, JSON, XML,
+            # DBC; ZIKA 2017 refuses the first two), so this repeats until a read has nothing
+            # new to refuse or nothing left to try.
+            # Only a refusal whose publication has another representation is set aside; one
+            # with none stays in the read and in the report, so it can never drop out silently.
+            fresh = _refused_with_alternative(
+                pipeline.catalog,
+                set(fetch_report.schema_mismatch) - refused,
+                fetch_report.representations_deduplicated,
+            )
+            if not fresh:
+                break
+            refused |= fresh
+            table, fetch_report = read(
+                FetchReport(system=system, series=series_name, years_requested=want_years), frozenset(refused))
+        if refused:
+            fetch_report.warnings.append(
+                f"{len(refused)} representation(s) refused for schema; read again from another: "
+                + ", ".join(sorted(refused)[:3]))
+        if table.num_rows == 0:
+            empty = (
+                fetch_report.files_read > 0
+                and not fetch_report.undecoded
+                and not fetch_report.schema_mismatch
+            )
+            raise (PublishedEmpty if empty else NothingPublished)(
+                _nothing_message(fetch_report, want_ufs, want_years, want_months,
+                                 latest=_latest_published(pipeline.catalog, families, want_ufs))
+            )
+
+        # A SHORT answer is refused by default. Raising only on zero rows meant
+        # eleven of twelve monthly files decoding returned eleven months that
+        # looked like a complete year, with the diagnosis visible only to a
+        # caller who had asked for report=True.
+        if not allow_partial and not fetch_report.is_complete:
+            raise PartialFetchError(fetch_report, fetch_report.excluded)
+
+        if columns:
+            missing = [
+                c for c in columns if c not in table.column_names and str(c).upper() not in request.derived_names
+            ]
+            if missing:
+                # Not a warning: a column silently absent from the result is how an analysis quietly loses a
+                # variable. STRUCTURAL absence, and every one of them at once: the concat null-fills any column
+                # that at least one generation has, so a column missing HERE is missing from every generation
+                # that answered.
+                raise MissingColumnError(
+                    missing[0], fetch_report.families[0], [], also_absent=missing[1:]
+                )
+            requested = set(columns)
+            # `_source_path` is a hidden semantic dependency: rendering needs it to recover each row's family and
+            # competence. What a requested column's LABEL is made from (a composite key's parts, a naming sibling, a
+            # unit) survives until rendering and is dropped after it (ADR-0090).
+            internal = set(PROVENANCE_COLUMNS) if provenance else {"_source_path"}
+            render_needs = required_columns(request.docs, columns) - requested
+            keep = [
+                c for c in table.column_names if c in requested or c in internal or c in render_needs
+            ]
+            table = table.select(keep)
+
+        # the records asked for, tested on the decoded codes before anything is rendered
+        if request.filters:
+            table = table.filter(rows_expression(request.filters))
+        if request.condition is not None:
+            import pyarrow.compute as pc
+
+            from .conditions import CONDITION
+
+            state = request.condition.state(table, request.docs, years=want_years)
+            sure = pc.coalesce(state, pa.scalar(True))
+            table = table.filter(sure).append_column(CONDITION, state.filter(sure))
+        if request.profile != "codes":
+            _ensure_reference_tables(pipeline, fetch_report)
+        # Per (family, vintage), by the stage the lake's read uses. A fetched table has no `year` column, but every
+        # row carries `_source_path` and the selection knows each file's family and year.
+        table = _with_source_uf(table, fetch_report.source_ufs)
+        rendered, render_report = finish(
+            request,
+            split_by_source(table, fetch_report.source_facts, fallback_year=min(want_years) if want_years else None),
+            store=pipeline.catalog, settings=settings,
+        )
+        if SOURCE_UF in rendered.column_names:
+            rendered = rendered.drop_columns([SOURCE_UF])
+        # NAMED, not masked. The source data is passed through unmodified and
+        # that is deliberate — this package does not silently alter what
+        # DATASUS published. But it makes these files far easier to retrieve
+        # and export, and a CPF column leaving without a word is not a neutral
+        # default. The ledger already classifies them; this is where a caller
+        # sees it.
+        fetch_report.sensitive_columns = _sensitive_columns(
+            pipeline.catalog, system, rendered.schema.names
+        )
+        if fetch_report.sensitive_columns:
+            named = ", ".join(
+                f"{k} ({v})" for k, v in sorted(fetch_report.sensitive_columns.items())
+            )
+            fetch_report.warnings.append(
+                f"direct personal identifiers in this result: {named}. Passed "
+                "through unmodified; handling obligations are the caller's."
+            )
+        fetch_report.render = render_report
+        fetch_report.rows = rendered.num_rows
+        return rendered, fetch_report
+    finally:
+        pipeline.close()
+
+
 def fetch(
     dataset: str,
     *,
@@ -282,12 +481,10 @@ def fetch(
     settings: Settings | None = None,
     on_progress: Callable[[str, int, int], None] | None = None,
     report: bool = False,
-    _only_paths: Sequence[str] | None = None,
-    _record_key: bool = True,
+    only_paths: Sequence[str] | None = None,
     as_of: str | date | datetime | None = None,
     rows: Mapping[str, Sequence[str]] | None = None,
     condition: object = None,
-    _condition_state: bool = False,
 ) -> pa.Table | tuple[Any, ...]:
     """Download, decode, normalise and label a DATASUS dataset in one call.
 
@@ -310,8 +507,7 @@ def fetch(
     ``provenance=True`` keeps ``_source_path``, ``_blob_sha256``,
     ``_ingested_at`` and ``_schema_signature``. They are off by default: they
     are constant per source file and cost width in every row to say something
-    the report already says once. The record key (an MD5 of each row's fields) is computed only then, and not when
-    the internal ``_record_key=False`` says the caller keeps the other four and drops the key.
+    the report already says once. The record key (an MD5 of each row's fields) is computed only then.
 
     ``dictionary=True`` also returns a :class:`DataDictionary` — one row per
     column, with what it means, which reference table decoded it and the
@@ -335,6 +531,8 @@ def fetch(
     appends to a tuple, in that order — so ``(table, report)``,
     ``(table, dictionary)`` or ``(table, report, dictionary)``.
     """
+    from ._query_engine.request import ReadRequest, public_form
+
     resolved_settings = settings or load_settings(root=Path(root) if root else None)
     if refresh is not None:
         # Per call, because "is my cached copy current?" is a question about
@@ -342,295 +540,45 @@ def fetch(
         resolved_settings = replace(resolved_settings, refresh=refresh)
     system, series_name = parse_dataset(dataset, series)
     _reject_unknown_system(dataset, system)
-    want_years = _as_years(years)
     # Validated HERE, at the boundary, so a typo is a message rather than an
     # empty result that reads as "nothing was published".
+    want_years = _as_years(years)
     want_ufs = _clean_ufs(uf)
     want_months = _clean_months(months)
     _check_choice("on_missing_column", on_missing_column, ("raise", "null_fill"))
-    asked_columns = list(columns) if columns else None
-    if rows:
-        from .api import _rows_filters
-
-        rows = _rows_filters(rows)                  # refused when it selects no record, never read as "every record"
-        if columns:
-            asked = {str(c).upper() for c in columns}
-            columns = [*columns, *(c for c in rows if str(c).upper() not in asked)]
-
-    pipeline = Pipeline(resolved_settings)
-    fetch_report = FetchReport(
-        system=system, series=series_name, years_requested=want_years
+    request = ReadRequest.build(
+        None, system, series_name, columns=columns, rows=rows, condition=condition, years=want_years,
+        profile=profile if labels else "codes", render=render, companions=companions, derived=derived,
+        strict_labels=strict_labels, historical_labels=historical_labels,
+        allow_borrowed_labels=allow_borrowed_labels, on_missing_column=on_missing_column,
     )
-    try:
-        # Before any work: is this dataset even split the way the caller asked?
-        # Refuse a name the ontology cannot resolve BEFORE any network work.
-        # fetch("CNES-ZZ") spent 18.3 seconds crawling before saying it does not
-        # exist, and no amount of crawling could have made it exist.
-        _reject_unresolvable(system, series_name)
-        _ensure_curation(pipeline, fetch_report)
+    rendered, fetch_report = read_source(
+        dataset, request, uf=want_ufs, years=want_years, months=want_months, settings=resolved_settings,
+        provenance=provenance, record_key=provenance, max_files=max_files, allow_partial=allow_partial,
+        max_bytes=max_bytes, discover=discover, on_progress=on_progress, only_paths=only_paths, as_of=as_of,
+    )
+    rendered = public_form(rendered, request)
+    # ORDER MATTERS. Provenance is dropped first so it never appears in the
+    # dictionary; the dictionary is built against the ORIGINAL names. Headers
+    # are named by the presentation (ADR-0084), never here.
+    if not provenance:
+        from .normalize.engine import PROVENANCE_COLUMNS
 
-        _check_axes(
-            pipeline.catalog, dataset, system, series_name,
-            uf=bool(want_ufs), years=bool(want_years), months=bool(want_months),
-            report=fetch_report,
-        )
-        families = _families(pipeline.catalog, system, series_name)
-        if not families and discover:
-            _discover(
-                pipeline, system, fetch_report, on_progress,
-                series=series_name, years=want_years,
-            )
-            families = _families(pipeline.catalog, system, series_name)
-        if not families:
-            raise DatasetUnknown(
-                f"nothing catalogued for system={system!r} series={series_name!r}"
-                + ("" if discover else "; discovery is off, so nothing was looked up")
-            )
+        keep = [c for c in rendered.column_names if c not in PROVENANCE_COLUMNS]
+        if len(keep) != len(rendered.column_names):
+            rendered = rendered.select(keep)
+    out: tuple[Any, ...] = (rendered,)
+    if report:
+        out += (fetch_report,)
+    if dictionary:
+        from ._dictionary import build_dictionary
+        from ._query_engine.coverage import shared_catalog
 
-        prepared = None
-        condition_docs: Any = None
-        if condition is not None:
-            from .api import _condition_inputs
-            from .conditions import prepare
-            from .semantics.curation import load_variable_docs as _docs_of
+        with shared_catalog(resolved_settings) as store:
+            out += (build_dictionary(
+                store, system, list(rendered.column_names), dataset=dataset, render_report=fetch_report.render),)
+    return out if len(out) > 1 else rendered
 
-            prepared = prepare(f"{system}-{series_name}" if series_name else system, condition)
-            if not _condition_state:            # the engine (`query`) has asked it of the whole period already
-                prepared.require(list(want_years or ()))
-            condition_docs = _docs_of(pipeline.catalog, system)
-            if columns:
-                # its columns are read to test it and dropped again, unless asked for (as `rows`' are)
-                asked_here = {str(c).upper() for c in columns}
-                columns = [*columns, *sorted(_condition_inputs(prepared, condition_docs) - asked_here)]
-
-        decoded_before: dict[tuple[str, str, str], dict[str, Any]] = {}
-        table, fetch_report = _read_families(
-            pipeline,
-            families,
-            report=fetch_report,
-            ufs=want_ufs,
-            years=want_years,
-            months=want_months,
-            max_files=max_files,
-            on_progress=on_progress,
-            columns=columns,
-            on_missing_column=on_missing_column,
-            max_bytes=max_bytes,
-            only_paths=_only_paths,
-            as_of=as_of,
-            memo=decoded_before,
-            record_key=provenance and _record_key,
-        )
-        refused: set[str] = set()
-        while fetch_report.schema_mismatch and fetch_report.representations_deduplicated:
-            # A representation its family's schema refused (SINAN dengue 2010 and 2013: the
-            # Dados_Abertos CSV, chosen as the cheapest, does not carry the family's columns)
-            # must not end the read when the publication has another representation: read again
-            # without it, so the next one answers. A publication has up to four (CSV, JSON, XML,
-            # DBC; ZIKA 2017 refuses the first two), so this repeats until a read has nothing
-            # new to refuse or nothing left to try.
-            # Only a refusal whose publication has another representation is set aside; one
-            # with none stays in the read and in the report, so it can never drop out silently.
-            fresh = _refused_with_alternative(
-                pipeline.catalog,
-                set(fetch_report.schema_mismatch) - refused,
-                fetch_report.representations_deduplicated,
-            )
-            if not fresh:
-                break
-            refused |= fresh
-            retry_report = FetchReport(system=system, series=series_name, years_requested=want_years)
-            table, fetch_report = _read_families(
-                pipeline,
-                families,
-                report=retry_report,
-                ufs=want_ufs,
-                years=want_years,
-                months=want_months,
-                max_files=max_files,
-                on_progress=on_progress,
-                columns=columns,
-                on_missing_column=on_missing_column,
-                max_bytes=max_bytes,
-                only_paths=_only_paths,
-                exclude_paths=frozenset(refused),
-                as_of=as_of,
-                memo=decoded_before,
-                record_key=provenance and _record_key,
-            )
-        if refused:
-            fetch_report.warnings.append(
-                f"{len(refused)} representation(s) refused for schema; read again from another: "
-                + ", ".join(sorted(refused)[:3]))
-        if table.num_rows == 0:
-            empty = (
-                fetch_report.files_read > 0
-                and not fetch_report.undecoded
-                and not fetch_report.schema_mismatch
-            )
-            raise (PublishedEmpty if empty else NothingPublished)(
-                _nothing_message(fetch_report, want_ufs, want_years, want_months,
-                                 latest=_latest_published(pipeline.catalog, families, want_ufs))
-            )
-
-        # A SHORT answer is refused by default. Raising only on zero rows meant
-        # eleven of twelve monthly files decoding returned eleven months that
-        # looked like a complete year, with the diagnosis visible only to a
-        # caller who had asked for report=True.
-        if not allow_partial and not fetch_report.is_complete:
-            raise PartialFetchError(fetch_report, fetch_report.excluded)
-
-        if columns:
-            from .semantics.curation import derived_inputs, load_variable_docs, required_columns
-
-            docs = load_variable_docs(pipeline.catalog, system)
-            derived_names = set(derived_inputs(docs))
-            missing = [
-                c for c in columns if c not in table.column_names and str(c).upper() not in derived_names
-            ]
-            if missing:
-                # Not a warning. A column silently absent from the result is how
-                # an analysis quietly loses a variable and never notices.
-                #
-                # STRUCTURAL absence, and every one of them at once: concat uses
-                # promote_options="permissive", which null-fills any column that
-                # at least one generation has, so a column missing HERE is
-                # missing from every generation that answered. Naming one at a
-                # time turns one mistake into N round trips.
-                from .normalize.engine import MissingColumnError
-
-                raise MissingColumnError(
-                    missing[0], fetch_report.families[0], [], also_absent=missing[1:]
-                )
-            requested = set(columns)
-            # `_source_path` is a hidden semantic dependency: rendering needs
-            # it to recover each row's family and competence.  Provenance=True
-            # promises all four provenance columns even under projection; with
-            # provenance off, `_source_path` is retained only until rendering
-            # and is removed by the existing return-shape step below.
-            from .normalize.engine import PROVENANCE_COLUMNS
-
-            internal = set(PROVENANCE_COLUMNS) if provenance else {"_source_path"}
-            # What a requested column's LABEL is made from (a composite key's
-            # parts, a naming sibling, a unit) survives until rendering and is
-            # dropped after it (ADR-0090).
-            render_needs = required_columns(docs, columns) - requested
-            keep = [
-                c for c in table.column_names if c in requested or c in internal or c in render_needs
-            ]
-            table = table.select(keep)
-
-        if rows:
-            from .api import _rows_expression
-
-            table = table.filter(_rows_expression(rows))
-        if prepared is not None:
-            import pyarrow.compute as pc
-
-            from .conditions import CONDITION
-
-            state = prepared.state(table, condition_docs, years=want_years)
-            sure = pc.coalesce(state, pa.scalar(True))
-            table = table.filter(sure).append_column(CONDITION, state.filter(sure))
-        if labels:
-            _ensure_reference_tables(pipeline, fetch_report)
-        # Per (family, vintage), through the SAME operation load() uses.
-        # This used to render the whole concatenated answer once, with
-        # `year=min(requested)` and `family_id=None` whenever more than one
-        # generation contributed — so fetch("SIH-RD", years=[1995, 2024])
-        # labelled 2024 records with the 1995 vintage, and fetch("SIH-RD")
-        # labelled historical rows with today's tables. A fetched table has no
-        # `year` column, but every row carries `_source_path` and the selection
-        # knows each file's family and year.
-        from .persist.decisions import borrowed_label_policy, historical_label_policy
-        from .render_groups import render_groups, split_by_source
-
-        table = _with_source_uf(table, fetch_report.source_ufs)
-
-        with (
-            historical_label_policy(historical_labels),
-            borrowed_label_policy(allow_borrowed_labels),
-        ):
-            rendered, render_report = render_groups(
-                split_by_source(
-                    table,
-                    fetch_report.source_facts,
-                    fallback_year=min(want_years) if want_years else None,
-                ),
-                store=pipeline.catalog,
-                lake_root=resolved_settings.lake_dir,
-                system=system,
-                profile="codes" if not labels else profile,
-                render=render,
-                companions=companions,
-                derived=derived,
-                strict=strict_labels,
-                registries=resolved_settings.registries_dir,
-            )
-        # NAMED, not masked. The source data is passed through unmodified and
-        # that is deliberate — this package does not silently alter what
-        # DATASUS published. But it makes these files far easier to retrieve
-        # and export, and a CPF column leaving without a word is not a neutral
-        # default. The ledger already classifies them; this is where a caller
-        # sees it.
-        fetch_report.sensitive_columns = _sensitive_columns(
-            pipeline.catalog, system, rendered.schema.names
-        )
-        if fetch_report.sensitive_columns:
-            named = ", ".join(
-                f"{k} ({v})" for k, v in sorted(fetch_report.sensitive_columns.items())
-            )
-            fetch_report.warnings.append(
-                f"direct personal identifiers in this result: {named}. Passed "
-                "through unmodified; handling obligations are the caller's."
-            )
-        fetch_report.render = render_report
-        fetch_report.rows = rendered.num_rows
-        if columns:
-            from .view import drop_helper_columns
-
-            rendered = drop_helper_columns(
-                rendered, required_columns(docs, columns) - {str(c).upper() for c in asked_columns or ()})
-        if prepared is not None and not _condition_state:
-            from .conditions import settle
-
-            rendered, _ = settle(rendered, prepared, keep_unknown=False)
-
-        # ORDER MATTERS. Provenance is dropped first so it never appears in the
-        # dictionary or gets renamed; the dictionary is built next, against the
-        # ORIGINAL names, because it is the only thing that can still map an
-        # English name back to the DATASUS one; renaming happens last, using
-        # that dictionary.
-        if SOURCE_UF in rendered.column_names:
-            rendered = rendered.drop_columns([SOURCE_UF])
-        if not provenance:
-            from .normalize.engine import PROVENANCE_COLUMNS
-
-            keep = [c for c in rendered.column_names if c not in PROVENANCE_COLUMNS]
-            if len(keep) != len(rendered.column_names):
-                rendered = rendered.select(keep)
-
-        # Headers are named by the presentation (ADR-0084), never here.
-        book = None
-        if dictionary:
-            from ._dictionary import build_dictionary
-
-            book = build_dictionary(
-                pipeline.catalog,
-                system,
-                list(rendered.column_names),
-                dataset=dataset,
-                render_report=render_report,
-            )
-
-        out: tuple[Any, ...] = (rendered,)
-        if report:
-            out += (fetch_report,)
-        if dictionary:
-            out += (book,)
-        return out if len(out) > 1 else rendered
-    finally:
-        pipeline.close()
 
 
 #: ``_decode_one``'s answer for a member its archive does not contain.
