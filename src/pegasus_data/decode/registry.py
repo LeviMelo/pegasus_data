@@ -23,6 +23,7 @@ from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path, PurePosixPath
 
+from ..formats import COMPOSITE_SUFFIXES, SUFFIXES
 from ..locate import scratch_dir
 from .archives import Archive, ArchiveMember, detect_container
 from .base import DamagedPayload, DecodedTable, DecodeError, UnsupportedContainer, batches_from_table
@@ -31,34 +32,8 @@ from .dbf import read_dbf_bytes, read_dbf_file
 from .duckdb_ import DuckStorageVersionError, read_duckdb
 from .text_ import read_csv_bytes, read_json_bytes, read_parquet, read_xlsx, read_xml_bytes
 
-#: Reader names in the order a probe should try them, keyed by suffix hint.
-#: Anything not listed gets the full ladder, because "unknown suffix" is not
-#: evidence of "not data".
-SUFFIX_HINTS: dict[str, tuple[str, ...]] = {
-    ".dbc": ("dbc", "dbf", "archive"),
-    ".dbf": ("dbf", "dbc", "archive"),
-    ".csv": ("csv", "json", "xml", "archive"),
-    ".txt": ("csv", "json", "xml"),
-    ".json": ("json", "csv"),
-    ".xml": ("xml", "csv"),
-    ".parquet": ("parquet",),
-    ".xls": ("xlsx", "csv"),
-    ".xlsx": ("xlsx", "csv"),
-    ".duck": ("duckdb", "archive"),
-    ".zip": ("archive",),
-    ".gz": ("archive",),
-    ".rar": ("archive",),
-    ".7z": ("archive",),
-    ".exe": ("archive",),
-    ".tar": ("archive",),
-    ".def": ("semantic",),
-    ".cnv": ("semantic",),
-    ".pdf": ("document",),
-    ".hlp": ("document",),
-    ".cnt": ("document",),
-    ".dll": ("skip",),
-}
-
+#: Reader names, in the order a probe tries them when the suffix says nothing: "unknown suffix" is not evidence of
+#: "not data". The per-suffix hints are `formats.SUFFIXES`.
 FULL_LADDER: tuple[str, ...] = ("archive", "dbc", "dbf", "parquet", "csv", "json", "xml", "duckdb", "xlsx")
 
 #: Members inside archives that are never tabular payloads.
@@ -97,7 +72,7 @@ class DecodeOutcome:
 
 def suffix_of(path: str) -> str:
     lower = PurePosixPath(path).name.lower()
-    for composite in (".duck.zip", ".csv.gz", ".json.gz", ".xml.gz", ".dbf.gz", ".dbc.gz", ".tar.gz"):
+    for composite in COMPOSITE_SUFFIXES:
         if lower.endswith(composite):
             return composite
     return PurePosixPath(lower).suffix
@@ -105,9 +80,9 @@ def suffix_of(path: str) -> str:
 
 def readers_ordered_by_suffix_hint(path: str) -> tuple[str, ...]:
     suffix = suffix_of(path)
-    if suffix in {".duck.zip", ".csv.gz", ".json.gz", ".xml.gz", ".dbf.gz", ".dbc.gz", ".tar.gz"}:
+    if suffix in COMPOSITE_SUFFIXES:
         return ("archive",) + FULL_LADDER
-    hinted = SUFFIX_HINTS.get(suffix)
+    hinted = SUFFIXES[suffix].readers if suffix in SUFFIXES else None
     if hinted is None:
         return FULL_LADDER
     if hinted == ("skip",):

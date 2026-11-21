@@ -30,42 +30,12 @@ from dataclasses import dataclass, field
 from pathlib import PurePosixPath
 
 from ..catalog.store import CatalogStore
+from ..formats import CONTAINERS
 from .naming import member_kind, member_name_for
 
-#: Cheapest-to-read first. Parquet's footer is a map and its row groups are
-#: independently decodable; a ``.dbc`` must be inflated from byte zero (§7.2).
-DECODE_COST_RANK: dict[str, int] = {
-    "parquet": 0,
-    "duckdb": 1,
-    "csv": 2,
-    "json": 3,
-    "xml": 4,
-    "dbf": 5,
-    "xlsx": 6,
-    "dbc": 7,
-    "zip": 8,
-    "gzip": 9,
-    "lha_sfx": 10,
-    "rar": 11,
-    "7z": 12,
-    "unknown": 99,
-}
-
-READER_FOR_FORMAT: dict[str, str] = {
-    "parquet": "parquet",
-    "duckdb": "duckdb",
-    "csv": "csv",
-    "json": "json",
-    "xml": "xml",
-    "dbf": "dbf",
-    "dbc": "dbc",
-    "xlsx": "xlsx",
-    "zip": "archive",
-    "gzip": "archive",
-    "lha_sfx": "archive",
-    "rar": "archive",
-    "7z": "archive",
-}
+#: Decode cost rank (cheapest first) and the reader per container format: `formats.CONTAINERS`.
+DECODE_COST_RANK: dict[str, int] = {fmt: rank for fmt, (rank, _) in CONTAINERS.items()}
+READER_FOR_FORMAT: dict[str, str] = {fmt: reader for fmt, (_, reader) in CONTAINERS.items() if reader}
 
 
 def family_id_for(system: str, series: str | None, schema_signature: str) -> str:

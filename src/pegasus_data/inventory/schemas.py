@@ -39,25 +39,19 @@ from ..decode.header import (
     read_csv_header,
     read_table_header,
 )
+from ..formats import header_kind, suffixes_where
 from ..inventory.families import schema_signature
 from .naming import member_kind
 
-#: Extensions whose header this can read directly. Everything else — archives,
-#: CSV, XML, JSON — needs a different route and is reported as such rather than
-#: silently skipped.
-HEADER_READABLE = (".dbc", ".dbf")
-
-#: Delimited exports, whose first line names the columns. Same prefix trick,
-#: different parser — and worth having, because DATASUS republishes whole
-#: systems as CSV under Dados_Abertos where no DBF exists at all.
-CSV_READABLE = (".csv",)
+#: Which suffixes a ranged read can describe is `formats.SUFFIXES[...].header`: "dbf" (a prefix), "csv" (a delimited
+#: export's first line: DATASUS republishes whole systems as CSV under Dados_Abertos where no DBF exists), "archive"
+#: (below). Anything else is counted as not header-readable rather than silently skipped.
 
 #: A small archive is read whole and its first data member's header parsed. A
 #: zip keeps its directory at the END, so no prefix reaches a member; below
 #: this size fetching it all is still cheap. IBGE's 120 census and population
 #: strata are zips of a few KB to a few MB (OQ-54, 2026-09-28).
 SMALL_ARCHIVE_BYTES = 20_000_000
-ARCHIVE_READABLE = (".zip",)
 #: A Parquet file declares its schema in a footer at the END: the last bytes
 #: hold the footer's length and the magic "PAR1". SIPNI's 1.2 GB exports are
 #: censused from their last 256 KB (ADR-0077).
@@ -314,7 +308,7 @@ def run_census(
             census.signatures.add(signature)
             census.read += 1
             continue
-        if extension in ARCHIVE_READABLE and int(target.get("size") or 0) <= SMALL_ARCHIVE_BYTES:
+        if header_kind(extension) == "archive" and int(target.get("size") or 0) <= SMALL_ARCHIVE_BYTES:
             try:
                 data = fetch_prefix(path, int(target.get("size") or SMALL_ARCHIVE_BYTES))
                 census.bytes_fetched += len(data)
@@ -327,10 +321,10 @@ def run_census(
             census.signatures.add(signature)
             census.read += 1
             continue
-        if extension not in HEADER_READABLE and extension not in CSV_READABLE:
+        if header_kind(extension) not in ("dbf", "csv"):
             census.not_header_readable += 1
             continue
-        reader = read_csv_header if extension in CSV_READABLE else read_table_header
+        reader = read_csv_header if header_kind(extension) == "csv" else read_table_header
         try:
             data = fetch_prefix(path, FIRST_PREFIX)
             census.bytes_fetched += len(data)
@@ -563,16 +557,13 @@ def _header_in_lha(catalog: CatalogStore, path: str, data: bytes, target: dict[s
 # measurement (ADR-0081). It is incremental: a file is re-read only when it is
 # new or its `modified` changed.
 
-FILE_CENSUS_EXTENSIONS = (".dbc", ".dbf")
-
-
 def file_census_targets(
     catalog: CatalogStore, *, systems: Sequence[str] | None = None, limit: int | None = None
 ) -> list[str]:
     clauses = [
         "f.gone_at IS NULL",
         "fa.role = 'data'",
-        "lower(f.extension) IN ('.dbc', '.dbf')",
+        "lower(f.extension) IN (" + ", ".join(f"'{s}'" for s in suffixes_where(header="dbf")) + ")",
         # a file never read, republished since, or whose read failed for a reason that says nothing about the file
         # (a cut transfer, a dropped connection): a header that is not a DBF's stays recorded as it was
         "(fs.path IS NULL OR f.modified > fs.read_at OR fs.error LIKE 'retry:%'"

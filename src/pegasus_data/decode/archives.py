@@ -23,6 +23,7 @@ import zipfile
 from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
 
+from ..formats import SUFFIXES
 from ..locate import scratch_dir
 from .base import DecodeError, UnsupportedContainer
 from .lha import LhaArchive, LhaError, find_lha_offset
@@ -41,18 +42,6 @@ class ArchiveQuotaExceeded(DecodeError):
     """An archive claims more than the decoder will spend on it."""
 
 
-#: Member roles that steer downstream handling. A kit member is not "data".
-ROLE_BY_SUFFIX: dict[str, str] = {
-    ".dbc": "data", ".dbf": "lookup", ".csv": "data", ".txt": "data",
-    ".json": "data", ".xml": "data", ".parquet": "data", ".xls": "data",
-    ".xlsx": "data", ".duck": "data",
-    ".def": "def", ".cnv": "cnv",
-    ".pdf": "doc", ".doc": "doc", ".docx": "doc", ".hlp": "doc", ".cnt": "doc",
-    ".htm": "doc", ".html": "doc", ".rtf": "doc",
-    ".dll": "binary", ".exe": "binary", ".ini": "binary", ".bat": "binary",
-}
-
-
 @dataclass(slots=True)
 class ArchiveMember:
     name: str
@@ -67,7 +56,7 @@ class ArchiveMember:
 
 def classify_member(name: str) -> str:
     suffix = PurePosixPath(name.lower()).suffix
-    return ROLE_BY_SUFFIX.get(suffix, "unknown")
+    return (SUFFIXES[suffix].member_role if suffix in SUFFIXES else None) or "unknown"
 
 
 def detect_container(data: bytes) -> str | None:

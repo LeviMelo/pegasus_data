@@ -34,6 +34,7 @@ from datetime import UTC, datetime
 from pathlib import PurePosixPath
 
 from ..config import UF_CODES
+from ..formats import SUFFIXES
 
 __all__ = [
     "ParsedName",
@@ -399,13 +400,10 @@ DICTIONARY_DIR_TOKENS = {
     "tab", "tabelas", "dicionario", "dicionarios", "layout", "layouts",
     "versoesantigas",
 }
-_DICTIONARY_SUFFIXES = {".def", ".cnv"}
-_DOC_SUFFIXES = {".pdf", ".doc", ".docx", ".htm", ".html", ".hlp", ".cnt", ".txt", ".rtf"}
 #: Software and pointers, not data: TabWin/TabDOS/TabNet installers, a Windows
-#: DLL beside SIA's files, a `.url` shortcut in CIH. They were counted as data
-#: files without a schema (2026-09-28).
+#: DLL beside SIA's files, a `.url` shortcut in CIH (suffixes of role "auxiliary" in `formats`). They were counted
+#: as data files without a schema (2026-09-28).
 _SOFTWARE_DIRS = {"tabwin", "tabdos", "tabnet", "programa"}
-_SOFTWARE_SUFFIXES = {".dll", ".url", ".ini", ".bat", ".msi"}
 
 
 def role_from_path(path: str) -> str:
@@ -418,11 +416,10 @@ def role_from_path(path: str) -> str:
     p = PurePosixPath(path)
     suffix = p.suffix.lower()
     parts_lower = {part.lower() for part in p.parts}
-    if suffix in _DICTIONARY_SUFFIXES:
-        return "dictionary"
-    if suffix in _DOC_SUFFIXES:
-        return "documentation"
-    if suffix in _SOFTWARE_SUFFIXES or parts_lower & _SOFTWARE_DIRS:
+    by_suffix = SUFFIXES[suffix].role if suffix in SUFFIXES else None
+    if by_suffix in ("dictionary", "documentation"):
+        return by_suffix
+    if by_suffix == "auxiliary" or parts_lower & _SOFTWARE_DIRS:
         return "auxiliary"
     name_lower = p.name.lower()
     if name_lower.startswith("tab") and suffix in {".zip", ".rar"}:

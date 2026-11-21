@@ -25,6 +25,8 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import PurePosixPath
 
+from ..formats import suffixes_where
+
 __all__ = [
     "ListingEntry",
     "same_instant",
@@ -57,11 +59,7 @@ _MONTHS = {
 
 #: Suffixes that let NLST output be typed without a per-entry CWD probe. This is
 #: a *hint for ordering work*, never a filter — see design rule D1.
-_FILE_SUFFIX_HINTS = (
-    ".dbc", ".dbf", ".zip", ".gz", ".csv", ".txt", ".json", ".xml", ".parquet",
-    ".pdf", ".xls", ".xlsx", ".doc", ".docx", ".htm", ".html", ".exe", ".rar",
-    ".duck", ".def", ".cnv", ".dll", ".hlp", ".cnt", ".7z", ".tar", ".bz2",
-)
+_FILE_SUFFIX_HINTS = suffixes_where(listed=True)
 
 
 @dataclass(slots=True)

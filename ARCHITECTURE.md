@@ -460,6 +460,7 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
 
 - `decode/service.py`: `decode_source`, the one entry point.
 - `decode/registry.py`: reader dispatch by content probe.
+- `formats.py`: what a suffix means, declared once (file role, archive-member role, first-try readers, untyped-listing hint, header route; the container-format cost ranks): `naming`, `archives`, `registry`, `schemas`, `families` and `listing` read it.
 - `decode/base.py`: the reader interface.
 - `decode/dbc.py`, `decode/dbf.py`, `decode/lha.py`, `decode/archives.py`,
   `decode/duckdb_.py`, `decode/text_.py`: readers.
