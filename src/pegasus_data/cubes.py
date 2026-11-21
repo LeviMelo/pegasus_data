@@ -225,7 +225,8 @@ def _series(ident: str, *, place: str, by: list[str], where: dict[str, Sequence[
         raise AggregationRefused("a stitched series is held at municipalities; roll it up with the series' own rules")
     values = _cached(settings, f"series-{name}-{measure or 'value'}", where,
                      lambda: series_values(Sidra(settings=settings), name, measure or "value",
-                                           {k: list(v) for k, v in where.items()} or None))
+                                           {k: list(v) for k, v in where.items()} or None),
+                     stamp=lambda digest: _series_stamp(settings, name, digest))
     if periods:
         values = values.filter(pc.is_in(values.column("period"), pa.array([str(p) for p in periods])))
     spec = declared_series()[name]
@@ -244,34 +245,44 @@ def _series(ident: str, *, place: str, by: list[str], where: dict[str, Sequence[
                                 "strata": [], "where": {k: list(v) for k, v in where.items()}})
 
 
+def _series_stamp(settings: Any, name: str, digest: Any) -> None:
+    """What a stitched series reads: its declaration, the axes' meanings, and the fact parts of its source tables."""
+    from .sidra import Sidra
+    from .sidra.series import declared_axes, declared_series
+    from .sidra.store import fact_parts
+
+    spec = declared_series()[name]
+    digest.update(json.dumps([spec, declared_axes()], sort_keys=True, default=str).encode())
+    registry = Sidra(settings=settings).registry      # the tables' metadata: their notes say universe or sample
+    for table in sorted({int(src["table"]) for src in spec.get("sources") or []}):
+        digest.update(json.dumps(registry.tab(table), sort_keys=True, default=str).encode())
+        for part in fact_parts(Path(settings.lake_dir), table):
+            stat = part.stat()
+            digest.update(f"{part.parent.name}/{part.name}:{stat.st_size}:{stat.st_mtime_ns}".encode())
+
+
 def _bad_month(period: object) -> int:
     raise ValueError(f"periods are years, months or days, got {period!r}")
 
 
 def _cached(settings: Any, key: str, where: Mapping[str, Any], build: Any, stamp: Any = None) -> pa.Table:
-    """A built cube kept under ``<lake>/cubes/`` beside the fingerprint of what it was built from: by default SIDRA's
-    fact parts (names, sizes, times); ``stamp`` adds another source's (a records cube's lake partitions and files). The
-    curation and this module's own code are always in it, so an edited declaration or a changed adapter makes the cube
-    stale and it is built again. A stitched series is seconds to build, a records cube minutes; both are read often."""
+    """A built cube kept under ``<lake>/cubes/`` beside the fingerprint of what it was built from: ``stamp`` writes
+    what the cube reads into the digest (a series its declaration and its tables' fact parts, `_series_stamp`; a
+    records cube the curation and its lake partitions and files). This module's own code is always in it, so a changed
+    adapter makes the cube stale and it is built again. A stitched series is seconds to build, a records cube minutes;
+    both are read often. A series keyed by the whole curation and every SIDRA table's parts was rebuilt by any edit or
+    fetch anywhere: the map's rebuild spent 5.4 minutes there (OQ #100)."""
 
     import pyarrow.parquet as pq
 
     from .persist.kept import kept
-    from .semantics.epoch import curation_epoch
-    from .sidra.store import fact_parts
 
     folder = Path(settings.lake_dir) / "cubes"
     # The request (the series, its measure, its filter) names the file; the facts' fingerprint is its version.
     key = f"{key}-{hashlib.blake2b(json.dumps(where, sort_keys=True, default=str).encode(), digest_size=6).hexdigest()}"
     digest = hashlib.blake2b(digest_size=12)
-    digest.update(curation_epoch()[1].encode())
     digest.update(_code_fingerprint())
-    if stamp is not None:
-        stamp(digest)
-    else:
-        for part in fact_parts(Path(settings.lake_dir)):
-            stat = part.stat()
-            digest.update(f"{part.parent.name}/{part.name}:{stat.st_size}:{stat.st_mtime_ns}".encode())
+    stamp(digest)
     return kept(folder / f"{key}-{digest.hexdigest()}.parquet", build, read=pq.read_table,
                 write=lambda table, tmp: pq.write_table(table, tmp, compression="zstd"), siblings=f"{key}-*.parquet")
 
@@ -1143,11 +1154,15 @@ def _code_fingerprint() -> bytes:
 
 
 def _records_stamp(settings: Any, dataset: str, digest: Any) -> None:
-    """What a records cube was read from: the dataset's lake partitions and its published files, as the catalog lists
-    them (path, size, time). A unit landed again, a file republished or a partition rebuilt changes it."""
+    """What a records cube was read from: the curation (its roles, events, codelists and dataset declarations, as one
+    epoch), the dataset's lake partitions and its published files, as the catalog lists them (path, size, time). A unit
+    landed again, a file republished or a partition rebuilt changes it."""
     from ._aggregate import geography_pack_checksum
     from .catalog.store import CatalogStore
     from .semantics.curation import semantics_for
+    from .semantics.epoch import curation_epoch
+
+    digest.update(curation_epoch()[1].encode())
 
     # the packaged geography places a record in its municipality: a new pack changes where events fall
     digest.update(geography_pack_checksum(("geography.parquet", "municipalities.parquet")).encode())
