@@ -114,6 +114,18 @@ def source_rows(files: Sequence[Path], source_id: str, sha: str | None = None) -
 # ------------------------------------------------------------------ the difference of two versions
 
 
+def _duck(duckdb: Any) -> Any:
+    """A DuckDB connection held to 1.5 GB, spilling to this process's own directory (`Settings.duckdb_spill`): the
+    machine is shared and pages when a join takes its default 80% of memory."""
+    from ..config import load_settings
+
+    con = duckdb.connect()
+    spill = load_settings().duckdb_spill().as_posix()
+    con.execute(f"SET memory_limit = '1500MB'; SET threads = 4; SET temp_directory = '{spill}'; "
+                "SET preserve_insertion_order = false")
+    return con
+
+
 def _matched(old: pa.Table, new: pa.Table) -> pa.Table:
     """``(old_row, new_row)`` of the rows two versions share, matched by content key and duplicate number."""
     import duckdb
@@ -128,7 +140,7 @@ def _matched(old: pa.Table, new: pa.Table) -> pa.Table:
             cols[name] = table.column(name) if name in table.column_names else pa.nulls(table.num_rows, pa.string())
         return pa.table(cols)
 
-    con = duckdb.connect()
+    con = _duck(duckdb)
     try:
         con.register("o", keyed(old))
         con.register("n", keyed(new))
@@ -148,7 +160,7 @@ def _runs(pairs: pa.Table) -> pa.Table:
     """Matched rows as runs where both sides count up together."""
     import duckdb
 
-    con = duckdb.connect()
+    con = _duck(duckdb)
     try:
         con.register("p", pairs)
         return con.execute("""

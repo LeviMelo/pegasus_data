@@ -217,10 +217,11 @@ class BlobStore:
         return total
 
     def prune_verified(self, lake_dir: Path, *, paths: Iterable[str] | None = None, held: Iterable[str] = (),
-                       dry_run: bool = False) -> dict[str, int]:
+                       held_versions: Iterable[tuple[str, str]] = (), dry_run: bool = False) -> dict[str, int]:
         """Delete the blobs whose records the lake holds: for every path the blob was fetched for, a verified partition
         holds that path at the blob's version, or a delta keeps that version (`persist.versions`, ADR-0234), or the
-        caller holds the path (``held``: an extract that kept a file's matching records). ``paths`` limits it to the
+        caller holds the path (``held``: an extract that kept a file's matching records) or that version
+        (``held_versions``: a partition dropped because another holds its every record). ``paths`` limits it to the
         blobs fetched for those source paths: a build, a snapshot or an extract releasing its own files.
 
         A partition is verified when its Parquet file exists and holds the row count the catalog recorded when it was
@@ -240,7 +241,7 @@ class BlobStore:
             raise RuntimeError("pruning needs the catalog that records what the lake was built from")
         want = None if paths is None else {str(p) for p in paths}
         holders = {str(p) for p in held}
-        covered: set[tuple[str, str]] = set()
+        covered: set[tuple[str, str]] = {(str(p), str(d)) for p, d in held_versions}
         by_path: set[str] = set()
         uncovered: set[tuple[str, str]] = set()
         for row in self.catalog.query(
@@ -257,13 +258,28 @@ class BlobStore:
             pairs = {(s, str(digests[s])) for s in sources if s in digests}
             (covered if verified else uncovered).update(pairs)
             if verified and sources and not digests:
-                # a file that records no digest (an intake unit, ADR-0162) holds its sources by path, as before
-                by_path.update(sources)
+                # a file that records no digest (an intake unit, ADR-0162) holds its sources by path, as before; a
+                # unit is a file's records of one year (`file#year=YYYY`), and names the file
+                from ..persist.lake import record_source
+
+                by_path.update(record_source(s) for s in sources)
         covered -= uncovered
         for row in self.catalog.query("SELECT source_id, sha256, removed_path, kept_path FROM lake_versions"):
             removed_held = not row["removed_path"] or (Path(lake_dir) / str(row["removed_path"])).is_file()
             if removed_held and (Path(lake_dir) / str(row["kept_path"])).is_file():
                 covered.add((str(row["source_id"]), str(row["sha256"])))
+        # an archive is held at a version when every member its families read is: its records are those members'
+        members: dict[str, set[str]] = {}
+        for row in self.catalog.query("SELECT DISTINCT path, member FROM family_files WHERE member IS NOT NULL "
+                                      "AND member <> ''"):
+            members.setdefault(str(row["path"]), set()).add(str(row["member"]))
+
+        def held_archive(source: str, digest: str) -> bool:
+            from ..decode.base import logical_source_id
+
+            inside = members.get(source)
+            return bool(inside) and all((logical_source_id(source, m), digest) in covered for m in inside)
+
         by_blob: dict[str, set[str]] = {}
         if want is None:
             fetched = self.catalog.query("SELECT DISTINCT sha256, source_path FROM fetches")
@@ -281,7 +297,8 @@ class BlobStore:
             path = self.path_for(digest)
             if not path.is_file():
                 continue
-            if all(source in holders or source in by_path or (source, digest) in covered for source in sources):
+            if all(source in holders or source in by_path or (source, digest) in covered
+                   or held_archive(source, digest) for source in sources):
                 size = path.stat().st_size
                 if not dry_run:
                     try:

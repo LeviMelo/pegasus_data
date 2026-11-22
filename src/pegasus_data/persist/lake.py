@@ -756,7 +756,8 @@ class Lake:
         ]
 
 
-def drop_redundant_partitions(catalog: CatalogStore, lake_dir: str | Path, *, dry_run: bool = False) -> dict[str, int]:
+def drop_redundant_partitions(catalog: CatalogStore, lake_dir: str | Path, *, dry_run: bool = False,
+                              held: set[tuple[str, str]] | None = None) -> dict[str, int]:
     """Delete the lake partitions whose records the dataset's catalogued reading of that year already holds.
 
     Two cases, one rule. A partition on disk that the catalog does not list (a build whose catalog write was lost, a
@@ -853,6 +854,7 @@ def drop_redundant_partitions(catalog: CatalogStore, lake_dir: str | Path, *, dr
                         SELECT coalesce(sum(s.n - coalesce(b.n, 0)), 0) FROM s LEFT JOIN {hashed[ref_key]} b USING (k)
                         WHERE s.n > coalesce(b.n, 0)""").fetchone()[0]  # type: ignore[index]
                 contained = not short
+        records_held = contained
         if not contained and refs:
             sources = [str(r[0]) for r in con.execute(
                 f"SELECT DISTINCT _source_path FROM read_parquet('{path.as_posix()}')").fetchall()]
@@ -870,6 +872,12 @@ def drop_redundant_partitions(catalog: CatalogStore, lake_dir: str | Path, *, dr
         out["bytes"] += sum(f.stat().st_size for f in siblings)
         if dry_run:
             continue
+        versions_held: set[tuple[str, str]] = set()
+        if held is not None and records_held:
+            from .versions import file_digests
+
+            for part_file in siblings:
+                versions_held.update(file_digests(part_file).items())
         # moved aside whole first, then removed: a reader holding a file open (Windows refuses) left half the files
         # deleted and the catalog row standing. A directory that stays locked is left as it was, and counted.
         aside = Path(lake_dir) / STAGING_DIR / f"{path.parent.name}.__redundant__.{uuid.uuid4().hex[:10]}"
@@ -881,6 +889,10 @@ def drop_redundant_partitions(catalog: CatalogStore, lake_dir: str | Path, *, dr
             out["locked"] = out.get("locked", 0) + 1
             continue
         _remove_tree(aside)
+        if held is not None and records_held:
+            # its records were found in the reading kept, record for record: the versions it was built from are held
+            # there, and their downloads can go (`BlobStore.prune_verified(held_versions=)`, ADR-0234)
+            held.update(versions_held)
         if row is not None:
             with catalog.write() as conn:
                 conn.execute("DELETE FROM lake_partitions WHERE family_id=? AND schema_signature=? AND uf=? AND year=?",

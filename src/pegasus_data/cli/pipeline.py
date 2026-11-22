@@ -420,8 +420,10 @@ def prune(
             pipeline.close()
     catalog = CatalogStore(settings.catalog_path)
     try:
-        lake = drop_redundant_partitions(catalog, settings.lake_dir, dry_run=dry_run)
-        result = BlobStore(settings.blobs_dir, catalog).prune_verified(settings.lake_dir, dry_run=dry_run)
+        contained: set[tuple[str, str]] = set()
+        lake = drop_redundant_partitions(catalog, settings.lake_dir, dry_run=dry_run, held=contained)
+        result = BlobStore(settings.blobs_dir, catalog).prune_verified(settings.lake_dir, held_versions=contained,
+                                                                       dry_run=dry_run)
         result.update({f"lake_{k}": v for k, v in lake.items()})
         result.update({f"versions_{k}": v for k, v in kept.items()})
         _emit(result, as_json, "prune (dry run)" if dry_run else "prune")
