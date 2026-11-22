@@ -485,7 +485,7 @@ class CanonicalTable:
 CLASSIFICATIONS: dict[str, CanonicalTable] = {
     "ICD10": CanonicalTable("icd10.parquet"), "CBO2002": CanonicalTable("cbo2002.parquet"),
     "BANCO_BR": CanonicalTable("banks.parquet"), "SIGTAP": CanonicalTable("sigtap.parquet"),
-    "CNAE20": CanonicalTable("cnae20.parquet"), "NATURALIDADE": CanonicalTable("countries.parquet"),
+    "CNAE20": CanonicalTable("cnae20.parquet"), "TUSS": CanonicalTable("tuss.parquet"), "NATURALIDADE": CanonicalTable("countries.parquet"),
     "UF_BR": CanonicalTable("municipalities.parquet", _states),
     MUNIC_BR7: CanonicalTable("municipalities.parquet", _municipalities7),
     "CIR_BR": CanonicalTable("geography.parquet", _health_regions),

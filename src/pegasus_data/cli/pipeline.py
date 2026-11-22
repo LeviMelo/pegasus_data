@@ -322,6 +322,22 @@ def community(
 
 
 @app.command(rich_help_panel="PIPELINE")
+def tuss(
+    root: RootOpt = None,
+    ship: Annotated[bool, typer.Option("--ship", help="Also rewrite the package's own resources/tuss.parquet (a maintainer's step: the labels a fresh install carries)")] = False,
+    as_json: JsonOpt = False,
+) -> None:
+    """Build the TUSS registry (ANS's terminology tables 22 and 63 with their validity, and the official TUSS to SIGTAP
+    correspondence) into registries/tuss/, read by `tuss_terms(codes)` and `tuss_sigtap(codes)`; the dates of the codes
+    are what makes a TISS item's label depend on its month."""
+    from ..sources.tuss import build
+
+    settings = _writer(root)
+    with console.status("reading ANS's TUSS files…"):
+        _emit(build(settings, ship=ship), as_json, "tuss")
+
+
+@app.command(rich_help_panel="PIPELINE")
 def sigtap(
     root: RootOpt = None,
     competencia: Annotated[list[str] | None, typer.Option("--competencia", help="YYYYMM vintages to ingest; default is the newest")] = None,

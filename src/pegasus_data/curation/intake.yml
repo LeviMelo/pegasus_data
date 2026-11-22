@@ -31,7 +31,7 @@
 #                       (roles.yml's vocabulary: municipality, code, label, date, number...; `int_code` reads a code filed as a
 #                       float's text, '5.0' or '6.0000000000', as '5', the value as filed kept in <NAME>__RAW), `codes` (its code
 #                       list, raw value -> meaning, when the dictionary gives one), `codelist` (a table the package ships, ICD10
-#                       or CBO2002, when the dictionary names a standard instead of listing codes), `label_from` (a sibling column
+#                       or CBO2002, when the dictionary names a standard instead of listing codes), `key` (the columns whose concatenated values are the code's lookup key, when the code means something only with them: TISS's item with its TUSS table, ADR-0088), `label_from` (a sibling column
 #                       of the same record that names the code, ADR-0090), `decimal` for a number written with a comma,
 #                       `derived` (the curated recipe of a column made from this one, as variables/*.yml writes it)
 #   place               the key a context is served by: {column, type: municipality (IBGE code, 6 or 7 digits, as given) |
@@ -2387,6 +2387,7 @@ sources:
       - "Items inside a package (IND_PACOTE = 1) carry the item and its table but no quantity or value; the package's own line carries them."
       - "CD_TABELA_REFERENCIA is also '0' or '00' (the same thing filed twice) wherever IND_TABELA_PROPRIA is 1, and CD_PROCEDIMENTO then reads 'TABELA PROPRIA': an operator's own item, which cannot be identified (16% of the hospital items and 4% of the outpatient items of the AC and RR sample)."
       - "CD_PROCEDIMENTO keeps its leading zeros ('031'); read it as text."
+      - "Items of TUSS tables 22 and 63 are named by the pair (CD_TABELA_REFERENCIA + CD_PROCEDIMENTO, codelist TUSS, ANS's terminology of PDA 049): one name per code, the current one, so a procedure renamed since is named as today. Tables 19 and 20 (OPME, medicines), 90, 98 and an operator's own code stay undecoded. `tuss_sigtap(codes)` is ANS's correspondence of table 22 to SIGTAP (April 2017: 4,299 pairs, no later terms)."
       - "There is no beneficiary municipality in DET, only the provider's state: join CONS on ID_EVENTO_ATENCAO_SAUDE for residence, sex and age."
       - "Two layouts: files to 2022 lack the payment columns (VL_EVENTO_*, QT_ITEM_EVENTO_PAGO, VL_ITEM_EVENTO_PAGO), UNIDADE_MEDIDA, REGIME_ATENDIMENTO and SAUDE_OCUPACIONAL, which exist from 2023 (the dictionary: new message fields from May 2023, payment fields published in 2026 for 2023 on). FAIXA_ETARIA is spelled '30 a 39' to 2022 and '30 a 39 anos' from 2023."
       - "Events of pre-established-value contracts (LG_VALOR_PREESTABELECIDO = 1) are in the files with zero item values or only a bonus: sums of value understate what those contracts cost."
@@ -2408,7 +2409,7 @@ sources:
       UF_PRESTADOR: {description: "state of the provider", type: code}
       TEMPO_DE_PERMANENCIA: {description: "days between admission and discharge (-1 when not computed); filed with a decimal comma ('1,0') in 2022", type: number, decimal: ","}
       ANO_MES_EVENTO: {description: "year and month of the event (yyyy-mm)", type: date, format: "%Y-%m"}
-      CD_PROCEDIMENTO: {description: "code of the procedure or item, by the table CD_TABELA_REFERENCIA names (TUSS 19, 20, 22), or of a group (TUSS 63) or an operator's package (tables 90, 98)", type: code}
+      CD_PROCEDIMENTO: {description: "code of the procedure or item, by the table CD_TABELA_REFERENCIA names (TUSS 19, 20, 22), or of a group (TUSS 63) or an operator's package (tables 90, 98); named by the pair (the TUSS terminology of tables 22 and 63; 19 and 20 are not held)", type: code, codelist: TUSS, key: [CD_TABELA_REFERENCIA, CD_PROCEDIMENTO]}
       CD_TABELA_REFERENCIA: {description: "the TUSS table CD_PROCEDIMENTO belongs to", type: code, codes: {"19": "TUSS 19, OPME and special materials", "20": "TUSS 20, medicines", "22": "TUSS 22, procedures and health events", "63": "TUSS 63, groups of procedures and items (a group, not a procedure)", "90": "a package created by the operator (not a TUSS code)", "98": "a package created by the operator (not a TUSS code)"}}
       QT_ITEM_EVENTO_INFORMADO: {description: "quantity of the item billed by the provider", type: number, decimal: ","}
       VL_ITEM_EVENTO_INFORMADO: {description: "value billed for the item (reais, nominal)", type: number, decimal: ","}
@@ -2595,6 +2596,7 @@ sources:
       - "Items inside a package (IND_PACOTE = 1) carry the item and its table but no quantity or value; the package's own line carries them."
       - "CD_TABELA_REFERENCIA is also '0' or '00' (the same thing filed twice) wherever IND_TABELA_PROPRIA is 1, and CD_PROCEDIMENTO then reads 'TABELA PROPRIA': an operator's own item, which cannot be identified (16% of the hospital items and 4% of the outpatient items of the AC and RR sample)."
       - "CD_PROCEDIMENTO keeps its leading zeros ('031'); read it as text."
+      - "Items of TUSS tables 22 and 63 are named by the pair (CD_TABELA_REFERENCIA + CD_PROCEDIMENTO, codelist TUSS, ANS's terminology of PDA 049): one name per code, the current one, so a procedure renamed since is named as today. Tables 19 and 20 (OPME, medicines), 90, 98 and an operator's own code stay undecoded. `tuss_sigtap(codes)` is ANS's correspondence of table 22 to SIGTAP (April 2017: 4,299 pairs, no later terms)."
       - "There is no beneficiary municipality in DET, only the provider's state: join CONS on ID_EVENTO_ATENCAO_SAUDE for residence, sex and age."
       - "Two layouts: files to 2022 lack the payment columns (VL_EVENTO_*, QT_ITEM_EVENTO_PAGO, VL_ITEM_EVENTO_PAGO), UNIDADE_MEDIDA, REGIME_ATENDIMENTO and SAUDE_OCUPACIONAL, which exist from 2023 (the dictionary: new message fields from May 2023, payment fields published in 2026 for 2023 on). FAIXA_ETARIA is spelled '30 a 39' to 2022 and '30 a 39 anos' from 2023."
       - "Events of pre-established-value contracts (LG_VALOR_PREESTABELECIDO = 1) are in the files with zero item values or only a bonus: sums of value understate what those contracts cost."
@@ -2618,7 +2620,7 @@ sources:
       ID_EVENTO_ATENCAO_SAUDE: {description: "the event's identifier, the key between the consolidated (CONS) and detailed (DET) tables and the remuneration table (REM); ANS's own number, a pseudonymous identifier kept as filed", type: code}
       UF_PRESTADOR: {description: "state of the provider", type: code}
       DT_REALIZACAO: {description: "year and month the care was given (yyyy-mm)", type: date, format: "%Y-%m"}
-      CD_PROCEDIMENTO: {description: "code of the procedure or item, by the table CD_TABELA_REFERENCIA names (TUSS 19, 20, 22), or of a group (TUSS 63) or an operator's package (tables 90, 98)", type: code}
+      CD_PROCEDIMENTO: {description: "code of the procedure or item, by the table CD_TABELA_REFERENCIA names (TUSS 19, 20, 22), or of a group (TUSS 63) or an operator's package (tables 90, 98); named by the pair (the TUSS terminology of tables 22 and 63; 19 and 20 are not held)", type: code, codelist: TUSS, key: [CD_TABELA_REFERENCIA, CD_PROCEDIMENTO]}
       CD_TABELA_REFERENCIA: {description: "the TUSS table CD_PROCEDIMENTO belongs to", type: code, codes: {"19": "TUSS 19, OPME and special materials", "20": "TUSS 20, medicines", "22": "TUSS 22, procedures and health events", "63": "TUSS 63, groups of procedures and items (a group, not a procedure)", "90": "a package created by the operator (not a TUSS code)", "98": "a package created by the operator (not a TUSS code)"}}
       QT_ITEM_EVENTO_INFORMADO: {description: "quantity of the item billed by the provider", type: number, decimal: ","}
       VL_ITEM_EVENTO_INFORMADO: {description: "value billed for the item (reais, nominal)", type: number, decimal: ","}

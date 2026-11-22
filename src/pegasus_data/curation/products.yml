@@ -262,6 +262,33 @@ products:
     period: "2008-01 to the newest export"
     call: 'procedure_history(["0403010020"]); procedure_window("0403070171")'
     stores: [registries/sigtap/procedure_history.parquet, registries/sigtap/procedure_windows.parquet]
+  tuss_terms:
+    label: "TUSS procedure and group names"
+    kind: codes
+    source: "ANS, Terminologia Unificada da Saúde Suplementar, PDA 049 (dadosabertos.ans.gov.br/FTP/PDA/terminologia_unificada_saude_suplementar_TUSS-049)"
+    what: >
+      The terms of TUSS table 22 (procedures and health events, 5,966) and 63 (groups of procedures, 31) with their start of validity
+      and implementation: the names of a TISS item's `CD_PROCEDIMENTO` where `CD_TABELA_REFERENCIA` is 22 or 63 (codelist TUSS, keyed
+      by the table and the code). One current name per code; tables 19 (OPME) and 20 (medicines) are not held.
+    grain: "TUSS term"
+    period: "terms in force, files of 2026-06"
+    call: 'tuss_terms(["30715067"])'
+    stores: [resources/tuss.parquet, registries/tuss/terms.parquet, registries/tuss/code_windows.parquet]
+
+  tuss_sigtap:
+    label: "TUSS to SIGTAP correspondence"
+    kind: codes
+    source: "ANS and Ministério da Saúde, Mapeamento TUSS x SIGTAP, April 2017 (gov.br/ans, Padrão TISS - Tabelas relacionadas)"
+    what: >
+      The official correspondence of TUSS table 22 (of 2016-06) to SIGTAP procedures, one row per pair with its degree of equivalence
+      (1 same meaning ... 4 TUSS more specific, 5 not mappable), whether the Ministry validated it, and the terms with no pair (`not_in_sigtap`;
+      `not_yet_mapped`: the workbook gives no answer). One term maps to several procedures and a procedure from several terms: a pair is not a
+      conversion. 2017's: terms and SIGTAP codes created since are not in it.
+    grain: "TUSS term x SIGTAP procedure"
+    period: "TUSS 2016-06, SIGTAP of 2017"
+    call: 'tuss_sigtap(["30715067"]); tuss_sigtap(sigtap=["0408060158"])'
+    stores: [registries/tuss/tuss_sigtap.parquet]
+
   tract_aggregates:
     label: "Tract literacy, household, colour or race and household-head income"
     kind: population
