@@ -212,6 +212,11 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   becomes `*I10X*E149`. In 2009 each cuts something (national `LINHAA`/`LINHAB`, states `LINHAD`/`LINHAII`). SINASC
   2014-2017 is published in two trees (`NOV`, `1996_`) whose state files pad some fields (`SEXO` 4 characters).
   The underlying cause is equal in both.
+- **The infant-death link's yield falls with age at death** (defect sweep, AL 2019, `sim_infant_deaths_to_sinasc`, 654
+  deaths): linked 79.6% at day 0, 69.5% at 1-6 days, 72.8% at 7-27, 53.2% at 28-90 and 25.0% at 91-364 days; 24% of the
+  deaths of children born the year before against 67.5%. Both passes need the certificate's birth weight or the mother's
+  age, which SIM leaves blank for 50% and 36% of deaths at 91-364 days (5% and 16% at day 0). The linked share is not a
+  sensitivity: a study of infant deaths by age corrects or bounds by age band.
 - **SINASC's `CODANOMAL` misses many anomalies a baby is born with** (measured by the ABNc study t04, 2026-11-22, on
   `sim_infant_deaths_to_sinasc` 2013-2023). Of 748 infant deaths whose underlying cause is spina bifida (Q05), 517
   (69%) link to a birth record, level with the link's overall 66-72%, so the link is not the bottleneck. The birth
