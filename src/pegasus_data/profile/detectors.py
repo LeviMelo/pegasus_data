@@ -618,10 +618,16 @@ DETECTORS: tuple[Callable[[FieldStats, ReferenceSets, str], SemanticVerdict | No
 )
 
 
-def declared_verdict(dataset: str | None, name: str) -> SemanticVerdict | None:
-    """The verdict a dataset's column roles already give for the column ``name`` (an establishment CNES code, an
-    establishment CNPJ), or None. The detectors above are the profiler's way to type columns nobody has declared;
-    a declared column is not re-guessed from its name and values."""
+def declared_verdict(dataset: str | None, name: str, stats: FieldStats | None = None) -> SemanticVerdict | None:
+    """The verdict a dataset's column roles already give for the column ``name``, or None. The detectors above are the
+    profiler's way to type columns nobody has declared; a declared column is not re-guessed from its name and values.
+
+    A declaration fixes a verdict that is a column's MEANING: an establishment register (CNES, CNPJ), and any codelist
+    ``codelists.yml`` ``semantic_types`` binds a verdict to (CID10: icd10; TPROC10, TPROC: procedure_code; MUNICBR: a
+    municipality code, whose 6 or 7 digits the data's own widths decide). A verdict read off the values' SHAPE (a date's
+    layout, a competência, DATASUS's coded age, a money field's decimals) is not in a declaration, and stays the
+    detectors' (22,279 of 22,286 catalogued columns are declared, 2026-11-21: the detectors' meaning cutoffs now type
+    the remaining few)."""
     if dataset is None:
         return None
     from ..semantics.column_roles import declared_columns
@@ -631,15 +637,28 @@ def declared_verdict(dataset: str | None, name: str) -> SemanticVerdict | None:
     except KeyError:
         return None
     from ..registry import CNPJ_TABLE, establishment_register
+    from ..semantics.dictionary import semantic_types
 
     registers = ((establishment_register()[0], "cnes_establishment"), (CNPJ_TABLE, "personal_identifier_cnpj"))
     for column in columns:
-        if column.column.upper() != name.upper() or column.kind != "institution":
+        if column.column.upper() != name.upper():
             continue
-        for codelist, semantic_type in registers:
-            if codelist in column.codelists:
-                return SemanticVerdict(semantic_type, 1.0, {"rule": "declared_role", "role": column.role,
-                                                            "codelist": codelist, "dataset": dataset})
+        evidence = {"rule": "declared_role", "role": column.role, "dataset": dataset}
+        if column.kind == "institution":
+            for codelist, semantic_type in registers:
+                if codelist in column.codelists:
+                    return SemanticVerdict(semantic_type, 1.0, {**evidence, "codelist": codelist})
+        bound = set(column.codelists or ())
+        meant = sorted({(verdict, codelist) for verdict, lists in semantic_types().items()
+                        for codelist in lists if codelist in bound})
+        verdicts = sorted({verdict for verdict, _ in meant})
+        if len(verdicts) > 1 and stats is not None and stats.lengths:
+            # one codelist, several widths (MUNICBR: 6 or 7 digits): the width the column's values hold decides
+            width = max(stats.lengths, key=lambda n: stats.lengths[n])
+            verdicts = [v for v in verdicts if v.endswith(f"_{width}")]
+        if len(verdicts) == 1:
+            codelist = next(c for v, c in meant if v == verdicts[0])
+            return SemanticVerdict(verdicts[0], 1.0, {**evidence, "codelist": codelist})
     return None
 
 

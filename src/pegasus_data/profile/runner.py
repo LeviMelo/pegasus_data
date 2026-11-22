@@ -60,7 +60,7 @@ def profile_table(
         rows += batch.num_rows
 
     stats = {name: acc.stats() for name, acc in accumulators.items()}
-    verdicts = {name: declared_verdict(dataset, name) or classify(s, refs=refs, name=name)
+    verdicts = {name: declared_verdict(dataset, name, s) or classify(s, refs=refs, name=name)
                 for name, s in stats.items()}
     names = table.field_names
     return TableProfile(

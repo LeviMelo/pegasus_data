@@ -70,7 +70,7 @@ Line numbers are from the tree as read (2026-11-21).
 | 23 | fixed: topic score x coverage |
 | 24 | fixed: research order declared; `infer_kind` kept (SIDRA gives no kind) |
 | 19 | fixed: the register declared once; CNPJ width in `identifiers` |
-| 5 | after the migration: 22,279 of 22,286 catalogued columns (99.97%) have a declared role (SINASC-DN's 7 do not), so the general fix is to type a declared column from its role (kind, codelists) and run the detectors on the undeclared ones only. The verdict picks date parsing, numeric casting and the `_ibge7`/epi-week columns in `normalize/engine`, so it changes lake normalisation: done after the record-identity migration |
+| 5 | fixed: a declared column's codelist-fixed meaning comes from its role (`declared_verdict`); the detectors keep the shape verdicts and the undeclared columns, measured on 12 real files |
 | 18 | fixed: `structures:` declaration, `LevelLabels` |
 | 2 | fixed: `structures:` (lookups) and `roles.classification.patterns` (reference) are the declarations; the 200-label cutoff removed, measured |
 | 35 | fixed: system from the file name through the ontology |
