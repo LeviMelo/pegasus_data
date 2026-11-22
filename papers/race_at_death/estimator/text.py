@@ -118,6 +118,10 @@ assert l25["nocontrol_mean_abs_diff"] > 3 * l25["mean_abs_diff"], "infants: the 
 assert a25["mean_abs_diff"] > l25["mean_abs_diff"], "infants: all units no longer differ more from the linked table than the linked units"
 pa_all = LP["all"]["variants"]
 pair_l, pair_f = pa_all["linked"]["against_linked"], pa_all["findable"]["against_findable"]
+pair_t = pa_all["linked"]["against_findable"]       # the estimate on the linked units against the people among them the key finds: the estimator's target
+assert pair_t["outside_model"] <= 4 and pair_t["z_sd_model"] < 2, "against its target the admissions' interval no longer holds"
+assert pair_l["mean_abs_diff"] > 3 * pair_t["mean_abs_diff"], "the linked table no longer departs from the findable one"
+SZ_INF = {s: LI[s]["variants"]["linked"]["against_linked"] for s in ("<400", "400-1,599", "1,600-6,399", "6,400-25,599") if "linked" in LI[s]["variants"]}
 assert pair_l["max_abs_diff"] < 0.02 and pair_f["max_abs_diff"] < 0.02, "admissions: the estimator on the linked units no longer reproduces their table"
 assert all(LP[s]["variants"]["linked"]["against_linked"]["mean_abs_diff"] < 0.02 for s in LP), "admissions: a size class departs from the linked units"
 assert LP[">=6,400"]["variants"]["linked"]["against_linked"]["nocontrol_mean_abs_diff"] > 3 * LP[">=6,400"]["variants"]["linked"]["against_linked"]["mean_abs_diff"]
@@ -151,15 +155,16 @@ para(d, "Methods: For each record of one register (a death), the records of the 
         f"It was run on exactly the units a one-to-one linkage paired, and on the unlinked ones, for {n0(I['certificates'])} Brazilian infant deaths of "
         f"{I['years'][0]}-{I['years'][1]} and for {n0(PAIR['units'])} hospital admissions that ended in death ({PAIR['years'][0]}-{PAIR['years'][-1]}) against their "
         "certificates; with the key date shifted by one and two weeks (a placebo), by sex, against three simpler estimators, and in a simulation "
-        f"({REPS} replicates of each of {len(SIM['scenarios'])} scenarios) of bias and coverage under movers, twins, unequal moving and a broken control"
+        f"({REPS} replicates of each of {len(SIM['scenarios']) - 2} scenarios and {SIM.get('replicates_pooled', REPS)} of two that pool twelve cohorts) of bias and coverage under movers, twins, unequal moving and a broken control"
         + (", wrong birth dates, overdispersed births and pooled cohorts." if HAVE_NEW else "."))
 para(d, f"Results: In municipalities under 25,600 births a year ({pct(E['infants_births_share']['below_25600'], 0)} of births), on the linked infants, the estimated "
         f"proportions differed from the linkage by {pp(l25['mean_abs_diff'])} on average over the 20 cells (candidates without the control: "
         f"{pp(l25['nocontrol_mean_abs_diff'])}); {l25['outside_model']} of {l25['cells']} cells lay outside the 95% model interval and {l25['outside_chance']} "
         f"outside the chance interval (adequate for infants). On all units the difference was {pp(a25['mean_abs_diff'])}; the unique-key link, the uniform attribution and "
         f"a Goodman regression on the same units gave {pp(cmpi['comparators']['unique']['mean_abs_diff'])}, {pp(cmpi['comparators']['uniform']['mean_abs_diff'])} and "
-        f"{pp(cmpi['comparators']['goodman']['mean_abs_diff'])}. In admissions the difference from the linked units' table was at most {pp(pair_l['max_abs_diff'])} but "
-        f"{pair_l['outside_model']} of {pair_l['cells']} cells lay outside the model interval (too narrow). The estimator found "
+        f"{pp(cmpi['comparators']['goodman']['mean_abs_diff'])}. In admissions the estimate on the linked units differed from the table of the people among them "
+        f"whom the key finds, its target, by {pp(pair_t['mean_abs_diff'])} on average, with {pair_t['outside_model']} of {pair_t['cells']} cells outside the model "
+        f"interval; from the whole linked table it differed by {pp(pair_l['mean_abs_diff'])}, the selection of who shares the key. The estimator found "
         f"{pct(v25['linked']['found']['est'], 0)} of linked and {pct(v25['unlinked']['found']['est'], 0)} of unlinked infants. With the date shifted it found "
         f"{pct(max(abs(x['T_over_deaths']) for x in pl['<25,600']), 1)} or less. In simulation with the assumptions holding, the bias was at most {pp(hold_small)} "
         f"below 6,400 births a year for the five commonest cells and up to {pp(hold_all_big)} for the Indigenous row at 6,400-25,599; with a twelfth of the deaths "
@@ -167,7 +172,7 @@ para(d, f"Results: In municipalities under 25,600 births a year ({pct(E['infants
         f"estimate against all deaths.")
 para(d, "Conclusions: A cross-classification between registers can be estimated without linking individuals for the people whose key the two registers share, "
         "with the error of the chance agreements and of the proportion's denominator, in places with few births a day. It was tested for infant deaths and hospital deaths, "
-        "not for ages 1-14; its interval was adequate for infants and too narrow for admissions. Who shares the key is not random: where it could be measured "
+        "not for ages 1-14; against its target its interval was adequate for both. Who shares the key is not random: where it could be measured "
         f"(admissions linked to certificates), findability fell from {pct(t_cls['Branca'], 0)} for White to {pct(t_cls['Indigena'], 0)} for Indigenous.")
 para(d, "Keywords: Medical Record Linkage; Vital Statistics; Data Accuracy; Bias; Negative Controls; Ecological Inference; Simulation; Brazil.")
 

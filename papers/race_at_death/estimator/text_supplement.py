@@ -57,7 +57,7 @@ table(s, "Supplementary Table S1 - Simulation: bias, standard errors and coverag
       ["Scenario", "Births a year", "Estimand", "Truth", "Bias, all deaths (MC error)", "Bias, deaths found (MC error)", "Empirical SE", "Model SE", "Cluster SE",
        "Coverage of all deaths, model", "Coverage of the system's value, model", "Coverage of the system's value, cluster", "Coverage of the found, chance",
        "Median bias, deaths found", "Failed replicates"], rows,
-      [f"{SIM['replicates']} replicates a scenario. Truth: mean over replicates of the table of all deaths of the class. MC error: Monte Carlo standard error of "
+      [f"{SIM['replicates']} replicates a scenario ({SIM.get('replicates_pooled', SIM['replicates'])} for pooled12 and application). Truth: mean over replicates of the table of all deaths of the class. MC error: Monte Carlo standard error of "
        "the bias. Coverage: share of 95% intervals containing the target named. Above 25,600 births a year estimates are unstable (row sums at or below zero). Monte Carlo error of a coverage near 95%: "
        f"{pp(cov_mcse / 1.96 * 100, 1)} points. Failed: a row sum at or below zero in the replicate (any row)."])
 rows = []

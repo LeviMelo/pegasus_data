@@ -5,8 +5,9 @@ para(d, f"Main findings. The cross-classification of a variable recorded in two 
         f"and municipality alone, by subtracting the other sex's records of the same day as a negative control. On the units a linkage paired it agreed with the linked "
         f"table within {pp(l25['mean_abs_diff'])} on average over the cells for infant deaths in municipalities under 25,600 births a year, where the candidates without "
         f"the control missed by {pp(l25['nocontrol_mean_abs_diff'])}, and within {pp(pair_l['max_abs_diff'])} in every cell for admissions that ended in death. A "
-        f"shifted key date found nothing. The intervals were adequate for infants ({l25['outside_model']} of {l25['cells']} cells outside the model interval) "
-        f"and too narrow for admissions ({pair_l['outside_model']} of {pair_l['cells']}). {SIM_FINDING}")
+        f"shifted key date found nothing. Against its target, the people the key finds, the intervals were adequate for infants ({l25['outside_model']} of "
+        f"{l25['cells']} cells outside the model interval) and for admissions ({pair_t['outside_model']} of {pair_t['cells']}); the admissions' linked table "
+        f"departed from that target by about {pp(pair_l['mean_abs_diff'] - pair_t['mean_abs_diff'])}, the selection of who shares the key. {SIM_FINDING}")
 para(d, f"What is estimated. The estimator describes the people whose key the two registers share, and A1 does not hold for them: findability fell from "
         f"{pct(t_cls['Branca'], 0)} for certified White to {pct(t_cls['Indigena'], 0)} for Indigenous admissions and depended on the class the hospital recorded. Its bias is "
         "therefore the selection of who shares the key, in part a property of the estimator's weighting (it weights each person by the probability of being found) "
@@ -15,7 +16,8 @@ para(d, f"What is estimated. The estimator describes the people whose key the tw
         f"departed from the linked one by {pp(a25['mean_abs_diff'])} against {pp(l25['mean_abs_diff'])} on the linked units; in the admissions the units whose "
         f"certificate shared the key differed from the rest by {pp(raw_gap * 100, 1)} percentage points in White recorded White, but {pp(known_gap * 100, 1)} once the "
         f"hospital's missing race is set aside: about {pp((raw_gap - known_gap) * 100, 1)} points are extra missing race among the unfindable. The unfindable are "
-        "therefore partly the units with careless records, and the earlier reading that they are mostly movers or other people is not supported here. After "
+        "therefore partly units with missing race, which suggests records kept less carefully; whether the rest are movers or recording errors was not tested "
+        "(their age, cause and municipality were not profiled). After "
         "infancy, whether the people not found are children whose families moved, or whose birth date or municipality was recorded differently, cannot be told from these "
         "data; in the simulation the departure was small when moving was unrelated to the class recorded, because certification differed only through the gradient of "
         "classification between places that was put into it, and several times larger when moving followed the class recorded. The simulation shows the mechanism, not "
@@ -35,11 +37,17 @@ para(d, "Comparison with linkage methods and ecological inference. Regression on
 para(d, "Variance. The earlier practice took each cell's counts as Poisson and ignored the row's sum in the denominator of a proportion; its intervals were too wide "
         f"for common cells and too narrow for rare ones. With the denominator, the shared keys and the control's scale, the model interval was conservative or close to "
         f"nominal in the simulation up to 6,400 births a year ({pct(cm_lo, 0)}-{pct(cm_hi, 0)} against a Monte Carlo band of +/-{pp(cov_mcse * 100, 1)} points) and "
-        f"conservative in the pooled classes, where the mean model standard error was {pp(SE_RATIO['all'], 2)} times the empirical one. On the real units it was adequate for infants and too narrow for admissions: "
-        f"the z-scores of the cells had a standard deviation of {pp(l25['z_sd_model'], 2)} (infants) and {pp(pair_l['z_sd_model'], 2)} (admissions), where the units are so many "
-        "that the sampling error is small beside the error of the key itself (about 1% of false links in the known answers, dates recorded a day apart). The shifted-date placebo shows how an "
+        f"conservative in the pooled classes, where the mean model standard error was {pp(SE_RATIO['all'], 2)} times the empirical one. These coverages hold "
+        "where the assumptions hold; where they break, coverage of the people of the whole table fell, to "
+        f"{min(SR['selective'][s][q]['cover_super_model'] for s in SMALL for q in P_CELLS):.2f} at worst when moving depended on the class recorded and "
+        f"{min(SR['keyerr_k'][s][q]['cover_super_model'] for s in SMALL for q in P_CELLS):.2f} when key errors depended on it. On the real units, against its "
+        f"target, the z-scores of the cells had a standard deviation of {pp(l25['z_sd_model'], 2)} (infants) and {pp(pair_t['z_sd_model'], 2)} (admissions); against "
+        f"the whole linked admissions table it was {pp(pair_l['z_sd_model'], 2)}, because the units are so many that the selection of who shares the key, small as "
+        "it is, dwarfs the sampling error. By size class among infants, the model interval missed "
+        + ", ".join(f"{SZ_INF[s]['outside_model']} of 20 cells at {s}" for s in SZ_INF)
+        + "; the limit of 25,600 births a year was chosen on the same data. The shifted-date placebo shows how an "
         f"empirical null could calibrate the intervals {cite('schuemie2014', 'schuemie2018')}: its z-scores had a standard deviation of "
-        f"{min(zsd['<25,600']):.2f}-{max(zsd['<25,600']):.2f}, close to 1, so the interval is right for chance and, for admissions, wrong for the people. The chance interval answers "
+        f"{min(zsd['<25,600']):.2f}-{max(zsd['<25,600']):.2f}, close to 1, so the interval is right for chance. The chance interval answers "
         "another question, the distance from a perfect linkage of the same units. The cluster error treats the municipalities as a sample of places and includes the "
         "variation of the classification between them; it exceeded the model error for the admissions, possibly because the classification varies between municipalities, "
         "which a simulation without a municipality effect cannot test. Which error to report for a national table is therefore left open until the intervals are "
@@ -47,8 +55,8 @@ para(d, "Variance. The earlier practice took each cell's counts as Poisson and i
 RB = PAIR["register_by_sex"]
 assert RB["15-29|M"]["white"] < RB["15-29|F"]["white"] - 0.05 and RB["15-29|M"]["deaths"] > 3 * RB["15-29|F"]["deaths"], "young men's certificates no longer differ"
 para(d, f"Assumptions. A2 requires that the two sexes born on a day share the composition by class and the sex ratio of the municipality and year. For births the sex ratio "
-        f"is nearly constant, and the sexes' day-to-day excess variation is almost wholly shared (the dispersion measured in SINASC 2018 was {pp(E['births_dispersion']['all']['phi'], 3)} "
-        f"of the mean squared, {pp(E['births_dispersion']['all']['psi'], 3)} of it the sexes' covariance); in the simulation a two-point difference in the share of boys between White and Black births biased the White to Brown ratio by "
+        f"is nearly constant, and the sexes' day-to-day excess variation is almost wholly shared (in SINASC 2018 each sex's daily births' variance beyond Poisson was {pp(E['births_dispersion']['all']['phi'], 4)} "
+        f"of the mean squared, and the part shared by the two sexes {pp(E['births_dispersion']['all']['psi'], 4)}); in the simulation a two-point difference in the share of boys between White and Black births biased the White to Brown ratio by "
         f"{sg(a2['all']['ratio_white']['bias'])}. For a register of deaths of all ages it is not exact: in 2019, {pct(RB['15-29|M']['white'])} of the certificates "
         f"of men aged 15-29 gave White against {pct(RB['15-29|F']['white'])} of women's, and men's were {RB['15-29|M']['deaths'] / RB['15-29|F']['deaths']:.1f} "
         f"times as many, against {RB['60+|M']['deaths'] / RB['60+|F']['deaths']:.2f} at 60 or more. In the admissions the chance candidates were few, and scaling "
@@ -72,7 +80,8 @@ para(d, "Use. Where two public registers share a date of birth, a sex and a plac
         "the data package.")
 para(d, f"In conclusion, this study set out {OBJECTIVE}. Candidates less the other sex's records of the same day reproduced linked tables between births and deaths and "
         "between admissions and certificates on the units that were linked, without linking anyone, and found nothing when the key date was shifted. The estimate is of "
-        "the people whose key the registers share, with the error of the chance agreements and the denominator, an error that is adequate for infants and too narrow for admissions; its bias is "
+        "the people whose key the registers share, with the error of the chance agreements and the denominator, an interval that held for both infants and "
+        "admissions against that target; its bias is "
         "the selection of those people, measurable only where a linkage with other fields exists.")
 d.add_heading("References", level=1)
 for i, k in enumerate(order, 1):
