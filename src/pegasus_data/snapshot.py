@@ -407,25 +407,14 @@ def snapshot(
                     f"{need / 2**30:.2f} GiB to fetch is over max_bytes={max_bytes / 2**30:.2f} GiB; "
                     "narrow --only or raise the limit")
             say(f"fetching {len(queue)} files, {need / 2**20:.0f} MiB")
-            fetcher = Fetcher(
-                catalog, blobs, host=resolved.host, concurrency=1, timeout=resolved.timeout,
-                max_retries=resolved.max_retries, backoff_base=resolved.backoff_base,
-                stall_timeout=resolved.stall_timeout, heartbeat_interval=resolved.heartbeat_interval,
-                mirror=report.observed_by == "stat",
-            )
-            if report.observed_by == "stat":
-                # DATASUS cannot transfer; the mirror carries the bytes, but only
-                # a copy that matches DATASUS's own size and time is the version.
-                fetcher.mirror_first = True
-                queue = _mirror_matches(queue, resolved, report)
             meta = {path: (name, size, modified) for name, path, size, modified in queue}
+            failed: list[tuple[str, str, int | None, str]] = []
 
             def _kept(result: Any) -> None:
                 name, size, modified = meta[result.path]
                 part = report.series[name]
                 if result.error or not result.sha256:
-                    part.failed += 1
-                    report.errors.append((result.path, result.error or "not fetched"))
+                    failed.append((name, result.path, size, modified))
                     return
                 part.fetched += 1
                 part.bytes_fetched += result.byte_size
@@ -437,9 +426,34 @@ def snapshot(
                                 str(served[0]["serving_method"]) if served else "")
                 recorded.append(result.path)
 
-            fetcher.fetch_many([p for _n, p, _s, _m in queue], force=True, on_result=_kept)
-            for marker, reason in (fetcher.last_stats.diagnostics if fetcher.last_stats else ()):
+            def _fetcher(mirror: bool) -> Fetcher:
+                return Fetcher(
+                    catalog, blobs, host=resolved.host, concurrency=1, timeout=resolved.timeout,
+                    max_retries=resolved.max_retries, backoff_base=resolved.backoff_base,
+                    stall_timeout=resolved.stall_timeout, heartbeat_interval=resolved.heartbeat_interval,
+                    mirror=mirror,
+                )
+
+            # DATASUS first, whatever the listing did: a slow LIST chose the transport before, every file went to the
+            # mirror, and 92 files the server would have served waited because the mirror held older copies (the first
+            # scheduled run, 2026-11-22). The mirror serves only a file DATASUS failed to transfer through its retries,
+            # and only a copy of DATASUS's own size and time is the version (ADR-0141 rule 5).
+            first = _fetcher(mirror=False)
+            first.mirror_first = False
+            first.fetch_many([p for _n, p, _s, _m in queue], force=True, on_result=_kept)
+            for marker, reason in (first.last_stats.diagnostics if first.last_stats else ()):
                 report.errors.append((marker, reason))
+            # a copy the mirror does not hold as DATASUS's version is counted and reported there (`_mirror_matches`)
+            retry = _mirror_matches(failed, resolved, report) if failed else []
+            if retry:
+                say(f"{len(retry)} files DATASUS did not transfer, from the mirror")
+                second = _fetcher(mirror=True)
+                second.mirror_first = True
+                failed.clear()
+                second.fetch_many([p for _n, p, _s, _m in retry], force=True, on_result=_kept)
+                for name, path, _size, _modified in failed:
+                    report.series[name].failed += 1
+                    report.errors.append((path, "not transferred by DATASUS or the mirror"))
         elif queue:
             say(f"{len(queue)} files, {need / 2**20:.0f} MiB would be fetched")
         if recorded and not dry_run:

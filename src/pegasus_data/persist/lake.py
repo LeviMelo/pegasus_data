@@ -21,7 +21,7 @@ import re
 from collections.abc import Callable, Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import pyarrow as pa
 import pyarrow.parquet as pq
@@ -869,17 +869,9 @@ def drop_redundant_partitions(catalog: CatalogStore, lake_dir: str | Path, *, dr
     return out
 
 
-def reencode_lake(catalog: CatalogStore, lake_dir: str | Path, *, dry_run: bool = False,
-                  compression: str = "zstd") -> dict[str, int]:
-    """Rewrite, value for value, the listed partition files not written as the lake writes now: those that store what
-    the lake computes (the record key, `Lake._read_derived`) and those of another encoding than `persist.kept.ENCODING`
-    (smaller row groups, a lower zstd level; their ``pegasus.encoding`` stamp says), and those whose typed columns keep
-    their text as filed whole (``<NAME>__RAW``), which keep it only where a render does not give it back (`raw_text`;
-    the renders are chosen over the file and named in its metadata). Batch by batch into row groups of
-    the encoding's size, into a temporary file beside the partition that replaces it in one rename, so a reader sees the
-    old file or the new one; the catalog's byte size follows. A file that stores a key is rewritten only when the key its
-    fields hash to is the key it stores, on every row (`record_key_sql`): one that differed would change the identity of
-    its records, and is kept and counted instead."""
+def _reencode_file(path_text: str, dry_run: bool, compression: str) -> dict[str, Any]:
+    """One partition file rewritten as the lake writes now (`reencode_lake`): ``{"state": "current" | "differing" |
+    "rewritten" | "counted", "before", "after"}``. Runs in a worker process: a file is one task."""
     import json
     import os
 
@@ -889,39 +881,31 @@ def reencode_lake(catalog: CatalogStore, lake_dir: str | Path, *, dry_run: bool 
     from ..raw_text import META_KEY, choose, compacted_sql, quote
     from .kept import ENCODING
 
-    root = Path(lake_dir)
-    out = {"files": 0, "rewritten": 0, "kept_differing": 0, "bytes_before": 0, "bytes_after": 0}
-    rows = list(catalog.query("SELECT relative_path FROM lake_partitions ORDER BY relative_path"))
+    path = Path(path_text)
+    if not path.is_file():
+        return {"state": "absent"}
+    source = pq.ParquetFile(path)
+    names = source.schema_arrow.names
+    keyed = RECORD_KEY in names
+    meta = source.schema_arrow.metadata or {}
+    encoded = meta.get(b"pegasus.encoding") == ENCODING.encode()
+    raw_whole = META_KEY not in meta and any(n.endswith("__RAW") and n.removesuffix("__RAW") in names for n in names)
+    if not keyed and encoded and not raw_whole:
+        source.close()
+        return {"state": "current"}
     con = duckdb.connect()
-    con.execute("SET memory_limit='2GB'; SET enable_progress_bar=false")
-    for row in rows:
-        path = root / str(row["relative_path"])
-        if not path.is_file():
-            continue
-        source = pq.ParquetFile(path)
-        names = source.schema_arrow.names
-        keyed = RECORD_KEY in names
-        meta = source.schema_arrow.metadata or {}
-        encoded = meta.get(b"pegasus.encoding") == ENCODING.encode()
-        raw_whole = META_KEY not in meta and any(n.endswith("__RAW") and n.removesuffix("__RAW") in names for n in names)
-        if not keyed and encoded and not raw_whole:
-            source.close()
-            continue
-        out["files"] += 1
+    con.execute("SET memory_limit='1GB'; SET threads=1; SET enable_progress_bar=false")
+    try:
         if keyed:
             fields = key_fields(names)
             differ = con.execute(
                 f"SELECT count(*) FROM read_parquet('{path.as_posix()}', hive_partitioning=false) "
                 f"WHERE _record_key IS DISTINCT FROM {record_key_sql(fields) if fields else 'NULL'}").fetchone()[0]  # type: ignore[index]
             if differ:
-                out["kept_differing"] += 1
-                source.close()
-                continue
+                return {"state": "differing"}
         before = path.stat().st_size
-        out["bytes_before"] += before
         if dry_run:
-            source.close()
-            continue
+            return {"state": "counted", "before": before}
         keep = [n for n in names if n != RECORD_KEY]
         schema = source.schema_arrow.remove(names.index(RECORD_KEY)) if keyed else source.schema_arrow
         renders: dict[str, str] = {}
@@ -958,10 +942,56 @@ def reencode_lake(catalog: CatalogStore, lake_dir: str | Path, *, dry_run: bool 
             temporary.unlink()
             raise RuntimeError(f"{path}: the re-encoded file does not hold the original's rows")
         os.replace(temporary, path)
-        after = path.stat().st_size
-        out["bytes_after"] += after
-        out["rewritten"] += 1
-        with catalog.write() as conn:
-            conn.execute("UPDATE lake_partitions SET byte_size = byte_size - ? + ? WHERE relative_path = ?",
-                         (before, after, str(row["relative_path"])))
+        return {"state": "rewritten", "before": before, "after": path.stat().st_size}
+    finally:
+        con.close()
+
+
+def reencode_lake(catalog: CatalogStore, lake_dir: str | Path, *, dry_run: bool = False,
+                  compression: str = "zstd", workers: int | None = None) -> dict[str, int]:
+    """Rewrite, value for value, the listed partition files not written as the lake writes now: those that store what
+    the lake computes (the record key, `Lake._read_derived`) and those of another encoding than `persist.kept.ENCODING`
+    (smaller row groups, a lower zstd level; their ``pegasus.encoding`` stamp says), and those whose typed columns keep
+    their text as filed whole (``<NAME>__RAW``), which keep it only where a render does not give it back (`raw_text`;
+    the renders are chosen over the file and named in its metadata). Batch by batch into row groups of
+    the encoding's size, into a temporary file beside the partition that replaces it in one rename, so a reader sees the
+    old file or the new one; the catalog's byte size follows. A file that stores a key is rewritten only when the key its
+    fields hash to is the key it stores, on every row (`record_key_sql`): one that differed would change the identity of
+    its records, and is kept and counted instead.
+
+    Files are rewritten in ``workers`` processes at once (`_reencode_file`), by default as many as the cores less two and
+    the free memory at 1 GiB a worker allow (a worker streams one file and holds about one row group): pyarrow compresses a file's columns in one thread, and one file at a
+    time used 1.4 of 20 cores (2026-11-22). The catalog is written here, in one process."""
+    import os
+    from concurrent.futures import ProcessPoolExecutor, as_completed
+
+    import psutil
+
+    root = Path(lake_dir)
+    out = {"files": 0, "rewritten": 0, "kept_differing": 0, "bytes_before": 0, "bytes_after": 0}
+    rows = [str(r["relative_path"]) for r in catalog.query("SELECT relative_path FROM lake_partitions ORDER BY relative_path")]
+    if workers is None:
+        by_memory = int(psutil.virtual_memory().available // 2**30)
+        workers = max(1, min((os.cpu_count() or 2) - 2, by_memory))
+    out["workers"] = workers
+    with ProcessPoolExecutor(max_workers=workers) as pool:
+        futures = {pool.submit(_reencode_file, str(root / rel), dry_run, compression): rel for rel in rows}
+        for future in as_completed(futures):
+            rel = futures[future]
+            done = future.result()
+            state = done["state"]
+            if state in ("absent", "current"):
+                continue
+            out["files"] += 1
+            if state == "differing":
+                out["kept_differing"] += 1
+                continue
+            out["bytes_before"] += int(done.get("before") or 0)
+            if state != "rewritten":
+                continue
+            out["bytes_after"] += int(done["after"])
+            out["rewritten"] += 1
+            with catalog.write() as conn:
+                conn.execute("UPDATE lake_partitions SET byte_size = byte_size - ? + ? WHERE relative_path = ?",
+                             (int(done["before"]), int(done["after"]), rel))
     return out
