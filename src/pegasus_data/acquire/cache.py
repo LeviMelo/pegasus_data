@@ -268,6 +268,18 @@ class BlobStore:
             removed_held = not row["removed_path"] or (Path(lake_dir) / str(row["removed_path"])).is_file()
             if removed_held and (Path(lake_dir) / str(row["kept_path"])).is_file():
                 covered.add((str(row["source_id"]), str(row["sha256"])))
+        # an archive is held at a version when every member its families read is: its records are those members'
+        members: dict[str, set[str]] = {}
+        for row in self.catalog.query("SELECT DISTINCT path, member FROM family_files WHERE member IS NOT NULL "
+                                      "AND member <> ''"):
+            members.setdefault(str(row["path"]), set()).add(str(row["member"]))
+
+        def held_archive(source: str, digest: str) -> bool:
+            from ..decode.base import logical_source_id
+
+            inside = members.get(source)
+            return bool(inside) and all((logical_source_id(source, m), digest) in covered for m in inside)
+
         by_blob: dict[str, set[str]] = {}
         if want is None:
             fetched = self.catalog.query("SELECT DISTINCT sha256, source_path FROM fetches")
@@ -285,7 +297,8 @@ class BlobStore:
             path = self.path_for(digest)
             if not path.is_file():
                 continue
-            if all(source in holders or source in by_path or (source, digest) in covered for source in sources):
+            if all(source in holders or source in by_path or (source, digest) in covered
+                   or held_archive(source, digest) for source in sources):
                 size = path.stat().st_size
                 if not dry_run:
                     try:
