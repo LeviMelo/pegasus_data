@@ -65,7 +65,7 @@ CP, CS, CG = CT["couples"], CT["by_state"], CT["0-9"]["white_births"]
 for _y in ("2010", "2022"):
     assert CP[_y]["gM_minus_gF"]["lo"] > 0, "the mother's class no longer counts more than the father's"
     assert CP[_y]["aW"]["lo"] > 0 > CP[_y]["aK"]["hi"], "the pull toward White and away from Black is gone"
-assert CG["PP_white"]["slope_bins"] < 0.35 * CT["certificate"]["slope_bins"], "the Brown couples' gradient with composition is no longer small"
+assert CG["PP_white"]["slope_bins"] < 0.25 * CT["certificate"]["slope_bins"], "the Brown couples' gradient with composition is no longer small"
 
 
 def ex(v):
@@ -103,28 +103,21 @@ para(d, TITLE, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER)
 para(d, "[Authors, affiliations, ORCID, funding, conflicts of interest and contributions: to be supplied by the authors; not part of the blinded text]", italic=True)
 d.add_heading("Abstract", level=1)
 para(d, f"Objective: {OBJECTIVE[0].upper() + OBJECTIVE[1:]}.")
-para(d, f"Methods: {DESIGN[0].upper() + DESIGN[1:]}, Brazil. Children of the household's couple living with their mother were paired with her in the sample "
-        f"microdata of the 2010 Census ({n0(MX['2010']['brown|all']['white']['records'] + MX['2010']['white|all']['white']['records'] + MX['2010']['black|all']['white']['records'])} "
-        f"children of White, Brown and Black mothers aged 0-9) and the public-access sample of the 2022 Census "
-        f"({n0(MX['2022']['brown|all']['white']['records'] + MX['2022']['white|all']['white']['records'] + MX['2022']['black|all']['white']['records'])}), by a rule both "
-        "files allow. The race reported for the child was set against the mother's and the partner's, by whether he was the father or a stepfather, between "
-        "full siblings, by who answered for the child and for the mother, and between the censuses; intervals are design-based or from a household bootstrap.")
-para(d, f"Results: Households reported as White {f2(v(2010, 'brown', 'white')['est'])} of Brown mothers' children aged 0-4 in 2010 and "
-        f"{f2(v(2022, 'brown', 'white')['est'])} in 2022, and as Black {f2(v(2010, 'black', 'black')['est'])} and {f2(v(2022, 'black', 'black')['est'])} of Black "
-        f"mothers' children. Among children of both members of the couple, in a model of the nine couple types, taking the mother's class multiplied the odds "
+CLAIM = ["pull toward White", "away from Black", "small against the death certificate"]
+para(d, f"Methods: {DESIGN[0].upper() + DESIGN[1:]}, Brazil. Children of the household's couple living with their mother were paired with her in the 2010 "
+        f"Census microdata ({n0(MX['2010']['brown|all']['white']['records'] + MX['2010']['white|all']['white']['records'] + MX['2010']['black|all']['white']['records'])} "
+        f"children aged 0-9) and the public-access sample of the 2022 Census. "
+        "The race reported for the child was set against the mother's and the partner's, between "
+        "full siblings, by who answered, by municipality and between the censuses.")
+para(d, f"Results: Among children of both members of the couple, in a model of the nine couple types, taking the mother's class multiplied the odds "
         f"by {ex(CP['2010']['gM'])} and the father's by {ex(CP['2010']['gF'])} (2010), and every child leaned toward White over Brown "
-        f"({ex(CP['2010']['aW'])}) and away from Black ({ex(CP['2010']['aK'])}); with a White stepfather, a Brown mother's child was White in {min(S_W):.2f}-{max(S_W):.2f}. Full siblings of a Brown mother and a "
+        f"({ex(CP['2010']['aW'])}) and away from Black ({ex(CP['2010']['aK'])}). Households reported as White {f2(v(2010, 'brown', 'white')['est'])} of Brown mothers' children aged 0-4 in 2010 and "
+        f"{f2(v(2022, 'brown', 'white')['est'])} in 2022. Full siblings of a Brown mother and a "
         f"White father were reported in different races in {pct(FSW[0]['observed']['est'], 0)} and {pct(FSW[1]['observed']['est'], 0)} of households, against "
-        f"{pct(FSW[0]['independent'], 0)} and {pct(FSW[1]['independent'], 0)} if each child were classified independently. In 2022 the child of a Brown mother "
-        f"and a White partner was reported White in {f2(PB['white']['est'])} when he answered for both, {f2(PS['white']['est'])} when he answered for the child "
-        f"and she for herself, and {f2(MB_['white']['est'])} when she answered for both. The child of two Brown parents was reported White in "
-        f"{f2(PPB[0]['est'])} in the least White municipalities and {f2(PPB[-1]['est'])} in the most, and by state from {min(STW.values()):.2f} to "
-        f"{max(STW.values()):.2f}. Crude changes between the censuses were under three percentage points.")
-para(d, "Conclusion: The race households report for a child follows both parents, the mother somewhat more, with a pull toward White and away from "
-        "Black, and the father more than a stepfather; the child of two Brown parents is reported much alike across the country; siblings of mixed couples "
-        "share a classification more than chance but often differ; and when the partner answered for both mother and child, the child was reported closer "
-        "to his race. "
-        "The national picture changed little between 2010 and 2022.")
+        f"{pct(FSW[0]['independent'], 0)} and {pct(FSW[1]['independent'], 0)} if each child were classified independently. The child of two Brown parents was reported White in "
+        f"{f2(PPB[0]['est'])} in the least White municipalities and {f2(PPB[-1]['est'])} in the most, a gradient under a quarter of the death certificate's.")
+para(d, "Conclusion: The race households report for a child follows both parents, the mother somewhat more, with a pull toward White and away from Black. "
+        "The place differences for a Brown couple's child are small against the death certificate's (under a quarter of its gradient), and little changed from 2010 to 2022.")
 para(d, "Keywords: Racial Groups; Family Characteristics; Censuses; Child; Brazil.")
 
 d.add_heading("Introduction", level=1)

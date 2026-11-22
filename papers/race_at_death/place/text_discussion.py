@@ -27,7 +27,11 @@ para(d, "The three readings set out in the Introduction make different predictio
         "A Brown category that is not the same population everywhere could also produce the gradient; families do not show it: a Brown couple's child was reported White "
         f"only a little more often in whiter places ({f2(PPW['bins'][0]['est'])} to {f2(PPW['bins'][-1]['est'])}), under a quarter of the certificate's gradient. The birth "
         f"record, the reference here, also leaned toward the local majority (logit slope {f2(MW['slope_region']['slope'])} within regions against the census), so the "
-        "certificate's departure from the mothers' own declaration would be larger, not smaller. Wealth and services explained little beside composition, though in Brazil they are collinear with it. "
+        "certificate's departure from the mothers' own declaration is larger, not smaller, by a selection argument: in whiter places the mothers the birth "
+        "record still classes as Brown are those it found least ambiguous, so the share of their infants certified White understates what a certifier does to "
+        "Brown mothers in general there, and the reverse holds in less White places. Three rival readings of a slope above 1 remain: fertility that differs "
+        "between classes along composition (the comparison of mothers with mothers in 2010 addresses it, and the slope stayed above 1), the census respondent "
+        "answering for the mother rather than the mother herself, and the two or three years between the 2010 Census and the birth records of 2012-2013. Wealth and services explained little beside composition, though in Brazil they are collinear with it. "
         "The within-place change was small and imprecise: when a region's share of White births changed, its certificate moved about "
         f"{WI['all']['lw_w']['est'] / WI['lw_reliability'] / WI['all']['lw_b']['est'] * 100:.0f}% as far as the cross-sectional gradient predicts, with an interval that "
         "includes no change, and a slow adjustment cannot be excluded.")
@@ -49,12 +53,21 @@ para(d, "Strengths and limitations. The study covers every municipality of the c
         "(7) Standard errors of the candidate estimator treat counts as Poisson, and census ones ignore the sample design. (8) The analyses by place and context were not "
         "pre-specified. (9) Deaths of 2023 may be revised. (10) The family benchmark is not the same child's classification by its own family, and households report children "
         "by both parents (a companion paper).")
+_BVC = _json.loads((HERE / "results" / "birth_vs_census.json").read_text(encoding="utf-8")) if "_json" in globals() else __import__("json").loads((HERE / "results" / "birth_vs_census.json").read_text(encoding="utf-8"))
+_HD = __import__("json").loads((HERE / "results" / "hospital_declaration.json").read_text(encoding="utf-8"))
+_SL = _BVC["mothers_2010"]["W"]["slope_region"]["slope"]
+_H0 = _HD["by_practice_fifth"][0]
+assert _SL > 1 and _H0["dn_black"] < 0.6 * _H0["expected_black"], "the two findings about the reference changed: rewrite the paragraph on the reference"
+para(d, f"The reference. Two findings of the companion papers weaken the birth record as the reference: it leans toward the local majority, recording mothers whiter than the census in whiter places and less White in less White ones (logit slope {_SL:.2f} within regions, 1 if it followed the census), and where hospitals rarely record Black on the admission it counts about half the Black mothers the census holds ({100 * _H0['dn_black']:.1f}% against {100 * _H0['expected_black']:.1f}%). "
+        "For this paper, the first means the certificate's dependence on composition, measured against the birth record, is if anything understated "
+        "against self-declaration; the second means the Black mothers of the less White states are a selected, less ambiguous group, so the certificate's "
+        "shortfall of the Black category there is if anything understated too.")
 para(d, "Implications. An infant's race on the death certificate depends on where the child died, on the state and on the establishment, and only in part on the "
         "child's family; statistics by certified race therefore compare places as much as groups. Infant and child deaths that can be linked to their birth records can be "
         f"classified by the mother's race, as linked cohorts already do {cite('reboucas2022')}, which removes the certificate's dependence on place, though not any "
         "place-dependence of the birth record itself. Recording on the certificate who informed the race would allow the classification "
         "to be audited, and the steps at state borders point to the states' practice as one place to act.")
-para(d, f"In conclusion, this study set out {OBJECTIVE}. The certificate departed from both the mother's declaration and the family's classification. It was associated with "
+para(d, f"In conclusion, this study set out {OBJECTIVE}. The certificate departed from both the mother's declaration and the family's classification, and followed the place more than the family, whose classification of a Brown couple's child changed little with composition; the birth record leans toward the local majority. The certificate was associated with "
         "the racial composition of the municipality and with the state, with a step at state borders, and varied most between establishments and certifiers, "
         "more than with the wealth or the services of the place or the circumstances of the death; and it used the Black category for "
         f"{f2(il_pp)} of the infants of Black mothers. The design does not establish which "

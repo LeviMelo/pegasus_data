@@ -2,7 +2,7 @@
 # before text_results.py, text_discussion.py and text_supplement.py, which share its namespace (R, SP, cite, para, table, figure, ci, cc ...).
 # ruff: noqa: F821
 DESIGN = "cross-sectional study of routinely collected birth and death records and of census microdata"
-OBJECTIVE = ("to compare the race recorded on the death certificates of infants and children in Brazil with the race their mothers declared for themselves "
+OBJECTIVE = ("to compare the race recorded on the death certificates of infants in Brazil with the race their mothers declared for themselves "
              "and with the race families assign to children, and to find where in the country and over which years they differ and what explains it")
 I, V = R["infants"], R["validation"]
 IL = I["linkage"]
@@ -105,29 +105,25 @@ d.add_heading("Abstract", level=1)
 mP_ = MO["PW"]
 bw_ = ML["brown_white"]["sequence"] if ML else None
 para(d, f"Objective: {OBJECTIVE[0].upper() + OBJECTIVE[1:]}.")
-para(d, f"Methods: {DESIGN[0].upper() + DESIGN[1:]}. Infant deaths of 2013-2023 in the Mortality Information System were linked one-to-one to their birth records. "
-        "The race households report for children came from the 2010 Census sample, by both parents and municipality, and the birth record's race of the mother was set "
-        "against the census by municipality. Across 5,570 municipalities, proportions were smoothed by "
-        "Besag-York-Mollié (BYM2) models, spatial structure was measured by Moran's I and a test at state borders, and composition, state, socioeconomic context, health "
-        "services and recording quality were set against one another in binomial and multilevel models; change over 2013-2023 was modelled by region.")
+para(d, f"Methods: {DESIGN[0].upper() + DESIGN[1:]}. Infant deaths of 2013-2023 were linked one-to-one to their birth records, and the race households report for children in the 2010 Census was set against both. "
+        "Across 5,570 municipalities, proportions were smoothed by BYM2 models, with Moran's I, a test at state borders and multilevel models.")
 CT_ = json.loads((HERE / "results" / "category_test.json").read_text(encoding="utf-8"))
 BVC = json.loads((HERE / "results" / "birth_vs_census.json").read_text(encoding="utf-8"))
 PPW, PAW = CT_["0-9"]["white_births"]["PP_white"], CT_["0-9"]["white_births"]["P_any_white"]
 MW = BVC["mothers_2010"]["W"]
-assert PPW["slope_bins"] < 0.35 * CT_["certificate"]["slope_bins"], "the Brown couples' gradient is no longer a small fraction of the certificate's"
+assert PPW["slope_bins"] < 0.25 * CT_["certificate"]["slope_bins"], "the Brown couples' gradient is no longer a small fraction of the certificate's"
 assert MW["slope_region"]["slope"] - 1.96 * MW["slope_region"]["se_robust"] > 1, "the birth record no longer bends toward the local majority within regions"
 EST_ = ML["brown_white"]["establishment"]
+CLAIM = ["followed the place", "more than the family", "leans toward the local majority"]
 para(d, f"Results: Among {n0(I['linked_with_race'])} linked infant deaths, the certificate recorded the mother's race for {cbci('Branca>Branca')} of children of "
         f"White mothers, {cbci('Parda>Parda')} of Brown and {cbci('Preta>Preta')} of Black mothers. The share of Brown mothers' infants certified White ranged from "
-        f"{f2(DI['PW']['p5'])} to {f2(DI['PW']['p95'])} across the municipalities holding 90% of births, rose with the municipality's share of White births "
-        f"(composition alone {pct(mP_['deviance_explained']['composition'], 0)} of the deviance, socioeconomic and service context {pct(mP_['deviance_explained']['context'], 0)}) "
-        f"and stepped at state borders. The residual variation lay in the establishment where the death occurred (log-odds variance {f2(EST_['var_estab'])} against "
-        f"{f2(EST_['var_mun'])} between municipalities) and in the certifying physician. Families classified a Brown couple's child as White in {f2(PPW['bins'][0]['est'])} "
-        f"in the least White municipalities and {f2(PPW['bins'][-1]['est'])} in the most, a gradient under a quarter of the certificate's, while the birth record itself "
+        f"{f2(DI['PW']['p5'])} to {f2(DI['PW']['p95'])} across municipalities, rose with the municipality's share of White births "
+        f"(composition alone {pct(mP_['deviance_explained']['composition'], 0)} of the deviance) and stepped at state borders. The residual variation lay in the establishment where the death occurred (log-odds variance {f2(EST_['var_estab'])} against "
+        f"{f2(EST_['var_mun'])} between municipalities). Families classified a Brown couple's child as White in {f2(PPW['bins'][0]['est'])} "
+        f"in the least White municipalities and {f2(PPW['bins'][-1]['est'])} in the most, a gradient under a quarter of the certificate's, while the birth record "
         f"recorded mothers whiter than the census where most were White (logit slope {f2(MW['slope_region']['slope'])} within regions, 1 if it followed the census).")
-para(d, "Conclusion: The race on an infant's death certificate followed the place, the establishment and the certifier more than the family, which "
-        "classified a Brown couple's child much alike everywhere; it was not a copy of the birth record. The birth record itself leans toward the local "
-        "majority, so measured against it the certificate's dependence on place is understated. The analyses by place were ecological and exploratory.")
+para(d, "Conclusion: The race on an infant's death certificate followed the place (establishment, composition, state) more than the family, whose classification of a Brown couple's child changed little with composition. "
+        "The birth record leans toward the local majority, so against self-declaration the certificate's place dependence is, if anything, understated.")
 para(d, "Keywords: Race Factors; Death Certificates; Medical Record Linkage; Spatial Analysis; Infant Mortality; Vital Statistics; Brazil.")
 
 # ================================================================= introduction
@@ -186,11 +182,19 @@ para(d, "Variables of the municipality. Racial composition: the share of White m
         f"{cite('ibge_pib', 'ibge_sidra2010')}, health services {cite('cnes')}, the municipality's own certification practice, quality of recording and place (state capital, "
         "metropolitan region, macro-region and state) are defined, with their sources and years, in Supplementary Table S3.")
 para(d, "Measures. For each class of mother, the proportion of deaths certified in each race, and the proportion of children the family classified in each race.")
-para(d, f"Analyses. Municipal proportions were smoothed by Besag-York-Mollié models {cite('besag1991', 'riebler2016', 'simpson2017', 'rue2009')}; spatial "
-        f"structure was measured by Moran's I {cite('moran1950', 'assuncao1999', 'anselin1995')}; composition, state and context were set against one another in "
-        f"binomial models of the municipal proportions and at state borders {cite('keele2015')}, and in logistic models with random intercepts for the municipality and, "
-        f"crossed, the establishment of death {cite('bates2015', 'merlo2006')}; change was modelled by intermediate region and split within and between places "
-        f"{cite('mundlak1978')} in a municipality-year panel and against the censuses of 2010 and 2022 {cite('ibge_pib', 'ibge_sidra2010')} (details in Supplementary Text S2).")
+para(d, f"Analyses. (1) Smoothing: for each class of mother, the linked infant deaths certified in each race were modelled by municipality as binomial "
+        f"counts with a Besag-York-Mollié effect in the BYM2 parametrisation on the queen contiguity of the 2022 mesh {cite('besag1991', 'riebler2016', 'simpson2017', 'rue2009')}; "
+        f"the census children were modelled the same way. (2) Spatial structure: Moran's I of the empirical-Bayes standardised proportions and the local Moran "
+        f"statistic, 999 permutations {cite('moran1950', 'assuncao1999', 'anselin1995')}. (3) Composition, state and context: binomial models of the municipal "
+        "proportions with a spline of the logit share of White births, state effects and the municipal context (GDP per capita, illiteracy, low income, "
+        "urbanisation, physicians, the shares of deaths certified by a verification service or a medical examiner, blank race), alone and together, with the "
+        "deviance each block explains. (4) Borders: for pairs of neighbouring municipalities in different states, the difference of their empirical logits "
+        f"regressed on the difference of their states' effects estimated from interior municipalities {cite('keele2015')}. (5) Individuals: logistic models of "
+        f"each death (for example, a Brown mother's infant certified White) with a random intercept for the municipality and, crossed, one for the establishment "
+        f"of death, entering composition, context and the death's own variables in sequence {cite('bates2015', 'merlo2006')}; and, for 2014-2018, a crossed "
+        "model with the certifying physician. (6) Time: binomial mixed models of the yearly proportions in 133 intermediate regions with a random slope for "
+        f"the year, and a municipality-year panel splitting each yearly variable into between and within parts {cite('mundlak1978')}, with the change between "
+        f"the 2010 and 2022 Censuses as a second time point {cite('ibge_pib', 'ibge_sidra2010')}. Details are in Supplementary Text S2.")
 para(d, "The family and the birth record against place. Two tests located the gradient with composition. (1) If the Brown category were not the same population "
         "everywhere, families in whiter municipalities would report the children of a Brown mother and a Brown father as White more often: in the 2010 Census sample "
         "(municipality held) the share of such children aged 0-9 reported White was related to the municipality's share of White births, with the child's age and sex "

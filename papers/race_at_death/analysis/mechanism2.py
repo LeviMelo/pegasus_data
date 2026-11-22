@@ -123,7 +123,7 @@ if len(DEL) == 12:
     sh = sh.dropna(subset=["d"])
     sh["k2"] = sh.munres + sh.d.dt.strftime("%d%m%Y")
     ctrl = S[["k", "birth_year", "par", "dec", "hosp", "admission_facility", "codestab", "filler"]].merge(
-        sh[["k2", "birth_year", "par", "dec", "hosp", "admission_facility"]].rename(columns={"k2": "k"}), on="k", suffixes=("_1", "_2"))
+        sh[["k2", "birth_year", "par", "dec", "hosp", "admission_facility", "codestab"]].rename(columns={"k2": "k"}), on="k", suffixes=("_1", "_2"))
     ctrl = ctrl[(ctrl.birth_year_2 >= ctrl.birth_year_1 + 1) & (ctrl.par_2 >= ctrl.par_1 + 1)].drop_duplicates(["k", "birth_year_1"])
     mv = {"pairs": int(len(PR)), "chance_pairs_control": int(len(ctrl)), "false_share": float(len(ctrl) / max(len(PR), 1))}
 
@@ -139,6 +139,12 @@ if len(DEL) == 12:
     K3 = ("white", "black", "brown")
     for j in K3:
         mv[f"declared_again|{j}"] = net(lambda x, j=j: (x.dec_1 == j) & x.dec_2.isin(K3), lambda x, j=j: x.dec_2 == j)
+    # the birth record's declaration at the next birth, in the same birth establishment or another (review 2026-11-22, round 2, 3.2): if the
+    # "declaration" were the establishment's, it would repeat far more often in the same one
+    for j in K3:
+        for same, tag in ((True, "same establishment"), (False, "another establishment")):
+            mv[f"declared_again|{j}|{tag}"] = net(lambda x, j=j, same=same: (x.dec_1 == j) & x.dec_2.isin(K3) & x.codestab_1.notna() & x.codestab_2.notna()
+                                                  & ((x.codestab_1 == x.codestab_2) == same), lambda x, j=j: x.dec_2 == j)
     BB = lambda x: (x.dec_1 == "black") & (x.dec_2 == "black") & x.hosp_1.isin(K3) & x.hosp_2.isin(K3)  # noqa: E731
     for same, tag in ((True, "same hospital"), (False, "another hospital")):
         mv[f"hospital_black_again|{tag}"] = net(lambda x, same=same: BB(x) & (x.hosp_1 == "black") & ((x.admission_facility_1 == x.admission_facility_2) == same),

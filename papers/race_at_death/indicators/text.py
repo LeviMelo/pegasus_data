@@ -69,6 +69,10 @@ STD2_ = D2["region_standardised"]
 LSH = R3_["linked_share"]
 CAL17 = D2["by_year"]["2017"]["rates"]["certified"]
 CAL_RATIO = CAL17["indigenous"] / CAL17["white"]
+CAL_PB = {2013: 0.76, 2014: 0.72, 2015: 0.75, 2016: 0.76, 2017: 0.78}   # published Brown/White ratios, Caldas et al. 2022, Table 5
+CAL_KB = {2013: 0.38, 2017: 0.36}                                           # published Black/White
+OUR_PB = {y: D2["by_year"][str(y)]["rates"]["certified"]["brown"] / D2["by_year"][str(y)]["rates"]["certified"]["white"] for y in CAL_PB}
+assert max(abs(OUR_PB[y] - CAL_PB[y]) for y in CAL_PB) < 0.02, "the usual computation no longer reproduces the published Brown to White ratios"
 assert abs(CAL_RATIO - 1.81) < 0.03, "the usual computation no longer reproduces the published 2017 Indigenous to White ratio (Caldas et al. 2022: 1.81)"
 assert abs(PSR["national"]["mother_over_mother"]["white"]["est"] - N2["mother_over_mother"]["white"]["est"]) < 1e-9, "the main analysis is not the post-stratified one"
 assert ROR["national"]["mother_over_mother"]["white"]["est"] > N2["mother_over_mother"]["white"]["est"], "post-stratification no longer lowers the ratio"
@@ -83,24 +87,17 @@ para(d, TITLE, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER)
 para(d, "[Authors, affiliations, ORCID, funding, conflicts of interest and contributions: to be supplied by the authors; not part of the blinded text]", italic=True)
 d.add_heading("Abstract", level=1)
 para(d, f"Objective: {OBJECTIVE[0].upper() + OBJECTIVE[1:]}.")
+CLAIM = ["reverses the White to Brown inequality", "consistently classified"]
 para(d, f"Methods: {DESIGN[0].upper() + DESIGN[1:]}. Infant deaths of 2013-2023 were linked one-to-one to their birth records. Rate ratios were computed with "
-        "the numerator classified by the mother's race (linked deaths, scaled to all certificates within strata of certified race, region, age at death and year) or by the certificate, and the denominator by the mother's race (births) or by the "
-        "child's race as households classify infants of mothers of each race (census flows), with delete-one-state jackknife intervals; the change from one to "
-        "another was decomposed flow by flow, by age at death, cause, year and region.")
+        "the numerator classified by the mother's race (linked deaths) or by the certificate, and the denominator by the mother's race (births) or by the "
+        "child's race as households classify infants of mothers of each race (census flows), and the change was decomposed flow by flow.")
 para(d, f"Results: Infant mortality was {f1(RT2['white'])} per 1,000 live births for children of White mothers and {f1(RT2['brown'])} for children of Brown "
         f"mothers (White to Brown {jr('mother_over_mother', 'white')}; Black to Brown {jr('mother_over_mother', 'black')}). Certified deaths over births by the "
-        f"mother's race, the usual way the rate is computed, gave {jr('certified_over_mother', 'white')} and {jr('certified_over_mother', 'black')}; certified "
-        f"deaths over births reclassified as households classify infants gave {jr('certified_over_child', 'white')} and {jr('certified_over_child', 'black')}. "
-        f"Standardised to the regions, the White to Brown ratio by the mother's race was {f2(STD2_['mother_over_mother']['white'])}. Averaged over all orders, Brown mothers' infants certified White raised the log ratio by {SH['players'][BW_]['est']:.2f} and White mothers' infants "
-        f"certified Brown lowered it by {-SH['players'][WB_]['est']:.2f}, against a net change of {SH['certified'] - SH['start']:.2f}; the usual ratio stayed above 1 "
-        "in every year, age at death and cause. With the child's births in the denominator the ratio was below 1 nationally but its interval included 1, and "
-        f"it ranged from {min(RG2_[r]['certified_over_child']['white'] for r in RG2_):.2f} to {max(RG2_[r]['certified_over_child']['white'] for r in RG2_):.2f} between regions. Counted by the mother's race within each region, {n0(EXW['brown']['within_regions'])} infant deaths of Brown "
-        "mothers' children exceeded the White mothers' rate of the same region in 2013-2023; by the usual indicator there was a deficit.")
-para(d, "Conclusion: The usual infant mortality rate by race divides deaths classified by the child's race by births classified by the mother's, and the "
-        "mismatch reverses the White to Brown inequality. Classified by the mother in both terms, the children of Brown mothers die more often; classified "
-        "by the child in both, the ratio is below 1 nationally but uncertain, and its regional point estimates range widely, which suggests that households "
-        "and certifiers do not classify children alike everywhere. "
-        "Black infants' excess relative to Brown persisted by the mother's race and fell below parity on the certificate even over the child's births.")
+        f"mother's race, the usual way the rate is computed, gave {jr('certified_over_mother', 'white')} and {jr('certified_over_mother', 'black')}. Brown mothers' infants certified White raised the log ratio by {SH['players'][BW_]['est']:.2f} and White mothers' infants "
+        f"certified Brown lowered it by {-SH['players'][WB_]['est']:.2f}, against a net change of {SH['certified'] - SH['start']:.2f}. Certified deaths "
+        f"over births reclassified as households classify infants gave {jr('certified_over_child', 'white')} and {jr('certified_over_child', 'black')}; the White to Brown interval included 1, and "
+        f"it ranged from {min(RG2_[r]['certified_over_child']['white'] for r in RG2_):.2f} to {max(RG2_[r]['certified_over_child']['white'] for r in RG2_):.2f} between regions.")
+para(d, "Conclusion: The usual infant mortality rate by race mixes the child's race on the certificate with the mother's in the births, and the mixture reverses the White to Brown inequality. Consistently classified, the children of Brown mothers die more often than White mothers' children.")
 para(d, "Keywords: Infant Mortality; Child Mortality; Race Factors; Health Status Indicators; Vital Statistics; Medical Record Linkage; Brazil.")
 
 d.add_heading("Introduction", level=1)
@@ -140,8 +137,8 @@ figure(d, "flow_indicators", "Figure 1 - The two numerators and two denominators
 para(d, "Rates. Infant mortality: deaths of 2013-2023 over live births of the same years, per 1,000. At 1-4 and 5-9 years: deaths of 2013-2024 of children born in "
         "2012-2023 over the person-years those birth cohorts contribute at each age, per 100,000; the 5-9 year rates therefore cover the cohorts born in 2012-2019. Births "
         "with no race or of Yellow (Asian) mothers enter no race's rate.")
-para(d, "Two classifications in each term. The numerator was classified by the mother's race (linked deaths scaled to all certificates by certified race, "
-        "since the linked share differs by race) or by the race on the certificate, which concerns the child. The denominator was classified by the mother's "
+para(d, "Two classifications in each term. The numerator was classified by the mother's race (linked deaths post-stratified to all certificates, as "
+        "described below) or by the race on the certificate, which concerns the child. The denominator was classified by the mother's "
         "race (live births of the same years) or by the child's race, obtained by passing the births of each mother's race through the proportions in which "
         "households classify children under one year of mothers of that race in the 2010 Census, nationally and by region. The four combinations form a 2 x 2: "
         "consistent by the mother, consistent by the child (certified deaths over the child's births), and the two mixed ones, of which certified deaths over "

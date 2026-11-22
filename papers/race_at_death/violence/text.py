@@ -5,8 +5,8 @@ import json as _json
 
 VI = _json.loads((HERE / "results" / "violence.json").read_text(encoding="utf-8"))
 DESIGN = "cross-sectional study of birth, hospital and death records related without identifiers"
-OBJECTIVE = ("to measure whether the race recorded for young people in Brazil departs from their race at birth according to how they died, and at "
-             "which record, in life or at death, the departure arises")
+OBJECTIVE = ("to measure whether the race recorded for young people in Brazil departs from their race at birth according to how and where they "
+             "died, and at which record, in life or at death, the departure arises")
 Y = R["youth"]
 YC = R["context"]["youth"]
 KINDS = ["natural", "transport", "suicide", "other external", "other assault", "assault by firearm", "legal intervention"]
@@ -95,42 +95,38 @@ assert PLS["assault by firearm"] > 0.05 > 0 > PLS["natural"], "the placebo resid
 iml_a, iml_x = YC["by_certifier"]["assault"]["medical examiner"], YC["by_certifier"]["external, not assault"]["medical examiner"]
 
 d = new_doc()
-TITLE = ("Where the race of young people who die violently changes: birth, hospital and death records related without identifiers, Brazil, 2015-2024")
+TITLE = ("Recorded less White at death: the race of young people who die of external causes against their birth and hospital records, related "
+         "without identifiers, Brazil, 2015-2024")
 para(d, TITLE, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER)
 para(d, "[Authors, affiliations, ORCID, funding, conflicts of interest and contributions: to be supplied by the authors; not part of the blinded text]", italic=True)
 d.add_heading("Abstract", level=1)
 para(d, f"Objective: {OBJECTIVE[0].upper() + OBJECTIVE[1:]}.")
+CLAIM = ["deaths from external causes", "arose at death", "the external cause itself"]
 para(d, f"Methods: {DESIGN[0].upper() + DESIGN[1:]}, Brazil. Deaths at 15-24 years in 2015-2024 of people born in 2000-2009, in municipalities with fewer than "
-        "1,600 births a year, were related to the live births and to the earlier hospital admissions with the same birth date, sex and municipality of "
-        "residence, with records of the other sex as a control for chance agreement. The share recorded White at birth (by staff), at an earlier admission and on "
-        "the certificate was compared by cause of death, for the same deaths; the primary contrast was the change from birth to the certificate in external "
-        "causes against natural causes.")
-para(d, f"Results: Among {n0(sum(VI['deaths_total'][k] for k in ('natural', 'transport', 'suicide', 'other external', 'undetermined intent', 'assault by firearm', 'other assault', 'legal intervention')))} "
-        f"deaths, about half were found among their birth candidates. From birth to the certificate the share White changed by "
-        f"{100 * BC['natural']['net_shift']['est']:+.0f} percentage points for natural deaths and by "
-        f"{100 * max(BC[k]['net_shift']['est'] for k in EXT):+.0f} to {100 * min(BC[k]['net_shift']['est'] for k in EXT):+.0f} for the external causes; the "
-        f"difference was {ddc(P_ASS)} for assaults and {ddc(P_EXT)} for the other external causes. For the same deaths with an earlier admission, the share "
-        f"White fell from birth to the hospital record by about {100 * -TR['natural']['birth_white->hospital_white']['est']:.0f} points, with no difference "
-        f"between assaults and natural deaths ({ddc(B_ASS)}), and "
-        f"from the hospital record to the certificate it changed by {100 * TR['natural']['hospital_white->certified_white']['est']:+.0f} points for natural "
-        f"deaths and {100 * TR['all assault']['hospital_white->certified_white']['est']:+.0f} for assaults ({ddc(H_ASS)}). Against transport deaths, assaults "
-        f"changed alike from birth to the certificate ({dpl(AT_)}); standardised to the composition of the municipality where the death occurred, external "
-        f"causes still differed from natural ones ({dpl(ST_)}), and among deaths in hospital the difference was halved.")
-para(d, "Conclusion: In the smaller Brazilian municipalities, young people who died of external causes, assaults no more than transport deaths, were "
-        "certified White less often than they were recorded at birth, also among those who died in their municipality of residence and at equal composition of "
-        "the place of death. The difference from natural deaths arose after the earlier hospital records, on the certificate, while "
-        "the change from birth to hospital did not differ detectably between causes. The large cities, where most homicides occur, require identified linkage.")
-para(d, "Keywords: Homicide; Violence; Racial Groups; Death Certificates; Young Adult; Brazil.")
-
+        "1,600 births a year, were related to the live births and to earlier hospital admissions, with records of the other sex as a control for chance agreement. "
+        "The share recorded White at birth, at an earlier admission and on the certificate was compared by cause of death, for the same deaths.")
+SN_ = VP["standardised_to_natural_place"]
+assert all(BC[k]["net_shift"]["est"] < 0 for k in (*EXT, "natural")), "a share White no longer falls: rewrite 'fell by'"
+para(d, f"Results: About half of {n0(sum(VI['deaths_total'][k] for k in ('natural', 'transport', 'suicide', 'other external', 'undetermined intent', 'assault by firearm', 'other assault', 'legal intervention')))} "
+        f"deaths were found among their birth candidates. From birth to the certificate the share White fell by {abs(100 * BC['natural']['net_shift']['est']):.1f} "
+        f"points for natural deaths and by {abs(100 * max(BC[k]['net_shift']['est'] for k in EXT)):.1f} to {abs(100 * min(BC[k]['net_shift']['est'] for k in EXT)):.1f} for "
+        f"external causes; assaults changed as transport deaths did ({dpl(AT_)}). For the same deaths, the change from birth to an earlier hospital record "
+        f"did not differ by cause ({ddc(B_ASS)}); the difference arose on the certificate. It held at equal racial composition of the municipality where the death occurred "
+        f"({dpl(ST_)}), and with assaults given the natural deaths' distribution of place of death "
+        f"{pct(SN_['all assault']['share_remaining'], 0)} of it remained ({dpl(SN_['all assault']['minus_natural'])}).")
+para(d, "Conclusion: Young people in deaths from external causes, assaults no different from transport deaths, were certified White less often than their earlier records had them. "
+        "The difference arose at death, partly with dying away from a health establishment and a family and partly with the external cause itself.")
+para(d, "Keywords: External Causes; Death Certificates; Racial Groups; Forensic Medicine; Data Accuracy; Young Adult; Brazil.")
 d.add_heading("Introduction", level=1)
-para(d, f"Black and Brown young people die by homicide far more often than White ones in Brazil {cite('soaresfilho2011', 'cerqueira2014')}. These rates take "
-        "the victim's race from the death certificate, which for violent deaths is often completed by the medical examiner of a medico-legal institute, who "
-        f"has not seen the person alive and records race from the body or from whoever informs it {cite('cfm1779')}. Race is also a status marker that observers read from circumstances: people incarcerated or poor are "
-        f"seen as darker {cite('saperstein2010', 'penner2008')}, and on United States certificates the race recorded depended on the cause of death "
-        f"{cite('noymer2011')}. If certifiers record young people killed by firearms as Brown more often than they would the same people dying of other causes, "
-        "part of the racial gap in homicide is made at death. If instead the young people who are killed were already recorded as Brown before they died, the "
-        "certificate reports a classification made in life.")
-para(d, "The two readings predict different things about a record made before death. Public Brazilian files carry no identifier, but deaths, births and "
+para(d, f"Rates of death by race in Brazil, homicide among them, take the race from the death certificate {cite('soaresfilho2011', 'cerqueira2014')}. "
+        "For deaths from external causes, the certificate is completed by the medical examiner of a medico-legal institute, who has not seen the person alive "
+        f"and records race from the body or from whoever informs it {cite('cfm1779')}; for natural deaths it is usually the attending physician, with the "
+        "family at hand. Race is also read from circumstances: people incarcerated or poor are seen as darker "
+        f"{cite('saperstein2010', 'penner2008')}, and on United States certificates the race recorded depended on the cause of death {cite('noymer2011')}. If "
+        "certifiers record young people who die of external causes as less White than the same people were recorded in life, part of the racial gap in those "
+        "deaths is made at death; if those who die so were already recorded so before, the certificate reports a classification made in life. A third "
+        "possibility is that it is not the cause but the circumstances of certification, away from a hospital and a family, that change the record.")
+para(d, "The readings predict different things about a record made before death and about the place of death. Public Brazilian files carry no identifier, but deaths, births and "
         "hospital admissions share the birth date, sex and municipality of residence, which in smaller municipalities relate a death to its own birth and "
         "admissions with a measurable rate of chance agreement. We found no study that compared the race of the same young people at birth, in hospital "
         f"and at death by cause. This study aimed {OBJECTIVE}.")

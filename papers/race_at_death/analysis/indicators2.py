@@ -111,6 +111,34 @@ def jack(fn):
     return out
 
 
+if len(sys.argv) > 1 and sys.argv[1] == "review4":
+    # round 2, 2.4: the Black to Brown ratio in the states where the birth record's share of Black mothers (2021-2023) matches the census share of
+    # Black women aged 15-49 (2022), where the birth record's Black class is not short of the population's
+    F = json.loads((HERE / "results" / "indicators2.json").read_text(encoding="utf-8"))
+    CW = pd.read_parquet(HERE / "data" / "census2022_women_15_49_race.parquet")
+    CW = CW[CW.c86.isin([2776, 2777, 2778, 2779, 2780])]
+    CW["uf"] = CW.locality.astype(str).str[:2].astype(int)
+    cen = CW.groupby("uf").apply(lambda g: g[g.c86 == 2777].value.sum() / g.value.sum())
+    b3 = births[9:12].sum(0)
+    dnb = pd.Series(b3[:, 1], index=bstate).groupby(level=0).sum() / pd.Series(b3[:, :5].sum(1), index=bstate).groupby(level=0).sum()
+    ratio_ = (dnb / cen).dropna()
+    keep = sorted(int(u) for u in ratio_[ratio_ >= 0.9].index)
+    short = sorted(int(u) for u in ratio_[ratio_ < 0.6].index)
+
+    def sel(states):
+        Lx = L[L.uf.isin(states)]
+        keepm = np.isin(bstate, states)
+        tot = sum(byear[y][keepm].sum(0) for y in range(2013, 2024))
+        bx = {r: float(tot[BIDX[r]]) for r in RACES}
+        dmx, dcx, bmx, _ = counts(Lx, bx)
+        return {"states": states, "black_over_brown_mother": float(ratios(dmx, bmx)["black"]), "white_over_brown_mother": float(ratios(dmx, bmx)["white"]),
+                "black_over_brown_usual": float(ratios(dcx, bmx)["black"]), "deaths": int(len(Lx))}
+
+    F["review4"] = {"dn_over_census_black": {int(k): float(v) for k, v in ratio_.items()}, "matching": sel(keep), "short": sel(short)}
+    (HERE / "results" / "indicators2.json").write_text(json.dumps(F, indent=1, default=float), encoding="utf-8")
+    print(json.dumps(F["review4"], indent=0, default=float)[:2000])
+    sys.exit(0)
+
 if len(sys.argv) > 1 and sys.argv[1] == "review3":
     # review 2026-11-22: 2.1 post-stratified scaling, 2.3 excess deaths within regions, 2.4 births with no race, A the Black-Brown
     # ratio under the repeat-birth misclassification and for Black and Brown combined

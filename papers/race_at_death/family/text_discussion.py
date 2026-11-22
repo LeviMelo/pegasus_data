@@ -43,11 +43,19 @@ para(d, "Strengths and limitations. The study uses the public-access samples of 
         "stepmother; the 2022 public file gives five-year ages and no municipality; who answered is not random; the intervals ignore imputation of race and "
         "the change of the questionnaire; the father-stepfather contrast is unadjusted; the place analysis has the municipality only in 2010; and Yellow and Indigenous mothers, whose numbers changed most between "
         "the censuses, are not analysed.")
+_BVC = _json.loads((HERE / "results" / "birth_vs_census.json").read_text(encoding="utf-8")) if "_json" in globals() else __import__("json").loads((HERE / "results" / "birth_vs_census.json").read_text(encoding="utf-8"))
+_HD = __import__("json").loads((HERE / "results" / "hospital_declaration.json").read_text(encoding="utf-8"))
+_SL = _BVC["mothers_2010"]["W"]["slope_region"]["slope"]
+_H0 = _HD["by_practice_fifth"][0]
+assert _SL > 1 and _H0["dn_black"] < 0.6 * _H0["expected_black"], "the two findings about the reference changed: rewrite the paragraph on the reference"
+para(d, f"The reference. Two findings of the companion papers weaken the birth record as the reference: it leans toward the local majority, recording mothers whiter than the census in whiter places and less White in less White ones (logit slope {_SL:.2f} within regions, 1 if it followed the census), and where hospitals rarely record Black on the admission it counts about half the Black mothers the census holds ({100 * _H0['dn_black']:.1f}% against {100 * _H0['expected_black']:.1f}%). "
+        "This paper uses the household's report, not the birth record; the two are not interchangeable, and a family reference applied to "
+        "birth-record classes, as the companion papers do, carries the birth record's departure from the census with it.")
 para(d, "Implications. Statistics that take children's race from the household inherit a classification that follows both parents and the person who "
         "answers for the household. Records that carry the mother's own declaration, such as the live birth record, can be expected to differ from them for "
         "children of mixed couples even without error in either source, a hypothesis that linked records could test.")
-para(d, f"In conclusion, this study set out {OBJECTIVE}. Households reported children by both parents, the mother somewhat more, with a pull toward "
-        "White and away from Black, by the father more than a stepfather, much alike across municipalities and states for a given couple, "
+para(d, f"In conclusion, this study set out {OBJECTIVE}. Households reported children with a pull toward White and away from Black, by both parents, the mother somewhat more, by the father more than a stepfather, "
+        "with place differences small against the death certificate's (under a quarter of its gradient), "
         "with siblings of mixed couples often classified apart, and closer to the partner's race when he answered for both mother and child; the classification "
         "changed little between 2010 and 2022.")
 d.add_heading("References", level=1)

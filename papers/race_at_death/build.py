@@ -157,8 +157,16 @@ for part in ("text.py", "text_results.py", "text_discussion.py", "text_supplemen
     exec(compile((PAPER_DIR / part).read_text(encoding="utf-8"), str(PAPER_DIR / part), "exec"))
 body = [p.text for p in d.paragraphs]
 start, end = body.index("Introduction"), body.index("References")
+# the abstract: its length, and its conclusion against the text's (review 2026-11-22, round 2, B and C)
+ab = body[body.index("Abstract") + 1: next(i for i, t in enumerate(body) if t.startswith("Keywords"))]
+words_abstract = sum(len(t.split()) for t in ab)
+assert words_abstract <= 300, f"the abstract has {words_abstract} words (limit 300)"
+concl_abs = next(t for t in ab if t.startswith("Conclusion")).lower()
+concl_txt = next(t for t in body[start:end] if t.startswith("In conclusion")).lower()
+for phrase in globals().get("CLAIM", ()):
+    assert phrase.lower() in concl_abs and phrase.lower() in concl_txt, f"the conclusions of the abstract and the text disagree on: {phrase}"
 words_text = sum(len(t.split()) for t in body[start:end] if not t.startswith(("Table ", "Figure ")))
-report = {"words_introduction_to_conclusion": words_text, "words_all_paragraphs": sum(len(t.split()) for t in body), "references": len(order), "reference_keys": order,
+report = {"words_abstract": words_abstract, "words_introduction_to_conclusion": words_text, "words_all_paragraphs": sum(len(t.split()) for t in body), "references": len(order), "reference_keys": order,
           "tables": sum(t.startswith("Table ") for t in body), "figures": sum(t.startswith("Figure ") for t in body),
           "supplementary_tables": sum(p.text.startswith("Supplementary Table ") for p in s.paragraphs), "supplementary_figures": sum(p.text.startswith("Supplementary Figure ") for p in s.paragraphs)}
 (OUT / "build_report.json").write_text(json.dumps(report, indent=1), encoding="utf-8")

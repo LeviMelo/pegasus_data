@@ -141,6 +141,29 @@ R["external_not_hospital"] = contrasts(ext & ~meta.hospital)
 # every cause by place of death: is the natural-external contrast the place (hospital, a family likely present) rather than the cause?
 R["died_in_hospital"] = contrasts(meta.hospital)
 R["died_out_of_hospital"] = contrasts(~meta.hospital)
+# round 2, 5.2: the external causes standardised to the place-of-death distribution of natural deaths. Places: a health establishment (LOCOCOR
+# 1-2), home (3), public road or elsewhere (4-6 or blank). Each cause's shift within each place, averaged with the natural deaths' weights
+meta["place3"] = np.select([meta["loc"].isin(["1", "2"]), meta["loc"] == "3"], ["health establishment", "home"], "road or elsewhere")
+PL3 = ["health establishment", "home", "road or elsewhere"]
+wn = np.array([meta[RACES].sum(1)[(meta.kind == "natural") & (meta.place3 == q)].sum() for q in PL3])
+wn = wn / wn.sum()
+dist = {g: {q: float(meta[RACES].sum(1)[meta.kind.isin(v) & (meta.place3 == q)].sum() / meta[RACES].sum(1)[meta.kind.isin(v)].sum()) for q in PL3}
+        for g, v in KINDS.items()}
+st_place = {}
+for g, v in KINDS.items():
+    s3 = np.stack([shift(cube((meta.place3 == q) & meta.kind.isin(v)))[0] for q in PL3])
+    st_place[g] = {"by_place": {q: {"shift": float(s3[i][0]), "se": float(np.nanstd(s3[i][1:]))} for i, q in enumerate(PL3)},
+                   "_reps": (wn[:, None] * s3).sum(0)}
+R["place_of_death_distribution"] = dist
+R["standardised_to_natural_place"] = {}
+raw_gap = shift(cube(meta.kind == "natural"))[0]
+for g in KINDS:
+    sr = st_place[g]["_reps"]
+    d_ = sr - st_place["natural"]["_reps"]
+    raw = shift(cube(meta.kind.isin(KINDS[g])))[0] - raw_gap
+    R["standardised_to_natural_place"][g] = {"shift": float(sr[0]), "se": float(np.nanstd(sr[1:])), "by_place": st_place[g]["by_place"],
+                                             "minus_natural": {"est": float(d_[0]), "lo": float(np.nanpercentile(d_[1:], 2.5)), "hi": float(np.nanpercentile(d_[1:], 97.5))},
+                                             "raw_minus_natural": float(raw[0]), "share_remaining": float(d_[0] / raw[0]) if g != "natural" and raw[0] != 0 else None}
 # 5.5 what the natural deaths at 15-24 are: ICD chapters of the deaths found
 nat = meta[meta.kind == "natural"]
 ch = nat.cause.str[0].map(lambda c: {"C": "neoplasms", "D": "neoplasms or blood", "G": "nervous system", "I": "circulatory", "J": "respiratory",
@@ -151,4 +174,6 @@ R["natural_chapters"] = (nat[RACES].sum(1).groupby(ch).sum() / nat[RACES].to_num
 for k in ("all", "died_at_home_municipality", "died_elsewhere", "standardised_to_occurrence", "external_hospital", "external_not_hospital", "died_in_hospital", "died_out_of_hospital"):
     print(k, {g: round(v["shift"], 3) for g, v in R[k].items()}, "assault-natural", R[k]["all assault"].get("minus_natural"))
 print("away", {g: round(v, 3) for g, v in R["away_share"].items()}, "occ_white", {g: round(v, 3) for g, v in R["occ_white_mean"].items()})
+print("standardised to natural place", {g: (round(v["minus_natural"]["est"], 3), round(v["raw_minus_natural"], 3), v["share_remaining"] and round(v["share_remaining"], 2)) for g, v in R["standardised_to_natural_place"].items()})
+print("place dist", {g: {q: round(x, 2) for q, x in v.items()} for g, v in R["place_of_death_distribution"].items()})
 print("chapters", {k: round(v, 3) for k, v in R["natural_chapters"].items()})

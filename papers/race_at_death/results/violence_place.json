@@ -934,6 +934,190 @@
    }
   }
  },
+ "place_of_death_distribution": {
+  "natural": {
+   "health establishment": 0.8209041954246792,
+   "home": 0.12279501914758714,
+   "road or elsewhere": 0.05630078542773373
+  },
+  "transport": {
+   "health establishment": 0.37198258535113304,
+   "home": 0.007905214129742074,
+   "road or elsewhere": 0.6201122005191247
+  },
+  "all assault": {
+   "health establishment": 0.17271713916512563,
+   "home": 0.11900120646852103,
+   "road or elsewhere": 0.7082816543663533
+  },
+  "assault by firearm": {
+   "health establishment": 0.160456838591231,
+   "home": 0.12368999279037335,
+   "road or elsewhere": 0.7158531686183957
+  },
+  "all external, not assault": {
+   "health establishment": 0.29893304397304427,
+   "home": 0.14869926419018833,
+   "road or elsewhere": 0.5523676918367674
+  },
+  "suicide": {
+   "health establishment": 0.14339549486998712,
+   "home": 0.6313374246562437,
+   "road or elsewhere": 0.22526708047376914
+  }
+ },
+ "standardised_to_natural_place": {
+  "natural": {
+   "shift": -0.04874157878596297,
+   "se": 0.012151121592537454,
+   "by_place": {
+    "health establishment": {
+     "shift": -0.04319009984551825,
+     "se": 0.013270320345639576
+    },
+    "home": {
+     "shift": -0.036693854241503954,
+     "se": 0.03273454637855847
+    },
+    "road or elsewhere": {
+     "shift": -0.15596269254632045,
+     "se": 0.047478232852782826
+    }
+   },
+   "minus_natural": {
+    "est": 0.0,
+    "lo": 0.0,
+    "hi": 0.0
+   },
+   "raw_minus_natural": 0.0,
+   "share_remaining": null
+  },
+  "transport": {
+   "shift": -0.1777255553187236,
+   "se": 0.024567424493602566,
+   "by_place": {
+    "health establishment": {
+     "shift": -0.15004738728177552,
+     "se": 0.021650275459003606
+    },
+    "home": {
+     "shift": -0.37048105397625875,
+     "se": 0.14097492000961892
+    },
+    "road or elsewhere": {
+     "shift": -0.1608822576977339,
+     "se": 0.014871246414918651
+    }
+   },
+   "minus_natural": {
+    "est": -0.12898397653276064,
+    "lo": -0.18988491161904572,
+    "hi": -0.08029649289944622
+   },
+   "raw_minus_natural": -0.10976721916841647,
+   "share_remaining": 1.1750682718386058
+  },
+  "all assault": {
+   "shift": -0.11414267707981046,
+   "se": 0.02196149619089198,
+   "by_place": {
+    "health establishment": {
+     "shift": -0.10114868894003265,
+     "se": 0.026284538186041886
+    },
+    "home": {
+     "shift": -0.1716582350964727,
+     "se": 0.02971292890252907
+    },
+    "road or elsewhere": {
+     "shift": -0.17815946306103234,
+     "se": 0.01304186615230629
+    }
+   },
+   "minus_natural": {
+    "est": -0.06540109829384749,
+    "lo": -0.10953968892719722,
+    "hi": -0.02044181262157261
+   },
+   "raw_minus_natural": -0.11534314971268916,
+   "share_remaining": 0.5670132856329705
+  },
+  "assault by firearm": {
+   "shift": -0.10582663391108399,
+   "se": 0.025778315826690244,
+   "by_place": {
+    "health establishment": {
+     "shift": -0.08847411763994575,
+     "se": 0.030585971373966927
+    },
+    "home": {
+     "shift": -0.18879439912309354,
+     "se": 0.03295593800076243
+    },
+    "road or elsewhere": {
+     "shift": -0.1778811365168829,
+     "se": 0.014575078294860133
+    }
+   },
+   "minus_natural": {
+    "est": -0.05708505512512102,
+    "lo": -0.10872887544711905,
+    "hi": -0.005049941682965539
+   },
+   "raw_minus_natural": -0.11614345150714198,
+   "share_remaining": 0.491504724410663
+  },
+  "all external, not assault": {
+   "shift": -0.1418584012282432,
+   "se": 0.01586990918943979,
+   "by_place": {
+    "health establishment": {
+     "shift": -0.13845570763488202,
+     "se": 0.018912228883043985
+    },
+    "home": {
+     "shift": -0.15464920753178113,
+     "se": 0.02545421717877395
+    },
+    "road or elsewhere": {
+     "shift": -0.16357458391184376,
+     "se": 0.012339672457886376
+    }
+   },
+   "minus_natural": {
+    "est": -0.09311682244228023,
+    "lo": -0.1331533893245598,
+    "hi": -0.055361340083696704
+   },
+   "raw_minus_natural": -0.10599694607889032,
+   "share_remaining": 0.8784858987633115
+  },
+  "suicide": {
+   "shift": -0.14539675458327278,
+   "se": 0.05059232269139361,
+   "by_place": {
+    "health establishment": {
+     "shift": -0.14379162001032553,
+     "se": 0.06131958355855943
+    },
+    "home": {
+     "shift": -0.14204592437635127,
+     "se": 0.02724381542846263
+    },
+    "road or elsewhere": {
+     "shift": -0.17610906084039046,
+     "se": 0.04346356962715874
+    }
+   },
+   "minus_natural": {
+    "est": -0.09665517579730981,
+    "lo": -0.1934985419070337,
+    "hi": 0.0005722866411313262
+   },
+   "raw_minus_natural": -0.10122797378274828,
+   "share_remaining": 0.9548267359845368
+  }
+ },
  "natural_chapters": {
   "neoplasms": 0.1623948056978941,
   "nervous system": 0.14159904009895152,

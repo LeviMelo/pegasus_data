@@ -50,6 +50,11 @@ def cbci(key):
 by_h = IN["black_mother_by_hospital"]
 HD = _json.loads((HERE / "results" / "hospital_declaration.json").read_text(encoding="utf-8"))
 AGAIN = _MVT["declared_again|black"]
+AG_S, AG_O = _MVT["declared_again|black|same establishment"], _MVT["declared_again|black|another establishment"]
+AGW_S, AGW_O = _MVT["declared_again|white|same establishment"], _MVT["declared_again|white|another establishment"]
+AGB_S, AGB_O = _MVT["declared_again|brown|same establishment"], _MVT["declared_again|brown|another establishment"]
+AG_GAP = AG_S["est"] - AG_O["est"]
+assert AG_S["est"] < 0.7, "the declaration now repeats in the same establishment: rewrite 'most of its instability is the mother's'"
 assert LD["certificate_infant"]["est"] < 0.5 * LD["family_child_0"] and HO["black_bootstrap"]["black"]["est"] < AGAIN["est"], "the four levels changed order"
 _hf = HD["by_practice_fifth"]
 assert _hf[0]["dn_black"] < 0.6 * _hf[0]["expected_black"] and _hf[-1]["dn_black"] > 0.9 * _hf[-1]["expected_black"], "the birth record's shortfall by practice changed"
@@ -72,34 +77,20 @@ para(d, "[Authors, affiliations, ORCID, funding, conflicts of interest and contr
 
 d.add_heading("Abstract", level=1)
 para(d, f"Objective: {OBJECTIVE[0].upper() + OBJECTIVE[1:]}.")
-para(d, f"Methods: {DESIGN[0].upper() + DESIGN[1:]}, Brazil. Infant deaths of 2013-2023 were linked to their birth records (the mother's declared race) and the "
-        "birth records to the mothers' delivery admissions (the hospital's record of the mother). The certificate was related to the hospital's record of the same "
-        "mother within delivery hospitals and within the establishments where infants died elsewhere, to each hospital's practice estimated without the mother, to "
-        "the certifying physician and to the year, standardised for who the mothers were.")
-para(d, f"Results: Four records of the same people gave the Black category at four levels: the same mother declared herself Black again at her next "
-        f"birth in {ci(AGAIN)}; households reported Black mothers' children under one as Black in {f2(LD['family_child_0'])} (census); the hospital "
-        f"recorded the mother as Black at delivery in {ci(HO['black_bootstrap']['black'])}; the certificate recorded her infant as Black in "
-        f"{ci(LD['certificate_infant'])}. Of infants of mothers who declared themselves Black, {cbci('Preta>Preta')} were certified Black and {cbci('Preta>Parda')} Brown; certificates "
-        f"recorded {ci(MB['net']['certificate_ratio'])} as many infants as Black as there were infants of Black mothers. Hospitals recorded these mothers as Black in "
-        f"{ci(HO['black_bootstrap']['black'])} of admissions with a race. Within the same hospital, an infant whose mother the hospital had recorded as Black had "
-        f"{f2(MB['clogit_delivery_hospital_adjusted']['or'])} (95%CI {f2(MB['clogit_delivery_hospital_adjusted']['lo'])}; "
-        f"{f2(MB['clogit_delivery_hospital_adjusted']['hi'])}) times the odds of being certified Black, and {f2(MB['clogit_death_estab_elsewhere']['or'])} (95%CI "
-        f"{f2(MB['clogit_death_estab_elsewhere']['lo'])}; {f2(MB['clogit_death_estab_elsewhere']['hi'])}) among infants who died in another establishment, where "
-        f"the delivery chart was not at hand, and {f2(R3['within_hospital_by_visits']['none']['est'])} (95%CI {f2(R3['within_hospital_by_visits']['none']['lo'])}; "
-        f"{f2(R3['within_hospital_by_visits']['none']['hi'])}) for mothers with no prenatal visit. One standard deviation of the delivery hospital's practice, "
-        f"estimated without the mother, multiplied the odds by {f2(R3['practice_per_sd']['practice_composition_region_year']['or_per_sd'])} at equal composition, "
-        f"region and year, {pct(R3['practice_per_sd']['share_through_mothers_record'], 0)} of it through the hospital's record of the mother herself; a Black "
-        f"mother who changed hospital moved by {f2(MC['movers']['movers_practice_slope']['est'])} of the difference in the two hospitals' practice. Over "
-        "2013-2022, the certificate's use of the category rose faster than the hospital's record of the same infants' mothers (difference "
-        f"{f2(R3['joint_trend_2013_2022']['hospital_minus_certificate'])} in log-odds per decade, 95%CI "
-        f"{f2(R3['joint_trend_2013_2022']['hospital_minus_certificate'] - 1.96 * R3['joint_trend_2013_2022']['difference_se'])}; "
-        f"{f2(R3['joint_trend_2013_2022']['hospital_minus_certificate'] + 1.96 * R3['joint_trend_2013_2022']['difference_se'])}).")
-para(d, "Conclusion: Against the right comparator for each record, the hospital records a Black mother as Black less often than she repeats her own "
-        "declaration, and the certificate records her infant as Black less than half as often as families report such children: the infant is recorded "
-        "Brown on the certificate. A "
-        "mother's hospital record follows the level her hospital sets, and the certificate goes with that record also where no chart or shared prenatal record "
-        "was likely at hand, which is compatible with staff reading the same person alike, or with her own varying answer, and not with copying. Taking the "
-        "mother's declaration as the reference, these records count fewer infants as Black, by amounts that differ between hospitals.")
+CLAIM = ["the four levels", "most of its instability is the mother's"]
+para(d, f"Methods: {DESIGN[0].upper() + DESIGN[1:]}, Brazil. Infant deaths of 2013-2023 were linked to their birth records and the births to the "
+        "mothers' delivery admissions; mothers with two births were related by birth date and municipality. Each record of "
+        "a Black mother or her child was set against its own comparator, and the certificate against the hospital's record within hospitals.")
+para(d, f"Results: At four levels, the share recorded Black was {ci(AGAIN)} for a mother declaring herself Black again at her next birth, "
+        f"{f2(LD['family_child_0'])} for such mothers' infants as households reported them, {ci(HO['black_bootstrap']['black'])} for the mother in the hospital's admission "
+        f"and {ci(LD['certificate_infant'])} for her infant on the certificate. The mother's declaration repeated in {ci(AG_S)} of cases in the "
+        f"same establishment and {ci(AG_O)} in another. Within the same delivery hospital, an infant whose mother the hospital had recorded Black had "
+        f"{f2(MB['clogit_delivery_hospital_adjusted']['or'])} times the odds of being certified Black, also after dying elsewhere "
+        f"({f2(MB['clogit_death_estab_elsewhere']['or'])}).")
+para(d, "Conclusion: Against the right comparator for each record, the four levels fall from the mother's own repeated declaration to the certificate, which records the infant of a Black mother as Black less than half "
+        "as often as families report such children; the declaration "
+        + ("itself repeated only somewhat more in the same establishment, so most of its instability is the mother's." if AG_GAP > 0.05 else "itself repeats alike in the same or another establishment, so its instability is the mother's.")
+        + " The certificate follows the hospital's record of the mother.")
 para(d, "Keywords: Race Factors; Racial Groups; Death Certificates; Hospital Records; Medical Record Linkage; Infant Mortality; Brazil.")
 
 # ================================================================= introduction

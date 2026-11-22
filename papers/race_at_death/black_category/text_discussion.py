@@ -6,12 +6,16 @@ assert MV["declared_again|black"]["est"] < MV["declared_again|white"]["est"] < M
 assert R3["within_hospital_by_visits"]["none"]["lo"] > 1 and R3["home_deaths"]["mh_over_regions"]["lo"] > 1, "the association vanished where no shared record is likely"
 assert 0.3 < R3["practice_per_sd"]["share_through_mothers_record"] < 0.7, "the practice's share through the mother's record is no longer about half"
 d.add_heading("Discussion", level=1)
-para(d, f"The infants of mothers who declared themselves Black were recorded as Black on a minority of death certificates: for the same "
-        f"{n0(R3['n'])} infants, the hospital had recorded the mother as Black in {f2(R3['hospital_black_same_infants'])} and the certificate the infant in "
-        f"{f2(R3['certified_black_same_infants'])}, and counted net the certificates recorded {f2(MB['net']['certificate_ratio']['est'])} as many infants as Black as "
-        "there were infants of Black mothers. The certificate went with how the same mother was recorded at delivery, within the delivery hospital and also "
-        "where the infant died elsewhere, at home or after no prenatal visit. The delivery hospital's practice went with the certificate too, about half of it "
-        "through how the hospital recorded the mother herself. The category's use rose over the decade, faster on the certificate than in the hospital.")
+para(d, f"Read against its own comparator, each record uses the Black category less. A mother who declared herself Black did so again at her "
+        f"next birth in {f2(AGAIN['est'])}, "
+        + (f"somewhat more in the same establishment ({f2(AG_S['est'])}) than in another ({f2(AG_O['est'])}): most of the declaration's instability is "
+           "the mother's, and a part the establishment's; " if AG_GAP > 0.05 else f"alike in the same establishment and another ({f2(AG_S['est'])} and {f2(AG_O['est'])}), so its "
+           "instability is the mother's own; ")
+        + f"the hospital recorded her as Black in {f2(HO['black_bootstrap']['black']['est'])}, below her own repetition; families report her infant as Black "
+        f"in {f2(LD['family_child_0'])}, and the certificate in {f2(LD['certificate_infant']['est'])}, under half of that. The certificate went with how the "
+        "same mother was recorded at delivery, within the delivery hospital and also where the infant died elsewhere, at home or after no prenatal visit; "
+        "the delivery hospital's practice went with the certificate too, about half of it through how the hospital recorded the mother herself; and "
+        "where hospitals used the category least, the birth record itself counted fewer Black mothers than the census.")
 para(d, "Several readings were set against each other (Table 1). If the certificate copied the delivery chart, the association would vanish where the chart "
         "was not at hand; it remained at a similar size among infants who died in another establishment. If a shared upstream record carried the same entry to "
         "every later record, such as the prenatal card or the national health card, the association would weaken among mothers with no prenatal visit and "
@@ -37,12 +41,6 @@ para(d, "The rise over 2013-2023 was faster on the certificate than in the hospi
         f"with a darkening of racial identification in surveys of the period {cite('freemannc2024')}. Whether certifiers responded to that change or to "
         f"training cannot be tested here. A change in how race was recorded on birth records in 2012 changed infant mortality by race {cite('caldas2022')}; the "
         "records filled by staff move separately from the mother's declaration and at different speeds.")
-para(d, f"Read against the right comparator for each record, the ladder is shorter than against the mother's declaration taken as 1. The same "
-        f"mother declared herself Black again at her next birth in {f2(AGAIN['est'])}, so a record of her at another time and by other people cannot be "
-        f"expected to reach 1: the hospital's {f2(HO['black_bootstrap']['black']['est'])} is below her own repetition. The infant is not the mother, and "
-        f"families report Black mothers' children under one as Black in {f2(LD['family_child_0'])}: the certificate's {f2(LD['certificate_infant']['est'])} "
-        "is below half of that. The birth record itself counts fewer Black mothers than the census where hospitals use the category least, so these "
-        "levels are, if anything, measured against a reference that already leans away from Black.")
 para(d, "Strengths and limitations. The study follows the same families through linked records nationally over eleven years, with one-to-one linkage of the infant "
         "to the birth and of the birth to the delivery, separates gross from net classification, and sets copying, a shared upstream record, practice and the "
         "person against each other. Limitations: the reference is the mother's declaration, entered by staff; the infant's own hospital record was not used; the "
@@ -51,12 +49,21 @@ para(d, "Strengths and limitations. The study follows the same families through 
         "across births were identified by birth date and residence in smaller municipalities, with a measured share of chance pairs; the certifying physician is "
         "filed only in 2014-2018, with few deaths per physician; the estimate after infancy rests on an estimator that loses precision in the largest "
         "municipalities; and the analyses beyond the two primary ones are exploratory.")
+_BVC = _json.loads((HERE / "results" / "birth_vs_census.json").read_text(encoding="utf-8")) if "_json" in globals() else __import__("json").loads((HERE / "results" / "birth_vs_census.json").read_text(encoding="utf-8"))
+_HD = __import__("json").loads((HERE / "results" / "hospital_declaration.json").read_text(encoding="utf-8"))
+_SL = _BVC["mothers_2010"]["W"]["slope_region"]["slope"]
+_H0 = _HD["by_practice_fifth"][0]
+assert _SL > 1 and _H0["dn_black"] < 0.6 * _H0["expected_black"], "the two findings about the reference changed: rewrite the paragraph on the reference"
+para(d, f"The reference. Two findings weaken the birth record as the reference: it leans toward the local majority, recording mothers whiter than the census in whiter places and less White in less White ones (logit slope {_SL:.2f} within regions, 1 if it followed the census), and where hospitals rarely record Black on the admission it counts about half the Black mothers the census holds (above; {100 * _H0['dn_black']:.1f}% against {100 * _H0['expected_black']:.1f}%). "
+        "For this paper, both make the Black mothers studied in the less White states a selected group whose own record is the least "
+        "ambiguous, so the hospital's and the certificate's shortfalls measured against them are, if anything, understated.")
 para(d, "Implications. Taking the mother's declaration as the reference, hospital and death records count fewer of the Black population as Black, the infant "
         "certificate least, by amounts that differ between hospitals; grouping Black and Brown as negros removes that difference from comparisons with White "
         "people but not from statistics of the Black population itself. Recording who informed the race on the certificate would show where the category is lost.")
-para(d, f"In conclusion, this study set out {OBJECTIVE}. The infants of Black mothers were recorded as Black on a minority of certificates, fewer than the hospitals "
-        "recorded their mothers; the certificate went with how the same mother was recorded, within levels each hospital sets, also where no chart or shared "
-        "record was likely at hand; and the category's use rose over the decade faster on the certificate than in the hospital.")
+para(d, f"In conclusion, this study set out {OBJECTIVE}. Against the right comparator, the four levels fell from the mother's own declaration to the certificate; the declaration repeated only somewhat more in the same establishment, so most of its instability is the mother's; and the certificate recorded the infant of a Black mother as "
+        "Black less than half as often as families report such children, and the hospital the mother less often than she repeated her own declaration; "
+        "the certificate went with how the same mother was recorded, within levels each hospital and state set, also where no chart or shared record was "
+        "likely at hand; and the category's use rose over the decade, faster on the certificate than in the hospital.")
 PPS = R3["practice_per_sd"]
 RD3 = [["Copying the delivery chart", "association only where the infant died where it was delivered",
         f"{f2(CL_T['or'])} there, {f2(CL_E['or'])} ({f2(CL_E['lo'])}; {f2(CL_E['hi'])}) elsewhere", "no"],

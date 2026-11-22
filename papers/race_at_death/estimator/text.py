@@ -147,28 +147,24 @@ TITLE = ("Cross-classifying two registers without linking them: candidates less 
 para(d, TITLE, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER)
 para(d, "[Authors, affiliations, ORCID, funding, conflicts of interest and contributions: to be supplied by the authors; not part of the blinded text]", italic=True)
 d.add_heading("Abstract", level=1)
-para(d, f"Objective: {OBJECTIVE[0].upper() + OBJECTIVE[1:]}. The estimand is a 4 x 5 table: the race on the mother's birth record (four classes) by the race "
-        "recorded for the same person in the other register (four classes, other or none), and the share of people the key finds.")
+CLAIM = ["without linking anyone", "the people whose key", "its bias is the selection"]
+para(d, f"Objective: {OBJECTIVE[0].upper() + OBJECTIVE[1:]}.")
 para(d, "Methods: For each record of one register (a death), the records of the other (births) sharing its birth date, sex and municipality are counted "
-        "by class; the other sex's records of the same day, scaled by the sex ratio, estimate the chance agreements and are subtracted. The estimator was run "
+        "by class; the other sex's records of the same day estimate the chance agreements and are subtracted. The estimator was run "
         f"on the units a one-to-one linkage paired, for {n0(I['certificates'])} Brazilian infant deaths ({I['years'][0]}-{I['years'][1]}) and "
-        f"{n0(PAIR['units'])} hospital admissions that ended in death ({PAIR['years'][0]}-{PAIR['years'][-1]}), by size of municipality and age at death, "
-        "with a shifted-date placebo, against simpler estimators, and in a simulation of its bias and coverage under departures from its assumptions.")
+        f"{n0(PAIR['units'])} hospital admissions that ended in death ({PAIR['years'][0]}-{PAIR['years'][-1]}), with a shifted-date placebo and a simulation of its bias and coverage.")
 AGE_ = E.get("like_pair_by_age", {})
 AGE_MAD = [v["groups"]["all"]["linked"]["against_findable"]["mean_abs_diff"] for v in AGE_.values()]
 AGE_OUT = [v["groups"]["all"]["linked"]["against_findable"]["outside_model"] for v in AGE_.values()]
 assert AGE_ and max(AGE_MAD) < 0.005 and max(AGE_OUT) <= 2, "by age at death the admissions' estimate no longer matches its target"
 para(d, f"Results: On the linked infants of municipalities under 25,600 births a year ({pct(E['infants_births_share']['below_25600'], 0)} of births), the "
-        f"estimate differed from the linkage by {pp(l25['mean_abs_diff'])} on average over 20 cells (without the control, {pp(l25['nocontrol_mean_abs_diff'])}), "
-        f"with {l25['outside_model']} cells outside the 95% interval. On admissions, against its target (the people the key finds), it differed by "
-        f"{pp(pair_t['mean_abs_diff'])} with {pair_t['outside_model']} of {pair_t['cells']} cells outside, and in every age band from under one to 60 or more by "
-        f"{min(AGE_MAD):.3f}-{max(AGE_MAD):.3f} with at most {max(AGE_OUT)} cells outside. Accuracy held while the expected chance candidates per unit stayed "
-        "below about one. The shifted-date placebo found almost no one. In simulation the estimator was nearly unbiased for the people found where its "
-        "assumptions held; moving that depended on the class recorded biased it against all deaths.")
-para(d, "Conclusions: A cross-classification between registers can be estimated without linking individuals for the people whose key the two registers share, "
-        "with the error of the chance agreements and of the proportion's denominator, where a unit has fewer than about one chance candidate. Against its "
-        "target its interval held for infant deaths and for hospital deaths at every age. Who shares the key is not random: where it could be measured "
-        f"(admissions linked to certificates), findability fell from {pct(t_cls['Branca'], 0)} for White to {pct(t_cls['Indigena'], 0)} for Indigenous.")
+        f"estimate differed from the linkage by {pp(l25['mean_abs_diff'])} on average over 20 cells (without the control, {pp(l25['nocontrol_mean_abs_diff'])}). On admissions, against its target (the people the key finds), it differed by "
+        f"{pp(pair_t['mean_abs_diff'])} with {pair_t['outside_model']} of {pair_t['cells']} cells outside the interval, and in every age band by "
+        f"{min(AGE_MAD):.3f}-{max(AGE_MAD):.3f}. The shifted-date placebo found almost no one. In simulation the estimator was nearly unbiased for the people found where its "
+        "assumptions held. Where it could be measured (admissions linked to certificates), "
+        f"findability fell from {pct(t_cls['Branca'], 0)} for White to {pct(t_cls['Indigena'], 0)} for Indigenous.")
+para(d, "Conclusion: A cross-classification between registers can be estimated without linking anyone, for the people whose key the two registers share, "
+        "with an interval that held against that target; its bias is the selection of who shares the key.")
 para(d, "Keywords: Medical Record Linkage; Vital Statistics; Data Accuracy; Bias; Negative Controls; Ecological Inference; Simulation; Brazil.")
 
 d.add_heading("Introduction", level=1)

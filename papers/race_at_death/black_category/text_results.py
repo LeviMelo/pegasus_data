@@ -27,17 +27,16 @@ para(d, f"Of {n0(I['linked'])} infant deaths of 2013-2023 linked to their birth 
         "on that admission and its hospital identified, the set of the comparisons below), and these infants were "
         f"certified Black as often as the others ({ci(IN['black_with_record'])} against {ci(IN['black_without_record'])}). Across all deliveries of 2012-2023 linked "
         f"to their birth records, {n0(NT['hospital_declared_black'])} admissions of mothers who declared themselves Black carried a race.")
-d.add_heading("Three records of the same families", level=2)
-para(d, "Each later record used the Black category less than the mothers had declared it (Figure 2, Supplementary Table S2). Hospitals recorded mothers who declared themselves "
-        f"Black as Black at delivery in {ci(HB['black'])} of admissions with a race, as Brown in {ci(HB['brown'])} and as White in {ci(HB['white'])}, and left the race "
-        f"blank in {pct(NT['hospital_blank_share']['black'])}; counting the blanks as not Black or as Black, {f2(MB['net']['hospital_black_share_blank_as_other'])} to "
-        f"{f2(MB['net']['hospital_black_share_blank_as_black'])} of these mothers were recorded Black. Death certificates recorded their infants as Black in "
-        f"{cbci('Preta>Preta')}, as Brown in {cbci('Preta>Parda')} and as White in {cbci('Preta>Branca')}. Counted net, so that Brown mothers recorded Black offset "
-        f"Black mothers recorded otherwise, the hospitals recorded {ci(MB['net']['hospital_ratio'])} as many mothers as Black as declared themselves Black, and the "
-        f"certificates {ci(MB['net']['certificate_ratio'])} as many infants as Black as there were infants of Black mothers; only "
-        f"{pct(NT['certificate_brown_to_black']['est'])} of Brown mothers' infants were certified Black. In the same municipalities, certificates used the "
-        f"category for {ci(LD['certificate_infant_below_25600'])} of infants and {cc(LD['certificate_1_4'])} of children aged 1-4 (the estimate at 5-9 years was too "
-        f"imprecise to compare); families in 2010 reported as Black {f2(LD['family_child_0'])} of Black mothers' children under one year.")
+d.add_heading("Four levels of the Black category", level=2)
+para(d, f"Each record was set against its own comparator (Figure 2, Supplementary Table S2). The mother herself, at her next birth, declared Black "
+        f"again in {ci(AGAIN)} of cases: {ci(AG_S)} when the second birth was in the same establishment and {ci(AG_O)} in another (White "
+        f"{f2(AGW_S['est'])} and {f2(AGW_O['est'])}; Brown {f2(AGB_S['est'])} and {f2(AGB_O['est'])}). Households reported Black mothers' children under one "
+        f"as Black in {f2(LD['family_child_0'])} and at 1-4 years in {f2(LD['family_child_1_4'])} (census 2010). Hospitals recorded the mother as Black at "
+        f"delivery in {ci(HB['black'])} of admissions with a race, as Brown in {ci(HB['brown'])} and as White in {ci(HB['white'])}, and left the race blank in "
+        f"{pct(NT['hospital_blank_share']['black'])}. Death certificates recorded the infant as Black in {cbci('Preta>Preta')}, as Brown in {cbci('Preta>Parda')} "
+        f"and as White in {cbci('Preta>Branca')}, under half of what families report for such children; at 1-4 years in {cc(LD['certificate_1_4'])}. Counted net, "
+        f"so that Brown mothers recorded Black offset Black mothers recorded otherwise, the hospitals recorded {ci(MB['net']['hospital_ratio'])} as many mothers as "
+        f"Black as declared themselves Black, and the certificates {ci(MB['net']['certificate_ratio'])} as many infants as there were infants of Black mothers.")
 F0B = CEN["by_band"]["0"]["Preta"]
 W14B = CH["1-4"]["without_large"]["matrix"]["rows"]["Preta"]
 rows = [["Family (census 2010), child under 1", "household", f2(F0B["Preta"]["est"]), f2(F0B["Parda"]["est"]), f2(F0B["Branca"]["est"])],
@@ -51,7 +50,7 @@ LADDER = ("Supplementary Table S2 - Race recorded for mothers who declared thems
        "municipalities; the remainder is another category or none. Certificate, 1-4 years: candidate estimator, municipalities with fewer than 25,600 births a year. "
        "The populations and years differ between rows."])
 figure(d, "black_ladder", "Figure 2 - Proportion recorded Black among mothers who declared themselves Black, or their children, by record and age, Brazil",
-       ["The declaration bar is 1 by construction. Family: 2010 Census sample. Hospital: admissions of 2012-2023 with a race. Certificate, infant: linkage, 2013-2023; "
+       ["The mother's declaration at this birth is 1 by definition (dotted line). The mother herself: the same mother's declaration at her next birth, chance pairs subtracted. Family: 2010 Census sample. Hospital: admissions of 2012-2023 with a race. Certificate, infant: linkage, 2013-2023; "
         "1-4 years: candidate estimator, municipalities with fewer than 25,600 births a year. Bars: 95% confidence intervals. Hatched: net ratios of counts, the records' Black count over the Black-declared mothers or their infants (Brown mothers recorded Black offset Black mothers recorded otherwise)."])
 d.add_heading("The reference", level=2)
 para(d, f"The mother's race on the birth record is entered by staff on her answer. Across all linked births, {pct(FLR['physician']['black_declared_share'], 1)} of "
@@ -87,9 +86,8 @@ para(d, "When the hospital had recorded the infant's own mother as Black, the in
         f"where certificates used the category most, against {pct(RB['brown']['south_share'], 0)} of those the hospital recorded as Brown; standardised to the "
         f"regions of all these infants, the three were {f2(RB['black']['region_standardised'])}, {f2(RB['brown']['region_standardised'])} and "
         f"{f2(RB['white']['region_standardised'])} (Figure 3A), and the Mantel-Haenszel odds ratio over regions for a Black against any other record was "
-        f"{f2(R3['mh_over_regions']['est'])} ({f2(R3['mh_over_regions']['lo'])}; {f2(R3['mh_over_regions']['hi'])}). For the same {n0(R3['n'])} infants, the "
-        f"hospital had recorded the mother as Black in {f2(R3['hospital_black_same_infants'])} and the certificate the infant in "
-        f"{f2(R3['certified_black_same_infants'])}. Within the same delivery hospital, at equal schooling and age of the mother, birth weight, year and age at death, "
+        f"{f2(R3['mh_over_regions']['est'])} ({f2(R3['mh_over_regions']['lo'])}; {f2(R3['mh_over_regions']['hi'])}). In these {n0(R3['n'])} infants "
+        f"(certified Black in {f2(R3['certified_black_same_infants'])}), within the same delivery hospital, at equal schooling and age of the mother, birth weight, year and age at death, "
         f"the odds were {f2(CL_D['or'])} (95%CI {f2(CL_D['lo'])}; {f2(CL_D['hi'])}) times higher when the hospital had recorded the mother as Black "
         f"(Mantel-Haenszel {f2(MB['mh_delivery_hospital']['est'])}, {MB['mh_delivery_hospital']['strata']} hospitals; Breslow-Day p = "
         f"{MB['mh_delivery_hospital']['breslow_day_p']:.3f}, so the association varied between hospitals). If the certificate copied the delivery chart, the "
@@ -164,9 +162,19 @@ figure(d, "black_where_when", "Figure 5 - Infants of Black mothers certified Bla
        ["A: linked deaths by region and year with binomial 95% confidence intervals, and the national linkage with bootstrap intervals. B: hospital by year of birth, certificate by year of death; dashed, the certificate standardised to the region, schooling and age of "
         "the Black mothers of 2013."])
 d.add_heading("Where", level=2)
-para(d, f"The hospital's practice differed most between states (Figure 6A): hospitals recorded declared-Black mothers as Black in {f2(_ps[PS_LO]['est'])} in "
-        f"{PS_LO} and {f2(_ps[PS_HI]['est'])} in {PS_HI}, in the South and Southeast more than in the North and Northeast, the same order as the certificate's "
-        "use of the category (Figure 5A).")
+UFN = {"AC": "Acre", "AL": "Alagoas", "AM": "Amazonas", "AP": "Amapá", "BA": "Bahia", "CE": "Ceará", "DF": "Distrito Federal", "ES": "Espírito Santo",
+       "GO": "Goiás", "MA": "Maranhão", "MG": "Minas Gerais", "MS": "Mato Grosso do Sul", "MT": "Mato Grosso", "PA": "Pará", "PB": "Paraíba", "PE": "Pernambuco",
+       "PI": "Piauí", "PR": "Paraná", "RJ": "Rio de Janeiro", "RN": "Rio Grande do Norte", "RO": "Rondônia", "RR": "Roraima", "RS": "Rio Grande do Sul",
+       "SC": "Santa Catarina", "SE": "Sergipe", "SP": "São Paulo", "TO": "Tocantins"}
+_rk = sorted(_ps, key=lambda k: _ps[k]["est"])
+_reg = {r: [k for k in _ps if _ps[k]["region"] == r] for r in "12345"}
+_rm = {r: sum(_ps[k]["est"] * _ps[k]["black_mothers"] for k in v) / sum(_ps[k]["black_mothers"] for k in v) for r, v in _reg.items() if v}
+para(d, f"The hospital's practice differed most between states (Figure 6A). It was lowest in {UFN[_rk[0]]}, {UFN[_rk[1]]} and {UFN[_rk[2]]} "
+        f"({f2(_ps[_rk[0]]['est'])}-{f2(_ps[_rk[2]]['est'])}) and highest in {UFN[_rk[-3]]}, {UFN[_rk[-2]]} and {UFN[_rk[-1]]} "
+        f"({f2(_ps[_rk[-3]]['est'])}-{f2(_ps[_rk[-1]]['est'])}). By region, weighted by Black mothers, it was {f2(_rm['1'])} in the North, {f2(_rm['2'])} in "
+        f"the Northeast, {f2(_rm['5'])} in the Centre-West, {f2(_rm['3'])} in the Southeast and {f2(_rm['4'])} in the South: hospitals use the category "
+        "least where Black and Brown people are most numerous, the same order as the certificate's use of it (Figure 5A) and the birth record's shortfall "
+        "against the census (Figure 6B).")
 figure(d, "black_states", "Figure 6 - The hospital's recording of declared-Black mothers as Black by state (A), and the share of mothers declared Black on the "
                           "birth record against the share expected from the census, by fifth of the hospital's practice (B), Brazil, 2012-2023",
        ["A: births of 2012-2023 linked to their delivery admissions; proportion of mothers declared Black on the birth record whom the admission recorded as "

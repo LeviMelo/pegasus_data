@@ -21,8 +21,10 @@ para(d, f"By the mother's race in both terms, infant mortality was {f1(N2['rates
         f"{jr('certified_over_child', 'indigenous')}. Standardised to the regions, the White to Brown ratio was {f2(STD2['mother_over_mother']['white'])} by the "
         f"mother's race, {f2(STD2['certified_over_mother']['white'])} the usual way and {f2(STD2['certified_over_child']['white'])} by the child's race: standardisation moved the usual ratio away from 1 and the mother's-race ratio "
         "toward it, because White births concentrate in the regions of lower mortality. The usual computation reproduces what is published from the same "
-        f"systems: for 2017 it gave an Indigenous to White ratio of {f2(CAL_RATIO)}, as Caldas, Santos and Cardoso computed it {cite('caldas2022')} (1.81, 95%CI "
-        "1.67; 1.96), with certified deaths over births by the mother's race. The linked cohort of 2012-2018 births "
+        f"systems: Caldas, Santos and Cardoso {cite('caldas2022')}, dividing certified infant deaths by births by the mother's race, reported Brown to White "
+        "ratios of " + ", ".join(f"{CAL_PB[y]:.2f}" for y in CAL_PB) + " for 2013-2017; computed the same way here they were "
+        + ", ".join(f"{OUR_PB[y]:.2f}" for y in OUR_PB) + f" (White to Brown {1 / OUR_PB[2017]:.2f} in 2017), and their Indigenous to White ratio of 1.81 "
+        f"for 2017 was {f2(CAL_RATIO)} here. That published series is the usual way; the paper shows that it reverses the contrast by the mother's race. The linked cohort of 2012-2018 births "
         f"classified by the mother's race {cite('reboucas2022')} agrees: a crude White to Brown ratio of {f2(REB['under 1']['ratio'])} under one year.")
 rows = []
 for cname, lab in (("mother_over_mother", "Deaths and births by the mother's race"), ("certified_over_mother", "Certified deaths over births by the mother's race (usual)"),

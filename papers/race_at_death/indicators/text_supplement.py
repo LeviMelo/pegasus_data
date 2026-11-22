@@ -71,4 +71,12 @@ table(s, "Supplementary Table S3 - White to Brown mortality rate ratio with cert
       ["Census-based population: a cohort-component account (Supplementary Text S2); no interval. Family's classification: deaths and births by the mother's race "
        "passed through the households' classification of children of the same age, 2010 Census; no interval."])
 # ----------------------------------------------------------------- space, context and the linkage's reporting
+s.add_heading("Supplementary Text S3 - The correction for the instability of the mother's declaration", level=2)
+para(s, "Let Q be the 3 x 3 matrix of the chance that a mother who declared class i (White, Black, Brown) at one birth declares class j at the next, "
+        "estimated from mothers with two births in the smaller municipalities, with chance pairs from a shifted birth date subtracted (companion paper). Only "
+        "its diagonal is published there; the six off-diagonal cells follow from the three row sums and from reversibility, pi_i Q_ij = pi_j Q_ji, with pi the "
+        "shares of the first declarations. If each declaration is drawn from a stable class with misclassification matrix E, and the chain is reversible, Q is "
+        "approximately E times E, and E was taken as the principal matrix square root of Q, negative cells set to zero and rows renormalised. Deaths and births by "
+        "declared class, d = E' d* and b = E' b*, were solved for the stable-class counts d* and b*, assuming the misclassification does not depend on the "
+        f"infant's death, and the ratios recomputed. Q: {[[round(x, 3) for x in r] for r in MCL['Q']]}; E: {[[round(x, 3) for x in r] for r in MCL['E']]}.")
 s.save(OUT / "supplement.docx")

@@ -34,7 +34,7 @@ para(d, "Comparison with linkage methods and ecological inference. Regression on
         "individual covariate of one register can be related to the other's beyond the classes counted, though any class of either register can be added to the counting "
         "(the certifier, the mother's schooling). The closest published method fits a contingency table by maximum likelihood from incorrectly linked data "
         f"{cite('chipperfield2011')}: it starts from record pairs already formed by a linkage and a model of each pair's probability of being a true match, "
-        f"estimated from a clerical sample, and corrects the table by EM {cite('chipperfield2015', 'chambers2020')}. Where the key is shared by several births "
+        f"estimated from a clerical sample, and corrects the table by EM {cite('chipperfield2015', 'chambers2020')}; the method is described here from the 2015 paper by the same first author, the 2011 paper not having been read. Where the key is shared by several births "
         "no pair is formed and no match probability is modelled, so it cannot be run on the same units; the estimator replaces the match model by the other "
         "sex's records of the same day as the measure of chance agreement.")
 para(d, "Variance. The earlier practice took each cell's counts as Poisson and ignored the row's sum in the denominator of a proportion; its intervals were too wide "
@@ -77,6 +77,14 @@ para(d, f"Limitations. First, neither validation tests the setting in which the 
         "mortality were set, not measured, and the heterogeneity of classification between municipalities is only the decile gradient, so it cannot tell whether "
         "the cluster error is right. Fourth, the known answers are themselves linkages with about 1% of false links. The paper makes no statement about race; that "
         "is left to the papers that use the estimator. Fifth, the working limit is not a municipality's size but the expected chance candidates per unit, which the limit of 25,600 births a year only approximates; combining key cells by inverse variance, instead of discarding the largest municipalities, was not attempted. Sixth, the rare Indigenous row is unreliable above 1,600 births a year.")
+_BVC = _json.loads((HERE / "results" / "birth_vs_census.json").read_text(encoding="utf-8")) if "_json" in globals() else __import__("json").loads((HERE / "results" / "birth_vs_census.json").read_text(encoding="utf-8"))
+_HD = __import__("json").loads((HERE / "results" / "hospital_declaration.json").read_text(encoding="utf-8"))
+_SL = _BVC["mothers_2010"]["W"]["slope_region"]["slope"]
+_H0 = _HD["by_practice_fifth"][0]
+assert _SL > 1 and _H0["dn_black"] < 0.6 * _H0["expected_black"], "the two findings about the reference changed: rewrite the paragraph on the reference"
+para(d, f"The reference. Two findings of the companion papers weaken the birth record as the reference: it leans toward the local majority, recording mothers whiter than the census in whiter places and less White in less White ones (logit slope {_SL:.2f} within regions, 1 if it followed the census), and where hospitals rarely record Black on the admission it counts about half the Black mothers the census holds ({100 * _H0['dn_black']:.1f}% against {100 * _H0['expected_black']:.1f}%). "
+        "For the estimator, these concern what the table means, not how well it is estimated: it reproduces the birth record's classification, "
+        "whatever its departures from self-declaration.")
 para(d, "Use. Where two public registers share a date of birth, a sex and a place but no identifier, as Brazilian death certificates after infancy do with birth "
         "records, the table between them can be estimated, with its variance, for the people who kept the key, provided the expected chance candidates per unit are few "
         "(here, municipalities under 25,600 births a year). It is validated for infants and hospital deaths and not yet for ages 1-14. The functions are released with "

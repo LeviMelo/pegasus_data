@@ -59,6 +59,7 @@ figure(d, "violence_strata", "Figure 3 - Young people recorded White at birth an
        ["Candidate estimator, municipalities with fewer than 1,600 births a year in 2012-2023; bars, 95% confidence intervals of a difference of counts; cells with "
         "a standard error above 0.15 are not drawn."])
 d.add_heading("Place of death and place of certification", level=2)
+SN_ = VP["standardised_to_natural_place"]
 VA, VS, VH, VO = VP["died_at_home_municipality"], VP["standardised_to_occurrence"], VP["died_in_hospital"], VP["died_out_of_hospital"]
 para(d, f"A death certified in a larger, differently composed municipality could produce the contrast of causes through the place, as the certificate follows the "
         f"composition of the municipality where it is written (companion paper). External deaths occurred less often outside the municipality of residence "
@@ -72,7 +73,13 @@ para(d, f"The place of death bears on who could answer for the race. Natural dea
         f"assaults in {pct(VP['hospital_share']['all assault'], 0)} and transport deaths in {pct(VP['hospital_share']['transport'], 0)}. Among deaths in hospital, "
         f"where a family was likely present, the share White fell from birth to the certificate by {abs(100 * VH['natural']['shift']):.1f} points for natural deaths and "
         f"{abs(100 * VH['all assault']['shift']):.1f} for assaults ({dpl(VH['all assault']['minus_natural'])}); outside hospital by {abs(100 * VO['natural']['shift']):.1f} and "
-        f"{abs(100 * VO['all assault']['shift']):.1f} ({dpl(VO['all assault']['minus_natural'])}). Part of the contrast goes with the place of death, and part remains.")
+        f"{abs(100 * VO['all assault']['shift']):.1f} ({dpl(VO['all assault']['minus_natural'])}). Natural deaths outside a health establishment, on the road or "
+        f"elsewhere, changed by {abs(100 * SN_['natural']['by_place']['road or elsewhere']['shift']):.1f} points, as much as external ones there. Given the natural "
+        f"deaths' distribution of place of death ({pct(VP['place_of_death_distribution']['natural']['health establishment'], 0)} in a health establishment, "
+        f"{pct(VP['place_of_death_distribution']['natural']['home'], 0)} at home), assaults differed from natural deaths by "
+        f"{dpl(SN_['all assault']['minus_natural'])}, {pct(SN_['all assault']['share_remaining'], 0)} of the crude difference, and the other external causes by "
+        f"{dpl(SN_['all external, not assault']['minus_natural'])}, {pct(SN_['all external, not assault']['share_remaining'], 0)} of theirs. About half "
+        "of the assaults' difference goes with where they die; the rest, and nearly all of the other external causes', goes with the cause.")
 figure(d, "violence_place", "Figure 4 - Change of the share recorded White from birth to the death certificate, by cause, by the composition of the municipality "
                             "where the death occurred (A) and by where it occurred (B), Brazil, 2015-2024",
        ["Deaths at 15-24 years found among their birth candidates, municipalities of residence with fewer than 1,600 births a year. A: thirds of the share of "
@@ -89,7 +96,7 @@ d.add_heading("Birth, hospital and certificate for the same deaths", level=2)
 para(d, f"An earlier admission, ending at least 30 days before the death and not in death, was found for {pct(VI['with_admission']['natural'], 0)} of young "
         f"people who died of natural causes and {pct(VI['with_admission']['assault by firearm'], 0)} of those who died by firearm; each person was counted once, "
         f"and {pct(VI['hospital_race_missing']['natural'], 0)} and {pct(VI['hospital_race_missing']['assault by firearm'], 0)} of these persons had no race "
-        "among White, Black and Brown on their admissions, more often for violent deaths. Among the deaths with an earlier admission, assaults lost "
+        "among White, Black and Brown on their admissions, more often for external-cause deaths. Among the deaths with an earlier admission, assaults lost "
         f"{ddc(A_ASS)} more White from birth to the certificate than natural deaths, as among all the deaths found ({ddc(P_ASS)}), so the subset with an "
         "admission is not selected on that change. For the same deaths at birth, in hospital and on the certificate (Figure 5B), the share White "
         f"fell from birth to the hospital record by {100 * -TR['natural']['birth_white->hospital_white']['est']:.0f} points for natural deaths, "
@@ -109,7 +116,7 @@ para(d, f"An earlier admission, ending at least 30 days before the death and not
         f"({f2(VI['person180']['assault by firearm']['cells']['hospital white|certified white']['est'])} of those recorded White certified White after a firearm "
         f"death). With the admissions' birth dates shifted by 7 or 14 days either way, where the person cannot be among them, the estimator still counted on "
         f"average {pct(PLS['assault by firearm'], 0)} as many persons as found for firearm deaths and {pct(PLS['natural'], 0)} for natural deaths, a residual "
-        "of chance agreement the control did not remove, which draws the hospital shares of violent deaths toward their municipalities' population.")
+        "of chance agreement the control did not remove, which draws the hospital shares of external-cause deaths toward their municipalities' population.")
 RT = [("Birth to certificate, all deaths found", BC, "net_shift"), ("Birth to certificate, deaths with an earlier admission", TR, "birth_white->certified_white"),
       ("Birth to earlier hospital record", TR, "birth_white->hospital_white"), ("Earlier hospital record to certificate", TR, "hospital_white->certified_white"),
       ("Hospital record of the admission of death to certificate", TM, "net_shift")]
