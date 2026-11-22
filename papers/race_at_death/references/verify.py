@@ -87,6 +87,16 @@ ESTIMATOR = {
     "pita2018": "Pita Pinto Sena Barreto Denaxas On the accuracy and scalability of probabilistic data linkage over the Brazilian 114 million cohort IEEE Journal of Biomedical and Health Informatics 2018",
     "tancredi2011": "Tancredi Liseo A hierarchical Bayesian approach to record linkage and population size problems Annals of Applied Statistics 2011",
 }
+ESTIMATOR_NEW = {                                    # review 2, section 4: added to crossref_estimator.json (`verify.py estimator_new`), the earlier entries kept
+    "king1997": "King A solution to the ecological inference problem: reconstructing individual behavior from aggregate data Princeton University Press 1997",
+    "wakefield2004": "Wakefield Ecological inference for 2 x 2 tables Journal of the Royal Statistical Society Series A 2004",
+    "duncan1953": "Duncan Davis An alternative to ecological correlation American Sociological Review 1953",
+    "rosen2001": "Rosen Jiang King Tanner Bayesian and frequentist inference for ecological inference: the R x C case Statistica Neerlandica 2001",
+    "chipperfield2011": "Chipperfield Bycroft Chambers Maximum likelihood estimation for contingency tables and logistic regression with incorrectly linked data Survey Methodology 2011",
+    "schuemie2014": "Schuemie Ryan DuMouchel Suchard Madigan Interpreting observational studies: why empirical calibration is needed to correct p-values Statistics in Medicine 2014",
+    "schuemie2018": "Schuemie Hripcsak Ryan Madigan Suchard Empirical confidence interval calibration for population-level effect estimation studies in observational healthcare data PNAS 2018",
+    "newcombe1959": "Newcombe Kennedy Axford James Automatic linkage of vital records Science 1959",
+}
 TARGET = "crossref.json"
 if sys.argv[1:] == ["theory"]:
     QUERIES, TARGET = THEORY, "crossref_theory.json"
@@ -96,9 +106,11 @@ if sys.argv[1:] == ["black"]:
     QUERIES, TARGET = BLACK, "crossref_black.json"
 if sys.argv[1:] == ["estimator"]:
     QUERIES, TARGET = ESTIMATOR, "crossref_estimator.json"
+if sys.argv[1:] == ["estimator_new"]:
+    QUERIES, TARGET = ESTIMATOR_NEW, "crossref_estimator.json"
 if sys.argv[1:] == ["methods2"]:
     QUERIES, TARGET = METHODS2, "crossref_methods2.json"
-out = {}
+out = json.load(open(TARGET, encoding="utf-8")) if sys.argv[1:] == ["estimator_new"] else {}
 for key, q in QUERIES.items():
     url = "https://api.crossref.org/works?rows=1&query.bibliographic=" + urllib.parse.quote(q)
     req = urllib.request.Request(url, headers={"User-Agent": "reference-check/1.0"})

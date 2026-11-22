@@ -1,8 +1,9 @@
 {
- "words_introduction_to_conclusion": 4048,
- "words_all_paragraphs": 5017,
- "references": 15,
+ "words_introduction_to_conclusion": 5560,
+ "words_all_paragraphs": 6824,
+ "references": 21,
  "reference_keys": [
+  "newcombe1959",
   "fellegi1969",
   "doidge2019",
   "harron2017",
@@ -13,14 +14,19 @@
   "goldstein2012",
   "tancredi2011",
   "pita2018",
+  "goodman1953",
+  "wakefield2004",
+  "rosen2001",
   "lipsitch2010",
+  "schuemie2014",
+  "schuemie2018",
   "benchimol2015",
   "morris2019",
   "datasus",
   "lash2014"
  ],
- "tables": 3,
+ "tables": 4,
  "figures": 3,
- "supplementary_tables": 2,
+ "supplementary_tables": 5,
  "supplementary_figures": 0
 }

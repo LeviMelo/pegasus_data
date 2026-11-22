@@ -6,7 +6,7 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2026-11-22T09:09:12.202002</dc:date>
+    <dc:date>2026-11-22T09:15:47.435177</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
@@ -40,7 +40,7 @@ Q 5.669291 5.669291 5.669291 9.92126
 L 5.669291 53.858268 
 Q 5.669291 58.110236 9.92126 58.110236 
 z
-" clip-path="url(#pa8a69441a9)" style="fill: #ffffff; stroke: #cc79a7; stroke-linejoin: miter"/>
+" clip-path="url(#p1f256cf8c7)" style="fill: #ffffff; stroke: #cc79a7; stroke-linejoin: miter"/>
    </g>
    <g id="patch_3">
     <path d="M 259.370079 58.110236 
@@ -53,7 +53,7 @@ Q 255.11811 5.669291 255.11811 9.92126
 L 255.11811 53.858268 
 Q 255.11811 58.110236 259.370079 58.110236 
 z
-" clip-path="url(#pa8a69441a9)" style="fill: #ffffff; stroke: #cc79a7; stroke-linejoin: miter"/>
+" clip-path="url(#p1f256cf8c7)" style="fill: #ffffff; stroke: #cc79a7; stroke-linejoin: miter"/>
    </g>
    <g id="patch_4">
     <path d="M 9.92126 123.307087 
@@ -66,7 +66,7 @@ Q 5.669291 70.866142 5.669291 75.11811
 L 5.669291 119.055118 
 Q 5.669291 123.307087 9.92126 123.307087 
 z
-" clip-path="url(#pa8a69441a9)" style="fill: #ffffff; stroke: #555555; stroke-linejoin: miter"/>
+" clip-path="url(#p1f256cf8c7)" style="fill: #ffffff; stroke: #555555; stroke-linejoin: miter"/>
    </g>
    <g id="text_1">
     <!-- Census 2010 -->
@@ -2102,7 +2102,7 @@ z
   </g>
  </g>
  <defs>
-  <clipPath id="pa8a69441a9">
+  <clipPath id="p1f256cf8c7">
    <rect x="0" y="0" width="496.062992" height="133.228346"/>
   </clipPath>
  </defs>
