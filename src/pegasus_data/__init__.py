@@ -132,6 +132,7 @@ _EXPORTS: dict[str, str] = {
     "resource_manager": "._resources",
     "ResourceManager": "._resources",
     "ResourceStatus": "._resources",
+    "read_modelled": ".modelled",
     "query": "._query_engine",
     "plan": "._query_engine",
     "QuerySpec": "._query_engine",
@@ -208,6 +209,7 @@ if TYPE_CHECKING:  # pragma: no cover - for type checkers and editors only
     from .crosswalk import EnrichmentRequest, enrichment
     from .cubes import cube
     from .geography import Membership, MembershipSet, memberships
+    from .modelled import read_modelled
     from .ontology import Ontology
     from .proximity import care_flows, municipality_areas, proximity_graph, regic_cities
     from .retrieve import (

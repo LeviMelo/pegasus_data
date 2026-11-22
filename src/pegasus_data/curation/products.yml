@@ -607,9 +607,11 @@ products:
       Residents not insured by a private medical-hospital plan, by place, sex and age band, with intervals. Not SUS users:
       plan holders use the SUS in part and a person without a plan may use private care. A lower bound on the uninsured, since
       links are counted, not persons.
-    grain: "place × year × sex × five-year age band"
-    period: "2021-2023"
-    call: 'pegasus_data.modelled.read_modelled("population_without_private_coverage")'
+    grain: "place × year × sex × five-year age band; a place is a municipality (7 digits) or, where the population account
+      cannot separate municipalities, their comparable area written as their codes joined by '+' (5 areas, 14
+      municipalities): filtering on 7 characters drops those"
+    period: "2021-2025"
+    call: 'table, manifest = pegasus_data.read_modelled("population_without_private_coverage")'
     stores: [lake/modelled/population_without_private_coverage]
     build: pegasus_data.studies.sus_dependent.build_sus_dependent
     # what it subtracts (`sus_dependent.build_sus_dependent`): the population account's own band estimate, with a 10-90%

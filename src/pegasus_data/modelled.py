@@ -154,8 +154,13 @@ def write_modelled(table: pa.Table | Iterable[pa.Table], manifest: ModelledManif
     return target
 
 
-def read_modelled(product: str, version: str | None = None, *, settings: Any) -> tuple[pa.Table, dict[str, Any]]:
-    """A modelled product and its manifest; the latest version unless one is named."""
+def read_modelled(product: str, version: str | None = None, *, settings: Any = None) -> tuple[pa.Table, dict[str, Any]]:
+    """``(table, manifest)`` of a modelled product, the latest version unless one is named; the home's settings unless
+    given, as `query` takes them."""
+    if settings is None:
+        from .config import load_settings
+
+        settings = load_settings()
     base = _root(settings) / product
     versions = sorted((p.name for p in base.iterdir() if (p / "manifest.json").is_file()), key=_version_order) \
         if base.exists() else []
