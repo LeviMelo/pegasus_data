@@ -82,11 +82,32 @@ def read_mapping(workbook: bytes) -> list[dict[str, Any]]:
         if grade is not None and grade != "dúvida" and grade not in {str(k) for k in EQUIVALENCE}:
             raise ValueError(f"unknown degree of equivalence {grade!r}")
         rows.append({
-            "tuss_code": str(r["tuss_code"]).strip(), "tuss_term": r["tuss_term"], "sigtap_code": sigtap.strip().zfill(10) if sigtap else None,
+            "tuss_code": str(r["tuss_code"]).strip(), "tuss_term": r["tuss_term"], "sigtap_code": _sigtap_code(sigtap) if sigtap else None,
             "sigtap_name": r["sigtap_name"] if status == "mapped" else None, "mapping": status,
             "equivalence": int(grade) if grade and grade.isdigit() else None, "doubtful": grade == "dúvida",
             "validated_ms": r["validated"] == "Validado pelo MS"})
     return rows
+
+
+def _sigtap_code(value: str) -> str:
+    """A SIGTAP code as the workbook should have held it. SIGTAP's codes are ten digits whose first two are the group
+    (01-09), so a spreadsheet that stored the code as a number dropped the group's leading zero and left nine digits:
+    that one zero is restored, the only width that can be read with certainty. Any other width raises (never padded to
+    fit)."""
+    text = value.strip()
+    if text.isdigit() and len(text) == 10:
+        return text
+    if text.isdigit() and len(text) == 9:
+        return "0" + text
+    raise ValueError(f"SIGTAP code {value!r} in the TUSS x SIGTAP mapping is neither 10 digits nor 9 (a dropped leading zero)")
+
+
+def _asked_sigtap(code: object) -> str:
+    """A SIGTAP code the caller asked for: ten digits as SIGTAP writes them, never padded to fit."""
+    text = str(code).strip()
+    if not (text.isdigit() and len(text) == 10):
+        raise ValueError(f"a SIGTAP procedure is 10 digits ('0403010012'), not {code!r}")
+    return text
 
 
 def build(settings: Any, *, ship: bool = False) -> dict[str, Any]:
@@ -174,5 +195,5 @@ def tuss_sigtap(codes: Sequence[str] | None = None, *, sigtap: Sequence[str] | N
     if codes is not None:
         found = found.filter(pc.is_in(found["tuss_code"], value_set=pa.array([str(c) for c in codes], type=pa.string())))
     if sigtap is not None:
-        found = found.filter(pc.is_in(found["sigtap_code"], value_set=pa.array([str(c).zfill(10) for c in sigtap], type=pa.string())))
+        found = found.filter(pc.is_in(found["sigtap_code"], value_set=pa.array([_asked_sigtap(c) for c in sigtap], type=pa.string())))
     return found
