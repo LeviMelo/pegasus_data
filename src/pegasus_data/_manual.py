@@ -31,6 +31,41 @@ def _table(header: list[str], rows: list[list[Any]]) -> list[str]:
             *("| " + " | ".join(_cell(v) for v in row) + " |" for row in rows)]
 
 
+def _write_code_windows(staged: Path, cfg: Settings) -> int:
+    """One page per classification whose codes carry their validity windows (``codelists.yml`` ``code_windows``): each
+    code, its latest name where the declaration names a source of names, the first and last month it is valid, and the
+    months missing between them. Returns the codes written."""
+    import pyarrow.compute as pc
+    import pyarrow.parquet as pq
+
+    from .view import _declared_code_windows
+
+    written = 0
+    for classification, decl in _declared_code_windows().items():
+        home = Path(cfg.registry_dir(decl["registry"], decl["file"]))
+        if not home.is_file():
+            continue
+        windows = pq.read_table(home).to_pylist()
+        names: dict[str, str] = {}
+        if decl.get("names") and (source := home.with_name(decl["names"])).is_file():
+            history = pq.read_table(source, columns=[decl["code"], decl["name"], "valid_from"])
+            history = history.sort_by([(decl["code"], "ascending"), ("valid_from", "ascending")])
+            names = dict(zip(pc.cast(history.column(decl["code"]), "string").to_pylist(),
+                             history.column(decl["name"]).to_pylist(), strict=True))   # the latest run wins
+        newest = max(str(r["last"]) for r in windows)
+        rows = [[r[decl["code"]], names.get(str(r[decl["code"]]), ""), r["first"],
+                 "still valid" if str(r["last"]) == newest else r["last"], ", ".join(r.get("gaps") or [])]
+                for r in sorted(windows, key=lambda r: str(r[decl["code"]]))]
+        (staged / "codes").mkdir(exist_ok=True)
+        (staged / "codes" / f"{classification}.md").write_text(chr(10).join(
+            [f"# {classification}: codes and the months each is valid", "",
+             f"From `{decl['registry']}/{decl['file']}` (the newest export is {newest}). Labels are joined only inside a "
+             "code's window; a record coded outside it stays undecoded, visibly.", "",
+             *_table(["code", "name", "first month", "last month", "months missing"], rows)]) + chr(10), encoding="utf-8")
+        written += len(rows)
+    return written
+
+
 def write_manual(*, settings: Settings | None = None, root: str | Path | None = None) -> dict[str, int]:
     """Write the manual from the home's current map (built here when stale). Returns the pages written by kind."""
     from ._compendium import current
@@ -98,6 +133,7 @@ def write_manual(*, settings: Settings | None = None, root: str | Path | None = 
              *_table(["table", "name", "research", "subject", "frequency", "first", "last", "levels", "curated"],
                      [list(s) for s in sidra])]) + "\n", encoding="utf-8")
         counts.update(fields=len(fields), products=len(products), operations=len(operations), sidra_tables=len(sidra))
+        counts["code_windows"] = _write_code_windows(staged, cfg)
         systems = q("SELECT code, translated_name, kind, datasets, year_min, year_max FROM systems ORDER BY kind, code").fetchall()
         held = [d for d in datasets if d["rows_held"]]
         index = [
@@ -112,7 +148,9 @@ def write_manual(*, settings: Settings | None = None, root: str | Path | None = 
             "- `columns/<CODE>.md`: its columns with their meaning, codelist and fill, and the roles they state.",
             f"- `links/<name>.md`: record linkages ({len(links)}) with their stored runs and verdicts.",
             f"- `fields.md` ({len(fields)} municipal context fields), `products.md` ({len(products)}), `operations.md` "
-            f"({len(operations)} functions and commands), `sidra.md` ({len(sidra)} IBGE tables).", "",
+            f"({len(operations)} functions and commands), `sidra.md` ({len(sidra)} IBGE tables).",
+            "- `codes/<CLASSIFICATION>.md`: every code of a classification that dates its codes (SIGTAP's procedures), with "
+            "its name and the months it is valid; a code is labelled only inside them.", "",
             "Read data through the library (`pegasus_data.query`, `load_field`, `cube`, `link`), never by opening its "
             "files: the library applies the labels by validity window, the one reading of each year and the gaps.", "",
             "## Systems", "",

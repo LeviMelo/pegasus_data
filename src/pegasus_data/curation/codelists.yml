@@ -79,7 +79,8 @@ label_bindings:
 # period inside its window, and leaves it undecoded, visibly and counted, outside (view._within_code_windows). A
 # classification whose versions are whole tables (a kit's .CNV) is dated by its vintages instead.
 code_windows:
-  SIGTAP: {registry: sigtap, file: procedure_windows.parquet, code: CO_PROCEDIMENTO}   # 227 monthly exports, `sigtap --history`
+  SIGTAP: {registry: sigtap, file: procedure_windows.parquet, code: CO_PROCEDIMENTO,   # 227 monthly exports, `sigtap --history`
+           names: procedure_history.parquet, name: NO_PROCEDIMENTO}   # each code's latest name, for the manual (`_manual`)
 
 # Bridges between classifications (`view._bridge_code`): a recipe's short name for a bridge, the classification each
 # lands in and the width of its codes there, and the share of the evidence a claim must hold to cross (a code the old
