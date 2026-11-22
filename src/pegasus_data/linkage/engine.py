@@ -478,7 +478,8 @@ class LinkResult(Report):
                 **({"horizons": self.horizons} if self.horizons else {})}
 
 
-def _prepare(con: duckdb.DuckDBPyConnection, name: str, table: pa.Table, side: Side, *, materialise: bool = True) -> int:
+def _prepare(con: duckdb.DuckDBPyConnection, name: str, table: pa.Table, side: Side, *, materialise: bool = True,
+             windowed: bool = False) -> int:
     """Register one side as a relation with an `_id` per record (or per group). A table by default: the identity's
     window function, the group window and the day explosion are evaluated once, not by each of the six queries a pass
     and a validation issue (a key query over the view took 1.4-1.8 s per 3 M rows, over the table 0.4 s). The
@@ -505,7 +506,16 @@ def _prepare(con: duckdb.DuckDBPyConnection, name: str, table: pa.Table, side: S
                  else f"{quote(side.earliest)} ASC NULLS LAST, _id" if side.earliest else "_id")
         base = (f"SELECT * EXCLUDE (_n), _n AS _group_size FROM (SELECT *, count(*) OVER (PARTITION BY {keys}) AS _n, "
                 f"row_number() OVER (PARTITION BY {keys} ORDER BY {order}) AS _k FROM ({base})) WHERE _k = 1")
-    if side.explode_days:
+    if windowed and side.explode_days and isinstance(side.explode_days[1], int):
+        # a cohort's follow-up window as its two ends, not one row per day: the passes test the partner's date against
+        # them (`_join_window`). The day-by-day form (366 rows a person) took half a national link's time in joins over
+        # the exploded rows (SIH-RD I21, SE 2018: 11.8 of 22 s; 2026-11-22). `<name>_days` lists the days for what
+        # still reads them one by one (the control's range and its reach), as a view computed when read.
+        start, end, new = side.explode_days
+        base = (f"SELECT *, CAST({quote(start)} AS DATE) AS _w0, "
+                f"CAST(CAST({quote(start)} AS TIMESTAMP) + INTERVAL {end} DAY AS DATE) AS _w1 FROM ({base}) "
+                f"WHERE {quote(start)} IS NOT NULL")
+    elif side.explode_days:
         start, end, new = side.explode_days
         if isinstance(end, int):
             # a window of that many days from the start (a cohort's follow-up), not an interval the record carries
@@ -522,6 +532,10 @@ def _prepare(con: duckdb.DuckDBPyConnection, name: str, table: pa.Table, side: S
         base = (f"SELECT *, CAST(floor(TRY_CAST({quote(role)} AS DOUBLE)) AS INTEGER) + unnest([{shifts}]) AS {quote(new)} "
                 f"FROM ({base}) WHERE TRY_CAST({quote(role)} AS DOUBLE) IS NOT NULL")
     con.execute(f"CREATE OR REPLACE TEMP {'TABLE' if materialise else 'VIEW'} {name} AS {base}")
+    if windowed and side.explode_days and isinstance(side.explode_days[1], int):
+        new = side.explode_days[2]
+        con.execute(f"CREATE OR REPLACE TEMP VIEW {name}_days AS SELECT *, CAST(unnest(generate_series("
+                    f"CAST(_w0 AS TIMESTAMP), CAST(_w1 AS TIMESTAMP), INTERVAL 1 DAY)) AS DATE) AS {quote(new)} FROM {name}")
     return con.execute(f"SELECT count(DISTINCT _id) FROM {name}").fetchone()[0]  # type: ignore[index]
 
 
@@ -556,6 +570,48 @@ def _join(keys: tuple[tuple[str, str], ...], moved: dict[tuple[str, str], str], 
         SELECT ua._id AS l, ub._id AS r FROM ua JOIN ub USING ({kn}){on}{each}"""
 
 
+def _join_window(keys: tuple[tuple[str, str], ...], day: tuple[str, str], moved: dict[tuple[str, str], str],
+                 day_back: str | None, one_each: bool = False, outcome: Outcome | None = None) -> str:
+    """`_join` for a pass that keys a cohort's follow-up day (``day``: the window's day role and the partner's date) on
+    the window's ends instead of its days: the same pairs, by the same rules.
+
+    The other keys join by equality; the partner's date must fall inside the person's window, or for the control the
+    day the rotation moved onto it (``day_back``, `placebo.rotation_inverse`). A key value shared by two records drops
+    both, as `_join` drops a (keys, day) row held twice: a candidate pair stands only if no other person with the same
+    keys has that day in the window (the rotation is a bijection, so the moved day is unique exactly when the day is),
+    and a partner only if its keys and date are its own. Then the one-partner rule of a cohort, as in `_join`."""
+    other = [k for k in keys if k != day]
+    if not other:
+        raise ValueError("a windowed pass needs a key besides the follow-up day")
+    lk = [f"{moved.get(key, quote(key[0]))} AS k_{i}" for i, key in enumerate(other)]
+    rk = [f"{quote(right)} AS k_{i}" for i, (_l, right) in enumerate(other)]
+    kn = ", ".join(f"k_{i}" for i in range(len(other)))
+    ak = ", ".join(f"a.k_{i}" for i in range(len(other)))
+    notnull = " AND ".join(f"k_{i} IS NOT NULL" for i in range(len(other)))
+    differ = outcome.differ if outcome is not None else ""
+    lx = f", {quote(differ)} AS _differ" if differ else ""
+    on = " AND a._differ IS DISTINCT FROM ub._differ" if differ else ""
+    d = day_back.replace(quote(day[1]), "ub._e") if day_back else "ub._e"
+    if one_each and outcome is not None and outcome.first:
+        order = "c._e, c.r" if day[1] == outcome.event else "c.r"
+        each = (f" QUALIFY count(*) OVER (PARTITION BY c.r) = 1 AND row_number() OVER (PARTITION BY c.l "
+                f"ORDER BY {order}) = 1")
+    else:
+        each = (" QUALIFY count(*) OVER (PARTITION BY c.l) = 1 AND count(*) OVER (PARTITION BY c.r) = 1"
+                if one_each else "")
+    return f"""
+        WITH a AS (SELECT DISTINCT _id, {', '.join(lk)}, _w0, _w1{lx} FROM L WHERE _id NOT IN (SELECT l FROM linked)),
+             ua AS (SELECT * FROM a WHERE {notnull}),
+             b AS (SELECT DISTINCT _id, {', '.join(rk)}, {quote(day[1])} AS _e{lx} FROM R
+                   WHERE _id NOT IN (SELECT r FROM linked)),
+             ub AS (SELECT * FROM b WHERE {notnull} AND _e IS NOT NULL QUALIFY count(*) OVER (PARTITION BY {kn}, _e) = 1),
+             c AS (SELECT a._id AS l, ub._id AS r, ub._e AS _e, {d} AS _d, {ak}
+                   FROM ua a JOIN ub USING ({kn}) WHERE {d} BETWEEN a._w0 AND a._w1{on}),
+             holders AS (SELECT c.l, c.r, count(*) AS n FROM c JOIN ua h USING ({kn})
+                         WHERE c._d BETWEEN h._w0 AND h._w1 GROUP BY c.l, c.r)
+        SELECT c.l, c.r FROM c JOIN holders USING (l, r) WHERE holders.n = 1{each}"""
+
+
 def where_roles(side: Side) -> set[str]:
     """The roles a side's filter reads."""
     return set(re.findall(r'"([^"]+)"', side.where))
@@ -578,12 +634,29 @@ def run(spec: LinkSpec, left: pa.Table, right: pa.Table) -> LinkResult:
         raise ValueError(f"{spec.name}: no pass can run on these tables ({why_skipped}); the scope lacks or cannot "
                          "read a role every pass keys on")
     con = connect()
-    n_left = _prepare(con, "L", left, spec.left)
+    windowed = (spec.outcome is not None and spec.left.explode_days is not None
+                and isinstance(spec.left.explode_days[1], int))
+    day_role = spec.left.explode_days[2] if windowed and spec.left.explode_days else None
+    n_left = _prepare(con, "L", left, spec.left, windowed=windowed)
     n_right = _prepare(con, "R", right, spec.right)
     # the control: each key pairing the control role moves round the range both sides hold (`placebo.shared_range`)
     control_keys = sorted({k for p in spec.passes if not why_skipped[p.name] for k in p.keys if k[0] == spec.control_role})
+    ranges = {key: placebo.shared_range(con, [key[0]], [key[1]], left="L_days" if key[0] == day_role else "L")
+              for key in control_keys}
     moved = {key: sql for key in control_keys
-             if (sql := placebo.rotation(key[0], placebo.shared_range(con, [key[0]], [key[1]]), spec.control_shift_days))}
+             if (sql := placebo.rotation(key[0], ranges[key], spec.control_shift_days))}
+    # the moved day, turned back from the partner's date, for a windowed pass's control
+    day_back = {key: back for key in control_keys if key[0] == day_role
+                if (back := placebo.rotation_inverse(quote(key[1]), ranges[key], spec.control_shift_days))}
+
+    def pass_sql(keys: tuple[tuple[str, str], ...], control: bool, one: bool) -> str:
+        day = next((k for k in keys if k[0] == day_role), None) if day_role else None
+        if day is None:
+            return _join(keys, moved if control else {}, one, spec.outcome)
+        if control and day in moved:
+            return _join_window(keys, day, {k: v for k, v in moved.items() if k != day}, day_back.get(day), one,
+                                spec.outcome)
+        return _join_window(keys, day, moved if control else {}, None, one, spec.outcome)
     con.execute("CREATE TEMP TABLE linked (l VARCHAR, r VARCHAR, pass VARCHAR)")
     reports: list[PassReport] = []
     kept_controls: list[pa.Table] = []      # a cohort's control pairs, within each pass's reach, by horizon
@@ -597,12 +670,12 @@ def run(spec: LinkSpec, left: pa.Table, right: pa.Table) -> LinkResult:
             reports.append(PassReport(p.name, 0, 0, None, False, skipped=why_skipped[p.name]))
             continue
         one = spec.outcome is not None      # a cohort: a person has one event
-        real = con.execute(f"SELECT * FROM ({_join(p.keys, {}, one, spec.outcome)})").to_arrow_table()
+        real = con.execute(f"SELECT * FROM ({pass_sql(p.keys, False, one)})").to_arrow_table()
         if one:
-            coincidences = con.execute(_join(p.keys, moved, one, spec.outcome)).to_arrow_table()
+            coincidences = con.execute(pass_sql(p.keys, True, one)).to_arrow_table()
             control = coincidences.num_rows
         else:
-            control = con.execute(f"SELECT count(*) FROM ({_join(p.keys, moved)})").fetchone()[0]  # type: ignore[index]
+            control = con.execute(f"SELECT count(*) FROM ({pass_sql(p.keys, True, False)})").fetchone()[0]  # type: ignore[index]
         n = real.num_rows
         chance = 100.0 * control / n if n else None
         reach: int | None = None
@@ -638,7 +711,9 @@ def run(spec: LinkSpec, left: pa.Table, right: pa.Table) -> LinkResult:
         # a cohort's passes are judged by horizon: the run's own rate is that of the pairs it kept, within their reach
         worst_pass = chance
     upper = upper95(kept_control, kept_pairs)
-    reach = {f"{key[0]} ~ {key[1]}": placebo.key_reach(con, *key, moved.get(key, quote(key[0]))) for key in control_keys}
+    reach = {f"{key[0]} ~ {key[1]}": placebo.key_reach(con, *key, moved.get(key, quote(key[0])),
+                                                       view="L_days" if key[0] == day_role else "L")
+             for key in control_keys}
 
     failures = placebo.key_failures(reach)
     result = LinkResult(spec.name, n_left, n_right, pairs, validations, passes=reports, chance_percent=chance,

@@ -112,3 +112,13 @@ and the manual asks it of all 156 fields: the climate and intake cubes took the 
 machine into paging. `fields._held_years` now reads metadata only (a records cube's lake partitions in the catalog, a
 climate or CNES field's declared years, a stored field's year folders; only SIDRA and series fact stores are read, being
 small): all 156 fields in 118 s at 0.89 GB peak, with the same years (cnes_beds_total 2008-2023, air_temperature 1961-2024).
+
+**Cohort links without the day explosion.** A cohort pass keyed its follow-up day on one row per person and day (366 a
+person), and those joins were about half a link's time (SIH-RD I21, SE 2018, 11.8 of 22 s). The windowed passes now join on
+the other keys and test the partner's date against the window's two ends (`engine._join_window`); the control turns the
+partner's date back through the rotation's inverse (`placebo.rotation_inverse`), and the day-level ambiguity rule counts the
+persons whose window holds that day. Eight state slices (sih_admissions_to_sim by diagnosis and by procedure,
+sih_admissions_to_radiotherapy, sih_readmissions with its `differ` rule, sia_radiotherapy_to_sim with its age expansion)
+give identical pairs, pass and control counts, horizons, control reach and verdicts. Back to back under the same load:
+I21 SP 2019 46.5-49.9 s to 16.8-25.0 s (4,653 pairs), neurosurgery readmissions AL 2019 4.5-4.9 s to 2.6-4.0 s. Stored
+runs stay valid (no change of pairs, no LINKAGE_VERSION bump).

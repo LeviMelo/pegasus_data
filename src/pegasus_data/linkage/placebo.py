@@ -65,11 +65,8 @@ def shared_range(con: duckdb.DuckDBPyConnection, left_roles: Iterable[str], righ
     return (lo, hi) if lo <= hi else None
 
 
-def rotation(role: str, within: tuple[Any, Any] | None, wanted: int) -> str | None:
-    """SQL for ``role`` moved by ``wanted`` round the range ``within`` (days for a date, units for an integer): a value
-    inside the range goes to ``lo + (v - lo + k) mod span``, one outside it stays (it meets no partner either way).
-    ``k`` is ``wanted`` or, when the range is shorter than twice that, half of it; a date's is a whole number of weeks.
-    A negative ``wanted`` moves the other way round. None when the range has no value or is too short to move inside."""
+def _rotation_steps(within: tuple[Any, Any] | None, wanted: int) -> tuple[int, int] | None:
+    """``(span, k)`` of `rotation`: the range's length and the step round it, or None when it cannot move."""
     if within is None:
         return None
     lo, hi = within
@@ -82,6 +79,39 @@ def rotation(role: str, within: tuple[Any, Any] | None, wanted: int) -> str | No
         return None
     if wanted < 0:
         k = span - k
+    return span, k
+
+
+def rotation_inverse(expr: str, within: tuple[Any, Any] | None, wanted: int) -> str | None:
+    """SQL for the value that `rotation` moves onto ``expr`` (a SQL expression): the rotation is a bijection of the range
+    and the identity outside it, so its inverse turns the other way round by the same step. Lets a windowed join test
+    whether a partner's value is a moved day of a record's window without listing the window day by day."""
+    steps = _rotation_steps(within, wanted)
+    if steps is None:
+        return None
+    span, k = steps
+    lo, hi = within  # type: ignore[misc]
+    back = span - k
+    if isinstance(lo, date):
+        a, b = f"DATE '{lo.isoformat()}'", f"DATE '{hi.isoformat()}'"
+        moved = f"{a} + CAST(({expr} - {a} + {back}) % {span} AS INTEGER)"
+    else:
+        a, b = str(int(lo)), str(int(hi))
+        moved = f"{a} + ({expr} - {a} + {back}) % {span}"
+    return f"CASE WHEN {expr} BETWEEN {a} AND {b} THEN {moved} ELSE {expr} END"
+
+
+def rotation(role: str, within: tuple[Any, Any] | None, wanted: int) -> str | None:
+    """SQL for ``role`` moved by ``wanted`` round the range ``within`` (days for a date, units for an integer): a value
+    inside the range goes to ``lo + (v - lo + k) mod span``, one outside it stays (it meets no partner either way).
+    ``k`` is ``wanted`` or, when the range is shorter than twice that, half of it; a date's is a whole number of weeks.
+    A negative ``wanted`` moves the other way round. None when the range has no value or is too short to move inside."""
+    steps = _rotation_steps(within, wanted)
+    if steps is None:
+        return None
+    span, k = steps
+    lo, hi = within  # type: ignore[misc]
+    calendar = isinstance(lo, date)
     q = quote(role)
     if calendar:
         a, b = f"DATE '{lo.isoformat()}'", f"DATE '{hi.isoformat()}'"
@@ -99,13 +129,13 @@ def moved_sql(source: str, moves: dict[str, str]) -> str:
     return f"SELECT * REPLACE ({', '.join(f'{sql} AS {quote(role)}' for role, sql in moves.items())}) FROM {source}"
 
 
-def key_reach(con: duckdb.DuckDBPyConnection, left: str, right: str, moved: str) -> dict[str, float | int]:
+def key_reach(con: duckdb.DuckDBPyConnection, left: str, right: str, moved: str, view: str = "L") -> dict[str, float | int]:
     """Whether the control can find a partner at all, for the key pairing ``left`` with ``right``: the share of left
     records whose own value is among the partner's values (what a real pair needs) and whose moved value (``moved``,
     SQL) is (what a control pair needs). The second should be close to the first."""
     n, real, shifted = con.execute(f"""
         WITH rv AS (SELECT DISTINCT {quote(right)} AS v FROM R WHERE {quote(right)} IS NOT NULL),
-             a AS (SELECT DISTINCT _id, {quote(left)} AS v, {moved} AS s FROM L WHERE {quote(left)} IS NOT NULL)
+             a AS (SELECT DISTINCT _id, {quote(left)} AS v, {moved} AS s FROM {view} WHERE {quote(left)} IS NOT NULL)
         SELECT count(*), count(r1.v), count(r2.v) FROM a LEFT JOIN rv r1 ON r1.v = a.v
                                                         LEFT JOIN rv r2 ON r2.v = a.s""").fetchone() or (0, 0, 0)
     return {"records": int(n), "real_reach": round(real / n, 4) if n else 0.0,
