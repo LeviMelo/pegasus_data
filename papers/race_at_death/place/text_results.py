@@ -154,7 +154,7 @@ if ML:
     para(d, f"In the multilevel models of the {n0(ML['brown_white']['n'])} linked infant deaths of Brown mothers' children, the variance between municipalities of the "
             f"log-odds of being certified White was {f2(bw['null']['var_mun'])} (median odds ratio {f2(bw['null']['mor'])}). Composition alone explained "
             f"{pct(bw['composition']['pcv'], 0)} of it; the socioeconomic context and place alone {pct(bw['socioeconomic']['pcv'], 0)}; the services and recording alone "
-            f"{pct(bw['services']['pcv'], 0)}; and composition with both {pct(bw['composition_socioeconomic_services']['pcv'], 0)}: most of what wealth and services explain "
+            f"{pct(bw['services']['pcv'], 0)}; the two together {pct(bw['socioeconomic_services']['pcv'], 0)}; and composition with both {pct(bw['composition_socioeconomic_services']['pcv'], 0)}: most of what wealth and services explain "
             f"alone, they share with composition. The variables of the death and the birth with the macro-region and the year, without any municipal variable, explained "
             f"{pct(bw['individual_only']['pcv'], 0)}, and without the macro-region none ({pct(bw['individual_no_region']['pcv'], 0)}): the differences between municipalities "
             "are not who dies there or of what, and that share belonged to the macro-region. Because the variance of a logistic model is rescaled when individual variables "
@@ -245,7 +245,7 @@ para(d, f"The certificate was not a copy of the birth record. Among infants who 
         f"({f2(CEL['KP_on_brown_share']['coef'])} per logit unit of the Brown share), and Brown mothers' infants were certified White as often as not where "
         f"{pct(CEL['PW_half_white_share']['est'], 0)} (95%CI {pct(CEL['PW_half_white_share']['lo'], 0)}; {pct(CEL['PW_half_white_share']['hi'], 0)}) of births were "
         f"White, not where half were, as a rule of classing by the local majority would predict; with slopes below one per logit unit, the cells moved toward "
-        "the local majority only partly. Of the infants who died outside their municipality of residence ({pct(OCC['share_elsewhere'], 0)} of linked deaths), Brown mothers' infants "
+        f"the local majority only partly. Of the infants who died outside their municipality of residence ({pct(OCC['share_elsewhere'], 0)} of linked deaths), Brown mothers' infants "
         f"were certified White by {f2(po['lws']['coef'])} (standard error {f2(po['lws']['se'])}) per logit unit of the composition of the municipality of residence "
         f"and {f2(po['lws_occ']['coef'])} ({f2(po['lws_occ']['se'])}) of the municipality where the death occurred, at equal values of the other. The two were "
         "not tested against each other, and the composition of a small municipality of residence is measured with more noise than that of the larger "
@@ -277,7 +277,7 @@ RD = [["The certificate copies the birth record (transmission)", "agreement near
        f"{f2(PHY['PW']['all']['death_estab'])}, municipalities {f2(PHY['PW']['all']['mun6'])}", "present; weakly identified"],
       ["A norm that follows the population as it changes", "within-place slope equal to the between slope",
        f"yearly: about a tenth of between; census decade: {f2(PNL['census']['coef']['cw_w']['est'])} against {f2(PNL['census']['coef']['cw_b']['est'])}; "
-       "long panel: interval includes a fixed certificate", "weakened; a slow adjustment not excluded"],
+       "long panel: does not discriminate", "weakened; a slow adjustment not excluded"],
       ["Wealth or services", "context explains as composition does", "less alone, little beside composition; within places, wealth and physicians nothing, "
        "verification-service share and blanks moved it", "weakened"],
       ["The deaths' case mix", "individual variables explain municipal variance", "none without the macro-region", "excluded"]]
@@ -333,7 +333,8 @@ para(d, f"Within places, composition moved the certificate far less than it sepa
         f"{bw('lw', 'immediate')}, the second about {WI['all']['lw_w']['est'] / WI['lw_reliability'] / WI['all']['lw_b']['est'] * 100:.0f}% of the first once corrected "
         f"for noise. A municipality's GDP per capita ({bw('lgdp')}) and physicians ({bw('lphys')}) did not move the certificate within it; the share of natural "
         f"deaths certified by a verification service did ({bw('svo')}; {bw('svo', 'immediate')} within immediate regions), and so did the share of deaths with "
-        f"the race left blank ({bw('blank')}). Over a longer span, the "
+        f"the race left blank ({bw('blank')}); the share of external deaths certified by a medical examiner moved it within immediate regions "
+        f"({bw('iml', 'immediate')}). Over a longer span, the "
         f"census composition interpolated between 2010 and 2022 varied within municipalities by a standard deviation of {f2(L2['sd_within_lc'])} on the logit scale, "
         f"against {f2(L2['sd_between_lc'])} between them. On that small variation, the certificate's excess of White over the births' share moved by "
         f"{f2(L2['within']['lc']['est'])} (standard error {f2(L2['within']['lc']['se'])}) per unit within municipalities ({n0(L2['unit_years'])} municipality-years, "
@@ -344,8 +345,9 @@ para(d, f"Within places, composition moved the certificate far less than it sepa
         f"({f2(L2['within_with_lead']['lc_lead']['se'])}), uninformative; over 2000-2010, with the newborn's colour, the within estimate was "
         f"{f2(PL['2000-2010 (newborn observed)']['within']['lc']['est'])} (standard error {f2(PL['2000-2010 (newborn observed)']['within']['lc']['se'])}). The decade's census change gave {f2(CEN2['coef']['cw_w']['est'])} (95%CI {f2(CEN2['coef']['cw_w']['est'] - 1.96 * CEN2['coef']['cw_w']['se'])}; "
         f"{f2(CEN2['coef']['cw_w']['est'] + 1.96 * CEN2['coef']['cw_w']['se'])}) against {f2(CEN2['coef']['cw_b']['est'])} between municipalities (Figure 5D). The "
-        "three designs agree that within places the certificate moved with composition much less than between places, on within variation small in all of "
-        "them; none excludes a slow adjustment.")
+        "yearly panel and the census decade agree that within places the certificate moved with composition much less than between places; the long panel's "
+        "interval includes both a fixed certificate and the gradient between places, so it does not discriminate. Within-place variation was small in all three, "
+        "and none excludes a slow adjustment.")
 figure(d, "place_time", "Figure 5 - Over time and within places: certified race of infants by year of death (A), the change of Brown mothers' infants certified White by "
                        "intermediate region (B), and the certificate against composition between places and within the same place over the years, in the yearly "
                        "panel (C) and against the census (D), Brazil, 2013-2023",

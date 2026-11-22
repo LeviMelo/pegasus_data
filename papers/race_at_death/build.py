@@ -110,6 +110,7 @@ def new_doc():
 def para(d, text, bold=False, italic=False, align=None, size=None):
     text = re.sub(r"([.,;]) (\[\d+(?:,\d+)*\])", lambda m: " " + m.group(2) + m.group(1), text)          # a citation goes before the punctuation
     assert "not estimable (" not in text and "nan" not in text.lower().split(), text[:80]
+    assert not re.search(r"\{[A-Za-z_][^{}]*\}", text), "an expression was printed, not interpolated (a string without its f prefix): " + text[:120]
     p = d.add_paragraph()
     r = p.add_run(text)
     r.bold, r.italic = bold, italic
@@ -130,6 +131,7 @@ def table(d, title, header, rows, notes=()):
         cells = t.add_row().cells
         assert len(row) == len(header), (title, row)
         for i, v in enumerate(row):
+            assert not re.search(r"\{[A-Za-z_][^{}]*\}", str(v)), "an expression was printed, not interpolated: " + str(v)[:120]
             cells[i].text = str(v)
             if i:
                 cells[i].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.RIGHT

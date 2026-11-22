@@ -30,7 +30,8 @@ table(d, "Table 1 - Infant mortality rate ratios against Brown with deaths and b
        "child's race: births by the mother's race passed through the proportions in which households classify infants of mothers of each race (2010 Census). "
        "Region-standardised: Mantel-Haenszel over the five regions. Deaths above the White rate: (rate of the group minus the White rate) times the group's births, "
        f"2013-2023; negative, a deficit. Infant mortality by the mother's race: White {f1(RT2['white'])}, Brown {f1(RT2['brown'])} per 1,000 live births. "
-       "Yellow (Asian) births and deaths are not shown."])
+       "Yellow (Asian) births and deaths are not shown. By region, certified deaths over the child's births gave a White to Brown ratio of "
+       + ", ".join(f"{f2(RG2_[r]['certified_over_child']['white'])} ({r})" for r in RG2_) + " (point estimates)."])
 para(d, f"Switching on the certificate's flows one at a time (Figure 2B), Brown mothers' infants certified White moved the White to Brown ratio from "
         f"{f2(WF[0]['ratios']['white'])} to {f2(WF[1]['ratios']['white'])}; White mothers' infants certified Brown brought it back to {f2(WF[2]['ratios']['white'])}; "
         f"the remaining flows and the deaths with no race took it to {f2(WF[-2]['ratios']['white'])}; and dividing by births classified as households classify "
@@ -47,15 +48,16 @@ figure(d, "indicators_decomposition", "Figure 2 - Infant mortality rate ratios w
                                       "is switched on (B), and the White to Brown ratio by year (C), Brazil, 2013-2023",
        ["A: 95% confidence intervals from a delete-one-state jackknife, log scale. B: contribution of each flow of the certificate to the change of the log "
         "ratio from deaths and births by the mother's race to certified deaths over births by the mother's race, averaged over every order in which the "
-        "flows can be switched on (Shapley values), with jackknife intervals; net change at the bottom. C: three of the four classifications of A, with yearly "
+        "flows can be switched on (Shapley values), with jackknife intervals; orange, White to Brown; black, Black to Brown; net change at the bottom. C: three of the four classifications of A, with yearly "
         "delete-one-state jackknife intervals."])
 d.add_heading("Ages, causes, years and absolute measures", level=2)
 BP, BC = D2["by_period"], D2["by_cause"]
-para(d, f"The reversal held in every year of 2013-2023 (White to Brown by the mother's race {min(v['mother_over_mother']['white'] for v in D2['by_year'].values()):.2f}-"
+para(d, f"The usual ratio exceeded 1 and the mother's ratio stayed below it in every year of 2013-2023 (White to Brown by the mother's race {min(v['mother_over_mother']['white'] for v in D2['by_year'].values()):.2f}-"
         f"{max(v['mother_over_mother']['white'] for v in D2['by_year'].values()):.2f}, the usual way {min(v['certified_over_mother']['white'] for v in D2['by_year'].values()):.2f}-"
         f"{max(v['certified_over_mother']['white'] for v in D2['by_year'].values()):.2f}; Figure 2C), in the neonatal period ({f2(BP['neonatal']['mother_over_mother']['white'])} "
         f"and {f2(BP['neonatal']['certified_over_mother']['white'])}) and after it ({f2(BP['post-neonatal']['mother_over_mother']['white'])} and "
-        f"{f2(BP['post-neonatal']['certified_over_mother']['white'])}), and for every cause group, from perinatal ({f2(BC['perinatal']['mother_over_mother']['white'])} "
+        f"{f2(BP['post-neonatal']['certified_over_mother']['white'])}), and for every cause group, though for congenital anomalies the mother's ratio "
+        f"was close to 1 ({f2(BC['congenital']['mother_over_mother']['white'])}), from perinatal ({f2(BC['perinatal']['mother_over_mother']['white'])} "
         f"and {f2(BC['perinatal']['certified_over_mother']['white'])}) to infectious or respiratory causes ({f2(BC['infectious or respiratory']['mother_over_mother']['white'])} "
         f"and {f2(BC['infectious or respiratory']['certified_over_mother']['white'])}) (Supplementary Table S1). In absolute terms, by the mother's race "
         f"{n0(D2['absolute']['mother']['brown']['excess_deaths'])} deaths of Brown mothers' infants and {n0(D2['absolute']['mother']['black']['excess_deaths'])} of "

@@ -8,8 +8,9 @@ para(d, "The usual infant mortality rate by race in Brazil divides deaths classi
         "often than those of White mothers; the usual rate reversed this. The reversal came from one flow above all, Brown mothers' infants certified White, "
         "larger than the whole net change and partly offset by White mothers' infants certified Brown. Nationally, households classify Brown mothers' infants "
         "as White in a similar proportion, and with births classified as households classify infants the certified ratio fell below 1 again, though with an "
-        "interval that includes 1; by region it did not: it was above 1 in the South and well below it in the Northeast, so the certificate and the household "
-        "do not classify the same children alike everywhere, and the child's denominator restores the comparison only on average. The usual ratio stayed above 1 in every year, before and after the first month and for every cause, so the reversal is a property of the rate, not of a period or a "
+        "interval that includes 1; by region the point estimates did not: above 1 in the South and well below it in the Northeast, without intervals, which "
+        "suggests that the certificate and the household do not classify the same children alike everywhere and that the child's denominator restores the "
+        "comparison only on average. The usual ratio stayed above 1 in every year, before and after the first month and for every cause, so the reversal is a property of the rate, not of a period or a "
         f"kind of death. Earlier comparisons of infant mortality by race between sources found differences in opposite directions {cite('cardoso2005', 'caldas2017')}, "
         f"and inconsistent classification of numerator and denominator is a known source of bias {cite('hahn1992', 'arias2016')}; the 2 x 2 shows its size and "
         "direction for Brazil.")

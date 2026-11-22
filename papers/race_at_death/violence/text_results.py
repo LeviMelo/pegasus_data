@@ -62,24 +62,37 @@ d.add_heading("Birth, hospital and certificate for the same deaths", level=2)
 para(d, f"An earlier admission, ending at least 30 days before the death and not in death, was found for {pct(VI['with_admission']['natural'], 0)} of young "
         f"people who died of natural causes and {pct(VI['with_admission']['assault by firearm'], 0)} of those who died by firearm; each person was counted once, "
         f"and {pct(VI['hospital_race_missing']['natural'], 0)} and {pct(VI['hospital_race_missing']['assault by firearm'], 0)} of these persons had no race "
-        "among White, Black and Brown on their admissions. For the same deaths at birth, in hospital and on the certificate (Figure 4B), the share White "
+        "among White, Black and Brown on their admissions, more often for violent deaths. Among the deaths with an earlier admission, assaults lost "
+        f"{ddc(A_ASS)} more White from birth to the certificate than natural deaths, as among all the deaths found ({ddc(P_ASS)}), so the subset with an "
+        "admission is not selected on that change. For the same deaths at birth, in hospital and on the certificate (Figure 4B), the share White "
         f"fell from birth to the hospital record by {100 * -TR['natural']['birth_white->hospital_white']['est']:.0f} points for natural deaths, "
         f"{100 * -TR['transport']['birth_white->hospital_white']['est']:.0f} for transport accidents and "
         f"{100 * -TR['assault by firearm']['birth_white->hospital_white']['est']:.0f} for firearm assaults (assaults against natural {ddc(B_ASS)}). From the "
         f"hospital record to the certificate it changed by {100 * TR['natural']['hospital_white->certified_white']['est']:+.0f} points for natural deaths, "
         f"{100 * TR['transport']['hospital_white->certified_white']['est']:+.0f} for transport accidents and "
-        f"{100 * TR['all assault']['hospital_white->certified_white']['est']:+.0f} for assaults (assaults against natural {ddc(H_ASS)}). The two records "
+        f"{100 * TR['all assault']['hospital_white->certified_white']['est']:+.0f} for assaults (assaults against natural {ddc(H_ASS)}; Table 2). The two records "
         "exchanged categories asymmetrically by cause: of young people the hospital recorded Brown, "
         f"{cc(hv('natural', 'brown', 'white'))} were certified White after a natural death and {cc(hv('assault by firearm', 'brown', 'white'))} after a firearm "
         f"assault, while of those the hospital recorded White, {cc(hv('natural', 'white', 'white'))} and {cc(hv('assault by firearm', 'white', 'white'))} were "
         f"certified White (Figure 4A, Supplementary Table S2). In the admission in which the young person died, the hospital recorded White "
         f"{f2(TM['natural']['hospital_white']['est'])} of natural deaths and the certificate {f2(TM['natural']['certified_white']['est'])}; for firearm deaths "
         f"{f2(TM['assault by firearm']['hospital_white']['est'])} and {f2(TM['assault by firearm']['certified_white']['est'])}: the hospital's record was darker "
-        "than the certificate for every cause. The results were alike for men alone and with admissions ending at least 180 days before death "
+        f"than the certificate for natural, transport and firearm deaths, and the certificate gained less White over it for assaults than for natural "
+        f"deaths ({ddc(T_ASS)}; {n0(VI['terminal']['all assault']['n_est'])} assaults and {n0(VI['terminal']['natural']['n_est'])} natural deaths). The results were alike for men alone and with admissions ending at least 180 days before death "
         f"({f2(VI['person180']['assault by firearm']['cells']['hospital white|certified white']['est'])} of those recorded White certified White after a firearm "
         f"death). With the admissions' birth dates shifted by 7 or 14 days either way, where the person cannot be among them, the estimator still counted on "
         f"average {pct(PLS['assault by firearm'], 0)} as many persons as found for firearm deaths and {pct(PLS['natural'], 0)} for natural deaths, a residual "
         "of chance agreement the control did not remove, which draws the hospital shares of violent deaths toward their municipalities' population.")
+RT = [("Birth to certificate, all deaths found", BC, "net_shift"), ("Birth to certificate, deaths with an earlier admission", TR, "birth_white->certified_white"),
+      ("Birth to earlier hospital record", TR, "birth_white->hospital_white"), ("Earlier hospital record to certificate", TR, "hospital_white->certified_white"),
+      ("Hospital record of the admission of death to certificate", TM, "net_shift")]
+rows = [[lab, ddc(src["natural"][k]).replace(" percentage points", ""), ddc(src["all assault"][k]).replace(" percentage points", ""),
+         ddc(src["all external, not assault"][k]).replace(" percentage points", ""), ddc(dd("all assault", "natural", k, src)).replace(" percentage points", "")]
+        for lab, src, k in RT]
+table(d, "Table 2 - Change of the share recorded White between records, by cause of death, and the difference between assaults and natural deaths, Brazil, "
+         "2015-2024", ["Change", "Natural causes", "Assaults", "Other external causes", "Assaults minus natural"], rows,
+      ["Percentage points with 95% confidence intervals from bootstrap replicates over municipalities; the difference's interval treats the two causes as "
+       "independent. Deaths at 15-24 years, municipalities with fewer than 1,600 births a year; earlier admissions ended at least 30 days before death."])
 figure(d, "violence_hospital", "Figure 4 - Agreement of the earlier hospital record and the certificate (A), and the share White at birth, in hospital and on the "
                                "certificate of the same deaths (B), by cause of death, Brazil, 2015-2024",
        ["Admissions of 2010-2024 that ended at least 30 days before the death and not in death, one record per person; candidate estimator with the other sex "

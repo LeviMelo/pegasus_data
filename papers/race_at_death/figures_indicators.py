@@ -18,7 +18,7 @@ plt.rcParams.update({"font.size": 8, "axes.spines.top": False, "axes.spines.righ
 CELLS = [("mother_over_mother", "deaths and births\nby the mother's race", "#0072B2"), ("certified_over_mother", "certified deaths over\nthe mother's births", "#D55E00"),
          ("certified_over_child", "certified deaths over\nthe child's births", "#009E73"), ("mother_over_child", "the mother's deaths over\nthe child's births", "#999999")]
 fig = plt.figure(figsize=(6.9, 3.2))
-axes = [fig.add_axes(r) for r in ((0.08, 0.25, 0.2, 0.65), (0.5, 0.25, 0.24, 0.65), (0.83, 0.25, 0.16, 0.65))]
+axes = [fig.add_axes(r) for r in ((0.08, 0.25, 0.2, 0.65), (0.5, 0.25, 0.24, 0.65), (0.87, 0.25, 0.12, 0.65))]
 ax = axes[0]
 for i, r in enumerate(("white", "black")):
     for j, (k, lab, col) in enumerate(CELLS):
@@ -43,12 +43,15 @@ for k_, (r, col, mk) in enumerate((("white", "#E69F00", "o"), ("black", "#000000
     vals = [SHP[r]["players"][q] for q in PL] + [{"est": SHP[r]["certified"] - SHP[r]["start"], "se": 0.0}]
     ax.errorbar([v["est"] for v in vals], yy + (0.5 - k_) * 0.3, xerr=[1.96 * v["se"] for v in vals], fmt=mk, color=col, ms=3.5, capsize=1.2,
                 label=f"{r.capitalize()} to Brown")
+    for v, y_ in zip(vals, yy + (0.5 - k_) * 0.3, strict=True):
+        ax.text(1.25, y_, f"{v['est']:+.2f}", fontsize=5.8, va="center", color=col)
 ax.axvline(0, color="#999999", lw=0.7)
 ax.axhline(0.5, color="#dddddd", lw=0.6)
 ax.set_yticks(yy, PLAB + ["net change"], fontsize=6.5)
 ax.set_xlabel("Contribution to the log rate ratio\n(averaged over all orders)", fontsize=7)
 ax.set_title("B. What each flow contributes", fontsize=8, loc="left")
-ax.legend(fontsize=6.5, frameon=False, loc="upper left")
+ax.set_xlim(-1.25, 1.45)
+ax.text(-1.2, 7.55, "orange: White to Brown; black: Black to Brown", fontsize=6, color="#444444")
 ax = axes[2]
 yrs = sorted(O["by_year"], key=int)
 YJ = O["by_year_jack"]

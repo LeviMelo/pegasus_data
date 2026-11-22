@@ -87,8 +87,8 @@ para(d, f"Results: Infant mortality was {f1(RT2['white'])} per 1,000 live births
         "mothers' children exceeded the White mothers' rate in 2013-2023; by the usual indicator there was a deficit.")
 para(d, "Conclusion: The usual infant mortality rate by race divides deaths classified by the child's race by births classified by the mother's, and the "
         "mismatch reverses the White to Brown inequality. Classified by the mother in both terms, the children of Brown mothers die more often; classified "
-        "by the child in both, the ratio is below 1 nationally but uncertain, and it differs between regions, so households and certifiers do not classify "
-        "children alike everywhere. "
+        "by the child in both, the ratio is below 1 nationally but uncertain, and its regional point estimates range widely, which suggests that households "
+        "and certifiers do not classify children alike everywhere. "
         "Black infants' excess relative to Brown persisted by the mother's race and fell below parity on the certificate even over the child's births.")
 para(d, "Keywords: Infant Mortality; Child Mortality; Race Factors; Health Status Indicators; Vital Statistics; Medical Record Linkage; Brazil.")
 

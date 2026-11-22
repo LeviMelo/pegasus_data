@@ -114,7 +114,7 @@ para(d, f"Results: Among {n0(I['linked_with_race'])} linked infant deaths, the c
         f"{cbci('Parda>Parda')} of Brown and {cbci('Preta>Preta')} of Black mothers. The smoothed proportion of Brown mothers' infants certified White ranged from {f2(DI['PW']['p5'])} to "
         f"{f2(DI['PW']['p95'])} across the municipalities holding 90% of births, with a between-municipality variance (log-odds) {FV['PW']['M0'] / FV['famPW']['M0']:.0f} times that of the "
         f"family's classification of Brown mothers' children aged 0-9, spatially clustered (Moran's I {f2(mP_['rate']['I'])}); within places it moved with "
-        f"composition far less than between them, in three panel designs. Racial composition was associated with "
+        f"composition far less than between them in the yearly panel and over the census decade. Racial composition was associated with "
         f"{pct(mP_['deviance_explained']['composition'], 0)} of the deviance between municipalities, the state {pct(mP_['deviance_explained']['state'], 0)}, both "
         f"{pct(mP_['deviance_explained']['composition_state'], 0)}, and socioeconomic and service context {pct(mP_['deviance_explained']['context'], 0)} alone and little in addition"
         + (f"; in multilevel models composition explained {pct(bw_['composition']['pcv'], 0)} of the municipal variance, context {pct(bw_['socioeconomic_services']['pcv'], 0)}, "

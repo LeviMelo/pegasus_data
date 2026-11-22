@@ -23,7 +23,8 @@ assert abs(w_ph["est"]) < 0.02 and abs(w_ot["est"]) < 0.02, "who filled the birt
 
 d.add_heading("Results", level=1)
 para(d, f"Of {n0(I['linked'])} infant deaths of 2013-2023 linked to their birth records, {n0(IL['n'])} were of children of mothers who declared themselves Black; for "
-        f"{n0(IN['with_hospital_record_black'])} of them the birth was linked to the mother's delivery admission in the public system, and these infants were "
+        f"{n0(IN['with_hospital_record_black'])} of them the birth was linked to the mother's delivery admission in the public system ({n0(R3['n'])} with a race "
+        "on that admission and its hospital identified, the set of the comparisons below), and these infants were "
         f"certified Black as often as the others ({ci(IN['black_with_record'])} against {ci(IN['black_without_record'])}). Across all deliveries of 2012-2023 linked "
         f"to their birth records, {n0(NT['hospital_declared_black'])} admissions of mothers who declared themselves Black carried a race.")
 d.add_heading("Three records of the same families", level=2)
@@ -102,7 +103,8 @@ para(d, f"Hospitals differed in their practice: across {n0(HO['facilities']['n']
            f"which a hospital copying its own earlier file would also produce, and {OR_OTHER:.1f} in another); when she changed hospital, her record moved by "
            f"{f2(MV['movers_practice_slope']['est'])} (standard error {f2(MV['movers_practice_slope']['se'])}, clustered by the second hospital; {f2(MV['movers_practice_slope']['corrected'])} "
            f"corrected for the {pct(MV['movers_practice_slope']['chance_share'], 0)} of chance pairs) of the difference in the two hospitals' practice "
-           f"({n0(MV['movers_practice_slope']['n'])} mothers; Figure 3C): the hospital's level travels with the hospital, not with the mother." if MV else ""))
+           f"({n0(MV['movers_practice_slope']['n'])} mothers; Figure 3C): a mother's record took on about the level of the hospital she moved to, while being recorded Black once still raised the odds in "
+           "another hospital." if MV else ""))
 figure(d, "black_hospital", "Figure 3 - Certified race of Black mothers' infants by the race the hospital recorded for the same mother at delivery (A), odds ratios "
                             "of being certified Black for the mother's record and per standard deviation of the hospital's practice (B), and the record of the same Black mother at two "
                             "deliveries in the same or another hospital (C), Brazil, 2012-2023",
@@ -138,7 +140,7 @@ para(d, f"The certificate's use of the category rose from {f2(STD['2013']['crude
         f"Across all deliveries, the hospitals recorded Black mothers as Black in {f2(HY['2013']['est'])} of births of 2013 and {f2(HY['2023']['est'])} of 2023; "
         f"admissions of Black-declared mothers with a race rose from {n0(HY['2022']['n'])} in 2022 to {n0(HY['2023']['n'])} "
         "in 2023 because the admission's race, blank for about a fifth of these mothers until 2022, was filled for nearly all from 2023, mostly with categories "
-        "other than Black, which lowered that year's share. By region, the share certified Black rose in four regions and was highest in the South (Figure 5A).")
+        "other than Black, which lowered the 2023 share below that of 2022. By region, the share certified Black rose in four regions and was highest in the South (Figure 5A).")
 figure(d, "black_where_when", "Figure 5 - Infants of Black mothers certified Black by year, nationally and by region (A), and the hospital's record of Black mothers "
                               "against the certificate of their infants by year (B), Brazil, 2013-2023",
        ["A: linked deaths by region and year with binomial 95% confidence intervals, and the national linkage with bootstrap intervals. B: hospital by year of birth, certificate by year of death; dashed, the certificate standardised to the region, schooling and age of "

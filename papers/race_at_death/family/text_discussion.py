@@ -20,7 +20,7 @@ para(d, "The changes between the censuses were small, and their sign depended on
         "2022, a darkening within equal schooling of the kind surveys found in adults' own identification in the period " + cite('freemannc2024') + ". "
         "Fewer Brown mothers had White partners, while among White fathers the share of White children rose.")
 para(d, "Black mothers' children were reported Black more often at older ages, and the whole-population cohort series showed the largest falls of White "
-        "between the ages at which households report a child and those at which young people report for themselves. Reclassification between censuses has "
+        "between a census at ages 0-4 and the next at ages 10-17, while households still report for them. Reclassification between censuses has "
         f"been described before {cite('carvalho2004')}; the cohort series also reflects mortality, migration and coverage, and two cross-sections cannot "
         "separate age from cohort or from the change of who reports.")
 para(d, "Strengths and limitations. The study uses the public-access samples of two censuses with design-based errors, one pairing rule applicable in both "
@@ -34,7 +34,7 @@ para(d, "Implications. Statistics that take children's race from the household i
         "answers for the household. Records that carry the mother's own declaration, such as the live birth record, can be expected to differ from them for "
         "children of mixed couples even without error in either source, a hypothesis that linked records could test.")
 para(d, f"In conclusion, this study set out {OBJECTIVE}. Households reported children by both parents about equally, by the father more than a stepfather, "
-        "with siblings of mixed couples often classified apart and the answer leaning toward a partner who answered for the whole household; the classification "
+        "with siblings of mixed couples often classified apart, and closer to the partner's race when he answered for both mother and child; the classification "
         "changed little between 2010 and 2022.")
 d.add_heading("References", level=1)
 for i, k in enumerate(order, 1):

@@ -15,8 +15,9 @@ para(d, f"The infants of mothers who declared themselves Black were recorded as 
 para(d, "Several readings were set against each other (Table 1). If the certificate copied the delivery chart, the association would vanish where the chart "
         "was not at hand; it remained at a similar size among infants who died in another establishment. If a shared upstream record carried the same entry to "
         "every later record, such as the prenatal card or the national health card, the association would weaken among mothers with no prenatal visit and "
-        "among deaths at home; it did not. If a hospital-wide practice decided the category, a mother's record would follow her hospital; it did, by the "
-        "full difference in practice when she changed hospital, and a mother recorded Black at one delivery was recorded Black again in the same hospital far "
+        "among deaths at home; it did not. If a hospital-wide practice decided the category, a mother's record would follow her hospital; it did, by about "
+        f"the full difference in practice when she changed hospital (slope {f2(MV['movers_practice_slope']['est'])}, 95%CI "
+        f"{f2(MV['movers_practice_slope']['est'] - 1.96 * MV['movers_practice_slope']['se'])}; {f2(MV['movers_practice_slope']['est'] + 1.96 * MV['movers_practice_slope']['se'])}), and a mother recorded Black at one delivery was recorded Black again in the same hospital far "
         f"more often (odds ratio about {OR_SAME:.0f}) than in another (about {OR_OTHER:.1f}), which is also what a hospital copying its own earlier file would "
         "produce. Beyond the hospital's level, a person component remained: across hospitals, being recorded Black once still raised the odds of being "
         "recorded Black again, and within hospitals the mother's record went with the certificate. The data are compatible with staff in different places "
@@ -65,7 +66,8 @@ RD3 = [["Copying the delivery chart", "association only where the infant died wh
         f"{f2(CL_D['or'])} within; {OR_OTHER:.1f} across", "compatible; not separable"],
        ["The certifying physician", "large variance between physicians", f"physicians {f2(PHY['KK']['all']['physician'])}, establishments "
         f"{f2(PHY['KK']['all']['death_estab'])} (few deaths per physician)", "partly"],
-       ["The rise is who declares", "no rise at the mothers of 2013", f"{f2(STD['2013']['standardised_2013'])} to {f2(STD['2022']['standardised_2013'])} by 2022",
+       ["The rise is who declares", "no rise at the mothers of 2013", f"{f2(STD['2013']['standardised_2013'])} to {f2(STD['2022']['standardised_2013'])} by 2022; "
+        f"certificate faster than the hospital, {f2(R3['joint_trend_2013_2022']['hospital_minus_certificate'])} per decade in log-odds (2013-2022)",
         "not explained by region, schooling and age"]]
 table(d, "Table 1 - Readings of who records the infant of a Black mother as Black, what each predicts, and what the data showed, Brazil, 2012-2023",
       ["Reading", "Prediction", "Result", "Does the result fit the reading?"], RD3,

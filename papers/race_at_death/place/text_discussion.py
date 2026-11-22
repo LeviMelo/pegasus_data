@@ -36,8 +36,8 @@ para(d, "The three readings set out in the Introduction make different predictio
         "not tested and the residence's composition is measured with more noise. Wealth and services explained less than composition and little in addition to it, though in Brazil they are collinear with composition. "
         "The within-place change was small and imprecise: when a region's share of White births changed, its certificate moved about "
         f"{WI['all']['lw_w']['est'] / WI['lw_reliability'] / WI['all']['lw_b']['est'] * 100:.0f}% as far as the cross-sectional gradient predicts, with an interval that "
-        "includes no change; over the census decade it moved about a third as far, with an interval that includes no change; and on the long panel the "
-        "interval included a certificate fixed in each place. Within-place variation is small in all three, and a slow adjustment cannot be excluded. Where "
+        "includes no change; over the census decade it moved under a third as far, with an interval that includes no change; and the long panel's "
+        "interval included both a fixed certificate and the gradient between places, so it did not discriminate. Within-place variation is small in all three, and a slow adjustment cannot be excluded. Where "
         "the share of natural deaths certified by a verification service rose, the certificate classed more Brown mothers' infants White, which fits the "
         "certifier's and the state's practice.")
 para(d, "A classification that follows the local majority is what studies of classification by observers in Brazil describe. Agreement between interviewers and "

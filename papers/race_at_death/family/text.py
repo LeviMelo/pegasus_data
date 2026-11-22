@@ -106,7 +106,8 @@ para(d, f"Results: Households reported as White {f2(v(2010, 'brown', 'white')['e
         f"and a White partner was reported White in {f2(PB['white']['est'])} when he answered for both, {f2(PS['white']['est'])} when he answered for the child "
         f"and she for herself, and {f2(MB_['white']['est'])} when she answered for both. Crude changes between the censuses were under three percentage points.")
 para(d, "Conclusion: The race households report for a child follows both parents about equally, the father more than a stepfather; siblings of mixed couples "
-        "share a classification more than chance but often differ; and one respondent answering for mother and child pulls both toward his or her reading. "
+        "share a classification more than chance but often differ; and when the partner answered for both mother and child, the child was reported closer "
+        "to his race. "
         "The national picture changed little between 2010 and 2022.")
 para(d, "Keywords: Racial Groups; Family Characteristics; Censuses; Child; Brazil.")
 

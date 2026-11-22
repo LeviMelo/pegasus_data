@@ -53,6 +53,8 @@ def ddc(x):
 
 P_ASS, P_EXT = dd("all assault", "natural"), dd("all external, not assault", "natural")
 H_ASS = dd("all assault", "natural", "hospital_white->certified_white", TR)
+T_ASS = dd("all assault", "natural", "net_shift", TM)
+A_ASS = dd("all assault", "natural", "birth_white->certified_white", TR)
 B_ASS = dd("all assault", "natural", "birth_white->hospital_white", TR)
 PLS = {g: sum(VI["placebo_shifts"][k][g] for k in VI["placebo_shifts"]) / len(VI["placebo_shifts"]) / max(VI["person"][g]["n_est"], 1)
        for g in ("natural", "assault by firearm")}
@@ -62,6 +64,7 @@ assert all(BC[k]["net_shift"]["est"] < BC["natural"]["net_shift"]["est"] - 0.05 
 assert abs(P_ASS["est"] - P_EXT["est"]) < 0.03, "assaults now differ from the other external causes"
 assert abs(B_ASS["est"]) < 2 * B_ASS["se"] + 0.01, "birth to hospital now differs between assault and natural deaths"
 assert H_ASS["est"] + 1.96 * H_ASS["se"] < 0, "hospital to certificate no longer differs between assault and natural deaths"
+assert T_ASS["est"] < 0 and abs(A_ASS["est"] - P_ASS["est"]) < 0.02, "the dying admission or the admitted subset now disagree"
 assert TR["natural"]["hospital_white->certified_white"]["est"] > 0 > TR["all assault"]["hospital_white->certified_white"]["est"]
 assert all(TM[g]["certified_white"]["est"] > TM[g]["hospital_white"]["est"] for g in ("natural", "transport", "assault by firearm")), \
     "the certificate is no longer lighter than the record of the dying admission"
@@ -69,8 +72,7 @@ assert PLS["assault by firearm"] > 0.05 > 0 > PLS["natural"], "the placebo resid
 iml_a, iml_x = YC["by_certifier"]["assault"]["medical examiner"], YC["by_certifier"]["external, not assault"]["medical examiner"]
 
 d = new_doc()
-TITLE = ("Where the race of young people who die violently changes: the same deaths at birth, in hospital and on the death certificate, Brazil, "
-         "2015-2024")
+TITLE = ("Where the race of young people who die violently changes: birth, hospital and death records related without identifiers, Brazil, 2015-2024")
 para(d, TITLE, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER)
 para(d, "[Authors, affiliations, ORCID, funding, conflicts of interest and contributions: to be supplied by the authors; not part of the blinded text]", italic=True)
 d.add_heading("Abstract", level=1)
@@ -85,12 +87,13 @@ para(d, f"Results: Among {n0(sum(VI['deaths_total'][k] for k in ('natural', 'tra
         f"{100 * BC['natural']['net_shift']['est']:+.0f} percentage points for natural deaths and by "
         f"{100 * max(BC[k]['net_shift']['est'] for k in EXT):+.0f} to {100 * min(BC[k]['net_shift']['est'] for k in EXT):+.0f} for the external causes; the "
         f"difference was {ddc(P_ASS)} for assaults and {ddc(P_EXT)} for the other external causes. For the same deaths with an earlier admission, the share "
-        f"White fell from birth to the hospital record by about {100 * -TR['natural']['birth_white->hospital_white']['est']:.0f} points whatever the cause, and "
+        f"White fell from birth to the hospital record by about {100 * -TR['natural']['birth_white->hospital_white']['est']:.0f} points, with no difference "
+        f"between assaults and natural deaths ({ddc(B_ASS)}), and "
         f"from the hospital record to the certificate it changed by {100 * TR['natural']['hospital_white->certified_white']['est']:+.0f} points for natural "
         f"deaths and {100 * TR['all assault']['hospital_white->certified_white']['est']:+.0f} for assaults ({ddc(H_ASS)}).")
 para(d, "Conclusion: In the smaller Brazilian municipalities, young people who died of external causes, assaults no more than the others, were certified White "
-        "less often than they were recorded at birth. The difference from natural deaths arose after the last hospital record, on the certificate, while the "
-        "change from birth to hospital was the same for every cause. The large cities, where most homicides occur, require identified linkage.")
+        "less often than they were recorded at birth. The difference from natural deaths arose after the earlier hospital records, on the certificate, while "
+        "the change from birth to hospital did not differ detectably between causes. The large cities, where most homicides occur, require identified linkage.")
 para(d, "Keywords: Homicide; Violence; Racial Groups; Death Certificates; Young Adult; Brazil.")
 
 d.add_heading("Introduction", level=1)
@@ -114,6 +117,7 @@ para(d, "Population. Deaths at 15-24 years in 2015-2024 of people born in 2000-2
         "average in 2000-2009, where a birth date, sex and municipality are shared by few other people. Causes (underlying cause, ICD-10): natural (A00-R99); "
         "transport accidents (V01-V99); suicide (X60-X84); assault by firearm (X93-X95); assault by other means (X85-Y09 otherwise); legal intervention "
         "(Y35-Y36); events of undetermined intent (Y10-Y34); other external causes, including injury codes (S, T) filed as underlying causes. Municipalities "
+        "natural causes are all other codes (A00-R99, U, Z, and deaths with no cause filed). Municipalities "
         "are those with fewer than 1,600 births a year in 2000-2009 for every comparison except the strata of Figure 3, which come from a tabulation that "
         "classes them by their births of 2012-2023.")
 para(d, "Race at birth and certified race. For each death, the live births of 2000-2009 with the same birth date, sex and municipality of residence are its "
@@ -134,7 +138,8 @@ para(d, "Analysis. Cross-classifications were compared between causes, within st
         "verification service), the place of death, the mother's schooling at birth and the municipality's composition, and standardised to the composition of "
         "natural deaths. The primary contrast, stated before the hospital records were analysed, is the change of the share White from birth to the "
         "certificate in external causes against natural causes. Birth, hospital and certificate were compared for the same deaths by multiplying, death by "
-        "death, the estimate of each race at birth and of each race in hospital (the chance parts of the two are independent). Intervals come from bootstrap "
+        "death, the estimate of each race at birth and of each race in hospital, which assumes that the chance agreements of the two registers are "
+        "independent, as they come from different records. Intervals come from bootstrap "
         "replicates over municipalities (500 or 1,000); those of the strata in Figure 3 are of a difference of counts and omit the variance of the denominator. "
         "Analyses used Python 3.11; the code accompanies the article. Ethics: public, anonymised data; under Resolution 510/2016 of the National Health Council "
         "no review was required.")

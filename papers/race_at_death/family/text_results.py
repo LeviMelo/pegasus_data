@@ -76,9 +76,9 @@ para(d, f"Partners changed: {pct(PMIX['partner_share']['2010']['white'], 0)} of 
         "At the 2010 mothers' instruction and region the changes were "
         f"{pp(DB['brown|is_white']['std_change'], DB['brown|is_white']['std_change_se'])}, {pp(DB['white|is_white']['std_change'], DB['white|is_white']['std_change_se'])}, "
         f"{pp(DB['black|is_black']['std_change'], DB['black|is_black']['std_change_se'])} and {pp(DB['black|is_white']['std_change'], DB['black|is_white']['std_change_se'])} "
-        "(Figure 2D). Within equal schooling and region, children of White and Brown mothers were reported White less often in 2022, and the crude "
-        "changes were small because more schooled mothers report lighter children; the White mothers' standardised fall shows that this is the expansion of "
-        "schooling, not a change in who declared each category.")
+        "(Figure 2D). Within equal schooling and region, children of White and Brown mothers were reported White less often in 2022; the standardisation "
+        "moved every group, White mothers' children included, by more than the crude change, because schooling rose for all mothers and more schooled mothers "
+        "report lighter children. It does not tell whether the women declaring each category changed.")
 rows = []
 for key, lab in (("brown|is_white", "Brown mother, child White"), ("black|is_black", "Black mother, child Black")):
     for term, val in MD[key].items():
@@ -121,8 +121,8 @@ para(d, f"Older children were reported Black more often: Black mothers' children
         f"mothers the gradient ran the other way: their children were reported White in {dci(bp(2022, 'brown', 'is_white', 'age', '0-4'))} at 0-4 years and "
         f"{dci(bp(2022, 'brown', 'is_white', 'age', '10-14'))} at 10-14 (Figure 5A). In the whole population, free of the pairing, the cohort born in 2005-2009 "
         f"was reported White in {f2(C05[2010])} in 2010 and {f2(C05[2022])} in 2022, and the cohort born in 1995-1999 in {f2(C95[2000])} in 2000 and "
-        f"{f2(C95[2010])} in 2010: the two largest falls of any cohort, between the ages at which households report the child and those at which young people "
-        f"report for themselves. Five-year birth cohorts of {CF['first']}-{CF['last'] + 4} were reported White less often at each later census in "
+        f"{f2(C95[2010])} in 2010: the two largest falls of any cohort, both between a census at ages 0-4 and one at 10-17, while households still report "
+        f"for them. Five-year birth cohorts of {CF['first']}-{CF['last'] + 4} were reported White less often at each later census in "
         f"{CF['white_fell']} of {CF['intervals']} intervals (Figure 5D). Different mothers, partners and informants report each time, so age and cohort cannot "
         "be separated.")
 figure(d, "family_age", "Figure 5 - Children of Brown mothers reported White (A) and of Black mothers reported Black (B), by age; children of the couple living with "
