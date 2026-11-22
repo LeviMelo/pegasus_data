@@ -311,6 +311,27 @@ def _read_fetched(
             warnings.warn(message, PartialSourceWarning, stacklevel=3)
 
 
+def _land_read(source_reports: list[Any], report: QueryReport, resolved: Settings) -> None:
+    """The files a query read from downloads, built into the lake and released (ADR-0233): the next read of them is
+    the lake's, and no download is kept for it. A landing that fails is said and leaves the answer as read."""
+    paths = sorted({p for item in source_reports for p in getattr(item, "paths_read", ())})
+    if not paths or resolved.keep_downloads:
+        return
+    from ..build import land
+    from ..pipeline import Pipeline
+
+    pipeline = Pipeline(resolved)
+    try:
+        counts = land(pipeline, paths)
+    except Exception as exc:  # noqa: BLE001 - the answer stands; the files stay downloaded and the next query retries
+        report.warnings.append(f"the {len(paths)} files read were not built into the lake: {type(exc).__name__}: {exc}")
+        return
+    finally:
+        pipeline.close()
+    report.landed = {k: counts[k] for k in ("partitions", "partitions_reused", "rows", "released", "errors")
+                     if k in counts}
+
+
 def _report_absence_and_adaptations(report: QueryReport, source_reports: list[Any], query_plan: Any) -> bool:
     """Record the selected fields structurally absent from some generation and the period adaptations, each warned
     once; returns whether the period was coarsened."""
@@ -490,6 +511,8 @@ def query(
     if fetch_years:
         _read_fetched(tables, source_reports, report, dataset, request, query_plan, fetch_years, resolved,
                       allow_partial=allow_partial, as_of=as_of)
+        if as_of is None:
+            _land_read(source_reports, report, resolved)
     if not tables:
         raise FileNotFoundError("the retrieval plan found neither complete local coverage nor fetchable years")
     table = tables[0] if len(tables) == 1 else pa.concat_tables(tables, promote_options="default")

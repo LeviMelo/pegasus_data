@@ -9,11 +9,13 @@ while it was current. ``snapshot()`` is that someone:
 2. judge each declared file against its latest version by the listed size and
    modification time, and fetch only the ones that differ, over one connection,
    from DATASUS alone (never the mirror, which can lag);
-3. keep each version in the content-addressed blob store and in
-   ``snapshot_versions``. Nothing is deleted, and ``prune`` keeps these blobs.
+3. record each version in ``snapshot_versions`` and build it into the lake: its
+   partition takes the new version and keeps the one it replaces as a delta
+   (`persist.versions`, ADR-0233); the download is then released. The lake is the
+   only stored form of every version.
 
 ``versions()`` lists what was kept of a path. ``digests_as_of()`` answers which
-version a date saw, and is what ``query(..., as_of=)`` reads.
+version a date saw, and is what ``query(..., as_of=)`` reads, from the lake.
 """
 
 from __future__ import annotations
@@ -75,9 +77,13 @@ class SnapshotReport:
     seconds: float = 0.0
     #: Bytes this run pulled from DATASUS (zero when nothing changed).
     bytes_downloaded: int = 0
-    #: The whole kept history: distinct blobs named by ``snapshot_versions``.
+    #: The whole kept history: versions named by ``snapshot_versions``.
     versions_total: int = 0
+    #: What is stored of them: the downloads not yet landed, and the deltas in the lake.
     store_bytes: int = 0
+    delta_bytes: int = 0
+    #: The build of this run's versions into the lake (`build.land`): partitions, versions kept, downloads released.
+    landed: dict[str, Any] = field(default_factory=dict)
     disk_free: int = 0
 
     def totals(self) -> SeriesReport:
@@ -107,6 +113,8 @@ class SnapshotReport:
             ),
             "versions_kept": self.versions_total,
             "store_bytes": self.store_bytes,
+            "delta_bytes": self.delta_bytes,
+            "landed": self.landed,
             "disk_free": self.disk_free,
             "listing_failures": self.listing_failures,
             "errors": self.errors,
@@ -348,6 +356,8 @@ def snapshot(
         report.listing_failures = sorted(failed_dirs)
 
         now = utcnow()
+        #: the versions this run recorded, built into the lake at the end
+        recorded: list[str] = []
         queue: list[tuple[str, str, int | None, str]] = []  # (series, path, size, modified)
         unchanged: list[tuple[str, str, str]] = []
         for name, spec in series.items():
@@ -367,6 +377,7 @@ def snapshot(
                 digest = _already_fetched(catalog, blobs, path, size, modified)
                 if digest:
                     _record_version(catalog, report.run_id, path, digest, size, modified, "adopted")
+                    recorded.append(path)
                     part.adopted += 1
                     continue
                 queue.append((name, path, size, modified))
@@ -424,19 +435,22 @@ def snapshot(
                     (result.path, result.sha256))
                 _record_version(catalog, report.run_id, result.path, result.sha256, size, modified,
                                 str(served[0]["serving_method"]) if served else "")
+                recorded.append(result.path)
 
             fetcher.fetch_many([p for _n, p, _s, _m in queue], force=True, on_result=_kept)
             for marker, reason in (fetcher.last_stats.diagnostics if fetcher.last_stats else ()):
                 report.errors.append((marker, reason))
         elif queue:
             say(f"{len(queue)} files, {need / 2**20:.0f} MiB would be fetched")
+        if recorded and not dry_run:
+            say(f"building {len(recorded)} versions into the lake")
+            report.landed = _land(resolved, recorded)
 
-        row = catalog.query(
-            "SELECT COUNT(*) AS n, COALESCE(SUM(b.byte_size), 0) AS bytes FROM "
-            "(SELECT DISTINCT sha256 FROM snapshot_versions) v JOIN blobs b ON b.sha256 = v.sha256"
-        )[0]
         report.versions_total = int(catalog.scalar("SELECT COUNT(*) FROM snapshot_versions") or 0)
-        report.store_bytes = int(row["bytes"])
+        report.store_bytes = sum(
+            blobs.path_for(str(r["sha256"])).stat().st_size
+            for r in catalog.query("SELECT DISTINCT sha256 FROM snapshot_versions") if blobs.has(str(r["sha256"])))
+        report.delta_bytes = int(catalog.scalar("SELECT COALESCE(SUM(byte_size), 0) FROM lake_versions") or 0)
         report.disk_free = shutil.disk_usage(resolved.blobs_dir).free
         report.finished_at = utcnow()
         report.seconds = time.monotonic() - started
@@ -449,6 +463,20 @@ def snapshot(
         return report
     finally:
         catalog.close()
+
+
+def _land(resolved: Settings, paths: Sequence[str]) -> dict[str, Any]:
+    """This run's versions built into the lake and their downloads released (`build.land`)."""
+    from .build import land
+    from .pipeline import Pipeline
+
+    pipeline = Pipeline(resolved)
+    try:
+        counts = land(pipeline, paths, release=True)
+    finally:
+        pipeline.close()
+    keep = ("partitions", "partitions_reused", "files_carried", "versions_kept", "rows", "released", "errors")
+    return {k: counts[k] for k in keep if k in counts}
 
 
 def _latest(catalog: CatalogStore, path: str) -> Any:
@@ -503,18 +531,38 @@ def _record_version(
 def versions(
     path: str, *, settings: Settings | None = None, root: str | Path | None = None
 ) -> list[dict[str, Any]]:
-    """The kept versions of the files whose path contains ``path``, oldest first."""
+    """The known versions of the files whose path contains ``path``, oldest first: the ones a snapshot observed and
+    the ones kept as deltas, each with where it is stored (``stored``): ``lake`` (the partition holds it), ``delta``
+    (kept against its successor, ADR-0233), ``download`` (a blob not yet landed) or ``lost``."""
+    from .persist.versions import current_digest
+
     resolved = settings or load_settings(root=Path(root) if root else None)
     catalog = CatalogStore(resolved.catalog_path, read_only=True)
     try:
         blobs = BlobStore(resolved.blobs_dir)
-        rows = catalog.query(
+        found: dict[tuple[str, str], dict[str, Any]] = {}
+        for r in catalog.query(
             "SELECT path, modified, size, sha256, first_observed_at, last_observed_at, observations, "
-            "serving_method FROM snapshot_versions WHERE path LIKE ? ORDER BY path, "
-            "CASE WHEN modified = '' THEN first_observed_at ELSE modified END",
-            (f"%{path}%",),
-        )
-        return [{**dict(r), "blob_present": blobs.has(str(r["sha256"]))} for r in rows]
+            "serving_method FROM snapshot_versions WHERE path LIKE ?", (f"%{path}%",),
+        ):
+            found[(str(r["path"]), str(r["sha256"]))] = dict(r)
+        deltas = {}
+        for r in catalog.query(
+            "SELECT path, modified, size, sha256, rows, rows_removed, rows_added, byte_size AS delta_bytes "
+            "FROM lake_versions WHERE path LIKE ? AND source_id = path", (f"%{path}%",),
+        ):
+            key = (str(r["path"]), str(r["sha256"]))
+            deltas[key] = dict(r)
+            found.setdefault(key, {"path": r["path"], "modified": r["modified"], "size": r["size"],
+                                   "sha256": r["sha256"]})
+        held = {p: current_digest(catalog, resolved.lake_dir, p)[0] for p in {k[0] for k in found}}
+        out = []
+        for (p, sha), row in found.items():
+            stored = ("lake" if held.get(p) == sha else "delta" if (p, sha) in deltas
+                      else "download" if blobs.has(sha) else "lost")
+            out.append({**row, **{k: v for k, v in deltas.get((p, sha), {}).items() if k.startswith(("rows", "delta"))},
+                        "stored": stored})
+        return sorted(out, key=lambda r: (r["path"], str(r.get("modified") or r.get("first_observed_at") or "")))
     finally:
         catalog.close()
 
@@ -533,31 +581,40 @@ def as_of_cutoff(as_of: str | date | datetime) -> datetime:
 
 
 def digests_as_of(
-    catalog: CatalogStore, paths: Iterable[str], as_of: str | date | datetime
+    catalog: CatalogStore, paths: Iterable[str], as_of: str | date | datetime, *, lake_root: str | Path | None = None,
 ) -> tuple[dict[str, str], list[str]]:
     """``({path: sha256}, [paths with no version by then])`` for a date.
 
-    The version a date saw is the latest whose server modification time is on or
-    before it (the time a snapshot first saw it, where the server gave none). A
-    state that was overwritten before any snapshot fetched it is not in the
-    history, so a path whose every kept version is newer than the date is
-    reported missing rather than answered with a later state.
+    The versions of a path are the ones a snapshot observed, the ones kept as deltas (`lake_versions`, ADR-0233) and,
+    given ``lake_root``, the one the lake holds, each at the server modification time listed for it (the time a
+    snapshot first saw it, where the server gave none). The version a date saw is the latest on or before it. A state
+    that was overwritten before anything read it is not in the history, so a path whose every known version is newer
+    than the date is reported missing rather than answered with a later state.
     """
+    from .persist.versions import current_digest, listing_of
+
     cutoff = as_of_cutoff(as_of)
     found: dict[str, str] = {}
     missing: list[str] = []
     for path in dict.fromkeys(paths):
+        candidates = [(str(r["modified"] or r["first_observed_at"]), str(r["sha256"])) for r in catalog.query(
+            "SELECT sha256, modified, first_observed_at FROM snapshot_versions WHERE path = ?", (path,))]
+        candidates += [(str(r["modified"]), str(r["sha256"])) for r in catalog.query(
+            "SELECT sha256, modified FROM lake_versions WHERE path = ? AND source_id = path AND modified <> ''",
+            (path,))]
+        if lake_root is not None:
+            held, _files = current_digest(catalog, lake_root, path)
+            modified = listing_of(catalog, path, held)[1] if held else ""
+            if held and modified:
+                candidates.append((modified, held))
         best: tuple[datetime, str] | None = None
-        for row in catalog.query(
-            "SELECT sha256, modified, first_observed_at FROM snapshot_versions WHERE path = ?", (path,)
-        ):
-            stamp = datetime.fromisoformat(str(row["modified"] or row["first_observed_at"]))
+        for when, sha in candidates:
+            stamp = datetime.fromisoformat(when)
             stamp = stamp if stamp.tzinfo else stamp.replace(tzinfo=UTC)
             if stamp <= cutoff and (best is None or stamp >= best[0]):
-                best = (stamp, str(row["sha256"]))
+                best = (stamp, sha)
         if best is None:
             missing.append(path)
         else:
             found[path] = best[1]
     return found, missing
-

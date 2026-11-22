@@ -18,6 +18,7 @@ from pathlib import Path, PurePosixPath
 from typing import Any
 
 import pyarrow as pa
+import pyarrow.parquet as pq
 
 from .catalog.store import CatalogStore, utcnow
 from .config import Settings, load_settings
@@ -42,7 +43,7 @@ from .normalize.engine import (
 )
 from .normalize.geo import MunicipalityIndex
 from .normalize.time import month_of
-from .persist.lake import Lake
+from .persist.lake import RECORD_KEY, Lake
 from .persist.staging import prune_dead_staging, staged_tree
 from .pipeline import Pipeline, StageResult
 from .progress import ItemTimeout
@@ -78,6 +79,10 @@ class BuildStats:
     #: Representations read and refused for their columns (not the family's): the publication was read from another
     #: representation, or, when none had the columns, is in `files_mismatched` and `errors`.
     schema_refused: list[str] = field(default_factory=list)
+    #: Sources whose rows were taken from the partition being replaced, at the version it held, not decoded (ADR-0233).
+    files_carried: int = 0
+    #: Versions a rewrite replaced, kept as deltas against their successors (`persist.versions`).
+    versions_kept: int = 0
 
     def merge(self, other: BuildStats) -> None:
         """Add another build's counts (a partition built on another thread)."""
@@ -98,6 +103,8 @@ class BuildStats:
             # Kept under the old key too: it is what every existing caller and
             # log line reads. It has always meant "attempted".
             "files": self.files,
+            "files_carried": self.files_carried,
+            "versions_kept": self.versions_kept,
             "rows": self.rows,
             "partitions": self.partitions,
             "partitions_reused": self.partitions_reused,
@@ -136,6 +143,32 @@ def partition_fingerprint(
         h.update(str(m["member"] or "").encode())
         h.update(b"\x00")
     return h.hexdigest()
+
+
+def lake_batches(table: Any, plan: NormalizePlan, digest: str, normalized_date: Any) -> Iterator[pa.RecordBatch]:
+    """One decoded table in the lake's form: normalised with provenance, and the publication's competence."""
+    competencia = int(normalized_date) if normalized_date is not None and month_of(normalized_date) else None
+    source_resolution = (
+        "month" if competencia is not None else
+        "year" if normalized_date is not None and int(normalized_date) % 100 == 0 else
+        "unknown"
+    )
+    # no record key: the lake computes it on read from the fields it stores (`Lake._read_derived`)
+    for batch in normalize_table(table, plan, blob_sha256=digest, record_key=False):
+        # Internal semantic provenance: a codelist can change in July, which a year-only partition cannot recover.
+        enriched = batch.append_column("_competencia", pa.array([competencia] * batch.num_rows, type=pa.int32()))
+        yield enriched.append_column(
+            "_source_resolution", pa.array([source_resolution] * batch.num_rows, type=pa.string()))
+
+
+@dataclass(slots=True)
+class _Held:
+    """The partition a build replaces: its files, the version of each source it holds, and the sources it can give
+    as stored instead of decoding them (ADR-0233)."""
+
+    files: list[Path] = field(default_factory=list)
+    digests: dict[str, str] = field(default_factory=dict)
+    carry: dict[str, str] = field(default_factory=dict)
 
 
 @dataclass
@@ -199,6 +232,7 @@ class Builder:
         fingerprint: str,
         stats: BuildStats,
         on_file: Callable[[str, str], None] | None,
+        held: _Held | None = None,
     ) -> _PartitionTally:
         """Decode one (uf, year) group and write it as one partition.
 
@@ -207,9 +241,20 @@ class Builder:
         family loop — and every accounting defect this review found in the build
         lived at that depth, where it is genuinely hard to see which counter
         belongs to which level.
+
+        ``held`` is the partition this one replaces: a source in ``held.carry`` is taken from it as stored, not decoded
+        (its blob need not be on disk), and a source it held at another version than the one written is kept as a
+        delta against the new one (`persist.versions`) before the swap. A source whose new version could not be read
+        keeps the rows it had, so no version is lost; the partition is marked for the next build to try again.
         """
+        held = held or _Held()
         tally = _PartitionTally()
         sources: list[str] = []
+        #: source id -> the digest of the version written, and the path it is a version of
+        written_digest: dict[str, str] = {}
+        written_path: dict[str, str] = {}
+        #: the first decoded batch's schema: carried rows are written in it, so a partition stays one file
+        decoded_schema: list[pa.Schema] = []
         members_by_digest: dict[str, set[str]] = {}
         for item in group:
             digest = digests.get(str(item["path"]))
@@ -317,31 +362,10 @@ class Builder:
                     # Its rows are written, and the partition is short of what the file's own header declares: said
                     # (exit 1), not left as a warning string nobody reads.
                     stats.errors.append((source_id, f"short: {short}"))
-                normalized_date = m.get("normalized_date")
-                competencia = (
-                    int(normalized_date)
-                    if normalized_date is not None
-                    and month_of(normalized_date)
-                    else None
-                )
-                source_resolution = (
-                    "month" if competencia is not None else
-                    "year" if normalized_date is not None
-                    and int(normalized_date) % 100 == 0 else
-                    "unknown"
-                )
-                # no record key: the lake computes it on read from the fields it stores (`Lake._read_derived`)
-                for batch in normalize_table(table, plan, blob_sha256=digest, record_key=False):
-                    # Internal semantic provenance: a codelist can change
-                    # in July, which a year-only partition cannot recover.
-                    enriched = batch.append_column(
-                        "_competencia",
-                        pa.array([competencia] * batch.num_rows, type=pa.int32()),
-                    )
-                    yield enriched.append_column(
-                        "_source_resolution",
-                        pa.array([source_resolution] * batch.num_rows, type=pa.string()),
-                    )
+                for out in lake_batches(table, plan, digest, m.get("normalized_date")):
+                    if not decoded_schema:
+                        decoded_schema.append(out.schema)
+                    yield out
             return "fit", ""
 
         def _next_representation(
@@ -376,23 +400,33 @@ class Builder:
             publication's other representations of the family are read in turn, as `retrieve.fetch` does; the file
             is a mismatch only when none has the columns (ADR-0190)."""
             path = str(m["path"])
+            wanted_member = str(m["member"] or "")
+            source_id = logical_source_id(path, wanted_member)
+            if source_id in held.carry:
+                yield from _carried(source_id, held.carry[source_id])
+                sources.append(source_id)
+                written_digest[source_id], written_path[source_id] = held.carry[source_id], path
+                stats.files_carried += 1
+                stats.files_contributing += 1
+                tally.contributing += 1
+                return
             digest = digests.get(path)
             if not digest:
                 stats.skipped.append(path)
                 tally.undecoded += 1
+                yield from _kept_on_failure(source_id, path)
                 return
-            wanted_member = str(m["member"] or "")
             refused: list[str] = []
             seen: list[str] = []
             item, item_digest = m, digest
             while True:
-                state, held = yield from _read(item, item_digest, m)
+                state, holds = yield from _read(item, item_digest, m)
                 if item is not m:
                     _release(item_digest)
                 if state != "mismatch":
                     break
                 refused.append(str(item["path"]))
-                seen.append(f"{Path(str(item['path'])).name} ({held})")
+                seen.append(f"{Path(str(item['path'])).name} ({holds})")
                 following = _next_representation(m, refused)
                 if following is None:
                     break
@@ -400,6 +434,7 @@ class Builder:
                 remaining[item_digest] = remaining.get(item_digest, 0) + 1
             stats.schema_refused.extend(refused)
             if state == "gap":
+                yield from _kept_on_failure(source_id, path)
                 return
             stats.files += 1
             tally.decoded += 1
@@ -418,9 +453,55 @@ class Builder:
                 # did not provenance anything — it made the partition look
                 # derived from evidence it does not contain.
                 return
-            sources.append(logical_source_id(str(item["path"]), wanted_member))
+            written = logical_source_id(str(item["path"]), wanted_member)
+            sources.append(written)
+            written_digest[written], written_path[written] = item_digest, str(item["path"])
             stats.files_contributing += 1
             tally.contributing += 1
+
+        def _carried(source_id: str, sha: str) -> Iterator[pa.RecordBatch]:
+            """A source's rows as the replaced partition stores them, in the decoded batches' schema where it is the
+            same columns (one file, not one per schema)."""
+            from .persist.versions import source_rows
+
+            table = source_rows(held.files, source_id, sha)
+            if decoded_schema:
+                target = pa.schema([f for f in decoded_schema[0] if f.name != RECORD_KEY])
+                if set(target.names) == set(table.column_names):
+                    try:
+                        table = table.select(target.names).cast(target)
+                    except (pa.ArrowInvalid, pa.ArrowNotImplementedError):
+                        pass                        # written as stored: the writer opens a second part file
+            yield from table.to_batches(max_chunksize=self.lake.row_group_size)
+
+        def _kept_on_failure(source_id: str, path: str) -> Iterator[pa.RecordBatch]:
+            """The rows the replaced partition held of a source whose new version could not be read: kept at their
+            version, never dropped with it (the coverage test then reads the current file from the server, ADR-0209)."""
+            sha = held.digests.get(source_id)
+            if not sha or source_id in written_digest:
+                return
+            yield from _carried(source_id, sha)
+            sources.append(source_id)
+            written_digest[source_id], written_path[source_id] = sha, path
+            stats.files_carried += 1
+
+        def _keep_versions(staged: list[Path]) -> None:
+            """Before the swap: every version the replaced partition held and this one does not, as a delta against
+            the version written (`persist.versions.write_delta`). A failure here leaves the old partition in place."""
+            from .persist.versions import source_rows, write_delta
+
+            for source_id, new_sha in written_digest.items():
+                old_sha = held.digests.get(source_id)
+                if not old_sha or old_sha == new_sha:
+                    continue
+                old = source_rows(held.files, source_id, old_sha)
+                if not old.num_rows:
+                    continue
+                write_delta(self.catalog, self.lake.root, system=str(family["system"]), family_id=family_id,
+                            schema_signature=str(family["schema_signature"]), source_id=source_id,
+                            path=written_path[source_id], old_sha=old_sha, old=old, new_sha=new_sha,
+                            new=source_rows(staged, source_id, new_sha))
+                stats.versions_kept += 1
 
         def _normalised() -> Iterator[pa.RecordBatch]:
             """Decode and normalise one member at a time, YIELDING as we go.
@@ -432,7 +513,10 @@ class Builder:
             `write_batches` records provenance only after the batches are
             written, so both are complete by the time it reads them.
             """
-            for m in group:
+            # decoded sources first: their schema is the one carried rows are written in
+            in_order = sorted(group, key=lambda m: logical_source_id(str(m["path"]), str(m["member"] or ""))
+                              in held.carry)
+            for m in in_order:
                 try:
                     yield from _member(m)
                 finally:
@@ -454,6 +538,8 @@ class Builder:
             year=year,
             source_paths=sources,
             build_fingerprint=fingerprint,
+            source_digests=written_digest,
+            on_staged=_keep_versions if held.digests else None,
         )
         if written:
             # Each source was decoded with this family's schema: that is its layout, kept where no header census holds
@@ -494,6 +580,7 @@ class Builder:
         rebuild: bool = False,
         on_file: Callable[[str, str], None] | None = None,
         release: bool | None = None,
+        paths: Sequence[str] | None = None,
     ) -> StageResult:
         """Decode and normalise into the lake.
 
@@ -505,6 +592,12 @@ class Builder:
         ``release`` (default: unless ``Settings.keep_downloads``) then deletes the selected files' downloads that a
         verified partition holds (`BlobStore.prune_verified`, ``released`` in the counts; snapshot versions stay): the
         Parquet is what a home keeps, not the DBC beside it (ADR-0208). A rebuild fetches a released file again.
+
+        ``paths`` builds those files into their partitions and leaves the rest of each partition as it is: a partition
+        is the sources it already holds and these (ADR-0233). A query lands the files it downloaded so, and a snapshot
+        the versions it fetched. In every rewrite, a source the replaced partition holds at its current version is
+        carried from it rather than decoded, when the partition was built by the current plan (`_held`), and a version
+        it held that the new partition replaces is kept as a delta.
         """
         stats = BuildStats()
         # trees a killed build left half-written (their process gone) are removed before this one writes beside them
@@ -577,14 +670,18 @@ class Builder:
             files = publications.families[str(family_id)]
             members = files.members
             selected = files.selected
+            wanted_paths = None if paths is None else {str(p) for p in paths}
             if not ufs:
                 # A year DATASUS publishes as one national file is built from it
                 # alone: SIM and SINASC also publish every state's file, and
                 # building both stored each record twice (22,196 SIM rows were
-                # measured in both, 2026-10-04). Asking for states builds them.
+                # measured in both, 2026-10-04). Asking for states builds them, and so does naming their files.
                 national_years = {m["year"] for m in selected if str(m["geo_code"] or "") == "BR"}
                 selected = [m for m in selected
-                            if str(m["geo_code"] or "") == "BR" or m["year"] not in national_years]
+                            if str(m["geo_code"] or "") == "BR" or m["year"] not in national_years
+                            or (wanted_paths is not None and str(m["path"]) in wanted_paths)]
+            if wanted_paths is not None:
+                selected = self._within_paths(family, selected, wanted_paths)
             if max_files_per_family:
                 selected = selected[:max_files_per_family]
             selected_paths.extend(str(m["path"]) for m in selected)
@@ -636,7 +733,15 @@ class Builder:
                         current.add((uf, year))
             stats.partitions_reused += len(current)
             grouped = {key: group for key, group in grouped.items() if key not in current}
-            digests = self.pipeline.fetcher.ensure([str(m["path"]) for group in grouped.values() for m in group])
+            # the partitions being replaced, and which of their sources are carried rather than fetched and decoded
+            # (none under `rebuild`, which is asked to decode again: a reader fixed since is in no plan fingerprint)
+            held = {key: self._held(family, plan_digest, key[0], key[1], group, {} if rebuild else known)
+                    for key, group in grouped.items()}
+            carried = {str(m["path"]) for key, group in grouped.items() for m in group
+                       if logical_source_id(str(m["path"]), str(m["member"] or "")) in held[key].carry}
+            digests = self.pipeline.fetcher.ensure(
+                [str(m["path"]) for group in grouped.values() for m in group if str(m["path"]) not in carried])
+            digests.update({path: known[path] for path in carried if path not in digests})
             # A file that could not be fetched is reported with its cause. The
             # build used to say only "skipped" and exit 0 with no errors, so a
             # failed download of DNBR2021 read as a successful empty build
@@ -669,13 +774,14 @@ class Builder:
                 jobs.append((uf, year, group, fingerprint))
 
             def build_one(job: tuple, family=family, family_id=family_id, plan=plan,
-                          digests=digests) -> tuple[_PartitionTally, BuildStats]:
+                          digests=digests, held=held) -> tuple[_PartitionTally, BuildStats]:
                 uf, year, group, fingerprint = job
                 local = BuildStats()
                 try:
                     tally = self._materialise_partition(
                         family=family, family_id=family_id, plan=plan, uf=uf, year=year, group=group,
                         digests=digests, registry=registry, fingerprint=fingerprint, stats=local, on_file=on_file,
+                        held=held.get((uf, year)),
                     )
                 except Exception as exc:  # noqa: BLE001 - one partition that could not be written is not the run
                     # An exception left `pool.map` whole: the other partitions were waited for, `build()` raised and no
@@ -728,6 +834,94 @@ class Builder:
             counts["released"] = self.pipeline.blobs.prune_verified(
                 Path(self.settings.lake_dir), paths=selected_paths, held=self.refused)
         return StageResult("build", counts=counts)
+
+    def decoded_version(self, family_id: str, path: str, digest: str) -> dict[str, pa.Table]:
+        """One kept download of ``path`` (its blob ``digest``) in the lake's form, by source: what a partition would
+        hold of it, for a version that is no partition's (`persist.versions.keep_downloaded_versions`). Empty when the
+        family's plan fits none of its tables."""
+        plan = build_plan(self.catalog, family_id=family_id, municipalities=MunicipalityIndex.from_catalog(self.catalog),
+                          cache=DictionaryCache(self.catalog))
+        plan.keep_raw = True
+        publications = select_publications(self.catalog, [family_id])
+        rows = [m for m in publications.families[family_id].members if str(m["path"]) == path]
+        if not rows:
+            return {}
+        members = sorted({str(m["member"] or "") for m in rows})
+        outcome = decode_source(self.pipeline.blobs.path_for(digest), logical_path=path, settings=self.settings,
+                                members=None if "" in members else members)
+        try:
+            out: dict[str, pa.Table] = {}
+            for m in rows:
+                member = str(m["member"] or "")
+                verdict, why = member_verdict(outcome, member)
+                if verdict in (ABSENT, FAILED):
+                    continue
+                for table in (t for t in outcome.tables if (not member or t.member == member)
+                              and _matches_schema(t.field_names, plan)):
+                    batches = list(lake_batches(table, plan, digest, m.get("normalized_date")))
+                    if batches:
+                        out[logical_source_id(path, member)] = pa.Table.from_batches(batches)
+            return out
+        finally:
+            for owner in (outcome, *getattr(outcome, "tables", ())):
+                keeper = getattr(owner, "retains", None)
+                if keeper is not None and hasattr(keeper, "cleanup"):
+                    try:
+                        keeper.cleanup()
+                    except OSError:  # pragma: no cover - Windows may still hold a handle
+                        pass
+
+    def _partition_rows(self, family: Mapping[str, Any], uf: str, year: int) -> list[dict[str, Any]]:
+        return [dict(r) for r in self.catalog.query(
+            "SELECT * FROM lake_partitions WHERE family_id=? AND schema_signature=? AND uf=? AND year=?",
+            (family["family_id"], str(family["schema_signature"]), uf, year))]
+
+    def _within_paths(self, family: Mapping[str, Any], selected: list[dict[str, Any]],
+                      wanted: set[str]) -> list[dict[str, Any]]:
+        """The members of the partitions ``wanted`` falls in that are either wanted or already held there: a partition
+        grows by the files named, and keeps the ones it has without anything else being fetched."""
+        def key(m: Mapping[str, Any]) -> tuple[str, int]:
+            return str(m["geo_code"] or "NA"), int(m["year"]) if m["year"] is not None else 0
+
+        touched = {key(m) for m in selected if str(m["path"]) in wanted}
+        holding: dict[tuple[str, int], set[str]] = {}
+        for uf, year in touched:
+            holding[(uf, year)] = {str(s) for r in self._partition_rows(family, uf, year)
+                                   for s in json.loads(r["source_paths"] or "[]")}
+        return [m for m in selected if key(m) in touched and (
+            str(m["path"]) in wanted or logical_source_id(str(m["path"]), str(m["member"] or "")) in holding[key(m)])]
+
+    def _held(self, family: Mapping[str, Any], plan_digest: str, uf: str, year: int,
+              group: Sequence[Mapping[str, Any]], known: Mapping[str, str]) -> _Held:
+        """The partition a rewrite replaces, and which of its sources it can give as stored.
+
+        Every source it holds is named with its version, for the deltas. A source is carried when the server's current
+        version is the one held (``known``, judged without the bytes) and the partition was built by this plan: its
+        recorded fingerprint is the one this plan gives the sources it holds, at their versions. Otherwise (a plan or
+        a reader changed since, a partition short of an unreadable file) every source is decoded again, which a
+        changed plan needs anyway."""
+        from .persist.versions import partition_digests
+        from .raw_text import META_KEY
+
+        rows = self._partition_rows(family, uf, year)
+        files = [self.lake.root / str(r["relative_path"]) for r in rows]
+        if not rows or not all(f.is_file() for f in files):
+            return _Held()
+        try:
+            digests = partition_digests(self.lake.root, rows)
+        except (OSError, ValueError, pa.ArrowInvalid):
+            return _Held()
+        held = _Held(files=files, digests=digests)
+        fingerprints = {r["build_fingerprint"] for r in rows}
+        if len(fingerprints) != 1 or any(META_KEY in (pq.read_schema(f).metadata or {}) for f in files):
+            return held
+        built = [m for m in group if logical_source_id(str(m["path"]), str(m["member"] or "")) in digests]
+        at = {str(m["path"]): digests[logical_source_id(str(m["path"]), str(m["member"] or ""))] for m in built}
+        if partition_fingerprint(plan_digest, built, at) != next(iter(fingerprints)):
+            return held
+        held.carry = {logical_source_id(str(m["path"]), str(m["member"] or "")): at[str(m["path"])]
+                      for m in built if known.get(str(m["path"])) == at[str(m["path"])]}
+        return held
 
     # ------------------------------------------------------------- population
 
@@ -958,3 +1152,89 @@ def build_lake(dataset: str, years: Sequence[int], *, root: str | None = None, l
         return dict(result.counts)
     finally:
         pipeline.close()
+
+
+def land(pipeline: Pipeline, paths: Sequence[str], *, release: bool | None = None) -> dict[str, Any]:
+    """Build downloaded files into their partitions, and release the downloads the lake then holds (ADR-0233).
+
+    A partition grows by the files named and keeps the sources it holds (`Builder.build` ``paths``); a file whose
+    partition held another version of it is the new version there, the old one kept as a delta. What a query
+    downloaded and a snapshot fetched is landed so: the lake is the stored form, and a blob outlives its landing only
+    where no family's plan reads it (a kit, an undecodable file)."""
+    wanted = sorted({str(p) for p in paths})
+    if not wanted:
+        return {}
+    marks = ",".join("?" for _ in wanted)
+    families = sorted({str(r["family_id"]) for r in pipeline.catalog.query(
+        f"SELECT DISTINCT family_id FROM family_files WHERE path IN ({marks})", wanted)})
+    if not families:
+        return {"families": 0}
+    result = Builder(pipeline).build(family_ids=families, paths=wanted, release=release)
+    return dict(result.counts)
+
+
+def keep_downloaded_versions(pipeline: Pipeline, *, land_versioned: bool = True,
+                             on_progress: Callable[[str], None] | None = None) -> dict[str, Any]:
+    """Turn the home's kept downloads of replaced versions into deltas, so `prune` can release them (ADR-0233).
+
+    1. Partitions written before ``source_digests`` existed get it from their files.
+    2. ``land_versioned``: a path with a kept download of an older version (a snapshot's, or a superseded fetch) and no
+       partition is built into the lake at the version its latest fetch says is current (`land`).
+    3. Every kept download of a version the lake does not hold, of a path it does, is decoded with its partition's
+       family and kept as a delta against the lake's version.
+
+    Returns counts and, for what stays a download, why: the lake holds no partition of the path (a query or an extract
+    read it), the file is an archive of several members, or no family's plan reads it."""
+    from .persist.versions import (
+        current_digest,
+        held_versions,
+        partitions_holding,
+        record_partition_digests,
+        source_rows,
+        write_delta,
+    )
+
+    say = on_progress or (lambda _m: None)
+    catalog, blobs, root = pipeline.catalog, pipeline.blobs, Path(pipeline.settings.lake_dir)
+    out: dict[str, Any] = {"partitions_recorded": record_partition_digests(catalog, root)}
+    downloads: dict[str, list[tuple[str, str]]] = {}
+    for row in catalog.query("SELECT source_path, sha256, MAX(fetched_at) AS last FROM fetches "
+                             "GROUP BY source_path, sha256 ORDER BY source_path, last"):
+        if blobs.has(str(row["sha256"])):
+            downloads.setdefault(str(row["source_path"]), []).append((str(row["sha256"]), str(row["last"])))
+    if land_versioned:
+        versioned = {str(r["path"]) for r in catalog.query("SELECT DISTINCT path FROM snapshot_versions")}
+        unlanded = sorted(p for p, kept in downloads.items()
+                          if (len(kept) > 1 or p in versioned) and current_digest(catalog, root, p)[0] is None)
+        say(f"building {len(unlanded)} versioned paths into the lake")
+        out["landed"] = {k: v for k, v in land(pipeline, unlanded, release=False).items()
+                         if k in ("partitions", "rows", "files_carried", "versions_kept", "errors")} if unlanded else {}
+    kept = held_versions(catalog)
+    counts = dict.fromkeys(("in_lake", "delta_existing", "delta_written", "not_in_lake", "no_plan"), 0)
+    delta_bytes = 0
+    for number, (path, kept_here) in enumerate(downloads.items()):
+        if number % 500 == 0:
+            say(f"{number}/{len(downloads)} paths")
+        held, files = current_digest(catalog, root, path)
+        for sha, _last in kept_here:
+            if (path, sha) in kept:
+                counts["delta_existing"] += 1
+            elif held is None:
+                counts["not_in_lake"] += 1
+            elif held == sha:
+                counts["in_lake"] += 1
+            else:
+                part = partitions_holding(catalog, path)[0]
+                old = Builder(pipeline).decoded_version(str(part["family_id"]), path, sha).get(path)
+                if old is None or not old.num_rows:
+                    counts["no_plan"] += 1
+                    continue
+                family = catalog.query("SELECT system FROM families WHERE family_id = ?", (part["family_id"],))
+                record = write_delta(catalog, root, system=str(family[0]["system"]) if family else "",
+                                     family_id=str(part["family_id"]), schema_signature=str(part["schema_signature"]),
+                                     source_id=path, path=path, old_sha=sha, old=old, new_sha=held,
+                                     new=source_rows(files, path, held))
+                counts["delta_written"] += 1
+                delta_bytes += int(record["byte_size"])
+    out.update(counts, delta_bytes=delta_bytes)
+    return out

@@ -218,44 +218,49 @@ class BlobStore:
 
     def prune_verified(self, lake_dir: Path, *, paths: Iterable[str] | None = None, held: Iterable[str] = (),
                        dry_run: bool = False) -> dict[str, int]:
-        """Delete the blobs whose every fetched path is held by a verified lake partition, or by the caller (``held``:
-        an extract that kept a file's matching records). ``paths`` limits it to the blobs fetched for those source
-        paths, verifying only the partitions built from them: a lake build or an extract releasing its own files
-        (one rule for both; the extract had its own, which did not verify the partitions it trusted).
+        """Delete the blobs whose records the lake holds: for every path the blob was fetched for, a verified partition
+        holds that path at the blob's version, or a delta keeps that version (`persist.versions`, ADR-0233), or the
+        caller holds the path (``held``: an extract that kept a file's matching records). ``paths`` limits it to the
+        blobs fetched for those source paths: a build, a snapshot or an extract releasing its own files.
 
-        A partition is verified when its Parquet file exists and holds the row
-        count the catalog recorded when it was written. The catalog keeps the
-        blob's digest, size and source path, and the fetcher fetches a pruned
-        file again (verified by size, with the mirror as fallback, ADR-0122)
-        only if a partition built from it must be rewritten. The original DBC
-        bytes cannot be regenerated from the lake: a refetch reproduces them.
-        Kits, registries and files only ever read by a query belong to no
-        partition and are kept.
+        A partition is verified when its Parquet file exists and holds the row count the catalog recorded when it was
+        written. The test is by version, not by path: a download of a version the server has since replaced is the
+        only copy of it until a delta keeps it, and a partition built from the new version does not hold it (it was
+        pruned by path until 2026-11-22). The original DBC bytes cannot be regenerated from the lake: a refetch
+        reproduces the current version only. Kits, registries, archives with several members and files only a query
+        has read belong to no partition and are kept.
         """
         import json
 
         import pyarrow.parquet as pq
 
+        from ..persist.versions import file_digests
+
         if self.catalog is None:
             raise RuntimeError("pruning needs the catalog that records what the lake was built from")
         want = None if paths is None else {str(p) for p in paths}
-        covered: set[str] = {str(p) for p in held}
-        uncovered: set[str] = set()
-        for row in self.catalog.query("SELECT relative_path, source_paths, row_count FROM lake_partitions"):
+        holders = {str(p) for p in held}
+        covered: set[tuple[str, str]] = set()
+        uncovered: set[tuple[str, str]] = set()
+        for row in self.catalog.query(
+                "SELECT relative_path, source_paths, source_digests, row_count FROM lake_partitions"):
             sources = set(json.loads(row["source_paths"] or "[]"))
             if want is not None and not sources & want:
                 continue
             path = Path(lake_dir) / str(row["relative_path"])
             try:
                 verified = path.is_file() and pq.ParquetFile(path).metadata.num_rows == int(row["row_count"] or -1)
+                digests = json.loads(row["source_digests"]) if row["source_digests"] else file_digests(path)
             except Exception:  # noqa: BLE001 - an unreadable partition verifies nothing
-                verified = False
-            (covered if verified else uncovered).update(sources)
+                verified, digests = False, {}
+            pairs = {(s, str(digests[s])) for s in sources if s in digests}
+            (covered if verified else uncovered).update(pairs)
         covered -= uncovered
+        for row in self.catalog.query("SELECT source_id, sha256, removed_path, kept_path FROM lake_versions"):
+            removed_held = not row["removed_path"] or (Path(lake_dir) / str(row["removed_path"])).is_file()
+            if removed_held and (Path(lake_dir) / str(row["kept_path"])).is_file():
+                covered.add((str(row["source_id"]), str(row["sha256"])))
         by_blob: dict[str, set[str]] = {}
-        # A snapshot version is the only copy of a state DATASUS has since
-        # overwritten (ADR-0141): it is never pruned, whatever the lake holds.
-        kept_versions = {str(r["sha256"]) for r in self.catalog.query("SELECT DISTINCT sha256 FROM snapshot_versions")}
         if want is None:
             fetched = self.catalog.query("SELECT DISTINCT sha256, source_path FROM fetches")
         else:
@@ -266,15 +271,13 @@ class BlobStore:
                 f"""SELECT DISTINCT sha256, source_path FROM fetches WHERE sha256 IN
                     (SELECT sha256 FROM fetches WHERE source_path IN ({marks}))""", sorted(want))
         for row in fetched:
-            if str(row["sha256"]) in kept_versions:
-                continue
             by_blob.setdefault(str(row["sha256"]), set()).add(str(row["source_path"]))
         out = {"blobs": 0, "bytes": 0, "kept": 0}
         for digest, sources in by_blob.items():
             path = self.path_for(digest)
             if not path.is_file():
                 continue
-            if sources <= covered:
+            if all(source in holders or (source, digest) in covered for source in sources):
                 out["blobs"] += 1
                 out["bytes"] += path.stat().st_size
                 if not dry_run:

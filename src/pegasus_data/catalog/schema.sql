@@ -681,8 +681,35 @@ CREATE TABLE IF NOT EXISTS lake_partitions (
   -- the normalisation plan and options. Equal fingerprint and an intact file
   -- means rebuilding would reproduce the same bytes, so the build skips it.
   build_fingerprint TEXT,
+  -- {source id: digest} of the version of each source the file holds (ADR-0233); NULL for a file written before,
+  -- whose `_blob_sha256` says it
+  source_digests   TEXT,
   PRIMARY KEY (family_id, schema_signature, uf, year, relative_path)
 );
+
+-- A version DATASUS overwrote, kept as its difference from the version that replaced it (ADR-0233,
+-- `persist.versions`): the rows its successor does not hold, and runs of `_row` for the rows both hold. A version is
+-- read by following `successor_sha256` to the version the lake holds. Local to the home, never in the seed.
+CREATE TABLE IF NOT EXISTS lake_versions (
+  source_id         TEXT NOT NULL,           -- the `_source_path` of its rows (path, or path and member)
+  path              TEXT NOT NULL,
+  sha256            TEXT NOT NULL,
+  size              INTEGER,                 -- as listed by the server for that version
+  modified          TEXT,
+  successor_sha256  TEXT NOT NULL,
+  superseded_at     TEXT NOT NULL,
+  system            TEXT,
+  family_id         TEXT,
+  schema_signature  TEXT,
+  removed_path      TEXT NOT NULL,           -- relative to the lake root; empty when it removed no row
+  kept_path         TEXT NOT NULL,
+  rows              INTEGER,
+  rows_removed      INTEGER,
+  rows_added        INTEGER,
+  byte_size         INTEGER,
+  PRIMARY KEY (source_id, sha256)
+);
+CREATE INDEX IF NOT EXISTS ix_lake_versions_path ON lake_versions (path);
 
 CREATE TABLE IF NOT EXISTS lake_datasets (     -- what DuckDB views get registered
   dataset      TEXT PRIMARY KEY,        -- e.g. 'sih_rd'

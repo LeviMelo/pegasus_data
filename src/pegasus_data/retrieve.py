@@ -189,6 +189,8 @@ class FetchReport:
     #: makes the retrieval look seven times heavier than it was.
     sources_selected: int = 0
     sources_read: int = 0
+    #: The physical files read (paths): what a query builds into the lake after reading them (`build.land`).
+    paths_read: list[str] = field(default_factory=list)
     representations_deduplicated: list[str] = field(default_factory=list)
     representation_conflicts: list[str] = field(default_factory=list)
     #: Columns in the answer the ledger classifies as direct personal
@@ -361,7 +363,14 @@ def read_source(
         decoded_before: dict[tuple[str, str, str], dict[str, Any]] = {}
         table, fetch_report = read(fetch_report)
         refused: set[str] = set()
-        while fetch_report.schema_mismatch and fetch_report.representations_deduplicated:
+
+        def unversioned(report: FetchReport) -> set[str]:
+            """Under ``as_of``, the representations with no version by then: another of the publication may have one
+            (a DBC kept by the snapshot, where the Dados Abertos copy was first read later)."""
+            return {p for p, why in report.acquisition_failures if why.startswith(NO_VERSION)} if as_of else set()
+
+        while ((fetch_report.schema_mismatch or unversioned(fetch_report))
+               and fetch_report.representations_deduplicated):
             # A representation its family's schema refused (SINAN dengue 2010 and 2013: the
             # Dados_Abertos CSV, chosen as the cheapest, does not carry the family's columns)
             # must not end the read when the publication has another representation: read again
@@ -372,7 +381,7 @@ def read_source(
             # with none stays in the read and in the report, so it can never drop out silently.
             fresh = _refused_with_alternative(
                 pipeline.catalog,
-                set(fetch_report.schema_mismatch) - refused,
+                (set(fetch_report.schema_mismatch) | unversioned(fetch_report)) - refused,
                 fetch_report.representations_deduplicated,
             )
             if not fresh:
@@ -1111,13 +1120,13 @@ def _acquire(
     if as_of is not None:
         from .snapshot import digests_as_of
 
-        digests, absent = digests_as_of(pipeline.catalog, paths, as_of)
+        digests, absent = digests_as_of(pipeline.catalog, paths, as_of, lake_root=pipeline.settings.lake_dir)
         report.cache_hits = len(digests)
         if on_ready is not None:
             for path, digest in digests.items():
                 on_ready(path, digest)
         for path in absent:
-            report.acquisition_failures.append((path, f"no snapshot version on or before {as_of}"))
+            report.acquisition_failures.append((path, f"{NO_VERSION} {as_of}"))
         return digests
     if on_progress:
         on_progress("downloading", 0, len(paths))
@@ -1223,6 +1232,9 @@ def _decode_selected_file(
     remembered = memo.get((path, member, digest)) if memo is not None else None
     if remembered is not None:
         return {**remembered, "position": position}
+    if not pipeline.blobs.has(digest):
+        # a version with no download: the lake holds it, or a delta against what the lake holds (ADR-0233; `as_of`)
+        return _version_outcome(position, pipeline, item, path, member, digest, keep_columns, record_key)
     try:
         work = functools.partial(
                 _decode_one,
@@ -1264,6 +1276,35 @@ def _decode_selected_file(
     if memo is not None and matched_here and not failure:
         memo[(path, member, digest)] = done
     return done
+
+
+#: Why an ``as_of`` read has no digest for a path: no version of it is known on or before the date.
+NO_VERSION = "no version on or before"
+
+#: What a build adds to a source's rows and a read of the file does not (`build.lake_batches`).
+_BUILD_ONLY = ("_competencia", "_source_resolution")
+
+
+def _version_outcome(
+    position: int, pipeline: Pipeline, item: dict[str, Any], path: str, member: str, digest: str,
+    keep_columns: frozenset[str] | None, record_key: bool,
+) -> dict[str, object]:
+    """A selected file's outcome read from the lake's versions (`persist.versions.read_version`), in the form a decode
+    gives: the same columns and provenance, the record key computed where it is asked."""
+    from .normalize.engine import record_keys
+    from .persist.versions import VersionUnavailable, read_version
+
+    try:
+        table = read_version(pipeline.catalog, pipeline.settings.lake_dir, logical_source_id(path, member), digest)
+    except VersionUnavailable as exc:
+        return {"position": position, "path": path, "item": item, "failure": f"VersionUnavailable: {exc}"}
+    table = table.drop_columns([c for c in _BUILD_ONLY if c in table.column_names])
+    batches = []
+    for batch in table.to_batches(max_chunksize=131_072):
+        keys = record_keys(batch) if record_key else pa.nulls(batch.num_rows, pa.string())
+        batches.append(_project(batch.append_column("_record_key", keys), keep_columns))
+    return {"position": position, "path": path, "batches": batches, "matched": True, "read_bytes": 0, "item": item,
+            "family": None, "failure": None}
 
 
 def _acquire_and_decode(
@@ -1486,6 +1527,7 @@ def _read_families(
             if hasattr(retains, "cleanup"):
                 retains.cleanup()  # type: ignore[union-attr]
     report.sources_read = len(read_sources)
+    report.paths_read = sorted(set(report.paths_read) | read_sources)
     report.file_years_returned = sorted(seen_years)
     report.file_ufs_returned = sorted(seen_ufs)
     if not batches:

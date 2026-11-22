@@ -390,13 +390,16 @@ def prefix_adjudicate(
 def prune(
     root: RootOpt = None,
     dry_run: Annotated[bool, typer.Option("--dry-run", help="Count what would go, delete nothing")] = False,
+    keep_versions: Annotated[bool, typer.Option(
+        "--keep-versions", help="First keep every downloaded version the lake does not hold as a delta (decodes them)")] = False,
     as_json: JsonOpt = False,
 ) -> None:
-    """Delete downloaded files whose lake partitions are verified, and lake partitions that hold records twice.
+    """Delete downloaded files whose records the lake holds, and lake partitions that hold records twice.
 
-    The catalog keeps each file's checksum, size and path. The original DATASUS
-    bytes cannot be regenerated from the lake; a refetch reproduces them. Kits,
-    registries and files no partition was built from are kept. A lake partition
+    A download goes when a verified partition holds its path at its version, or a delta keeps that version (ADR-0233).
+    The catalog keeps each file's checksum, size and path; a refetch reproduces the current version only, so a
+    replaced version is released only once kept (``--keep-versions`` keeps them first: snapshot versions and superseded
+    downloads, decoded and stored as deltas). Kits, registries and files no partition was built from are kept. A lake partition
     goes when the catalogued reading of its dataset and year contains every one
     of its records (an unlisted leftover, or a state file beside its national
     one); one not contained is kept and counted (``persist.lake.drop_redundant_partitions``).
@@ -405,11 +408,22 @@ def prune(
     from ..persist.lake import drop_redundant_partitions
 
     settings = _writer(root)
+    kept: dict[str, object] = {}
+    if keep_versions and not dry_run:
+        from ..build import keep_downloaded_versions
+        from ..pipeline import Pipeline
+
+        pipeline = Pipeline(settings)
+        try:
+            kept = keep_downloaded_versions(pipeline, on_progress=lambda message: console.print(message))
+        finally:
+            pipeline.close()
     catalog = CatalogStore(settings.catalog_path)
     try:
         lake = drop_redundant_partitions(catalog, settings.lake_dir, dry_run=dry_run)
         result = BlobStore(settings.blobs_dir, catalog).prune_verified(settings.lake_dir, dry_run=dry_run)
         result.update({f"lake_{k}": v for k, v in lake.items()})
+        result.update({f"versions_{k}": v for k, v in kept.items()})
         _emit(result, as_json, "prune (dry run)" if dry_run else "prune")
     finally:
         catalog.close()
@@ -972,9 +986,10 @@ def snapshot(
     """Keep the preliminary and current-year files DATASUS rewrites in place.
 
     Lists the declared series again, fetches only files whose listed size or
-    modification time changed since their last kept version, and stores each
-    version beside the others (ADR-0141). Nothing is deleted. Schedule it daily
-    (RUNBOOK §8). Read a past state with query(..., as_of="2026-09-30").
+    modification time changed since their last kept version (ADR-0141), and
+    builds each into the lake: its partition takes the new version and keeps the
+    one it replaces as a delta, then the download is released (ADR-0233).
+    Scheduled daily (RUNBOOK §8). Read a past state with query(..., as_of="2026-09-30").
     """
     from .. import snapshot as snap
 

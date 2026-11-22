@@ -18,7 +18,7 @@ from __future__ import annotations
 
 import json
 import re
-from collections.abc import Iterable, Sequence
+from collections.abc import Callable, Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
 from typing import TYPE_CHECKING
@@ -263,6 +263,8 @@ class Lake:
         source_paths: Sequence[str] = (),
         replace: bool = True,
         build_fingerprint: str | None = None,
+        source_digests: Mapping[str, str] | None = None,
+        on_staged: Callable[[list[Path]], None] | None = None,
     ) -> WrittenPartition | None:
         """Write one partition, replacing whatever occupied it. None if no rows.
 
@@ -275,6 +277,10 @@ class Lake:
         union and returned every row twice. Duplication is much harder to notice
         than emptiness: the build reports success, the row counts merely look
         high, and nothing fails until someone counts deaths and gets double.
+
+        ``source_digests`` (``{source id: digest}``) is recorded with the files. ``on_staged(files)`` is called with the
+        written files while the partition being replaced is still in place, before the swap: what keeps the versions
+        it held as deltas (`persist.versions`). It raising leaves the old partition as it was.
         """
         # STREAMED, not collected. This materialised every batch of a state-year
         # partition into a list before opening the writer, so the "storage
@@ -363,6 +369,8 @@ class Lake:
             # partition was written (and after a killed build).
             with staged_tree(directory, staging_root=self.root / STAGING_DIR) as staged_directory:
                 write_parquet(staged_directory / target.name, split=True)
+                if on_staged is not None:
+                    on_staged([staged_directory / target.name, *(staged_directory / f.name for f in extra_files)])
         else:
             directory.mkdir(parents=True, exist_ok=True)
             with staged_file(target) as staged:
@@ -381,6 +389,10 @@ class Lake:
         # verified file by file (`prune`)
         rows_of = [(str(f.relative_to(self.root)).replace("\\", "/"), pq.ParquetFile(f).metadata.num_rows,
                     f.stat().st_size) for f in files]
+        # the partition's sources and their versions, on each of its files' rows as `source_paths` is
+        digests_json = None
+        if source_digests is not None:
+            digests_json = json.dumps(dict(sorted(source_digests.items())))
         if self.catalog is not None:
             with self.catalog.write() as conn:
                 if replace:
@@ -389,31 +401,22 @@ class Lake:
                         "AND schema_signature=? AND uf=? AND year=?",
                         (family_id, schema_signature, uf, year),
                     )
-                conn.execute(
+                conn.executemany(
                     """
                 INSERT INTO lake_partitions (family_id, schema_signature, uf, year, relative_path,
                                              row_count, byte_size, source_paths, written_at,
-                                             build_fingerprint)
-                VALUES (?,?,?,?,?,?,?,?,?,?)
+                                             build_fingerprint, source_digests)
+                VALUES (?,?,?,?,?,?,?,?,?,?,?)
                 ON CONFLICT(family_id, schema_signature, uf, year, relative_path) DO UPDATE SET
                     row_count=excluded.row_count, byte_size=excluded.byte_size,
                     source_paths=excluded.source_paths, written_at=excluded.written_at,
-                    build_fingerprint=excluded.build_fingerprint
+                    build_fingerprint=excluded.build_fingerprint, source_digests=excluded.source_digests
                     """,
                     [(
                         family_id, schema_signature, uf, year, rel, n, size, json.dumps(list(source_paths)), utcnow(),
-                        build_fingerprint,
-                    ) for rel, n, size in rows_of][0],
+                        build_fingerprint, digests_json,
+                    ) for rel, n, size in rows_of],
                 )
-                for rel, n, size in rows_of[1:]:
-                    conn.execute(
-                        """INSERT INTO lake_partitions (family_id, schema_signature, uf, year, relative_path, row_count,
-                           byte_size, source_paths, written_at, build_fingerprint) VALUES (?,?,?,?,?,?,?,?,?,?)
-                           ON CONFLICT(family_id, schema_signature, uf, year, relative_path) DO UPDATE SET
-                           row_count=excluded.row_count, byte_size=excluded.byte_size, source_paths=excluded.source_paths,
-                           written_at=excluded.written_at, build_fingerprint=excluded.build_fingerprint""",
-                        (family_id, schema_signature, uf, year, rel, n, size, json.dumps(list(source_paths)), utcnow(),
-                         build_fingerprint))
         return written
 
     def partition_is_current(

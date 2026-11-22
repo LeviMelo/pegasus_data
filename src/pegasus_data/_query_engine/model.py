@@ -208,6 +208,9 @@ class QueryReport:
     #: the rows, how many found a source row and how many did not, the keys, and the source's rows and repeated keys;
     #: None without one.
     through: dict[str, dict[str, Any]] | None = None
+    #: The files read from downloads, built into the lake after the read (`build.land`): partitions, rows, downloads
+    #: released; None when nothing was downloaded.
+    landed: dict[str, Any] | None = None
 
     def as_dict(self) -> dict[str, Any]:
         if isinstance(self.source_report, (list, tuple)):
@@ -234,6 +237,7 @@ class QueryReport:
             "source_report": source_report,
             **({"condition": self.condition} if self.condition else {}),
             **({"through": self.through} if self.through else {}),
+            **({"landed": self.landed} if self.landed else {}),
         }
 
 
