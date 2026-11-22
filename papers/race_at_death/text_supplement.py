@@ -32,7 +32,10 @@ para(s, f"Deaths of women aged 15 to 49 years in 2015 to 2022 in municipalities 
 s.add_heading("Supplementary Text S3 - Birth cohorts at three censuses (exploratory)", level=2)
 para(s, "The racial composition of five-year birth cohorts at the censuses of 2000, 2010 and 2022 was read, by single year of age and race, from a cohort-component "
         "population account of every municipality built for this research programme from the censuses, the Mortality and Live Birth Information Systems and the official "
-        f"estimates {cite('ibge_projections2024')}; in a census year the account takes the census population as given, so the shares at the three dates are census shares. "
+        "estimates of IBGE (population projections, 2024 revision); in a census year the account takes the census population as given, so the shares at the three dates are "
+        "census shares. Between and after censuses, race shares are modelled along each birth cohort: log shares change linearly between the censuses of 2000, 2010 and 2022, "
+        "a cohort born after a census takes the shares it has in the next census carried back by the state's rate of reclassification of the previous decade, and after "
+        "2022 the state's drift carries them forward. The rates of children under 5 by race in the main text use these modelled shares. "
         "The account is not a published product and its census-year values carry the censuses' own coverage error, which is not quantified by race. A cohort's White share "
         "can fall between censuses through reclassification, but also through higher mortality or emigration of White people, through differences in coverage between "
         "censuses and through the change of the 2022 questionnaire; the comparison between the first census of a cohort aged 0-4 and later ones also compares a race reported "
@@ -204,6 +207,9 @@ for grp, lab in (("by_certified", "Linked share by certified race"), ("by_size",
                  ("by_age", "Linked share by age at death"), ("by_year", "Linked share by year of death")):
     for k, v in LSx[grp].items():
         rows.append([f"{lab}: {EN.get(k, k)}", "", pct(v)])
+for yr, q_ in I["link_quality"].items():
+    rows.append([f"Linkage {yr}: threshold (bits), estimated false links, delivery type and plurality agree", "", f"{q_['threshold_bits']:.1f}; {q_['fdr_percent']:.2f}%; "
+                 f"{q_['validations']['delivery type agrees']:.1f}%; {q_['validations']['plurality agrees']:.1f}%"])
 for k, v in CB.items():
     a, b = k.split(">")
     rows.append([f"{EN[a]} mother, certified {EN[b]}: interval, bootstrap over municipalities", "", ci(v)])
@@ -216,7 +222,7 @@ rows = []
 LAB = {"null": "none", "composition": "composition", "socioeconomic": "socioeconomic context and place", "services": "services and recording",
        "composition_socioeconomic": "composition + socioeconomic", "socioeconomic_services": "socioeconomic + services",
        "composition_socioeconomic_services": "composition + socioeconomic + services", "full": "all, with individual variables, region and year",
-       "individual_only": "individual variables, region and year"}
+       "individual_only": "individual variables, region and year", "individual_no_region": "individual variables and year"}
 OUTL = {"brown_white": "Brown mother, certified White", "brown_brown": "Brown mother, certified Brown", "black_black": "Black mother, certified Black",
         "black_brown": "Black mother, certified Brown", "white_white": "White mother, certified White"}
 for o, ol in OUTL.items():
@@ -266,7 +272,7 @@ for kind, lab in (("natural", "15-24 years, natural causes"), ("assault", "15-24
 table(s, "Supplementary Table S15 - Certified race after infancy by municipal composition and GDP per capita, place and death verification service, candidate estimator, Brazil",
       ["Age and classification", "Class of municipality", "Deaths", "Brown mother, certified White (95%CI)", "Black mother, certified Black (95%CI)",
        "Recorded White at birth, certified White (95%CI)"], rows,
-      [f"GDP tertiles of municipalities (cut points R$ {n0(SP['gdp_tertiles'][0])} and {n0(SP['gdp_tertiles'][1])} per person). 1-9 years: municipalities with fewer than "
+      [f"GDP thirds, weighted by linked infant deaths (cut points R$ {n0(SP['gdp_tertiles'][0])} and {n0(SP['gdp_tertiles'][1])} per person). 1-9 years: municipalities with fewer than "
        "25,600 live births per year (state capitals cannot be estimated). 15-24 years: municipalities with fewer than 1,600. Not estimable: standard error above 0.15, or "
        "outside 0 to 1 by more than two standard errors."])
 rows = []

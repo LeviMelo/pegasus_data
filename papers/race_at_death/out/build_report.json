@@ -1,7 +1,7 @@
 {
- "words_introduction_to_conclusion": 8646,
- "words_all_paragraphs": 11472,
- "references": 58,
+ "words_introduction_to_conclusion": 8953,
+ "words_all_paragraphs": 11800,
+ "references": 57,
  "reference_keys": [
   "manual_do2022",
   "romero2006",
@@ -59,8 +59,7 @@
   "ibge_census2022",
   "saperstein2010",
   "atlas2025",
-  "soaresfilho2011",
-  "ibge_projections2024"
+  "soaresfilho2011"
  ],
  "tables": 6,
  "figures": 9,

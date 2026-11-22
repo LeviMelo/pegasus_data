@@ -99,6 +99,7 @@ assert mP["F_composition_state_vs_composition"]["p"] < 0.001 and mP["F_compositi
 assert 0 < bt["slope_state_effect"] - 1.96 * bt["slope_se"] and bt["slope_state_effect"] + 1.96 * bt["slope_se"] < 1, "the border slope is no longer between 0 and 1"
 assert abs(mP["deviance_explained"]["census_composition"] - mP["deviance_explained"]["composition"]) < 0.05, "the census composition no longer reproduces the birth-record composition"
 bd_ = BD_["disagree"]
+GG = SP["gdp_given_composition"]
 CP = SP["comp_place"]
 para(d, f"For Brown mothers' infants certified White, the municipality's composition alone explained {pct(mP['deviance_explained']['composition'], 0)} of the deviance "
         f"between municipalities, the state alone {pct(mP['deviance_explained']['state'], 0)}, and the socioeconomic, service and recording context alone "
@@ -121,7 +122,8 @@ para(d, f"At state borders, the difference between two neighbouring municipaliti
         f"certified race differing from the mother's it was {f2(bd_['slope_state_effect'])} (95%CI {f2(bd_['slope_state_effect'] - 1.96 * bd_['slope_se'])}; "
         f"{f2(bd_['slope_state_effect'] + 1.96 * bd_['slope_se'])}), and for the Black category the state effects estimated away from borders were too unstable for the test. "
         "The certified race changes in a step at state borders, as a state practice would make it, and the step is smaller than the difference between the states' interiors; "
-        "because the estimated state effects carry error, which pulls the slope toward 0, the slope is a lower bound of the step. By place within the state, Brown mothers' "
+        f"the estimated state effects carry error, which attenuates the slope. The step is small beside the differences between neighbours: the mean squared difference of "
+        f"their logits was {f2(bt['msd_cross'])} across state borders and {f2(bt['msd_within'])} within states. By place within the state, Brown mothers' "
         f"infants were certified White in {f2(SP['by_place']['capital']['rows']['Parda']['Branca']['est'])} of deaths in state capitals, "
         f"{f2(SP['by_place']['metropolitan, not capital']['rows']['Parda']['Branca']['est'])} in the rest of the metropolitan regions and "
         f"{f2(SP['by_place']['interior']['rows']['Parda']['Branca']['est'])} in the interior (Figure 4D); where 30-59% of births were White, the proportions were "
@@ -130,27 +132,33 @@ para(d, f"At state borders, the difference between two neighbouring municipaliti
         f"of births were White, it was {f2(SP['comp_gdp']['<30%|low']['rows']['Parda']['Branca']['est'])} in the poorest third of municipalities by GDP per capita and "
         f"{f2(SP['comp_gdp']['<30%|high']['rows']['Parda']['Branca']['est'])} in the richest; where 60% or more were White, "
         f"{f2(SP['comp_gdp']['>=60%|low']['rows']['Parda']['Branca']['est'])} and {f2(SP['comp_gdp']['>=60%|high']['rows']['Parda']['Branca']['est'])} (Figure 4E). Intervals "
-        "are not given for these proportions: binomial intervals understate the clustering of deaths by place.")
+        "are not given for these proportions: binomial intervals understate the clustering of deaths by place. With composition entered as a spline instead of classes, a "
+        f"doubling of GDP per capita multiplied the odds by {f2(GG['composition']['or_doubling'])} (95%CI {f2(GG['composition']['or_doubling_lo'])}; "
+        f"{f2(GG['composition']['or_doubling_hi'])}), and with the state as well by {f2(GG['composition_state']['or_doubling'])} (95%CI "
+        f"{f2(GG['composition_state']['or_doubling_lo'])}; {f2(GG['composition_state']['or_doubling_hi'])}).")
 if ML:
     sq = {o: ML[o]["sequence"] for o in ML}
     bw, bk = sq["brown_white"], sq.get("black_black")
     assert bw["composition"]["pcv"] > bw["socioeconomic"]["pcv"] > 0 and bw["composition"]["pcv"] > bw["services"]["pcv"], "composition no longer explains most"
     assert bw["composition_socioeconomic_services"]["pcv"] - bw["composition"]["pcv"] < 0.1, "the context now adds much to composition"
+    assert abs(bw["individual_no_region"]["pcv"]) < 0.05, "the deaths' own characteristics now explain municipal variance"
     para(d, f"In the multilevel models of the {n0(ML['brown_white']['n'])} linked infant deaths of Brown mothers' children, the variance between municipalities of the "
             f"log-odds of being certified White was {f2(bw['null']['var_mun'])} (median odds ratio {f2(bw['null']['mor'])}). Composition alone explained "
             f"{pct(bw['composition']['pcv'], 0)} of it; the socioeconomic context and place alone {pct(bw['socioeconomic']['pcv'], 0)}; the services and recording alone "
             f"{pct(bw['services']['pcv'], 0)}; and composition with both {pct(bw['composition_socioeconomic_services']['pcv'], 0)}: most of what wealth and services explain "
             f"alone, they share with composition. The variables of the death and the birth with the macro-region and the year, without any municipal variable, explained "
-            f"{pct(bw['individual_only']['pcv'], 0)}: part of what differs between municipalities is who dies there and of what, and where. With everything, "
+            f"{pct(bw['individual_only']['pcv'], 0)}, and without the macro-region none ({pct(bw['individual_no_region']['pcv'], 0)}): the differences between municipalities "
+            "are not who dies there or of what, and that share belonged to the macro-region. Because the variance of a logistic model is rescaled when individual variables "
+            "enter, these proportions are not shares of one fixed variance. With everything, "
             f"{pct(bw['full']['pcv'], 0)} was explained and the median odds ratio between municipalities fell to {f2(bw['full']['mor'])} (Table 3, Figure 5, "
             "Supplementary Table S12). The models were fitted by penalised quasi-likelihood steps (nAGQ = 0), which can understate variance components with binary outcomes; "
-            "the proportions of variance explained are approximate."
+            "the proportions of variance explained and the differences in the Akaike information criterion are approximate."
             + (f" For Black mothers' children certified Black, composition explained {pct(bk['composition']['pcv'], 0)}, the socioeconomic context "
-               f"{pct(bk['socioeconomic']['pcv'], 0)}, the services {pct(bk['services']['pcv'], 0)}, the individual variables {pct(bk['individual_only']['pcv'], 0)}, and all "
+               f"{pct(bk['socioeconomic']['pcv'], 0)}, the services {pct(bk['services']['pcv'], 0)}, the individual variables without the macro-region {pct(bk['individual_no_region']['pcv'], 0)}, and all "
                f"together {pct(bk['full']['pcv'], 0)}." if bk else ""))
     EST = {o: ML[o]["establishment"] for o in ("brown_white", "black_black")}
     assert all(EST[o]["var_estab"] > 2 * EST[o]["var_mun"] and EST[o]["aic"] < EST[o]["aic_without"] - 100 for o in EST), "the establishment no longer holds the residual variation"
-    FXW, FXK = ML["brown_white"]["full_laplace"]["fixed"], ML["black_black"]["full_laplace"]["fixed"]
+    FXW, FXK = ML["brown_white"]["full_fit"]["fixed"], ML["black_black"]["full_fit"]["fixed"]
 
     def orx(fx, term):
         e_, s_ = fx[term]["est"], fx[term]["se"]
@@ -195,7 +203,8 @@ table(d, "Table 3 - What composition, state and municipal context explain of the
 figure(d, "fig4", "Figure 4 - Brown mothers' infants certified White: municipalities against the composition of their births (A), what each explanation removes (B), the "
                   "border test (C), place within the state (D) and municipal wealth at equal composition (E), Brazil, 2013-2023",
        ["A: one point per municipality, BYM2 posterior means; the solid line is the national linkage by tenth of composition, the dashed line the family's classification "
-        "under one year. C: grey points are pairs of neighbouring municipalities in different states, black points means by eighth with 95% confidence intervals."])
+        "under one year. C: grey points are pairs of neighbouring municipalities in different states, black points means by eighth with 95% confidence intervals. "
+        "E: proportions without intervals (binomial intervals understate the clustering by place)."])
 if ML:
     figure(d, "fig5", "Figure 5 - Multilevel models of the certified race of linked infant deaths: municipal variance explained by each set of variables (A) and odds ratios "
                       "of the full model (B), Brazil, 2013-2023",
@@ -225,7 +234,7 @@ para(d, f"From 2013 to 2023 the Black category for Black mothers' infants rose b
         f"White category for Brown mothers' infants fell by {f2(-pw['fixed']['yc']['Estimate'])}. The rise was not uniform: the regional slopes for the Black category varied "
         f"with a standard deviation of {f2(pk['sd_slope'])} (likelihood-ratio p = {pk['lrt_slope_varies']:.4f}), from {f2(slopes[lo_r])} per decade in the {lo_r} to "
         f"{f2(slopes[hi_r])} in the {hi_r} (Figure 6B, 6C), and in 2023 the certificate still used the category for a minority of Black mothers' infants. The overall "
-        f"agreement with the mother's race changed by {f2(ag_sl['Estimate'])} (95%CI {f2(ag_sl['Estimate'] - 1.96 * ag_sl['Std. Error'])}; "
+        f"agreement with the mother's race changed by {f2(ag_sl['Estimate'])} (95%CI {f2(ag_sl['Estimate'] - 1.96 * ag_sl['Std. Error']).replace('-0.00', '0.00')}; "
         f"{f2(ag_sl['Estimate'] + 1.96 * ag_sl['Std. Error'])}) per decade, an interval that includes no change; the negative correlation of regional level and slope "
         f"({f2(pa_['cor_intercept_slope'])}) is expected in part from regression to the mean. By state, mean agreement over the years was highest in {UFNAME[rank[-1]]} "
         f"({f2(sy[rank[-1]])}) and {UFNAME[rank[-2]]} ({f2(sy[rank[-2]])}) and lowest in {UFNAME[rank[0]]} ({f2(sy[rank[0]])}) and {UFNAME[rank[1]]} ({f2(sy[rank[1]])}) "
@@ -250,8 +259,8 @@ para(d, f"Table 4 and Figure 7 give mortality by the mother's race and by certif
         f"{rc(C14, 'Preta')} by certified race, and for Indigenous against Brown {rr(C14, 'Indigena')} and {rc(C14, 'Indigena')}. Without the municipalities of 25,600 or more "
         f"births per year the White to Brown ratio by the mother's race was {ci(C14['without_large']['rates']['ratio_mother']['Branca'], log=True)} at 1-4 years; leaving out one "
         f"state at a time, it ranged from {f2(C14['rates']['ratio_mother']['Branca']['loo_min'])} to {f2(C14['rates']['ratio_mother']['Branca']['loo_max'])}; and if the deceased "
-        f"were found among the candidates 10 points less often for White than for Brown mothers, or the reverse, it would be {f2(C14['t_sensitivity'][min(C14['t_sensitivity'])])} "
-        f"or {f2(C14['t_sensitivity'][max(C14['t_sensitivity'])])}. A linked cohort of births of 2012-2018 classified by the mother's race {cite('reboucas2022')} reported crude "
+        f"were found among the candidates up to 10 points more or less often for White than for Brown mothers, it would lie between {f2(min(C14['t_sensitivity'].values()))} "
+        f"and {f2(max(C14['t_sensitivity'].values()))}. A linked cohort of births of 2012-2018 classified by the mother's race {cite('reboucas2022')} reported crude "
         f"rates that give White to Brown ratios of {f2(REB['under 1']['ratio'])} under one year and {f2(REB['1-4']['ratio'])} at 1-4 years.")
 rows = []
 for label, B, hh, unit in (("Under 1 year", IR, IR["ratio_household"], "per 1,000 live births"), ("1-4 years", C14["rates"], C14["ratio_household"], "per 100,000 person-years"),
@@ -270,7 +279,7 @@ figure(d, "fig7", "Figure 7 - Mortality rates by the mother's race and by certif
                   "classifying deaths and denominators (D), Brazil, 2013-2024",
        ["Bars: 95% confidence intervals. Census-based population: the population account by race, under one year in 2013-2023 and at 1-4 years in 2016-2024."])
 # ----------------------------------------------------------------- consequences
-d.add_heading("Where the certificate misstates the inequality", level=2)
+d.add_heading("Where the certificate changes the inequality most", level=2)
 MSB = MS["by_composition"]
 assert MS["reversed"] > 0.6 * MS["regions"] and MSB["<10%"]["ratio_of_ratios"] > max(MSB["10-29%"]["ratio_of_ratios"], MSB["30-59%"]["ratio_of_ratios"]), "the misstatement pattern changed"
 NNE = ("AC", "AM", "AP", "PA", "RO", "RR", "TO", "MA", "PI", "CE", "RN", "PB", "PE", "AL", "SE", "BA")
@@ -278,13 +287,16 @@ n_nne = sum(r["uf"] in NNE for r in MS["top"])
 assert n_nne >= 20, "the most misstated regions are no longer mostly in the North and Northeast"
 para(d, f"In {MS['reversed']} of the {MS['regions']} immediate regions, holding {pct(MS['births_share_reversed'], 0)} of births, the White to Brown infant mortality rate ratio by "
         f"certified race had the opposite direction to the ratio by the mother's race; the ratio by the mother's race was below 1 with a credible interval excluding 1 in "
-        f"{MS['mother_below_1_credibly']} regions, the certified ratio above 1 in {MS['certificate_above_1_credibly']}, and both in {MS['reversed_credible']} (Figure 8A, 8B). "
-        "The misstatement, the ratio of the certified to the mother's-race rate ratio, was largest where White births were fewest (a mean, weighted by births, of "
-        f"{f2(MSB['<10%']['ratio_of_ratios'])} in regions with under 10% of White births, against {f2(MSB['30-59%']['ratio_of_ratios'])} at 30-59% and "
-        f"{f2(MSB['>=60%']['ratio_of_ratios'])} at 60% or more; Figure 8C, 8D): where White births are rare, a small share of Brown mothers' infants certified White inflates "
-        "a small White rate. The relation was U-shaped, so that composition and GDP per capita, which were correlated "
-        f"({f2(MS['corr_white_share_log_gdp'])}), each explained little of it linearly (R² {f2(MS['wls']['r2'])}). Of the 25 regions where the certificate most overstated the "
-        f"ratio, {n_nne} were in the North and Northeast (Supplementary Table S14; all regions in Supplementary Data 2).")
+        f"{MS['mother_below_1_credibly']} regions, the certified ratio above 1 in {MS['certificate_above_1_credibly']}, and both in {MS['reversed_credible']} (Figure 8A, 8B); "
+        f"the certified ratio exceeded the mother's-race ratio credibly in {MS['misstated_credibly_positive']}. Relative to the mother's race, the change (the ratio of the two "
+        "ratios) was U-shaped in the composition of births (weighted by births, "
+        f"{f2(MSB['<10%']['ratio_of_ratios'])} where under 10% of births were White, {f2(MSB['10-29%']['ratio_of_ratios'])} at 10-29%, "
+        f"{f2(MSB['30-59%']['ratio_of_ratios'])} at 30-59% and {f2(MSB['>=60%']['ratio_of_ratios'])} at 60% or more; Figure 8C, 8D). At the low end, a small share of Brown "
+        "mothers' infants certified White adds many deaths to a small White denominator; at the high end, Brown mothers' infants certified White leave the Brown numerator. "
+        f"Part of the low end may also be smoothing: where White births are rare the mother's-race ratio rests on few deaths and is pulled toward its mean "
+        f"({f2(MSB['<10%']['mother'])} in that class). Composition and GDP per capita, which were correlated ({f2(MS['corr_white_share_log_gdp'])}), each explained little of "
+        f"the change linearly (R² {f2(MS['wls']['r2'])}). Of the 25 regions where the certificate raised the ratio most, {n_nne} were in the North and Northeast "
+        "(Supplementary Table S14; all regions in Supplementary Data 2).")
 figure(d, "fig8", "Figure 8 - White to Brown infant mortality rate ratio by immediate region, by the mother's race (A) and by certified race (B), the ratio of the two (C), and "
                   "the ratio of the two against the share of White births and GDP per capita (D), Brazil, 2013-2023",
        ["Posterior means of a Poisson model with BYM2 effects over the 510 immediate regions; deaths over live births of the same years by mother's race. D: area of a point, "
@@ -360,14 +372,16 @@ cg, yg = CC_["children_comp_gdp"], CC_["youth_comp_gdp"]
 assert cg[">=60%|middle"]["rows"]["Parda"]["Branca"]["est"] > cg["<30%|middle"]["rows"]["Parda"]["Branca"]["est"] + 0.2, "composition no longer orders the 1-9 estimates"
 ya_lo, ya_hi = yg["assault"]["<30%|low"]["rows"]["Branca"]["Branca"], yg["assault"]["<30%|high"]["rows"]["Branca"]["Branca"]
 assert ya_hi["est"] - ya_lo["est"] > 1.96 * math.hypot(ya_lo["se"], ya_hi["se"]) and ya_hi["se"] <= 0.15, "wealth no longer matters for assaults in the least White class"
-para(d, "The dependence on composition held after infancy, with the candidate estimator. At 1-9 years, Brown mothers' children were certified White in "
-        f"{cc(cg['<30%|middle']['rows']['Parda']['Branca'])} of deaths in municipalities with under 30% of White births and middle GDP per capita, and in "
-        f"{cc(cg['>=60%|middle']['rows']['Parda']['Branca'])} where 60% or more were White, with smaller differences by GDP within each class; at 15-24 years, among "
-        f"people recorded White at birth who died of natural causes, the proportion certified White was {cc(yg['natural']['<30%|low']['rows']['Branca']['Branca'])} in the "
-        f"poorest municipalities with under 30% of White births and {cc(yg['natural']['>=60%|middle']['rows']['Branca']['Branca'])} in middle-income municipalities with 60% "
-        f"or more, and among assaults {cc(yg['assault']['<30%|low']['rows']['Branca']['Branca'])} and {cc(yg['assault']['>=60%|middle']['rows']['Branca']['Branca'])} "
-        f"(Supplementary Table S15). Within the least White class, wealth mattered at 15-24 years: assaults gave {cc(yg['assault']['<30%|low']['rows']['Branca']['Branca'])} "
-        f"in the poorest third of municipalities and {cc(yg['assault']['<30%|high']['rows']['Branca']['Branca'])} in the richest. Regional rate ratios after infancy are in Supplementary "
+para(d, "The dependence on composition held after infancy, with the candidate estimator. At 1-9 years and middle GDP per capita, Brown mothers' children were certified "
+        f"White in {cc(cg['<30%|middle']['rows']['Parda']['Branca'])} of deaths in municipalities with under 30% of White births and in "
+        f"{cc(cg['>=60%|middle']['rows']['Parda']['Branca'])} where 60% or more were White, with smaller differences by GDP within each class; at 15-24 years and middle "
+        f"GDP, among people recorded White at birth, the proportion certified White was {cc(yg['natural']['<30%|middle']['rows']['Branca']['Branca'])} and "
+        f"{cc(yg['natural']['>=60%|middle']['rows']['Branca']['Branca'])} for natural deaths and {cc(yg['assault']['<30%|middle']['rows']['Branca']['Branca'])} and "
+        f"{cc(yg['assault']['>=60%|middle']['rows']['Branca']['Branca'])} for assaults (Supplementary Table S15). Within the least White class, wealth mattered at 15-24 "
+        f"years: from the poorest to the richest third of municipalities, natural deaths gave {cc(yg['natural']['<30%|low']['rows']['Branca']['Branca'])} and "
+        f"{f2(yg['natural']['<30%|high']['rows']['Branca']['Branca']['est'])} (standard error {f2(yg['natural']['<30%|high']['rows']['Branca']['Branca']['se'])}), and assaults "
+        f"{cc(yg['assault']['<30%|low']['rows']['Branca']['Branca'])} and {cc(yg['assault']['<30%|high']['rows']['Branca']['Branca'])}; the classes of composition are wide, "
+        "and richer municipalities within the least White class may be whiter. Regional rate ratios after infancy are in Supplementary "
         "Figure S2 and, by state, in Supplementary Table S9; the composition gradient at 1-9 years is in Supplementary Figure S5 and Supplementary Table S4.")
 BP, BI = CEN["by_partner"], CEN["by_instruction"]
 para(d, f"The family's classification itself depended on both parents: children under 10 of Brown mothers were reported White in {f2(fam(BP['White'], 'Parda', 'Branca'))} of "

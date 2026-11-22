@@ -434,6 +434,47 @@ r14m = R["children"]["1-4"]["rates"]["ratio_mother"]["Branca"]["est"]
 t0_ = R["children"]["1-4"]["matrix"]["found"]
 R["children"]["1-4"]["t_sensitivity"] = {f"{tw:.2f}|{tp:.2f}": r14m * tp / tw for tw, tp in ((t0_ - 0.1, t0_), (t0_, t0_ - 0.1), (t0_ + 0.05, t0_ - 0.05), (t0_ - 0.05, t0_ + 0.05))}
 
+# ------------------------------------------------------------------ 11. audit 4: the infant ratio by mother's race from the linkage itself, with a delete-one-state
+# jackknife; the stored linkage's quality per year (threshold, estimated false discoveries, agreement on fields not used to link)
+lk_births = births[1:12].sum(0)                                         # cohorts 2013-2023: (municipality, races)
+lk_state = (muns // 10000).astype(int)
+
+
+def link_ratio(drop_uf=None):
+    sel = LL if drop_uf is None else LL[LL.uf != drop_uf]
+    bm = lk_births if drop_uf is None else lk_births[lk_state != drop_uf]
+    n = {j: (sel.dec == j).sum() for j in ("white", "brown", "black", "indigenous")}
+    b = {"white": bm[:, 0].sum(), "black": bm[:, 1].sum(), "brown": bm[:, 3].sum(), "indigenous": bm[:, 4].sum()}
+    return {j: (n[j] / b[j]) / (n["brown"] / b["brown"]) for j in ("white", "black", "indigenous")}
+
+
+full_lr = link_ratio()
+loo_lr = [link_ratio(u) for u in UF]
+R["infant_rates"]["ratio_mother_linkage"] = {}
+for j in ("white", "black", "indigenous"):
+    v = np.array([x[j] for x in loo_lr])
+    R["infant_rates"]["ratio_mother_linkage"][NAME[j]] = {"est": float(full_lr[j]), "se": float(np.sqrt((len(v) - 1) / len(v) * ((v - v.mean()) ** 2).sum())),
+                                                          "loo_min": float(v.min()), "loo_max": float(v.max())}
+# the candidate estimator's infant ratio with the same jackknife
+loo_c = []
+for u in UF:
+    t_, v_, d_ = diff("infants", f"uf <> {u}")
+    rw = t_.sum(1)
+    bm = lk_births[lk_state != u]
+    bb = np.array([bm[:, 0].sum(), bm[:, 1].sum(), bm[:, 3].sum(), bm[:, 4].sum()])
+    loo_c.append((rw[0] / bb[0]) / (rw[2] / bb[2]))
+v = np.array(loo_c)
+R["infant_rates"]["ratio_mother"]["Branca"]["se_jackknife"] = float(np.sqrt((len(v) - 1) / len(v) * ((v - v.mean()) ** 2).sum()))
+R["infant_rates"]["ratio_mother"]["Branca"]["se_counts"] = R["infant_rates"]["ratio_mother"]["Branca"]["se"]
+R["infant_rates"]["ratio_mother"]["Branca"]["se"] = max(R["infant_rates"]["ratio_mother"]["Branca"]["se"], R["infant_rates"]["ratio_mother"]["Branca"]["se_jackknife"])
+quality = {}
+for yr in range(2013, 2024):
+    _, rep = mr._stored_pairs(settings, "sim_infant_deaths_to_sinasc", yr, [])
+    quality[yr] = {"threshold_bits": rep.get("threshold_bits"), "fdr_percent": rep.get("estimated_fdr_percent"), "fdr_upper95_percent": rep.get("fdr_upper95_percent"),
+                   "linked_share": rep.get("linked_share"), "method": rep.get("method"),
+                   "validations": {k: v["agreement_percent"] for k, v in (rep.get("validations") or {}).items()}}
+R["infants"]["link_quality"] = quality
+
 
 def clean(o):
     if isinstance(o, dict):

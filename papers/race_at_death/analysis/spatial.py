@@ -186,6 +186,8 @@ import statsmodels.formula.api as smf  # noqa: E402
 from scipy import stats  # noqa: E402
 
 A = json.loads((SP / "areal.json").read_text(encoding="utf-8"))
+if (SP / "ratio.json").exists():                                       # the ratios with linear combinations (models.R ratio)
+    A["ratio"] = json.loads((SP / "ratio.json").read_text(encoding="utf-8"))["ratio"]
 B = pd.read_parquet(SP / "bym2_estimates.parquet")
 M = M.merge(B, on="mun", how="left")
 S["bym2"] = A["bym2"]
@@ -292,6 +294,17 @@ for o, (y, t) in OUTC.items():
         cc_ = fits["composition_state_context"]
         S["glm"][o] = {p: {"est": float(v), "se": float(cc_.bse[p])} for p, v in cc_.params.items() if not p.startswith(("C(state)", "bs("))}
         S["glm"][o + "_context_only"] = {p: {"est": float(v), "se": float(fits["context"].bse[p])} for p, v in fits["context"].params.items()}
+
+# wealth at equal composition, with composition as a spline rather than in three classes (audit 4 P6): the coefficient of log GDP per capita, alone with
+# composition and with composition and state; per doubling of GDP per capita as an odds ratio
+dg = M[(M.nP >= 5) & M.gdp_pc.notna() & M.lws.notna()].copy()
+dg["p"], dg["state"] = dg.PW / dg.nP, dg.uf.astype(str)
+S["gdp_given_composition"] = {}
+for lab, f in (("composition", "bs(lws, df=3) + np.log(gdp_pc)"), ("composition_state", "bs(lws, df=3) + C(state) + np.log(gdp_pc)")):
+    m = smf.glm(f"p ~ {f}", data=dg, family=sm.families.Binomial(), var_weights=dg.nP).fit(scale="X2")
+    b, se_ = m.params["np.log(gdp_pc)"], m.bse["np.log(gdp_pc)"]
+    S["gdp_given_composition"][lab] = {"coef": float(b), "se": float(se_), "or_doubling": float(np.exp(b * np.log(2))),
+                                       "or_doubling_lo": float(np.exp((b - 1.96 * se_) * np.log(2))), "or_doubling_hi": float(np.exp((b + 1.96 * se_) * np.log(2)))}
 
 # the border test: is the jump across a state border the one predicted by state effects estimated away from the borders?
 border = np.zeros(len(M), bool)

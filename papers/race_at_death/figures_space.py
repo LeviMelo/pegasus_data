@@ -70,8 +70,8 @@ choropleth(axes[0, 0], G, "PW_mean", "viridis", seq, "A. Certificate: Brown moth
 choropleth(axes[0, 1], G, "famPW_mean", "viridis", seq, "B. Family (census 2010): Brown mother, child White, ages 0-9",
            "Proportion (BYM2 posterior mean)", ticks=[0, 0.3, 0.6, 0.9])
 G["diff_PW"] = G.PW_mean - G.famPW_mean
-choropleth(axes[1, 0], G, "diff_PW", "PuOr_r", TwoSlopeNorm(vmin=-0.3, vcenter=0, vmax=0.3), "C. Certificate minus family (A - B)",
-           "Difference in proportion", ticks=[-0.3, -0.15, 0, 0.15, 0.3])
+choropleth(axes[1, 0], G, "diff_PW", "PuOr_r", TwoSlopeNorm(vmin=-0.45, vcenter=0, vmax=0.45), "C. Certificate minus family (A - B)",
+           "Difference in proportion", ticks=[-0.4, -0.2, 0, 0.2, 0.4])
 LISA = {0: ("not significant", "#EEEEEE"), 1: ("high-high", "#B2182B"), 3: ("low-low", "#2166AC"), 2: ("low-high", "#92C5DE"), 4: ("high-low", "#F4A582")}
 G["lisa_c"] = G.PW_lisa.map(lambda q: LISA.get(q, ("fewer than 5 linked deaths", "#FFFFFF"))[1] if pd.notna(q) else "#FFFFFF")
 G.plot(color=G.lisa_c, ax=axes[1, 1], lw=0)
@@ -143,7 +143,7 @@ ax = fig.add_subplot(gs[1, 2])
 for comp, col in zip(("<30%", "30-59%", ">=60%"), ("#D55E00", "#009E73", "#0072B2"), strict=True):
     v = [S["comp_gdp"].get(f"{comp}|{q}", {}).get("rows", {}).get("Parda", {}).get("Branca") for q in ("low", "middle", "high")]
     xs_ = [i for i, x in enumerate(v) if x and x["se"] < 0.1]
-    ax.errorbar(xs_, [v[i]["est"] for i in xs_], yerr=[1.96 * v[i]["se"] for i in xs_], fmt="-o", color=col, ms=3.5, capsize=1.5, label=f"{comp} White births")
+    ax.plot(xs_, [v[i]["est"] for i in xs_], "-o", color=col, ms=3.5, label=f"{comp} White births")
 ax.set_xticks(range(3), ["low", "middle", "high"])
 ax.set_xlabel("Municipal GDP per capita (tertile)")
 ax.set_ylim(0, 1)
@@ -242,7 +242,7 @@ if "multilevel" in S:
     for k, (o, lab, col) in enumerate(OUTS[:2]):
         if o not in MLs:
             continue
-        fx = MLs[o]["full_laplace"]["fixed"]
+        fx = MLs[o]["full_fit"]["fixed"]
         for j, (t, _) in enumerate(TERMS):
             if t in fx:
                 e_, s_ = fx[t]["est"], fx[t]["se"]

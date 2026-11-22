@@ -120,29 +120,6 @@ if (stage == "areal") {
                            slope_se = sqrt(pv[2, 2, ]), intercept_se = sqrt(pv[1, 1, ])))
   }
 
-  # ---------------------------------------------------------------- mortality rate ratio White to Brown by immediate region, three classifications
-  A <- as.data.frame(read_parquet(file.path(sp, "immediate.parquet")))
-  A <- A[!is.na(A$immediate), ]
-  RE <- as.data.frame(read_parquet(file.path(sp, "immediate_edges.parquet")))
-  A$r <- seq_len(nrow(A))
-  key <- setNames(A$r, A$immediate)
-  ga <- graph_of(key[as.character(RE$a)], key[as.character(RE$b)], nrow(A))
-  for (cl in list(c("mother", "mothDW", "mothDP", "birthsW", "birthsP"), c("certificate", "certW", "certP", "birthsW", "birthsP"),
-                  c("family", "famDW", "famDP", "famBW", "famBP"))) {
-    d <- rbind(data.frame(y = round(A[[cl[2]]]), E = A[[cl[4]]], white = 1, r = A$r, r2 = A$r),
-               data.frame(y = round(A[[cl[3]]]), E = A[[cl[5]]], white = 0, r = A$r, r2 = A$r))
-    d <- d[d$E > 0, ]
-    t0 <- Sys.time()
-    m <- fit_inla(y ~ white + f(r, model = "bym2", graph = ga, scale.model = TRUE, constr = TRUE, hyper = HYP) +
-                    f(r2, white, model = "bym2", graph = ga, scale.model = TRUE, constr = TRUE, hyper = HYP),
-                  d, family = "poisson", E = d$E)
-    say("ratio", cl[1], round(as.numeric(difftime(Sys.time(), t0, units = "secs"))), "s")
-    b <- m$summary.fixed["white", ]
-    f2 <- m$summary.random$r2[seq_len(nrow(A)), ]
-    out$ratio[[cl[1]]] <- list(national = list(mean = b$mean, sd = b$sd), hyper = hyper(m, "r2"),
-                               regions = data.frame(immediate = A$immediate, log_rr = b$mean + f2$mean, sd = sqrt(b$sd^2 + f2$sd^2),
-                                                    raw_rr = (A[[cl[2]]] / A[[cl[4]]]) / (A[[cl[3]]] / A[[cl[5]]]), deaths_white = A[[cl[2]]], deaths_brown = A[[cl[3]]]))
-  }
   out$seconds <- as.numeric(difftime(Sys.time(), t_all, units = "secs"))
   write(toJSON(out, auto_unbox = TRUE, digits = NA, null = "null", na = "null"), file.path(sp, "areal.json"))
   say("areal done", round(out$seconds), "s")
@@ -173,7 +150,8 @@ if (stage == "individual") {
   IND <- "region + yc + certifier + death_place + age_group + cause_group + school + mother_age + low_weight"
   SEQ <- list(null = "1", composition = COMP, socioeconomic = SOC, services = SVC, composition_socioeconomic = paste(COMP, "+", SOC),
               socioeconomic_services = paste(SOC, "+", SVC), composition_socioeconomic_services = paste(COMP, "+", SOC, "+", SVC),
-              full = paste(COMP, "+", SOC, "+", SVC, "+", IND), individual_only = IND)
+              full = paste(COMP, "+", SOC, "+", SVC, "+", IND), individual_only = IND,
+              individual_no_region = "yc + certifier + death_place + age_group + cause_group + school + mother_age + low_weight")
   CTRL <- glmerControl(optimizer = "bobyqa", optCtrl = list(maxfun = 2e5), calc.derivs = FALSE)
   var_mun <- function(m) as.data.frame(VarCorr(m))$vcov[as.data.frame(VarCorr(m))$grp == "mun"]
   tidy <- function(m) {
@@ -200,8 +178,8 @@ if (stage == "individual") {
     t0 <- Sys.time()
     agq <- 0                     # PIRLS: a Laplace refit (nAGQ = 1) of the 45 fixed effects ran over 13 minutes without converging for one outcome
     mf <- glmer(as.formula(paste("y ~", SEQ$full, "+ (1 | mun)")), data = d, family = binomial, nAGQ = agq, control = CTRL)
-    res$full_laplace <- list(fixed = tidy(mf), var_mun = var_mun(mf), nAGQ = agq)
-    say("individual", o, "full Laplace", round(as.numeric(difftime(Sys.time(), t0, units = "secs"))), "s")
+    res$full_fit <- list(fixed = tidy(mf), var_mun = var_mun(mf), nAGQ = agq)
+    say("individual", o, "full refit", round(as.numeric(difftime(Sys.time(), t0, units = "secs"))), "s")
     if (o %in% c("brown_white", "black_black")) {
       t0 <- Sys.time()
       me <- glmer(as.formula(paste("y ~", SEQ$full, "+ (1 | mun) + (1 | death_estab)")), data = d, family = binomial, nAGQ = 0, control = CTRL)
@@ -214,4 +192,34 @@ if (stage == "individual") {
     write(toJSON(out, auto_unbox = TRUE, digits = NA, null = "null", na = "null"), file.path(sp, "individual.json"))
   }
   say("individual done")
+}
+
+if (stage == "ratio") {
+  # ---------------------------------------------------------------- mortality rate ratio White to Brown by immediate region, three classifications
+  A <- as.data.frame(read_parquet(file.path(sp, "immediate.parquet")))
+  A <- A[!is.na(A$immediate), ]
+  RE <- as.data.frame(read_parquet(file.path(sp, "immediate_edges.parquet")))
+  A$r <- seq_len(nrow(A))
+  key <- setNames(A$r, A$immediate)
+  ga <- graph_of(key[as.character(RE$a)], key[as.character(RE$b)], nrow(A))
+  for (cl in list(c("mother", "mothDW", "mothDP", "birthsW", "birthsP"), c("certificate", "certW", "certP", "birthsW", "birthsP"),
+                  c("family", "famDW", "famDP", "famBW", "famBP"))) {
+    d <- rbind(data.frame(y = round(A[[cl[2]]]), E = A[[cl[4]]], white = 1, r = A$r, r2 = A$r),
+               data.frame(y = round(A[[cl[3]]]), E = A[[cl[5]]], white = 0, r = A$r, r2 = A$r))
+    d <- d[d$E > 0, ]
+    t0 <- Sys.time()
+    nA <- nrow(A)
+    lc <- inla.make.lincombs(white = rep(1, nA), r2 = cbind(diag(nA), matrix(0, nA, nA)))
+    m <- fit_inla(y ~ white + f(r, model = "bym2", graph = ga, scale.model = TRUE, constr = TRUE, hyper = HYP) +
+                    f(r2, white, model = "bym2", graph = ga, scale.model = TRUE, constr = TRUE, hyper = HYP),
+                  d, family = "poisson", E = d$E, lincomb = lc)
+    say("ratio", cl[1], round(as.numeric(difftime(Sys.time(), t0, units = "secs"))), "s")
+    b <- m$summary.fixed["white", ]
+    f2 <- m$summary.random$r2[seq_len(nrow(A)), ]
+    out$ratio[[cl[1]]] <- list(national = list(mean = b$mean, sd = b$sd), hyper = hyper(m, "r2"),
+                               regions = data.frame(immediate = A$immediate, log_rr = m$summary.lincomb.derived$mean, sd = m$summary.lincomb.derived$sd,
+                                                    raw_rr = (A[[cl[2]]] / A[[cl[4]]]) / (A[[cl[3]]] / A[[cl[5]]]), deaths_white = A[[cl[2]]], deaths_brown = A[[cl[3]]]))
+  }
+  write(toJSON(list(ratio = out$ratio), auto_unbox = TRUE, digits = NA, null = "null", na = "null"), file.path(sp, "ratio.json"))
+  say("ratio done")
 }

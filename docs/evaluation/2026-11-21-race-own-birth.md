@@ -502,3 +502,10 @@ with medical examiners, Black mothers' infants Black less often (0.59, 0.65).
 Audit 3 (`papers/race_at_death/out/audit_report_3.md`): composition taken from the 2010 Census share of White residents
 instead of the births (correlation 0.94) explains 69% of the deviance (71% from births; 80% with the state); the
 deaths' own characteristics, region and year alone explain 74% of the municipal variance (multilevel).
+
+Audit 4 (`papers/race_at_death/out/audit_report_4.md`, Opus): the infant White to Brown ratio by mother's race from the
+linked pairs alone is 0.81 (jackknife SE 0.016), the candidate estimator's 0.79 (jackknife SE 0.034, Poisson 0.023);
+without the macro-region the deaths' own variables explain none of the municipal variance (-1%), so the 74% above was
+the macro-region; regional ratios refitted with INLA linear combinations (credibly reversed 115, certified ratio
+credibly higher 469 of 510); log GDP per capita at equal composition (spline) changes the odds by 1.06 per doubling
+(0.97 with the state). The stored infant link: threshold 17.9-18.9 bits, estimated false links 0.57-0.75% a year.
