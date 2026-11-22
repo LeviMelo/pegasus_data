@@ -68,3 +68,10 @@ at the course and one more), and the age became a key: Paraná 2017-2019, 750 pa
 control moved back 400 days (when every patient was alive) 67. Still not viable: no stronger key exists in the public
 files (no birth date in the APAC, no postcode in SIM). Glioma survival goes through the operated patients
 (`sih_admissions_to_radiotherapy` then `sih_admissions_to_sim`, both on birth date).
+
+**A cohort link's partner as records (science-2, t05).** `linked_outcomes(..., link_name=, partner_roles=)` reads any
+cohort link as `linked_deaths` reads the death links: columns named for the event (`event_date`, `days_to_event`,
+`partner_record`) and the partner's own roles (`partner.<role>`); `linked_deaths` is its death-link form with the old
+names. A bare `linked_deaths("SIH-RD", ...)` had been refused since SIH-RD gained a second and third cohort link; it now
+picks the link whose event is a death. Paraná 2019, glioma surgery (C71) to radiotherapy: 891 persons, the pass 58 pairs
+and the control 6 (10.3% chance, above the drop threshold): not viable for one state and year.

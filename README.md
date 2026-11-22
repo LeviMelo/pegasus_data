@@ -325,6 +325,10 @@ result.pairs       # record ids (file hash:row) on each side, and the pass that 
   year, or none, with the false-match rate and verdict of each horizon;
   `.mortality(30)` and `.mortality(365)` count over those followed that long. The
   run is computed once per codes and stored (ADR-0194).
+  `linked_outcomes(..., link_name=...)` reads any cohort link the same way, the
+  columns named for the event (`event_date`, `days_to_event`, `partner_record`)
+  and `partner_roles=` adding the partner's own roles: a tumour's surgery to its
+  radiotherapy (`sih_admissions_to_radiotherapy`, the APAC's pathology date).
 - **Command line:** `pegasus-data link sih_deaths_to_sim --period 2022 --geo
   RR`; `pegasus-data link sih_admissions_to_sim --period 2018..2022 --geo AL
   --codes I21,I22`. The method is in ADR-0107, ADR-0110 and ADR-0111.

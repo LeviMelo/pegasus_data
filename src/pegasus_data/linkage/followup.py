@@ -45,7 +45,7 @@ from .engine import (
 )
 from .identity import connect, quote
 
-__all__ = ["Followup", "RunNotStored", "linked_deaths"]
+__all__ = ["Followup", "RunNotStored", "linked_deaths", "linked_outcomes"]
 
 
 class RunNotStored(LookupError):
@@ -66,6 +66,9 @@ class Followup:
     #: the run's pairs (l, r, pass, the event's date and ``p_match``) and its stored report: what `uncertainty.draws` takes
     pairs: pa.Table
     report: dict[str, Any]
+    #: the column of days from the origin to the partner's event (``days_to_death`` for a death link, else
+    #: ``days_to_event``, `linked_outcomes`)
+    days_column: str = "days_to_death"
 
     @property
     def window(self) -> int:
@@ -86,7 +89,7 @@ class Followup:
         row = self.horizon(days)
         if row["verdict"] == "not viable" and not allow_not_viable:
             raise LinkNotViable(_Refusal(self.quality["link"], row))
-        died = pc.fill_null(pc.less_equal(self.table.column("days_to_death"), days), False)
+        died = pc.fill_null(pc.less_equal(self.table.column(self.days_column), days), False)
         end = self.quality["death_data_end"]
         if end is None:
             return pc.if_else(died, True, pa.scalar(None, pa.bool_())).combine_chunks()
@@ -122,10 +125,13 @@ class _Refusal:
         return self._summary
 
 
-def cohort_link(dataset: str, name: str | None = None) -> str:
-    """The declared cohort link (one with ``params`` and an ``outcome``) that follows ``dataset``'s records."""
+def cohort_link(dataset: str, name: str | None = None, *, event: str | None = None) -> str:
+    """The declared cohort link (one with ``params`` and an ``outcome``) that follows ``dataset``'s records; ``event``
+    keeps those whose outcome is that role (``death.date`` for `linked_deaths`: SIH-RD is followed to a death, a
+    readmission and a radiotherapy course, and a bare call was refused as ambiguous)."""
     specs = load_links()
-    cohorts = {n: s for n, s in specs.items() if s.params is not None and s.outcome is not None}
+    cohorts = {n: s for n, s in specs.items() if s.params is not None and s.outcome is not None
+               and (event is None or s.outcome.event == event)}
     if name is not None:
         if name not in cohorts:
             raise KeyError(f"{name!r} is not a cohort link; declared: {sorted(cohorts)}")
@@ -153,6 +159,30 @@ def _geography(area: object) -> object:
         return UF_NUMERIC.get(text, text)
 
     return [one(a) for a in area] if isinstance(area, (list, tuple, set)) else one(area)
+
+
+def linked_outcomes(
+    dataset: str,
+    codes: Iterable[str] | str,
+    *,
+    years: object,
+    geography: object,
+    link_name: str | None = None,
+    match: str = "principal",
+    roles: Iterable[str] = (),
+    partner_roles: Iterable[str] = (),
+    compute: bool = True,
+    refresh: bool = False,
+    **query_kwargs: Any,
+) -> Followup:
+    """`linked_deaths` for any cohort link (``links.yml``: ``params`` and ``outcome``): each person of the cohort with
+    the date of the partner's event within the link's window (a radiotherapy course after a tumour's surgery,
+    ``sih_admissions_to_radiotherapy``; a readmission; a death). The table's columns are named for an event, not a death:
+    ``record``, ``origin``, ``event_date``, ``days_to_event``, ``partner_record``, ``link_pass``, ``p_match``, the
+    cohort's ``roles``, then each of ``partner_roles`` (roles of the partner's record: an APAC's pathology date and
+    patient token) as ``partner.<role>``. Quality, horizons and refusals are `linked_deaths`'."""
+    return _followup(dataset, codes, years=years, geography=geography, link_name=link_name, match=match, roles=roles,
+                     partner_roles=partner_roles, compute=compute, refresh=refresh, death_names=False, **query_kwargs)
 
 
 def linked_deaths(
@@ -184,7 +214,14 @@ def linked_deaths(
         fu = linked_deaths("SIH-RD", ["I21", "I22"], years=range(2018, 2023), geography="AL")
         fu.mortality(30)
     """
-    name = cohort_link(dataset, link_name)
+    return _followup(dataset, codes, years=years, geography=geography, link_name=link_name, match=match, roles=roles,
+                     partner_roles=(), compute=compute, refresh=refresh, death_names=True, **query_kwargs)
+
+
+def _followup(dataset: str, codes: Iterable[str] | str, *, years: object, geography: object, link_name: str | None,
+              match: str, roles: Iterable[str], partner_roles: Iterable[str], compute: bool, refresh: bool,
+              death_names: bool, **query_kwargs: Any) -> Followup:
+    name = cohort_link(dataset, link_name, event="death.date" if death_names and link_name is None else None)
     spec = bind(load_links()[name], codes, match)
     period, area = _period(years), _geography(geography)
     settings = query_kwargs.get("settings") or load_settings(root=query_kwargs.get("root"))
@@ -200,6 +237,8 @@ def linked_deaths(
     outcome = spec.outcome
     assert outcome is not None
     table = _table(spec, run.pairs, report, period, area, list(roles), query_kwargs)
+    if partner_roles := list(partner_roles):
+        table = _with_partner(table, spec, run.pairs, partner_roles, right_period or period, right_geo or area, query_kwargs)
     linked = int(table.column("death_date").drop_null().length())
     # the pairs carry the band's p_match too, so that `uncertainty.draws` and `weights` read the same probabilities
     p_of = dict(zip(table.column("record").to_pylist(), table.column("p_match").to_pylist(), strict=True))
@@ -216,7 +255,29 @@ def linked_deaths(
         "death_data_end": ((report.get("carried") or {}).get(outcome.event) or {}).get("last"),
         "run_seconds": seconds, "run": key.stem,
     }
-    return Followup(table, quality, pairs, report)
+    if death_names:
+        return Followup(table, quality, pairs, report)
+    names = {"death_date": "event_date", "days_to_death": "days_to_event", "death_record": "partner_record"}
+    quality["event"] = outcome.event
+    quality["event_data_end"] = quality.pop("death_data_end")
+    return Followup(table.rename_columns([names.get(c, c) for c in table.column_names]), quality, pairs, report,
+                    days_column="days_to_event")
+
+
+def _with_partner(table: pa.Table, spec: Any, pairs: pa.Table, roles: list[str], period: object, area: object,
+                  query_kwargs: dict[str, Any]) -> pa.Table:
+    """``table`` with each of ``roles`` of the partner record (the right side, read as the run read it: its filter,
+    group and identity) as ``partner.<role>``, null where the person has no partner."""
+    right = _side_table(spec.right, sorted(set(roles) | set(_roles_needed(spec, "right"))), period=period, geography=area,
+                        **query_kwargs)
+    con = connect()
+    _prepare(con, "R", right, replace(spec.right, explode_days=None, explode_values=None))
+    con.register("t", table)
+    columns = ", ".join(f"r.{quote(role)} AS {quote('partner.' + role)}" for role in roles)
+    out = con.execute(f"SELECT t.*, {columns} FROM t LEFT JOIN R r ON r._id = t.death_record ORDER BY t.record"
+                      ).to_arrow_table()
+    con.close()
+    return out
 
 
 def _window(spec: Any) -> int:
