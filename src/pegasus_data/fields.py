@@ -23,6 +23,7 @@ sentence; two fields that differ say how in their labels (`unlabelled_fields`, `
 
 from __future__ import annotations
 
+import numbers
 from pathlib import Path
 from typing import Any, cast
 
@@ -644,7 +645,7 @@ def load_field(name: str, *, years: list[int] | int | None = None, settings: Any
         raise KeyError(f"unknown field {name!r}; declared: {sorted(declared_fields())}")
     settings = settings or load_settings()
     spec = declared_fields()[name]
-    wanted = [years] if isinstance(years, int) else years
+    wanted = [years] if isinstance(years, numbers.Integral) else years
     if cube_of(spec) is not None:                 # a SIDRA or series field is its cube, read from the fact store
         return _field_from_cube(name, spec, wanted, settings)
     plan = intake_cube(name, spec)
@@ -671,6 +672,6 @@ def load_field(name: str, *, years: list[int] | int | None = None, settings: Any
     if not directory.exists():
         raise FileNotFoundError(f"field {name!r} is not in the lake; run `pegasus-data fields --name {name}`")
     dataset = ds.dataset(directory, format="parquet", partitioning="hive")
-    wanted = [years] if isinstance(years, int) else years
+    wanted = [years] if isinstance(years, numbers.Integral) else years
     expression = ds.field("year").isin(wanted) if wanted else None
     return dataset.to_table(filter=expression)

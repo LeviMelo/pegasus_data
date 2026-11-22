@@ -19,6 +19,7 @@ variable and what do its values mean", which DATASUS does not provide anywhere.
 from __future__ import annotations
 
 import json
+import numbers
 from collections.abc import Iterator, Mapping, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -949,7 +950,7 @@ def load(
     (:class:`MissingColumnError`) rather than returning empty — an empty result
     looks legitimate and is the easiest way to publish a wrong number (§13).
     """
-    if isinstance(years, int):
+    if isinstance(years, numbers.Integral):
         years = [years]
     if isinstance(uf, str):
         uf = [uf]
@@ -1004,7 +1005,7 @@ def load_population(
     ``curation/populations.yml``, the producer, vintage, reference date, years, method, limitations and the documents
     that state them, or ``"undocumented"``.
     """
-    if isinstance(years, int):
+    if isinstance(years, numbers.Integral):
         years = [years]
     if isinstance(uf, str):
         uf = [uf]
@@ -1217,7 +1218,7 @@ def scan(
     cat = catalog or Catalog(root=root, settings=settings)
     try:
         store = cat.store
-        if isinstance(years, int):
+        if isinstance(years, numbers.Integral):
             years = [years]
         if isinstance(uf, str):
             uf = [uf]
@@ -1464,7 +1465,7 @@ def export(
     # `fetch`, `load` and `scan` all take an int year; export reached list()
     # and raised. Public functions that present themselves as parallel should
     # accept the same filters.
-    if isinstance(years, int):
+    if isinstance(years, numbers.Integral):
         years = [years]
     if isinstance(uf, str):
         uf = [uf]

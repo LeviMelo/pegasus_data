@@ -8,6 +8,7 @@ years. ``retrieve.fetch`` calls these first.
 
 from __future__ import annotations
 
+import numbers
 import re
 from collections.abc import Iterable, Sequence
 from typing import TYPE_CHECKING, Any, cast
@@ -414,7 +415,7 @@ def _check_choice(name: str, value: str, allowed: tuple[str, ...]) -> str:
 def _as_years(years: int | Sequence[int] | range | None) -> list[int]:
     if years is None:
         return []
-    if isinstance(years, int):
+    if isinstance(years, numbers.Integral):
         return [years]
     return sorted({int(y) for y in years})
 

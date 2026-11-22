@@ -26,6 +26,7 @@ minute for the whole tree).
 
 from __future__ import annotations
 
+import numbers
 import textwrap as _textwrap
 from collections.abc import Sequence
 from dataclasses import dataclass, field
@@ -503,7 +504,7 @@ _PROVENANCE = ("_source_path", "_blob_sha256", "_ingested_at")
 def _years(years: int | Sequence[int] | range | None) -> list[int] | None:
     if years is None:
         return None
-    return [int(years)] if isinstance(years, int) else sorted({int(y) for y in years})
+    return [int(years)] if isinstance(years, numbers.Integral) else sorted({int(y) for y in years})
 
 
 def _final_after_years(dataset: str) -> int | None:
