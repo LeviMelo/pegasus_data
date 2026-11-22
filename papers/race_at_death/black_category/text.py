@@ -48,6 +48,14 @@ def cbci(key):
 
 
 by_h = IN["black_mother_by_hospital"]
+HD = _json.loads((HERE / "results" / "hospital_declaration.json").read_text(encoding="utf-8"))
+AGAIN = _MVT["declared_again|black"]
+assert LD["certificate_infant"]["est"] < 0.5 * LD["family_child_0"] and HO["black_bootstrap"]["black"]["est"] < AGAIN["est"], "the four levels changed order"
+_hf = HD["by_practice_fifth"]
+assert _hf[0]["dn_black"] < 0.6 * _hf[0]["expected_black"] and _hf[-1]["dn_black"] > 0.9 * _hf[-1]["expected_black"], "the birth record's shortfall by practice changed"
+assert abs(HD["oe_black"]["state"]["slope"]) < 2 * HD["oe_black"]["state"]["se"] + 0.01, "within states the shortfall now follows the hospital's practice"
+_ps = HD["practice_by_state"]
+PS_LO, PS_HI = min(_ps, key=lambda k: _ps[k]["est"]), max(_ps, key=lambda k: _ps[k]["est"])
 NT0 = BK["net"]
 DL = BK["delivery_link"]
 # the claims of the text, held by the results
@@ -68,7 +76,10 @@ para(d, f"Methods: {DESIGN[0].upper() + DESIGN[1:]}, Brazil. Infant deaths of 20
         "birth records to the mothers' delivery admissions (the hospital's record of the mother). The certificate was related to the hospital's record of the same "
         "mother within delivery hospitals and within the establishments where infants died elsewhere, to each hospital's practice estimated without the mother, to "
         "the certifying physician and to the year, standardised for who the mothers were.")
-para(d, f"Results: Of infants of mothers who declared themselves Black, {cbci('Preta>Preta')} were certified Black and {cbci('Preta>Parda')} Brown; certificates "
+para(d, f"Results: Four records of the same people gave the Black category at four levels: the same mother declared herself Black again at her next "
+        f"birth in {ci(AGAIN)}; households reported Black mothers' children under one as Black in {f2(LD['family_child_0'])} (census); the hospital "
+        f"recorded the mother as Black at delivery in {ci(HO['black_bootstrap']['black'])}; the certificate recorded her infant as Black in "
+        f"{ci(LD['certificate_infant'])}. Of infants of mothers who declared themselves Black, {cbci('Preta>Preta')} were certified Black and {cbci('Preta>Parda')} Brown; certificates "
         f"recorded {ci(MB['net']['certificate_ratio'])} as many infants as Black as there were infants of Black mothers. Hospitals recorded these mothers as Black in "
         f"{ci(HO['black_bootstrap']['black'])} of admissions with a race. Within the same hospital, an infant whose mother the hospital had recorded as Black had "
         f"{f2(MB['clogit_delivery_hospital_adjusted']['or'])} (95%CI {f2(MB['clogit_delivery_hospital_adjusted']['lo'])}; "
@@ -83,7 +94,9 @@ para(d, f"Results: Of infants of mothers who declared themselves Black, {cbci('P
         f"{f2(R3['joint_trend_2013_2022']['hospital_minus_certificate'])} in log-odds per decade, 95%CI "
         f"{f2(R3['joint_trend_2013_2022']['hospital_minus_certificate'] - 1.96 * R3['joint_trend_2013_2022']['difference_se'])}; "
         f"{f2(R3['joint_trend_2013_2022']['hospital_minus_certificate'] + 1.96 * R3['joint_trend_2013_2022']['difference_se'])}).")
-para(d, "Conclusion: The infants of Black mothers are recorded as Black on a minority of death certificates, fewer than the hospitals record their mothers. A "
+para(d, "Conclusion: Against the right comparator for each record, the hospital records a Black mother as Black less often than she repeats her own "
+        "declaration, and the certificate records her infant as Black less than half as often as families report such children: the infant is recorded "
+        "Brown on the certificate. A "
         "mother's hospital record follows the level her hospital sets, and the certificate goes with that record also where no chart or shared prenatal record "
         "was likely at hand, which is compatible with staff reading the same person alike, or with her own varying answer, and not with copying. Taking the "
         "mother's declaration as the reference, these records count fewer infants as Black, by amounts that differ between hospitals.")

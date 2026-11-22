@@ -9,6 +9,7 @@ import matplotlib
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
+import numpy as np  # noqa: E402
 
 HERE = Path(__file__).parent
 OUT, RES = HERE / "figures", HERE / "results"
@@ -184,4 +185,43 @@ ax.set_ylim(0, 1)
 ax.tick_params(axis="y", labelsize=7)
 ax.legend(frameon=False, fontsize=7, title="who answered", title_fontsize=7, loc="upper right", ncol=3)
 save(fig, "family_informant")
+# ---------------------------------------------------------------- the family by place (review 2026-11-22, 4.1): fixed couple types
+CT = json.loads((RES / "category_test.json").read_text(encoding="utf-8"))
+UFS = {"11": "RO", "12": "AC", "13": "AM", "14": "RR", "15": "PA", "16": "AP", "17": "TO", "21": "MA", "22": "PI", "23": "CE", "24": "RN", "25": "PB",
+       "26": "PE", "27": "AL", "28": "SE", "29": "BA", "31": "MG", "32": "ES", "33": "RJ", "35": "SP", "41": "PR", "42": "SC", "43": "RS", "50": "MS",
+       "51": "MT", "52": "GO", "53": "DF"}
+TYPES = [("PP_white", "Brown mother, Brown partner: child White", "#009E73"), ("WW_brown", "White mother, White partner: child Brown", "#E69F00"),
+         ("KK_black", "Black mother, Black partner: child Black", "#0072B2"), ("PW_white", "Brown mother, White partner: child White", "#CC79A7")]
+fig = plt.figure(figsize=(6.9, 3.0))
+axA, axB = fig.add_axes([0.07, 0.17, 0.4, 0.7]), fig.add_axes([0.58, 0.17, 0.4, 0.7])
+for key, lab, col in TYPES:
+    b = CT["0-9"]["white_births"][key]["bins"]
+    axA.errorbar([v["x"] for v in b], [v["est"] for v in b], yerr=[1.96 * v["se"] for v in b], fmt="o-", ms=3, lw=1, color=col, capsize=1.5, label=lab)
+axA.set_xlim(0, 1)
+axA.set_ylim(0, 1)
+axA.set_xlabel("Share of White births in the municipality (SINASC 2012-2023)")
+axA.set_ylabel("Share of children (census 2010)")
+axA.set_title("A  By municipal composition, 2010", loc="left", fontsize=8)
+axA.legend(fontsize=5.6, frameon=False, loc="center left", bbox_to_anchor=(0.0, 0.36))
+S = CT["by_state"]
+for key, _lab, col in TYPES[:3]:
+    us = [u for u in S["2010"] if u != "BR" and key in S["2010"][u] and key in S["2022"].get(u, {})]
+    x_ = [S["2010"][u][key]["est"] for u in us]
+    y_ = [S["2022"][u][key]["est"] for u in us]
+    axB.scatter(x_, y_, s=10, color=col)
+    ext = {us[i] for i in (int(np.argmin(x_)), int(np.argmax(x_)), int(np.argmin(y_)), int(np.argmax(y_)))}
+    for u, a_, b_ in zip(us, x_, y_, strict=True):
+        if u in ext:
+            axB.annotate(UFS.get(u, u), (a_, b_), fontsize=4.8, xytext=(2, 1), textcoords="offset points", color="#444444")
+axB.plot([0, 1], [0, 1], ls="--", color="#777777", lw=0.7)
+axB.set_xscale("log")
+axB.set_yscale("log")
+axB.set_xlim(0.004, 1)
+axB.set_ylim(0.004, 1)
+axB.set_xlabel("Census 2010, by state")
+axB.set_ylabel("Census 2022, by state")
+axB.set_title("B  The same couple types by state, 2010 and 2022", loc="left", fontsize=8)
+axB.text(0.97, 0.04, "colours as in A; log scales", transform=axB.transAxes, ha="right", fontsize=6, color="#555555")
+save(fig, "family_place")
+
 print("family figures written")

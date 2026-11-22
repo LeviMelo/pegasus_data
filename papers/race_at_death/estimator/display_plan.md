@@ -11,3 +11,5 @@
 Supplement: Tables S1-S5 (simulation by scenario and size, scaling of the control, placebo, dispersion, findability).
 
 Five main items, four tables and three figures: this is a methods paper, whose model estimates are the validation tables. Figure 1 is the design. Checked against the figure guide, 2026-11-22. Figure 3 carries eleven scenarios in one palette (the two pooled ones are in Table 4 only), which is dense; its caption names them. Figure 2C clips a few admission z-scores beyond 6, as its caption says. Every abstract number is in a main table or figure.
+
+Review of 2026-11-22: Figure 2 is 2 x 2, with D the accuracy against chance candidates per unit. Former Tables 2-4 are Supplementary Tables S6-S8; S9 holds the validation by age. The main text has one table and three figures.

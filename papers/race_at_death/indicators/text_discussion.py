@@ -17,12 +17,18 @@ para(d, "The usual infant mortality rate by race in Brazil divides deaths classi
 para(d, "The Black category behaves differently. By the mother's race, Black mothers' infants died more often than Brown mothers'; on the certificate they "
         "were mostly classified Brown, and the ratio stayed below 1 even over births classified as households classify infants, because the certificate uses "
         "the Black category less than households do (a companion paper examines who records it). For Black infants the usual indicator and the consistent one "
-        "by the child disagree for a reason other than the mismatch of terms.")
-para(d, "Strengths and limitations. Infant deaths were linked one-to-one to their births, with linkage scaled by certified race, and every term of the 2 x 2 "
-        "comes from the same deaths and births. Limitations: the mother's race is a staff-entered declaration and the reference here, not a truth; the child's "
+        "by the child disagree for a reason other than the mismatch of terms. The Black class of mothers is itself unstable: a mother who declared "
+        "herself Black at one birth did so again at the next in about half the cases (companion paper). Corrected for the misclassification the repeat "
+        "declarations imply (the 3 x 3 matrix of repeat declarations, its off-diagonal cells from reversibility, one declaration taken as its square root), "
+        f"the Black to Brown ratio was {f2(MCL['ratio_corrected']['black'])} against {f2(MCL['ratio_observed']['black'])} observed and the White to Brown "
+        f"{f2(MCL['ratio_corrected']['white'])} against {f2(MCL['ratio_observed']['white'])}; Black and Brown together had "
+        f"{f2(MCL['black_brown_combined_over_white'])} times the White mothers' rate. The excess of Black mothers' infants is therefore not an artefact of an "
+        "unstable class; if anything the class's instability dilutes it.")
+para(d, "Strengths and limitations. Infant deaths were linked one-to-one to their births, the linked deaths post-stratified to all certificates, and every term of the 2 x 2 "
+        "comes from the same deaths and births; the usual computation reproduces a published figure. Limitations: the mother's race is a staff-entered declaration and the reference here, not a truth; the child's "
         "race in the denominator comes from households' classification in 2010, applied nationally and by region, without an interval of its own; the "
         "jackknife intervals do not include the error of the linkage; unlinked deaths were assumed to fall by the mother's race as linked deaths of the same "
-        "certified race; the analysis after infancy rests on an estimator whose shares found cannot be checked by race; and the regional models were fitted "
+        f"certified race, region, age at death and year; births with no race ({pct(R3_['births_no_race_all'])}) were left out of the denominators; the analysis after infancy rests on an estimator whose shares found cannot be checked by race; and the regional models were fitted "
         "separately for each classification, so the regional contrasts between them carry no joint uncertainty.")
 para(d, "Implications. A rate of infant mortality by race should classify the deaths and the births alike. Linking deaths to their birth records, which the "
         "Ministry of Health's own systems allow, gives both by the mother's race; reporting the child's race requires a denominator of children classified the "

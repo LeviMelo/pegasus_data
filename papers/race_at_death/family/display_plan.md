@@ -14,3 +14,5 @@ Two standardisations, kept apart: at the 2010 partners (Brown mothers' children 
 Supplement: Table S1 (the 0-4 matrix, three decimals), Table S2 (by instruction and region), Texts S1-S2.
 
 Checked against the figure guide, 2026-11-22, and redrawn on reviews 1-2. Every abstract number is in a main item.
+
+Review of 2026-11-22: Table 1 has two outcome columns with labelled, grouped rows. Figure 6 `family_place` added: A fixed couple types by municipal composition, 2010; B by state, 2010 against 2022.

@@ -227,3 +227,55 @@ black
 0.30 (95%CI 0.23; 0.37)
 Admissions of 2010-2024 ending at least 30 days before the death and not in death, one record per person; candidate estimator with the other sex as control; 95% confidence intervals from a bootstrap over municipalities.
 
+Supplementary Table S3 - Change of the share White from birth to the death certificate by cause, by place of death and place of certification, Brazil, 2015-2024
+Deaths
+Natural
+Transport
+Assaults
+Suicide
+Assaults minus natural (95%CI)
+Assaults minus transport (95%CI)
+All deaths found
+-4.9
+-15.9
+-16.4
+-15.0
+-11.5 (95%CI -14.3; -8.6)
+-0.6 (95%CI -3.6; +2.7)
+Died in the municipality of residence
+-3.7
+-14.9
+-16.6
+-15.9
+-12.9 (95%CI -16.9; -9.1)
+-1.8 (95%CI -5.8; +2.2)
+Died elsewhere
+-5.9
+-17.0
+-15.7
+-10.3
+-9.8 (95%CI -13.8; -5.3)
++1.3 (95%CI -3.2; +6.4)
+Standardised to the composition of the place of occurrence
+-3.9
+-15.7
+-17.9
+-14.5
+-14.0 (95%CI -17.1; -11.0)
+-2.3 (95%CI -5.1; +0.9)
+Died in hospital
+-4.3
+-15.0
+-10.1
+-14.4
+-5.8 (95%CI -11.2; -0.4)
++4.9 (95%CI -1.5; +11.7)
+Died out of hospital
+-7.4
+-16.4
+-17.7
+-15.1
+-10.3 (95%CI -15.5; -4.6)
+-1.4 (95%CI -4.9; +2.2)
+Percentage points. Deaths at 15-24 years found among their birth candidates, municipalities of residence with fewer than 1,600 births a year; place of occurrence and place of death from the death certificate (CODMUNOCOR, LOCOCOR: hospital or other health establishment against elsewhere). Standardised: each cause's change averaged over thirds of the share of White births in the municipality of occurrence with the weights of all deaths. Intervals: 500 bootstrap replicates over municipalities of residence.
+

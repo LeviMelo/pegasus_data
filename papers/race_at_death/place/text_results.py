@@ -1,10 +1,17 @@
 # The Results of the manuscript. Executed by build.py after text.py, whose names it uses.
 # ruff: noqa: F821
 d.add_heading("Results", level=1)
+S4 = []  # detailed results paragraphs, moved whole to Supplementary Text S4
 
 # ----------------------------------------------------------------- the records
 FL, LS = I["flow"], I["linked_share"]
 para(d, f"The one-to-one linkage found the birth record of {pct(I['linked'] / I['certificates'])} of infant deaths; the linked share was "
+        f"{pct(LS['by_certified']['Branca'])}, {pct(LS['by_certified']['Parda'])} and {pct(LS['by_certified']['Preta'])} for deaths certified White, Brown and Black, "
+        f"{pct(LS['by_certified']['Indigena'])} for Indigenous, and was lower after the first month ({pct(LS['by_age']['28-364 d'])}) and in the North "
+        f"({pct(LS['by_region']['North'])}) than in the South ({pct(LS['by_region']['South'])}) (Supplementary Table S2). In municipalities with fewer "
+        f"than 25,600 births per year, the candidate estimator reproduced the linkage's proportions; the deceased was among its candidates for "
+        f"{pct(C19['matrix']['found'])} of deaths at 1-9 years, against {pct(v_all['candidates']['found'])} of infant deaths (Figure 1, Supplementary Figure S1, Supplementary Tables S4 and S12; Supplementary Text S4).")
+S4.append(f"The one-to-one linkage found the birth record of {pct(I['linked'] / I['certificates'])} of infant deaths; the linked share was "
         f"{pct(LS['by_certified']['Branca'])}, {pct(LS['by_certified']['Parda'])} and {pct(LS['by_certified']['Preta'])} for deaths certified White, Brown and Black, "
         f"{pct(LS['by_certified']['Indigena'])} for Indigenous, and was lower after the first month ({pct(LS['by_age']['28-364 d'])}) and in the North "
         f"({pct(LS['by_region']['North'])}) than in the South ({pct(LS['by_region']['South'])}) (Supplementary Table S2). Of the {n0(I['certificates'])} infant certificates, "
@@ -41,6 +48,11 @@ figure(d, "flow_infants", "Figure 1 - Design: the two records of the same infant
 d.add_heading("Three classifications", level=2)
 para(d, f"Families did not classify children as their mothers (Figure 2, Supplementary Table S13). Before one year, the household reported as White {f2(fam(F0, 'Branca', 'Branca'))} of the children "
         f"of White mothers, as Brown {f2(fam(F0, 'Parda', 'Parda'))} of the children of Brown mothers and as Black {f2(fam(F0, 'Preta', 'Preta'))} of the children of Black "
+        f"mothers; {f2(fam(F0, 'Parda', 'Branca'))} of the children of Brown mothers were reported White. The certificate agreed with the family on the exchange between Brown and White, recording White for {cbci('Parda>Branca')} of the infants of Brown mothers, and "
+        f"departed from it elsewhere: it recorded Brown for {cbci('Parda>Parda')} of those of Brown mothers and "
+        f"Black for {cbci('Preta>Preta')} of those of Black mothers, of whom {cbci('Preta>Parda')} were certified Brown (Supplementary Text S4).")
+S4.append(f"Families did not classify children as their mothers (Figure 2, Supplementary Table S13). Before one year, the household reported as White {f2(fam(F0, 'Branca', 'Branca'))} of the children "
+        f"of White mothers, as Brown {f2(fam(F0, 'Parda', 'Parda'))} of the children of Brown mothers and as Black {f2(fam(F0, 'Preta', 'Preta'))} of the children of Black "
         f"mothers; {f2(fam(F0, 'Parda', 'Branca'))} of the children of Brown mothers were reported White and {f2(fam(F0, 'Preta', 'Parda'))} of the children of Black mothers "
         f"Brown. The certificate agreed with the family on the exchange between Brown and White, recording White for {cbci('Parda>Branca')} of the infants of Brown mothers, and "
         f"departed from it elsewhere: it recorded White for {cbci('Branca>Branca')} of the infants of White mothers, Brown for {cbci('Parda>Parda')} of those of Brown mothers and "
@@ -75,12 +87,20 @@ cross = next(b["white_share"] for b, f in zip(GI, GC0, strict=True) if b["matrix
 assert FV["PW"]["M0"] > 4 * FV["famPW"]["M0"], "the certificate no longer varies far more between municipalities than the family"
 assert MO["PW"]["rate"]["I"] > 0.5 and BY["PW"]["M0"]["phi"] > 0.9
 assert DI["diff_by_region"]["South"] > 0.1 > 0 > DI["diff_by_region"]["Northeast"], "the regional sign of certificate minus family changed"
-para(d, f"The linked infant deaths gave a median of {RES['PW']['median_trials']:.0f} deaths of Brown mothers' children per municipality ({pct(RES['PW']['share_ge20'])} of "
+S4.append(f"The linked infant deaths gave a median of {RES['PW']['median_trials']:.0f} deaths of Brown mothers' children per municipality ({pct(RES['PW']['share_ge20'])} of "
         f"municipalities had 20 or more) and of {RES['KK']['median_trials']:.0f} of Black mothers' children ({pct(RES['KK']['share_zero'])} of municipalities had none). The "
         f"municipal resolution is therefore supported for the children of Brown mothers, with credible intervals of median width {f2(RES['PW']['median_ci_width'])}; other "
         "cells, the Black category above all, rest on few deaths per municipality and are shown as smoothed fields (Supplementary Figures S2, S3; the spatial models' "
         "parameters in Supplementary Table S5).")
 para(d, f"The proportion of Brown mothers' infants certified White ranged, across the municipalities in which 90% of births occur, from {f2(DI['PW']['p5'])} to "
+        f"{f2(DI['PW']['p95'])} (Figure 3A); the proportion of Brown mothers' children aged 0-9 whom families reported White, from {f2(DI['famPW']['p5'])} to "
+        f"{f2(DI['famPW']['p95'])} (Figure 3B). On the logit scale the smoothed municipal values of the certificate varied {FV['PW']['M0'] / FV['famPW']['M0']:.1f} times as much "
+        f"as the family's. The variation was spatially structured (BYM2 mixing parameter {f2(BY['PW']['M0']['phi'])}, Moran's I "
+        f"{f2(MO['PW']['rate']['I'])}, {n0(MO['PW']['rate']['units'])} municipalities; Figure 3D). The certificate classed Brown mothers' infants White "
+        f"more often than families class Brown mothers' children where White births were the majority and less often where they were few (Figure 3C): "
+        f"weighted by births, it exceeded the family by {f2(DI['diff_by_region']['South'])} in the "
+        f"South and fell short of it by {f2(-DI['diff_by_region']['Northeast'])} in the Northeast. Municipal resolution, local clusters and the other cells are in Supplementary Text S4.")
+S4.append(f"The proportion of Brown mothers' infants certified White ranged, across the municipalities in which 90% of births occur, from {f2(DI['PW']['p5'])} to "
         f"{f2(DI['PW']['p95'])} (Figure 3A); the proportion of Brown mothers' children aged 0-9 whom families reported White ranged from {f2(DI['famPW']['p5'])} to "
         f"{f2(DI['famPW']['p95'])} (Figure 3B). On the logit scale the smoothed municipal values of the certificate varied {FV['PW']['M0'] / FV['famPW']['M0']:.1f} times as much "
         f"as the family's (variances {f2(FV['PW']['M0'])} and {f2(FV['famPW']['M0'])}; the family's values rest on more children per municipality and are less shrunk, so "
@@ -113,6 +133,11 @@ CP = SP["comp_place"]
 para(d, f"For Brown mothers' infants certified White, the municipality's composition alone explained {pct(mP['deviance_explained']['composition'], 0)} of the deviance "
         f"between municipalities, the state alone {pct(mP['deviance_explained']['state'], 0)}, and the socioeconomic, service and recording context alone "
         f"{pct(mP['deviance_explained']['context'], 0)}; composition and state together explained {pct(mP['deviance_explained']['composition_state'], 0)}, and the context "
+        f"added {pct(mP['deviance_explained']['composition_state_context'] - mP['deviance_explained']['composition_state'], 0)} (Figure 4B, Supplementary Table S14). Composition and state "
+        f"each added to the other, and Moran's I of the residuals fell from {f2(mP['none']['I'])} to {f2(mP['composition_state']['I'])} with both (Supplementary Text S4).")
+S4.append(f"For Brown mothers' infants certified White, the municipality's composition alone explained {pct(mP['deviance_explained']['composition'], 0)} of the deviance "
+        f"between municipalities, the state alone {pct(mP['deviance_explained']['state'], 0)}, and the socioeconomic, service and recording context alone "
+        f"{pct(mP['deviance_explained']['context'], 0)}; composition and state together explained {pct(mP['deviance_explained']['composition_state'], 0)}, and the context "
         f"added {pct(mP['deviance_explained']['composition_state_context'] - mP['deviance_explained']['composition_state'], 0)} (Figure 4B, Supplementary Table S14). Composition (3 degrees "
         "of freedom) and state (26) each explained about three quarters, and each added to the other "
         f"(F = {mP['F_composition_state_vs_state']['F']:.0f} for composition given state; F = {mP['F_composition_state_vs_composition']['F']:.1f} for state given "
@@ -126,6 +151,13 @@ para(d, f"For Brown mothers' infants certified White, the municipality's composi
         f"({pct(mK['deviance_explained']['composition'], 0)}) than the state ({pct(mK['deviance_explained']['state'], 0)}), and residual clustering remained "
         f"({f2(mK['composition_state_context']['I'])} with every term).")
 para(d, f"At state borders, the difference between two neighbouring municipalities in different states was {f2(bt['slope_state_effect'])} (95%CI "
+        f"{f2(bt['slope_state_effect'] - 1.96 * bt['slope_se'])}; {f2(bt['slope_state_effect'] + 1.96 * bt['slope_se'])}) times the difference between their states' effects "
+        f"estimated from municipalities touching no other state ({n0(bt['pairs'])} pairs; Figure 4C); for the "
+        f"certified race differing from the mother's it was {f2(bd_['slope_state_effect'])} (95%CI {f2(bd_['slope_state_effect'] - 1.96 * bd_['slope_se'])}; "
+        f"{f2(bd_['slope_state_effect'] + 1.96 * bd_['slope_se'])}). "
+        "The certified race changes in a step at state borders, as a state practice would make it, and the step is smaller than the difference between the states' interiors. "
+        "The split by place within the state and by municipal wealth is in Supplementary Text S4.")
+S4.append(f"At state borders, the difference between two neighbouring municipalities in different states was {f2(bt['slope_state_effect'])} (95%CI "
         f"{f2(bt['slope_state_effect'] - 1.96 * bt['slope_se'])}; {f2(bt['slope_state_effect'] + 1.96 * bt['slope_se'])}, errors clustered by the {bt['state_pairs']} pairs of "
         f"states) times the difference between their states' effects estimated from municipalities touching no other state ({n0(bt['pairs'])} pairs; Figure 4C); for the "
         f"certified race differing from the mother's it was {f2(bd_['slope_state_effect'])} (95%CI {f2(bd_['slope_state_effect'] - 1.96 * bd_['slope_se'])}; "
@@ -153,6 +185,12 @@ if ML:
     assert abs(bw["individual_no_region"]["pcv"]) < 0.05, "the deaths' own characteristics now explain municipal variance"
     para(d, f"In the multilevel models of the {n0(ML['brown_white']['n'])} linked infant deaths of Brown mothers' children, the variance between municipalities of the "
             f"log-odds of being certified White was {f2(bw['null']['var_mun'])} (median odds ratio {f2(bw['null']['mor'])}). Composition alone explained "
+            f"{pct(bw['composition']['pcv'], 0)} of it, the socioeconomic context and place alone {pct(bw['socioeconomic']['pcv'], 0)}, the services and recording alone "
+            f"{pct(bw['services']['pcv'], 0)}, and composition with both {pct(bw['composition_socioeconomic_services']['pcv'], 0)}. The variables of the death and the birth explained "
+            f"{pct(bw['individual_no_region']['pcv'], 0)} without the macro-region: the differences between municipalities are not who dies there or of what. With everything, "
+            f"{pct(bw['full']['pcv'], 0)} was explained and the median odds ratio fell to {f2(bw['full']['mor'])} (Figure 4D, Supplementary Tables S6 and S14; Supplementary Text S4).")
+    S4.append(f"In the multilevel models of the {n0(ML['brown_white']['n'])} linked infant deaths of Brown mothers' children, the variance between municipalities of the "
+            f"log-odds of being certified White was {f2(bw['null']['var_mun'])} (median odds ratio {f2(bw['null']['mor'])}). Composition alone explained "
             f"{pct(bw['composition']['pcv'], 0)} of it; the socioeconomic context and place alone {pct(bw['socioeconomic']['pcv'], 0)}; the services and recording alone "
             f"{pct(bw['services']['pcv'], 0)}; the two together {pct(bw['socioeconomic_services']['pcv'], 0)}; and composition with both {pct(bw['composition_socioeconomic_services']['pcv'], 0)}: most of what wealth and services explain "
             f"alone, they share with composition. The variables of the death and the birth with the macro-region and the year, without any municipal variable, explained "
@@ -177,7 +215,13 @@ if ML:
     assert FXW["certifierdeath verification service"]["est"] - 1.96 * FXW["certifierdeath verification service"]["se"] > 0
     assert FXK["certifierdeath verification service"]["est"] + 1.96 * FXK["certifierdeath verification service"]["se"] < 0
     assert FXK["certifiermedical examiner (IML)"]["est"] + 1.96 * FXK["certifiermedical examiner (IML)"]["se"] < 0
-    para(d, f"Residual clustering was better captured by the establishment where the death occurred than by the municipality. With a crossed random effect for the "
+    para(d, f"Residual clustering was better captured by the establishment where the death occurred than by the municipality: with a crossed random effect for the "
+            f"establishment ({n0(EST['brown_white']['establishments'])} levels), the variance of the log-odds of Brown mothers' infants being "
+            f"certified White was {f2(EST['brown_white']['var_estab'])} between establishments and {f2(EST['brown_white']['var_mun'])} between municipalities, and for Black "
+            f"mothers' infants certified Black {f2(EST['black_black']['var_estab'])} and {f2(EST['black_black']['var_mun'])}; the Akaike information criterion fell by "
+            f"{n0(EST['brown_white']['aic_without'] - EST['brown_white']['aic'])} and {n0(EST['black_black']['aic_without'] - EST['black_black']['aic'])}. Where a municipality "
+            "has one hospital the two levels cannot be told apart. The certifier and the individual terms of the full model are in Figure 4E and Supplementary Text S4.")
+    S4.append(f"Residual clustering was better captured by the establishment where the death occurred than by the municipality. With a crossed random effect for the "
             f"establishment ({n0(EST['brown_white']['establishments'])} levels; deaths outside any registered establishment share one level per municipality), the variance of the log-odds of Brown mothers' infants being "
             f"certified White was {f2(EST['brown_white']['var_estab'])} between establishments and {f2(EST['brown_white']['var_mun'])} between municipalities, and for Black "
             f"mothers' infants certified Black {f2(EST['black_black']['var_estab'])} and {f2(EST['black_black']['var_mun'])}; the Akaike information criterion fell by "
@@ -239,6 +283,12 @@ po = OCC["PW"]
 para(d, f"The certificate was not a copy of the birth record. Among infants who died in the establishment where they were born, on the day of birth or the "
         f"next, when the birth record and its mother's race lay at hand, the certificate agreed with the mother's race in {ci(AT)} of deaths, against {ci(EL)} "
         f"among infants who died elsewhere, and the dependence of Brown mothers' infants certified White on composition was steeper there (slope "
+        f"{f2(GA['coef'])} per logit unit, against {f2(GE['coef'])} elsewhere). The other cells moved toward the local majority only partly: Brown mothers' infants were "
+        f"certified White as often as not where {pct(CEL['PW_half_white_share']['est'], 0)} (95%CI {pct(CEL['PW_half_white_share']['lo'], 0)}; "
+        f"{pct(CEL['PW_half_white_share']['hi'], 0)}) of births were White, not where half were (Supplementary Text S4).")
+S4.append(f"The certificate was not a copy of the birth record. Among infants who died in the establishment where they were born, on the day of birth or the "
+        f"next, when the birth record and its mother's race lay at hand, the certificate agreed with the mother's race in {ci(AT)} of deaths, against {ci(EL)} "
+        f"among infants who died elsewhere, and the dependence of Brown mothers' infants certified White on composition was steeper there (slope "
         f"{f2(GA['coef'])} per logit unit, against {f2(GE['coef'])} elsewhere). The cells the Brown-to-White exchange does not involve moved with the local "
         f"majority as well: White mothers' infants were certified Brown more often where fewer births were White (slope {f2(CEL['WP']['coef'])}, against "
         f"{f2(CEL['PW']['coef'])} for Brown mothers' infants certified White), Black mothers' infants were certified Brown more often where more births were Brown "
@@ -253,37 +303,11 @@ para(d, f"The certificate was not a copy of the birth record. Among infants who 
 INVK = {"not investigated": "not investigated", "2": "investigated with a home visit or family interview", "3": "investigated from the health establishment's chart",
         "8": "investigated from several sources", "1": "investigated by the committee"}
 inv_rows = [(INVK[k], INV[k]) for k in INVK if k in INV]
-para(d, "Whether the death was investigated, and how, changed the certificate little; a home visit or interview with the family raised agreement most, among "
-        "deaths selected for investigation. The certificate agreed with the mother's race in "
-        + "; ".join(f"{ci(v['agreement'])} of deaths {lab}" for lab, v in inv_rows) + ". "
-        f"Among {n0(PHY['PW']['deaths'])} deaths of Brown mothers' infants of 2014-2018 with the certifying physician recorded ({n0(PHY['PW']['physicians'])} "
-        f"physicians, {n0(PHY['PW']['physicians_with_5'])} with five or more such deaths), the variance of the log-odds of being certified White was "
-        f"{f2(PHY['PW']['all']['physician'])} between physicians, {f2(PHY['PW']['all']['death_estab'])} between establishments and {f2(PHY['PW']['all']['mun6'])} between "
-        f"municipalities, with composition in the model (Laplace approximation); for Black mothers' infants certified Black, {f2(PHY['KK']['all']['physician'])}, "
-        f"{f2(PHY['KK']['all']['death_estab'])} and {f2(PHY['KK']['all']['mun6'])}. With {PHY['PW']['deaths'] / PHY['PW']['physicians']:.1f} deaths per physician on "
-        "average, the physicians' share is weakly identified, and the order of these levels is not secure.")
-
-RD = [["The certificate copies the birth record (transmission)", "agreement near 1 where the birth record is at hand; no gradient there",
-       f"agreement {f2(AT['est'])} at hand against {f2(EL['est'])} elsewhere; gradient {f2(GA['coef'])} against {f2(GE['coef'])}", "excluded as the main mechanism"],
-      ["The certificate records the family's answer", "certificate equal to the family's classification everywhere; family interviews change it",
-       "equal nationally for Brown to White, opposite departures by region; interviewed deaths agreed slightly more often", "weakened"],
-      ["A local norm of the certifier", "every cell follows the local majority, even odds where half the births are White",
-       f"White mothers' infants Brown slope {f2(CEL['WP']['coef'])}; Black mothers' infants Brown on Brown share {f2(CEL['KP_on_brown_share']['coef'])}; "
-       f"even odds at {pct(CEL['PW_half_white_share']['est'], 0)} White", "supported in part: partial, not a majority rule"],
-      ["A state practice", "a step at state borders", f"border slope {f2(BD_['PW']['slope_state_effect'])}", "supported in part"],
-      ["The Brown category differs between regions", "the gradient follows the residence, not the certifier's place",
-       f"residence {f2(po['lws']['coef'])} against occurrence {f2(po['lws_occ']['coef'])}, untested difference", "not settled"],
-      ["The individual certifier", "large variance between physicians", f"physicians {f2(PHY['PW']['all']['physician'])}, establishments "
-       f"{f2(PHY['PW']['all']['death_estab'])}, municipalities {f2(PHY['PW']['all']['mun6'])}", "present; weakly identified"],
-      ["A norm that follows the population as it changes", "within-place slope equal to the between slope",
-       f"yearly: about a tenth of between; census decade: {f2(PNL['census']['coef']['cw_w']['est'])} against {f2(PNL['census']['coef']['cw_b']['est'])}; "
-       "long panel: does not discriminate", "weakened; a slow adjustment not excluded"],
-      ["Wealth or services", "context explains as composition does", "less alone, little beside composition; within places, wealth and physicians nothing, "
-       "verification-service share and blanks moved it", "weakened"],
-      ["The deaths' case mix", "individual variables explain municipal variance", "none without the macro-region", "excluded"]]
-table(d, "Table 1 - Readings of the certified race, what each predicts, and what the data showed, linked infant deaths, Brazil, 2013-2023", ["Reading", "Prediction",
-      "Result", "Status"], RD, ["Results of the tests in this section and the preceding ones; slopes in log-odds per logit unit of the share of White (or Brown) births."])
-
+para(d, "Whether the death was investigated, and how, changed the certificate little: agreement with the mother's race was "
+        + "; ".join(f"{ci(v['agreement'])} {lab}" for lab, v in inv_rows[:2]) + "; the other kinds of investigation were alike. "
+        f"Among {n0(PHY['PW']['deaths'])} deaths of 2014-2018 with the certifying physician recorded, the log-odds variance of Brown mothers' infants certified White "
+        f"was {f2(PHY['PW']['all']['physician'])} between physicians, {f2(PHY['PW']['all']['death_estab'])} between establishments and {f2(PHY['PW']['all']['mun6'])} "
+        f"between municipalities; with {PHY['PW']['deaths'] / PHY['PW']['physicians']:.1f} deaths per physician that order is not secure.")
 # ----------------------------------------------------------------- time
 d.add_heading("Time and place", level=2)
 pk, pa_, pw, pp = PN["KK"], PN["agree"], PN["PW"], PN["PP"]
@@ -301,6 +325,11 @@ slopes = {"North": pw["by_macro"]["yc"]["Estimate"]} | {rn: pw["by_macro"]["yc"]
 lo_r, hi_r = min(slopes, key=slopes.get), max(slopes, key=slopes.get)
 ag_sl = pa_["fixed"]["yc"]
 para(d, f"From 2013 to 2023 the certificate moved toward the mother's race for Brown mothers' infants: the White category for them fell by "
+        f"{f2(-pw_sl['Estimate'])} (95%CI {f2(-pw_sl['Estimate'] - 1.96 * pw_sl['Std. Error'])}; {f2(-pw_sl['Estimate'] + 1.96 * pw_sl['Std. Error'])}) in log-odds "
+        f"per decade within intermediate regions (the crude national proportion went from {f2(cell(I['by_year']['2013'], 'Parda', 'Branca')['est'])} "
+        f"to {f2(cell(I['by_year']['2023'], 'Parda', 'Branca')['est'])}), and the Brown category rose by {f2(pp['fixed']['yc']['Estimate'])} (Figure 5A, Supplementary Table S7). "
+        f"The change was uneven, by macro-region from {f2(slopes[lo_r])} per decade in the {lo_r} to {f2(slopes[hi_r])} in the {hi_r} (Figure 5B; Supplementary Text S4).")
+S4.append(f"From 2013 to 2023 the certificate moved toward the mother's race for Brown mothers' infants: the White category for them fell by "
         f"{f2(-pw_sl['Estimate'])} (95%CI {f2(-pw_sl['Estimate'] - 1.96 * pw_sl['Std. Error'])}; {f2(-pw_sl['Estimate'] + 1.96 * pw_sl['Std. Error'])}) in log-odds "
         f"per decade within intermediate regions (a conditional slope; the crude national proportion went from {f2(cell(I['by_year']['2013'], 'Parda', 'Branca')['est'])} "
         f"to {f2(cell(I['by_year']['2023'], 'Parda', 'Branca')['est'])}), and "
@@ -322,32 +351,11 @@ def bw(v, lv="municipality", key="PW", part="w", model="all"):
 
 WM, WI, CEN2 = WB["municipality"], WB["immediate"], PNL["census"]
 L2 = PL["2012-2023 (mother declared)"]
-para(d, f"Within places, composition moved the certificate far less than it separated places. Over {n0(WM['n_unit_years'])} municipality-years of "
-        f"{n0(WM['n_units'])} municipalities ({n0(WM['deaths'])} deaths of Brown mothers' infants, 2013-2023), with region-by-year effects, the log-odds of being "
-        f"certified White rose by {bw('lw', part='b')} per unit of the logit of the share of White births between municipalities, and by {bw('lw')} when a "
-        f"municipality's own share rose by the same amount from one year to another (Figure 5C, Supplementary Table S8). The within variation was small (standard "
-        f"deviation {f2(WM['spread']['lw']['sd_within'])} against {f2(WM['spread']['lw']['sd_between'])} between municipalities) and "
-        f"{pct(1 - WM['lw_reliability'], 0)} of it was sampling noise of the yearly share, which attenuates the coefficient (the share not noise is one minus the "
-        f"mean sampling variance of the yearly logit share over its within variance); over {WI['n_units']} immediate regions, where "
-        f"{pct(WI['lw_reliability'], 0)} of the within variation was real change, the two coefficients were {bw('lw', 'immediate', part='b')} and "
-        f"{bw('lw', 'immediate')}, the second about {WI['all']['lw_w']['est'] / WI['lw_reliability'] / WI['all']['lw_b']['est'] * 100:.0f}% of the first once corrected "
-        f"for noise. A municipality's GDP per capita ({bw('lgdp')}) and physicians ({bw('lphys')}) did not move the certificate within it; the share of natural "
-        f"deaths certified by a verification service did ({bw('svo')}; {bw('svo', 'immediate')} within immediate regions), and so did the share of deaths with "
-        f"the race left blank ({bw('blank')}); the share of external deaths certified by a medical examiner moved it within immediate regions "
-        f"({bw('iml', 'immediate')}). Over a longer span, the "
-        f"census composition interpolated between 2010 and 2022 varied within municipalities by a standard deviation of {f2(L2['sd_within_lc'])} on the logit scale, "
-        f"against {f2(L2['sd_between_lc'])} between them. On that small variation, the certificate's excess of White over the births' share moved by "
-        f"{f2(L2['within']['lc']['est'])} (standard error {f2(L2['within']['lc']['se'])}) per unit within municipalities ({n0(L2['unit_years'])} municipality-years, "
-        f"state-by-year effects; 95%CI {f2(L2['within']['lc']['est'] - 1.96 * L2['within']['lc']['se'])}; {f2(L2['within']['lc']['est'] + 1.96 * L2['within']['lc']['se'])}; "
-        f"between them {f2(L2['between']['lc']['est'])}). On this outcome a certificate fixed in each place predicts -1 and one that follows the census predicts 0: the "
-        "interval excludes full following and includes a fixed certificate. With the next year's composition added as a placebo lead, the within estimate was "
-        f"{f2(L2['within_with_lead']['lc']['est'])} (standard error {f2(L2['within_with_lead']['lc']['se'])}) and the lead {f2(L2['within_with_lead']['lc_lead']['est'])} "
-        f"({f2(L2['within_with_lead']['lc_lead']['se'])}), uninformative; over 2000-2010, with the newborn's colour, the within estimate was "
-        f"{f2(PL['2000-2010 (newborn observed)']['within']['lc']['est'])} (standard error {f2(PL['2000-2010 (newborn observed)']['within']['lc']['se'])}). The decade's census change gave {f2(CEN2['coef']['cw_w']['est'])} (95%CI {f2(CEN2['coef']['cw_w']['est'] - 1.96 * CEN2['coef']['cw_w']['se'])}; "
-        f"{f2(CEN2['coef']['cw_w']['est'] + 1.96 * CEN2['coef']['cw_w']['se'])}) against {f2(CEN2['coef']['cw_b']['est'])} between municipalities (Figure 5D). The "
-        "yearly panel and the census decade agree that within places the certificate moved with composition much less than between places; the long panel's "
-        "interval includes both a fixed certificate and the gradient between places, so it does not discriminate. Within-place variation was small in all three, "
-        "and none excludes a slow adjustment.")
+para(d, f"Within places, composition moved the certificate far less than it separated places: in the municipality-year panel the within coefficient "
+        f"was about {WI['all']['lw_w']['est'] / WI['lw_reliability'] / WI['all']['lw_b']['est'] * 100:.0f}% of the between coefficient once corrected for the noise "
+        f"of the yearly share (immediate regions), over the census decade {f2(CEN2['coef']['cw_w']['est'])} against {f2(CEN2['coef']['cw_b']['est'])}, and the long "
+        "panel did not discriminate (Figure 5C-D). Within places, GDP per capita and physicians did not move the certificate; the share of natural deaths "
+        f"certified by a verification service ({bw('svo')}) and of deaths with the race left blank ({bw('blank')}) did. Details are in Supplementary Text S3.")
 figure(d, "place_time", "Figure 5 - Over time and within places: certified race of infants by year of death (A), the change of Brown mothers' infants certified White by "
                        "intermediate region (B), and the certificate against composition between places and within the same place over the years, in the yearly "
                        "panel (C) and against the census (D), Brazil, 2013-2023",
@@ -358,13 +366,61 @@ figure(d, "place_time", "Figure 5 - Over time and within places: certified race 
         "of White over the births' share against the census composition interpolated yearly, 2012-2023, with state-by-year effects. Bars: 95% confidence intervals."])
 
 
+
+# ----------------------------------------------------------------- the family and the birth record (review 2026-11-22: tests C and B)
+d.add_heading("The family and the birth record against place", level=2)
+DEC = CT_["0-9"]["decomposition_brown_mother"]
+para(d, f"Families carried little of the gradient. The children aged 0-9 of a Brown mother and a Brown father were reported White in "
+        f"{ci(PPW['bins'][0])} of households in municipalities with under 10% of White births and in {ci(PPW['bins'][-1])} where 90% or more were White, most of "
+        f"the rise below 30% (Figure 6A); the logit slope was {f2(PPW['raw']['slope'])} (standard error {f2(PPW['raw']['se'])}; {f2(PPW['adjusted']['slope'])} with age, "
+        f"sex and schooling held), against {f2(CT_['certificate']['slope_bins'])} for the certificate on the same axis. For all Brown mothers the family's share White "
+        f"rose from {f2(DEC[0]['observed'])} to {f2(DEC[-1]['observed'])}: with the partner mix held at the national one it rose to {f2(DEC[-1]['mix_held'])}, with the "
+        f"rate within couple type held to {f2(DEC[-1]['rate_held'])}, about half each; in whiter places Brown mothers more often had White partners "
+        f"({f2(DEC[0]['partner_white'])} to {f2(DEC[-1]['partner_white'])}). The birth record leaned toward the local majority. Against the mothers of children aged 0-2 "
+        f"in the 2010 Census sample, the share of White mothers on the birth records of 2012-2013 followed the census with a logit slope of "
+        f"{f2(MW['slope_none']['slope'])} nationally, {f2(MW['slope_region']['slope'])} within region and {f2(MW['slope_uf']['slope'])} within state, where 1 means "
+        f"agreement up to a constant (Figure 6B); against the women aged 15-49 of the 2022 Census, the birth records of 2021-2023 gave "
+        f"{f2(BVC['W']['15-49']['slope_none']['slope'])}, {f2(BVC['W']['15-49']['slope_region']['slope'])} and {f2(BVC['W']['15-49']['slope_uf']['slope'])}. In the "
+        f"least White tenth of municipalities {f2(MW['bins'][0]['birth'])} of mothers were White on the birth record against {f2(MW['bins'][0]['census'])} in the "
+        "census. Sampling error in the census would flatten the slope, not steepen it.")
+figure(d, "place_category", "Figure 6 - Where the gradient lies: the certificate and the family by the municipality's composition (A), and the birth record "
+                            "against the census (B), Brazil",
+       ["A: share of children recorded White by tenth of the municipality's share of White births (SINASC 2012-2023): Brown mothers' infants on the death "
+        "certificate (linked deaths 2013-2023) and children aged 0-9 of Brown mothers reported by their household (2010 Census sample), all and with a Brown "
+        "partner; bars, 95% confidence intervals clustered by municipality. B: share of mothers White on the birth record against the census share, by tenth of "
+        "municipalities: mothers of children aged 0-2 in the 2010 Census sample against birth records of 2012-2013, and women aged 15-49 in the 2022 Census "
+        "(IBGE table 9606) against birth records of 2021-2023; dashed, equality."])
+
+RD = [["The certificate copies the birth record (transmission)", "agreement near 1 where the birth record is at hand; no gradient there",
+       f"agreement {f2(AT['est'])} at hand against {f2(EL['est'])} elsewhere; gradient {f2(GA['coef'])} against {f2(GE['coef'])}", "excluded as the main mechanism"],
+      ["The certificate records the family's answer", "certificate equal to the family's classification everywhere; family interviews change it",
+       "equal nationally for Brown to White, opposite departures by region; interviewed deaths agreed slightly more often", "weakened"],
+      ["A local norm of the certifier", "every cell follows the local majority, even odds where half the births are White",
+       f"White mothers' infants Brown slope {f2(CEL['WP']['coef'])}; Black mothers' infants Brown on Brown share {f2(CEL['KP_on_brown_share']['coef'])}; "
+       f"even odds at {pct(CEL['PW_half_white_share']['est'], 0)} White", "supported in part: partial, not a majority rule"],
+      ["A state practice", "a step at state borders", f"border slope {f2(BD_['PW']['slope_state_effect'])}", "supported in part"],
+      ["The Brown category differs between regions", "families in whiter places report a Brown couple's child White more often",
+       f"{f2(PPW['bins'][0]['est'])} to {f2(PPW['bins'][-1]['est'])} across composition; logit slope {f2(PPW['slope_bins'])} against the certificate's "
+       f"{f2(CT_['certificate']['slope_bins'])}", "weakened: a small part at most"],
+      ["The birth record leans toward the local majority", "the birth record's share White departs from the census along composition",
+       f"mothers against mothers: slope {f2(MW['slope_none']['slope'])} nationally, {f2(MW['slope_region']['slope'])} within region", "present: the reference bends the same way"],
+      ["The individual certifier", "large variance between physicians", f"physicians {f2(PHY['PW']['all']['physician'])}, establishments "
+       f"{f2(PHY['PW']['all']['death_estab'])}, municipalities {f2(PHY['PW']['all']['mun6'])}", "present; weakly identified"],
+      ["A norm that follows the population as it changes", "within-place slope equal to the between slope",
+       f"yearly: about a tenth of between; census decade: {f2(PNL['census']['coef']['cw_w']['est'])} against {f2(PNL['census']['coef']['cw_b']['est'])}; "
+       "long panel: does not discriminate", "weakened; a slow adjustment not excluded"],
+      ["Wealth or services", "context explains as composition does", "less alone, little beside composition; within places, wealth and physicians nothing, "
+       "verification-service share and blanks moved it", "weakened"],
+      ["The deaths' case mix", "individual variables explain municipal variance", "none without the macro-region", "excluded"]]
+table(d, "Table 1 - Readings of the certified race, what each predicts, and what the data showed, linked infant deaths, Brazil, 2013-2023", ["Reading", "Prediction",
+      "Result", "Status"], RD, ["Results of the tests in this section and the preceding ones; slopes in log-odds per logit unit of the share of White (or Brown) births."])
+
+
 # ----------------------------------------------------------------- after infancy, and the family
 d.add_heading("After infancy", level=2)
 CC_ = SP["candidates_context"]
 cg = CC_["children_comp_gdp"]
 assert cg[">=60%|middle"]["rows"]["Parda"]["Branca"]["est"] > cg["<30%|middle"]["rows"]["Parda"]["Branca"]["est"] + 0.2, "composition no longer orders the 1-9 estimates"
-para(d, "The dependence on composition held after infancy, with the candidate estimator. At 1-9 years and middle GDP per capita, Brown mothers' children were certified "
-        f"White in {cc(cg['<30%|middle']['rows']['Parda']['Branca'])} of deaths in municipalities with under 30% of White births and in "
-        f"{cc(cg['>=60%|middle']['rows']['Parda']['Branca'])} where 60% or more were White, with smaller differences by GDP within each class (Supplementary Table S9); "
-        "the gradient by tenth of composition is in Supplementary Figure S5 and Supplementary Table S10, and a model that mixes the family's classification with the local "
-        "distribution in Supplementary Figure S6 and Supplementary Table S11.")
+para(d, "After infancy, with an estimator that needs no linkage, Brown mothers' children aged 1-9 were certified White in "
+        f"{cc(cg['<30%|middle']['rows']['Parda']['Branca'])} of deaths in municipalities with under 30% of White births and middle GDP per capita and in "
+        f"{cc(cg['>=60%|middle']['rows']['Parda']['Branca'])} where 60% or more were White (Supplementary Text S1, Tables S9-S11, Figures S5-S6).")

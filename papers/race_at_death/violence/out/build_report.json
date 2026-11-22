@@ -1,7 +1,7 @@
 {
- "words_introduction_to_conclusion": 2568,
- "words_all_paragraphs": 3351,
- "references": 8,
+ "words_introduction_to_conclusion": 3086,
+ "words_all_paragraphs": 4126,
+ "references": 13,
  "reference_keys": [
   "soaresfilho2011",
   "cerqueira2014",
@@ -10,10 +10,15 @@
   "penner2008",
   "noymer2011",
   "benchimol2015",
-  "datasus"
+  "datasus",
+  "santos2013",
+  "rodrigues2012",
+  "melo2013",
+  "romero2019",
+  "aiquoc2022"
  ],
  "tables": 2,
- "figures": 4,
- "supplementary_tables": 2,
+ "figures": 5,
+ "supplementary_tables": 3,
  "supplementary_figures": 0
 }

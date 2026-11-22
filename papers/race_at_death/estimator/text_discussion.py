@@ -32,8 +32,11 @@ para(d, "Comparison with linkage methods and ecological inference. Regression on
         f"{cite('goodman1953', 'wakefield2004')}, whose Goodman form, on the same cells, had {pp(cmpi['comparators']['goodman']['mean_abs_diff'] / cmpi['against_linked']['mean_abs_diff'], 1)} "
         "times the estimator's mean difference for infants below 25,600 births a year. Its price relative to linkage is that it gives tables, not linked records: no "
         "individual covariate of one register can be related to the other's beyond the classes counted, though any class of either register can be added to the counting "
-        "(the certifier, the mother's schooling). The maximum-likelihood method for contingency tables from incorrectly linked data of Chipperfield, Bycroft and Chambers "
-        "(2011, Survey Methodology) is the closest published method and was not compared: Crossref does not index that journal, so the reference could not be verified.")
+        "(the certifier, the mother's schooling). The closest published method fits a contingency table by maximum likelihood from incorrectly linked data "
+        f"{cite('chipperfield2011')}: it starts from record pairs already formed by a linkage and a model of each pair's probability of being a true match, "
+        f"estimated from a clerical sample, and corrects the table by EM {cite('chipperfield2015', 'chambers2020')}. Where the key is shared by several births "
+        "no pair is formed and no match probability is modelled, so it cannot be run on the same units; the estimator replaces the match model by the other "
+        "sex's records of the same day as the measure of chance agreement.")
 para(d, "Variance. The earlier practice took each cell's counts as Poisson and ignored the row's sum in the denominator of a proportion; its intervals were too wide "
         f"for common cells and too narrow for rare ones. With the denominator, the shared keys and the control's scale, the model interval was conservative or close to "
         f"nominal in the simulation up to 6,400 births a year ({pct(cm_lo, 0)}-{pct(cm_hi, 0)} against a Monte Carlo band of +/-{pp(cov_mcse * 100, 1)} points) and "

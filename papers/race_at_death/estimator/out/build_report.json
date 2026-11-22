@@ -1,7 +1,7 @@
 {
- "words_introduction_to_conclusion": 6135,
- "words_all_paragraphs": 7459,
- "references": 21,
+ "words_introduction_to_conclusion": 6221,
+ "words_all_paragraphs": 7329,
+ "references": 23,
  "reference_keys": [
   "newcombe1959",
   "fellegi1969",
@@ -23,10 +23,12 @@
   "benchimol2015",
   "morris2019",
   "datasus",
-  "lash2014"
+  "lash2014",
+  "chipperfield2011",
+  "chambers2020"
  ],
- "tables": 4,
+ "tables": 1,
  "figures": 3,
- "supplementary_tables": 5,
+ "supplementary_tables": 9,
  "supplementary_figures": 0
 }

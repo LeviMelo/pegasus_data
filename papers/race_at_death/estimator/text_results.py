@@ -1,3 +1,4 @@
+LATE_TABLES = []
 # The Results of the estimator paper. Executed by build.py after text.py.
 # ruff: noqa: F821
 d.add_heading("Results", level=1)
@@ -44,10 +45,10 @@ table(d, f"Table 1 - The estimator against the one-to-one linkage of infant deat
       ["Cells (three columns of proportions): estimator on the linked units / the linked pairs' table. Differences over the twenty cells of the table (race on the birth "
        "record: White, Black, Brown, Indigenous; on the certificate: the same and other or none); rows with fewer than 30 linked pairs left out. Municipalities: "
        "with deaths in the class; each is in one class. Size classes by the municipality's mean births 2012-2023. The limit of 25,600 was chosen on these data."])
-figure(d, "estimator_validation", "Figure 2 - The estimator against the known answer on exactly the linked units, by municipality size, and the calibration of its interval",
+figure(d, "estimator_validation", "Figure 2 - The estimator against the known answer on exactly the linked units, by municipality size, the calibration of its interval, and its accuracy against chance agreement",
        ["A: infant deaths, Brazil 2013-2023, against the one-to-one linkage to the birth record. B: admissions to the Unified Health System that ended in death, "
         "2016-2022, against the death certificates linked by the day of death and the hospital. Bars: 95% intervals from the exact model standard error; cells with a "
-        "standard error of 0.15 or more not drawn. C: the same differences divided by that standard error (dashed: +/-1.96); admission cells beyond +/-6 are drawn at the edge. B and C measure the admissions against the whole linked table, so they include the selection of who shares the key (about 0.005 on average); against the estimator's target, the linked people whose certificate shares the key, see Table 2."])
+        "standard error of 0.15 or more not drawn. C: the same differences divided by that standard error (dashed: +/-1.96); admission cells beyond +/-6 are drawn at the edge. B and C measure the admissions against the whole linked table, so they include the selection of who shares the key (about 0.005 on average); against the estimator's target, the linked people whose certificate shares the key, see Table 2. D: mean absolute difference from the target over the twenty cells against the expected chance candidates per unit (the scaled control), infants by size class, admissions by size class and by age at death."])
 
 # ---- who shares the key
 a1i, a1p = A1["infants"]["by_declared"], A1["pair"]["by_declared"]
@@ -98,7 +99,7 @@ for s in LP:
                  f"{al['outside_model']} / {al['outside_exact']} / {al['outside_chance']}"])
 ch_large = LP[">=6,400"]["variants"]["all"]["chance_per_unit"]
 para(d, f"Admissions that ended in death. Chance candidates were fewer than in births: {pp(LP['<100']['variants']['all']['chance_per_unit'], 2)} a unit where a "
-        f"municipality recorded fewer than 100 certificates a year and {pp(ch_large, 2)} at 6,400 or more (Table 2). On the linked units the estimator "
+        f"municipality recorded fewer than 100 certificates a year and {pp(ch_large, 2)} at 6,400 or more (Supplementary Table S6). On the linked units the estimator "
         f"differed from their table by {pp(pair_l['mean_abs_diff'], 4)} on average and {pp(pair_l['max_abs_diff'])} at most over the twenty cells (Figure 2B). Where chance "
         f"candidates were few the control changed little; at 6,400 certificates a year or more the candidates without it differed by "
         f"{pp(LP['>=6,400']['variants']['linked']['against_linked']['nocontrol_mean_abs_diff'])} on average, with it by "
@@ -111,14 +112,13 @@ para(d, f"Admissions that ended in death. Chance candidates were fewer than in b
         f"{pair_l['outside_model']} cells lay outside the model interval (z-score standard deviation {pp(pair_l['z_sd_model'], 2)}): that departure, about "
         f"{pp(pair_l['mean_abs_diff'] - pair_t['mean_abs_diff'])} on average, is the difference between the people who share the key and the rest, the "
         "selection the estimator cannot see (A1), not an error of its interval.")
-table(d, f"Table 2 - The estimator against the linkage of admissions that ended in death to their death certificates, run on the linked units, by the municipality's mean "
+LATE_TABLES.append(lambda rows=rows: table(s, f"Supplementary Table S6 - The estimator against the linkage of admissions that ended in death to their death certificates, run on the linked units, by the municipality's mean "
          f"certificates a year, Brazil, {PAIR['years'][0]}-{PAIR['years'][-1]}",
       ["Certificates a year", "Municipalities", "Chance candidates a unit", "Units", "Linked", "Found: linked / unlinked", "Certified White, White in hospital",
        "Certified Black, Black in hospital", "Mean |difference|, linked units", "Mean |difference|, no control", "Mean |difference|, all units",
        "Largest |difference|", "Cells of 20 outside 95%CI: model / exact / chance"], rows,
       ["Proportions of the race on the certificate recorded so by the hospital; cells: the estimator on the linked units / the linked units' table. Control scaled within "
-       "the municipality and birth year. Units: admissions with a valid birth date, sex and residence."])
-
+       "the municipality and birth year. Units: admissions with a valid birth date, sex and residence."]))
 # ---- comparators
 rows = []
 for name, B, gs in (("infants", LI, [*SMALL, "<25,600", ">=25,600"]), ("admissions", LP, list(LP))):
@@ -131,25 +131,33 @@ cmpi, cmpp = LI["<25,600"]["variants"]["all"], LP["all"]["variants"]["all"]
 para(d, f"Comparison with simpler estimators. On all infant units below 25,600 births a year the mean absolute difference from the linked table was "
         f"{pp(cmpi['against_linked']['mean_abs_diff'])} for the estimator, {pp(cmpi['comparators']['unique']['mean_abs_diff'])} for the unique-key link, "
         f"{pp(cmpi['comparators']['uniform']['mean_abs_diff'])} for uniform attribution, {pp(cmpi['comparators']['goodman']['mean_abs_diff'])} for the Goodman regression and "
-        f"{pp(cmpi['against_linked']['nocontrol_mean_abs_diff'])} for the candidates without the control (Table 3); for admissions "
+        f"{pp(cmpi['against_linked']['nocontrol_mean_abs_diff'])} for the candidates without the control (Supplementary Table S7); for admissions "
         f"{pp(cmpp['against_linked']['mean_abs_diff'])}, {pp(cmpp['comparators']['unique']['mean_abs_diff'])}, {pp(cmpp['comparators']['uniform']['mean_abs_diff'])}, "
         f"{pp(cmpp['comparators']['goodman']['mean_abs_diff'])} and {pp(cmpp['against_linked']['nocontrol_mean_abs_diff'])}. The unique-key link uses "
         f"{pct(cmpi['comparators']['unique']['units_used'] / cmpi['units'], 0)} of the infant units below 25,600 births a year, and the estimator's advantage is "
-        "the larger the more chance candidates a unit has (Table 3).")
+        "the larger the more chance candidates a unit has (Supplementary Table S7).")
 _ci = {k: LI[k]["variants"]["all"] for k in ("<400",)}
 _ca = {k: LP[k]["variants"]["all"] for k in ("<100", "100-399", "400-1,599", "1,600-6,399")}
 assert _ci["<400"]["comparators"]["unique"]["mean_abs_diff"] < _ci["<400"]["against_linked"]["mean_abs_diff"], "the unique-key link no longer wins in the smallest class"
 assert all(v["against_linked"]["nocontrol_mean_abs_diff"] < v["against_linked"]["mean_abs_diff"] for v in _ca.values()), "the control now helps in small admissions classes"
-para(d, "The estimator was not better everywhere (Table 3). Among infants in municipalities under 400 births a year, where a key is almost always unique, the "
+para(d, "The estimator was not better everywhere (Supplementary Table S7). Among infants in municipalities under 400 births a year, where a key is almost always unique, the "
         f"unique-key link was closer ({pp(_ci['<400']['comparators']['unique']['mean_abs_diff'], 4)} against {pp(_ci['<400']['against_linked']['mean_abs_diff'], 4)}). "
         "In admissions below 6,400 certificates a year, where chance candidates are few, the candidates without the control and the simpler estimators were as "
         "close or closer; the control paid off where chance candidates were many, among infants from 400 births a year and in admissions from 6,400 "
         "certificates.")
-table(d, "Table 3 - Mean absolute difference from the linked table over the twenty cells: the estimator and four simpler ones, all units, by size class",
+BA_ = E["like_pair_by_age"]
+para(d, "By age at death, the admissions' estimate on the linked units matched its target in every band (Supplementary Table S9): "
+        + "; ".join(f"{b} {pp(v['groups']['all']['linked']['against_findable']['mean_abs_diff'], 4)} ({v['groups']['all']['linked']['against_findable']['outside_model']} "
+                    f"of 20 cells outside)" for b, v in BA_.items())
+        + ". This validates it on hospital deaths of children aged 1-14, though not on deaths outside hospital at those ages. Across infants by size, "
+        "admissions by size and admissions by age, accuracy depended on the expected number of chance candidates per unit, the scaled control (Figure 2D): "
+        "below about one per unit the mean difference from the target stayed under 0.007, and above it rose to "
+        f"{pp(LI['6,400-25,599']['variants']['linked']['against_findable']['mean_abs_diff'], 3)} and {pp(LI['>=25,600']['variants']['linked']['against_findable']['mean_abs_diff'], 2)}. "
+        "That quantity, which any application can compute before estimating, defines the estimator's domain better than the municipality's size.")
+LATE_TABLES.append(lambda rows=rows: table(s, "Supplementary Table S7 - Mean absolute difference from the linked table over the twenty cells: the estimator and four simpler ones, all units, by size class",
       ["Data", "Size class", "Estimator", "Candidates without control", "Unique-key link", "Uniform attribution (1/c)", "Goodman regression", "Units with one candidate"], rows,
       ["All units of the class (linked and unlinked) against the table of the linked pairs, so that the columns are comparable with each other; the difference between "
-       "the estimator's column and Table 1's 'linked units' column is the unlinked units."])
-
+       "the estimator's column and Table 1's 'linked units' column is the unlinked units."]))
 # ---- the simulation
 W4 = {sc: SR[sc]["<400"]["p_white_white"] for sc in SIM["scenarios"]}
 NAT = {sc: SR[sc]["all"] for sc in SIM["scenarios"]}
@@ -160,7 +168,7 @@ assert cp_hi - cp_lo > cm_hi - cm_lo, "the counts' error no longer covers worse 
 assert worst("selective", "bias") > 2 * worst("movers", "bias") and worst("selective", "bias_found") < 0.015, "selective moving no longer biases the proportions"
 para(d, f"Simulation. With the assumptions holding and the real number of deaths (ideal, twins), the largest bias of the five commonest cells was {pp(hold_small)} "
         f"below 6,400 births a year and {pp(hold_bias)} at 6,400-25,599 (up to {hold_z:.1f} Monte Carlo errors). The Indigenous row, rare among the units and "
-        f"common among the chance candidates, was biased by up to {pp(hold_all_big)} at 6,400-25,599 ({max(indig_z.values()):.1f} Monte Carlo errors; Table 4, Figure 3, "
+        f"common among the chance candidates, was biased by up to {pp(hold_all_big)} at 6,400-25,599 ({max(indig_z.values()):.1f} Monte Carlo errors; Supplementary Table S8, Figure 3, "
         f"Supplementary Table S1); over the {n_tot} size-by-quantity cells below 25,600 births, {n_cells['ideal']} (ideal) and {n_cells['twins']} (twins) had a bias beyond "
         f"1.96 Monte Carlo errors. With a twelfth of the deaths (sparse) the five commonest cells reached {pp(sparse_small)} below 6,400 births and {pp(sparse_bias)} above; "
         f"this is a heavy-tail effect and not a small-sample bias of a ratio of sums: at 6,400-25,599, {pct(sp_fail, 0)} of replicates had a non-positive row sum, so that "
@@ -206,13 +214,13 @@ for sc in SIM["scenarios"]:
                      f"{sg(b['p_indigenous_indigenous']['bias'])}", sg(b['ratio_white']['bias']),
                      f"{pct(b['p_black_black']['cover_super_model'], 0)} ({pct(b['p_black_black']['cover_super_model_mcse'], 1) if 'cover_super_model_mcse' in b['p_black_black'] else pct((b['p_black_black']['cover_super_model'] * (1 - b['p_black_black']['cover_super_model']) / REPS) ** 0.5, 1)})",
                      pct(b["p_black_black"]["cover_found_chance"], 0), pct(SR[sc][size]["_invalid"] / REPS, 0)])
-table(d, f"Table 4 - Simulation: bias of the estimator against all deaths (against the deaths found), coverage with its Monte Carlo error, and failed replicates, in the "
+LATE_TABLES.append(lambda rows=rows: table(s, f"Supplementary Table S8 - Simulation: bias of the estimator against all deaths (against the deaths found), coverage with its Monte Carlo error, and failed replicates, in the "
          f"smallest and the largest valid municipalities, {REPS} replicates a scenario ({SIM.get('replicates_pooled', REPS)} for pooled12 and application)",
       ["Scenario", "Births a year", "Found", "White as White", "Black as Black", "Brown as Brown", "Indigenous as Indigenous", "White/Brown rate ratio",
        "Coverage of the system's value, model (MC error)", "Coverage of the found, chance", "Failed replicates"], rows,
       ["Bias: mean of estimate less truth; the rate ratio's truth is the deaths by municipality of birth over the births of the same municipalities. Coverage "
        "(Black as Black): of the system's classification (the mean of the table over replicates) by the model interval; of the table of the deaths found in the replicate "
-       "by the chance interval. Failed: a row sum at or below zero. Monte Carlo errors of every bias, medians and variance ratios: Supplementary Table S1."])
+       "by the chance interval. Failed: a row sum at or below zero. Monte Carlo errors of every bias, medians and variance ratios: Supplementary Table S1."]))
 figure(d, "estimator_simulation", "Figure 3 - Simulation: bias against all deaths, bias in Monte Carlo errors and coverage of the model interval, by scenario and municipality size",
        ["Bars: 95% Monte Carlo intervals of the bias; the middle row divides the bias by its Monte Carlo error (dashed: +/-1.96). Coverage: of the system's "
-        "classification for the proportions, of the true ratio for the rate ratio; the grey band is 95% +/-1.96 Monte Carlo errors. The two scenarios that pool twelve cohorts (pooled12 and application, 100 replicates each) are run apart and reported in Table 4 and Supplementary Table S1, not drawn."])
+        "classification for the proportions, of the true ratio for the rate ratio; the grey band is 95% +/-1.96 Monte Carlo errors. The two scenarios that pool twelve cohorts (pooled12 and application, 100 replicates each) are run apart and reported in Supplementary Table S8 and Supplementary Table S1, not drawn."])

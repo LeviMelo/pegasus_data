@@ -3,8 +3,8 @@
 1. The 2 x 2: numerator (deaths by the mother's race through the linkage, or certified deaths) by denominator (births by the mother's race, or
    births by the child's race as households classify children under one year of mothers of each race, census 2010 flows by region).
 2. The waterfall: from the mother's ratio to the certified-over-births ratio, each flow of the deaths switched on in turn.
-3. Intervals by a delete-one-state jackknife for every ratio; the linked deaths scaled to all deaths by certified race (so the Indigenous
-   deaths, linked less often, are scaled by their own factor).
+3. Intervals by a delete-one-state jackknife for every ratio; the linked deaths scaled to all deaths within strata of certified race, region,
+   neonatal or later death and year (the linked share is 76% in the North and 89% in the South, 87% of neonatal and 65% of later deaths).
 4. Region-standardised ratios (Mantel-Haenszel over the five regions); neonatal and post-neonatal; cause groups; each year.
 5. Absolute measures: rate differences per 1,000 and the deaths that would not have occurred at the White mothers' rate.
 
@@ -12,6 +12,7 @@
 """
 import json
 import math
+import sys
 from pathlib import Path
 
 import numpy as np
@@ -37,6 +38,7 @@ c1 = L.cause.astype(str).str[:1]
 L["cause_group"] = np.select([c1.isin(["P"]), c1.isin(["Q"]), c1.isin(["V", "W", "X", "Y"]), c1.isin(["A", "B", "J"]), c1.isin(["R"])],
                              ["perinatal", "congenital", "external", "infectious or respiratory", "ill-defined"], "other")
 bstate = (muns // 10000).astype(int)
+STRATA = ("rec", "region", "period", "year")             # the linked deaths' scaling is post-stratified (review 2026-11-22, 2.1); None: by certified race only
 byear = {y: births[y - 2012] for y in range(2013, 2024)}
 
 
@@ -64,6 +66,18 @@ def counts(D, b, region=None):
     lk = D[D.linked & D.dec.notna()]
     d_mother = {r: float(sum(((lk.dec == r) & (lk.rec == k)).sum() * scale[k] for k in RACES)
                          + ((lk.dec == r) & ~lk.rec.isin(RACES)).sum() * len(D) / max(len(lk), 1)) for r in RACES}
+    if STRATA:
+        # post-stratified (review 2026-11-22, 2.1): each linked death weighted by all deaths over linked deaths of its stratum
+        # (certified race, region, neonatal or later, year); deaths of a stratum with no linked death are spread proportionally
+        key = D[list(STRATA)].astype(str).agg("|".join, axis=1)
+        allc, lkc = key.value_counts(), key[D.linked & D.dec.notna()].value_counts()
+        wt = (allc / lkc).dropna()
+        orphan = int((~key.isin(wt.index)).sum())
+        kl = key[D.linked & D.dec.notna()]
+        d_mother = {r: float(wt.reindex(kl[lk.dec == r]).sum()) for r in RACES}
+        if orphan:
+            tot = sum(d_mother.values())
+            d_mother = {r: v * (1 + orphan / tot) for r, v in d_mother.items()}
     d_cert = {r: float((D.rec == r).sum()) for r in RACES}
     fl = flows(region)
     b_child = {c: sum(b[m] * fl.get(m, {}).get(c, 0.0) for m in RACES) for c in RACES}
@@ -96,6 +110,77 @@ def jack(fn):
             out[k][r] = {"est": float(x), "se": float(np.sqrt((len(vals) - 1) / len(vals) * ((vals - vals.mean()) ** 2).sum()))}
     return out
 
+
+if len(sys.argv) > 1 and sys.argv[1] == "review3":
+    # review 2026-11-22: 2.1 post-stratified scaling, 2.3 excess deaths within regions, 2.4 births with no race, A the Black-Brown
+    # ratio under the repeat-birth misclassification and for Black and Brown combined
+    import scipy.linalg as sla
+    F = json.loads((HERE / "results" / "indicators2.json").read_text(encoding="utf-8"))
+    rv = {}
+    for nm, st in (("race_only", None), ("race_region_period_year", ("rec", "region", "period", "year")), ("race_region_period", ("rec", "region", "period"))):
+        STRATA = st
+        nat = jack(lambda u: four(L if u is None else L[L.uf != u], births_by(u)))
+        dm_, dc_, bm_, bc_ = counts(L, births_by())
+        mh_, exc = {}, {}
+        reg = {rg: counts(L[L.region == rg], births_by(region=rc), rg) for rc, rg in REGION.items()}
+        for r in ("white", "black"):
+            num, den = 0.0, 0.0
+            for rg, (dmr, _, bmr, _) in reg.items():
+                T = bmr[r] + bmr["brown"]
+                num += dmr[r] * bmr["brown"] / T
+                den += dmr["brown"] * bmr[r] / T
+            mh_[r] = num / den
+        for r in ("black", "brown", "indigenous"):
+            within = sum(dmr[r] - dmr["white"] / bmr["white"] * bmr[r] for dmr, _, bmr, _ in reg.values())
+            exc[r] = {"national_rate": float(dm_[r] - dm_["white"] / bm_["white"] * bm_[r]), "within_regions": float(within)}
+        rv[nm] = {"national": nat, "region_standardised_mother": mh_, "excess_deaths_mother": exc, "deaths_mother": dm_,
+                  "by_region": {rg: ratios(v[0], v[2]) for rg, v in reg.items()}}
+    STRATA = ("rec", "region", "period", "year")
+    rv["linked_share"] = {"region": {k: float(v) for k, v in L.groupby("region").linked.mean().items()},
+                          "period": {k: float(v) for k, v in L.groupby("period").linked.mean().items()}}
+    # 2.4 births with no race: share by year, and the rates if those births were distributed like the births with a race
+    rv["births_no_race"] = {int(y): float(byear[y][:, 5].sum() / byear[y].sum()) for y in range(2013, 2024)}
+    tb = sum(byear[y].sum() for y in range(2013, 2024))
+    tr = sum(byear[y][:, :5].sum() for y in range(2013, 2024))
+    rv["births_no_race_all"] = float(1 - tr / tb)
+    rv["rates_if_blank_births_distributed"] = {r: v * tr / tb for r, v in F["national"]["rates"]["mother"].items()}
+    # A: the repeat declarations (paper 3: the same mother at a later birth, results/mechanism.json) give the diagonal of Q, the chance of
+    # declaring class j at the next birth after i. The off-diagonal cells follow from the row sums and reversibility, pi_i Q_ij = pi_j Q_ji,
+    # pi the first-birth shares. One declaration's misclassification is taken as the matrix square root of Q (each declaration one step from
+    # the class the mother would hold at any birth). Deaths and births are corrected alike (non-differential by death), the ratios recomputed.
+    MC = json.loads((HERE / "results" / "mechanism.json").read_text(encoding="utf-8"))["movers"]
+    cls = ["white", "black", "brown"]
+    qd = {c: MC[f"declared_again|{c}"]["est"] for c in cls}
+    pi = np.array([MC[f"declared_again|{c}"]["pairs"] - MC[f"declared_again|{c}"]["chance"] for c in cls], float)
+    pi = pi / pi.sum()
+    A_ = np.array([[1, 1, 0, 0, 0, 0], [0, 0, 1, 1, 0, 0], [0, 0, 0, 0, 1, 1],
+                   [pi[0], 0, -pi[1], 0, 0, 0], [0, pi[0], 0, 0, -pi[2], 0], [0, 0, 0, pi[1], 0, -pi[2]]])
+    y_ = np.array([1 - qd["white"], 1 - qd["black"], 1 - qd["brown"], 0, 0, 0])
+    x_ = np.linalg.solve(A_, y_)
+    Q = np.array([[qd["white"], x_[0], x_[1]], [x_[2], qd["black"], x_[3]], [x_[4], x_[5], qd["brown"]]])
+    E = np.clip(np.real(sla.sqrtm(Q)), 0, None)
+    E = E / E.sum(1, keepdims=True)
+    d0, _, b0, _ = counts(L, births_by())
+    dmv, bmv = np.array([d0[c] for c in cls]), np.array([b0[c] for c in cls])
+    d_true, b_true = np.linalg.solve(E.T, dmv), np.linalg.solve(E.T, bmv)
+    rate = d_true / b_true
+    rv["misclassification"] = {"Q": Q.tolist(), "pi": pi.tolist(), "E": E.tolist(),
+                               "ratio_observed": {"white": float((dmv[0] / bmv[0]) / (dmv[2] / bmv[2])), "black": float((dmv[1] / bmv[1]) / (dmv[2] / bmv[2]))},
+                               "ratio_corrected": {"white": float(rate[0] / rate[2]), "black": float(rate[1] / rate[2])},
+                               "black_brown_combined_over_white": float(((dmv[1] + dmv[2]) / (bmv[1] + bmv[2])) / (dmv[0] / bmv[0])),
+                               "excess_black_corrected": float(d_true[1] - rate[2] * b_true[1]), "excess_black_observed": float(dmv[1] - dmv[2] / bmv[2] * bmv[1])}
+    F["review3"] = rv
+    (HERE / "results" / "indicators2.json").write_text(json.dumps(F, indent=1, default=float), encoding="utf-8")
+    for k in ("race_only", "race_region_period_year", "race_region_period"):
+        n_ = rv[k]["national"]
+        print(k, {c: round(n_[c]["white"]["est"], 3) for c in ("mother_over_mother", "mother_over_child")}, round(n_["mother_over_mother"]["black"]["est"], 3),
+              "MH", {r: round(v, 3) for r, v in rv[k]["region_standardised_mother"].items()},
+              "excess", {r: (round(v["national_rate"]), round(v["within_regions"])) for r, v in rv[k]["excess_deaths_mother"].items()})
+    print("linked", rv["linked_share"])
+    print("blank births", round(rv["births_no_race_all"], 4), {k: round(v, 4) for k, v in rv["births_no_race"].items()})
+    print("misclass", rv["misclassification"]["ratio_observed"], rv["misclassification"]["ratio_corrected"], rv["misclassification"]["black_brown_combined_over_white"])
+    print("Q", np.round(Q, 3).tolist())
+    sys.exit(0)
 
 OUT = {}
 OUT["national"] = jack(lambda u: four(L if u is None else L[L.uf != u], births_by(u)))
@@ -218,6 +303,7 @@ for k, d_ in (("mother", dm), ("certified", dc)):
     rw = d_["white"] / bm["white"]
     ab[k] = {r: {"difference_per_1000": 1e3 * (d_[r] / bm[r] - rw), "excess_deaths": float(d_[r] - rw * bm[r])} for r in RACES if r != "white"}
 OUT["absolute"] = ab
+OUT["scaling_strata"] = list(STRATA or ["rec"])
 OUT["linked_scale"] = {r: len(L[L.rec == r]) / max(len(L[(L.rec == r) & L.linked & L.dec.notna()]), 1) for r in RACES}
 OUT["no_race_share"] = float((~L.rec.isin(RACES)).mean())
 (HERE / "results" / "indicators2.json").write_text(json.dumps(OUT, indent=1, default=float), encoding="utf-8")

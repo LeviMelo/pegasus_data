@@ -31,4 +31,18 @@ table(s, "Supplementary Table S2 - Certified race of young people according to t
          "2015-2024", ["Cause", "Hospital's race", "Certified White", "Certified Brown", "Certified Black"], rows,
       ["Admissions of 2010-2024 ending at least 30 days before the death and not in death, one record per person; candidate estimator with the other sex as control; 95% confidence "
        "intervals from a bootstrap over municipalities."])
+SPL = [("All deaths found", "all"), ("Died in the municipality of residence", "died_at_home_municipality"), ("Died elsewhere", "died_elsewhere"),
+       ("Standardised to the composition of the place of occurrence", "standardised_to_occurrence"), ("Died in hospital", "died_in_hospital"),
+       ("Died out of hospital", "died_out_of_hospital")]
+rows = []
+for lab, k in SPL:
+    blk = VP[k]
+    rows.append([lab] + [_pt(blk[g]["shift"]) for g in ("natural", "transport", "all assault", "suicide")]
+                + [dpl(blk["all assault"]["minus_natural"]).replace(" percentage points", ""), dpl(blk["all assault"]["minus_transport"]).replace(" percentage points", "")])
+table(s, "Supplementary Table S3 - Change of the share White from birth to the death certificate by cause, by place of death and place of certification, "
+         "Brazil, 2015-2024", ["Deaths", "Natural", "Transport", "Assaults", "Suicide", "Assaults minus natural (95%CI)", "Assaults minus transport (95%CI)"], rows,
+      ["Percentage points. Deaths at 15-24 years found among their birth candidates, municipalities of residence with fewer than 1,600 births a year; place of "
+       "occurrence and place of death from the death certificate (CODMUNOCOR, LOCOCOR: hospital or other health establishment against elsewhere). Standardised: "
+       "each cause's change averaged over thirds of the share of White births in the municipality of occurrence with the weights of all deaths. Intervals: 500 "
+       "bootstrap replicates over municipalities of residence."])
 s.save(OUT / "supplement.docx")

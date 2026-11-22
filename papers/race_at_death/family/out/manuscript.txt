@@ -1,19 +1,20 @@
 ﻿The race of a child in the household: mothers, fathers, stepfathers, siblings and who answers, in the Brazilian Censuses of 2010 and 2022
 [Authors, affiliations, ORCID, funding, conflicts of interest and contributions: to be supplied by the authors; not part of the blinded text]
 Abstract
-Objective: To describe how Brazilian households report the race of children relative to the mother and her partner, whether he is the child's father, between siblings, by who answered and by the child's age, in the Censuses of 2010 and 2022.
+Objective: To describe how Brazilian households report the race of children relative to the mother and her partner, whether he is the child's father, between siblings, by who answered, by the child's age and by place, in the Censuses of 2010 and 2022.
 Methods: Cross-sectional study of two national census samples, Brazil. Children of the household's couple living with their mother were paired with her in the sample microdata of the 2010 Census (2,398,347 children of White, Brown and Black mothers aged 0-9) and the public-access sample of the 2022 Census (2,240,875), by a rule both files allow. The race reported for the child was set against the mother's and the partner's, by whether he was the father or a stepfather, between full siblings, by who answered for the child and for the mother, and between the censuses; intervals are design-based or from a household bootstrap.
-Results: Households reported as White 0.24 of Brown mothers' children aged 0-4 in 2010 and 0.24 in 2022, and as Black 0.44 and 0.43 of Black mothers' children. Among children of both members of the couple, the child of a Brown mother and a White father was reported White in 0.56 (2010) and 0.61 (2022), and the child of a White mother and a Brown father in 0.61 and 0.65; with a White stepfather, a Brown mother's child was White in 0.30-0.39. Full siblings of a Brown mother and a White father were reported in different races in 40% and 39% of households, against 56% and 53% if each child were classified independently. In 2022 the child of a Brown mother and a White partner was reported White in 0.66 when he answered for both, 0.59 when he answered for the child and she for herself, and 0.57 when she answered for both. Crude changes between the censuses were under three percentage points.
-Conclusion: The race households report for a child follows both parents about equally, the father more than a stepfather; siblings of mixed couples share a classification more than chance but often differ; and when the partner answered for both mother and child, the child was reported closer to his race. The national picture changed little between 2010 and 2022.
+Results: Households reported as White 0.24 of Brown mothers' children aged 0-4 in 2010 and 0.24 in 2022, and as Black 0.44 and 0.43 of Black mothers' children. Among children of both members of the couple, in a model of the nine couple types, taking the mother's class multiplied the odds by 4.58 (95%CI 4.49; 4.67) and the father's by 4.08 (95%CI 3.99; 4.15) (2010), and every child leaned toward White over Brown (1.34 (95%CI 1.30; 1.39)) and away from Black (0.21 (95%CI 0.20; 0.22)); with a White stepfather, a Brown mother's child was White in 0.30-0.39. Full siblings of a Brown mother and a White father were reported in different races in 40% and 39% of households, against 56% and 53% if each child were classified independently. In 2022 the child of a Brown mother and a White partner was reported White in 0.66 when he answered for both, 0.59 when he answered for the child and she for herself, and 0.57 when she answered for both. The child of two Brown parents was reported White in 0.09 in the least White municipalities and 0.14 in the most, and by state from 0.06 to 0.17. Crude changes between the censuses were under three percentage points.
+Conclusion: The race households report for a child follows both parents, the mother somewhat more, with a pull toward White and away from Black, and the father more than a stepfather; the child of two Brown parents is reported much alike across the country; siblings of mixed couples share a classification more than chance but often differ; and when the partner answered for both mother and child, the child was reported closer to his race. The national picture changed little between 2010 and 2022.
 Keywords: Racial Groups; Family Characteristics; Censuses; Child; Brazil.
 Introduction
 In Brazil a child's race is reported by someone else for most of childhood: by the household in the census, by staff on health records. Children cannot declare it, and parents of different colour must choose. Highly educated non-White parents more often classify their children as White, in part because they more often have White partners [1]. The same person is classified differently by different observers and methods [2,3], census cohorts move between categories [4], and adults' own identification darkened in the 2010s [5]. How households report children relative to their mothers sets the reference that health statistics are compared with, and decides how much of the children's racial distribution is the mothers', the fathers' or the households'.
-Two national samples now allow the question to be asked twice. The 2022 Census sample microdata, released in 2026, record who answered for each person, which the 2010 file did not, and both identify the household's couple and its children, and whether the couple's man is the child's father. We found no study comparing how households report children relative to the mother in two censuses. This study aimed to describe how Brazilian households report the race of children relative to the mother and her partner, whether he is the child's father, between siblings, by who answered and by the child's age, in the Censuses of 2010 and 2022.
+Two national samples now allow the question to be asked twice. The 2022 Census sample microdata, released in 2026, record who answered for each person, which the 2010 file did not, and both identify the household's couple and its children, and whether the couple's man is the child's father. We found no study comparing how households report children relative to the mother in two censuses. This study aimed to describe how Brazilian households report the race of children relative to the mother and her partner, whether he is the child's father, between siblings, by who answered, by the child's age and by place, in the Censuses of 2010 and 2022.
 Methods
 Design and data. This is a cross-sectional study of two national census samples, reported according to the STROBE statement. The sample microdata of the 2010 Census [6] and the public-access sample microdata of the 2022 Census [7] were read for every state. In both, each person carries the race reported for them (White, Black, Yellow, Brown or Indigenous), sex, age (single years in 2010, five-year groups in 2022), the relationship to the person responsible for the household and, from age 15, the level of instruction in categories the two censuses share.
 Mother-child pairs. The 2010 file identifies each person's co-resident mother by her order number; the 2022 public file says only whether the mother or stepmother lives in the household. Pairs were therefore made in both censuses by one rule: a child of the household's couple, with the mother co-resident, paired with the couple's woman; the couple's man is the partner (Figure 1). The relationship to the responsible person tells whether he is the father: a child of both members of the couple has its father as the partner; a child of the responsible woman only, or a stepchild of the responsible man, has a stepfather. In 2010 the order number pointed at the couple's woman for 99.8% of the pairs, and the rule kept 82% of the children aged 0-9 that the order number pairs with a Brown mother (84% White, 82% Black); the others live with a mother who is not of the household's couple, mostly in their grandparents' households. Brown mothers' children aged 0-9 were reported White in 0.210 by the rule and 0.211 by the order number, and Black mothers' children Black in 0.476 and 0.483. The rule cannot be checked in 2022, where the file records only that the mother or a stepmother lives in the household. Full siblings are children aged 0-9 of the same couple in the same household, all children of both; their discordance was set against what independent classification would give, one minus the chance that every child falls in the same category when each is classified with the proportions of its mother's and father's races.
 Who answered. In 2022 the questionnaire records who gave each person's information: the person, another resident (identified by order number) or a non-resident. A child's information was classed as given by the mother or by the partner when the informant's order number was theirs, and the same for the mother's own information, so that a child answered for by the partner can be split by whether the mother answered for herself.
 Cohorts. The share of each five-year birth cohort reported White at the Censuses of 2000, 2010 and 2022 came from a cohort-component population account that takes the census population by single year of age and race as given in census years (Supplementary Text S1). The cohort born in 2000 was left out of the 2000 Census, which held only its births of January to August.
+Couple types and place. For children aged 0-9 of both members of the couple, the weighted counts of the child's class (White, Brown, Black) in each of the nine couple types were fitted by a log-linear model with a term for each couple type, a term for each class of the child (the pull toward that class whatever the parents), a term for the child taking the mother's class and one for taking the father's; intervals came from 200 bootstrap replicates resampling municipalities (2010) or households (2022). By place, the shares of fixed couple types (two Brown parents, child White; two White parents, child Brown; two Black parents, child Black) were related to the municipality's share of White births in 2010, when the file carries the municipality, with errors clustered by municipality, and compared by state in 2010 and 2022.
 Analysis. Proportions are weighted; their standard errors are design-based (Taylor linearisation, strata the states, primary units the households; with 2010's weighting areas as strata the standard errors were unchanged). The reporting of Brown mothers' children aged 0-9 as White, and of Black mothers' as Black, was modelled by weighted logistic regression on both censuses together, with the census, the partner's race, the mother's instruction, the child's age and sex, the mother's age and the region, with standard errors clustered by household; census by partner interactions tested whether the change differed by partner. The 2022 proportions were also reweighted to the 2010 mothers' distribution of instruction and region, with White mothers as a check, and the changes given intervals from 200 replicates of a household bootstrap. Analyses used Python 3.11; the code accompanies the article. Ethics: public, anonymised data; under Resolution 510/2016 of the National Health Council no review was required.
 
 Figure 1 - The two census samples and the pairing rule, Brazil, 2010 and 2022
@@ -28,118 +29,88 @@ Figure 2 - Race reported for children aged 0-4 according to the race of their mo
 Children of the household's couple living with their mother. Weighted proportions with design-based 95% confidence intervals (most narrower than the markers). D: percentage points with 95% confidence intervals from a household bootstrap; White mothers' children as a check.
 
 Mother, father, stepfather and siblings
-Among children of both members of the couple, the mother's and the father's races counted about alike (Figure 3C): the child of a Brown mother and a White father was reported White in 0.56 (95%CI 0.56; 0.56) in 2010 and 0.61 (95%CI 0.61; 0.62) in 2022, and the child of a White mother and a Brown father in 0.61 (95%CI 0.61; 0.61) and 0.65 (95%CI 0.64; 0.65); the child of a Black mother and a White father in 0.44 and of a White mother and a Black father in 0.46 (2022). With a Brown father, a Brown mother's child was reported White in 0.11 (95%CI 0.11; 0.11) and 0.12 (95%CI 0.11; 0.12) (Figure 3A). A White stepfather went with fewer White children than a White father: 0.36 (2010) and 0.39 (2022) for the mother's own child and 0.30 and 0.31 for the man's stepchild, against 0.15-0.16 with a Brown stepfather; the gap between a White and a Brown partner was two to three times larger when he was the father. The remaining stepfather gap may come from the household's reading, from the child's absent father or from which mothers form unions with White men, which these data do not separate. Black mothers' children were reported Black in 0.79 (95%CI 0.79; 0.79) with a Black father, 0.18 (95%CI 0.18; 0.19) with a Brown father and 0.14 (95%CI 0.14; 0.15) with a White one in 2022 (Figure 3B). With no partner, Brown mothers' children were reported White in 0.22 (95%CI 0.21; 0.22) in 2022.
+Among children of both members of the couple the child took the mother's class somewhat more than the father's: in the model of the nine couple types, taking the mother's class multiplied the odds by 4.58 (95%CI 4.49; 4.67) in 2010 and 4.38 (95%CI 4.35; 4.40) in 2022, taking the father's by 4.08 (95%CI 3.99; 4.15) and 4.08 (95%CI 4.05; 4.10), and whatever the parents the child leaned toward White over Brown (1.34 (95%CI 1.30; 1.39) and 1.43 (95%CI 1.43; 1.44)) and away from Black (0.21 (95%CI 0.20; 0.22) and 0.24 (95%CI 0.24; 0.24)). The pull toward White is why the child of a Brown mother and a White father was reported White in 0.56 (95%CI 0.56; 0.56) in 2010 and 0.61 (95%CI 0.61; 0.62) in 2022, and the child of a White mother and a Brown father in 0.61 (95%CI 0.61; 0.61) and 0.65 (95%CI 0.64; 0.65); the child of a Black mother and a White father in 0.44 and of a White mother and a Black father in 0.46 (2022). With a Brown father, a Brown mother's child was reported White in 0.11 (95%CI 0.11; 0.11) and 0.12 (95%CI 0.11; 0.12) (Figure 3A). A White stepfather went with fewer White children than a White father: 0.36 (2010) and 0.39 (2022) for the mother's own child and 0.30 and 0.31 for the man's stepchild, against 0.15-0.16 with a Brown stepfather; the gap between a White and a Brown partner was two to three times larger when he was the father. The remaining stepfather gap may come from the household's reading, from the child's absent father or from which mothers form unions with White men, which these data do not separate. Black mothers' children were reported Black in 0.79 (95%CI 0.79; 0.79) with a Black father, 0.18 (95%CI 0.18; 0.19) with a Brown father and 0.14 (95%CI 0.14; 0.15) with a White one in 2022 (Figure 3B). With no partner, Brown mothers' children were reported White in 0.22 (95%CI 0.21; 0.22) in 2022.
 Full siblings were reported in different races in 40% (2010) and 39% (2022) of households of a Brown mother and a White father with two or more children aged 0-9, against 14% and 13% where both parents were Brown and 3% and 3% where both were White (Figure 3D). Had each child been classified independently with the proportions of its parents' races, 56% and 53% of the mixed households would have differed: siblings shared a classification more than chance, in every couple type, but in mixed couples two in five households did not give all their children one category.
 In the model of both censuses (Table 1), a White partner multiplied the odds of a Brown mother's child being reported White by 9.36 (95%CI 9.27; 9.46), a mother with higher education by 1.38 (95%CI 1.36; 1.41) against no or incomplete primary schooling, and the South by 1.43 (95%CI 1.40; 1.46) against the Centre-West. Between the censuses the odds rose with White partners (census by partner interaction 0.15 in log-odds, standard error 0.01) and with Black partners (0.18, 0.02), not with no partner (0.03, 0.01); among fathers the share rose from 0.56 to 0.61, so the rise is not the growth of stepfather households. A Brown partner multiplied the odds of a Black mother's child being reported Black by 0.07 (95%CI 0.07; 0.07).
 Changes between the censuses
 Partners changed: 20% of Brown mothers of children aged 0-9 had a White partner in 2010 and 17% in 2022, and 12% and 18% no partner; 39% and 35% of Black mothers had a Black partner. At the partners of 2010, Brown mothers' children would have been reported White in 0.23 in 2022 (observed 0.22; 2010 0.21). Schooling rose for mothers of every race: no or incomplete primary schooling fell from 33% to 12% among White mothers, 51% to 22% among Brown and 51% to 22% among Black mothers. In percentage points, the crude change of children aged 0-9 reported White was +0.6 (95%CI +0.4; +0.7) for Brown mothers and -0.5 (95%CI -0.7; -0.4) for White mothers; the change of Black mothers' children reported Black was -1.7 (95%CI -2.1; -1.3) and reported White +2.6 (95%CI +2.3; +2.9). At the 2010 mothers' instruction and region the changes were -1.1 (95%CI -1.3; -1.0), -3.5 (95%CI -3.6; -3.3), -1.1 (95%CI -1.6; -0.7) and +2.0 (95%CI +1.7; +2.3) (Figure 2D). Within equal schooling and region, children of White and Brown mothers were reported White less often in 2022; the standardisation moved every group, White mothers' children included, by more than the crude change, because schooling rose for all mothers and more schooled mothers report lighter children. It does not tell whether the women declaring each category changed.
 Table 1 - Odds ratios of the race reported for children aged 0-9, logistic models of the Censuses of 2010 and 2022 together, Brazil
-Outcome
-Term
-Odds ratio (95%CI)
-Brown mother, child White
-census: 2022
+Variable
+Brown mother: child reported White, OR (95%CI)
+Black mother: child reported Black, OR (95%CI)
+Census
+
+
+   2022 (ref. 2010)
 1.03 (1.02; 1.04)
-Brown mother, child White
-partner: white
-9.36 (9.27; 9.46)
-Brown mother, child White
-partner: black
-0.85 (0.83; 0.87)
-Brown mother, child White
-partner: other
-1.71 (1.60; 1.82)
-Brown mother, child White
-partner: no partner
-2.05 (2.03; 2.08)
-Brown mother, child White
-instruction: primary complete
-1.11 (1.10; 1.13)
-Brown mother, child White
-instruction: secondary complete
-1.21 (1.20; 1.23)
-Brown mother, child White
-instruction: higher complete
-1.38 (1.36; 1.41)
-Brown mother, child White
-age: 5-9
-0.72 (0.71; 0.72)
-Brown mother, child White
-mother_age: 35-44
-1.05 (1.04; 1.06)
-Brown mother, child White
-mother_age: 45 or more
-1.13 (1.10; 1.15)
-Brown mother, child White
-mother_age: under 25
-1.06 (1.04; 1.07)
-Brown mother, child White
-sex: 2
-1.10 (1.09; 1.11)
-Brown mother, child White
-region: North
-0.71 (0.70; 0.73)
-Brown mother, child White
-region: Northeast
-0.90 (0.89; 0.92)
-Brown mother, child White
-region: South
-1.43 (1.40; 1.46)
-Brown mother, child White
-region: Southeast
-1.18 (1.16; 1.21)
-Black mother, child Black
-census: 2022
 0.94 (0.92; 0.96)
-Black mother, child Black
-partner: white
+Mother's partner (ref. of the mother's race)
+
+
+   White
+9.36 (9.27; 9.46)
 0.06 (0.05; 0.06)
-Black mother, child Black
-partner: brown
+   Brown
+-
 0.07 (0.07; 0.07)
-Black mother, child Black
-partner: other
+   Black
+0.85 (0.83; 0.87)
+-
+   Other
+1.71 (1.60; 1.82)
 0.11 (0.10; 0.12)
-Black mother, child Black
-partner: no partner
+   No partner
+2.05 (2.03; 2.08)
 0.28 (0.28; 0.29)
-Black mother, child Black
-instruction: primary complete
+Mother's instruction (ref. none or incomplete primary)
+
+
+   Primary complete
+1.11 (1.10; 1.13)
 0.94 (0.91; 0.96)
-Black mother, child Black
-instruction: secondary complete
+   Secondary complete
+1.21 (1.20; 1.23)
 1.01 (0.99; 1.04)
-Black mother, child Black
-instruction: higher complete
+   Higher complete
+1.38 (1.36; 1.41)
 1.06 (1.02; 1.10)
-Black mother, child Black
-age: 5-9
+Child (ref. aged 0-4, boy)
+
+
+   Aged 5-9
+0.72 (0.71; 0.72)
 1.30 (1.27; 1.32)
-Black mother, child Black
-mother_age: 35-44
-1.04 (1.01; 1.06)
-Black mother, child Black
-mother_age: 45 or more
-1.03 (0.99; 1.08)
-Black mother, child Black
-mother_age: under 25
-0.90 (0.87; 0.93)
-Black mother, child Black
-sex: 2
+   Girl
+1.10 (1.09; 1.11)
 0.89 (0.88; 0.91)
-Black mother, child Black
-region: North
+Mother's age (ref. 25-34)
+
+
+   Under 25
+1.06 (1.04; 1.07)
+0.90 (0.87; 0.93)
+   35-44
+1.05 (1.04; 1.06)
+1.04 (1.01; 1.06)
+   45 or more
+1.13 (1.10; 1.15)
+1.03 (0.99; 1.08)
+Region (ref. Centre-West)
+
+
+   North
+0.71 (0.70; 0.73)
 1.00 (0.95; 1.06)
-Black mother, child Black
-region: Northeast
+   Northeast
+0.90 (0.89; 0.92)
 1.31 (1.25; 1.36)
-Black mother, child Black
-region: South
-1.48 (1.41; 1.56)
-Black mother, child Black
-region: Southeast
+   Southeast
+1.18 (1.16; 1.21)
 1.24 (1.19; 1.30)
-References: census 2010; partner of the mother's race; mother with no or incomplete primary schooling; child aged 0-4; mother aged 25-34; boy; Centre-West. Weighted; standard errors clustered by household. Census by partner interactions in the text.
+   South
+1.43 (1.40; 1.46)
+1.48 (1.41; 1.56)
+Weighted logistic regression; standard errors clustered by household. -: not in the model (the partner of the mother's own race is the reference). Census by partner interactions in the text.
 
 
 Figure 3 - Children aged 0-9 reported White, of Brown mothers (A), and reported Black, of Black mothers (B), by the race of the mother's partner and whether he is the father; children of both reported White by the mother's and the father's race (C); and households whose full siblings aged 0-9 are reported in different races (D), Brazilian Censuses of 2010 and 2022
@@ -157,14 +128,22 @@ Older children were reported Black more often: Black mothers' children were repo
 Figure 5 - Children of Brown mothers reported White (A) and of Black mothers reported Black (B), by age; children of the couple living with the mother (C); and the share of each five-year birth cohort reported White at the Censuses of 2000, 2010 and 2022 (D), Brazil
 A, B: children of the household's couple living with their mother; design-based 95% confidence intervals. C: share of all children of the age and race who are in the pairs. D: whole population, from a population account that takes the census populations as given; the cohort born in 2000 is not shown for 2000.
 
+Place
+The family's classification of fixed couple types changed little with the municipality's composition (Figure 6A). The child aged 0-9 of two Brown parents was reported White in 0.09 (95%CI 0.09; 0.09) of households in municipalities with under 10% of White births and 0.14 (95%CI 0.12; 0.15) where 90% or more were, most of the rise below 30% (logit slope 0.16, standard error 0.01); the child of two White parents was reported Brown in 0.09 (95%CI 0.08; 0.09) and 0.00 (95%CI 0.00; 0.01), and the child of two Black parents Black in 0.76 (95%CI 0.74; 0.77) and 0.81 (95%CI 0.76; 0.85). The death certificate of a Brown mother's infant moves far more on the same axis (logit slope 0.66 against 0.16; companion paper). By state, the child of two Brown parents was reported White in 0.06 to 0.17 in 2010, and the states kept their order in 2022 (Figure 6B); nationally, 0.11 and 0.12.
+
+Figure 6 - Children of fixed couple types by the municipality's composition in 2010 (A) and by state in 2010 and 2022 (B), Brazil
+A: children aged 0-9 of the household's couple (2010 Census sample) by tenth of the municipality's share of White births (SINASC 2012-2023); bars, 95% confidence intervals clustered by municipality. B: the same shares by state in the 2010 and 2022 samples; the 2022 public file carries no municipality.
+
 Discussion
-In two national censuses twelve years apart, Brazilian households reported most children in the mother's race when she was White or Brown, and fewer than half of Black mothers' children as Black. Among children of both members of the couple, the mother's and the father's races counted about alike; a stepfather counted less than a father; full siblings of mixed couples shared a classification more than chance but often differed; and where the partner answered for both the mother and the child, the child was reported closer to his race. Between 2010 and 2022 the classification changed by less than three percentage points.
-Several readings of the partner's association were set against each other. If the household applied a rule to all its children, such as the father's race or the lighter of the two, full siblings would share a category, which two in five mixed households did not. If the report read each child's descent and appearance, the father would count far more than a stepfather and siblings would differ, as they did; but appearance is not observed, and the same pattern arises if mothers who form unions with White men are themselves lighter within the Brown category, a selection the stepfather contrast reduces but does not remove. If the respondent reported his or her own reading, the answer would lean toward the respondent's race; it did only where the partner answered for both the mother and the child, and only for non-White mothers, which points to one respondent classifying the whole household rather than to each informant pulling the child. The finding extends the observation that educated non-White parents classify children as White in part through whom they marry [1]: the partner's race counts about as much as the mother's, and mostly when he is the father.
+In two national censuses twelve years apart, Brazilian households reported most children in the mother's race when she was White or Brown, and fewer than half of Black mothers' children as Black. Among children of both members of the couple, the child took the mother's class somewhat more than the father's, and every child leaned toward White and away from Black; a stepfather counted less than a father; full siblings of mixed couples shared a classification more than chance but often differed; and where the partner answered for both the mother and the child, the child was reported closer to his race. Between 2010 and 2022 the classification changed by less than three percentage points.
+Several readings of the partner's association were set against each other. If the household applied a rule to all its children, such as the father's race or the lighter of the two, full siblings would share a category, which two in five mixed households did not. If the report read each child's descent and appearance, the father would count far more than a stepfather and siblings would differ, as they did; but appearance is not observed, and the same pattern arises if mothers who form unions with White men are themselves lighter within the Brown category, a selection the stepfather contrast reduces but does not remove. If the respondent reported his or her own reading, the answer would lean toward the respondent's race; it did only where the partner answered for both the mother and the child, and only for non-White mothers, which points to one respondent classifying the whole household rather than to each informant pulling the child. The finding extends the observation that educated non-White parents classify children as White in part through whom they marry [1]: the father's race counts nearly as much as the mother's, and the pull toward White adds to both. Young adults of mixed families identify more with the mother's race than the father's [8], as the household reports here. Interracial unions have stayed near three in ten [9], so a large share of children are reported through this rule.
 The changes between the censuses were small, and their sign depended on schooling. Schooling rose for mothers of every race, and more schooled mothers report lighter children; at the 2010 mothers' schooling and region, the children of White and Brown mothers were reported White less often in 2022, a darkening within equal schooling of the kind surveys found in adults' own identification in the period [5]. Fewer Brown mothers had White partners, while among White fathers the share of White children rose.
+Two findings concern the child. Girls were reported White more often than boys (1.10 (95%CI 1.09; 1.11)) and Black less often (0.89 (95%CI 0.88; 0.91)); women place themselves lighter than men on a colour scale [10], and the household reports daughters lighter in the same direction, though young men declare lighter categories than women at equal skin tone [8]. Older children of Brown mothers were reported White less often, which fits the cohort series below. Both are associations of the report, not of appearance, which the census does not observe.
+The changes between the censuses coincide with a change of incentives. The quota law of 2012 reserved places in federal universities for self-declared Black, Brown and Indigenous students from public schools [11]; declarations shifted toward Black among university entrants [12,13] and in the population [14,15]. The largest falls of White between censuses were among children who reached 10-17 years, nearest to university entry; these data cannot test the law's effect, which would need the declarations of the same people before and after it.
 Black mothers' children were reported Black more often at older ages, and the whole-population cohort series showed the largest falls of White between a census at ages 0-4 and the next at ages 10-17, while households still report for them. Reclassification between censuses has been described before [4]; the cohort series also reflects mortality, migration and coverage, and two cross-sections cannot separate age from cohort or from the change of who reports.
-Strengths and limitations. The study uses the public-access samples of two censuses with design-based errors, one pairing rule applicable in both and checked against the mother's order number in 2010, the relationship codes that tell a father from a stepfather, and the record of who answered for each person. Limitations: the pairs are children of the household's couple living with the mother, about four in five of the children aged 0-9 the 2010 order number pairs, leaving out children in their grandparents' households; the rule cannot be checked in 2022, where the mother may be a stepmother; the 2022 public file gives five-year ages and no municipality; who answered is not random; the intervals ignore imputation of race and the change of the questionnaire; the father-stepfather contrast is unadjusted; and Yellow and Indigenous mothers, whose numbers changed most between the censuses, are not analysed.
+Strengths and limitations. The study uses the public-access samples of two censuses with design-based errors, one pairing rule applicable in both and checked against the mother's order number in 2010, the relationship codes that tell a father from a stepfather, and the record of who answered for each person. Limitations: the pairs are children of the household's couple living with the mother, about four in five of the children aged 0-9 the 2010 order number pairs, leaving out children in their grandparents' households; the rule cannot be checked in 2022, where the mother may be a stepmother; the 2022 public file gives five-year ages and no municipality; who answered is not random; the intervals ignore imputation of race and the change of the questionnaire; the father-stepfather contrast is unadjusted; the place analysis has the municipality only in 2010; and Yellow and Indigenous mothers, whose numbers changed most between the censuses, are not analysed.
 Implications. Statistics that take children's race from the household inherit a classification that follows both parents and the person who answers for the household. Records that carry the mother's own declaration, such as the live birth record, can be expected to differ from them for children of mixed couples even without error in either source, a hypothesis that linked records could test.
-In conclusion, this study set out to describe how Brazilian households report the race of children relative to the mother and her partner, whether he is the child's father, between siblings, by who answered and by the child's age, in the Censuses of 2010 and 2022. Households reported children by both parents about equally, by the father more than a stepfather, with siblings of mixed couples often classified apart, and closer to the partner's race when he answered for both mother and child; the classification changed little between 2010 and 2022.
+In conclusion, this study set out to describe how Brazilian households report the race of children relative to the mother and her partner, whether he is the child's father, between siblings, by who answered, by the child's age and by place, in the Censuses of 2010 and 2022. Households reported children by both parents, the mother somewhat more, with a pull toward White and away from Black, by the father more than a stepfather, much alike across municipalities and states for a given couple, with siblings of mixed couples often classified apart, and closer to the partner's race when he answered for both mother and child; the classification changed little between 2010 and 2022.
 References
 1. Schwartzman LF. Does Money Whiten? Intergenerational Changes in Racial Classification in Brazil. American Sociological Review. 2007;72(6):940-963. doi:10.1177/000312240707200605
 2. Telles EE. Racial ambiguity among the Brazilian population. Ethnic and Racial Studies. 2002;25(3):415-441. doi:10.1080/01419870252932133
@@ -173,3 +152,11 @@ References
 5. Freeman NC, Telles EE, Goldberg RE. The changing relationship between racial identity and skin color in Brazil. Proceedings of the National Academy of Sciences. 2025;122(1):e2411495121. doi:10.1073/pnas.2411495121
 6. Instituto Brasileiro de Geografia e Estatística. Censo Demográfico 2010: resultados gerais da amostra: microdados [Internet]. Rio de Janeiro: IBGE; 2012 [updated 2016 Mar 11; cited 2026 Nov 21]. Available from: https://ftp.ibge.gov.br/Censos/Censo_Demografico_2010/Resultados_Gerais_da_Amostra/Microdados/
 7. Instituto Brasileiro de Geografia e Estatística. Censo Demográfico 2022: microdados da amostra, acesso público, e documentação [Internet]. Rio de Janeiro: IBGE; 2026 [cited 2026 Nov 22]. Available from: https://ftp.ibge.gov.br/Censos/Censo_Demografico_2022/Microdados_e_Areas_de_Ponderacao/
+8. Francis AM, Tannuri-Pianto M. Endogenous Race in Brazil: Affirmative Action and the Construction of Racial Identity among Young Adults. Economic Development and Cultural Change. 2013;61(4):731-753. doi:10.1086/670375
+9. Tomás MC. Trends in interracial unions in Brazil between 2002 and 2022: anything new?. Revista Brasileira de Estudos de População. 2025;42:1-12. doi:10.20947/s0102-3098a0290
+10. Travassos C, Laguardia J, Marques PM, Mota JC, Szwarcwald CL. Comparison between two race/skin color classifications in relation to health-related outcomes in Brazil. International Journal for Equity in Health. 2011;10(1):35. doi:10.1186/1475-9276-10-35
+11. Brasil. Lei n. 12.711, de 29 de agosto de 2012: dispoe sobre o ingresso nas universidades federais e nas instituicoes federais de ensino tecnico de nivel medio. Diario Oficial da Uniao. 2012. Available from: https://www.planalto.gov.br/ccivil_03/_ato2011-2014/2012/lei/l12711.htm
+12. Francis AM, Tannuri-Pianto M. Using Brazil's racial continuum to examine the short-term effects of affirmative action in higher education. Journal of Human Resources. 2012;47(3):754-784. doi:10.3368/jhr.47.3.754
+13. Francis-Tan A, Tannuri-Pianto M. Inside the black box: affirmative action and the social construction of race in Brazil. Ethnic and Racial Studies. 2015;38(15):2771-2790. doi:10.1080/01419870.2015.1077602
+14. Bailey SR, Fialho FM, Loveman M. How states make race: new evidence from Brazil. Sociological Science. 2018;5:722-751. doi:10.15195/v5.a31
+15. Freeman NC, Telles EE, Goldberg RE. The changing relationship between racial identity and skin color in Brazil. Proceedings of the National Academy of Sciences. 2025;122(1):e2411495121. doi:10.1073/pnas.2411495121

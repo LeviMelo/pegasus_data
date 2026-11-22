@@ -9,11 +9,14 @@ classification's heterogeneity that the simulation takes from the data.
     data/key_cache/* from analysis/infant_findable.py and `analysis/pair.py units`)
 """
 import json
+import sys
 
 import pyarrow.parquet as pq
 from common import *  # noqa: F403 - con, RACES, NAME, SIZES, births, muns, BIDX, LL, link_matrix, DATA, PAPER
 
 from pegasus_data.studies import modelled_race as mr
+
+BYAGE = len(sys.argv) > 1 and sys.argv[1] == "byage"   # only the admissions' validation, by age band at death (review 2026-11-22, 6.2)
 
 OUT: dict = {}
 COLS = [*RACES, "other"]
@@ -105,21 +108,22 @@ def full(est, truth):
 
 # ------------------------------------------------------------------ 1. infants: candidates against the one-to-one linkage, by size
 # the linked pairs whose birth record shares the estimator's key (analysis/infant_findable.py), in the linkage's row order
-F = pq.read_table(DATA / "infant_findable.parquet").to_pandas()
-assert len(F) == len(L) and (F.year.to_numpy() == L.year.to_numpy()).all(), "infant_findable.parquet is not aligned with the linkage"
-L["findable"] = F.findable.to_numpy()
-LF = L[L.findable & L.dec.isin(RACES)]
-OUT["infants"] = []
-for lo, hi, label in [*SIZES, (0, 25600, "<25,600"), (0, 10**9, "all")]:
-    est, _ = estimate("infants", f"births >= {lo} AND births < {hi}")
-    sel = (LL.births_year >= lo) & (LL.births_year < hi)
-    link, linkf = link_matrix(LL[sel]), link_matrix(LF[(LF.births_year >= lo) & (LF.births_year < hi)])
-    deaths = L[(L.births_year >= lo) & (L.births_year < hi)]
-    OUT["infants"].append({"size": label, "municipalities": int(con.execute(f"SELECT count(DISTINCT mun) FROM infants WHERE births >= {lo} AND births < {hi}").fetchone()[0]),
-                           "found": e(est["found"], est["found_se"], se_chance=float(est["found_se_chance"])), "cells": summary(est), "against_linkage": compare(est, link),
-                           "against_findable": compare(est, linkf), "linked_share": float(deaths.linked.mean()), "findable_share": float(deaths.findable.mean()),
-                           "full": full(est, link), "full_findable": full(est, linkf)})
-OUT["infants_births_share"] = {"below_25600": float(comp.loc[comp.births_year < 25600, "births_year"].sum() / comp.births_year.sum())}
+if not BYAGE:
+    F = pq.read_table(DATA / "infant_findable.parquet").to_pandas()
+    assert len(F) == len(L) and (F.year.to_numpy() == L.year.to_numpy()).all(), "infant_findable.parquet is not aligned with the linkage"
+    L["findable"] = F.findable.to_numpy()
+    LF = L[L.findable & L.dec.isin(RACES)]
+    OUT["infants"] = []
+    for lo, hi, label in [*SIZES, (0, 25600, "<25,600"), (0, 10**9, "all")]:
+        est, _ = estimate("infants", f"births >= {lo} AND births < {hi}")
+        sel = (LL.births_year >= lo) & (LL.births_year < hi)
+        link, linkf = link_matrix(LL[sel]), link_matrix(LF[(LF.births_year >= lo) & (LF.births_year < hi)])
+        deaths = L[(L.births_year >= lo) & (L.births_year < hi)]
+        OUT["infants"].append({"size": label, "municipalities": int(con.execute(f"SELECT count(DISTINCT mun) FROM infants WHERE births >= {lo} AND births < {hi}").fetchone()[0]),
+                               "found": e(est["found"], est["found_se"], se_chance=float(est["found_se_chance"])), "cells": summary(est), "against_linkage": compare(est, link),
+                               "against_findable": compare(est, linkf), "linked_share": float(deaths.linked.mean()), "findable_share": float(deaths.findable.mean()),
+                               "full": full(est, link), "full_findable": full(est, linkf)})
+    OUT["infants_births_share"] = {"below_25600": float(comp.loc[comp.births_year < 25600, "births_year"].sum() / comp.births_year.sum())}
 
 # ------------------------------------------------------------------ 2. the second pair: admissions that ended in death to their certificates
 PSIZES = [(0, 100, "<100"), (100, 400, "100-399"), (400, 1600, "400-1,599"), (1600, 6400, "1,600-6,399"), (6400, 10**9, ">=6,400")]
@@ -183,13 +187,14 @@ OUT["pair"]["register_by_sex"] = {f"{a}|{s_}": {"deaths": int(n), "white": float
 OUT["pair"]["unfindable"] = truth_matrix("linked AND NOT findable")
 
 # ------------------------------------------------------------------ 3. the rate ratios by the mother's race with the denominator's variance
-OUT["ratios"] = {}
-for label, lo, hi in (("1-4", 1, 4), ("5-9", 5, 9), ("1-9", 1, 9)):
-    for where, tag in ((f"age BETWEEN {lo} AND {hi}", "all"), (f"age BETWEEN {lo} AND {hi} AND births_year < 25600", "below_25600")):
-        est, n_mun = estimate("children", where, range(2013, 2025), range(lo, hi + 1), ref=2)
-        OUT["ratios"][f"{label}|{tag}"] = {NAME[RACES[i]]: e(est["ratio"][i], est["ratio_se"][i], se_poisson=float(est["ratio_se_poisson"][i]),
-                                                             se_chance=float(est["ratio_se_chance"][i])) for i in (0, 1, 3)} | {
-            "found": e(est["found"], est["found_se"]), "municipalities": int(n_mun)}
+if not BYAGE:
+    OUT["ratios"] = {}
+    for label, lo, hi in (("1-4", 1, 4), ("5-9", 5, 9), ("1-9", 1, 9)):
+        for where, tag in ((f"age BETWEEN {lo} AND {hi}", "all"), (f"age BETWEEN {lo} AND {hi} AND births_year < 25600", "below_25600")):
+            est, n_mun = estimate("children", where, range(2013, 2025), range(lo, hi + 1), ref=2)
+            OUT["ratios"][f"{label}|{tag}"] = {NAME[RACES[i]]: e(est["ratio"][i], est["ratio_se"][i], se_poisson=float(est["ratio_se_poisson"][i]),
+                                                                 se_chance=float(est["ratio_se_chance"][i])) for i in (0, 1, 3)} | {
+                "found": e(est["found"], est["found_se"]), "municipalities": int(n_mun)}
 
 # ------------------------------------------------------------------ 4. like for like, placebo, comparators (review 2, section 5)
 # The estimator is run on exactly the units whose answer is known (the linked), and on the others; with the key date shifted (placebo); on boys and on
@@ -397,35 +402,6 @@ def drive(periods, load, cls_of, labels, groups, truth_df, born_filter):
     return res
 
 
-def groups_of(labels_, extra):
-    return [(lb, [lb]) for lb in labels_] + extra
-
-
-# ---- infants: units in the linkage's order with the key and the stored link's flags
-U_ = pq.read_table(DATA / "infant_units.parquet").to_pandas()
-assert len(U_) == len(L) and (U_.year.to_numpy() == L.year.to_numpy()).all(), "infant_units.parquet is not aligned with the linkage"
-IU = pd.DataFrame({"dn": U_.dn, "sex": U_.sex, "mun": U_.res.astype(str).str[:6], "k": L.rec.astype(object).where(L.rec.notna(), None).to_numpy(),
-                   "declared": L.dec.astype(object).where(L.dec.notna(), None).to_numpy(), "linked": L.linked.to_numpy(),
-                   "findable": L.findable.to_numpy(), "n": 1})
-IU = IU[IU.sex.isin(["M", "F"]) & IU.dn.notna() & IU.mun.notna() & (IU.mun != "None")]
-bysize = comp.set_index("mun").births_year
-
-
-def size_label(b):
-    return np.nan if pd.isna(b) else next(lb for lo, hi, lb in SIZES if lo <= b < hi)
-
-
-IU["cls"] = IU.mun.map(bysize).map(size_label)
-IU = IU[IU.cls.notna()]
-icls = {m: c for m, c in IU.drop_duplicates("mun")[["mun", "cls"]].itertuples(index=False)}
-births_mun = set()
-for y in range(2012, 2024):
-    births_mun |= set(rk.execute(f"SELECT DISTINCT substr(mun, 1, 6) FROM read_parquet('{(KC / f'births_{y}.parquet').as_posix()}')").df().iloc[:, 0])
-for m in births_mun:
-    if m in bysize.index and not pd.isna(bysize[m]):
-        icls.setdefault(m, size_label(bysize[m]))
-
-
 def to_arrow(df):
     """A DuckDB-ready table; the birth dates stay dates (some are far outside pandas' range)."""
     import pyarrow as pa
@@ -433,20 +409,50 @@ def to_arrow(df):
     return pa.Table.from_pandas(df.drop(columns="dn"), preserve_index=False).append_column("dn", pa.array(df.dn.tolist(), pa.date32()))
 
 
-rk.register("iu", to_arrow(IU))
+def groups_of(labels_, extra):
+    return [(lb, [lb]) for lb in labels_] + extra
 
 
-def load_inf(born):
-    rk.execute("CREATE OR REPLACE TEMP TABLE units AS SELECT * REPLACE (CAST(dn AS DATE) AS dn) FROM iu")
-    rk.execute(f"CREATE OR REPLACE TEMP TABLE b AS SELECT dn, sex, substr(mun, 1, 6) mun, j, n FROM read_parquet('{(KC / f'births_{born}.parquet').as_posix()}')")
+# ---- infants: units in the linkage's order with the key and the stored link's flags
+if not BYAGE:
+    U_ = pq.read_table(DATA / "infant_units.parquet").to_pandas()
+    assert len(U_) == len(L) and (U_.year.to_numpy() == L.year.to_numpy()).all(), "infant_units.parquet is not aligned with the linkage"
+    IU = pd.DataFrame({"dn": U_.dn, "sex": U_.sex, "mun": U_.res.astype(str).str[:6], "k": L.rec.astype(object).where(L.rec.notna(), None).to_numpy(),
+                       "declared": L.dec.astype(object).where(L.dec.notna(), None).to_numpy(), "linked": L.linked.to_numpy(),
+                       "findable": L.findable.to_numpy(), "n": 1})
+    IU = IU[IU.sex.isin(["M", "F"]) & IU.dn.notna() & IU.mun.notna() & (IU.mun != "None")]
+    bysize = comp.set_index("mun").births_year
 
 
-print("like for like: infants", flush=True)
-ilabels = [lb for _, _, lb in SIZES]
-OUT["like_infants"] = drive(range(2012, 2024), load_inf, icls, ilabels,
-                            groups_of(ilabels, [("<25,600", ilabels[:4]), ("all", ilabels)]), IU, True)
-OUT["like_infants"]["units"] = int(len(IU))
-OUT["like_infants"]["unit_shares"] = {"linked": float(IU.linked.mean()), "findable": float(IU.findable.mean())}
+    def size_label(b):
+        return np.nan if pd.isna(b) else next(lb for lo, hi, lb in SIZES if lo <= b < hi)
+
+
+    IU["cls"] = IU.mun.map(bysize).map(size_label)
+    IU = IU[IU.cls.notna()]
+    icls = {m: c for m, c in IU.drop_duplicates("mun")[["mun", "cls"]].itertuples(index=False)}
+    births_mun = set()
+    for y in range(2012, 2024):
+        births_mun |= set(rk.execute(f"SELECT DISTINCT substr(mun, 1, 6) FROM read_parquet('{(KC / f'births_{y}.parquet').as_posix()}')").df().iloc[:, 0])
+    for m in births_mun:
+        if m in bysize.index and not pd.isna(bysize[m]):
+            icls.setdefault(m, size_label(bysize[m]))
+
+
+    rk.register("iu", to_arrow(IU))
+
+
+    def load_inf(born):
+        rk.execute("CREATE OR REPLACE TEMP TABLE units AS SELECT * REPLACE (CAST(dn AS DATE) AS dn) FROM iu")
+        rk.execute(f"CREATE OR REPLACE TEMP TABLE b AS SELECT dn, sex, substr(mun, 1, 6) mun, j, n FROM read_parquet('{(KC / f'births_{born}.parquet').as_posix()}')")
+
+
+    print("like for like: infants", flush=True)
+    ilabels = [lb for _, _, lb in SIZES]
+    OUT["like_infants"] = drive(range(2012, 2024), load_inf, icls, ilabels,
+                                groups_of(ilabels, [("<25,600", ilabels[:4]), ("all", ilabels)]), IU, True)
+    OUT["like_infants"]["units"] = int(len(IU))
+    OUT["like_infants"]["unit_shares"] = {"linked": float(IU.linked.mean()), "findable": float(IU.findable.mean())}
 
 # ---- admissions
 PU = pd.concat([pq.read_table(KC / f"pair_units_{y}.parquet").to_pandas().assign(year=y) for y in years], ignore_index=True)
@@ -471,6 +477,26 @@ def load_pair(year):
     rk.execute(f"CREATE OR REPLACE TEMP TABLE b AS SELECT dn, sex, substr(mun, 1, 6) mun, j, n FROM read_parquet('{(KC / f'pair_reg_{year}.parquet').as_posix()}')")
 
 
+if BYAGE:
+    # the admissions' validation by age at death (years between birth and the year of death), each band its own run of the loop
+    PU["ageband"] = pd.cut(PU.year - PU.dn.map(lambda x: getattr(x, "year", np.nan)).astype(float), [-1, 0, 4, 14, 24, 59, 200],
+                           labels=["<1", "1-4", "5-14", "15-24", "25-59", "60+"])
+    plabels = [lb for _, _, lb in PSIZES]
+    res = {}
+    full_pu = PU
+    for band in ["<1", "1-4", "5-14", "15-24", "25-59", "60+"]:
+        PU = full_pu[full_pu.ageband == band]
+        print("admissions, age", band, int(PU.n.sum()), flush=True)
+        r_ = drive(years, load_pair, pcls, plabels, groups_of(plabels, [("all", plabels), ("<6,400", plabels[:4])]), PU, False)
+        res[band] = {"units": int(PU.n.sum()), "groups": {g: {v: {k: x for k, x in blk.items() if k in ("units", "municipalities", "chance_per_unit", "found",
+                                                                                                     "against_linked", "against_findable")}
+                                                              for v, blk in gv["variants"].items() if v in ("all", "linked", "findable")}
+                                                          for g, gv in r_["groups"].items()}}
+    E_ = json.loads((PAPER / "results" / "estimator.json").read_text(encoding="utf-8"))
+    E_["like_pair_by_age"] = res
+    (PAPER / "results" / "estimator.json").write_text(json.dumps(E_, indent=1, default=float), encoding="utf-8")
+    print("BYAGE DONE", flush=True)
+    sys.exit(0)
 print("like for like: admissions", flush=True)
 plabels = [lb for _, _, lb in PSIZES]
 OUT["like_pair"] = drive(years, load_pair, pcls, plabels, groups_of(plabels, [("all", plabels)]), PU, False)

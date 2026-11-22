@@ -1,7 +1,7 @@
 {
- "words_introduction_to_conclusion": 3902,
- "words_all_paragraphs": 4969,
- "references": 16,
+ "words_introduction_to_conclusion": 4415,
+ "words_all_paragraphs": 5650,
+ "references": 17,
  "reference_keys": [
   "telles2002",
   "muniz2022",
@@ -18,10 +18,11 @@
   "datasus",
   "ibge_microdata2010",
   "fellegi1969",
-  "bates2015"
+  "bates2015",
+  "manual_dn2011"
  ],
  "tables": 1,
- "figures": 5,
+ "figures": 6,
  "supplementary_tables": 5,
  "supplementary_figures": 1
 }

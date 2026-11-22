@@ -21,7 +21,7 @@ OUT.mkdir(exist_ok=True)
 R = json.loads((HERE / "results" / "results.json").read_text(encoding="utf-8"))
 SP = json.loads((HERE / "results" / "spatial.json").read_text(encoding="utf-8"))
 REFS: dict = {}
-for name in ("crossref.json", "crossref_theory.json", "crossref_more.json", "crossref_methods.json", "crossref_methods2.json", "crossref_black.json"):
+for name in ("candidates_2026-11-22.json", "crossref_review3.json", "crossref.json", "crossref_theory.json", "crossref_more.json", "crossref_methods.json", "crossref_methods2.json", "crossref_black.json"):
     REFS |= json.loads((HERE / "references" / name).read_text(encoding="utf-8"))
 MANUAL = json.loads((HERE / "references" / "manual.json").read_text(encoding="utf-8"))
 
@@ -94,7 +94,8 @@ def reference_text(k):
     vol = f";{r['volume']}" if r.get("volume") else ""
     issue = f"({r['issue']})" if r.get("issue") and str(r["issue"]) != "0" else ""
     pages = f":{r['pages']}" if r.get("pages") and str(r["pages"]) != "None" else ""
-    return f"{authors}. {title}. {journal}. {r['year']}{vol}{issue}{pages}. doi:{r['doi']}"
+    where = f"doi:{r['doi']}" if r.get("doi") else f"Available from: {r['url']}" if r.get("url") else ""
+    return f"{authors}. {title}. {journal}. {r['year']}{vol}{issue}{pages}. {where}".rstrip()
 
 
 # ---------------------------------------------------------------- the document

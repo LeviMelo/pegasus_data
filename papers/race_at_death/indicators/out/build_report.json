@@ -1,7 +1,7 @@
 {
- "words_introduction_to_conclusion": 2848,
- "words_all_paragraphs": 3997,
- "references": 18,
+ "words_introduction_to_conclusion": 3192,
+ "words_all_paragraphs": 4415,
+ "references": 19,
  "reference_keys": [
   "cardoso2005",
   "caldas2017",
@@ -20,7 +20,8 @@
   "besag1991",
   "riebler2016",
   "rue2009",
-  "lindgren2015"
+  "lindgren2015",
+  "caldas2022"
  ],
  "tables": 1,
  "figures": 3,

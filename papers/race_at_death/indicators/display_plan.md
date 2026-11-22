@@ -10,3 +10,5 @@
 Four main items: the paper is short (2,561 words) and descriptive; the model estimates are the jackknifed ratios of Table 1. Supplement: Tables S1-S4, Figure S1 (1-9 years by region).
 
 Checked against the figure guide, 2026-11-22: a design figure was missing (added, shared with paper 1); the abstract's excess deaths and rates were in no main item (added to Table 1); Figure 2C gained yearly jackknife intervals.
+
+Review of 2026-11-22: Figure 3A is the 510 immediate regions ranked with 95% credible intervals, replacing a map that showed mostly the prior. The ratios are post-stratified.

@@ -1,0 +1,991 @@
+{
+ "municipalities": 5570,
+ "births_declared": 7608973,
+ "blank_share": 0.02152724848602372,
+ "W": {
+  "15-49": {
+   "national_birth": 0.33642201122280235,
+   "national_census": 0.41840815515853724,
+   "slope_none": {
+    "slope": 1.5206114135972517,
+    "se_quasi": 0.00018173736897829728,
+    "se_robust": 0.017792320942744185,
+    "intercept": -0.2531941377419703
+   },
+   "slope_region": {
+    "slope": 1.2896723057451913,
+    "se_quasi": 0.0002643391265256492,
+    "se_robust": 0.0220754957019209,
+    "intercept": -0.6795042175603279
+   },
+   "slope_uf": {
+    "slope": 1.3274873092340171,
+    "se_quasi": 0.0003121295933405489,
+    "se_robust": 0.02314417162006399,
+    "intercept": -0.32029652952715
+   },
+   "bins": [
+    {
+     "bin": 0,
+     "census": 0.0759300519052187,
+     "birth": 0.019687270082622263,
+     "municipalities": 144,
+     "births": 118249
+    },
+    {
+     "bin": 1,
+     "census": 0.15883369730791502,
+     "birth": 0.05830010887700032,
+     "municipalities": 1006,
+     "births": 1021336
+    },
+    {
+     "bin": 2,
+     "census": 0.2505082231424244,
+     "birth": 0.12109542460290676,
+     "municipalities": 1116,
+     "births": 1644513
+    },
+    {
+     "bin": 3,
+     "census": 0.3464919787777787,
+     "birth": 0.22716044341914543,
+     "municipalities": 813,
+     "births": 1224575
+    },
+    {
+     "bin": 4,
+     "census": 0.44281159412198157,
+     "birth": 0.3701010060559947,
+     "municipalities": 605,
+     "births": 1098746
+    },
+    {
+     "bin": 5,
+     "census": 0.5396039874937235,
+     "birth": 0.5001591810494447,
+     "municipalities": 507,
+     "births": 973734
+    },
+    {
+     "bin": 6,
+     "census": 0.6497439579989006,
+     "birth": 0.67773607742154,
+     "municipalities": 560,
+     "births": 803084
+    },
+    {
+     "bin": 7,
+     "census": 0.746444643079127,
+     "birth": 0.7852677626219672,
+     "municipalities": 430,
+     "births": 557322
+    },
+    {
+     "bin": 8,
+     "census": 0.8336301312010811,
+     "birth": 0.8636153085368754,
+     "municipalities": 323,
+     "births": 159754
+    },
+    {
+     "bin": 9,
+     "census": 0.9187354433350786,
+     "birth": 0.9236292428198434,
+     "municipalities": 66,
+     "births": 7660
+    }
+   ],
+   "departure_by_bin": [
+    {
+     "bin": 0,
+     "observed_less_constant_offset": -0.033444306121036466
+    },
+    {
+     "bin": 1,
+     "observed_less_constant_offset": -0.05899652434064438
+    },
+    {
+     "bin": 2,
+     "observed_less_constant_offset": -0.06903754766350076
+    },
+    {
+     "bin": 3,
+     "observed_less_constant_offset": -0.0454656992421007
+    },
+    {
+     "bin": 4,
+     "observed_less_constant_offset": 0.01045079083141226
+    },
+    {
+     "bin": 5,
+     "observed_less_constant_offset": 0.047304458382513015
+    },
+    {
+     "bin": 6,
+     "observed_less_constant_offset": 0.11073388986886723
+    },
+    {
+     "bin": 7,
+     "observed_less_constant_offset": 0.11015369527818608
+    },
+    {
+     "bin": 8,
+     "observed_less_constant_offset": 0.08447768642729303
+    },
+    {
+     "bin": 9,
+     "observed_less_constant_offset": 0.03518664882401268
+    }
+   ],
+   "corr": 0.9577794626995996
+  },
+  "20-34": {
+   "national_birth": 0.33642201122280235,
+   "national_census": 0.40820695304969695,
+   "slope_none": {
+    "slope": 1.5342061349209037,
+    "se_quasi": 0.00018239094558675147,
+    "se_robust": 0.01804379414295596,
+    "intercept": -0.18309670833741562
+   },
+   "slope_region": {
+    "slope": 1.3031208114635016,
+    "se_quasi": 0.00026496471218869985,
+    "se_robust": 0.021911190592388483,
+    "intercept": -0.6225921121271182
+   },
+   "slope_uf": {
+    "slope": 1.3452942937948307,
+    "se_quasi": 0.00031445179656626904,
+    "se_robust": 0.022689717544960162,
+    "intercept": -0.25751690175318187
+   },
+   "bins": [
+    {
+     "bin": 0,
+     "census": 0.07623659809571252,
+     "birth": 0.022405751089168455,
+     "municipalities": 176,
+     "births": 142999
+    },
+    {
+     "bin": 1,
+     "census": 0.15720168752580121,
+     "birth": 0.06079151179193664,
+     "municipalities": 1085,
+     "births": 1087438
+    },
+    {
+     "bin": 2,
+     "census": 0.252120957272436,
+     "birth": 0.12938251286897115,
+     "municipalities": 1118,
+     "births": 1745089
+    },
+    {
+     "bin": 3,
+     "census": 0.347922107568537,
+     "birth": 0.2427497005643418,
+     "municipalities": 785,
+     "births": 1112092
+    },
+    {
+     "bin": 4,
+     "census": 0.4394269098082351,
+     "birth": 0.3807707919712161,
+     "municipalities": 574,
+     "births": 1086441
+    },
+    {
+     "bin": 5,
+     "census": 0.5360998272162447,
+     "birth": 0.5057009745869957,
+     "municipalities": 516,
+     "births": 960099
+    },
+    {
+     "bin": 6,
+     "census": 0.6433687407047871,
+     "birth": 0.6884478400735294,
+     "municipalities": 540,
+     "births": 800768
+    },
+    {
+     "bin": 7,
+     "census": 0.7409220276388891,
+     "birth": 0.7910833011763012,
+     "municipalities": 438,
+     "births": 541613
+    },
+    {
+     "bin": 8,
+     "census": 0.8339063972575784,
+     "birth": 0.872526468364003,
+     "municipalities": 291,
+     "births": 126944
+    },
+    {
+     "bin": 9,
+     "census": 0.9200984918436442,
+     "birth": 0.9204007285974499,
+     "municipalities": 47,
+     "births": 5490
+    }
+   ],
+   "departure_by_bin": [
+    {
+     "bin": 0,
+     "observed_less_constant_offset": -0.03313766857323659
+    },
+    {
+     "bin": 1,
+     "observed_less_constant_offset": -0.05943085418253347
+    },
+    {
+     "bin": 2,
+     "observed_less_constant_offset": -0.0687467005904156
+    },
+    {
+     "bin": 3,
+     "observed_less_constant_offset": -0.040096782919052054
+    },
+    {
+     "bin": 4,
+     "observed_less_constant_offset": 0.014467103377421853
+    },
+    {
+     "bin": 5,
+     "observed_less_constant_offset": 0.04592499560719088
+    },
+    {
+     "bin": 6,
+     "observed_less_constant_offset": 0.11789441877822393
+    },
+    {
+     "bin": 7,
+     "observed_less_constant_offset": 0.11235196302652994
+    },
+    {
+     "bin": 8,
+     "observed_less_constant_offset": 0.08592945683379172
+    },
+    {
+     "bin": 9,
+     "observed_less_constant_offset": 0.02667200586151619
+    }
+   ],
+   "corr": 0.9585602627052154
+  }
+ },
+ "K": {
+  "15-49": {
+   "national_birth": 0.07387961555389932,
+   "national_census": 0.10485511871272463,
+   "slope_none": {
+    "slope": 1.0691486715422636,
+    "se_quasi": 0.0002825118190122211,
+    "se_robust": 0.04989686687447767,
+    "intercept": -0.23168138608091005
+   },
+   "slope_region": {
+    "slope": 1.215534560966887,
+    "se_quasi": 0.0002655331066414209,
+    "se_robust": 0.060838384990785116,
+    "intercept": -0.512188635025532
+   },
+   "slope_uf": {
+    "slope": 1.1776708656584507,
+    "se_quasi": 0.0003465770497897372,
+    "se_robust": 0.04994328326983493,
+    "intercept": -0.31696867496480263
+   },
+   "bins": [
+    {
+     "bin": 0,
+     "census": 0.06354067522793419,
+     "birth": 0.04061652605405068,
+     "municipalities": 3959,
+     "births": 4228402
+    },
+    {
+     "bin": 1,
+     "census": 0.1336020470084186,
+     "birth": 0.10195827875707246,
+     "municipalities": 1317,
+     "births": 2969087
+    },
+    {
+     "bin": 2,
+     "census": 0.22808413695951957,
+     "birth": 0.16652319876043728,
+     "municipalities": 202,
+     "births": 232340
+    },
+    {
+     "bin": 3,
+     "census": 0.3408648230446208,
+     "birth": 0.27115501083271415,
+     "municipalities": 59,
+     "births": 160163
+    },
+    {
+     "bin": 4,
+     "census": 0.4340337372791734,
+     "birth": 0.2897002305918524,
+     "municipalities": 24,
+     "births": 13010
+    },
+    {
+     "bin": 5,
+     "census": 0.5361294053993545,
+     "birth": 0.3004521855635572,
+     "municipalities": 9,
+     "births": 5971
+    }
+   ],
+   "departure_by_bin": [
+    {
+     "bin": 0,
+     "observed_less_constant_offset": -0.003305394550188606
+    },
+    {
+     "bin": 1,
+     "observed_less_constant_offset": 0.007125584875817673
+    },
+    {
+     "bin": 2,
+     "observed_less_constant_offset": -0.0002194159036623955
+    },
+    {
+     "bin": 3,
+     "observed_less_constant_offset": 0.011895727939820855
+    },
+    {
+     "bin": 4,
+     "observed_less_constant_offset": -0.053026600380956634
+    },
+    {
+     "bin": 5,
+     "observed_less_constant_offset": -0.14123111438350117
+    }
+   ],
+   "corr": 0.7715766497972107
+  },
+  "20-34": {
+   "national_birth": 0.07387961555389932,
+   "national_census": 0.1063179833405833,
+   "slope_none": {
+    "slope": 1.0652113414926074,
+    "se_quasi": 0.0002730061568051891,
+    "se_robust": 0.04884289214129454,
+    "intercept": -0.26447286128726316
+   },
+   "slope_region": {
+    "slope": 1.19894802510917,
+    "se_quasi": 0.00025925461192014243,
+    "se_robust": 0.05993583452761765,
+    "intercept": -0.5445629325015743
+   },
+   "slope_uf": {
+    "slope": 1.174383102875192,
+    "se_quasi": 0.00034466008513195286,
+    "se_robust": 0.04968014985046656,
+    "intercept": -0.3085893679126347
+   },
+   "bins": [
+    {
+     "bin": 0,
+     "census": 0.06367053170656205,
+     "birth": 0.03980539328141633,
+     "municipalities": 3914,
+     "births": 4144564
+    },
+    {
+     "bin": 1,
+     "census": 0.13524816821173197,
+     "birth": 0.10116549932434345,
+     "municipalities": 1325,
+     "births": 3038526
+    },
+    {
+     "bin": 2,
+     "census": 0.2306420320159051,
+     "birth": 0.1626434873251987,
+     "municipalities": 227,
+     "births": 237913
+    },
+    {
+     "bin": 3,
+     "census": 0.34645778577351755,
+     "birth": 0.2691152773565945,
+     "municipalities": 69,
+     "births": 168177
+    },
+    {
+     "bin": 4,
+     "census": 0.4421782540618582,
+     "birth": 0.28895456224602883,
+     "municipalities": 25,
+     "births": 13535
+    },
+    {
+     "bin": 5,
+     "census": 0.5432667245873154,
+     "birth": 0.3056887184403963,
+     "municipalities": 10,
+     "births": 6258
+    }
+   ],
+   "departure_by_bin": [
+    {
+     "bin": 0,
+     "observed_less_constant_offset": -0.003531510103820551
+    },
+    {
+     "bin": 1,
+     "observed_less_constant_offset": 0.0064816359508080845
+    },
+    {
+     "bin": 2,
+     "observed_less_constant_offset": -0.004292007596274516
+    },
+    {
+     "bin": 3,
+     "observed_less_constant_offset": 0.007622188166785782
+    },
+    {
+     "bin": 4,
+     "observed_less_constant_offset": -0.05799750998984082
+    },
+    {
+     "bin": 5,
+     "observed_less_constant_offset": -0.1388472617767761
+    }
+   ],
+   "corr": 0.7781374517291259
+  }
+ },
+ "P": {
+  "15-49": {
+   "national_birth": 0.5736904310213744,
+   "national_census": 0.4671849943514187,
+   "slope_none": {
+    "slope": 1.6100937686328984,
+    "se_quasi": 0.00023409646552237972,
+    "se_robust": 0.024447943262339955,
+    "intercept": 0.5334565887729383
+   },
+   "slope_region": {
+    "slope": 1.3919851052963894,
+    "se_quasi": 0.0003441588071316713,
+    "se_robust": 0.03610188156174807,
+    "intercept": 0.6101160586229692
+   },
+   "slope_uf": {
+    "slope": 1.4387660753760156,
+    "se_quasi": 0.00039680590458936497,
+    "se_robust": 0.0328333537869098,
+    "intercept": 0.45407404657056727
+   },
+   "bins": [
+    {
+     "bin": 0,
+     "census": 0.07985238693467336,
+     "birth": 0.06262997920332747,
+     "municipalities": 139,
+     "births": 37506
+    },
+    {
+     "bin": 1,
+     "census": 0.15346644144777652,
+     "birth": 0.12647800541630347,
+     "municipalities": 447,
+     "births": 450861
+    },
+    {
+     "bin": 2,
+     "census": 0.2581804953966507,
+     "birth": 0.23611156018901305,
+     "municipalities": 552,
+     "births": 865972
+    },
+    {
+     "bin": 3,
+     "census": 0.35580027732221015,
+     "birth": 0.39326709353270856,
+     "municipalities": 717,
+     "births": 1402782
+    },
+    {
+     "bin": 4,
+     "census": 0.4578898016358557,
+     "birth": 0.5451862531073731,
+     "municipalities": 649,
+     "births": 1267952
+    },
+    {
+     "bin": 5,
+     "census": 0.5544056100206282,
+     "birth": 0.7009196107607608,
+     "municipalities": 937,
+     "births": 1346113
+    },
+    {
+     "bin": 6,
+     "census": 0.6423754974086563,
+     "birth": 0.8286206296676615,
+     "municipalities": 1370,
+     "births": 1477319
+    },
+    {
+     "bin": 7,
+     "census": 0.7324912854607916,
+     "birth": 0.9012822164755379,
+     "municipalities": 676,
+     "births": 667438
+    },
+    {
+     "bin": 8,
+     "census": 0.8250143396104473,
+     "birth": 0.9587608738095754,
+     "municipalities": 82,
+     "births": 92194
+    },
+    {
+     "bin": 9,
+     "census": 0.9254835996635828,
+     "birth": 0.9832535885167464,
+     "municipalities": 1,
+     "births": 836
+    }
+   ],
+   "departure_by_bin": [
+    {
+     "bin": 0,
+     "observed_less_constant_offset": -0.05300146032813535
+    },
+    {
+     "bin": 1,
+     "observed_less_constant_offset": -0.0904565387165491
+    },
+    {
+     "bin": 2,
+     "observed_less_constant_offset": -0.11165705690011543
+    },
+    {
+     "bin": 3,
+     "observed_less_constant_offset": -0.0648084526268361
+    },
+    {
+     "bin": 4,
+     "observed_less_constant_offset": -0.018875994473917523
+    },
+    {
+     "bin": 5,
+     "observed_less_constant_offset": 0.0445200453974709
+    },
+    {
+     "bin": 6,
+     "observed_less_constant_offset": 0.09367322774237263
+    },
+    {
+     "bin": 7,
+     "observed_less_constant_offset": 0.09304321535280946
+    },
+    {
+     "bin": 8,
+     "observed_less_constant_offset": 0.08038986669399828
+    },
+    {
+     "bin": 9,
+     "observed_less_constant_offset": 0.03310032361873927
+    }
+   ],
+   "corr": 0.9434537266181287
+  },
+  "20-34": {
+   "national_birth": 0.5736904310213744,
+   "national_census": 0.4756760231269657,
+   "slope_none": {
+    "slope": 1.6329253127950447,
+    "se_quasi": 0.00023725001645320568,
+    "se_robust": 0.02537095974266021,
+    "intercept": 0.487350546419979
+   },
+   "slope_region": {
+    "slope": 1.4083942346507232,
+    "se_quasi": 0.0003437535560782861,
+    "se_robust": 0.03594431026929968,
+    "intercept": 0.574063889329907
+   },
+   "slope_uf": {
+    "slope": 1.4481448529781593,
+    "se_quasi": 0.00039595511562208886,
+    "se_robust": 0.03238134003690037,
+    "intercept": 0.406203901155774
+   },
+   "bins": [
+    {
+     "bin": 0,
+     "census": 0.07631747138457963,
+     "birth": 0.055752145761180545,
+     "municipalities": 113,
+     "births": 26564
+    },
+    {
+     "bin": 1,
+     "census": 0.15257915159652055,
+     "birth": 0.11693147584603857,
+     "municipalities": 434,
+     "births": 392358
+    },
+    {
+     "bin": 2,
+     "census": 0.2567494691233316,
+     "birth": 0.2208257987117209,
+     "municipalities": 521,
+     "births": 796877
+    },
+    {
+     "bin": 3,
+     "census": 0.3484442678769683,
+     "birth": 0.3650669819811647,
+     "municipalities": 718,
+     "births": 1267729
+    },
+    {
+     "bin": 4,
+     "census": 0.44301713894698097,
+     "birth": 0.5207726989095904,
+     "municipalities": 664,
+     "births": 1336562
+    },
+    {
+     "bin": 5,
+     "census": 0.5485664545974679,
+     "birth": 0.683961336022431,
+     "municipalities": 898,
+     "births": 1463688
+    },
+    {
+     "bin": 6,
+     "census": 0.6424284773800942,
+     "birth": 0.8214735287792597,
+     "municipalities": 1358,
+     "births": 1460114
+    },
+    {
+     "bin": 7,
+     "census": 0.7331367280856727,
+     "birth": 0.897222375556274,
+     "municipalities": 764,
+     "births": 760866
+    },
+    {
+     "bin": 8,
+     "census": 0.8288810928404837,
+     "birth": 0.957389798701864,
+     "municipalities": 99,
+     "births": 103379
+    },
+    {
+     "bin": 9,
+     "census": 0.929484963705496,
+     "birth": 0.9832535885167464,
+     "municipalities": 1,
+     "births": 836
+    }
+   ],
+   "departure_by_bin": [
+    {
+     "bin": 0,
+     "observed_less_constant_offset": -0.05167498160919872
+    },
+    {
+     "bin": 1,
+     "observed_less_constant_offset": -0.09279090943146133
+    },
+    {
+     "bin": 2,
+     "observed_less_constant_offset": -0.11783694831910516
+    },
+    {
+     "bin": 3,
+     "observed_less_constant_offset": -0.07745939520653466
+    },
+    {
+     "bin": 4,
+     "observed_less_constant_offset": -0.02120557320351335
+    },
+    {
+     "bin": 5,
+     "observed_less_constant_offset": 0.0403783878570978
+    },
+    {
+     "bin": 6,
+     "observed_less_constant_offset": 0.09347347291678565
+    },
+    {
+     "bin": 7,
+     "observed_less_constant_offset": 0.09381608445478196
+    },
+    {
+     "bin": 8,
+     "observed_less_constant_offset": 0.07991377825348112
+    },
+    {
+     "bin": 9,
+     "observed_less_constant_offset": 0.03190954201537788
+    }
+   ],
+   "corr": 0.9432492548220559
+  }
+ },
+ "mothers_2010": {
+  "municipalities": 4959,
+  "W": {
+   "national_birth": 0.34818306554239553,
+   "national_census_mothers": 0.3870014880818029,
+   "slope_none": {
+    "slope": 1.4609751329085987,
+    "se_robust": 0.020471500293816614
+   },
+   "slope_region": {
+    "slope": 1.1278537967383078,
+    "se_robust": 0.024315541193152507
+   },
+   "slope_uf": {
+    "slope": 1.11777733643275,
+    "se_robust": 0.0214569548835809
+   },
+   "slope_large_samples": {
+    "slope": 1.4705467345904508,
+    "se_robust": 0.021648219066919997,
+    "municipalities": 3163
+   },
+   "reverse_slope_large_samples": {
+    "slope_census_on_birth": 0.5831253099762084,
+    "implied_upper": 1.714897266319653
+   },
+   "bins": [
+    {
+     "bin": 0,
+     "census": 0.07300900560530689,
+     "birth": 0.039816485499273864,
+     "municipalities": 219
+    },
+    {
+     "bin": 1,
+     "census": 0.1582143478033951,
+     "birth": 0.07734009429523382,
+     "municipalities": 949
+    },
+    {
+     "bin": 2,
+     "census": 0.24532935094304814,
+     "birth": 0.1327943751653234,
+     "municipalities": 993
+    },
+    {
+     "bin": 3,
+     "census": 0.3461647842651182,
+     "birth": 0.2500378371833568,
+     "municipalities": 697
+    },
+    {
+     "bin": 4,
+     "census": 0.44348398474533574,
+     "birth": 0.40042075227955815,
+     "municipalities": 550
+    },
+    {
+     "bin": 5,
+     "census": 0.545124839439869,
+     "birth": 0.5347206595101783,
+     "municipalities": 331
+    },
+    {
+     "bin": 6,
+     "census": 0.6440309410450601,
+     "birth": 0.7172304757326764,
+     "municipalities": 355
+    },
+    {
+     "bin": 7,
+     "census": 0.749835351629652,
+     "birth": 0.8131276412804961,
+     "municipalities": 349
+    },
+    {
+     "bin": 8,
+     "census": 0.8415253442221117,
+     "birth": 0.8804992854995531,
+     "municipalities": 345
+    },
+    {
+     "bin": 9,
+     "census": 0.9242501107658954,
+     "birth": 0.9364274791867249,
+     "municipalities": 171
+    }
+   ]
+  },
+  "K": {
+   "national_birth": 0.05667814561882201,
+   "national_census_mothers": 0.08423010738992201,
+   "slope_none": {
+    "slope": 0.8602806850838457,
+    "se_robust": 0.04020912796393765
+   },
+   "slope_region": {
+    "slope": 0.8317712151484096,
+    "se_robust": 0.04737931310090531
+   },
+   "slope_uf": {
+    "slope": 0.5972700309644151,
+    "se_robust": 0.03784434915587817
+   },
+   "slope_large_samples": {
+    "slope": 0.8897591869277376,
+    "se_robust": 0.04197162884842967,
+    "municipalities": 3163
+   },
+   "reverse_slope_large_samples": {
+    "slope_census_on_birth": 0.4437982737943933,
+    "implied_upper": 2.253276001842424
+   },
+   "bins": [
+    {
+     "bin": 0,
+     "census": 0.055741644820742835,
+     "birth": 0.03837587231988596,
+     "municipalities": 3776
+    },
+    {
+     "bin": 1,
+     "census": 0.13252078960431207,
+     "birth": 0.09344189885416196,
+     "municipalities": 951
+    },
+    {
+     "bin": 2,
+     "census": 0.25487804354965343,
+     "birth": 0.15256621874619195,
+     "municipalities": 179
+    },
+    {
+     "bin": 3,
+     "census": 0.3381363098201443,
+     "birth": 0.17095472882115642,
+     "municipalities": 42
+    },
+    {
+     "bin": 4,
+     "census": 0.4398913734716479,
+     "birth": 0.22050527348540594,
+     "municipalities": 8
+    },
+    {
+     "bin": 5,
+     "census": 0.5618641178909025,
+     "birth": 0.3333333333333333,
+     "municipalities": 2
+    },
+    {
+     "bin": 6,
+     "census": 0.6080821484811373,
+     "birth": 0.1,
+     "municipalities": 1
+    }
+   ]
+  },
+  "P": {
+   "national_birth": 0.5821921601472345,
+   "national_census_mothers": 0.506313322420613,
+   "slope_none": {
+    "slope": 1.5535875477767918,
+    "se_robust": 0.022498523312501593
+   },
+   "slope_region": {
+    "slope": 1.1854255062200774,
+    "se_robust": 0.027590102918049423
+   },
+   "slope_uf": {
+    "slope": 1.1545394856140734,
+    "se_robust": 0.026155087875484123
+   },
+   "slope_large_samples": {
+    "slope": 1.5686862947796314,
+    "se_robust": 0.023610229276272095,
+    "municipalities": 3163
+   },
+   "reverse_slope_large_samples": {
+    "slope_census_on_birth": 0.5438482314027672,
+    "implied_upper": 1.8387482798659918
+   },
+   "bins": [
+    {
+     "bin": 0,
+     "census": 0.07073568760969279,
+     "birth": 0.0581841971973662,
+     "municipalities": 341
+    },
+    {
+     "bin": 1,
+     "census": 0.1445980684648977,
+     "birth": 0.09839447582899749,
+     "municipalities": 415
+    },
+    {
+     "bin": 2,
+     "census": 0.25986280679228074,
+     "birth": 0.21574331427583923,
+     "municipalities": 389
+    },
+    {
+     "bin": 3,
+     "census": 0.3565004461997569,
+     "birth": 0.36742711557301627,
+     "municipalities": 412
+    },
+    {
+     "bin": 4,
+     "census": 0.4469410409900152,
+     "birth": 0.5125844856799812,
+     "municipalities": 536
+    },
+    {
+     "bin": 5,
+     "census": 0.5501265568061239,
+     "birth": 0.7012188453290941,
+     "municipalities": 812
+    },
+    {
+     "bin": 6,
+     "census": 0.6490356839969668,
+     "birth": 0.8173411685980325,
+     "municipalities": 1074
+    },
+    {
+     "bin": 7,
+     "census": 0.738261529275214,
+     "birth": 0.8756646383517989,
+     "municipalities": 794
+    },
+    {
+     "bin": 8,
+     "census": 0.8306471739884672,
+     "birth": 0.9079324118915479,
+     "municipalities": 180
+    },
+    {
+     "bin": 9,
+     "census": 0.9139927164054267,
+     "birth": 0.9422492401215805,
+     "municipalities": 6
+    }
+   ]
+  }
+ }
+}

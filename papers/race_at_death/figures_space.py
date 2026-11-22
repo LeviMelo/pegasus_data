@@ -102,7 +102,7 @@ ax.set_ylim(0, 1)
 ax.set_xlabel("Share of White mothers among the municipality's live births", fontsize=7)
 ax.set_ylabel("Brown mother, infant certified White", fontsize=7)
 ax.set_title("A. Municipalities (BYM2 posterior means; area: linked deaths)", fontsize=7.5, loc="left")
-ax.legend(fontsize=5.8, frameon=False, loc="upper left", ncol=2, markerscale=1.5)
+ax.legend(fontsize=5.6, frameon=False, loc="upper center", bbox_to_anchor=(0.5, -0.2), ncol=4, markerscale=1.5)
 ax = fig.add_subplot(gs[1, 0])
 MO = S["moran"]["PW"]
 steps = [("none", "none"), ("composition", "composition"), ("state", "state"), ("context", "context"), ("composition_state", "comp. + state"),
@@ -309,10 +309,27 @@ gs = fig.add_gridspec(2, 2, hspace=0.32, wspace=0.18)
 GR = IMM.merge(RT, on="immediate", how="left")
 lr = TwoSlopeNorm(vmin=np.log(1 / 4), vcenter=0, vmax=np.log(4))
 ticks = [np.log(v) for v in (1 / 4, 0.5, 1, 2, 4)]
-for k, (col, title) in enumerate((("mother_log_rr", "A. By the mother's race"), ("certificate_log_rr", "B. By the race on the certificate"))):
-    ax = fig.add_subplot(gs[0, k])
-    cb = choropleth(ax, GR, col, "PuOr_r", lr, title, "White to Brown infant rate ratio (BYM2)", ticks=ticks, edge="#FFFFFF")
-    cb.ax.set_xticklabels(["1/4", "1/2", "1", "2", "4"])
+# A: the mother's-race ratios ranked with their 95% credible intervals (few White deaths per region draw them toward the national term, so a map
+# would show mostly the prior); B: the certified ratio mapped
+ax = fig.add_subplot(gs[0, 0])
+ax.set_position([ax.get_position().x0 + 0.03, ax.get_position().y0 + 0.04, ax.get_position().width - 0.03, ax.get_position().height - 0.06])
+rk = RT.sort_values("mother_log_rr").reset_index(drop=True)
+rk["region"] = (rk.uf // 10).map(REGION)
+for rn, col in OKABE.items():
+    q = rk[rk.region == rn]
+    ax.vlines(q.index, np.exp(q.mother_log_rr - 1.96 * q.mother_sd), np.exp(q.mother_log_rr + 1.96 * q.mother_sd), color=col, lw=0.35, alpha=0.6)
+    ax.scatter(q.index, np.exp(q.mother_log_rr), s=1.5, color=col, label=rn, lw=0)
+ax.axhline(1, color="#555555", lw=0.6)
+ax.set_yscale("log")
+ax.set_yticks([0.25, 0.5, 1, 2], ["1/4", "1/2", "1", "2"])
+ax.yaxis.set_minor_formatter(matplotlib.ticker.NullFormatter())
+ax.set_xlabel("510 immediate regions, ranked")
+ax.set_ylabel("White to Brown ratio, mother's race (BYM2)")
+ax.set_title("A. By the mother's race, with 95% credible intervals", fontsize=8, loc="left")
+ax.legend(fontsize=5.6, frameon=False, loc="upper left", markerscale=3, ncol=2)
+ax = fig.add_subplot(gs[0, 1])
+cb = choropleth(ax, GR, "certificate_log_rr", "PuOr_r", lr, "B. By the race on the certificate", "White to Brown infant rate ratio (BYM2)", ticks=ticks, edge="#FFFFFF")
+cb.ax.set_xticklabels(["1/4", "1/2", "1", "2", "4"])
 ax = fig.add_subplot(gs[1, 0])
 cb = choropleth(ax, GR, "misstated", "PuOr_r", TwoSlopeNorm(vmin=-1.2, vcenter=0, vmax=1.2), "C. Certified over mother's: B over A",
                 "Ratio of the two rate ratios", ticks=[np.log(v) for v in (0.33, 0.5, 1, 2, 3)], edge="#FFFFFF")
@@ -362,5 +379,37 @@ axes[1].legend(handles=[Patch(fc=c, ec="#999999", lw=0.3, label=f"{lab} ({S['lis
                fontsize=6.5, frameon=False, loc="lower left")
 fig.tight_layout()
 save(fig, "map_disagree")
+# ---------------------------------------------------------------- Figure: where the gradient lies (review 2026-11-22, tests B and C)
+CT = json.loads((RES / "category_test.json").read_text(encoding="utf-8"))
+BC = json.loads((RES / "birth_vs_census.json").read_text(encoding="utf-8"))
+fig = plt.figure(figsize=(6.9, 2.9))
+axA, axB = fig.add_axes([0.07, 0.17, 0.40, 0.70]), fig.add_axes([0.58, 0.17, 0.40, 0.70])
+cert = CT["certificate"]["bins"]
+axA.plot([c["x"] for c in cert], [c["est"] for c in cert], "o-", color="#D55E00", ms=3.5, lw=1.2, label="certificate: Brown mother's infant (linked deaths)")
+for key, col, lab in (("P_any_white", "#0072B2", "family: Brown mother, any partner (census 2010)"),
+                      ("PP_white", "#009E73", "family: Brown mother and Brown father (census 2010)")):
+    b = CT["0-9"]["white_births"][key]["bins"]
+    axA.errorbar([v["x"] for v in b], [v["est"] for v in b], yerr=[1.96 * v["se"] for v in b], fmt="o-", color=col, ms=3.5, lw=1.2, capsize=1.5, label=lab)
+axA.set_xlim(0, 1)
+axA.set_ylim(0, 0.85)
+axA.set_xlabel("Share of White births in the municipality, 2012-2023")
+axA.set_ylabel("Child recorded White")
+axA.set_title("A  Certificate and family, by composition", loc="left", fontsize=8)
+axA.legend(fontsize=6, frameon=False, loc="upper left")
+for key, col, lab in (("mothers_2010", "#0072B2", "census 2010: mothers of children aged 0-2"), (None, "#999999", "census 2022: women aged 15-49")):
+    b = BC["mothers_2010"]["W"]["bins"] if key else BC["W"]["15-49"]["bins"]
+    axB.plot([v["census"] for v in b], [v["birth"] for v in b], "o-", color=col, ms=3.5, lw=1.2, label=lab)
+axB.plot([0, 1], [0, 1], ls="--", color="#777777", lw=0.8)
+sl = BC["mothers_2010"]["W"]
+axB.text(0.97, 0.05, f"logit slope, mothers: {sl['slope_none']['slope']:.2f} national,\n{sl['slope_region']['slope']:.2f} within region, {sl['slope_uf']['slope']:.2f} within state",
+         ha="right", va="bottom", fontsize=6.2, transform=axB.transAxes)
+axB.set_xlim(0, 1)
+axB.set_ylim(0, 1)
+axB.set_xlabel("Share White in the census, by tenth of municipalities")
+axB.set_ylabel("Share of mothers White on the birth record")
+axB.set_title("B  Birth record against the census", loc="left", fontsize=8)
+axB.legend(fontsize=6, frameon=False, loc="upper left")
+save(fig, "place_category")
+
 print("spatial figures written")
 

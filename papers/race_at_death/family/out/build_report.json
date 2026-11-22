@@ -1,7 +1,7 @@
 {
- "words_introduction_to_conclusion": 3209,
- "words_all_paragraphs": 4016,
- "references": 7,
+ "words_introduction_to_conclusion": 3886,
+ "words_all_paragraphs": 5002,
+ "references": 15,
  "reference_keys": [
   "schwartzman2007",
   "telles2002",
@@ -9,10 +9,18 @@
   "carvalho2004",
   "freemannc2024",
   "ibge_microdata2010",
-  "ibge_microdata2022"
+  "ibge_microdata2022",
+  "francis2013",
+  "tomas2025",
+  "travassos2011",
+  "lei12711",
+  "francis2012",
+  "francistan2015",
+  "bailey2018",
+  "freeman2025"
  ],
  "tables": 1,
- "figures": 5,
+ "figures": 6,
  "supplementary_tables": 2,
  "supplementary_figures": 0
 }

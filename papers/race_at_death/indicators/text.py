@@ -63,6 +63,17 @@ assert N2["certified_over_child"]["white"]["est"] < 1 and N2["certified_over_chi
 assert D2["waterfall"][1]["ratios"]["white"] > 1.3 > D2["waterfall"][2]["ratios"]["white"] > 1, "the waterfall's first steps changed"
 assert D2["absolute"]["mother"]["brown"]["excess_deaths"] > 0 > D2["absolute"]["certified"]["brown"]["excess_deaths"], "absolute measures changed"
 assert max(ls_[k] for k in ("Branca", "Parda", "Preta")) - min(ls_[k] for k in ("Branca", "Parda", "Preta")) < 0.02, "linkage differs by certified race"
+R3_ = D2["review3"]
+PSR, ROR, MCL = R3_["race_region_period_year"], R3_["race_only"], R3_["misclassification"]
+STD2_ = D2["region_standardised"]
+LSH = R3_["linked_share"]
+CAL17 = D2["by_year"]["2017"]["rates"]["certified"]
+CAL_RATIO = CAL17["indigenous"] / CAL17["white"]
+assert abs(CAL_RATIO - 1.81) < 0.03, "the usual computation no longer reproduces the published 2017 Indigenous to White ratio (Caldas et al. 2022: 1.81)"
+assert abs(PSR["national"]["mother_over_mother"]["white"]["est"] - N2["mother_over_mother"]["white"]["est"]) < 1e-9, "the main analysis is not the post-stratified one"
+assert ROR["national"]["mother_over_mother"]["white"]["est"] > N2["mother_over_mother"]["white"]["est"], "post-stratification no longer lowers the ratio"
+assert MCL["ratio_corrected"]["black"] > MCL["ratio_observed"]["black"] > 1, "the misclassification correction no longer widens the Black to Brown ratio"
+EXW = PSR["excess_deaths_mother"]
 CRED = "a 95% credible interval (posterior mean plus or minus 1.96 posterior standard deviations) that excludes 1"
 
 d = new_doc()
@@ -73,18 +84,18 @@ para(d, "[Authors, affiliations, ORCID, funding, conflicts of interest and contr
 d.add_heading("Abstract", level=1)
 para(d, f"Objective: {OBJECTIVE[0].upper() + OBJECTIVE[1:]}.")
 para(d, f"Methods: {DESIGN[0].upper() + DESIGN[1:]}. Infant deaths of 2013-2023 were linked one-to-one to their birth records. Rate ratios were computed with "
-        "the numerator classified by the mother's race (linked deaths) or by the certificate, and the denominator by the mother's race (births) or by the "
+        "the numerator classified by the mother's race (linked deaths, scaled to all certificates within strata of certified race, region, age at death and year) or by the certificate, and the denominator by the mother's race (births) or by the "
         "child's race as households classify infants of mothers of each race (census flows), with delete-one-state jackknife intervals; the change from one to "
         "another was decomposed flow by flow, by age at death, cause, year and region.")
 para(d, f"Results: Infant mortality was {f1(RT2['white'])} per 1,000 live births for children of White mothers and {f1(RT2['brown'])} for children of Brown "
         f"mothers (White to Brown {jr('mother_over_mother', 'white')}; Black to Brown {jr('mother_over_mother', 'black')}). Certified deaths over births by the "
         f"mother's race, the usual way the rate is computed, gave {jr('certified_over_mother', 'white')} and {jr('certified_over_mother', 'black')}; certified "
         f"deaths over births reclassified as households classify infants gave {jr('certified_over_child', 'white')} and {jr('certified_over_child', 'black')}. "
-        f"Averaged over all orders, Brown mothers' infants certified White raised the log ratio by {SH['players'][BW_]['est']:.2f} and White mothers' infants "
+        f"Standardised to the regions, the White to Brown ratio by the mother's race was {f2(STD2_['mother_over_mother']['white'])}. Averaged over all orders, Brown mothers' infants certified White raised the log ratio by {SH['players'][BW_]['est']:.2f} and White mothers' infants "
         f"certified Brown lowered it by {-SH['players'][WB_]['est']:.2f}, against a net change of {SH['certified'] - SH['start']:.2f}; the usual ratio stayed above 1 "
         "in every year, age at death and cause. With the child's births in the denominator the ratio was below 1 nationally but its interval included 1, and "
-        f"it ranged from {min(RG2_[r]['certified_over_child']['white'] for r in RG2_):.2f} to {max(RG2_[r]['certified_over_child']['white'] for r in RG2_):.2f} between regions. Counted by the mother's race, {n0(D2['absolute']['mother']['brown']['excess_deaths'])} infant deaths of Brown "
-        "mothers' children exceeded the White mothers' rate in 2013-2023; by the usual indicator there was a deficit.")
+        f"it ranged from {min(RG2_[r]['certified_over_child']['white'] for r in RG2_):.2f} to {max(RG2_[r]['certified_over_child']['white'] for r in RG2_):.2f} between regions. Counted by the mother's race within each region, {n0(EXW['brown']['within_regions'])} infant deaths of Brown "
+        "mothers' children exceeded the White mothers' rate of the same region in 2013-2023; by the usual indicator there was a deficit.")
 para(d, "Conclusion: The usual infant mortality rate by race divides deaths classified by the child's race by births classified by the mother's, and the "
         "mismatch reverses the White to Brown inequality. Classified by the mother in both terms, the children of Brown mothers die more often; classified "
         "by the child in both, the ratio is below 1 nationally but uncertain, and its regional point estimates range widely, which suggests that households "
@@ -110,8 +121,10 @@ para(d, f"The mother's race for each death. Infant deaths of 2013-2023 ({n0(I['c
         f"{cite('fellegi1969')} on birth date, sex, residence, birth weight and mother's age (Figure 1); {pct(I['linked'] / I['certificates'])} were linked, with an estimated "
         f"{min(v['fdr_percent'] for v in I['link_quality'].values()):.2f}-{max(v['fdr_percent'] for v in I['link_quality'].values()):.2f}% of false links a year, and the linked "
         f"share was {pct(ls_['Branca'])}, {pct(ls_['Parda'])} and {pct(ls_['Preta'])} for deaths certified White, Brown and Black ({pct(ls_['Indigena'])} for Indigenous). "
-        "Linked deaths with the mother's race were scaled to every infant certificate, which assumes that unlinked deaths are distributed by the mother's race as linked "
-        "ones; this cannot be checked, since the mother's race of an unlinked death is unknown. Deaths at 1-9 years carry no birth weight or mother's age, and were "
+        f"The linked share was {pct(LSH['region']['North'], 0)} in the North and {pct(LSH['region']['South'], 0)} in the South, {pct(LSH['period']['neonatal'], 0)} "
+        f"of neonatal and {pct(LSH['period']['post-neonatal'], 0)} of later deaths, so linked deaths with the mother's race were scaled to every infant certificate "
+        "within strata of certified race, region, neonatal or later death and year (post-stratification); this assumes that unlinked deaths are distributed by "
+        "the mother's race as linked ones of the same stratum, which cannot be checked, since the mother's race of an unlinked death is unknown. Deaths at 1-9 years carry no birth weight or mother's age, and were "
         "classified by the mother's race with a candidate estimator: the births of the same birth date, sex and municipality, less the births of the other sex on the same "
         f"day as a control for chance agreement {cite('lipsitch2010')}, cross-classified by the race on the birth record and on the certificate (Supplementary Text S1). In "
         "infants, where the linkage gives the answer, the estimator reproduced the linkage's proportion of White mothers' infants certified White in municipalities with "

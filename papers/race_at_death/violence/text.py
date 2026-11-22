@@ -47,8 +47,31 @@ def dd(a, b, key="net_shift", src=None):
     return {"est": x["est"] - y["est"], "se": (x["se"] ** 2 + y["se"] ** 2) ** 0.5}
 
 
+def _pt(v):
+    """Percentage points, signed, without a negative zero."""
+    s_ = f"{100 * v:+.1f}"
+    return "0.0" if s_ in ("+0.0", "-0.0") else s_
+
+
 def ddc(x):
-    return f"{100 * x['est']:+.1f} percentage points (95%CI {100 * (x['est'] - 1.96 * x['se']):+.1f}; {100 * (x['est'] + 1.96 * x['se']):+.1f})"
+    return f"{_pt(x['est'])} percentage points (95%CI {_pt(x['est'] - 1.96 * x['se'])}; {_pt(x['est'] + 1.96 * x['se'])})"
+
+
+VP = _json.loads((HERE / "results" / "violence_place.json").read_text(encoding="utf-8"))
+EF = _json.loads((HERE / "results" / "estimator.json").read_text(encoding="utf-8"))["a1_findability"]["pair"]["by_declared"]
+
+
+def dpl(x):
+    """A bootstrap difference with its percentile interval, in percentage points."""
+    return f"{_pt(x['est'])} percentage points (95%CI {_pt(x['lo'])}; {_pt(x['hi'])})"
+
+
+AT_ = VP["all"]["all assault"]["minus_transport"]
+NT_ = VP["all"]["natural"]["minus_transport"]
+ST_ = VP["standardised_to_occurrence"]["all assault"]["minus_natural"]
+assert AT_["lo"] < 0 < AT_["hi"], "assaults now differ from transport deaths from birth to certificate"
+assert ST_["hi"] < 0 and VP["died_at_home_municipality"]["all assault"]["minus_natural"]["hi"] < 0, "the contrast no longer survives the place of occurrence"
+assert VP["died_in_hospital"]["all assault"]["minus_natural"]["hi"] < 0, "within hospital deaths the contrast is gone"
 
 
 P_ASS, P_EXT = dd("all assault", "natural"), dd("all external, not assault", "natural")
@@ -90,9 +113,12 @@ para(d, f"Results: Among {n0(sum(VI['deaths_total'][k] for k in ('natural', 'tra
         f"White fell from birth to the hospital record by about {100 * -TR['natural']['birth_white->hospital_white']['est']:.0f} points, with no difference "
         f"between assaults and natural deaths ({ddc(B_ASS)}), and "
         f"from the hospital record to the certificate it changed by {100 * TR['natural']['hospital_white->certified_white']['est']:+.0f} points for natural "
-        f"deaths and {100 * TR['all assault']['hospital_white->certified_white']['est']:+.0f} for assaults ({ddc(H_ASS)}).")
-para(d, "Conclusion: In the smaller Brazilian municipalities, young people who died of external causes, assaults no more than the others, were certified White "
-        "less often than they were recorded at birth. The difference from natural deaths arose after the earlier hospital records, on the certificate, while "
+        f"deaths and {100 * TR['all assault']['hospital_white->certified_white']['est']:+.0f} for assaults ({ddc(H_ASS)}). Against transport deaths, assaults "
+        f"changed alike from birth to the certificate ({dpl(AT_)}); standardised to the composition of the municipality where the death occurred, external "
+        f"causes still differed from natural ones ({dpl(ST_)}), and among deaths in hospital the difference was halved.")
+para(d, "Conclusion: In the smaller Brazilian municipalities, young people who died of external causes, assaults no more than transport deaths, were "
+        "certified White less often than they were recorded at birth, also among those who died in their municipality of residence and at equal composition of "
+        "the place of death. The difference from natural deaths arose after the earlier hospital records, on the certificate, while "
         "the change from birth to hospital did not differ detectably between causes. The large cities, where most homicides occur, require identified linkage.")
 para(d, "Keywords: Homicide; Violence; Racial Groups; Death Certificates; Young Adult; Brazil.")
 
@@ -114,10 +140,10 @@ para(d, f"Design and data. This is a {DESIGN}, reported according to the RECORD 
         f"System (SIM), births from the Live Birth Information System (SINASC) and admissions from the Hospital Information System (SIH) of the Unified Health "
         f"System {cite('datasus')}.")
 para(d, "Population. Deaths at 15-24 years in 2015-2024 of people born in 2000-2009, residents of municipalities with fewer than 1,600 live births a year on "
-        "average in 2000-2009, where a birth date, sex and municipality are shared by few other people. Causes (underlying cause, ICD-10): natural (A00-R99); "
+        "average in 2000-2009, where a birth date, sex and municipality are shared by few other people. Causes (underlying cause, ICD-10): "
         "transport accidents (V01-V99); suicide (X60-X84); assault by firearm (X93-X95); assault by other means (X85-Y09 otherwise); legal intervention "
-        "(Y35-Y36); events of undetermined intent (Y10-Y34); other external causes, including injury codes (S, T) filed as underlying causes. Municipalities "
-        "natural causes are all other codes (A00-R99, U, Z, and deaths with no cause filed). Municipalities "
+        "(Y35-Y36); events of undetermined intent (Y10-Y34); other external causes, including injury codes (S, T) filed as underlying causes; natural "
+        "causes are all other codes (A00-R99, U, Z, and deaths with no cause filed). Municipalities "
         "are those with fewer than 1,600 births a year in 2000-2009 for every comparison except the strata of Figure 3, which come from a tabulation that "
         "classes them by their births of 2012-2023.")
 para(d, "Race at birth and certified race. For each death, the live births of 2000-2009 with the same birth date, sex and municipality of residence are its "

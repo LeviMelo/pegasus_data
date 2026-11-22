@@ -12,7 +12,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-
 warnings.simplefilter("ignore")
 matplotlib.use("Agg")
 HERE = Path(__file__).parent
@@ -34,30 +33,60 @@ def save(fig, name):
 
 # ---------------------------------------------------------------- 1. the ladder: who records a Black person as Black
 L = BK["ladder"]
-rows = [("Mother's own declaration (reference)", {"est": 1.0, "se": 0.0}, "#777777"),
-        ("Family: child under 1 (census)", {"est": L["family_child_0"], "se": 0.0}, FAMILY),
-        ("Family: child 1-4 (census)", {"est": L["family_child_1_4"], "se": 0.0}, FAMILY),
+MVR = MC["movers"]
+rows = [("The mother herself, at her next birth (birth record)", MVR["declared_again|black"], "#777777"),
+        ("Family: child under 1 (census 2010)", {"est": L["family_child_0"], "se": 0.0}, FAMILY),
+        ("Family: child 1-4 (census 2010)", {"est": L["family_child_1_4"], "se": 0.0}, FAMILY),
         ("Hospital: the mother herself, at delivery", BK["hospital"]["black_bootstrap"]["black"], HOSP),
-        ("Certificate: infant", L["certificate_infant"], CERT),
-        ("Certificate: infant, municipalities <25,600 births", L["certificate_infant_below_25600"], CERT),
-        ("Certificate: child 1-4", L["certificate_1_4"], CERT),
+        ("Certificate: the infant", L["certificate_infant"], CERT),
+        ("Certificate: the infant, municipalities <25,600 births", L["certificate_infant_below_25600"], CERT),
+        ("Certificate: the child aged 1-4", L["certificate_1_4"], CERT),
         ("Count: hospital Black / Black-declared mothers", MC["black"]["net"]["hospital_ratio"], HOSP),
         ("Count: certified Black / infants of Black mothers", MC["black"]["net"]["certificate_ratio"], CERT),
         ]
-fig, ax = plt.subplots(figsize=(4.4, 3.2))
+fig, ax = plt.subplots(figsize=(4.6, 3.3))
 y = np.arange(len(rows))[::-1]
 for yi, (lab, x, col) in zip(y, rows, strict=True):
     ax.barh(yi, x["est"], color="white" if lab.startswith("Count") else col, edgecolor=col, hatch="////" if lab.startswith("Count") else None, height=0.62)
     if x.get("se"):
         ax.errorbar([x["est"]], [yi], xerr=[1.96 * x["se"]], fmt="none", color="black", capsize=2, lw=0.8)
     ax.text(x["est"] + (1.96 * x["se"] if x.get("se") else 0) + 0.015, yi, f"{x['est']:.2f}", va="center", fontsize=7)
+ax.axvline(1.0, color="#999999", lw=0.8, ls=":")
+ax.text(0.99, y[0] + 0.55, "mother's declaration\nat this birth = 1", ha="right", va="bottom", fontsize=6, color="#555555")
 ax.set_yticks(y, [r[0] for r in rows], fontsize=7)
 ax.set_xlim(0, 1.08)
+ax.set_ylim(-0.6, len(rows) + 0.4)
 ax.axhline(1.5, color="#cccccc", lw=0.6)
 ax.set_xlabel("Recorded Black: proportion (solid) or ratio of counts (hatched)", fontsize=7)
-ax.legend(handles=[plt.Rectangle((0, 0), 1, 1, color=c, label=lab) for lab, c in (("family (census 2010)", FAMILY), ("hospital (SIH)", HOSP), ("death certificate (SIM)", CERT))],
-          fontsize=7, frameon=False, loc="center right")
+ax.legend(handles=[plt.Rectangle((0, 0), 1, 1, color=c, label=lab) for lab, c in (("the mother herself", "#777777"), ("family (census 2010)", FAMILY),
+                                                                                     ("hospital (SIH)", HOSP), ("death certificate (SIM)", CERT))],
+          fontsize=6.5, frameon=False, loc="lower right", bbox_to_anchor=(1.0, 0.18))
 save(fig, "black_ladder")
+
+# ---------------------------------------------------------------- where hospitals record Black, and the birth record's shortfall (review 2026-11-22, 3.2-3.3)
+HD = json.loads((RES / "hospital_declaration.json").read_text(encoding="utf-8"))
+RGC = {"1": "#009E73", "2": "#E69F00", "3": "#0072B2", "4": "#CC79A7", "5": "#D55E00"}
+RGN = {"1": "North", "2": "Northeast", "3": "Southeast", "4": "South", "5": "Centre-West"}
+st = sorted(HD["practice_by_state"].items(), key=lambda kv: kv[1]["est"])
+fig = plt.figure(figsize=(6.9, 3.1))
+axA, axB = fig.add_axes([0.07, 0.17, 0.5, 0.7]), fig.add_axes([0.68, 0.17, 0.3, 0.7])
+for i, (uf, v) in enumerate(st):
+    c = RGC[v["region"]]
+    axA.errorbar([i], [v["est"]], yerr=[[v["est"] - v["lo"]], [v["hi"] - v["est"]]], fmt="o", ms=3.5, color=c, capsize=1.5, lw=0.9)
+axA.set_xticks(range(len(st)), [k for k, _ in st], fontsize=6, rotation=90)
+axA.set_ylim(0, 0.8)
+axA.set_ylabel("Black-declared mothers recorded\nBlack at delivery admission")
+axA.set_title("A  The hospital's practice by state, 2012-2023", loc="left", fontsize=8)
+axA.legend(handles=[plt.Line2D([], [], marker="o", ls="", color=c, label=RGN[k]) for k, c in RGC.items()], fontsize=6, frameon=False, loc="upper left")
+fifth = HD["by_practice_fifth"]
+axB.plot([f["practice"] for f in fifth], [f["dn_black"] for f in fifth], "o-", color=CERT, ms=3.5, label="declared Black on the birth record")
+axB.plot([f["practice"] for f in fifth], [f["expected_black"] for f in fifth], "s--", color="#777777", ms=3.5, label="expected from the 2022 Census")
+axB.set_ylim(0, 0.14)
+axB.set_xlabel("Hospital's practice (fifths)")
+axB.set_ylabel("Share of the hospital's mothers")
+axB.set_title("B  The birth record's Black mothers", loc="left", fontsize=8)
+axB.legend(fontsize=5.8, frameon=False, loc="lower right")
+save(fig, "black_states")
 
 # ---------------------------------------------------------------- 2. where and when
 fig = plt.figure(figsize=(6.9, 3.4))

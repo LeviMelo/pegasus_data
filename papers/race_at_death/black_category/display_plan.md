@@ -14,3 +14,5 @@ Claims in order, one main item each, with the sentence a reader should be able t
 Supplement: Table S1 (adult women), S2 (the ladder as a table), S3 (certificate by the hospital's record, both declarations), S4 (hospital record by declaration and year), S5 (variance under successive fixed parts), Figure S1 (each hospital's practice against its certificates).
 
 Checked against the figure guide (sections 2, 5, 6, 7), 2026-11-22, and redrawn on review 3. Figure 3A is standardised to region. 3B gives practice per SD and the no-prenatal stratum. 3C carries the slope. Figure 5A shows raw regional proportions. Figure 1 has counts. Figure 2 fits 175 mm. Every abstract number is in a main item.
+
+Review of 2026-11-22: Figure 2 (ladder) shows four levels with their comparators: the mother at her next birth 0.52, the family 0.39-0.47, the hospital 0.36, the certificate 0.18; the mother's declaration at this birth is a dotted line at 1. Figure 6 `black_states` added: A practice by state, B the birth record's Black mothers against the census by fifth of practice.

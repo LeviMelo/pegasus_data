@@ -87,7 +87,11 @@ c = box(ax, 50, 56, 75, "Linked infant deaths", [f"{n0(I['linked'])} ({100 * I['
                                                  f"estimated false links {FDR} a year"], "result")
 varrow(ax, a, c, xa=29.5, xb=70)
 varrow(ax, b, c, xa=145.5, xb=105)
-d = box(ax, 2, 25, 55, "Census 2010 sample", [f"{n0(R['census']['pairs_records'])} mother-child records", "how households report", "other, surviving children"], "census")
+d = box(ax, 2, 25, 55, "Censuses 2010 and 2022", [f"2010 sample: {n0(R['census']['pairs_records'])} mother-child", "records, by both parents;", "2022: women 15-49 by municipality"], "census")
+ax.add_patch(FancyArrowPatch((d["x"] + d["w"] / 2, d["y"] + d["h"]), (c["x"] + 4, c["y"] + c["h"] / 2), arrowstyle="-|>", mutation_scale=8, lw=0.9,
+                             color="#555555", shrinkA=1, shrinkB=1, connectionstyle="angle,angleA=90,angleB=0"))
+ax.text(d["x"] + d["w"] / 2 + 1.5, d["y"] + d["h"] + 5, "family's classification and\nthe birth record's reference,\nby mother's race and place",
+        ha="left", va="bottom", fontsize=5.9, color="#333333")
 e = box(ax, 63, 25, 110, "The place, 2013-2023", ["5,570 municipalities, 510 immediate and 133 intermediate regions, 27 states;",
                                                   "composition of births, GDP, schooling, urbanisation, physicians, certification,",
                                                   "race left blank; establishments of birth and death; the certifying physician"], "result")
@@ -97,7 +101,7 @@ save(fig, "flow_infants")
 # ---------------------------------------------------------------- paper 3: three records of the same families
 NT, DL = BK["net"], BK["delivery_link"]
 fig, ax = canvas(50)
-a = box(ax, 2, 48, 44, "Birth record (SINASC)", ["the mother's declared race", f"deliveries of Black-declared mothers", f"with a hospital race: {n0(NT['hospital_declared_black'])}"], "SINASC")
+a = box(ax, 2, 48, 44, "Birth record (SINASC)", ["the mother's declared race", "deliveries of Black-declared mothers", f"with a hospital race: {n0(NT['hospital_declared_black'])}"], "SINASC")
 b = box(ax, 65.5, 48, 44, "Delivery admission (SIH)", ["the hospital's record of the mother",
                                                       f"linked {min(v['linked_share'] for v in DL.values()):.2f}-{max(v['linked_share'] for v in DL.values()):.2f} of births a year",
                                                       f"false links {min(v['fdr_percent'] for v in DL.values()):.2f}-{max(v['fdr_percent'] for v in DL.values()):.2f}%"], "SIH")

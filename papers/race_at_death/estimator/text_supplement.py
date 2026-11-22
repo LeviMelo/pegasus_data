@@ -95,4 +95,14 @@ for side, key in (("admissions", "pair"), ("infants", "infants")):
 table(s, "Supplementary Table S5 - Findability (A1): the share of linked units whose partner shares the key, by the class on the other register and the unit's own class",
       ["Data", "Class on the other register | class recorded", "Share findable", "Linked units"], rows,
       ["Admissions: recorded is the hospital's race (missing and other apart). Infants: recorded is the certificate's race (other: not one of the four or none)."])
+for _f in LATE_TABLES:
+    _f()
+rows = [[b, n0(v["units"]), pp(v["groups"]["all"]["linked"]["chance_per_unit"], 3), pp(v["groups"]["all"]["linked"]["against_findable"]["mean_abs_diff"], 4),
+         str(v["groups"]["all"]["linked"]["against_findable"]["outside_model"]), pp(v["groups"]["all"]["linked"]["against_findable"]["z_sd_model"], 2),
+         pp(v["groups"]["all"]["linked"]["against_linked"]["mean_abs_diff"], 4)] for b, v in E["like_pair_by_age"].items()]
+table(s, "Supplementary Table S9 - The estimator on admissions that ended in death, by age at death: the linked units against the people the key finds (the "
+         "target) and against the whole linked table, Brazil, 2016-2022", ["Age at death (years)", "Units", "Chance candidates per unit", "Mean absolute difference, "
+         "target", "Cells outside the model interval (of 20)", "z-score SD", "Mean absolute difference, whole linked table"], rows,
+      ["Age at death: year of death less year of birth. All municipality sizes pooled. Target: the linked people whose certificate shares the key with their "
+       "admission."])
 s.save(OUT / "supplement.docx")

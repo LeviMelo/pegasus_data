@@ -62,6 +62,24 @@ para(d, f"The mother's race on the birth record is entered by staff on her answe
         + (f" Of mothers with two births in the smaller municipalities ({n0(MV['pairs'])} pairs; {pct(MV['false_share'], 1)} expected by chance from the shifted-date "
            f"control), those who declared themselves Black at the first birth did so again in {ci(MV['declared_again|black'])}, against "
            f"{ci(MV['declared_again|brown'])} for Brown and {ci(MV['declared_again|white'])} for White mothers." if MV else ""))
+HF = HD["by_practice_fifth"]
+para(d, "The two records are written in the same hospital. The birth record is filled by the health establishment where the birth occurred, the mother's "
+        f"race on her answer {cite('manual_dn2011')}; the admission is filled by the hospital's admitting staff. If the birth record's race were the mother's "
+        "own answer, a hospital's share of mothers declared Black would follow the population it serves whatever its admission practice. It did not: in the "
+        f"fifth of hospitals that recorded the fewest declared-Black mothers as Black on the admission (practice {f2(HF[0]['practice'])}), "
+        f"{pct(HF[0]['dn_black'], 1)} of mothers were Black on the birth record against {pct(HF[0]['expected_black'], 1)} expected from the women aged 15-49 of "
+        f"their municipalities in the 2022 Census; in the top fifth (practice {f2(HF[-1]['practice'])}), {pct(HF[-1]['dn_black'], 1)} against "
+        f"{pct(HF[-1]['expected_black'], 1)} (Figure 6B; {n0(HD['hospitals'])} hospitals with 100 or more linked births). The association held with the "
+        f"mothers' schooling held (slope {f2(HD['oe_black']['schooling']['slope'])}, standard error {f2(HD['oe_black']['schooling']['se'])} on the logit of "
+        f"observed over expected) and vanished within states ({f2(HD['oe_black']['state']['slope'])}, {f2(HD['oe_black']['state']['se'])}): where hospitals "
+        "record few Black mothers on the admission, the birth record also counts fewer Black mothers than the census holds, and both are properties of the state "
+        "more than of each hospital. In those states the birth record's declaration is partly the hospital's, and the reference here is itself lower than "
+        "self-declaration.")
+CV = HD["coverage"]["2021"]
+para(d, f"The comparison with the admission is limited to public-system deliveries ({pct(CV['linked_share'], 0)} of births in 2021). They left out mothers "
+        f"with higher education (linked {pct(CV['by_schooling']['5'], 0)} of their births, against {pct(CV['by_schooling']['3'], 0)} for mothers with 4-7 years "
+        f"of schooling) and White mothers more than Black ones ({pct(CV['by_race']['1'], 0)} against {pct(CV['by_race']['2'], 0)}): the hospital's record "
+        "describes the public system, where most Black mothers give birth.")
 d.add_heading("Person, chart or hospital", level=2)
 para(d, "When the hospital had recorded the infant's own mother as Black, the infant was certified Black in "
         f"{ci(by_h['black']['black'])} of deaths; when it had recorded her as Brown, in {ci(by_h['brown']['black'])}; when as White, in {ci(by_h['white']['black'])} "
@@ -145,3 +163,13 @@ figure(d, "black_where_when", "Figure 5 - Infants of Black mothers certified Bla
                               "against the certificate of their infants by year (B), Brazil, 2013-2023",
        ["A: linked deaths by region and year with binomial 95% confidence intervals, and the national linkage with bootstrap intervals. B: hospital by year of birth, certificate by year of death; dashed, the certificate standardised to the region, schooling and age of "
         "the Black mothers of 2013."])
+d.add_heading("Where", level=2)
+para(d, f"The hospital's practice differed most between states (Figure 6A): hospitals recorded declared-Black mothers as Black in {f2(_ps[PS_LO]['est'])} in "
+        f"{PS_LO} and {f2(_ps[PS_HI]['est'])} in {PS_HI}, in the South and Southeast more than in the North and Northeast, the same order as the certificate's "
+        "use of the category (Figure 5A).")
+figure(d, "black_states", "Figure 6 - The hospital's recording of declared-Black mothers as Black by state (A), and the share of mothers declared Black on the "
+                          "birth record against the share expected from the census, by fifth of the hospital's practice (B), Brazil, 2012-2023",
+       ["A: births of 2012-2023 linked to their delivery admissions; proportion of mothers declared Black on the birth record whom the admission recorded as "
+        "Black; 95% intervals from 500 bootstrap replicates over hospitals (wide where a state has few hospitals). B: hospitals with 100 or more linked births, "
+        "by fifth of their practice (shrunk toward the national rate); expected share: each mother's municipality's share of Black women aged 15-49 in the 2022 "
+        "Census (IBGE table 9606), averaged over the hospital's mothers."])

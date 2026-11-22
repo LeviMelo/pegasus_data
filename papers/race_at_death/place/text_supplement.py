@@ -16,6 +16,72 @@ para(s, "The estimator of t N(j, k) is the difference of the two counts. Its var
         "ignores the scaling factor of the control (close to 1). A proportion is a ratio of two such differences; the variance of its denominator was ignored, which "
         "understates the error of rows with few deaths. A twin of the same sex is a candidate and a twin of the other sex is in the control; both share the mother's race "
         "with the deceased. Mortality by the mother's race uses the shares of each race among the estimated deaths, so that t cancels provided it does not differ by race.")
+s.add_heading("Supplementary Text S2 - Methods of the spatial, multilevel and panel analyses", level=2)
+para(s, f"Small-area estimation. For each municipality, the linked infant deaths of each class of mother certified in each race, and the census children of each class of "
+        f"mother classified in each race, were modelled as binomial counts with a logit link and a Besag-York-Mollié random effect {cite('besag1991')} in the BYM2 "
+        f"parametrisation {cite('riebler2016')}, which splits the between-municipality variance into a spatially structured part (on the queen contiguity of the 2022 mesh, "
+        f"{n0(G['edges'])} pairs of neighbours; {G['islands_joined']} municipalities without a land neighbour joined to the nearest) and an unstructured part, with "
+        f"penalised-complexity priors {cite('simpson2017')}. Models were fitted by integrated nested Laplace approximation {cite('rue2009')} (R-INLA, Gaussian approximation, "
+        "empirical Bayes integration over the hyperparameters); maps show posterior means, and the raw proportions and the widths of the credible intervals are in the "
+        "supplement.")
+para(s, f"Spatial structure and competing explanations. Spatial autocorrelation was measured by Moran's I {cite('moran1950')} of the empirical-Bayes standardised proportion "
+        f"{cite('assuncao1999')} and local clusters by the local Moran statistic {cite('anselin1995')}, both with 999 permutations, over municipalities with at least five "
+        "linked deaths in the class. To set the explanations against one another, binomial models of the municipal proportions were fitted with the composition (a cubic "
+        "B-spline of the logit share of White births), with state fixed effects, with the municipal context, and with their combinations; for each, the deviance explained, "
+        "a quasi-likelihood F test of each block given the others, and Moran's I of the Pearson residuals are reported. The border test asks whether the certified race jumps "
+        f"at state borders, as a state practice would make it, or changes continuously, as local composition would {cite('keele2015')}: state effects were estimated, with "
+        "the composition, from the municipalities that touch no other state, and for each pair of neighbouring municipalities in different states the difference of their "
+        "empirical logits was regressed on the difference of their states' effects and of their composition (slope 1: the full state difference appears at the border; "
+        "slope 0: none of it does).")
+para(s, f"Multilevel models. For the linked infant deaths of each class of mother, the certified race (for example, certified White for children of Brown mothers) was "
+        f"modelled by logistic regression with a random intercept for the municipality {cite('bates2015')}. A sequence of fixed parts (none; composition; socioeconomic context "
+        "and place; services and recording; their combinations; and these with the individual variables of the death and the birth, the macro-region and the year) gave the "
+        f"proportional change in the municipal variance and the median odds ratio {cite('merlo2006')}; the order of entry is reported both ways so that no explanation is "
+        "credited with variance it shares with another. Models were fitted by penalised iteratively reweighted least squares (nAGQ = 0); for two outcomes the full model was refitted with a crossed random intercept for the "
+        "establishment of death, to set the place against the institution that certifies.")
+para(s, "Time by place. The yearly proportions of linked infant deaths certified with the mother's race (2013-2023) in each of the 133 intermediate regions were modelled by "
+        "binomial mixed models with a random intercept and a random slope for the year by region; the regional slopes give the change over the decade, and a model with the "
+        "macro-region by year interaction tests where the change was faster.")
+para(s, "Change within places. A municipality-year panel (2013-2023) set the certified race of each municipality's linked infant deaths against what the "
+        f"municipality was that year: the share of White mothers among its live births, GDP per capita {cite('ibge_pib')} over the yearly population, physicians "
+        "per 1,000 inhabitants, and, from its own death certificates of that year, the proportion with no race, of natural deaths certified by a death verification "
+        "service and of external deaths certified by a medical examiner. Binomial mixed models with a random intercept for the place and year effects split each "
+        f"variable into the place's mean over the years (between) and the year's deviation from it (within) {cite('mundlak1978')}; the within coefficient is what "
+        "follows a change inside the same place, the between coefficient the cross-sectional gradient. Because a small municipality's yearly share of White births "
+        "carries sampling noise that attenuates the within coefficient, the models were fitted on municipality-years and again on immediate region-years, and the "
+        "share of the within variance that is not sampling noise is reported. As a second time point independent of the birth records, the change between 2013-2015 "
+        "and 2021-2023 in municipalities with five or more deaths in each period was set against the change in the census share of White residents, literacy "
+        f"and urbanisation between 2010 and 2022 {cite('ibge_sidra2010')}.")
+s.add_heading("Supplementary Text S3 - Within places in detail", level=2)
+para(s, f"Within places, composition moved the certificate far less than it separated places. Over {n0(WM['n_unit_years'])} municipality-years of "
+        f"{n0(WM['n_units'])} municipalities ({n0(WM['deaths'])} deaths of Brown mothers' infants, 2013-2023), with region-by-year effects, the log-odds of being "
+        f"certified White rose by {bw('lw', part='b')} per unit of the logit of the share of White births between municipalities, and by {bw('lw')} when a "
+        f"municipality's own share rose by the same amount from one year to another (Figure 5C, Supplementary Table S8). The within variation was small (standard "
+        f"deviation {f2(WM['spread']['lw']['sd_within'])} against {f2(WM['spread']['lw']['sd_between'])} between municipalities) and "
+        f"{pct(1 - WM['lw_reliability'], 0)} of it was sampling noise of the yearly share, which attenuates the coefficient (the share not noise is one minus the "
+        f"mean sampling variance of the yearly logit share over its within variance); over {WI['n_units']} immediate regions, where "
+        f"{pct(WI['lw_reliability'], 0)} of the within variation was real change, the two coefficients were {bw('lw', 'immediate', part='b')} and "
+        f"{bw('lw', 'immediate')}, the second about {WI['all']['lw_w']['est'] / WI['lw_reliability'] / WI['all']['lw_b']['est'] * 100:.0f}% of the first once corrected "
+        f"for noise. A municipality's GDP per capita ({bw('lgdp')}) and physicians ({bw('lphys')}) did not move the certificate within it; the share of natural "
+        f"deaths certified by a verification service did ({bw('svo')}; {bw('svo', 'immediate')} within immediate regions), and so did the share of deaths with "
+        f"the race left blank ({bw('blank')}); the share of external deaths certified by a medical examiner moved it within immediate regions "
+        f"({bw('iml', 'immediate')}). Over a longer span, the "
+        f"census composition interpolated between 2010 and 2022 varied within municipalities by a standard deviation of {f2(L2['sd_within_lc'])} on the logit scale, "
+        f"against {f2(L2['sd_between_lc'])} between them. On that small variation, the certificate's excess of White over the births' share moved by "
+        f"{f2(L2['within']['lc']['est'])} (standard error {f2(L2['within']['lc']['se'])}) per unit within municipalities ({n0(L2['unit_years'])} municipality-years, "
+        f"state-by-year effects; 95%CI {f2(L2['within']['lc']['est'] - 1.96 * L2['within']['lc']['se'])}; {f2(L2['within']['lc']['est'] + 1.96 * L2['within']['lc']['se'])}; "
+        f"between them {f2(L2['between']['lc']['est'])}). On this outcome a certificate fixed in each place predicts -1 and one that follows the census predicts 0: the "
+        "interval excludes full following and includes a fixed certificate. With the next year's composition added as a placebo lead, the within estimate was "
+        f"{f2(L2['within_with_lead']['lc']['est'])} (standard error {f2(L2['within_with_lead']['lc']['se'])}) and the lead {f2(L2['within_with_lead']['lc_lead']['est'])} "
+        f"({f2(L2['within_with_lead']['lc_lead']['se'])}), uninformative; over 2000-2010, with the newborn's colour, the within estimate was "
+        f"{f2(PL['2000-2010 (newborn observed)']['within']['lc']['est'])} (standard error {f2(PL['2000-2010 (newborn observed)']['within']['lc']['se'])}). The decade's census change gave {f2(CEN2['coef']['cw_w']['est'])} (95%CI {f2(CEN2['coef']['cw_w']['est'] - 1.96 * CEN2['coef']['cw_w']['se'])}; "
+        f"{f2(CEN2['coef']['cw_w']['est'] + 1.96 * CEN2['coef']['cw_w']['se'])}) against {f2(CEN2['coef']['cw_b']['est'])} between municipalities (Figure 5D). The "
+        "yearly panel and the census decade agree that within places the certificate moved with composition much less than between places; the long panel's "
+        "interval includes both a fixed certificate and the gradient between places, so it does not discriminate. Within-place variation was small in all three, "
+        "and none excludes a slow adjustment.")
+s.add_heading("Supplementary Text S4 - Results in detail", level=2)
+for _t in S4:
+    para(s, _t)
 figure(s, "validation", "Supplementary Figure S1 - Estimates without individual linkage against the one-to-one linkage for every cell of the table of mother's race by certified race, "
                    "by size of municipality (A), and proportion of infant deaths certified with the mother's race by year of death (B), Brazil, 2013-2023", ["Bars: 95% confidence intervals."])
 figure(s, "map_raw", "Supplementary Figure S2 - Brown mothers' infants certified White by municipality: raw proportion, BYM2 posterior mean and width of the 95% credible interval, "

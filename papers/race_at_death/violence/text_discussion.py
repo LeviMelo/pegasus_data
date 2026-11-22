@@ -18,6 +18,11 @@ para(d, f"Three readings were set against each other. If the young people who di
         "hospital is not a neutral reference of life, and the comparison between causes, not the level, carries the inference. Race read as a status marker "
         f"changes with circumstances {cite('saperstein2010', 'penner2008')}; here it changed between records made by different observers, by an amount that "
         "depended on the observer more than on the cause, except at death.")
+para(d, f"Who assigns race at a violent death is documented: at medico-legal institutes the dead cannot declare it, and the examiner assigns it, "
+        f"often imprecisely and with little weight {cite('santos2013', 'rodrigues2012')}; the certificate means different things to physicians depending "
+        f"on how the death occurred {cite('melo2013')}. The completeness of the race field, which has improved {cite('romero2019')}, says nothing of its "
+        f"agreement with earlier records. Studies of homicide by race {cite('soaresfilho2011', 'cerqueira2014', 'aiquoc2022')} take the certificate's race "
+        "as given.")
 para(d, "Who certified did not explain the difference: assaults were certified White less often among those White at birth whether a medical examiner or an "
         "attending physician signed. The mother's schooling at birth ordered the certified race for every cause.")
 para(d, "Strengths and limitations. The study relates the same deaths, without identifiers, to records made at birth, in life and at death, counts each person once, measures "
@@ -28,7 +33,11 @@ para(d, "Strengths and limitations. The study relates the same deaths, without i
         "certificate matched that of all deaths found; about a third of the persons found carried no race on their admissions, more often after violent deaths; "
         "the time between the admission and the death, and the age at admission, were not examined; the race at birth is the newborn's colour recorded by staff; the placebo leaves a residual of chance agreement of about a "
         "tenth of the persons found for violent deaths, which pulls their hospital shares toward the municipality's population; and the strata of Figure 3 come "
-        "from a tabulation with a different set of municipalities and intervals that omit the variance of their denominator.")
+        "from a tabulation with a different set of municipalities and intervals that omit the variance of their denominator. Who is found depends on the class "
+        f"recorded: in the validation of the estimator, {pct(EF['Branca'], 0)} of White, {pct(EF['Preta'], 0)} of Black and {pct(EF['Parda'], 0)} of Brown people "
+        "shared the key with their own record (companion paper). Such unequal finding raises the share White at birth among the deaths found by about one "
+        "point for every cause alike; it would bias the contrast of causes only if it differed between causes by more than the contrast itself, which the "
+        "data cannot test.")
 para(d, "Implications. Rates of homicide by race in Brazil take the victim's race from a certificate that, in these municipalities, records victims as White "
         "less often than their birth records did, by more than for natural deaths; part of that difference is made at death. Whether this holds in the large "
         "cities requires identified linkage.")

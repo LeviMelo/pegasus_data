@@ -6,7 +6,7 @@ import json as _json
 FA = _json.loads((HERE / "results" / "family.json").read_text(encoding="utf-8"))
 DESIGN = "cross-sectional study of two national census samples"
 OBJECTIVE = ("to describe how Brazilian households report the race of children relative to the mother and her partner, whether he is the child's father, "
-             "between siblings, by who answered and by the child's age, in the Censuses of 2010 and 2022")
+             "between siblings, by who answered, by the child's age and by place, in the Censuses of 2010 and 2022")
 MX, BY, MD, INF, CO, PM = FA["matrix"], FA["by"], FA["models"], FA["informant"], FA["coresidence"], FA["partner_mix"]
 V2 = FA["review1"]
 CEN, COH = R["census"], R["cohorts"]
@@ -60,7 +60,20 @@ BW = (PAR["2010|brown|white"]["white"], PAR["2022|brown|white"]["white"])       
 assert min(F_W[0]["est"] - F_B[0]["est"], F_W[1]["est"] - F_B[1]["est"]) > 1.8 * max(
     rel(y, "brown", "is_white", r, "white")["est"] - rel(y, "brown", "is_white", r, "brown")["est"] for y in (2010, 2022) for r in (STEP5, STEP6)), \
     "the father no longer counts more than a stepfather"
-assert all(abs(WB[k]["est"] - BW[k]["est"]) < 0.07 for k in (0, 1)), "the mother's and the father's race no longer count about alike"
+CT = _json.loads((HERE / "results" / "category_test.json").read_text(encoding="utf-8"))
+CP, CS, CG = CT["couples"], CT["by_state"], CT["0-9"]["white_births"]
+for _y in ("2010", "2022"):
+    assert CP[_y]["gM_minus_gF"]["lo"] > 0, "the mother's class no longer counts more than the father's"
+    assert CP[_y]["aW"]["lo"] > 0 > CP[_y]["aK"]["hi"], "the pull toward White and away from Black is gone"
+assert CG["PP_white"]["slope_bins"] < 0.35 * CT["certificate"]["slope_bins"], "the Brown couples' gradient with composition is no longer small"
+
+
+def ex(v):
+    return f"{math.exp(v['est']):.2f} (95%CI {math.exp(v['lo']):.2f}; {math.exp(v['hi']):.2f})"
+
+
+PPB = CG["PP_white"]["bins"]
+STW = {u: v["PP_white"]["est"] for u, v in CS["2010"].items() if u != "BR"}
 assert all(PAR[f"{y}|white|black"]["white"]["est"] - PAR[f"{y}|black|white"]["white"]["est"] < 0.05 for y in (2010, 2022))
 assert F_W[1]["est"] - F_W[0]["est"] > 3 * math.hypot(F_W[0]["se"], F_W[1]["se"]), "White fathers: the 2022 rise is gone"
 FSW = (FS["2010|brown|white"], FS["2022|brown|white"])
@@ -98,14 +111,17 @@ para(d, f"Methods: {DESIGN[0].upper() + DESIGN[1:]}, Brazil. Children of the hou
         "full siblings, by who answered for the child and for the mother, and between the censuses; intervals are design-based or from a household bootstrap.")
 para(d, f"Results: Households reported as White {f2(v(2010, 'brown', 'white')['est'])} of Brown mothers' children aged 0-4 in 2010 and "
         f"{f2(v(2022, 'brown', 'white')['est'])} in 2022, and as Black {f2(v(2010, 'black', 'black')['est'])} and {f2(v(2022, 'black', 'black')['est'])} of Black "
-        f"mothers' children. Among children of both members of the couple, the child of a Brown mother and a White father was reported White in "
-        f"{f2(BW[0]['est'])} (2010) and {f2(BW[1]['est'])} (2022), and the child of a White mother and a Brown father in {f2(WB[0]['est'])} and "
-        f"{f2(WB[1]['est'])}; with a White stepfather, a Brown mother's child was White in {min(S_W):.2f}-{max(S_W):.2f}. Full siblings of a Brown mother and a "
+        f"mothers' children. Among children of both members of the couple, in a model of the nine couple types, taking the mother's class multiplied the odds "
+        f"by {ex(CP['2010']['gM'])} and the father's by {ex(CP['2010']['gF'])} (2010), and every child leaned toward White over Brown "
+        f"({ex(CP['2010']['aW'])}) and away from Black ({ex(CP['2010']['aK'])}); with a White stepfather, a Brown mother's child was White in {min(S_W):.2f}-{max(S_W):.2f}. Full siblings of a Brown mother and a "
         f"White father were reported in different races in {pct(FSW[0]['observed']['est'], 0)} and {pct(FSW[1]['observed']['est'], 0)} of households, against "
         f"{pct(FSW[0]['independent'], 0)} and {pct(FSW[1]['independent'], 0)} if each child were classified independently. In 2022 the child of a Brown mother "
         f"and a White partner was reported White in {f2(PB['white']['est'])} when he answered for both, {f2(PS['white']['est'])} when he answered for the child "
-        f"and she for herself, and {f2(MB_['white']['est'])} when she answered for both. Crude changes between the censuses were under three percentage points.")
-para(d, "Conclusion: The race households report for a child follows both parents about equally, the father more than a stepfather; siblings of mixed couples "
+        f"and she for herself, and {f2(MB_['white']['est'])} when she answered for both. The child of two Brown parents was reported White in "
+        f"{f2(PPB[0]['est'])} in the least White municipalities and {f2(PPB[-1]['est'])} in the most, and by state from {min(STW.values()):.2f} to "
+        f"{max(STW.values()):.2f}. Crude changes between the censuses were under three percentage points.")
+para(d, "Conclusion: The race households report for a child follows both parents, the mother somewhat more, with a pull toward White and away from "
+        "Black, and the father more than a stepfather; the child of two Brown parents is reported much alike across the country; siblings of mixed couples "
         "share a classification more than chance but often differ; and when the partner answered for both mother and child, the child was reported closer "
         "to his race. "
         "The national picture changed little between 2010 and 2022.")
@@ -146,6 +162,12 @@ para(d, "Who answered. In 2022 the questionnaire records who gave each person's 
 para(d, "Cohorts. The share of each five-year birth cohort reported White at the Censuses of 2000, 2010 and 2022 came from a cohort-component population "
         "account that takes the census population by single year of age and race as given in census years (Supplementary Text S1). The cohort born in 2000 "
         "was left out of the 2000 Census, which held only its births of January to August.")
+para(d, "Couple types and place. For children aged 0-9 of both members of the couple, the weighted counts of the child's class (White, Brown, Black) "
+        "in each of the nine couple types were fitted by a log-linear model with a term for each couple type, a term for each class of the child (the pull "
+        "toward that class whatever the parents), a term for the child taking the mother's class and one for taking the father's; intervals came from 200 "
+        "bootstrap replicates resampling municipalities (2010) or households (2022). By place, the shares of fixed couple types (two Brown parents, child "
+        "White; two White parents, child Brown; two Black parents, child Black) were related to the municipality's share of White births in 2010, when the "
+        "file carries the municipality, with errors clustered by municipality, and compared by state in 2010 and 2022.")
 para(d, "Analysis. Proportions are weighted; their standard errors are design-based (Taylor linearisation, strata the states, primary units the "
         "households; with 2010's weighting areas as strata the standard errors were unchanged). The reporting of Brown mothers' children aged 0-9 as White, "
         "and of Black mothers' as Black, was modelled by weighted logistic regression on both censuses together, with the census, the partner's race, the "

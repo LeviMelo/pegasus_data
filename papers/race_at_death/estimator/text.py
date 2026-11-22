@@ -149,30 +149,25 @@ para(d, "[Authors, affiliations, ORCID, funding, conflicts of interest and contr
 d.add_heading("Abstract", level=1)
 para(d, f"Objective: {OBJECTIVE[0].upper() + OBJECTIVE[1:]}. The estimand is a 4 x 5 table: the race on the mother's birth record (four classes) by the race "
         "recorded for the same person in the other register (four classes, other or none), and the share of people the key finds.")
-para(d, "Methods: For each record of one register (a death), the records of the other (births) that share its birth date, sex and municipality are counted by "
-        "their class; one of them is the person when the key was kept, the rest agree by chance. The other sex's records of the same day and municipality, scaled "
-        "by the sex ratio, estimate the chance agreements and are subtracted. The difference, summed over a group, is proportional to the cross-classification. "
-        f"It was run on exactly the units a one-to-one linkage paired, and on the unlinked ones, for {n0(I['certificates'])} Brazilian infant deaths of "
-        f"{I['years'][0]}-{I['years'][1]} and for {n0(PAIR['units'])} hospital admissions that ended in death ({PAIR['years'][0]}-{PAIR['years'][-1]}) against their "
-        "certificates; with the key date shifted by one and two weeks (a placebo), by sex, against three simpler estimators, and in a simulation "
-        f"({REPS} replicates of each of {len(SIM['scenarios']) - 2} scenarios and {SIM.get('replicates_pooled', REPS)} of two that pool twelve cohorts) of bias and coverage under movers, twins, unequal moving and a broken control"
-        + (", wrong birth dates, overdispersed births and pooled cohorts." if HAVE_NEW else "."))
-para(d, f"Results: In municipalities under 25,600 births a year ({pct(E['infants_births_share']['below_25600'], 0)} of births), on the linked infants, the estimated "
-        f"proportions differed from the linkage by {pp(l25['mean_abs_diff'])} on average over the 20 cells (candidates without the control: "
-        f"{pp(l25['nocontrol_mean_abs_diff'])}); {l25['outside_model']} of {l25['cells']} cells lay outside the 95% model interval and {l25['outside_chance']} "
-        f"outside the chance interval (adequate for infants pooled below 25,600 births; up to {max(v['outside_model'] for v in SZ_INF.values())} of 20 outside in one size class). On all units the difference was {pp(a25['mean_abs_diff'])}; the unique-key link, the uniform attribution and "
-        f"a Goodman regression on the same units gave {pp(cmpi['comparators']['unique']['mean_abs_diff'])}, {pp(cmpi['comparators']['uniform']['mean_abs_diff'])} and "
-        f"{pp(cmpi['comparators']['goodman']['mean_abs_diff'])}. In admissions the estimate on the linked units differed from the table of the people among them "
-        f"whom the key finds, its target, by {pp(pair_t['mean_abs_diff'])} on average, with {pair_t['outside_model']} of {pair_t['cells']} cells outside the model "
-        f"interval; from the whole linked table it differed by {pp(pair_l['mean_abs_diff'])}, the selection of who shares the key. The estimator found "
-        f"{pct(v25['linked']['found']['est'], 0)} of linked and {pct(v25['unlinked']['found']['est'], 0)} of unlinked infants. With the date shifted it found "
-        f"{pct(max(abs(x['T_over_deaths']) for x in pl['<25,600']), 1)} or less. In simulation with the assumptions holding, the bias was at most {pp(hold_small)} "
-        f"below 6,400 births a year for the five commonest cells and up to {pp(hold_all_big)} for the Indigenous row at 6,400-25,599; with a twelfth of the deaths "
-        f"{pct(sp_fail, 0)} of replicates at 6,400-25,599 had a non-positive row sum; moving, above all when it depended on the class recorded, biased the "
-        f"estimate against all deaths.")
+para(d, "Methods: For each record of one register (a death), the records of the other (births) sharing its birth date, sex and municipality are counted "
+        "by class; the other sex's records of the same day, scaled by the sex ratio, estimate the chance agreements and are subtracted. The estimator was run "
+        f"on the units a one-to-one linkage paired, for {n0(I['certificates'])} Brazilian infant deaths ({I['years'][0]}-{I['years'][1]}) and "
+        f"{n0(PAIR['units'])} hospital admissions that ended in death ({PAIR['years'][0]}-{PAIR['years'][-1]}), by size of municipality and age at death, "
+        "with a shifted-date placebo, against simpler estimators, and in a simulation of its bias and coverage under departures from its assumptions.")
+AGE_ = E.get("like_pair_by_age", {})
+AGE_MAD = [v["groups"]["all"]["linked"]["against_findable"]["mean_abs_diff"] for v in AGE_.values()]
+AGE_OUT = [v["groups"]["all"]["linked"]["against_findable"]["outside_model"] for v in AGE_.values()]
+assert AGE_ and max(AGE_MAD) < 0.005 and max(AGE_OUT) <= 2, "by age at death the admissions' estimate no longer matches its target"
+para(d, f"Results: On the linked infants of municipalities under 25,600 births a year ({pct(E['infants_births_share']['below_25600'], 0)} of births), the "
+        f"estimate differed from the linkage by {pp(l25['mean_abs_diff'])} on average over 20 cells (without the control, {pp(l25['nocontrol_mean_abs_diff'])}), "
+        f"with {l25['outside_model']} cells outside the 95% interval. On admissions, against its target (the people the key finds), it differed by "
+        f"{pp(pair_t['mean_abs_diff'])} with {pair_t['outside_model']} of {pair_t['cells']} cells outside, and in every age band from under one to 60 or more by "
+        f"{min(AGE_MAD):.3f}-{max(AGE_MAD):.3f} with at most {max(AGE_OUT)} cells outside. Accuracy held while the expected chance candidates per unit stayed "
+        "below about one. The shifted-date placebo found almost no one. In simulation the estimator was nearly unbiased for the people found where its "
+        "assumptions held; moving that depended on the class recorded biased it against all deaths.")
 para(d, "Conclusions: A cross-classification between registers can be estimated without linking individuals for the people whose key the two registers share, "
-        "with the error of the chance agreements and of the proportion's denominator, in places with few births a day. It was tested for infant deaths and hospital deaths, "
-        "not for ages 1-14; against its target its interval was adequate for both. Who shares the key is not random: where it could be measured "
+        "with the error of the chance agreements and of the proportion's denominator, where a unit has fewer than about one chance candidate. Against its "
+        "target its interval held for infant deaths and for hospital deaths at every age. Who shares the key is not random: where it could be measured "
         f"(admissions linked to certificates), findability fell from {pct(t_cls['Branca'], 0)} for White to {pct(t_cls['Indigena'], 0)} for Indigenous.")
 para(d, "Keywords: Medical Record Linkage; Vital Statistics; Data Accuracy; Bias; Negative Controls; Ecological Inference; Simulation; Brazil.")
 

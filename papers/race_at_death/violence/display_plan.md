@@ -11,3 +11,5 @@
 Supplement: Table S1 (region and period), S2 (certified race by the hospital's race).
 
 Checked against the figure guide, 2026-11-22, and redrawn on review 2. Figures 2 and 4B are from one population with bootstrap intervals. Figure 1 has counts and text within its boxes. Every abstract number is in Table 1, Table 2, Figure 2 or Figure 4.
+
+Review of 2026-11-22: Figure 4 `violence_place` added: A by composition of the place of occurrence, B by place of death; the former Figure 4 is now Figure 5. Supplementary Table S3 holds the splits.

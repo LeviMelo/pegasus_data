@@ -37,6 +37,12 @@ para(d, "The rise over 2013-2023 was faster on the certificate than in the hospi
         f"with a darkening of racial identification in surveys of the period {cite('freemannc2024')}. Whether certifiers responded to that change or to "
         f"training cannot be tested here. A change in how race was recorded on birth records in 2012 changed infant mortality by race {cite('caldas2022')}; the "
         "records filled by staff move separately from the mother's declaration and at different speeds.")
+para(d, f"Read against the right comparator for each record, the ladder is shorter than against the mother's declaration taken as 1. The same "
+        f"mother declared herself Black again at her next birth in {f2(AGAIN['est'])}, so a record of her at another time and by other people cannot be "
+        f"expected to reach 1: the hospital's {f2(HO['black_bootstrap']['black']['est'])} is below her own repetition. The infant is not the mother, and "
+        f"families report Black mothers' children under one as Black in {f2(LD['family_child_0'])}: the certificate's {f2(LD['certificate_infant']['est'])} "
+        "is below half of that. The birth record itself counts fewer Black mothers than the census where hospitals use the category least, so these "
+        "levels are, if anything, measured against a reference that already leans away from Black.")
 para(d, "Strengths and limitations. The study follows the same families through linked records nationally over eleven years, with one-to-one linkage of the infant "
         "to the birth and of the birth to the delivery, separates gross from net classification, and sets copying, a shared upstream record, practice and the "
         "person against each other. Limitations: the reference is the mother's declaration, entered by staff; the infant's own hospital record was not used; the "

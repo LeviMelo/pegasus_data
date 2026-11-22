@@ -133,4 +133,30 @@ ax.set_title("B. The same deaths, three records", fontsize=8, loc="left")
 ax.legend(frameon=False, fontsize=6.5, loc="upper right", ncol=3)
 fig.tight_layout()
 save(fig, "violence_hospital")
+# ---------------------------------------------------------------- the cause contrast by place (review 2026-11-22, 5.1 and 5.2)
+VP = json.loads((RES / "violence_place.json").read_text(encoding="utf-8"))
+CAUSES = [("natural", "Natural", "#0072B2"), ("transport", "Transport", "#999999"), ("all assault", "Assault", "#D55E00"), ("suicide", "Suicide", "#CC79A7")]
+fig = plt.figure(figsize=(6.9, 2.8))
+axA, axB = fig.add_axes([0.08, 0.2, 0.42, 0.66]), fig.add_axes([0.6, 0.2, 0.38, 0.66])
+cut = VP["thirds_cut"]
+labs = [f"under {cut[0]:.2f}", f"{cut[0]:.2f}-{cut[1]:.2f}", f"{cut[1]:.2f} or more"]
+for k, (g, lab, col) in enumerate(CAUSES):
+    ys = [VP["by_occurrence_third"][str(t)][g] for t in range(3)]
+    xs = np.arange(3) + (k - 1.5) * 0.17
+    axA.errorbar(xs, [100 * y["shift"] for y in ys], yerr=[196 * y["se"] for y in ys], fmt="o", ms=3.5, color=col, capsize=1.5, lw=0.9, label=lab)
+axA.axhline(0, color="#777777", lw=0.6)
+axA.set_xticks(range(3), labs)
+axA.set_xlabel("Share of White births in the municipality where the death occurred")
+axA.set_ylabel("Change of the share White,\nbirth to certificate (points)")
+axA.set_title("A  By composition of the place of occurrence", loc="left", fontsize=8)
+axA.legend(fontsize=6, frameon=False, ncol=4, loc="lower center", bbox_to_anchor=(0.5, 1.08))
+for k, (g, _lab, col) in enumerate(CAUSES):
+    ys = [VP[w][g] for w in ("died_at_home_municipality", "died_elsewhere", "died_in_hospital", "died_out_of_hospital")]
+    xs = np.arange(4) + (k - 1.5) * 0.17
+    axB.errorbar(xs, [100 * y["shift"] for y in ys], yerr=[196 * y["se"] for y in ys], fmt="o", ms=3.5, color=col, capsize=1.5, lw=0.9)
+axB.axhline(0, color="#777777", lw=0.6)
+axB.set_xticks(range(4), ["in residence\nmunicipality", "elsewhere", "in hospital", "out of\nhospital"], fontsize=6.5)
+axB.set_title("B  By where the death occurred", loc="left", fontsize=8)
+save(fig, "violence_place")
+
 print("violence figures written")

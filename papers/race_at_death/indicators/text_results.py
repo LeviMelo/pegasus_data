@@ -3,9 +3,14 @@
 STD2, WF = D2["region_standardised"], D2["waterfall"]
 d.add_heading("Results", level=1)
 para(d, f"Of {n0(I['certificates'])} infant deaths of 2013-2023, {pct(I['linked'] / I['certificates'])} were linked to their birth records; linked deaths were "
-        f"scaled to all certificates by certified race (factors {D2['linked_scale']['white']:.2f} for White, {D2['linked_scale']['brown']:.2f} for Brown, "
-        f"{D2['linked_scale']['black']:.2f} for Black and {D2['linked_scale']['indigenous']:.2f} for Indigenous certificates), and {pct(D2['no_race_share'])} of "
-        "certificates carried no race.")
+        "scaled to all certificates within strata of certified race, region, neonatal or later death and year, and "
+        f"{pct(D2['no_race_share'])} of certificates carried no race. Scaled by certified race alone, the White to Brown ratio by the mother's race was "
+        f"{f2(ROR['national']['mother_over_mother']['white']['est'])} instead of {f2(N2['mother_over_mother']['white']['est'])}, and the Black to Brown "
+        f"{f2(ROR['national']['mother_over_mother']['black']['est'])} instead of {f2(N2['mother_over_mother']['black']['est'])}: the coarser scaling tilts the deaths "
+        "toward the South and the neonatal period, where linkage succeeds more often. Births with no race, left out of every denominator, were "
+        f"{pct(R3_['births_no_race']['2013'])} of births in 2013 and "
+        f"{pct(R3_['births_no_race']['2023'])} in 2023 ({pct(R3_['births_no_race_all'])} "
+        "overall); distributed like the births with a race, they would lower every rate by that share and leave the ratios unchanged.")
 d.add_heading("Two classifications in one rate", level=2)
 para(d, f"By the mother's race in both terms, infant mortality was {f1(N2['rates']['mother']['white'])} per 1,000 live births for children of White mothers, "
         f"{f1(N2['rates']['mother']['brown'])} for Brown, {f1(N2['rates']['mother']['black'])} for Black and {f1(N2['rates']['mother']['indigenous'])} for Indigenous "
@@ -15,7 +20,9 @@ para(d, f"By the mother's race in both terms, infant mortality was {f1(N2['rates
         f"births classified as households classify infants, they were {jr('certified_over_child', 'white')}, {jr('certified_over_child', 'black')} and "
         f"{jr('certified_over_child', 'indigenous')}. Standardised to the regions, the White to Brown ratio was {f2(STD2['mother_over_mother']['white'])} by the "
         f"mother's race, {f2(STD2['certified_over_mother']['white'])} the usual way and {f2(STD2['certified_over_child']['white'])} by the child's race: standardisation moved the usual ratio away from 1 and the mother's-race ratio "
-        "toward it, because White births concentrate in the regions of lower mortality. The linked cohort of 2012-2018 births "
+        "toward it, because White births concentrate in the regions of lower mortality. The usual computation reproduces what is published from the same "
+        f"systems: for 2017 it gave an Indigenous to White ratio of {f2(CAL_RATIO)}, as Caldas, Santos and Cardoso computed it {cite('caldas2022')} (1.81, 95%CI "
+        "1.67; 1.96), with certified deaths over births by the mother's race. The linked cohort of 2012-2018 births "
         f"classified by the mother's race {cite('reboucas2022')} agrees: a crude White to Brown ratio of {f2(REB['under 1']['ratio'])} under one year.")
 rows = []
 for cname, lab in (("mother_over_mother", "Deaths and births by the mother's race"), ("certified_over_mother", "Certified deaths over births by the mother's race (usual)"),
@@ -26,7 +33,7 @@ for cname, lab in (("mother_over_mother", "Deaths and births by the mother's rac
 table(d, "Table 1 - Infant mortality rate ratios against Brown with deaths and births classified by the mother's race or the child's, Brazil, 2013-2023",
       ["Numerator and denominator", "White to Brown (95%CI)", "Black to Brown (95%CI)", "Indigenous to Brown (95%CI)", "White to Brown, region-standardised",
        "Deaths above the White rate: Brown; Black mothers' infants"], rows,
-      ["95%CI: delete-one-state jackknife on the log scale. Deaths by the mother's race: linked deaths scaled to all certificates by certified race. Births by the "
+      ["95%CI: delete-one-state jackknife on the log scale. Deaths by the mother's race: linked deaths scaled to all certificates within strata of certified race, region, neonatal or later death and year. Births by the "
        "child's race: births by the mother's race passed through the proportions in which households classify infants of mothers of each race (2010 Census). "
        "Region-standardised: Mantel-Haenszel over the five regions. Deaths above the White rate: (rate of the group minus the White rate) times the group's births, "
        f"2013-2023; negative, a deficit. Infant mortality by the mother's race: White {f1(RT2['white'])}, Brown {f1(RT2['brown'])} per 1,000 live births. "
@@ -63,7 +70,9 @@ para(d, f"The usual ratio exceeded 1 and the mother's ratio stayed below it in e
         f"{n0(D2['absolute']['mother']['brown']['excess_deaths'])} deaths of Brown mothers' infants and {n0(D2['absolute']['mother']['black']['excess_deaths'])} of "
         f"Black mothers' infants exceeded the White mothers' rate over 2013-2023 ({D2['absolute']['mother']['brown']['difference_per_1000']:.1f} and "
         f"{D2['absolute']['mother']['black']['difference_per_1000']:.1f} per 1,000 live births); the usual indicator showed deficits of "
-        f"{n0(-D2['absolute']['certified']['brown']['excess_deaths'])} and {n0(-D2['absolute']['certified']['black']['excess_deaths'])}.")
+        f"{n0(-D2['absolute']['certified']['brown']['excess_deaths'])} and {n0(-D2['absolute']['certified']['black']['excess_deaths'])}. Counted against the White "
+        f"mothers' rate of the same region, which removes the regional concentration of White births, the excess was {n0(EXW['brown']['within_regions'])} and "
+        f"{n0(EXW['black']['within_regions'])}.")
 para(d, "After infancy, with deaths related to births through the candidate estimator in municipalities with fewer than 25,600 births a year, the White to Brown "
         f"ratios were {rr(C14W)} by the mother's race and {rc(C14W)} by certified race over the same person-years at 1-4 years, and {rr(C59W)} and {rc(C59W)} at "
         "5-9 years; the shares found among candidates are lower than in infancy and the mother's-race ratios after infancy rest on the assumption that they "
@@ -76,10 +85,11 @@ para(d, "By region, the usual way reversed the ratio everywhere and the child's 
         + f", against {', '.join(f2(RG2[r]['mother_over_mother']['white']) for r in RG2)} by the mother's race. In 510 immediate regions, modelled separately "
         f"for each classification with Besag-York-Mollié effects, the certified ratio was credibly above 1 in {MS['certificate_above_1_credibly']} regions and "
         f"the mother's-race ratio credibly below 1 in {MS['mother_below_1_credibly']}; few White deaths per region draw the mother's-race estimates toward the "
-        f"national term ({math.exp(RA['mother']['national']['mean']):.2f}), so its map is mostly the prior (Figure 3, Supplementary Table S2). Weighted by births, "
+        f"national term ({math.exp(RA['mother']['national']['mean']):.2f}), so they are shown ranked with their intervals rather than mapped (Figure 3A, Supplementary Table S2). Weighted by births, "
         f"the certified ratio was {f2(MSB['<10%']['ratio_of_ratios'])} times the mother's-race ratio where under 10% of births were White and "
         f"{f2(MSB['30-59%']['ratio_of_ratios'])} at 30-59%.")
-figure(d, "regional_ratios", "Figure 3 - White to Brown infant mortality rate ratio by immediate region, by the mother's race (A) and by certified race (B), the ratio of the two "
+figure(d, "regional_ratios", "Figure 3 - White to Brown infant mortality rate ratio by immediate region, by the mother's race ranked with intervals (A) and by certified race (B), the ratio of the two "
                              "(C), and the ratio of the two against the share of White births and GDP per capita (D), Brazil, 2013-2023",
        ["Posterior means of Poisson models with Besag-York-Mollié effects over 510 immediate regions, fitted separately for each classification; the colour scales "
-        "of A-C are censored at their ends. D: area of a point, live births; the line is the births-weighted mean by class of composition."])
+        "of B-C are censored at their ends. A: posterior means and 95% credible intervals, coloured by macro-region. D: area of a point, live births; the line is "
+        "the births-weighted mean by class of composition."])

@@ -2,7 +2,8 @@
 # ruff: noqa: F821
 d.add_heading("Discussion", level=1)
 para(d, "In two national censuses twelve years apart, Brazilian households reported most children in the mother's race when she was White or Brown, and fewer "
-        "than half of Black mothers' children as Black. Among children of both members of the couple, the mother's and the father's races counted about alike; "
+        "than half of Black mothers' children as Black. Among children of both members of the couple, the child took the mother's class somewhat more than "
+        "the father's, and every child leaned toward White and away from Black; "
         "a stepfather counted less than a father; full siblings of mixed couples shared a classification more than chance but often differed; and where the "
         "partner answered for both the mother and the child, the child was reported closer to his race. Between 2010 and 2022 the classification changed "
         "by less than three percentage points.")
@@ -13,12 +14,24 @@ para(d, "Several readings of the partner's association were set against each oth
         "stepfather contrast reduces but does not remove. If the respondent reported his or her own reading, the answer would lean toward the respondent's "
         "race; it did only where the partner answered for both the mother and the child, and only for non-White mothers, which points to one respondent "
         "classifying the whole household rather than to each informant pulling the child. The finding extends the observation that educated non-White "
-        f"parents classify children as White in part through whom they marry {cite('schwartzman2007')}: the partner's race counts about as much as the "
-        "mother's, and mostly when he is the father.")
+        f"parents classify children as White in part through whom they marry {cite('schwartzman2007')}: the father's race counts nearly as much as the "
+        "mother's, and the pull toward White adds to both. Young adults of mixed families identify more with the mother's race than the father's "
+        f"{cite('francis2013')}, as the household reports here. Interracial unions have stayed near three in ten {cite('tomas2025')}, so a large share of "
+        "children are reported through this rule.")
 para(d, "The changes between the censuses were small, and their sign depended on schooling. Schooling rose for mothers of every race, and more schooled "
         "mothers report lighter children; at the 2010 mothers' schooling and region, the children of White and Brown mothers were reported White less often in "
         "2022, a darkening within equal schooling of the kind surveys found in adults' own identification in the period " + cite('freemannc2024') + ". "
         "Fewer Brown mothers had White partners, while among White fathers the share of White children rose.")
+para(d, f"Two findings concern the child. Girls were reported White more often than boys ({orf('brown|is_white', 'C(sex)[T.2]')}) and Black less often "
+        f"({orf('black|is_black', 'C(sex)[T.2]')}); women place themselves lighter than men on a colour scale {cite('travassos2011')}, and the household "
+        f"reports daughters lighter in the same direction, though young men declare lighter categories than women at equal skin tone {cite('francis2013')}. "
+        "Older children of Brown mothers were reported White less often, which fits the cohort series below. Both are associations of the report, not of "
+        "appearance, which the census does not observe.")
+para(d, f"The changes between the censuses coincide with a change of incentives. The quota law of 2012 reserved places in federal universities for "
+        f"self-declared Black, Brown and Indigenous students from public schools {cite('lei12711')}; declarations shifted toward Black among university "
+        f"entrants {cite('francis2012', 'francistan2015')} and in the population {cite('bailey2018', 'freeman2025')}. The largest falls of White between "
+        "censuses were among children who reached 10-17 years, nearest to university entry; these data cannot test the law's effect, which would need the "
+        "declarations of the same people before and after it.")
 para(d, "Black mothers' children were reported Black more often at older ages, and the whole-population cohort series showed the largest falls of White "
         "between a census at ages 0-4 and the next at ages 10-17, while households still report for them. Reclassification between censuses has "
         f"been described before {cite('carvalho2004')}; the cohort series also reflects mortality, migration and coverage, and two cross-sections cannot "
@@ -28,12 +41,13 @@ para(d, "Strengths and limitations. The study uses the public-access samples of 
         "for each person. Limitations: the pairs are children of the household's couple living with the mother, about four in five of the children aged 0-9 "
         "the 2010 order number pairs, leaving out children in their grandparents' households; the rule cannot be checked in 2022, where the mother may be a "
         "stepmother; the 2022 public file gives five-year ages and no municipality; who answered is not random; the intervals ignore imputation of race and "
-        "the change of the questionnaire; the father-stepfather contrast is unadjusted; and Yellow and Indigenous mothers, whose numbers changed most between "
+        "the change of the questionnaire; the father-stepfather contrast is unadjusted; the place analysis has the municipality only in 2010; and Yellow and Indigenous mothers, whose numbers changed most between "
         "the censuses, are not analysed.")
 para(d, "Implications. Statistics that take children's race from the household inherit a classification that follows both parents and the person who "
         "answers for the household. Records that carry the mother's own declaration, such as the live birth record, can be expected to differ from them for "
         "children of mixed couples even without error in either source, a hypothesis that linked records could test.")
-para(d, f"In conclusion, this study set out {OBJECTIVE}. Households reported children by both parents about equally, by the father more than a stepfather, "
+para(d, f"In conclusion, this study set out {OBJECTIVE}. Households reported children by both parents, the mother somewhat more, with a pull toward "
+        "White and away from Black, by the father more than a stepfather, much alike across municipalities and states for a given couple, "
         "with siblings of mixed couples often classified apart, and closer to the partner's race when he answered for both mother and child; the classification "
         "changed little between 2010 and 2022.")
 d.add_heading("References", level=1)

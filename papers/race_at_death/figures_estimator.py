@@ -58,7 +58,8 @@ save(fig, "estimator_design")
 LI, LP = E["like_infants"]["groups"], E["like_pair"]["groups"]
 panels = [("A  Infant deaths, linked units", [(k, LI[k]["full"]) for k in LI if k not in ("all", "<25,600") and LI[k]["full"]]),
           ("B  Admissions, linked units", [(k, LP[k]["full"]) for k in LP if k != "all" and LP[k]["full"]])]
-fig, axes = plt.subplots(1, 3, figsize=(7.6, 2.9))
+fig, axes = plt.subplots(2, 2, figsize=(6.9, 5.6), gridspec_kw={"hspace": 0.45, "wspace": 0.3})
+axes = axes.ravel()
 zs = {}
 for ax, (title, blocks) in zip(axes[:2], panels, strict=True):
     for (label, f), col in zip(blocks, SIZE_COL, strict=True):
@@ -93,6 +94,24 @@ ax.set_xticks(range(5), ["smallest", "", "", "", "largest"], fontsize=6.5)
 ax.set_xlabel("municipality size class")
 ax.set_ylabel("z = difference / model SE")
 ax.set_title("C  Calibration of the interval", fontsize=7.2, loc="left")
+ax.legend(fontsize=6, frameon=False, loc="upper left")
+# D: the working limit is the expected number of chance candidates per unit, not the municipality's size (review 2026-11-22, 6.3)
+ax = axes[3]
+BA = E.get("like_pair_by_age", {})
+series = [("infants, by size", "o", "#0072B2", [(LI[k]["variants"]["linked"]["chance_per_unit"], LI[k]["variants"]["linked"]["against_findable"]["mean_abs_diff"])
+                                                for k in LI if k not in ("all", "<25,600") and "linked" in LI[k]["variants"]]),
+          ("admissions, by size", "s", "#D55E00", [(LP[k]["variants"]["linked"]["chance_per_unit"], LP[k]["variants"]["linked"]["against_findable"]["mean_abs_diff"])
+                                                   for k in LP if k != "all" and "linked" in LP[k]["variants"]]),
+          ("admissions, by age", "^", "#009E73", [(v["groups"]["all"]["linked"]["chance_per_unit"], v["groups"]["all"]["linked"]["against_findable"]["mean_abs_diff"])
+                                                  for v in BA.values()])]
+for lab, mk, col, pts in series:
+    if pts:
+        x_, y_ = zip(*sorted(pts), strict=True)
+        ax.plot(x_, y_, mk + "-", color=col, ms=3.5, lw=0.8, label=lab)
+ax.set_xscale("log")
+ax.set_xlabel("chance candidates per unit (control, scaled)")
+ax.set_ylabel("mean |estimate - target| over cells")
+ax.set_title("D  Accuracy against chance agreement", fontsize=7.2, loc="left")
 ax.legend(fontsize=6, frameon=False, loc="upper left")
 save(fig, "estimator_validation")
 

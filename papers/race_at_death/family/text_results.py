@@ -31,7 +31,10 @@ figure(d, "family_matrix", "Figure 2 - Race reported for children aged 0-4 accor
        ["Children of the household's couple living with their mother. Weighted proportions with design-based 95% confidence intervals (most narrower than the "
         "markers). D: percentage points with 95% confidence intervals from a household bootstrap; White mothers' children as a check."])
 d.add_heading("Mother, father, stepfather and siblings", level=2)
-para(d, f"Among children of both members of the couple, the mother's and the father's races counted about alike (Figure 3C): the child of a Brown mother and a "
+para(d, f"Among children of both members of the couple the child took the mother's class somewhat more than the father's: in the model of the nine "
+        f"couple types, taking the mother's class multiplied the odds by {ex(CP['2010']['gM'])} in 2010 and {ex(CP['2022']['gM'])} in 2022, taking the father's "
+        f"by {ex(CP['2010']['gF'])} and {ex(CP['2022']['gF'])}, and whatever the parents the child leaned toward White over Brown ({ex(CP['2010']['aW'])} and "
+        f"{ex(CP['2022']['aW'])}) and away from Black ({ex(CP['2010']['aK'])} and {ex(CP['2022']['aK'])}). The pull toward White is why the child of a Brown mother and a "
         f"White father was reported White in {dci(BW[0])} in 2010 and {dci(BW[1])} in 2022, and the child of a White mother and a Brown father in {dci(WB[0])} "
         f"and {dci(WB[1])}; the child of a Black mother and a White father in {f2(PAR['2022|black|white']['white']['est'])} and of a White mother and a Black "
         f"father in {f2(PAR['2022|white|black']['white']['est'])} (2022). With a Brown father, a Brown mother's child was reported White in {dci(F_B[0])} and "
@@ -79,15 +82,31 @@ para(d, f"Partners changed: {pct(PMIX['partner_share']['2010']['white'], 0)} of 
         "(Figure 2D). Within equal schooling and region, children of White and Brown mothers were reported White less often in 2022; the standardisation "
         "moved every group, White mothers' children included, by more than the crude change, because schooling rose for all mothers and more schooled mothers "
         "report lighter children. It does not tell whether the women declaring each category changed.")
+GROUPS = [("Census", [("C(census)[T.2022]", "2022 (ref. 2010)")]),
+          ("Mother's partner (ref. of the mother's race)", [("partner[T.white]", "White"), ("partner[T.brown]", "Brown"), ("partner[T.black]", "Black"),
+                                                            ("partner[T.other]", "Other"), ("partner[T.no partner]", "No partner")]),
+          ("Mother's instruction (ref. none or incomplete primary)", [("instruction[T.primary complete]", "Primary complete"),
+                                                                      ("instruction[T.secondary complete]", "Secondary complete"),
+                                                                      ("instruction[T.higher complete]", "Higher complete")]),
+          ("Child (ref. aged 0-4, boy)", [("C(age)[T.5-9]", "Aged 5-9"), ("C(sex)[T.2]", "Girl")]),
+          ("Mother's age (ref. 25-34)", [("C(mother_age)[T.under 25]", "Under 25"), ("C(mother_age)[T.35-44]", "35-44"), ("C(mother_age)[T.45 or more]", "45 or more")]),
+          ("Region (ref. Centre-West)", [("C(region)[T.North]", "North"), ("C(region)[T.Northeast]", "Northeast"), ("C(region)[T.Southeast]", "Southeast"),
+                                         ("C(region)[T.South]", "South")])]
+
+
+def _or(key, term):
+    v_ = MD[key].get(term)
+    return f"{v_['or']:.2f} ({v_['lo']:.2f}; {v_['hi']:.2f})" if isinstance(v_, dict) else "-"
+
+
 rows = []
-for key, lab in (("brown|is_white", "Brown mother, child White"), ("black|is_black", "Black mother, child Black")):
-    for term, val in MD[key].items():
-        if isinstance(val, dict):
-            rows.append([lab, term.replace("C(", "").replace(")[T.", ": ").replace("[T.", ": ").replace("]", ""), f"{val['or']:.2f} ({val['lo']:.2f}; {val['hi']:.2f})"])
+for grp, terms in GROUPS:
+    rows.append([grp, "", ""])
+    rows += [[f"   {lab}", _or("brown|is_white", t), _or("black|is_black", t)] for t, lab in terms]
 table(d, "Table 1 - Odds ratios of the race reported for children aged 0-9, logistic models of the Censuses of 2010 and 2022 together, Brazil",
-      ["Outcome", "Term", "Odds ratio (95%CI)"], rows,
-      ["References: census 2010; partner of the mother's race; mother with no or incomplete primary schooling; child aged 0-4; mother aged 25-34; boy; "
-       "Centre-West. Weighted; standard errors clustered by household. Census by partner interactions in the text."])
+      ["Variable", "Brown mother: child reported White, OR (95%CI)", "Black mother: child reported Black, OR (95%CI)"], rows,
+      ["Weighted logistic regression; standard errors clustered by household. -: not in the model (the partner of the mother's own race is the reference). "
+       "Census by partner interactions in the text."])
 figure(d, "family_partner", "Figure 3 - Children aged 0-9 reported White, of Brown mothers (A), and reported Black, of Black mothers (B), by the race of the mother's "
                             "partner and whether he is the father; children of both reported White by the mother's and the father's race (C); and households whose "
                             "full siblings aged 0-9 are reported in different races (D), Brazilian Censuses of 2010 and 2022",
@@ -130,3 +149,18 @@ figure(d, "family_age", "Figure 5 - Children of Brown mothers reported White (A)
        ["A, B: children of the household's couple living with their mother; design-based 95% confidence intervals. C: share of all children of the age and "
         "race who are in the pairs. D: whole population, from a population account that takes the census populations as given; the cohort born in 2000 is "
         "not shown for 2000."])
+
+d.add_heading("Place", level=2)
+PPC, WWC, KKC = CG["PP_white"], CG["WW_brown"], CG["KK_black"]
+para(d, f"The family's classification of fixed couple types changed little with the municipality's composition (Figure 6A). The child aged 0-9 of two Brown "
+        f"parents was reported White in {dci(PPC['bins'][0])} of households in municipalities with under 10% of White births and {dci(PPC['bins'][-1])} where "
+        f"90% or more were, most of the rise below 30% (logit slope {f2(PPC['raw']['slope'])}, standard error {f2(PPC['raw']['se'])}); the child of two White "
+        f"parents was reported Brown in {dci(WWC['bins'][0])} and {dci(WWC['bins'][-1])}, and the child of two Black parents Black in {dci(KKC['bins'][0])} and "
+        f"{dci(KKC['bins'][-1])}. The death certificate of a Brown mother's infant moves far more on the same axis (logit slope "
+        f"{f2(CT['certificate']['slope_bins'])} against {f2(PPC['slope_bins'])}; companion paper). By state, the child of two Brown parents was reported White in "
+        f"{min(STW.values()):.2f} to {max(STW.values()):.2f} in 2010, and the states kept their order in 2022 (Figure 6B); nationally, "
+        f"{f2(CS['2010']['BR']['PP_white']['est'])} and {f2(CS['2022']['BR']['PP_white']['est'])}.")
+figure(d, "family_place", "Figure 6 - Children of fixed couple types by the municipality's composition in 2010 (A) and by state in 2010 and 2022 (B), Brazil",
+       ["A: children aged 0-9 of the household's couple (2010 Census sample) by tenth of the municipality's share of White births (SINASC 2012-2023); bars, "
+        "95% confidence intervals clustered by municipality. B: the same shares by state in the 2010 and 2022 samples; the 2022 public file carries no "
+        "municipality."])
