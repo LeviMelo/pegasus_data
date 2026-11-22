@@ -620,6 +620,13 @@ OQ-64), 1990s SIH V-codes.
 
 ## Open fronts
 
+- **Cohort links are the studies' largest run cost** (about 40% of the ABNc queues' wall time; t03's national relink 33 min,
+  2026-11-22). Profile on SIH-RD I21, SE 2018, warm caches: 22 s, of which 11.8 s in DuckDB joins over the exploded
+  follow-up window (one row per person and day, 366 per person) and 4-7 s in role tables and keys. Next: replace the day
+  explosion of cohort passes by an equality join on the exact keys with a range condition on the event date (DuckDB's
+  inequality join), keeping the one-partner rule and per-horizon judgement; accepted only if a stored national run's pairs
+  are reproduced exactly. Measure when the machine is free (both study queues were running).
+
 - **Intake files published per state are landed under one national partition** (ANS TISS, ICB, BB: `uf=BR`, the state only in
   the file name, and publication rows without the state), so `query(geography=<state>)` refuses them although ANS publishes
   one file per state. `info` now says so (2026-11-22). The fix: land each `across: uf` unit into its state's partition and
