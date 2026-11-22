@@ -82,17 +82,6 @@ __all__ = [
 
 _SAFE = re.compile(r"[^A-Za-z0-9_.=-]+")
 
-#: Tables that are hierarchical classifications rather than closed codelists.
-#: A field bound to one of these gets a join, not a materialised label column.
-HIERARCHICAL_TABLES: frozenset[str] = frozenset(
-    {"CID10", "CID9", "TPROC", "TPROC10", "EMUSO", "EMUSO10", "MUNICBR", "MUNIDB", "CBO", "TCBO"}
-)
-
-#: Above this many distinct labels a codelist is treated as a classification even
-#: if it is not named above — the distinction is size and hierarchy, not identity.
-LARGE_CODELIST_LABELS = 200
-
-
 @dataclass(slots=True)
 class ReferenceTable:
     table_id: str
@@ -115,14 +104,13 @@ class ReferenceTable:
 
 
 def is_hierarchical(catalog: CatalogStore, codelist: str) -> bool:
-    """Whether a codelist should be joined rather than flattened into labels."""
+    """Whether a codelist is a classification, joined rather than flattened into labels: its name matches
+    ``codelists.yml`` ``roles.classification.patterns``. What a code refers to, which its table's size cannot tell
+    (an establishment registry has more labels than CID-10). ``catalog`` is kept for the callers' signature."""
+    from fnmatch import fnmatch
+
     name = codelist.upper()
-    if any(name.startswith(prefix) for prefix in HIERARCHICAL_TABLES):
-        return True
-    labels = catalog.scalar(
-        "SELECT COUNT(DISTINCT value_label) FROM dictionary WHERE value_group = ?", (codelist,)
-    )
-    return int(labels or 0) > LARGE_CODELIST_LABELS
+    return any(fnmatch(name, str(p).upper()) for p in declared("codelists.yml", "roles", "classification", "patterns"))
 
 
 def _materialise_reference_tables(

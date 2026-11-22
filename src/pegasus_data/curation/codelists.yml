@@ -217,15 +217,27 @@ roles:
   # Declared for the record. These all ship; the entries exist so that a reader
   # can see the judgement was made rather than defaulted into.
   classification:
-    what: Published standards DATASUS republishes, kept whole.
+    what: >
+      Published standards DATASUS republishes, kept whole: code trees a field is
+      read at its granularity, labelled by a join on the reference table, never a
+      stored label column (persist/reference.is_hierarchical).
+    # The catalog codelists that are such a tree. Was two lists that did not agree: these globs (with CNAE*, PROC* and
+    # SIGTAP*, read by nothing) and persist/reference.HIERARCHICAL_TABLES with a second rule, "more than 200 distinct
+    # labels". The home catalog holds no dictionary rows (0, 2026-11-21), so that rule never decided a home field; on the
+    # label-build catalog it called 1,556 registries (CADGERBR, the *_TECNM professionals) classifications, which they
+    # are not. Matched case-insensitively as globs; the 2,990 codelists the home binds keep their verdict (144 trees).
+    # SIGTAP, CNAE and SIH/SIA's PROC* tables are trees too but are not listed: the verdict is an input of
+    # normalize.engine.plan_fingerprint, so listing them restales every built SIH and SIA procedure partition, for a
+    # flag that only gates the opt-in stored label column (emit_labels, off). Listed with the next re-encode.
     patterns:
       - CID10*
       - CID9*
       - CBO*
-      - CNAE*
+      - TCBO*
       - TPROC*
-      - PROC*
-      - SIGTAP*
+      - EMUSO*
+      - MUNICBR*
+      - MUNIDB*
 
   geography:
     what: Municipalities, regions and health districts.
