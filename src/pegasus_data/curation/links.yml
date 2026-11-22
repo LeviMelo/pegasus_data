@@ -608,7 +608,10 @@ links:
       group: [patient.birth_date, patient.sex, patient.residence]
       earliest: admission.start
       explode_days: [admission.start, 365, follow_up.day]   # one row per day of the year after the admission
-    right: {dataset: SIM-DO, pad_years: [0, 1]}   # a year of deaths after the last admission year: the 1-year follow-up
+    # a year before as well: SIH files a stay by its processing month, so a year's publication holds stays admitted (and
+    # ended by death) in the year before, whose certificates are in that year's SIM (spine surgery, SP 2019: 8 of 58
+    # in-hospital deaths of the cohort unreachable, all dated 2018; 2026-11-22)
+    right: {dataset: SIM-DO, pad_years: [1, 1]}   # and a year of deaths after the last admission year: the 1-year follow-up
     passes:
       - name: birth date, sex, residence, day of death in the year after the admission
         keys: [[patient.birth_date, deceased.birth_date], [patient.sex, deceased.sex],
@@ -703,7 +706,7 @@ links:
       group: [patient.birth_date, patient.sex, patient.residence]
       earliest: admission.start
       explode_days: [admission.start, 60, follow_up.day]
-    right: {dataset: SIASUS-AR, pad_years: [0, 1], group: [patient.cns], earliest: authorisation.start}
+    right: {dataset: SIASUS-AR, pad_years: [1, 1], group: [patient.cns], earliest: authorisation.start}   # a year before too: SIH files stays by processing month
     passes:
       - name: sex, CEP, pathology date within 60 days of the admission
         keys: [[patient.sex, patient.sex], [patient.postcode, patient.postcode],

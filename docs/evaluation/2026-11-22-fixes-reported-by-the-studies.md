@@ -81,3 +81,10 @@ process with a Windows stack overflow: `prefix_match` chained one `starts_with` 
 now tests, per prefix length L, whether the first L characters are among the prefixes of that length (one `is_in` per
 length): the same rows (20,050 random values against 300 prefixes: equal but for a null value, now false rather than null,
 which every filter drops alike). The same query of 2024-01..06 returns 200,000 of 200,000 ids in 1.0 s.
+
+**Deaths of stays admitted the year before (science-2, t08).** `sih_admissions_to_sim` read SIM from the cohort's year
+on, but SIH files a stay by its processing month, so a year's publication holds stays admitted, and ended by death, in
+the year before. Spine surgery (040803), SP 2019: 50 of the cohort's 58 in-hospital deaths linked, and all 8 misses were
+dated 2018. The partner side now reads a year before as well (`pad_years: [1, 1]`, also for
+`sih_admissions_to_radiotherapy`): 56 of 58 (97%). Every stored run of the two links recomputes. The 40% that science-2
+measured came from its own join of all stays of the person, not from the cohort record.
