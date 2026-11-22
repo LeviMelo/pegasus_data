@@ -272,7 +272,8 @@ def _build_extract(dataset: str, years: Sequence[int], filters: dict[str, Sequen
             hit = _match(table, column, prefixes)          # a layout without the column holds none of its records
             if hit is not None:
                 mask = hit if mask is None else pc.or_(mask, hit)
-        return f, (table.filter(mask) if mask is not None else table.slice(0, 0)), table.num_rows, report
+        # the file's own records, counted before the read's row filter dropped the ones that cannot match
+        return f, (table.filter(mask) if mask is not None else table.slice(0, 0)),             int(getattr(report, "rows_decoded", 0) or table.num_rows), report
 
     pool = ThreadPoolExecutor(max_workers=max(1, workers), thread_name_prefix="extract")
 

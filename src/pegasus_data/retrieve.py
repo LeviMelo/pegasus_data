@@ -141,6 +141,8 @@ class FetchReport:
     files_matched: int = 0
     files_read: int = 0
     rows: int = 0
+    #: the files' own records decoded, before a row filter dropped any (`normalize_table`): what an extract read
+    rows_decoded: int = 0
     #: Bytes pulled over the NETWORK this call. Was previously every byte handed
     #: to the decoder, so a warm request reported megabytes "downloaded" with the
     #: network untouched.
@@ -246,6 +248,7 @@ class FetchReport:
             "representations_deduplicated": self.representations_deduplicated[:10],
             "representation_conflicts": self.representation_conflicts[:10],
             "rows": self.rows,
+            "rows_decoded": self.rows_decoded,
             # Every acquisition counter, not just one derived megabyte figure.
             # These are exactly the numbers needed to tell a warm request from
             # a cold one, and they were being computed and then dropped at the
@@ -597,6 +600,9 @@ def fetch(
     return out if len(out) > 1 else rendered
 
 
+
+#: The batch metadata key `normalize_table` counts a batch's rows under before its row filter (`FetchReport.rows_decoded`).
+ROWS_DECODED = b"pegasus.rows_decoded"
 
 #: ``_decode_one``'s answer for a member its archive does not contain.
 ABSENT_MEMBER = "<absent member>"
@@ -1345,7 +1351,10 @@ def _fold_outcomes(
             report.bytes_read += int(outcome.get("read_bytes") or 0)
             continue
         report.bytes_read += int(outcome["read_bytes"] or 0)
-        batches.extend(outcome["batches"])
+        for batch in outcome["batches"]:
+            meta = dict(batch.schema.metadata or {})
+            report.rows_decoded += int(meta.pop(ROWS_DECODED, batch.num_rows))
+            batches.append(batch.replace_schema_metadata(meta or None))
         if outcome.get("family") == ABSENT_MEMBER:
             report.members_absent.append(f"{path}!{item.get('member')}")
             continue

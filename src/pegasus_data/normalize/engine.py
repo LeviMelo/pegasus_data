@@ -455,6 +455,8 @@ def normalize_table(
                 record_key=record_key and complete,
                 rows=ordinals,
             )
+        if mask is not None:        # what the file held, before the filter: `retrieve.FetchReport.rows_decoded`
+            out = out.replace_schema_metadata({**(out.schema.metadata or {}), b"pegasus.rows_decoded": str(n).encode()})
         first_row += n
         yield out
 
