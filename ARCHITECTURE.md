@@ -450,6 +450,7 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
 
 - `acquire/cache.py`: the content-addressed blob store.
 - `acquire/fetcher.py`: bounded-concurrency downloads, skipping unchanged files.
+- `raw_text.py`: a typed intake column's text as filed (`<NAME>__RAW`), stored only where a render of the typed value does not give it back, the render learned per column and landing and named in the file's metadata; `Lake.read` and the intake's re-land give it back whole.
 - `concurrency.py`: `adaptive_map`, the one rule for how many transfers run at once: it adds a task while the total rate rises and removes one when it falls (extracts, intake units); memory is the decode admission's (`decode/admission.py`).
   When an FTP transfer fails, it falls back to the mirror at the listed size,
   recorded as `mirror:<url>` (ADR-0122).

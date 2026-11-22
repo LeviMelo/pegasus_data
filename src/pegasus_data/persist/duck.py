@@ -76,7 +76,7 @@ class DuckLake:
         # The partition keys from the path, not by DuckDB's Hive detection: DuckDB matches names case-insensitively, and
         # a file's own field of a key's name (SINAN's national dengue files carry `UF`) read as the partition's value,
         # "BR". A key a file's field already names is `partition_<key>`. The record key is not here: the lake computes
-        # it per file (`Lake._read_keyed`), and over files of different columns a view would hash a missing one as null.
+        # it per file (`Lake._read_derived`), and over files of different columns a view would hash a missing one as null.
         import pyarrow.parquet as pq
 
         first = next(base.rglob("*.parquet"), None)

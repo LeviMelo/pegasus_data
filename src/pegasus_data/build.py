@@ -330,7 +330,7 @@ class Builder:
                     and int(normalized_date) % 100 == 0 else
                     "unknown"
                 )
-                # no record key: the lake computes it on read from the fields it stores (`Lake._read_keyed`)
+                # no record key: the lake computes it on read from the fields it stores (`Lake._read_derived`)
                 for batch in normalize_table(table, plan, blob_sha256=digest, record_key=False):
                     # Internal semantic provenance: a codelist can change
                     # in July, which a year-only partition cannot recover.

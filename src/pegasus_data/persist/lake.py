@@ -46,8 +46,15 @@ def _safe(part: str) -> str:
     return _SAFE.sub("_", str(part))
 
 
-#: A record's content key (`normalize.engine.record_key_sql`): computed on read, not stored (`Lake._read_keyed`).
+#: A record's content key (`normalize.engine.record_key_sql`): computed on read, not stored (`Lake._read_derived`).
 RECORD_KEY = "_record_key"
+
+
+def _has_renders(dataset: ds.Dataset) -> bool:
+    """Whether any file of ``dataset`` keeps a typed column's text by render (`raw_text`), from the files' footers."""
+    from ..raw_text import META_KEY
+
+    return any(META_KEY in (f.physical_schema.metadata or {}) for f in dataset.get_fragments())
 
 
 def _file_keys(path: str, fields: Sequence[str]) -> pa.Array:
@@ -274,7 +281,7 @@ class Lake:
         # boundary is streamed" comment below described the writer while the
         # caller had already paid the whole partition in memory. Only the first
         # batch is held, and only to learn the schema the writer needs.
-        # the record key is a function of the record's fields and is computed on read (`_read_keyed`): stored, it was
+        # the record key is a function of the record's fields and is computed on read (`_read_derived`): stored, it was
         # 40% of the lake (OQ #99)
         stream = (b.select([n for n in b.schema.names if n != RECORD_KEY]) if RECORD_KEY in b.schema.names else b
                   for b in batches)
@@ -575,9 +582,6 @@ class Lake:
         expression = where              # a caller's own predicate on the data columns, pushed into the scan
         if axes is not None:
             expression = axes if expression is None else (expression & axes)
-        wants_key = (columns is None or RECORD_KEY in columns or RECORD_KEY in (optional_columns or ()))
-        if wants_key and RECORD_KEY not in dataset.schema.names:
-            return self._read_keyed(dataset, family_id, columns, optional_columns, expression)
         # `None` means EVERYTHING; `[]` means NOTHING. Testing truthiness
         # conflated them, so a generation where none of the requested fields
         # physically exists asked for an empty projection and got every column
@@ -587,24 +591,35 @@ class Lake:
         # a read that asks for the lake's `_source_path` takes the upper-case column and hands it back under the name asked
         available = set(dataset.schema.names)
         alias = {c: c.upper() for c in (columns or ()) if c.startswith("_") and c not in available and c.upper() in available}
-        projection = self._projection(dataset, family_id, [alias.get(c, c) for c in columns] if columns is not None else None,
-                                      optional_columns)
-        table = dataset.to_table(columns=projection, filter=expression)
+        asked = [alias.get(c, c) for c in columns] if columns is not None else None
+        # what the lake computes rather than stores: the record key, and a typed column's text as filed (`_read_derived`)
+        wants_key = (columns is None or RECORD_KEY in columns or RECORD_KEY in (optional_columns or ()))
+        wants_raw = any(n.endswith("__RAW") for n in (dataset.schema.names if columns is None else
+                                                      [*columns, *(optional_columns or ())])) and _has_renders(dataset)
+        if (wants_key and RECORD_KEY not in available) or wants_raw:
+            table = self._read_derived(dataset, family_id, asked, optional_columns, expression,
+                                       key=wants_key and RECORD_KEY not in available)
+        else:
+            projection = self._projection(dataset, family_id, asked, optional_columns)
+            table = dataset.to_table(columns=projection, filter=expression)
         if alias:
             back = {v: k for k, v in alias.items()}
             table = table.rename_columns([back.get(name, name) for name in table.column_names])
         return table
 
-    def _read_keyed(
+    def _read_derived(
         self, dataset: ds.Dataset, family_id: str, columns: Sequence[str] | None,
-        optional_columns: Sequence[str] | None, expression: ds.Expression | None,
+        optional_columns: Sequence[str] | None, expression: ds.Expression | None, *, key: bool = True,
     ) -> pa.Table:
-        """`read` with each record's key computed from its file's own fields (`normalize.engine.record_key_sql`): the
-        lake does not store the key, which is a function of the record (OQ #99: 40% of the lake as 32 hex characters a
-        row; recomputed, it equals the stored key on every file of the 2026-11-21 lake). File by file, because the
-        key hashes the fields of the file the record was written in, and batch by batch, so a wide file is never held
-        whole for the few columns asked. A file that still stores a key gives it as stored."""
+        """`read` with what the lake computes rather than stores, file by file, since each is a function of its own file:
+
+        * the record key (``key``), from the file's own fields (`normalize.engine.record_key_sql`; OQ #99: stored, 40% of
+          the lake as 32 hex characters a row). A whole file is hashed by DuckDB in one pass beside the columns read with
+          their own types; a filtered read, batch by batch. A file that still stores a key gives it as stored;
+        * the value as filed of a typed intake column, ``<NAME>__RAW``, which a landing keeps only where its render of
+          the typed value does not give it back (`raw_text`): given back whole, ``coalesce(raw, render(typed))``."""
         from ..normalize.engine import key_fields, record_keys
+        from ..raw_text import quote, renders_of, restored
 
         asked = None if columns is None else [c for c in columns if c != RECORD_KEY]
         optional = [c for c in (optional_columns or ()) if c != RECORD_KEY]
@@ -614,31 +629,44 @@ class Lake:
             physical = fragment.physical_schema
             stored = RECORD_KEY in physical.names
             fields = key_fields(physical.names)
+            renders = renders_of(physical.metadata)
             schema = pa.unify_schemas([dataset.schema, physical])
             keep = projection if projection is not None else [n for n in schema.names if n != RECORD_KEY]
-            read = list(dict.fromkeys([*keep, *([RECORD_KEY] if stored else fields)]))
-            if expression is None and not stored and fields:
+            # a raw value is given back from its typed column, read for it when not asked
+            typed = [n for n in renders if f"{n}__RAW" in keep and n not in keep and n in physical.names]
+            wanted = [*keep, *typed]
+            if key and expression is None and not stored and fields:
                 # the whole file: DuckDB hashes it in one parallel pass, in the file's row order, and the columns asked are
-                # read with their own types beside it (2.7 times the batch path: 857,219 SIH-RD rows in 4.4 s, not 11.7)
-                table = fragment.to_table(schema=schema, columns=keep)
+                # read with their own types beside it (3.3 times the batch path: 857,219 SIH-RD rows in 3.5 s, not 11.5)
+                table = fragment.to_table(schema=schema, columns=wanted)
                 keys = _file_keys(fragment.path, fields)
                 if len(keys) != table.num_rows:
                     raise RuntimeError(f"{fragment.path}: {len(keys)} keys for {table.num_rows} rows")
-                if table.num_rows:
-                    pieces.append(table.append_column(RECORD_KEY, keys))
-                continue
-            batches = []
-            for batch in fragment.to_batches(schema=schema, columns=read, filter=expression):
-                if not batch.num_rows:
+                table = table.append_column(RECORD_KEY, keys)
+            else:
+                read = list(dict.fromkeys([*wanted, *(([RECORD_KEY] if stored else fields) if key else [])]))
+                batches = []
+                for batch in fragment.to_batches(schema=schema, columns=read, filter=expression):
+                    if not batch.num_rows:
+                        continue
+                    arrays = [batch.column(c) for c in wanted]
+                    names = list(wanted)
+                    if key:
+                        arrays.append(batch.column(RECORD_KEY) if stored else record_keys(batch, fields))
+                        names.append(RECORD_KEY)
+                    batches.append(pa.RecordBatch.from_arrays(arrays, names=names))
+                if not batches:
                     continue
-                key = batch.column(RECORD_KEY) if stored else record_keys(batch, fields)
-                batches.append(pa.RecordBatch.from_arrays([*(batch.column(c) for c in keep), key], names=[*keep, RECORD_KEY]))
-            if batches:
-                pieces.append(pa.Table.from_batches(batches))
+                table = pa.Table.from_batches(batches)
+            if renders:
+                table = restored(table, renders, quote)
+            if table.num_rows:
+                pieces.append(table.select([*keep, *([RECORD_KEY] if key else [])]))
         if not pieces:
             empty = dataset.schema
             names = [n for n in (projection if projection is not None else empty.names) if n != RECORD_KEY]
-            return pa.table({n: pa.array([], empty.field(n).type) for n in names} | {RECORD_KEY: pa.array([], pa.string())})
+            return pa.table({n: pa.array([], empty.field(n).type) for n in names}
+                            | ({RECORD_KEY: pa.array([], pa.string())} if key else {}))
         return pa.concat_tables(pieces, promote_options="default")
 
     def _projection(
@@ -841,7 +869,7 @@ def drop_redundant_partitions(catalog: CatalogStore, lake_dir: str | Path, *, dr
 def reencode_lake(catalog: CatalogStore, lake_dir: str | Path, *, dry_run: bool = False,
                   compression: str = "zstd") -> dict[str, int]:
     """Rewrite, value for value, the listed partition files not written as the lake writes now: those that store what
-    the lake computes (the record key, `Lake._read_keyed`) and those of another encoding than `persist.kept.ENCODING`
+    the lake computes (the record key, `Lake._read_derived`) and those of another encoding than `persist.kept.ENCODING`
     (smaller row groups, a lower zstd level; their ``pegasus.encoding`` stamp says). Batch by batch into row groups of
     the encoding's size, into a temporary file beside the partition that replaces it in one rename, so a reader sees the
     old file or the new one; the catalog's byte size follows. A file that stores a key is rewritten only when the key its

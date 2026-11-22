@@ -456,14 +456,28 @@ def _land(settings: Any, source: str, spec: dict[str, Any], unit: dict[str, Any]
     # 2020: 489 MB unsorted, 344 MB sorted, nothing removed or changed), and a query for one municipality skips the row
     # groups whose statistics exclude it. The order is the lake's own derived keys, which every placed or dated source has.
     names = {n for n, _ in described}
+    # the value as filed is kept where a render of the typed value does not give it back (`raw_text`): 12% of the lake
+    # had been typed values written back as text
+    from .raw_text import choose, compacted_sql
+
+    typed = {n: t for n, t in described if f"{n}__RAW" in names and not n.startswith("_")}
+    declared = {c.upper(): (d or {}) for c, d in (spec.get("columns") or {}).items()}
+    formats = {n: [f for f in (declared.get(n, {}).get("formats") or [declared.get(n, {}).get("format")]) if f]
+               for n in typed if declared.get(n, {}).get("type") == "date" and not declared.get(n, {}).get("take")}
+    renders = choose(con, f"({sql})", typed, _ident, formats) if typed else {}
+    if renders:
+        swaps = ", ".join(f"{compacted_sql(n, r, typed[n], _ident)} AS {_ident(n + '__RAW')}" for n, r in renders.items())
+        sql = f"SELECT * REPLACE ({swaps}) FROM ({sql})"
+    metadata = json.dumps({n: {"render": r, "type": typed[n]} for n, r in renders.items()}, sort_keys=True)
     order = [k for k in ("_MUNICIPALITY", "_MONTH") if k in names]
     if order:
         sql = f"SELECT * FROM ({sql}) ORDER BY {', '.join(order)}"
     try:
-        from .persist.kept import ZSTD_LEVEL
+        from .persist.kept import ENCODING, ZSTD_LEVEL
 
+        kv = "{'pegasus.encoding': '" + ENCODING + "'" + (", 'pegasus.raw_render': '" + metadata + "'" if renders else "") + "}"
         con.execute(f"COPY ({sql}) TO '{staging.as_posix()}' (FORMAT parquet, COMPRESSION zstd, "
-                    f"COMPRESSION_LEVEL {ZSTD_LEVEL}, PARTITION_BY (year), "
+                    f"COMPRESSION_LEVEL {ZSTD_LEVEL}, PARTITION_BY (year), KV_METADATA {kv}, "
                     f"FILENAME_PATTERN 'part-{key}-{{i}}', OVERWRITE_OR_IGNORE true, ROW_GROUP_SIZE {group})")
         staged = sorted(staging.glob(f"year=*/part-{key}-*.parquet"))
         place = spec.get("place") or {}
@@ -1023,8 +1037,21 @@ def _reland(settings: Any, source: str, spec: dict[str, Any], unit: dict[str, An
     copy = Path(settings.work_dir) / "intake" / f"reland-{_safe(source)}-{_safe(unit['key'])}.parquet"
     copy.parent.mkdir(parents=True, exist_ok=True)
     try:
-        # copied out first: the swap removes the parts this read would otherwise still hold open
-        select = ", ".join(f"{_ident(c)} AS {_ident(c.removesuffix('__RAW'))}" for c in columns)
+        # copied out first: the swap removes the parts this read would otherwise still hold open. A value as filed that the
+        # landing left to its render (`raw_text`) is given back from the typed value first.
+        import pyarrow.parquet as pq
+
+        from .raw_text import render_sql, renders_of
+
+        renders = renders_of(pq.read_schema(parts[0]).metadata)
+
+        def filed(c: str) -> str:
+            base = c.removesuffix("__RAW")
+            if c.endswith("__RAW") and base in renders:
+                return f"coalesce({_ident(c)}, {render_sql(renders[base]['render'], _ident(base), renders[base]['type'])})"
+            return _ident(c)
+
+        select = ", ".join(f"{filed(c)} AS {_ident(c.removesuffix('__RAW'))}" for c in columns)
         con.execute(f"COPY (SELECT {select} FROM read_parquet({parts!r}, hive_partitioning=false, union_by_name=true)) "
                     f"TO '{copy.as_posix()}' (FORMAT parquet)")
         stats = _land(settings, source, spec, unit, con, f"read_parquet('{copy.as_posix()}')", read_on, sidecar=side,
