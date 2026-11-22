@@ -23,7 +23,7 @@ import numpy as np  # noqa: E402
 from matplotlib.patches import FancyArrowPatch, FancyBboxPatch  # noqa: E402
 
 HERE = Path(__file__).parent
-OUT = HERE / "out"
+OUT = HERE / "figures"
 OUT.mkdir(exist_ok=True)
 R = json.loads((HERE / "results" / "results.json").read_text(encoding="utf-8"))
 plt.rcParams.update({"font.size": 8, "axes.spines.top": False, "axes.spines.right": False, "font.family": "DejaVu Sans"})
@@ -62,11 +62,11 @@ def box(x, y, w, h, title, body, col):
 
 
 ax.text(0.1, 5.45, "Individual level: the same person on two records", fontsize=8, weight="bold", color="#333333", va="top")
-box(0.1, 2.75, 3.0, 2.4, "Birth record (SINASC)", "mother's declared race\n(cohorts born 2012-2023)\ncolour recorded at birth\n(cohorts born 2000-2009)\nmother's schooling and age", BLUE)
+box(0.1, 2.75, 3.0, 2.4, "Birth record (SINASC)", "mother's declared race\n(cohorts born from 2012)\nmother's schooling and age,\nbirth weight", BLUE)
 box(4.3, 2.75, 3.0, 2.4, "Death certificate (SIM)", "race recorded by the certifier\n(deaths 2013-2024)\ncertifier, place, cause,\nestablishment", ORANGE)
 ax.add_patch(FancyArrowPatch((3.15, 3.9), (4.25, 3.9), arrowstyle="<->", mutation_scale=12, color=GREY, lw=1.2))
 ax.text(3.7, 4.05, "infants: one-to-one\nlinkage", ha="center", va="bottom", fontsize=6.3, color="#333333")
-ax.text(3.7, 3.75, "1-9, 15-24 years:\ncandidate estimator", ha="center", va="top", fontsize=6.3, color="#333333")
+ax.text(3.7, 3.75, "after infancy:\ncandidate estimator", ha="center", va="top", fontsize=6.3, color="#333333")
 ax.text(7.6, 5.45, "Population reference", fontsize=8, weight="bold", color="#333333", va="top")
 box(7.6, 2.75, 2.3, 2.4, "Census 2010 sample", "race the household reports\nfor other children,\nby the mother's race, age\nand municipality", GREEN)
 ax.add_patch(FancyArrowPatch((7.58, 3.9), (7.32, 3.9), arrowstyle="->", mutation_scale=10, color=GREY, lw=1.0))
@@ -79,7 +79,7 @@ ax.text(5.0, 1.55, "racial composition of live births  |  GDP per capita, illite
         ha="center", va="top", fontsize=6.8, linespacing=1.5)
 for x in (1.6, 5.8):
     ax.add_patch(FancyArrowPatch((x, 2.1), (x, 2.7), arrowstyle="-", color="#999999", lw=0.8, linestyle=(0, (2, 2))))
-save(fig, "fig1")
+save(fig, "design")
 
 # ---------------------------------------------------------------- Figure 2: the classifications, under one year and at 1-4 years
 fig = plt.figure(figsize=(7.2, 5.6))
@@ -110,7 +110,7 @@ for r, (band, lab, how) in enumerate(rows):
             cb.set_label("Proportion" if k < 2 else "Difference", fontsize=7)
             cb.ax.tick_params(labelsize=6)
     axes[r, 0].set_ylabel("Mother's race")
-save(fig, "fig2")
+save(fig, "classifications")
 
 # ---------------------------------------------------------------- Figure 7: mortality under the classifications
 fig, axes = plt.subplots(1, 4, figsize=(7.2, 2.9), gridspec_kw={"width_ratios": [1, 1, 1, 1.35], "wspace": 0.55})
@@ -161,7 +161,7 @@ fig.legend(handles=[plt.Line2D([], [], marker="o", ls="", color=BLUE, label="dea
                     plt.Line2D([], [], marker="^", ls="", color=PURPLE, label="certified deaths over the census-based population")]
            + [plt.Line2D([], [], color=COL[r], label=EN[r]) for r in ("Branca", "Parda", "Preta")],
            fontsize=6.3, frameon=False, loc="lower center", ncol=4, bbox_to_anchor=(0.5, -0.17))
-save(fig, "fig7")
+save(fig, "mortality")
 
 # ---------------------------------------------------------------- Figure 9: cause of death at 15-24
 kinds = ["natural", "suicide", "transport", "other external", "other assault", "assault by firearm", "legal intervention"]
@@ -199,7 +199,7 @@ ax.set_title("B. By cause and municipal composition", fontsize=7.5, loc="left")
 ax.set_xlabel("Share of White among local live births")
 ax.set_ylabel("Proportion certified White")
 ax.legend(fontsize=6.3, frameon=False, loc="upper left", ncol=1, bbox_to_anchor=(0, 1.02))
-save(fig, "fig9")
+save(fig, "youth_cause")
 
 # ---------------------------------------------------------------- Supplementary figures
 V = [r for r in R["validation"] if r["size"] != "all"]
@@ -230,7 +230,7 @@ ax.set_xlabel("Year of death")
 ax.set_ylabel("Proportion of infant deaths")
 ax.set_title("B. Infant deaths, one-to-one linkage, by year", fontsize=7.5, loc="left")
 ax.legend(fontsize=6.3, frameon=False)
-save(fig, "figS1")
+save(fig, "validation")
 
 fig, axes = plt.subplots(1, 2, figsize=(7.0, 3.0), sharey=True)
 regs = ["North", "Northeast", "Southeast", "South", "Centre-West"]
@@ -256,7 +256,7 @@ axes[0].set_yticks(range(5), regs)
 fig.legend(handles=[plt.Line2D([], [], marker="o", ls="", color=BLUE, label="mother's race (n.e.: error above 0.6 of the estimate)"),
                     plt.Line2D([], [], marker="D", ls="", color=GREEN, label="family's classification (no interval)"),
                     plt.Line2D([], [], marker="s", ls="", color=ORANGE, label="certified race")], fontsize=6.3, frameon=False, loc="lower center", ncol=3, bbox_to_anchor=(0.5, -0.1))
-save(fig, "figS2")
+save(fig, "regional_ratios_1to9")
 
 fig, axes = plt.subplots(1, 4, figsize=(7.2, 2.5), sharey=True)
 for ax, (m, c, title) in zip(axes, (("Parda", "Branca", "Brown mother,\ncertified White"), ("Branca", "Parda", "White mother,\ncertified Brown"), ("Preta", "Parda", "Black mother,\ncertified Brown"),
@@ -275,7 +275,7 @@ for ax, (m, c, title) in zip(axes, (("Parda", "Branca", "Brown mother,\ncertifie
 axes[0].set_ylabel("Proportion of infant deaths")
 fig.text(0.5, -0.04, "Share of White among the live births of the municipality", ha="center", fontsize=8)
 fig.legend(*axes[0].get_legend_handles_labels(), fontsize=6.3, frameon=False, loc="lower center", ncol=4, bbox_to_anchor=(0.5, -0.17))
-save(fig, "figS3")
+save(fig, "mixture")
 
 fig, axes = plt.subplots(1, 3, figsize=(7.2, 2.9), gridspec_kw={"wspace": 0.35})
 ax = axes[0]
@@ -311,7 +311,7 @@ ax.set_ylim(0, 1.1)
 ax.set_title("C. Deaths at 15-24 years: White\nat birth, certified White", fontsize=7.3, loc="left")
 ax.set_xlabel("Mother's schooling (years)")
 ax.legend(fontsize=6, frameon=False, loc="lower right")
-save(fig, "figS4")
+save(fig, "family_schooling")
 
 # S5: the composition gradient (family under 1 with infant certificates; family 1-4 with certificates at 1-9)
 fig, axes = plt.subplots(1, 3, figsize=(7.2, 2.7), sharex=True, sharey=True)
@@ -332,7 +332,7 @@ for ax, (m, c, title) in zip(axes, panels, strict=True):
 axes[0].set_ylabel("Proportion of children")
 axes[1].set_xlabel("Share of White among the live births of the municipality")
 fig.legend(*axes[0].get_legend_handles_labels(), fontsize=6.3, frameon=False, loc="lower center", ncol=4, bbox_to_anchor=(0.5, -0.13))
-save(fig, "figS5")
+save(fig, "gradient_1to9")
 
 # S6: age. A, B: family by age 0-24 and certificate 0-9; C: natural against assault at 15-24 (born 2000-2009)
 fig, axes = plt.subplots(1, 3, figsize=(7.2, 2.7), gridspec_kw={"wspace": 0.3})
@@ -362,7 +362,7 @@ ax.set_xticks(range(15, 25, 2))
 ax.set_title(f"C. Ages 15-24 (born {R['youth']['birth_years'][0]}-{R['youth']['birth_years'][1]})", fontsize=7.5, loc="left")
 ax.set_xlabel("Age at death (years)")
 ax.legend(fontsize=6.3, frameon=False, loc="lower left")
-save(fig, "figS6")
+save(fig, "age")
 
 # S7: the same cohorts across censuses
 coh = {(r["cohort"], r["year"]): r for r in R["cohorts"]}
@@ -385,6 +385,6 @@ axes[0].set_ylabel("Share of the birth cohort (%)")
 sm = plt.cm.ScalarMappable(norm=matplotlib.colors.Normalize(vmin=cohorts[0], vmax=cohorts[-1]), cmap=cmap)
 cb = fig.colorbar(sm, ax=axes, fraction=0.025, pad=0.02)
 cb.set_label("Birth cohort (first year)", fontsize=7)
-save(fig, "figS7")
+save(fig, "cohorts")
 print("figures written")
 runpy.run_path(str(HERE / "figures_space.py"), run_name="__main__")

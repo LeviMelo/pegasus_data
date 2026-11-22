@@ -1,0 +1,32 @@
+Supplementary material - The same deaths, four inequalities: how the classification of deaths and denominators changes racial inequality in infant and child mortality in Brazil, nationally and in 510 regions, 2013-2024
+
+Supplementary Text S1 - Estimation without individual linkage and its control
+
+Let G be a group of deaths. For a death i, let C_i be the set of live births with the birth date, sex and municipality of residence of i. If the family did not move, exactly one element of C_i is the deceased; the remaining elements, and all elements when the family moved, are births that agree by chance. Write N(j, k) for the number of deaths in G with race j on the birth record and certified race k, and t for the probability that the deceased is in C_i. The expected number of candidates with race j among deaths certified k is t N(j, k) + E(j, k), where E(j, k) is the expected number of chance candidates.
+
+E(j, k) depends on how many children were born on the birth date of the deceased in the municipality. That is not the number of an arbitrary day: a day on which more children were born contributes more people and therefore more deaths, so the birth date of a death is a size-biased draw from the days of the year, and a control drawn from other days would undercount E. The births of the other sex on the same day in the same municipality share the day, cannot contain the deceased and have the racial composition of that day's births; multiplied by the ratio of births of the two sexes in the municipality and year, their count estimates E(j, k). With this control the estimated t for infants was 89.8% overall.
+
+The estimator of t N(j, k) is the difference of the two counts. Its variance was approximated by the sum of the candidate count and the control count, which ignores the scaling factor of the control (close to 1). A proportion is a ratio of two such differences; the variance of its denominator was ignored, which understates the error of rows with few deaths. A twin of the same sex is a candidate and a twin of the other sex is in the control; both share the mother's race with the deceased. Mortality by the mother's race uses the shares of each race among the estimated deaths, so that t cancels provided it does not differ by race.
+
+Supplementary Text S2 - The census-based population account
+
+The racial composition of five-year birth cohorts at the censuses of 2000, 2010 and 2022 was read, by single year of age and race, from a cohort-component population account of every municipality built for this research programme from the censuses, the Mortality and Live Birth Information Systems and the official estimates of IBGE (population projections, 2024 revision); in a census year the account takes the census population as given, so the shares at the three dates are census shares. Between and after censuses, race shares are modelled along each birth cohort: log shares change linearly between the censuses of 2000, 2010 and 2022, a cohort born after a census takes the shares it has in the next census carried back by the state's rate of reclassification of the previous decade, and after 2022 the state's drift carries them forward. The rates over the census-based population in the main text use these modelled shares. The account is not a published product and its census-year values carry the censuses' own coverage error, which is not quantified by race. A cohort's White share can fall between censuses through reclassification, but also through higher mortality or emigration of White people, through differences in coverage between censuses and through the change of the 2022 questionnaire; the comparison between the first census of a cohort aged 0-4 and later ones also compares a race reported for small children by an adult of the household with one reported for adults. The analysis describes the cohorts and does not separate these explanations.
+
+
+
+Supplementary Figure S1 - White to Brown mortality rate ratio by region under the three classifications, ages 1-4 and 5-9, Brazil, 2013-2024
+
+Bars: 95% confidence intervals; n.e.: a ratio by the mother's race with a standard error above 0.6 of the estimate, not drawn.
+
+
+
+Supplementary Table S1 - The 25 immediate regions where the certificate most raises the White to Brown infant mortality rate ratio, and the 10 where it most understates it, Brazil, 2013-2023
+
+Rate ratios: posterior means of a Poisson BYM2 model over the 510 immediate regions. All regions are in Supplementary Data 2.
+
+
+
+Supplementary Table S2 - White to Brown mortality rate ratio at 1-9 years by the mother's race and by certified race, and classification of the children of Brown and Black mothers by families and on infant death certificates, by state, Brazil
+
+95%CI: 95% confidence interval. Not estimable: standard error above 0.35 of the estimate.
+

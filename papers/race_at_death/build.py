@@ -1,11 +1,13 @@
-"""Builds the manuscript and the supplement from results/results.json and the figures of figures.py. No number is typed here.
+"""Builds one paper's manuscript and supplement from results/results.json, results/spatial.json and the figures of figures.py. No number is
+typed here. The paper's text is in its folder (text.py, text_results.py, text_discussion.py, text_supplement.py); the evidence is shared.
 
     python papers/race_at_death/figures.py
-    python papers/race_at_death/build.py        -> out/manuscript.docx, out/supplement.docx, out/build_report.json
+    python papers/race_at_death/build.py place       -> place/out/manuscript.docx, supplement.docx, build_report.json
 """
 import json
 import math
 import re
+import sys
 from pathlib import Path
 
 from docx import Document
@@ -13,7 +15,9 @@ from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.shared import Cm, Pt
 
 HERE = Path(__file__).parent
-OUT = HERE / "out"
+PAPER_DIR = HERE / sys.argv[1]
+OUT, FIG = PAPER_DIR / "out", HERE / "figures"
+OUT.mkdir(exist_ok=True)
 R = json.loads((HERE / "results" / "results.json").read_text(encoding="utf-8"))
 SP = json.loads((HERE / "results" / "spatial.json").read_text(encoding="utf-8"))
 REFS: dict = {}
@@ -21,10 +25,6 @@ for name in ("crossref.json", "crossref_theory.json", "crossref_more.json", "cro
     REFS |= json.loads((HERE / "references" / name).read_text(encoding="utf-8"))
 MANUAL = json.loads((HERE / "references" / "manual.json").read_text(encoding="utf-8"))
 
-DESIGN = "cross-sectional study of routinely collected birth and death records and of census microdata"
-OBJECTIVE = ("to compare the race recorded on the death certificate of people who died before age 25 in Brazil with the race their mothers declared for "
-             "themselves and with the race families assign to children, to find where in the country and over which years they differ and what explains it, and to "
-             "measure what the differences do to mortality rate ratios by race")
 EN = {"Branca": "White", "Preta": "Black", "Parda": "Brown", "Indigena": "Indigenous"}
 ORDER = ["Branca", "Parda", "Preta", "Indigena"]
 
@@ -143,7 +143,7 @@ def table(d, title, header, rows, notes=()):
 
 
 def figure(d, name, title, notes=()):
-    d.add_picture(str(OUT / f"{name}.png"), width=Cm(16))
+    d.add_picture(str(FIG / f"{name}.png"), width=Cm(16))
     para(d, title, bold=True)
     for note in notes:
         para(d, note, size=9)
@@ -151,7 +151,7 @@ def figure(d, name, title, notes=()):
 
 
 for part in ("text.py", "text_results.py", "text_discussion.py", "text_supplement.py"):          # the text, kept apart from the machinery; the parts share one namespace
-    exec(compile((HERE / part).read_text(encoding="utf-8"), part, "exec"))
+    exec(compile((PAPER_DIR / part).read_text(encoding="utf-8"), str(PAPER_DIR / part), "exec"))
 body = [p.text for p in d.paragraphs]
 start, end = body.index("Introduction"), body.index("References")
 words_text = sum(len(t.split()) for t in body[start:end] if not t.startswith(("Table ", "Figure ")))

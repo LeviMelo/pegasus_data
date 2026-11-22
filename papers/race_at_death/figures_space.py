@@ -20,7 +20,7 @@ from pegasus_data.geography import mesh
 
 warnings.simplefilter("ignore")
 HERE = Path(__file__).parent
-OUT, RES = HERE / "out", HERE / "results"
+OUT, RES = HERE / "figures", HERE / "results"
 R = json.loads((RES / "results.json").read_text(encoding="utf-8"))
 S = json.loads((RES / "spatial.json").read_text(encoding="utf-8"))
 E = pd.read_parquet(RES / "municipal_estimates.parquet")
@@ -79,7 +79,7 @@ basemap(axes[1, 1], "D. Local clusters of the empirical-Bayes rate (local Moran,
 axes[1, 1].legend(handles=[Patch(fc=c, ec="#999999", lw=0.3, label=f"{lab} ({S['lisa']['PW'].get(lab, 0):,})") for k, (lab, c) in LISA.items()]
                   + [Patch(fc="#FFFFFF", ec="#999999", lw=0.3, label="fewer than 5 linked deaths")], fontsize=6.5, frameon=False, loc="lower left")
 fig.tight_layout(h_pad=3.0)
-save(fig, "fig3")
+save(fig, "map_municipal")
 
 # ---------------------------------------------------------------- Figure 4: composition, state and context
 fig = plt.figure(figsize=(7.2, 6.0))
@@ -149,7 +149,7 @@ ax.set_xlabel("Municipal GDP per capita (tertile)")
 ax.set_ylim(0, 1)
 ax.set_title("E. Brown mother, certified White:\ncomposition and wealth", fontsize=8, loc="left")
 ax.legend(fontsize=6, frameon=False, loc="upper left")
-save(fig, "fig4")
+save(fig, "composition_state")
 
 
 # ---------------------------------------------------------------- Figure 6: time by place
@@ -206,7 +206,7 @@ cb.ax.tick_params(labelsize=6)
 ax.set_title("D. State by year,\nall mothers", fontsize=8, loc="left")
 for sp_ in ax.spines.values():
     sp_.set_visible(False)
-save(fig, "fig6")
+save(fig, "time_place")
 
 # ---------------------------------------------------------------- Figure 5: competing explanations, the multilevel models of linked infants
 if "multilevel" in S:
@@ -257,7 +257,7 @@ if "multilevel" in S:
     ax.set_xlabel("Odds ratio (full model)")
     ax.set_title("B. Full model: municipal and individual terms", fontsize=8, loc="left")
     ax.legend(fontsize=6, frameon=False, loc="lower center", bbox_to_anchor=(0.4, -0.16), ncol=2)
-    save(fig, "fig5")
+    save(fig, "multilevel")
 
 # ---------------------------------------------------------------- Figure 8: consequences, the mortality ratio by immediate region
 fig = plt.figure(figsize=(7.2, 7.4))
@@ -289,7 +289,7 @@ ax.set_ylabel("Certified over mother's-race ratio")
 ax.set_title("D. 510 immediate regions: composition and wealth", fontsize=8, loc="left")
 cb = plt.colorbar(sc, ax=ax, fraction=0.05, pad=0.02)
 cb.set_label("GDP per capita (log10 R$)", fontsize=7)
-save(fig, "fig8")
+save(fig, "regional_ratios")
 
 # ---------------------------------------------------------------- Supplementary maps: raw against smoothed, the other cells, local clusters
 fig, axes = plt.subplots(1, 3, figsize=(7.2, 3.1))
@@ -299,14 +299,14 @@ choropleth(axes[1], G, "PW_mean", "viridis", seq, "B. BYM2 posterior mean", "Bro
 G["PW_width"] = G.PW_hi - G.PW_lo
 choropleth(axes[2], G, "PW_width", "magma_r", matplotlib.colors.Normalize(0, 0.6), "C. Width of the 95%\ncredible interval", "Upper minus lower limit", ticks=[0, 0.2, 0.4, 0.6])
 fig.tight_layout()
-save(fig, "figS8")
+save(fig, "map_raw")
 
 fig, axes = plt.subplots(2, 2, figsize=(7.2, 7.4))
 for ax, (col, title) in zip(axes.flat, (("WW_mean", "A. White mother, infant certified White"), ("WP_mean", "B. White mother, infant certified Brown"),
                                         ("KK_mean", "C. Black mother, infant certified Black"), ("KP_mean", "D. Black mother, infant certified Brown")), strict=True):
     choropleth(ax, G, col, "viridis", matplotlib.colors.Normalize(0, 1), title, "Proportion (BYM2 posterior mean)", ticks=[0, 0.25, 0.5, 0.75, 1])
 fig.tight_layout()
-save(fig, "figS9")
+save(fig, "map_other_cells")
 
 fig, axes = plt.subplots(1, 2, figsize=(7.2, 3.9))
 choropleth(axes[0], G, "disagree_mean", "viridis", matplotlib.colors.Normalize(0, 0.6), "A. Certified race differs from the mother's,\nall linked infant deaths",
@@ -317,5 +317,5 @@ basemap(axes[1], "B. Local clusters (local Moran, p < 0.05)")
 axes[1].legend(handles=[Patch(fc=c, ec="#999999", lw=0.3, label=f"{lab} ({S['lisa']['disagree'].get(lab, 0):,})") for k, (lab, c) in LISA.items()],
                fontsize=6.5, frameon=False, loc="lower left")
 fig.tight_layout()
-save(fig, "figS10")
+save(fig, "map_disagree")
 print("spatial figures written")

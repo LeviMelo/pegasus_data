@@ -1,0 +1,29 @@
+{
+ "words_introduction_to_conclusion": 1944,
+ "words_all_paragraphs": 2977,
+ "references": 18,
+ "reference_keys": [
+  "manual_do2022",
+  "travassos2004",
+  "manual_dn2011",
+  "cardoso2005",
+  "caldas2017",
+  "hahn1992",
+  "arias2016",
+  "reboucas2022",
+  "benchimol2015",
+  "datasus",
+  "ibge_microdata2010",
+  "ibge_regions2017",
+  "fellegi1969",
+  "lipsitch2010",
+  "besag1991",
+  "riebler2016",
+  "rue2009",
+  "lindgren2015"
+ ],
+ "tables": 1,
+ "figures": 2,
+ "supplementary_tables": 2,
+ "supplementary_figures": 1
+}

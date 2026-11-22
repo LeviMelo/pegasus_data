@@ -1,0 +1,113 @@
+The same deaths, four inequalities: how the classification of deaths and denominators changes racial inequality in infant and child mortality in Brazil, nationally and in 510 regions, 2013-2024
+
+[Authors, affiliations, ORCID, funding, conflicts of interest and contributions: to be supplied by the authors; not part of the blinded text]
+
+Abstract
+
+Objective: To measure how the White to Brown and Black to Brown ratios of infant and child mortality in Brazil change with the classification of the deaths and of the denominators, nationally and in each of 510 immediate regions.
+
+Methods: Cross-sectional study of routinely collected birth and death records, linked where possible. Infant deaths of 2013-2023 were linked one-to-one to their birth records (the mother's race); deaths at 1-9 years were classified by the mother's race through an estimator that relates each death to the births of the same date, sex and municipality. Rate ratios were computed with deaths and births by the mother's race, with certified deaths over births by the mother's race (the Ministry of Health's infant indicator), with certified deaths over a census-based population, and with deaths and births reclassified as families classify children in the 2010 Census; regional ratios came from Poisson models with Besag-York-Mollié effects over 510 immediate regions.
+
+Results: The White to Brown infant mortality rate ratio was 0.81 (95%CI 0.78; 0.84) by the mother's race and 1.31 (95%CI 1.30; 1.32) by certified race over the same births; over the census-based population it was 0.80. At 1-4 years the ratios were 0.66 (95%CI 0.54; 0.81) and 1.43 (95%CI 1.40; 1.45), and 0.94 over the census-based population (2016-2024). By certified race the infant ratio had the opposite direction to the mother's-race ratio in 400 of 510 immediate regions (82% of births), credibly in 115; the change was largest where under 10% of births were White (certified over mother's-race ratio 3.15).
+
+Conclusion: Brown children's excess mortality relative to White children, present when deaths and births are classified by the mother, is reversed by the Ministry's infant indicator; over census-based denominators it is kept in infancy and compressed toward none at 1-4 years. Infant and child mortality by race should be computed from linked records or, where that is impossible, read with its denominator named and the composition of the place in mind.
+
+Keywords: Infant Mortality; Child Mortality; Race Factors; Health Status Indicators; Vital Statistics; Medical Record Linkage; Brazil.
+
+Introduction
+
+Brazil monitors racial inequality in child health through mortality rates by race. The numerator is the race on the death certificate, which the Ministry of Health instructs be asked of the informant and which in practice the certifier or hospital staff often enter [1,2]; the denominator is the race on the live birth record, the mother's declaration of her own race since 2011 [3], or the race households report in the census. When the two disagree, the rate is a ratio of two classifications. Comparisons of infant mortality by race between sources gave differences in opposite directions [4,5], and in the United States the classification of infants at birth and at death altered the rates of smaller groups [6], while certificates understate American Indian mortality [7]. A linked cohort of 19.5 million Brazilian births classified by the mother's race found higher mortality before age 5 among children of Brown, Black and Indigenous mothers than among children of White mothers [8].
+
+This study aimed to measure how the White to Brown and Black to Brown ratios of infant and child mortality in Brazil change with the classification of the deaths and of the denominators, nationally and in each of 510 immediate regions.
+
+Methods
+
+Design and data. This is a cross-sectional study of routinely collected birth and death records, linked where possible, reported according to the RECORD statement [9]. Deaths came from the Mortality Information System (SIM) and live births from the Live Birth Information System (SINASC), public files of the Ministry of Health [10], deaths of 2013-2024 and births of 2012-2023; the family's classification from the sample of the 2010 Census [11]; immediate regions from IBGE [12].
+
+The mother's race for each death. Infant deaths of 2013-2023 (383,975) were linked to their birth records by probabilistic linkage [13] on birth date, sex, residence, birth weight and mother's age; 80.5% were linked, with an estimated 0.57-0.75% of false links a year, and the linked share was 81.1%, 81.1% and 80.2% for deaths certified White, Brown and Black. Deaths at 1-9 years carry no birth weight or mother's age, and were classified by the mother's race with a candidate estimator: the births of the same birth date, sex and municipality, less the births of the other sex on the same day as a control for chance agreement, cross-classified by the race on the birth record and on the certificate (Supplementary Text S1); it reproduced the linkage's proportions in infants in municipalities with fewer than 25,600 births a year [14].
+
+Four ways of computing a rate. (1) Mother's race: deaths and births (or person-years from the births of the same cohorts) by the mother's race. (2) Certified race over births: certified deaths over births by the mother's race, the Ministry's infant indicator. (3) Certified race over a census-based population: certified deaths over the population by race of a population account in which census years are census counts and children born after 2010 take their cohort's race shares in the 2022 Census carried back by the state's rate of reclassification (Supplementary Text S2), as rates after infancy are usually computed. (4) Family's classification: deaths and births by mother's race passed through the proportions in which households classify children by the mother's race at the same age in the 2010 Census.
+
+Regions. For each of the 510 immediate regions, deaths of White and Brown mothers' infants (linked deaths scaled to all deaths of the region) and certified White and Brown infant deaths were modelled over births by the mother's race as Poisson counts with Besag-York-Mollié effects [15,16] for the region and for the region's White to Brown contrast, fitted by integrated nested Laplace approximation [17,18]; each region's log ratio is a linear combination of the fixed and the regional effect. The ratio of the certified to the mother's-race rate ratio measures, relative to the mother's race, how much the certificate changes the inequality.
+
+Uncertainty and sensitivity. National ratios carry the larger of the Poisson standard error and a delete-one-state jackknife. Sensitivity: deaths with no race on the certificate given the mother's race; municipalities of 25,600 or more births left out; the share of the deceased found among the candidates differing by up to 10 points between White and Brown mothers. Ethics: public, anonymised data; under Resolution 510/2016 of the National Health Council no review was required.
+
+Results
+
+Before one year, mortality was 10.7 per 1,000 live births for children of White mothers and 13.5 for children of Brown mothers. The White to Brown ratio was 0.81 (95%CI 0.78; 0.84) from the linked deaths by the mother's race (0.79 (95%CI 0.73; 0.86) by the candidate estimator), 1.31 (95%CI 1.30; 1.32) by certified race over the same births, 0.80 by certified race over the census-based population and 0.88 under the family's classification (Table 1, Figure 1). At 1-4 years the ratios were 0.66 (95%CI 0.54; 0.81) by the mother's race, 1.43 (95%CI 1.40; 1.45) by certified race over births, 0.94 by certified race over the census-based population (2016-2024, against 0.66 (95%CI 0.54; 0.81) by the mother's race in the same years) and 0.79 under the family's classification; at 5-9 years, 0.67 (95%CI 0.48; 0.93), 1.21 (95%CI 1.18; 1.25) and 0.78. For Black against Brown at 1-4 years the ratios were 1.11 (95%CI 0.83; 1.48) by the mother's race and 0.81 (95%CI 0.78; 0.85) by certified race. The linked cohort of 2012-2018 births classified by the mother's race [8] gives crude White to Brown ratios of 0.79 under one year and 0.69 at 1-4 years.
+
+Table 1 - Mortality rates and rate ratios by race with deaths and denominators classified four ways, Brazil, 2013-2024 (under 1 year: 2013-2023)
+
+95%CI: 95% confidence interval. Mother's race: candidate estimator; from the linked infant deaths alone the White to Brown ratio is 0.81 (95%CI 0.78; 0.84). Census-based population: White to Brown only, under one year in 2013-2023 and at 1-4 years in 2016-2024. Family's classification: deaths and births passed through the census proportions of the same age; no interval. Deaths with no race on the certificate are not in the certified rates; given the mother's race, the infant ratio by certified race becomes 1.22.
+
+
+
+
+
+Figure 1 - Mortality rates by the mother's race and by certified race over the same births (A-C), and White to Brown rate ratios under four ways of classifying deaths and denominators (D), Brazil, 2013-2024
+
+Bars: 95% confidence intervals.
+
+
+
+The reversal was general across the country (Figure 2). In 400 of the 510 immediate regions, holding 82% of births, the infant ratio by certified race had the opposite direction to the ratio by the mother's race; the mother's-race ratio was credibly below 1 in 159 regions, the certified ratio credibly above 1 in 446, both in 115, and the certified ratio exceeded the mother's-race ratio credibly in 469. The change was U-shaped in the composition of births: weighted by births, the certified ratio was 3.15 times the mother's-race ratio where under 10% of births were White, 1.92 at 10-29%, 1.83 at 30-59% and 2.19 at 60% or more. At the low end, a small share of Brown mothers' infants certified White adds many deaths to a small White denominator; at the high end, Brown mothers' infants certified White leave the Brown numerator. Where White births are rare, the mother's-race ratio rests on few deaths and is pulled toward its mean by the model (0.93 in that class). The regions where the certificate raised the ratio most are listed in Supplementary Table S1 and every region in Supplementary Data.
+
+
+
+Figure 2 - White to Brown infant mortality rate ratio by immediate region, by the mother's race (A) and by certified race (B), the ratio of the two (C), and the ratio of the two against the share of White births and GDP per capita (D), Brazil, 2013-2023
+
+Posterior means of Poisson models with Besag-York-Mollié effects over 510 immediate regions. D: area of a point, live births; the line is the births-weighted mean by class of composition.
+
+
+
+The national ratios were robust to the choices of the estimator. Without municipalities of 25,600 or more births a year, the White to Brown ratio at 1-4 years by the mother's race was 0.73 (95%CI 0.67; 0.80); leaving out one state at a time it ranged from 0.63 to 0.70; and with the share of the deceased found among the candidates differing by up to 10 points between White and Brown mothers it lay between 0.57 and 0.77. By region, the ratios at 1-9 years are in Supplementary Figure S1, and by state in Supplementary Table S2.
+
+Discussion
+
+Over the same deaths, the White to Brown ratio of infant and child mortality in Brazil depended on how the deaths and the denominators were classified. With both classified by the mother, children of White mothers died less often than children of Brown mothers, as in a linked cohort of 19.5 million births [8]. With certified deaths over births by the mother's race, the Ministry's infant indicator, the direction reversed, and it reversed in most of the country's regions. Over a census-based population the infant ratio was close to the mother's-race ratio, and at 1-4 years, as rates after infancy are computed, the excess of Brown children shrank toward none. The same certified deaths give a reversal or not depending on the denominator, because the census, like the certificate and unlike the mother, classifies part of Brown mothers' children as White.
+
+Why the certificate reverses the ratio over births. The certificate records the mother's race for most children of White mothers but classes a quarter of Brown mothers' infants as White and more than half of Black mothers' infants as Brown. Deaths therefore move from the Brown to the White numerator while births stay where the mothers declared; Brown births outnumber White births, so the deaths moved out of the Brown category are many relative to the White deaths they join: the White rate rises and the Brown rate falls. The regional pattern follows from the same arithmetic. Where White births are rare, a few deaths moved into the White category double a small White rate; where they are the majority, the Brown rate loses the deaths moved out of it. Earlier Brazilian comparisons of infant mortality by race between sources found differences in opposite directions [4,5]; the present results show why both directions can occur, since the result depends on the denominator and on the composition of the place.
+
+Strengths and limitations. The deaths of infants were linked one-to-one, with a false-link rate under 1% a year and equal linkage of White, Brown and Black certificates, so the reversal in infancy does not rest on the estimator used after infancy; the national and regional ratios are computed over the same births. Limitations: the mother's race on the birth record is itself filled by staff in practice and is a declaration, not a truth; the estimator after infancy finds only children who did not move and loses precision in the largest municipalities; the census-based population is modelled between and after censuses; the family's classification is a 2010 reference applied by mother's race and age, without an interval; and the regional mother's-race ratios rest on few White deaths where White births are rare.
+
+Implications. An indicator of racial inequality in child mortality should classify the deaths as its denominator classifies the births. For infants, linking deaths to their birth records, which the Ministry's own systems allow, gives both by the mother's race. For older children, rates by the mother's race need person-years from births by the mother's race, or a linked cohort. Where certified race must be used, the ratio should be reported with its denominator named and read against the racial composition of the place, since the same certified deaths give opposite conclusions over births and over the census.
+
+In conclusion, this study set out to measure how the White to Brown and Black to Brown ratios of infant and child mortality in Brazil change with the classification of the deaths and of the denominators, nationally and in each of 510 immediate regions. Brown children's excess mortality relative to White children, present with deaths and births classified by the mother, was reversed by the Ministry's infant indicator in most regions; over census-based denominators it was kept in infancy and compressed toward none at 1-4 years.
+
+References
+
+1. Ministério da Saúde (BR). Secretaria de Vigilância em Saúde. Declaração de Óbito: manual de instruções para preenchimento. Brasília: Ministério da Saúde; 2022 [cited 2026 Nov 21]. Available from: https://bvsms.saude.gov.br/bvs/publicacoes/declaracao_obito_manual_preenchimento.pdf
+
+2. Travassos C, Williams DR. The concept and measurement of race and their relationship to public health: a review focused on Brazil and the United States. Cadernos de Saúde Pública. 2004;20(3):660-678. doi:10.1590/s0102-311x2004000300003
+
+3. Ministério da Saúde (BR). Secretaria de Vigilância em Saúde. Manual de instruções para o preenchimento da Declaração de Nascido Vivo. Brasília: Ministério da Saúde; 2011 [cited 2026 Nov 21]. Available from: https://saude.prefeitura.rio/wp-content/uploads/sites/47/2023/05/Manual_Instr_PreenchimentoDN_2011.pdf
+
+4. Cardoso AM, Santos RV, Coimbra Jr. CEA. Mortalidade infantil segundo raça/cor no Brasil: o que dizem os sistemas nacionais de informação?. Cadernos de Saúde Pública. 2005;21(5):1602-1608. doi:10.1590/s0102-311x2005000500035
+
+5. Caldas ADR, Santos RV, Borges GM, Valente JG, Portela MC, Marinho GL. Mortalidade infantil segundo cor ou raça com base no Censo Demográfico de 2010 e nos sistemas nacionais de informação em saúde no Brasil. Cadernos de Saúde Pública. 2017;33(7). doi:10.1590/0102-311x00046516
+
+6. Hahn RA, Mulinare J, Teutsch SM. Inconsistencies in coding of race and ethnicity between birth and death in US infants: a new look at infant mortality, 1983 through 1985. JAMA. 1992;267(2):259-63. doi:10.1001/jama.1992.03480020069033. PMID: 1727523
+
+7. Arias E, Heron M, Hakes J. The validity of race and Hispanic-origin reporting on death certificates in the United States: an update. Vital Health Stat 2. 2016;(172):1-21. PMID: 28436642
+
+8. Rebouças P, Goes E, Pescarini J, Ramos D, Ichihara MY, Sena S, et al. Ethnoracial inequalities and child mortality in Brazil: a nationwide longitudinal study of 19 million newborn babies. The Lancet Global Health. 2022;10(10):e1453-e1462. doi:10.1016/s2214-109x(22)00333-3
+
+9. Benchimol EI, Smeeth L, Guttmann A, Harron K, Moher D, Petersen I, et al. The REporting of studies Conducted using Observational Routinely-collected health Data (RECORD) Statement. PLOS Medicine. 2015;12(10):e1001885. doi:10.1371/journal.pmed.1001885
+
+10. Ministério da Saúde (BR). Departamento de Informática do Sistema Único de Saúde. Transferência de arquivos: Sistema de Informações sobre Mortalidade e Sistema de Informações sobre Nascidos Vivos [Internet]. Brasília: Ministério da Saúde; [cited 2026 Nov 21]. Available from: https://datasus.saude.gov.br/transferencia-de-arquivos/
+
+11. Instituto Brasileiro de Geografia e Estatística. Censo Demográfico 2010: resultados gerais da amostra: microdados [Internet]. Rio de Janeiro: IBGE; 2012 [updated 2016 Mar 11; cited 2026 Nov 21]. Available from: https://ftp.ibge.gov.br/Censos/Censo_Demografico_2010/Resultados_Gerais_da_Amostra/Microdados/
+
+12. Instituto Brasileiro de Geografia e Estatística. Divisão regional do Brasil em regiões geográficas imediatas e regiões geográficas intermediárias: 2017. Rio de Janeiro: IBGE; 2017 [cited 2026 Nov 21]. Available from: https://www.ibge.gov.br/geociencias/organizacao-do-territorio/divisao-regional/15778-divisoes-regionais-do-brasil.html
+
+13. Fellegi IP, Sunter AB. A Theory for Record Linkage. Journal of the American Statistical Association. 1969;64(328):1183-1210. doi:10.1080/01621459.1969.10501049
+
+14. Lipsitch M, Tchetgen Tchetgen E, Cohen T. Negative Controls. Epidemiology. 2010;21(3):383-388. doi:10.1097/ede.0b013e3181d61eeb
+
+15. Besag J, York J, Mollié A. Bayesian image restoration, with two applications in spatial statistics. Annals of the Institute of Statistical Mathematics. 1991;43(1):1-20. doi:10.1007/bf00116466
+
+16. Riebler A, Sørbye SH, Simpson D, Rue H. An intuitive Bayesian spatial model for disease mapping that accounts for scaling. Statistical Methods in Medical Research. 2016;25(4):1145-1165. doi:10.1177/0962280216660421
+
+17. Rue H, Martino S, Chopin N. Approximate Bayesian Inference for Latent Gaussian models by using Integrated Nested Laplace Approximations. Journal of the Royal Statistical Society Series B: Statistical Methodology. 2009;71(2):319-392. doi:10.1111/j.1467-9868.2008.00700.x
+
+18. Lindgren F, Rue H. Bayesian spatial modelling with R-INLA. Journal of Statistical Software. 2015;63(19). doi:10.18637/jss.v063.i19

@@ -436,9 +436,8 @@ srt = RT.sort_values("misstated", ascending=False)
 cols = ["name", "uf", "white_share", "gdp_pc", "mother_log_rr", "certificate_log_rr", "misstated", "misstated_sd", "births"]
 S["misstated"]["top"] = srt.head(25)[cols].to_dict("records")
 S["misstated"]["bottom"] = srt.tail(10)[cols].to_dict("records")
-(PAPER / "out").mkdir(exist_ok=True)
-M[keep].to_csv(PAPER / "out" / "supplementary_data_1_municipalities.csv", index=False)
-RT.to_csv(PAPER / "out" / "supplementary_data_2_immediate_regions.csv", index=False)
+M[keep].to_csv(PAPER / "results" / "supplementary_data_1_municipalities.csv", index=False)
+RT.to_csv(PAPER / "results" / "supplementary_data_2_immediate_regions.csv", index=False)
 
 if (SP / "individual.json").exists():                                   # models.R individual (run after the linkage context)
     S["multilevel"] = json.loads((SP / "individual.json").read_text(encoding="utf-8"))["individual"]
