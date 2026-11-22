@@ -165,16 +165,19 @@ def _table(name: str, settings: Any):
 
 def tuss_terms(codes: Sequence[str] | None = None, *, table: str = "22", settings: Any = None):
     """The TUSS terms of one table (22: procedures and health events; 63: groups) as ANS publishes them
-    (pyarrow table: ``code`` (table and term), ``table``, ``term``, ``name``, ``valid_from``, ``valid_to`` (YYYYMM; null while valid),
-    ``implemented``). ``codes`` keeps only those terms (the item's ``CD_PROCEDIMENTO``, without the table)."""
+    (pyarrow table: ``code`` (table and TUSS code), ``table``, ``tuss_code`` (the item's ``CD_PROCEDIMENTO``), ``tuss_term``
+    (its name), ``valid_from``, ``valid_to`` (YYYYMM; null while valid), ``implemented``), named as `tuss_sigtap` names them.
+    ``codes`` keeps only those codes (``CD_PROCEDIMENTO``, without the table)."""
     import pyarrow as pa
     import pyarrow.compute as pc
 
     found = _table(TERMS_FILE, settings)
+    # the registry stores the code as `term` and its text as `name`; read as the code and the term (t08 audit, 2026-11-22)
+    found = found.rename_columns([{"term": "tuss_code", "name": "tuss_term"}.get(c, c) for c in found.column_names])
     found = found.filter(pc.equal(found["table"], str(table)))
     if codes is None:
         return found
-    return found.filter(pc.is_in(found["term"], value_set=pa.array([str(c) for c in codes], type=pa.string())))
+    return found.filter(pc.is_in(found["tuss_code"], value_set=pa.array([str(c) for c in codes], type=pa.string())))
 
 
 def tuss_sigtap(codes: Sequence[str] | None = None, *, sigtap: Sequence[str] | None = None, mapped_only: bool = True,
