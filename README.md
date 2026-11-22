@@ -303,6 +303,11 @@ result.pairs       # record ids (file hash:row) on each side, and the pass that 
 - **Roles.** `role_table(dataset, …)` gives any dataset's records as the
   properties they state (`mother.birth_date`, `patient.sex`), normalised
   (the `compare:` columns of `curation/roles/<dataset>.yml`).
+  Only those: a column no link compares (SINASC's `CODANOMAL`, SIM's cause) is
+  refused by name. To join such columns to a link's pairs, read them with
+  `query(..., provenance="all")` and key each row by
+  `linkage.identity.record_ids(table)`, the identities the pairs' `l` and `r`
+  hold.
 - **Refusal.** A linkage that is not viable raises `LinkNotViable` instead of
   returning pairs.
 - **Discovery.** `discover_links("SINASC-DN", "SIH-RD", period=2022,
