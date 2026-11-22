@@ -282,10 +282,15 @@ class BlobStore:
             if not path.is_file():
                 continue
             if all(source in holders or source in by_path or (source, digest) in covered for source in sources):
-                out["blobs"] += 1
-                out["bytes"] += path.stat().st_size
+                size = path.stat().st_size
                 if not dry_run:
-                    path.unlink()
+                    try:
+                        path.unlink()
+                    except PermissionError:      # a reader holds it open (Windows): left, counted, gone next time
+                        out["locked"] = out.get("locked", 0) + 1
+                        continue
+                out["blobs"] += 1
+                out["bytes"] += size
             else:
                 out["kept"] += 1
         return out

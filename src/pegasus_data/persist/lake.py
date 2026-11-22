@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import json
 import re
+import uuid
 from collections.abc import Callable, Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
@@ -29,7 +30,7 @@ import pyarrow.parquet as pq
 from .._bounded import Bounded
 from .._lazy import LazyModule
 from ..catalog.store import CatalogStore, utcnow
-from .staging import staged_file, staged_tree
+from .staging import _remove_tree, _retry_on_permission, staged_file, staged_tree
 
 if TYPE_CHECKING:
     import pyarrow.dataset as ds
@@ -858,9 +859,17 @@ def drop_redundant_partitions(catalog: CatalogStore, lake_dir: str | Path, *, dr
         out["bytes"] += sum(f.stat().st_size for f in siblings)
         if dry_run:
             continue
-        for f in siblings:
-            f.unlink()
-        path.parent.rmdir()
+        # moved aside whole first, then removed: a reader holding a file open (Windows refuses) left half the files
+        # deleted and the catalog row standing. A directory that stays locked is left as it was, and counted.
+        aside = Path(lake_dir) / STAGING_DIR / f"{path.parent.name}.__redundant__.{uuid.uuid4().hex[:10]}"
+        aside.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            _retry_on_permission(lambda src=path.parent, dst=aside: src.rename(dst))
+        except OSError:
+            out["partitions"] -= 1
+            out["locked"] = out.get("locked", 0) + 1
+            continue
+        _remove_tree(aside)
         if row is not None:
             with catalog.write() as conn:
                 conn.execute("DELETE FROM lake_partitions WHERE family_id=? AND schema_signature=? AND uf=? AND year=?",
