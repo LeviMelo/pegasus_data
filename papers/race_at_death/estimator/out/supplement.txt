@@ -1,8 +1,8 @@
-﻿Supplementary material - Cross-classifying two registers without linking them: an estimator from birth date, sex and municipality with the other sex as a negative control, validated on Brazilian birth, death and hospital records
+﻿Supplementary material - Cross-classifying two registers without linking them: candidates less a negative control from birth date, sex and municipality, tested on Brazilian birth, death and hospital records
 Supplementary Text S1 - The estimator's expectation and its four variances
 Write F(j, k) for the units of G found among their candidates (the person kept the key) and B(j, k) = sum over units certified k of the chance candidates of class j. Then the candidates summed are F(j, k) + B(j, k) + W(j, k), W the related records sharing the key (same-sex twins), and the control summed is K(j, k) = B'(j, k) + W'(j, k), B' the other sex's chance records scaled by s and W' the other-sex twins. Under A2, E[B'] = E[B]; under A3, W and W' fall in the person's own cell. So E[T(j, k)] = E[F(j, k)] + E[W - W'], and under A1 E[F(j, k)] = t_j N(j, k). The row proportion is a ratio of such sums: consistent as the units of a row grow, biased in small rows, and unstable when a row sum is near zero (a class rare among the units and common among the chance candidates). Intervals are Wald intervals and are not bounded to 0-1. In the text and tables no rule withholds an estimate; the figures do not draw estimates whose standard error is 0.15 or more, and rows of the known answers with fewer than 30 pairs are left out of the comparisons.
-Units that share a key and a class (g of them) share their candidates and their control, so their counts enter the variances as g squared. Let c be the records of a key cell of the unit's sex and o those of the other sex, s the scale. (i) Counts: Var T taken as the candidates plus the control summed, and a proportion's standard error sqrt(Var T(j, k)) / T(j, +), as if the row sum were known. (ii) Model: with the register's records Poisson, Var T(j, k) = sum of g^2 (c + s^2 o) over the cells; with independent cells the proportion p = T(j, k) / T(j, +) has Var p = [(1 - p)^2 V(j, k) + p^2 (V(j, +) - V(j, k))] / T(j, +)^2, which with no chance agreement is the binomial p(1 - p) / n; the declared mix is the same with rows in place of cells, and a ratio of rates by declared class a over b has Var log r = V(a, +) / T(a, +)^2 + V(b, +) / T(b, +)^2, the person-years being complete counts of births. (iii) Chance: for the table of these units only the chance candidates (expected s o) and the control vary, V = sum of g^2 o (s + s^2), with the same delta method. (iv) Clusters: with z_m the linearised contribution of municipality m (for p: [T_m(j, k) - p T_m(j, +)] / T(j, +)), Var = M / (M - 1) sum z_m^2 over the M municipalities of the group, years pooled. The rate ratios of the companion papers at 1-9 years were counted before the g and s terms were added; there V was taken with g = s = 1 (deaths at 1-9 years rarely share a key, and s is close to 1.05).
-(ii) answers the question asked of a classification as a property of the system that produced the deaths; (iii) the question of how far the estimate is from the table that a perfect linkage of the same units would give; (iv) the first question without the Poisson model, treating the municipalities as a sample from a population of municipalities, so that variation of the classification between them enters the error.
+Units that share a key cell share their candidates and their control whatever their class; the package's variance columns group by key, class, age, cause and year, the analysis here by key and class (the key cell's deaths of a class, g, enter as g squared). Let c be the records of a key cell of the unit's sex and o those of the other sex, s the scale. (i) Counts: Var T taken as the candidates plus the control summed, and a proportion's standard error sqrt(Var T(j, k)) / T(j, +), as if the row sum were known. (ii) Model: with the register's records Poisson, Var T(j, k) = sum of g^2 (c + s^2 o) over the cells; with independent cells the proportion p = T(j, k) / T(j, +) has Var p = [(1 - p)^2 V(j, k) + p^2 (V(j, +) - V(j, k))] / T(j, +)^2; the declared mix is the same with rows in place of cells, and a ratio of rates by declared class a over b has Var log r = V(a, +) / T(a, +)^2 + V(b, +) / T(b, +)^2, the person-years being complete counts of births. (iii) Exact model: in a key cell write x for the boys' deaths by class less the girls' over beta (beta the ratio of boys to girls in the municipality and birth year) and y for the girls' less beta times the boys'; the cell's T(j, k) is c_boys(j) x_k + c_girls(j) y_k, so for the linear form a'T(j, .) with a = e_k - p_jk the variance is a' M_j a with M_j the sum over cells of x x' c_boys(j) + y y' c_girls(j), which carries the covariances between classes of deaths sharing a cell and between the sexes; divided by T(j, +)^2 it is Var p_jk. With one death a cell it equals (ii). (iv) Chance: for the table of these units only the chance candidates (expected s o) and the control vary, V = sum of g^2 o (s + s^2), with the same delta method. (v) Clusters: with z_m the linearised contribution of municipality m (for p: [T_m(j, k) - p T_m(j, +)] / T(j, +)), Var = M / (M - 1) sum z_m^2 over the M municipalities of the group, years pooled. The rate ratios of the companion papers at 1-9 years were counted before the g and s terms were added; there V was taken with g = s = 1.
+(ii) and (iii) answer the question asked of a classification as a property of the system that produced the deaths; (iv) the question of how far the estimate is from the table that a perfect linkage of the same units would give; (v) the first question without the Poisson model, treating the municipalities as a sample from a population of municipalities, so that variation of the classification between them enters the error.
 Supplementary Text S2 - The simulation
 Births. Each municipality's 2018 births by the race on the birth record (White, Black, Brown, Indigenous, and Asian or blank) were spread over the 365 days with weights for the weekday (Monday to Sunday 1.06, 1.08, 1.07, 1.06, 1.04, 0.88, 0.81, departures from one multiplied by 1.5 for White and 0.8 for Indigenous births) and a seasonal cosine of amplitude 0.05, and drawn as Poisson counts by day, sex (51.2% boys; in scenario a2 52.5% of White and 50.5% of Black and Indigenous births) and race. Twins (scenarios with twins): pairs drawn at 1% of births by day and race, two thirds of the same sex. Deaths: each birth died with a probability proportional to 0.66, 1.1, 1.0, 4.1 and 1.0 for the five classes, twins at twice it, scaled to the deaths of 2013-2024 at 1-9 years (scenario sparse: a twelfth of them). Movers: a death moved with the scenario's probability to a municipality of the same state chosen in proportion to its births (a draw of its own municipality being no move), and was resident there at death. Certified race: drawn from the infant linkage's proportions for the decile of the White share of births of the municipality of residence at death (rows with fewer than 50 linked pairs: the national proportions), a child declared Asian or blank as a Brown one; in the selective scenario the race is drawn where the child was born and the mover keeps it.
 The estimator was computed as for the real data: candidates and the other sex's births of the death's day in its municipality of residence, scaled by the municipality's ratio of boys to girls, deaths sharing a key and a class counted together. Every replicate drew a new world; 200 replicates a scenario. Monte Carlo error of the bias: the standard deviation of estimate less truth over the replicates, over the square root of their number. Targets: the table of all deaths of the size class (the estimand), of those found among their candidates (for the bias of the estimator itself), and the mean of the first over replicates (the system's classification, for the coverage of the model and cluster errors).
@@ -20,6 +20,8 @@ Coverage of all deaths, model
 Coverage of the system's value, model
 Coverage of the system's value, cluster
 Coverage of the found, chance
+Median bias, deaths found
+Failed replicates
 ideal
 <400
 White as White
@@ -33,6 +35,8 @@ White as White
 98%
 98%
 96%
+0.000
+0%
 ideal
 <400
 Black as Black
@@ -46,6 +50,8 @@ Black as Black
 96%
 95%
 92%
++0.001
+0%
 ideal
 <400
 Brown as Brown
@@ -59,6 +65,8 @@ Brown as Brown
 98%
 98%
 96%
+0.000
+0%
 ideal
 <400
 White/Brown rate ratio
@@ -72,6 +80,8 @@ White/Brown rate ratio
 98%
 99%
 93%
+-0.001
+0%
 ideal
 <400
 Black/Brown rate ratio
@@ -85,6 +95,8 @@ Black/Brown rate ratio
 92%
 96%
 91%
+0.000
+0%
 ideal
 400-1,599
 White as White
@@ -98,6 +110,8 @@ White as White
 98%
 98%
 98%
+0.000
+0%
 ideal
 400-1,599
 Black as Black
@@ -111,6 +125,8 @@ Black as Black
 92%
 94%
 96%
++0.001
+0%
 ideal
 400-1,599
 Brown as Brown
@@ -124,6 +140,8 @@ Brown as Brown
 94%
 96%
 96%
+-0.001
+0%
 ideal
 400-1,599
 White/Brown rate ratio
@@ -137,6 +155,8 @@ White/Brown rate ratio
 93%
 100%
 94%
+-0.003
+0%
 ideal
 400-1,599
 Black/Brown rate ratio
@@ -150,6 +170,8 @@ Black/Brown rate ratio
 97%
 100%
 98%
++0.001
+0%
 ideal
 1,600-6,399
 White as White
@@ -163,6 +185,8 @@ White as White
 94%
 94%
 94%
+-0.002
+0%
 ideal
 1,600-6,399
 Black as Black
@@ -176,6 +200,8 @@ Black as Black
 93%
 94%
 96%
+-0.001
+0%
 ideal
 1,600-6,399
 Brown as Brown
@@ -189,6 +215,8 @@ Brown as Brown
 94%
 97%
 94%
+0.000
+0%
 ideal
 1,600-6,399
 White/Brown rate ratio
@@ -202,6 +230,8 @@ White/Brown rate ratio
 96%
 100%
 96%
++0.007
+0%
 ideal
 1,600-6,399
 Black/Brown rate ratio
@@ -215,6 +245,8 @@ Black/Brown rate ratio
 94%
 97%
 94%
+0.000
+0%
 ideal
 6,400-25,599
 White as White
@@ -228,6 +260,8 @@ White as White
 99%
 98%
 99%
++0.005
+0%
 ideal
 6,400-25,599
 Black as Black
@@ -241,6 +275,8 @@ Black as Black
 98%
 96%
 96%
++0.002
+0%
 ideal
 6,400-25,599
 Brown as Brown
@@ -254,6 +290,8 @@ Brown as Brown
 94%
 94%
 94%
+-0.002
+0%
 ideal
 6,400-25,599
 White/Brown rate ratio
@@ -267,6 +305,8 @@ White/Brown rate ratio
 96%
 100%
 98%
+-0.006
+0%
 ideal
 6,400-25,599
 Black/Brown rate ratio
@@ -280,6 +320,8 @@ Black/Brown rate ratio
 98%
 100%
 98%
++0.003
+0%
 ideal
 >=25,600
 White as White
@@ -293,6 +335,8 @@ White as White
 100%
 75%
 100%
+-0.049
+14%
 ideal
 >=25,600
 Black as Black
@@ -306,6 +350,8 @@ Black as Black
 98%
 81%
 98%
+-0.006
+14%
 ideal
 >=25,600
 Brown as Brown
@@ -319,6 +365,8 @@ Brown as Brown
 100%
 88%
 100%
++0.002
+14%
 ideal
 >=25,600
 White/Brown rate ratio
@@ -332,6 +380,8 @@ White/Brown rate ratio
 100%
 86%
 100%
+-0.030
+14%
 ideal
 >=25,600
 Black/Brown rate ratio
@@ -345,6 +395,8 @@ Black/Brown rate ratio
 99%
 92%
 99%
++0.036
+14%
 ideal
 all
 White as White
@@ -358,6 +410,8 @@ White as White
 100%
 97%
 100%
+-0.004
+0%
 ideal
 all
 Black as Black
@@ -371,6 +425,8 @@ Black as Black
 98%
 92%
 100%
++0.001
+0%
 ideal
 all
 Brown as Brown
@@ -384,6 +440,8 @@ Brown as Brown
 99%
 96%
 100%
+-0.001
+0%
 ideal
 all
 White/Brown rate ratio
@@ -397,6 +455,8 @@ White/Brown rate ratio
 100%
 98%
 100%
+-0.001
+0%
 ideal
 all
 Black/Brown rate ratio
@@ -410,6 +470,8 @@ Black/Brown rate ratio
 100%
 96%
 100%
++0.003
+0%
 twins
 <400
 White as White
@@ -423,6 +485,8 @@ White as White
 92%
 93%
 90%
+0.000
+0%
 twins
 <400
 Black as Black
@@ -436,6 +500,8 @@ Black as Black
 98%
 96%
 95%
++0.001
+0%
 twins
 <400
 Brown as Brown
@@ -449,6 +515,8 @@ Brown as Brown
 95%
 96%
 94%
+0.000
+0%
 twins
 <400
 White/Brown rate ratio
@@ -462,6 +530,8 @@ White/Brown rate ratio
 94%
 100%
 97%
+0.000
+0%
 twins
 <400
 Black/Brown rate ratio
@@ -475,6 +545,8 @@ Black/Brown rate ratio
 96%
 96%
 92%
++0.002
+0%
 twins
 400-1,599
 White as White
@@ -488,6 +560,8 @@ White as White
 93%
 96%
 95%
++0.001
+0%
 twins
 400-1,599
 Black as Black
@@ -501,6 +575,8 @@ Black as Black
 98%
 97%
 97%
+0.000
+0%
 twins
 400-1,599
 Brown as Brown
@@ -514,6 +590,8 @@ Brown as Brown
 94%
 96%
 94%
++0.001
+0%
 twins
 400-1,599
 White/Brown rate ratio
@@ -527,6 +605,8 @@ White/Brown rate ratio
 98%
 100%
 97%
+0.000
+0%
 twins
 400-1,599
 Black/Brown rate ratio
@@ -540,6 +620,8 @@ Black/Brown rate ratio
 95%
 97%
 94%
++0.003
+0%
 twins
 1,600-6,399
 White as White
@@ -553,6 +635,8 @@ White as White
 94%
 96%
 94%
+-0.001
+0%
 twins
 1,600-6,399
 Black as Black
@@ -566,6 +650,8 @@ Black as Black
 96%
 96%
 94%
+-0.001
+0%
 twins
 1,600-6,399
 Brown as Brown
@@ -579,6 +665,8 @@ Brown as Brown
 96%
 98%
 96%
+-0.002
+0%
 twins
 1,600-6,399
 White/Brown rate ratio
@@ -592,6 +680,8 @@ White/Brown rate ratio
 96%
 100%
 96%
++0.002
+0%
 twins
 1,600-6,399
 Black/Brown rate ratio
@@ -605,6 +695,8 @@ Black/Brown rate ratio
 95%
 98%
 96%
++0.002
+0%
 twins
 6,400-25,599
 White as White
@@ -618,6 +710,8 @@ White as White
 99%
 98%
 99%
++0.006
+0%
 twins
 6,400-25,599
 Black as Black
@@ -631,6 +725,8 @@ Black as Black
 96%
 94%
 95%
++0.006
+0%
 twins
 6,400-25,599
 Brown as Brown
@@ -644,6 +740,8 @@ Brown as Brown
 98%
 98%
 99%
++0.005
+0%
 twins
 6,400-25,599
 White/Brown rate ratio
@@ -657,6 +755,8 @@ White/Brown rate ratio
 97%
 100%
 98%
+-0.002
+0%
 twins
 6,400-25,599
 Black/Brown rate ratio
@@ -670,6 +770,8 @@ Black/Brown rate ratio
 98%
 98%
 98%
++0.003
+0%
 twins
 >=25,600
 White as White
@@ -683,6 +785,8 @@ White as White
 100%
 78%
 100%
+-0.011
+18%
 twins
 >=25,600
 Black as Black
@@ -696,6 +800,8 @@ Black as Black
 96%
 82%
 96%
++0.018
+18%
 twins
 >=25,600
 Brown as Brown
@@ -709,6 +815,8 @@ Brown as Brown
 100%
 94%
 100%
+-0.017
+18%
 twins
 >=25,600
 White/Brown rate ratio
@@ -722,6 +830,8 @@ White/Brown rate ratio
 99%
 90%
 99%
++0.014
+18%
 twins
 >=25,600
 Black/Brown rate ratio
@@ -735,6 +845,8 @@ Black/Brown rate ratio
 98%
 94%
 98%
++0.023
+18%
 twins
 all
 White as White
@@ -748,6 +860,8 @@ White as White
 100%
 94%
 100%
+-0.003
+0%
 twins
 all
 Black as Black
@@ -761,6 +875,8 @@ Black as Black
 98%
 92%
 100%
++0.004
+0%
 twins
 all
 Brown as Brown
@@ -774,6 +890,8 @@ Brown as Brown
 100%
 96%
 100%
+-0.001
+0%
 twins
 all
 White/Brown rate ratio
@@ -787,6 +905,8 @@ White/Brown rate ratio
 100%
 98%
 100%
+0.000
+0%
 twins
 all
 Black/Brown rate ratio
@@ -800,6 +920,8 @@ Black/Brown rate ratio
 100%
 98%
 100%
++0.025
+0%
 movers
 <400
 White as White
@@ -813,6 +935,8 @@ White as White
 83%
 84%
 96%
+-0.001
+0%
 movers
 <400
 Black as Black
@@ -826,6 +950,8 @@ Black as Black
 96%
 96%
 94%
++0.001
+0%
 movers
 <400
 Brown as Brown
@@ -839,32 +965,38 @@ Brown as Brown
 84%
 88%
 96%
+0.000
+0%
 movers
 <400
 White/Brown rate ratio
-0.659
-+0.001 (0.001)
+0.660
+-0.001 (0.001)
 0.000 (0.001)
 0.020
 0.021
 0.027
 100%
 96%
-100%
+99%
 98%
+0.000
+0%
 movers
 <400
 Black/Brown rate ratio
-1.202
--0.101 (0.004)
+1.103
+-0.002 (0.004)
 +0.001 (0.003)
 0.072
 0.064
 0.068
-67%
-62%
-66%
+99%
 94%
+95%
+94%
+-0.002
+0%
 movers
 400-1,599
 White as White
@@ -878,6 +1010,8 @@ White as White
 94%
 94%
 96%
+-0.001
+0%
 movers
 400-1,599
 Black as Black
@@ -891,6 +1025,8 @@ Black as Black
 96%
 95%
 96%
++0.002
+0%
 movers
 400-1,599
 Brown as Brown
@@ -904,32 +1040,38 @@ Brown as Brown
 90%
 92%
 95%
+0.000
+0%
 movers
 400-1,599
 White/Brown rate ratio
-0.654
-+0.005 (0.002)
+0.661
+-0.002 (0.002)
 -0.002 (0.002)
 0.030
 0.031
 0.044
+99%
 97%
-94%
 100%
 97%
+-0.002
+0%
 movers
 400-1,599
 Black/Brown rate ratio
-1.162
--0.068 (0.005)
+1.100
+-0.006 (0.005)
 -0.004 (0.005)
 0.082
 0.085
 0.095
-92%
-88%
-94%
+98%
 96%
+96%
+96%
+-0.008
+0%
 movers
 1,600-6,399
 White as White
@@ -943,6 +1085,8 @@ White as White
 96%
 96%
 96%
+-0.004
+0%
 movers
 1,600-6,399
 Black as Black
@@ -956,6 +1100,8 @@ Black as Black
 97%
 96%
 96%
+-0.001
+0%
 movers
 1,600-6,399
 Brown as Brown
@@ -969,32 +1115,38 @@ Brown as Brown
 96%
 96%
 96%
+-0.001
+0%
 movers
 1,600-6,399
 White/Brown rate ratio
-0.666
--0.002 (0.004)
+0.661
++0.004 (0.004)
 +0.005 (0.003)
 0.050
 0.056
 0.077
 96%
-95%
+96%
 100%
 94%
++0.008
+0%
 movers
 1,600-6,399
 Black/Brown rate ratio
-1.108
-+0.001 (0.009)
+1.104
++0.005 (0.009)
 +0.005 (0.009)
 0.129
 0.136
 0.147
-96%
+97%
 96%
 98%
 96%
+0.000
+0%
 movers
 6,400-25,599
 White as White
@@ -1008,6 +1160,8 @@ White as White
 99%
 100%
 100%
+-0.005
+0%
 movers
 6,400-25,599
 Black as Black
@@ -1021,6 +1175,8 @@ Black as Black
 97%
 96%
 97%
+-0.001
+0%
 movers
 6,400-25,599
 Brown as Brown
@@ -1034,32 +1190,38 @@ Brown as Brown
 94%
 92%
 93%
+-0.002
+0%
 movers
 6,400-25,599
 White/Brown rate ratio
-0.652
-+0.001 (0.009)
+0.660
+-0.007 (0.009)
 +0.005 (0.009)
 0.126
 0.135
 0.165
-95%
 96%
-98%
+94%
 96%
+96%
++0.009
+0%
 movers
 6,400-25,599
 Black/Brown rate ratio
-1.058
-+0.036 (0.018)
+1.099
+-0.006 (0.018)
 +0.012 (0.017)
 0.253
 0.296
 0.304
-100%
-99%
 98%
+98%
+97%
 99%
++0.027
+0%
 movers
 >=25,600
 White as White
@@ -1073,6 +1235,8 @@ White as White
 100%
 76%
 100%
+-0.031
+21%
 movers
 >=25,600
 Black as Black
@@ -1086,6 +1250,8 @@ Black as Black
 96%
 84%
 96%
+-0.014
+21%
 movers
 >=25,600
 Brown as Brown
@@ -1099,11 +1265,13 @@ Brown as Brown
 100%
 90%
 100%
++0.004
+21%
 movers
 >=25,600
 White/Brown rate ratio
-0.675
-+0.010 (0.032)
+0.659
++0.025 (0.032)
 +0.033 (0.032)
 0.447
 0.681
@@ -1112,19 +1280,23 @@ White/Brown rate ratio
 98%
 86%
 98%
+-0.041
+21%
 movers
 >=25,600
 Black/Brown rate ratio
-1.020
-+0.148 (0.053)
+1.100
++0.068 (0.053)
 +0.097 (0.053)
 0.745
 1.025
 0.673
 96%
 96%
-92%
+90%
 96%
++0.032
+21%
 movers
 all
 White as White
@@ -1138,6 +1310,8 @@ White as White
 100%
 96%
 100%
+-0.008
+0%
 movers
 all
 Black as Black
@@ -1151,6 +1325,8 @@ Black as Black
 99%
 92%
 100%
+0.000
+0%
 movers
 all
 Brown as Brown
@@ -1164,6 +1340,8 @@ Brown as Brown
 100%
 94%
 100%
++0.001
+0%
 movers
 all
 White/Brown rate ratio
@@ -1177,6 +1355,8 @@ White/Brown rate ratio
 100%
 96%
 100%
+-0.005
+0%
 movers
 all
 Black/Brown rate ratio
@@ -1190,6 +1370,8 @@ Black/Brown rate ratio
 100%
 94%
 100%
++0.010
+0%
 unequal
 <400
 White as White
@@ -1203,6 +1385,8 @@ White as White
 84%
 86%
 92%
+0.000
+0%
 unequal
 <400
 Black as Black
@@ -1216,6 +1400,8 @@ Black as Black
 94%
 94%
 94%
+0.000
+0%
 unequal
 <400
 Brown as Brown
@@ -1229,32 +1415,38 @@ Brown as Brown
 87%
 90%
 96%
+0.000
+0%
 unequal
 <400
 White/Brown rate ratio
-0.658
-+0.077 (0.001)
+0.660
++0.075 (0.001)
 0.000 (0.001)
 0.023
 0.022
 0.030
 2%
-6%
-20%
+7%
+22%
 97%
+-0.001
+0%
 unequal
 <400
 Black/Brown rate ratio
-1.207
--0.099 (0.004)
+1.103
++0.005 (0.004)
 +0.005 (0.003)
 0.064
 0.064
 0.069
-72%
-65%
-70%
+98%
+98%
+98%
 92%
++0.006
+0%
 unequal
 400-1,599
 White as White
@@ -1268,6 +1460,8 @@ White as White
 90%
 91%
 95%
++0.001
+0%
 unequal
 400-1,599
 Black as Black
@@ -1281,6 +1475,8 @@ Black as Black
 94%
 94%
 96%
+-0.001
+0%
 unequal
 400-1,599
 Brown as Brown
@@ -1294,32 +1490,38 @@ Brown as Brown
 86%
 88%
 90%
+0.000
+0%
 unequal
 400-1,599
 White/Brown rate ratio
-0.656
-+0.077 (0.002)
+0.662
++0.071 (0.002)
 -0.003 (0.002)
 0.030
 0.032
 0.048
-29%
-34%
-72%
+42%
+44%
+78%
 98%
+-0.004
+0%
 unequal
 400-1,599
 Black/Brown rate ratio
-1.162
--0.071 (0.005)
+1.094
+-0.003 (0.006)
 0.000 (0.005)
 0.089
 0.086
 0.097
-90%
-85%
-89%
+98%
+95%
+97%
 96%
++0.003
+0%
 unequal
 1,600-6,399
 White as White
@@ -1333,6 +1535,8 @@ White as White
 98%
 96%
 96%
+-0.001
+0%
 unequal
 1,600-6,399
 Black as Black
@@ -1346,6 +1550,8 @@ Black as Black
 96%
 96%
 96%
+0.000
+0%
 unequal
 1,600-6,399
 Brown as Brown
@@ -1359,32 +1565,38 @@ Brown as Brown
 97%
 98%
 97%
+-0.001
+0%
 unequal
 1,600-6,399
 White/Brown rate ratio
-0.665
-+0.073 (0.004)
+0.660
++0.078 (0.004)
 +0.007 (0.004)
 0.056
 0.058
 0.084
-80%
-80%
+78%
+78%
 97%
 95%
++0.007
+0%
 unequal
 1,600-6,399
 Black/Brown rate ratio
-1.101
-+0.009 (0.009)
+1.097
++0.013 (0.010)
 +0.014 (0.009)
 0.137
 0.137
 0.148
-95%
-95%
+94%
+96%
 96%
 94%
++0.023
+0%
 unequal
 6,400-25,599
 White as White
@@ -1398,6 +1610,8 @@ White as White
 98%
 97%
 99%
+-0.003
+0%
 unequal
 6,400-25,599
 Black as Black
@@ -1411,6 +1625,8 @@ Black as Black
 96%
 94%
 96%
++0.009
+0%
 unequal
 6,400-25,599
 Brown as Brown
@@ -1424,32 +1640,38 @@ Brown as Brown
 97%
 96%
 97%
++0.003
+0%
 unequal
 6,400-25,599
 White/Brown rate ratio
-0.654
-+0.068 (0.009)
+0.660
++0.061 (0.009)
 +0.011 (0.009)
 0.127
 0.138
 0.178
 98%
 96%
-100%
+99%
 96%
+0.000
+0%
 unequal
 6,400-25,599
 Black/Brown rate ratio
-1.056
-+0.037 (0.017)
+1.100
+-0.006 (0.018)
 +0.014 (0.017)
 0.252
 0.296
 0.298
 98%
 98%
+96%
 98%
-98%
++0.006
+0%
 unequal
 >=25,600
 White as White
@@ -1463,6 +1685,8 @@ White as White
 100%
 78%
 100%
+-0.005
+20%
 unequal
 >=25,600
 Black as Black
@@ -1476,6 +1700,8 @@ Black as Black
 98%
 84%
 97%
++0.010
+20%
 unequal
 >=25,600
 Brown as Brown
@@ -1489,32 +1715,38 @@ Brown as Brown
 100%
 93%
 100%
+-0.020
+20%
 unequal
 >=25,600
 White/Brown rate ratio
-0.672
-+0.024 (0.027)
+0.659
++0.037 (0.027)
 +0.001 (0.027)
 0.380
 0.647
 0.379
 98%
 98%
-86%
+87%
 98%
+-0.002
+20%
 unequal
 >=25,600
 Black/Brown rate ratio
-1.014
-+0.130 (0.044)
+1.100
++0.044 (0.044)
 +0.075 (0.044)
 0.621
 1.013
 0.615
 98%
 98%
-90%
+89%
 98%
++0.044
+20%
 unequal
 all
 White as White
@@ -1528,6 +1760,8 @@ White as White
 100%
 94%
 100%
+-0.003
+0%
 unequal
 all
 Black as Black
@@ -1541,6 +1775,8 @@ Black as Black
 98%
 94%
 99%
++0.005
+0%
 unequal
 all
 Brown as Brown
@@ -1554,6 +1790,8 @@ Brown as Brown
 100%
 93%
 100%
+-0.004
+0%
 unequal
 all
 White/Brown rate ratio
@@ -1567,6 +1805,8 @@ White/Brown rate ratio
 100%
 94%
 100%
++0.002
+0%
 unequal
 all
 Black/Brown rate ratio
@@ -1580,6 +1820,8 @@ Black/Brown rate ratio
 100%
 96%
 100%
++0.023
+0%
 selective
 <400
 White as White
@@ -1593,6 +1835,8 @@ White as White
 22%
 28%
 94%
+0.000
+0%
 selective
 <400
 Black as Black
@@ -1606,6 +1850,8 @@ Black as Black
 71%
 74%
 94%
+0.000
+0%
 selective
 <400
 Brown as Brown
@@ -1619,10 +1865,12 @@ Brown as Brown
 0%
 0%
 95%
+-0.001
+0%
 selective
 <400
 White/Brown rate ratio
-0.659
+0.660
 +0.016 (0.001)
 +0.001 (0.001)
 0.021
@@ -1632,19 +1880,23 @@ White/Brown rate ratio
 88%
 98%
 97%
++0.001
+0%
 selective
 <400
 Black/Brown rate ratio
-1.209
--0.190 (0.003)
+1.103
+-0.084 (0.003)
 +0.005 (0.003)
 0.061
 0.060
 0.065
-6%
-14%
-18%
+76%
+68%
+72%
 92%
++0.006
+0%
 selective
 400-1,599
 White as White
@@ -1658,6 +1910,8 @@ White as White
 60%
 62%
 94%
++0.003
+0%
 selective
 400-1,599
 Black as Black
@@ -1671,6 +1925,8 @@ Black as Black
 78%
 78%
 96%
++0.001
+0%
 selective
 400-1,599
 Brown as Brown
@@ -1684,32 +1940,38 @@ Brown as Brown
 9%
 12%
 94%
++0.001
+0%
 selective
 400-1,599
 White/Brown rate ratio
-0.657
-+0.016 (0.002)
+0.662
++0.011 (0.002)
 -0.002 (0.002)
 0.029
 0.030
 0.045
+98%
 96%
-94%
 100%
 98%
+-0.004
+0%
 selective
 400-1,599
 Black/Brown rate ratio
-1.167
--0.158 (0.005)
+1.094
+-0.085 (0.005)
 +0.001 (0.005)
 0.085
 0.081
 0.091
-51%
-48%
-56%
+82%
+79%
+84%
 94%
+-0.004
+0%
 selective
 1,600-6,399
 White as White
@@ -1723,6 +1985,8 @@ White as White
 88%
 88%
 92%
+-0.002
+0%
 selective
 1,600-6,399
 Black as Black
@@ -1736,6 +2000,8 @@ Black as Black
 96%
 96%
 94%
+-0.001
+0%
 selective
 1,600-6,399
 Brown as Brown
@@ -1749,24 +2015,28 @@ Brown as Brown
 62%
 65%
 97%
+-0.002
+0%
 selective
 1,600-6,399
 White/Brown rate ratio
-0.665
-+0.019 (0.004)
+0.660
++0.023 (0.004)
 +0.006 (0.004)
 0.052
 0.054
 0.079
-94%
 95%
+96%
 100%
 95%
++0.007
+0%
 selective
 1,600-6,399
 Black/Brown rate ratio
-1.100
--0.064 (0.009)
+1.097
+-0.062 (0.009)
 +0.012 (0.009)
 0.126
 0.130
@@ -1775,6 +2045,8 @@ Black/Brown rate ratio
 92%
 94%
 95%
++0.012
+0%
 selective
 6,400-25,599
 White as White
@@ -1788,6 +2060,8 @@ White as White
 99%
 98%
 98%
+0.000
+0%
 selective
 6,400-25,599
 Black as Black
@@ -1801,6 +2075,8 @@ Black as Black
 97%
 96%
 96%
++0.008
+0%
 selective
 6,400-25,599
 Brown as Brown
@@ -1814,32 +2090,38 @@ Brown as Brown
 92%
 90%
 99%
++0.002
+0%
 selective
 6,400-25,599
 White/Brown rate ratio
-0.653
-+0.016 (0.009)
+0.660
++0.009 (0.009)
 +0.007 (0.009)
 0.123
 0.130
 0.169
-98%
-98%
+97%
+97%
 98%
 97%
++0.003
+0%
 selective
 6,400-25,599
 Black/Brown rate ratio
-1.057
--0.034 (0.017)
+1.100
+-0.077 (0.017)
 +0.003 (0.017)
 0.244
 0.281
 0.284
 98%
 97%
-96%
+95%
 98%
+-0.014
+0%
 selective
 >=25,600
 White as White
@@ -1853,6 +2135,8 @@ White as White
 100%
 76%
 100%
+-0.031
+21%
 selective
 >=25,600
 Black as Black
@@ -1866,6 +2150,8 @@ Black as Black
 96%
 85%
 96%
++0.014
+21%
 selective
 >=25,600
 Brown as Brown
@@ -1879,11 +2165,13 @@ Brown as Brown
 100%
 90%
 100%
+-0.015
+21%
 selective
 >=25,600
 White/Brown rate ratio
-0.670
--0.004 (0.027)
+0.659
++0.007 (0.027)
 +0.006 (0.027)
 0.381
 0.631
@@ -1892,11 +2180,13 @@ White/Brown rate ratio
 98%
 84%
 98%
++0.018
+21%
 selective
 >=25,600
 Black/Brown rate ratio
-1.010
-+0.077 (0.042)
+1.100
+-0.012 (0.042)
 +0.060 (0.042)
 0.596
 0.974
@@ -1905,6 +2195,8 @@ Black/Brown rate ratio
 97%
 90%
 97%
++0.047
+21%
 selective
 all
 White as White
@@ -1918,6 +2210,8 @@ White as White
 100%
 86%
 100%
++0.002
+0%
 selective
 all
 Black as Black
@@ -1931,6 +2225,8 @@ Black as Black
 100%
 89%
 98%
++0.006
+0%
 selective
 all
 Brown as Brown
@@ -1944,6 +2240,8 @@ Brown as Brown
 94%
 58%
 100%
+-0.003
+0%
 selective
 all
 White/Brown rate ratio
@@ -1957,6 +2255,8 @@ White/Brown rate ratio
 100%
 98%
 100%
++0.003
+0%
 selective
 all
 Black/Brown rate ratio
@@ -1970,6 +2270,8 @@ Black/Brown rate ratio
 99%
 91%
 99%
++0.030
+0%
 sparse
 <400
 White as White
@@ -1983,6 +2285,8 @@ White as White
 94%
 94%
 93%
+0.000
+0%
 sparse
 <400
 Black as Black
@@ -1996,6 +2300,8 @@ Black as Black
 94%
 94%
 93%
++0.002
+0%
 sparse
 <400
 Brown as Brown
@@ -2009,6 +2315,8 @@ Brown as Brown
 95%
 95%
 98%
+0.000
+0%
 sparse
 <400
 White/Brown rate ratio
@@ -2022,6 +2330,8 @@ White/Brown rate ratio
 95%
 97%
 96%
+-0.005
+0%
 sparse
 <400
 Black/Brown rate ratio
@@ -2035,6 +2345,8 @@ Black/Brown rate ratio
 96%
 97%
 95%
+-0.019
+0%
 sparse
 400-1,599
 White as White
@@ -2048,6 +2360,8 @@ White as White
 96%
 96%
 96%
++0.005
+0%
 sparse
 400-1,599
 Black as Black
@@ -2061,6 +2375,8 @@ Black as Black
 96%
 96%
 96%
+-0.002
+0%
 sparse
 400-1,599
 Brown as Brown
@@ -2074,6 +2390,8 @@ Brown as Brown
 95%
 94%
 92%
+-0.002
+0%
 sparse
 400-1,599
 White/Brown rate ratio
@@ -2087,6 +2405,8 @@ White/Brown rate ratio
 94%
 96%
 96%
+-0.004
+0%
 sparse
 400-1,599
 Black/Brown rate ratio
@@ -2100,6 +2420,8 @@ Black/Brown rate ratio
 98%
 98%
 96%
+-0.001
+0%
 sparse
 1,600-6,399
 White as White
@@ -2113,6 +2435,8 @@ White as White
 96%
 97%
 96%
+-0.005
+0%
 sparse
 1,600-6,399
 Black as Black
@@ -2126,6 +2450,8 @@ Black as Black
 94%
 89%
 94%
++0.010
+0%
 sparse
 1,600-6,399
 Brown as Brown
@@ -2139,6 +2465,8 @@ Brown as Brown
 98%
 98%
 98%
+-0.002
+0%
 sparse
 1,600-6,399
 White/Brown rate ratio
@@ -2152,6 +2480,8 @@ White/Brown rate ratio
 97%
 98%
 95%
+-0.001
+0%
 sparse
 1,600-6,399
 Black/Brown rate ratio
@@ -2165,6 +2495,8 @@ Black/Brown rate ratio
 96%
 96%
 97%
+-0.029
+0%
 sparse
 6,400-25,599
 White as White
@@ -2178,6 +2510,8 @@ White as White
 98%
 97%
 98%
++0.013
+14%
 sparse
 6,400-25,599
 Black as Black
@@ -2191,6 +2525,8 @@ Black as Black
 94%
 92%
 94%
+-0.021
+14%
 sparse
 6,400-25,599
 Brown as Brown
@@ -2204,6 +2540,8 @@ Brown as Brown
 96%
 96%
 96%
+-0.005
+14%
 sparse
 6,400-25,599
 White/Brown rate ratio
@@ -2217,6 +2555,8 @@ White/Brown rate ratio
 97%
 96%
 96%
++0.002
+14%
 sparse
 6,400-25,599
 Black/Brown rate ratio
@@ -2230,6 +2570,8 @@ Black/Brown rate ratio
 96%
 95%
 96%
++0.045
+14%
 sparse
 >=25,600
 White as White
@@ -2243,6 +2585,8 @@ White as White
 100%
 80%
 100%
+-0.137
+66%
 sparse
 >=25,600
 Black as Black
@@ -2256,6 +2600,8 @@ Black as Black
 97%
 88%
 96%
+-0.079
+66%
 sparse
 >=25,600
 Brown as Brown
@@ -2269,6 +2615,8 @@ Brown as Brown
 100%
 94%
 100%
+-0.083
+66%
 sparse
 >=25,600
 White/Brown rate ratio
@@ -2282,6 +2630,8 @@ White/Brown rate ratio
 70%
 87%
 70%
+-0.127
+66%
 sparse
 >=25,600
 Black/Brown rate ratio
@@ -2295,6 +2645,8 @@ Black/Brown rate ratio
 75%
 92%
 75%
+-0.168
+66%
 sparse
 all
 White as White
@@ -2308,6 +2660,8 @@ White as White
 96%
 96%
 96%
++0.006
+0%
 sparse
 all
 Black as Black
@@ -2321,6 +2675,8 @@ Black as Black
 92%
 92%
 94%
++0.007
+0%
 sparse
 all
 Brown as Brown
@@ -2334,6 +2690,8 @@ Brown as Brown
 96%
 98%
 96%
+-0.003
+0%
 sparse
 all
 White/Brown rate ratio
@@ -2347,6 +2705,8 @@ White/Brown rate ratio
 98%
 97%
 98%
+-0.010
+0%
 sparse
 all
 Black/Brown rate ratio
@@ -2360,6 +2720,8 @@ Black/Brown rate ratio
 96%
 94%
 95%
+-0.033
+0%
 a2
 <400
 White as White
@@ -2373,6 +2735,8 @@ White as White
 95%
 96%
 96%
++0.002
+0%
 a2
 <400
 Black as Black
@@ -2386,6 +2750,8 @@ Black as Black
 98%
 98%
 92%
++0.001
+0%
 a2
 <400
 Brown as Brown
@@ -2399,6 +2765,8 @@ Brown as Brown
 93%
 94%
 94%
+0.000
+0%
 a2
 <400
 White/Brown rate ratio
@@ -2412,6 +2780,8 @@ White/Brown rate ratio
 95%
 99%
 96%
++0.001
+0%
 a2
 <400
 Black/Brown rate ratio
@@ -2425,6 +2795,8 @@ Black/Brown rate ratio
 96%
 100%
 94%
+-0.003
+0%
 a2
 400-1,599
 White as White
@@ -2438,6 +2810,8 @@ White as White
 97%
 98%
 95%
+0.000
+0%
 a2
 400-1,599
 Black as Black
@@ -2451,6 +2825,8 @@ Black as Black
 94%
 94%
 96%
++0.002
+0%
 a2
 400-1,599
 Brown as Brown
@@ -2464,6 +2840,8 @@ Brown as Brown
 96%
 98%
 94%
++0.001
+0%
 a2
 400-1,599
 White/Brown rate ratio
@@ -2477,6 +2855,8 @@ White/Brown rate ratio
 96%
 100%
 96%
++0.003
+0%
 a2
 400-1,599
 Black/Brown rate ratio
@@ -2490,6 +2870,8 @@ Black/Brown rate ratio
 96%
 99%
 95%
+-0.005
+0%
 a2
 1,600-6,399
 White as White
@@ -2503,6 +2885,8 @@ White as White
 96%
 96%
 96%
+-0.003
+0%
 a2
 1,600-6,399
 Black as Black
@@ -2516,6 +2900,8 @@ Black as Black
 94%
 95%
 94%
++0.003
+0%
 a2
 1,600-6,399
 Brown as Brown
@@ -2529,6 +2915,8 @@ Brown as Brown
 96%
 98%
 94%
++0.004
+0%
 a2
 1,600-6,399
 White/Brown rate ratio
@@ -2542,6 +2930,8 @@ White/Brown rate ratio
 96%
 100%
 97%
++0.009
+0%
 a2
 1,600-6,399
 Black/Brown rate ratio
@@ -2555,6 +2945,8 @@ Black/Brown rate ratio
 94%
 97%
 93%
+-0.009
+0%
 a2
 6,400-25,599
 White as White
@@ -2568,6 +2960,8 @@ White as White
 96%
 96%
 95%
+-0.014
+0%
 a2
 6,400-25,599
 Black as Black
@@ -2581,6 +2975,8 @@ Black as Black
 98%
 94%
 96%
++0.004
+0%
 a2
 6,400-25,599
 Brown as Brown
@@ -2594,6 +2990,8 @@ Brown as Brown
 96%
 96%
 95%
++0.007
+0%
 a2
 6,400-25,599
 White/Brown rate ratio
@@ -2607,6 +3005,8 @@ White/Brown rate ratio
 97%
 100%
 98%
++0.045
+0%
 a2
 6,400-25,599
 Black/Brown rate ratio
@@ -2620,6 +3020,8 @@ Black/Brown rate ratio
 98%
 97%
 98%
++0.001
+0%
 a2
 >=25,600
 White as White
@@ -2633,6 +3035,8 @@ White as White
 100%
 74%
 100%
+-0.039
+21%
 a2
 >=25,600
 Black as Black
@@ -2646,6 +3050,8 @@ Black as Black
 98%
 88%
 98%
++0.031
+21%
 a2
 >=25,600
 Brown as Brown
@@ -2659,6 +3065,8 @@ Brown as Brown
 100%
 86%
 100%
++0.016
+21%
 a2
 >=25,600
 White/Brown rate ratio
@@ -2672,6 +3080,8 @@ White/Brown rate ratio
 100%
 98%
 100%
++0.416
+21%
 a2
 >=25,600
 Black/Brown rate ratio
@@ -2685,6 +3095,8 @@ Black/Brown rate ratio
 96%
 86%
 96%
+-0.203
+21%
 a2
 all
 White as White
@@ -2698,6 +3110,8 @@ White as White
 98%
 90%
 98%
+-0.015
+0%
 a2
 all
 Black as Black
@@ -2711,6 +3125,8 @@ Black as Black
 100%
 94%
 100%
++0.011
+0%
 a2
 all
 Brown as Brown
@@ -2724,6 +3140,8 @@ Brown as Brown
 100%
 90%
 100%
++0.005
+0%
 a2
 all
 White/Brown rate ratio
@@ -2737,6 +3155,8 @@ White/Brown rate ratio
 96%
 100%
 95%
++0.063
+0%
 a2
 all
 Black/Brown rate ratio
@@ -2750,138 +3170,3502 @@ Black/Brown rate ratio
 100%
 88%
 100%
-200 replicates a scenario. Truth: mean over replicates of the table of all deaths of the class. MC error: Monte Carlo standard error of the bias. Coverage: share of 95% intervals containing the target named. Above 25,600 births a year estimates are unstable (row sums at or below zero).
+-0.060
+0%
+overdisp
+<400
+White as White
+0.800
+-0.001 (0.001)
+-0.001 (0.001)
+0.010
+0.010
+0.010
+100%
+96%
+96%
+94%
+-0.001
+0%
+overdisp
+<400
+Black as Black
+0.171
+-0.001 (0.000)
+-0.001 (0.000)
+0.015
+0.015
+0.015
+100%
+93%
+93%
+94%
+-0.001
+0%
+overdisp
+<400
+Brown as Brown
+0.663
+0.000 (0.000)
+0.000 (0.000)
+0.006
+0.006
+0.007
+100%
+94%
+96%
+94%
+0.000
+0%
+overdisp
+<400
+White/Brown rate ratio
+0.660
+0.000 (0.001)
+0.000 (0.001)
+0.017
+0.017
+0.024
+100%
+96%
+100%
+94%
++0.001
+0%
+overdisp
+<400
+Black/Brown rate ratio
+1.102
+0.000 (0.002)
+0.000 (0.002)
+0.051
+0.051
+0.057
+100%
+94%
+96%
+95%
+-0.003
+0%
+overdisp
+400-1,599
+White as White
+0.795
+-0.002 (0.001)
+-0.002 (0.001)
+0.015
+0.015
+0.016
+96%
+94%
+96%
+96%
+-0.003
+0%
+overdisp
+400-1,599
+Black as Black
+0.182
+-0.003 (0.001)
+-0.003 (0.001)
+0.015
+0.016
+0.016
+100%
+96%
+96%
+94%
+-0.003
+0%
+overdisp
+400-1,599
+Brown as Brown
+0.661
+-0.001 (0.000)
+-0.001 (0.000)
+0.008
+0.008
+0.009
+98%
+96%
+98%
+95%
+-0.001
+0%
+overdisp
+400-1,599
+White/Brown rate ratio
+0.661
++0.004 (0.002)
++0.004 (0.002)
+0.024
+0.023
+0.040
+96%
+94%
+100%
+94%
++0.003
+0%
+overdisp
+400-1,599
+Black/Brown rate ratio
+1.099
++0.003 (0.004)
++0.003 (0.004)
+0.065
+0.064
+0.078
+99%
+96%
+98%
+96%
++0.001
+0%
+overdisp
+1,600-6,399
+White as White
+0.795
+-0.002 (0.002)
+-0.002 (0.002)
+0.026
+0.027
+0.028
+97%
+96%
+98%
+96%
+-0.005
+0%
+overdisp
+1,600-6,399
+Black as Black
+0.194
+0.000 (0.001)
+0.000 (0.001)
+0.022
+0.022
+0.022
+98%
+96%
+95%
+97%
+-0.001
+0%
+overdisp
+1,600-6,399
+Brown as Brown
+0.618
+-0.001 (0.001)
+-0.001 (0.001)
+0.014
+0.016
+0.018
+98%
+98%
+100%
+98%
+-0.001
+0%
+overdisp
+1,600-6,399
+White/Brown rate ratio
+0.661
++0.006 (0.003)
++0.006 (0.003)
+0.040
+0.041
+0.069
+96%
+96%
+100%
+94%
++0.002
+0%
+overdisp
+1,600-6,399
+Black/Brown rate ratio
+1.098
+-0.004 (0.007)
+-0.004 (0.007)
+0.094
+0.099
+0.118
+96%
+96%
+99%
+95%
+-0.011
+0%
+overdisp
+6,400-25,599
+White as White
+0.747
++0.004 (0.004)
++0.004 (0.004)
+0.065
+0.073
+0.072
+99%
+98%
+98%
+98%
++0.006
+0%
+overdisp
+6,400-25,599
+Black as Black
+0.190
++0.005 (0.003)
++0.005 (0.003)
+0.041
+0.048
+0.044
+96%
+96%
+94%
+96%
++0.004
+0%
+overdisp
+6,400-25,599
+Brown as Brown
+0.621
++0.004 (0.002)
++0.004 (0.002)
+0.030
+0.035
+0.035
+96%
+98%
+96%
+96%
++0.001
+0%
+overdisp
+6,400-25,599
+White/Brown rate ratio
+0.661
+-0.008 (0.006)
+-0.008 (0.006)
+0.086
+0.101
+0.145
+97%
+97%
+99%
+97%
+-0.011
+0%
+overdisp
+6,400-25,599
+Black/Brown rate ratio
+1.097
+-0.004 (0.013)
+-0.004 (0.013)
+0.191
+0.222
+0.245
+98%
+98%
+100%
+98%
+-0.019
+0%
+overdisp
+>=25,600
+White as White
+0.701
++0.216 (0.092)
++0.216 (0.092)
+1.296
+3.732
+2.017
+100%
+100%
+80%
+100%
++0.004
+12%
+overdisp
+>=25,600
+Black as Black
+0.184
++0.050 (0.015)
++0.050 (0.015)
+0.215
+0.408
+0.226
+97%
+97%
+88%
+97%
++0.019
+12%
+overdisp
+>=25,600
+Brown as Brown
+0.590
++0.003 (0.007)
++0.003 (0.007)
+0.097
+0.173
+0.096
+100%
+100%
+92%
+100%
+-0.005
+12%
+overdisp
+>=25,600
+White/Brown rate ratio
+0.660
++0.053 (0.027)
++0.053 (0.027)
+0.390
+0.577
+0.356
+100%
+100%
+84%
+100%
++0.021
+12%
+overdisp
+>=25,600
+Black/Brown rate ratio
+1.103
++0.001 (0.038)
++0.001 (0.038)
+0.536
+0.888
+0.546
+100%
+100%
+92%
+100%
+-0.043
+12%
+overdisp
+all
+White as White
+0.775
++0.001 (0.002)
++0.001 (0.002)
+0.034
+0.053
+0.032
+100%
+100%
+98%
+100%
+-0.001
+0%
+overdisp
+all
+Black as Black
+0.185
++0.004 (0.002)
++0.004 (0.002)
+0.025
+0.037
+0.023
+99%
+99%
+95%
+99%
++0.003
+0%
+overdisp
+all
+Brown as Brown
+0.635
+0.000 (0.001)
+0.000 (0.001)
+0.015
+0.024
+0.016
+100%
+100%
+98%
+100%
++0.002
+0%
+overdisp
+all
+White/Brown rate ratio
+0.661
++0.004 (0.004)
++0.004 (0.004)
+0.051
+0.074
+0.057
+100%
+100%
+98%
+100%
++0.002
+0%
+overdisp
+all
+Black/Brown rate ratio
+1.100
+-0.015 (0.008)
+-0.015 (0.008)
+0.113
+0.188
+0.135
+100%
+100%
+95%
+100%
+-0.007
+0%
+keyerr
+<400
+White as White
+0.800
+0.000 (0.001)
+0.000 (0.001)
+0.010
+0.011
+0.011
+99%
+96%
+96%
+95%
+0.000
+0%
+keyerr
+<400
+Black as Black
+0.171
+0.000 (0.001)
++0.001 (0.000)
+0.016
+0.016
+0.016
+100%
+95%
+95%
+94%
+0.000
+0%
+keyerr
+<400
+Brown as Brown
+0.662
+0.000 (0.000)
+0.000 (0.000)
+0.006
+0.007
+0.007
+100%
+97%
+98%
+98%
+0.000
+0%
+keyerr
+<400
+White/Brown rate ratio
+0.659
++0.024 (0.001)
++0.001 (0.001)
+0.019
+0.018
+0.026
+80%
+78%
+92%
+96%
++0.001
+0%
+keyerr
+<400
+Black/Brown rate ratio
+1.098
++0.016 (0.003)
+-0.002 (0.002)
+0.055
+0.055
+0.061
+99%
+94%
+96%
+93%
++0.001
+0%
+keyerr
+400-1,599
+White as White
+0.795
++0.002 (0.001)
++0.001 (0.001)
+0.016
+0.017
+0.018
+96%
+94%
+96%
+95%
++0.001
+0%
+keyerr
+400-1,599
+Black as Black
+0.183
++0.002 (0.001)
++0.002 (0.001)
+0.018
+0.018
+0.018
+100%
+94%
+93%
+94%
++0.001
+0%
+keyerr
+400-1,599
+Brown as Brown
+0.661
++0.001 (0.001)
++0.001 (0.001)
+0.009
+0.009
+0.010
+97%
+94%
+96%
+96%
++0.001
+0%
+keyerr
+400-1,599
+White/Brown rate ratio
+0.660
++0.019 (0.002)
+-0.005 (0.001)
+0.025
+0.026
+0.042
+94%
+92%
+100%
+96%
+-0.006
+0%
+keyerr
+400-1,599
+Black/Brown rate ratio
+1.098
++0.014 (0.004)
+-0.005 (0.004)
+0.070
+0.072
+0.085
+97%
+96%
+99%
+95%
+-0.005
+0%
+keyerr
+1,600-6,399
+White as White
+0.795
+-0.001 (0.002)
+-0.001 (0.002)
+0.029
+0.030
+0.031
+98%
+96%
+98%
+97%
+-0.002
+0%
+keyerr
+1,600-6,399
+Black as Black
+0.194
+0.000 (0.002)
+0.000 (0.002)
+0.025
+0.024
+0.024
+98%
+96%
+95%
+96%
+-0.001
+0%
+keyerr
+1,600-6,399
+Brown as Brown
+0.619
++0.001 (0.001)
++0.001 (0.001)
+0.016
+0.018
+0.020
+98%
+96%
+98%
+96%
+0.000
+0%
+keyerr
+1,600-6,399
+White/Brown rate ratio
+0.659
++0.023 (0.003)
++0.001 (0.003)
+0.044
+0.047
+0.072
+95%
+94%
+100%
+97%
+-0.003
+0%
+keyerr
+1,600-6,399
+Black/Brown rate ratio
+1.102
++0.028 (0.008)
++0.011 (0.008)
+0.121
+0.114
+0.129
+94%
+92%
+96%
+92%
+-0.003
+0%
+keyerr
+6,400-25,599
+White as White
+0.747
++0.010 (0.006)
++0.010 (0.006)
+0.079
+0.080
+0.077
+98%
+98%
+94%
+96%
++0.004
+0%
+keyerr
+6,400-25,599
+Black as Black
+0.189
++0.011 (0.003)
++0.011 (0.003)
+0.048
+0.055
+0.051
+98%
+98%
+98%
+98%
++0.006
+0%
+keyerr
+6,400-25,599
+Brown as Brown
+0.621
++0.004 (0.002)
++0.004 (0.002)
+0.035
+0.040
+0.039
+97%
+97%
+96%
+96%
++0.003
+0%
+keyerr
+6,400-25,599
+White/Brown rate ratio
+0.659
++0.026 (0.007)
++0.003 (0.007)
+0.102
+0.116
+0.159
+100%
+100%
+99%
+97%
++0.004
+0%
+keyerr
+6,400-25,599
+Black/Brown rate ratio
+1.098
++0.027 (0.017)
++0.009 (0.017)
+0.241
+0.254
+0.274
+97%
+96%
+96%
+96%
+-0.003
+0%
+keyerr
+>=25,600
+White as White
+0.701
+-0.352 (0.356)
+-0.352 (0.356)
+5.033
+287.260
+72.681
+100%
+100%
+80%
+100%
+-0.014
+20%
+keyerr
+>=25,600
+Black as Black
+0.183
++0.010 (0.034)
++0.009 (0.034)
+0.489
+1.283
+0.890
+98%
+98%
+89%
+98%
++0.009
+20%
+keyerr
+>=25,600
+Brown as Brown
+0.590
++0.004 (0.008)
++0.004 (0.008)
+0.112
+0.188
+0.109
+100%
+100%
+94%
+100%
+-0.005
+20%
+keyerr
+>=25,600
+White/Brown rate ratio
+0.661
++0.026 (0.025)
++0.003 (0.025)
+0.353
+0.599
+0.346
+98%
+98%
+85%
+98%
+-0.021
+20%
+keyerr
+>=25,600
+Black/Brown rate ratio
+1.102
+-0.024 (0.039)
+-0.042 (0.039)
+0.547
+0.925
+0.574
+98%
+98%
+90%
+98%
+-0.069
+20%
+keyerr
+all
+White as White
+0.775
++0.006 (0.003)
++0.006 (0.003)
+0.039
+0.059
+0.035
+100%
+100%
+96%
+100%
++0.002
+0%
+keyerr
+all
+Black as Black
+0.185
++0.006 (0.002)
++0.006 (0.002)
+0.028
+0.042
+0.027
+99%
+98%
+95%
+99%
++0.004
+0%
+keyerr
+all
+Brown as Brown
+0.635
+0.000 (0.001)
++0.001 (0.001)
+0.016
+0.027
+0.018
+100%
+100%
+94%
+100%
+0.000
+0%
+keyerr
+all
+White/Brown rate ratio
+0.659
++0.019 (0.004)
+-0.004 (0.004)
+0.053
+0.083
+0.060
+100%
+100%
+98%
+100%
+-0.003
+0%
+keyerr
+all
+Black/Brown rate ratio
+1.100
++0.005 (0.009)
+-0.013 (0.009)
+0.130
+0.213
+0.150
+100%
+100%
+96%
+100%
+-0.016
+0%
+keyerr_k
+<400
+White as White
+0.800
++0.008 (0.001)
+0.000 (0.001)
+0.010
+0.011
+0.011
+94%
+90%
+90%
+95%
+0.000
+0%
+keyerr_k
+<400
+Black as Black
+0.171
++0.008 (0.001)
++0.001 (0.000)
+0.017
+0.016
+0.016
+100%
+92%
+92%
+94%
+0.000
+0%
+keyerr_k
+<400
+Brown as Brown
+0.662
++0.012 (0.000)
+0.000 (0.000)
+0.006
+0.007
+0.007
+64%
+60%
+64%
+97%
+0.000
+0%
+keyerr_k
+<400
+White/Brown rate ratio
+0.659
++0.029 (0.001)
++0.001 (0.001)
+0.019
+0.019
+0.026
+70%
+68%
+90%
+96%
++0.001
+0%
+keyerr_k
+<400
+Black/Brown rate ratio
+1.098
+-0.012 (0.003)
+-0.001 (0.002)
+0.055
+0.056
+0.061
+100%
+95%
+95%
+93%
++0.001
+0%
+keyerr_k
+400-1,599
+White as White
+0.795
++0.009 (0.001)
++0.001 (0.001)
+0.017
+0.017
+0.018
+95%
+94%
+95%
+94%
++0.001
+0%
+keyerr_k
+400-1,599
+Black as Black
+0.183
++0.010 (0.001)
++0.002 (0.001)
+0.019
+0.019
+0.019
+100%
+94%
+94%
+96%
++0.001
+0%
+keyerr_k
+400-1,599
+Brown as Brown
+0.661
++0.012 (0.001)
++0.001 (0.001)
+0.009
+0.009
+0.010
+74%
+74%
+80%
+97%
++0.001
+0%
+keyerr_k
+400-1,599
+White/Brown rate ratio
+0.660
++0.024 (0.002)
+-0.005 (0.002)
+0.025
+0.027
+0.042
+92%
+90%
+100%
+96%
+-0.005
+0%
+keyerr_k
+400-1,599
+Black/Brown rate ratio
+1.098
+-0.012 (0.004)
+-0.004 (0.004)
+0.070
+0.073
+0.085
+98%
+96%
+98%
+96%
+0.000
+0%
+keyerr_k
+1,600-6,399
+White as White
+0.795
++0.007 (0.002)
+-0.001 (0.002)
+0.029
+0.030
+0.031
+98%
+98%
+98%
+98%
+-0.002
+0%
+keyerr_k
+1,600-6,399
+Black as Black
+0.194
++0.008 (0.002)
+0.000 (0.002)
+0.027
+0.026
+0.026
+98%
+96%
+95%
+94%
+-0.002
+0%
+keyerr_k
+1,600-6,399
+Brown as Brown
+0.619
++0.013 (0.001)
+0.000 (0.001)
+0.017
+0.018
+0.020
+90%
+92%
+96%
+96%
+0.000
+0%
+keyerr_k
+1,600-6,399
+White/Brown rate ratio
+0.659
++0.029 (0.003)
+0.000 (0.003)
+0.045
+0.048
+0.074
+94%
+93%
+100%
+96%
+-0.001
+0%
+keyerr_k
+1,600-6,399
+Black/Brown rate ratio
+1.102
++0.004 (0.009)
++0.012 (0.008)
+0.126
+0.115
+0.130
+95%
+94%
+96%
+94%
++0.005
+0%
+keyerr_k
+6,400-25,599
+White as White
+0.747
++0.019 (0.006)
++0.010 (0.006)
+0.080
+0.082
+0.078
+98%
+98%
+96%
+98%
++0.004
+0%
+keyerr_k
+6,400-25,599
+Black as Black
+0.189
++0.020 (0.004)
++0.012 (0.004)
+0.054
+0.060
+0.055
+99%
+98%
+98%
+98%
++0.006
+0%
+keyerr_k
+6,400-25,599
+Brown as Brown
+0.621
++0.016 (0.003)
++0.004 (0.003)
+0.037
+0.040
+0.040
+96%
+96%
+94%
+98%
++0.002
+0%
+keyerr_k
+6,400-25,599
+White/Brown rate ratio
+0.659
++0.031 (0.007)
++0.004 (0.007)
+0.105
+0.119
+0.162
+99%
+99%
+100%
+97%
++0.008
+0%
+keyerr_k
+6,400-25,599
+Black/Brown rate ratio
+1.098
+-0.003 (0.017)
++0.005 (0.017)
+0.241
+0.258
+0.275
+96%
+96%
+96%
+96%
+-0.002
+0%
+keyerr_k
+>=25,600
+White as White
+0.701
++0.154 (0.074)
++0.143 (0.074)
+1.053
+3.087
+1.686
+100%
+100%
+80%
+100%
+-0.018
+18%
+keyerr_k
+>=25,600
+Black as Black
+0.183
++0.198 (0.105)
++0.190 (0.105)
+1.491
+9.069
+3.463
+98%
+98%
+88%
+97%
++0.009
+18%
+keyerr_k
+>=25,600
+Brown as Brown
+0.590
++0.017 (0.008)
++0.004 (0.008)
+0.116
+0.195
+0.113
+100%
+100%
+92%
+100%
+-0.002
+18%
+keyerr_k
+>=25,600
+White/Brown rate ratio
+0.661
++0.034 (0.025)
++0.007 (0.025)
+0.352
+0.627
+0.354
+99%
+99%
+86%
+99%
+-0.023
+18%
+keyerr_k
+>=25,600
+Black/Brown rate ratio
+1.102
+-0.036 (0.040)
+-0.030 (0.040)
+0.562
+0.971
+0.585
+99%
+99%
+90%
+99%
+-0.052
+18%
+keyerr_k
+all
+White as White
+0.775
++0.013 (0.003)
++0.005 (0.003)
+0.038
+0.060
+0.035
+100%
+100%
+94%
+100%
++0.002
+0%
+keyerr_k
+all
+Black as Black
+0.185
++0.013 (0.002)
++0.005 (0.002)
+0.030
+0.045
+0.028
+100%
+100%
+93%
+100%
++0.002
+0%
+keyerr_k
+all
+Brown as Brown
+0.635
++0.012 (0.001)
+0.000 (0.001)
+0.016
+0.028
+0.019
+99%
+99%
+86%
+100%
++0.001
+0%
+keyerr_k
+all
+White/Brown rate ratio
+0.659
++0.025 (0.004)
+-0.003 (0.004)
+0.052
+0.085
+0.061
+100%
+100%
+98%
+100%
+-0.004
+0%
+keyerr_k
+all
+Black/Brown rate ratio
+1.100
+-0.019 (0.009)
+-0.011 (0.009)
+0.133
+0.216
+0.151
+100%
+100%
+94%
+100%
+-0.013
+0%
+munfx
+<400
+White as White
+0.796
+0.000 (0.000)
+0.000 (0.000)
+0.010
+0.010
+0.010
+100%
+96%
+97%
+98%
++0.001
+0%
+munfx
+<400
+Black as Black
+0.179
+0.000 (0.000)
+0.000 (0.000)
+0.015
+0.015
+0.015
+100%
+96%
+96%
+95%
+0.000
+0%
+munfx
+<400
+Brown as Brown
+0.658
+0.000 (0.000)
+0.000 (0.000)
+0.006
+0.006
+0.007
+100%
+96%
+98%
+94%
+0.000
+0%
+munfx
+<400
+White/Brown rate ratio
+0.659
+0.000 (0.001)
+0.000 (0.001)
+0.016
+0.017
+0.024
+100%
+95%
+100%
+96%
+0.000
+0%
+munfx
+<400
+Black/Brown rate ratio
+1.103
+0.000 (0.002)
+0.000 (0.002)
+0.055
+0.051
+0.056
+100%
+95%
+96%
+96%
+-0.002
+0%
+munfx
+400-1,599
+White as White
+0.790
++0.002 (0.001)
++0.002 (0.001)
+0.015
+0.015
+0.016
+96%
+94%
+96%
+96%
++0.003
+0%
+munfx
+400-1,599
+Black as Black
+0.189
++0.001 (0.001)
++0.001 (0.001)
+0.018
+0.017
+0.017
+100%
+94%
+94%
+94%
++0.002
+0%
+munfx
+400-1,599
+Brown as Brown
+0.656
+0.000 (0.000)
+0.000 (0.000)
+0.008
+0.008
+0.010
+98%
+96%
+98%
+97%
+0.000
+0%
+munfx
+400-1,599
+White/Brown rate ratio
+0.661
+0.000 (0.001)
+0.000 (0.001)
+0.022
+0.023
+0.039
+98%
+97%
+100%
+96%
++0.001
+0%
+munfx
+400-1,599
+Black/Brown rate ratio
+1.101
+0.000 (0.004)
+0.000 (0.004)
+0.061
+0.065
+0.078
+99%
+96%
+99%
+94%
++0.001
+0%
+munfx
+1,600-6,399
+White as White
+0.791
+0.000 (0.002)
+0.000 (0.002)
+0.025
+0.027
+0.029
+98%
+96%
+98%
+96%
+0.000
+0%
+munfx
+1,600-6,399
+Black as Black
+0.203
++0.002 (0.001)
++0.002 (0.001)
+0.024
+0.023
+0.024
+96%
+94%
+94%
+95%
+0.000
+0%
+munfx
+1,600-6,399
+Brown as Brown
+0.615
+0.000 (0.001)
+0.000 (0.001)
+0.017
+0.016
+0.019
+96%
+94%
+97%
+93%
+0.000
+0%
+munfx
+1,600-6,399
+White/Brown rate ratio
+0.660
++0.003 (0.003)
++0.003 (0.003)
+0.043
+0.041
+0.068
+93%
+94%
+100%
+92%
+-0.001
+0%
+munfx
+1,600-6,399
+Black/Brown rate ratio
+1.103
+-0.001 (0.007)
+-0.001 (0.007)
+0.097
+0.101
+0.119
+96%
+95%
+98%
+95%
+-0.007
+0%
+munfx
+6,400-25,599
+White as White
+0.742
+0.000 (0.004)
+0.000 (0.004)
+0.063
+0.072
+0.071
+99%
+98%
+98%
+99%
++0.002
+0%
+munfx
+6,400-25,599
+Black as Black
+0.197
++0.007 (0.003)
++0.007 (0.003)
+0.044
+0.049
+0.047
+99%
+98%
+97%
+99%
+0.000
+0%
+munfx
+6,400-25,599
+Brown as Brown
+0.617
+-0.004 (0.002)
+-0.004 (0.002)
+0.037
+0.035
+0.038
+96%
+94%
+96%
+96%
+-0.002
+0%
+munfx
+6,400-25,599
+White/Brown rate ratio
+0.659
++0.002 (0.007)
++0.002 (0.007)
+0.094
+0.101
+0.145
+98%
+98%
+100%
+97%
+-0.001
+0%
+munfx
+6,400-25,599
+Black/Brown rate ratio
+1.098
+-0.011 (0.013)
+-0.011 (0.013)
+0.181
+0.221
+0.243
+99%
+99%
+98%
+99%
+-0.010
+0%
+munfx
+>=25,600
+White as White
+0.697
+-0.087 (0.164)
+-0.087 (0.164)
+2.315
+10.728
+6.674
+100%
+100%
+82%
+100%
+-0.007
+12%
+munfx
+>=25,600
+Black as Black
+0.192
++0.068 (0.020)
++0.068 (0.020)
+0.292
+0.451
+0.234
+98%
+96%
+87%
+98%
++0.015
+12%
+munfx
+>=25,600
+Brown as Brown
+0.589
++0.008 (0.007)
++0.008 (0.007)
+0.105
+0.169
+0.101
+100%
+100%
+92%
+100%
++0.012
+12%
+munfx
+>=25,600
+White/Brown rate ratio
+0.660
++0.012 (0.024)
++0.012 (0.024)
+0.343
+0.544
+0.331
+98%
+98%
+84%
+98%
+-0.011
+12%
+munfx
+>=25,600
+Black/Brown rate ratio
+1.100
++0.033 (0.038)
++0.033 (0.038)
+0.538
+0.869
+0.530
+100%
+100%
+94%
+100%
+-0.005
+12%
+munfx
+all
+White as White
+0.771
++0.003 (0.002)
++0.003 (0.002)
+0.033
+0.054
+0.032
+100%
+100%
+97%
+100%
++0.003
+0%
+munfx
+all
+Black as Black
+0.193
++0.005 (0.002)
++0.005 (0.002)
+0.028
+0.038
+0.026
+100%
+100%
+94%
+100%
++0.002
+0%
+munfx
+all
+Brown as Brown
+0.631
+0.000 (0.001)
+0.000 (0.001)
+0.017
+0.024
+0.017
+100%
+100%
+97%
+100%
++0.001
+0%
+munfx
+all
+White/Brown rate ratio
+0.660
+-0.001 (0.003)
+-0.001 (0.003)
+0.048
+0.074
+0.055
+100%
+100%
+98%
+100%
+-0.001
+0%
+munfx
+all
+Black/Brown rate ratio
+1.101
+-0.004 (0.008)
+-0.004 (0.008)
+0.113
+0.188
+0.137
+100%
+100%
+96%
+100%
+0.000
+0%
+pooled12
+<400
+White as White
+0.800
+0.000 (0.001)
+0.000 (0.001)
+0.010
+0.010
+0.010
+100%
+94%
+95%
+92%
+-0.001
+0%
+pooled12
+<400
+Black as Black
+0.173
++0.002 (0.001)
++0.002 (0.001)
+0.016
+0.015
+0.015
+100%
+93%
+93%
+96%
++0.002
+0%
+pooled12
+<400
+Brown as Brown
+0.662
+0.000 (0.000)
+0.000 (0.000)
+0.007
+0.006
+0.007
+100%
+95%
+96%
+92%
+-0.001
+0%
+pooled12
+<400
+White/Brown rate ratio
+0.662
+-0.002 (0.001)
+-0.002 (0.001)
+0.016
+0.017
+0.024
+100%
+95%
+100%
+95%
+-0.003
+0%
+pooled12
+<400
+Black/Brown rate ratio
+1.099
+-0.004 (0.003)
+-0.004 (0.003)
+0.045
+0.050
+0.056
+100%
+96%
+97%
+100%
+0.000
+0%
+pooled12
+400-1,599
+White as White
+0.795
++0.001 (0.001)
++0.001 (0.001)
+0.014
+0.015
+0.016
+98%
+96%
+98%
+97%
+0.000
+0%
+pooled12
+400-1,599
+Black as Black
+0.183
++0.002 (0.001)
++0.002 (0.001)
+0.014
+0.016
+0.017
+100%
+98%
+98%
+95%
++0.003
+0%
+pooled12
+400-1,599
+Brown as Brown
+0.662
++0.001 (0.001)
++0.001 (0.001)
+0.008
+0.008
+0.009
+98%
+96%
+98%
+96%
++0.001
+0%
+pooled12
+400-1,599
+White/Brown rate ratio
+0.659
++0.001 (0.002)
++0.001 (0.002)
+0.023
+0.023
+0.039
+96%
+97%
+100%
+94%
++0.004
+0%
+pooled12
+400-1,599
+Black/Brown rate ratio
+1.101
+-0.001 (0.005)
+-0.001 (0.005)
+0.061
+0.064
+0.078
+98%
+99%
+99%
+95%
+-0.001
+0%
+pooled12
+1,600-6,399
+White as White
+0.795
++0.001 (0.003)
++0.001 (0.003)
+0.026
+0.026
+0.028
+93%
+93%
+95%
+93%
++0.002
+0%
+pooled12
+1,600-6,399
+Black as Black
+0.193
++0.001 (0.002)
++0.001 (0.002)
+0.022
+0.022
+0.022
+98%
+96%
+96%
+96%
++0.001
+0%
+pooled12
+1,600-6,399
+Brown as Brown
+0.619
++0.002 (0.002)
++0.002 (0.002)
+0.016
+0.015
+0.018
+94%
+95%
+98%
+94%
+0.000
+0%
+pooled12
+1,600-6,399
+White/Brown rate ratio
+0.661
++0.004 (0.004)
++0.004 (0.004)
+0.044
+0.040
+0.068
+96%
+94%
+99%
+94%
++0.002
+0%
+pooled12
+1,600-6,399
+Black/Brown rate ratio
+1.096
++0.016 (0.009)
++0.016 (0.009)
+0.098
+0.097
+0.120
+95%
+94%
+98%
+94%
++0.019
+0%
+pooled12
+6,400-25,599
+White as White
+0.747
+-0.007 (0.006)
+-0.007 (0.006)
+0.057
+0.065
+0.073
+96%
+96%
+98%
+96%
+-0.013
+0%
+pooled12
+6,400-25,599
+Black as Black
+0.189
++0.005 (0.005)
++0.005 (0.005)
+0.048
+0.045
+0.046
+96%
+96%
+96%
+96%
+-0.001
+0%
+pooled12
+6,400-25,599
+Brown as Brown
+0.621
++0.009 (0.003)
++0.009 (0.003)
+0.030
+0.032
+0.035
+95%
+94%
+97%
+95%
++0.012
+0%
+pooled12
+6,400-25,599
+White/Brown rate ratio
+0.659
++0.003 (0.009)
++0.003 (0.009)
+0.089
+0.091
+0.145
+96%
+97%
+100%
+96%
++0.007
+0%
+pooled12
+6,400-25,599
+Black/Brown rate ratio
+1.095
++0.006 (0.018)
++0.006 (0.018)
+0.188
+0.202
+0.249
+98%
+95%
+100%
+97%
++0.017
+0%
+pooled12
+>=25,600
+White as White
+0.701
+-0.026 (0.041)
+-0.026 (0.041)
+0.407
+0.391
+0.231
+92%
+92%
+76%
+92%
+-0.042
+8%
+pooled12
+>=25,600
+Black as Black
+0.183
+-0.354 (0.380)
+-0.354 (0.380)
+3.801
+116.040
+128.484
+93%
+93%
+82%
+93%
+-0.011
+8%
+pooled12
+>=25,600
+Brown as Brown
+0.591
++0.002 (0.008)
++0.002 (0.008)
+0.083
+0.105
+0.102
+98%
+97%
+97%
+98%
+-0.001
+8%
+pooled12
+>=25,600
+White/Brown rate ratio
+0.659
++0.039 (0.030)
++0.039 (0.030)
+0.298
+0.330
+0.331
+98%
+98%
+90%
+98%
++0.028
+8%
+pooled12
+>=25,600
+Black/Brown rate ratio
+1.099
++0.014 (0.046)
++0.014 (0.046)
+0.464
+0.538
+0.513
+96%
+96%
+96%
+96%
++0.034
+8%
+pooled12
+all
+White as White
+0.775
+-0.005 (0.004)
+-0.005 (0.004)
+0.040
+0.037
+0.033
+92%
+93%
+92%
+92%
+-0.007
+0%
+pooled12
+all
+Black as Black
+0.185
+0.000 (0.003)
+0.000 (0.003)
+0.026
+0.027
+0.024
+96%
+97%
+93%
+94%
+-0.002
+0%
+pooled12
+all
+Brown as Brown
+0.635
++0.002 (0.001)
++0.002 (0.001)
+0.013
+0.016
+0.017
+100%
+100%
+98%
+100%
++0.003
+0%
+pooled12
+all
+White/Brown rate ratio
+0.660
++0.004 (0.004)
++0.004 (0.004)
+0.043
+0.048
+0.055
+98%
+97%
+99%
+98%
++0.007
+0%
+pooled12
+all
+Black/Brown rate ratio
+1.098
++0.001 (0.010)
++0.001 (0.010)
+0.101
+0.125
+0.135
+99%
+99%
+95%
+99%
++0.020
+0%
+application
+<400
+White as White
+0.784
++0.010 (0.001)
+-0.002 (0.001)
+0.014
+0.014
+0.014
+95%
+88%
+90%
+95%
+-0.002
+0%
+application
+<400
+Black as Black
+0.182
+-0.004 (0.001)
+0.000 (0.001)
+0.018
+0.019
+0.019
+97%
+95%
+96%
+94%
+-0.001
+0%
+application
+<400
+Brown as Brown
+0.651
++0.007 (0.001)
+0.000 (0.001)
+0.009
+0.009
+0.009
+93%
+83%
+89%
+96%
++0.001
+0%
+application
+<400
+White/Brown rate ratio
+0.660
++0.024 (0.002)
+0.000 (0.002)
+0.021
+0.023
+0.030
+88%
+85%
+96%
+97%
+-0.001
+0%
+application
+<400
+Black/Brown rate ratio
+1.101
++0.021 (0.006)
++0.003 (0.005)
+0.067
+0.069
+0.074
+95%
+97%
+97%
+93%
+0.000
+0%
+application
+400-1,599
+White as White
+0.781
++0.009 (0.002)
+0.000 (0.002)
+0.021
+0.022
+0.023
+95%
+94%
+97%
+95%
+-0.001
+0%
+application
+400-1,599
+Black as Black
+0.190
+0.000 (0.002)
+-0.001 (0.002)
+0.023
+0.023
+0.023
+100%
+94%
+95%
+98%
+-0.003
+0%
+application
+400-1,599
+Brown as Brown
+0.651
++0.005 (0.001)
+0.000 (0.001)
+0.012
+0.012
+0.013
+95%
+95%
+95%
+96%
+0.000
+0%
+application
+400-1,599
+White/Brown rate ratio
+0.661
++0.029 (0.003)
++0.007 (0.003)
+0.035
+0.034
+0.048
+83%
+86%
+97%
+92%
++0.002
+0%
+application
+400-1,599
+Black/Brown rate ratio
+1.099
++0.012 (0.010)
+-0.007 (0.009)
+0.107
+0.092
+0.103
+93%
+91%
+94%
+91%
+-0.013
+0%
+application
+1,600-6,399
+White as White
+0.784
++0.008 (0.004)
++0.001 (0.004)
+0.042
+0.039
+0.041
+93%
+94%
+94%
+94%
+-0.003
+0%
+application
+1,600-6,399
+Black as Black
+0.202
+-0.004 (0.003)
+-0.005 (0.003)
+0.033
+0.032
+0.032
+96%
+95%
+94%
+93%
+-0.007
+0%
+application
+1,600-6,399
+Brown as Brown
+0.611
++0.002 (0.002)
+-0.003 (0.002)
+0.024
+0.023
+0.026
+95%
+94%
+96%
+94%
+-0.004
+0%
+application
+1,600-6,399
+White/Brown rate ratio
+0.660
++0.019 (0.006)
+-0.001 (0.006)
+0.057
+0.059
+0.083
+95%
+95%
+100%
+94%
++0.006
+0%
+application
+1,600-6,399
+Black/Brown rate ratio
+1.096
++0.033 (0.014)
++0.019 (0.014)
+0.151
+0.144
+0.159
+97%
+91%
+100%
+97%
+-0.001
+0%
+application
+6,400-25,599
+White as White
+0.739
++0.005 (0.010)
++0.005 (0.010)
+0.099
+0.099
+0.104
+97%
+97%
+96%
+98%
+-0.003
+0%
+application
+6,400-25,599
+Black as Black
+0.194
++0.010 (0.007)
++0.010 (0.007)
+0.070
+0.070
+0.069
+94%
+94%
+94%
+94%
++0.001
+0%
+application
+6,400-25,599
+Brown as Brown
+0.613
++0.001 (0.004)
+-0.004 (0.004)
+0.045
+0.047
+0.052
+98%
+97%
+98%
+98%
+-0.004
+0%
+application
+6,400-25,599
+White/Brown rate ratio
+0.660
++0.003 (0.013)
+-0.005 (0.013)
+0.129
+0.133
+0.175
+96%
+97%
+100%
+97%
+-0.027
+0%
+application
+6,400-25,599
+Black/Brown rate ratio
+1.099
++0.026 (0.028)
++0.026 (0.027)
+0.276
+0.295
+0.323
+95%
+97%
+95%
+95%
++0.042
+0%
+application
+>=25,600
+White as White
+0.691
++1.681 (1.663)
++1.683 (1.663)
+16.639
+389.096
+326.478
+99%
+98%
+78%
+99%
++0.018
+12%
+application
+>=25,600
+Black as Black
+0.191
++0.136 (0.073)
++0.138 (0.073)
+0.739
+2.363
+1.867
+91%
+89%
+78%
+90%
+-0.028
+12%
+application
+>=25,600
+Brown as Brown
+0.587
++0.016 (0.017)
++0.018 (0.017)
+0.170
+0.162
+0.148
+99%
+98%
+88%
+99%
++0.008
+12%
+application
+>=25,600
+White/Brown rate ratio
+0.662
++0.113 (0.061)
++0.098 (0.061)
+0.612
+0.485
+0.468
+92%
+92%
+82%
+92%
+-0.034
+12%
+application
+>=25,600
+Black/Brown rate ratio
+1.104
++0.131 (0.091)
++0.143 (0.090)
+0.903
+0.775
+0.793
+94%
+94%
+88%
+95%
++0.001
+12%
+application
+all
+White as White
+0.763
++0.014 (0.005)
++0.010 (0.005)
+0.054
+0.053
+0.048
+97%
+94%
+91%
+95%
++0.006
+0%
+application
+all
+Black as Black
+0.193
+-0.002 (0.004)
+-0.001 (0.004)
+0.047
+0.040
+0.037
+93%
+90%
+89%
+94%
+-0.010
+0%
+application
+all
+Brown as Brown
+0.626
++0.003 (0.002)
+-0.001 (0.002)
+0.025
+0.024
+0.024
+96%
+95%
+94%
+96%
+-0.003
+0%
+application
+all
+White/Brown rate ratio
+0.660
++0.020 (0.007)
++0.002 (0.007)
+0.075
+0.071
+0.075
+94%
+94%
+96%
+94%
+0.000
+0%
+application
+all
+Black/Brown rate ratio
+1.100
++0.043 (0.020)
++0.021 (0.020)
+0.202
+0.185
+0.197
+93%
+93%
+97%
+93%
++0.005
+0%
+200 replicates a scenario. Truth: mean over replicates of the table of all deaths of the class. MC error: Monte Carlo standard error of the bias. Coverage: share of 95% intervals containing the target named. Above 25,600 births a year estimates are unstable (row sums at or below zero). Monte Carlo error of a coverage near 95%: 1.5 points. Failed: a row sum at or below zero in the replicate (any row).
 
-Supplementary Table S2 - Admissions that ended in death: the control scaled within the municipality or the state, and the four standard errors
-Certificates a year
+Supplementary Table S2 - The control scaled within the municipality, the state or the nation, all units against the linked table
+Size class (admissions: certificates a year)
 Control scaled within
 Found
-Mean |diff|, findable
-Largest |diff|, findable
-Mean |diff|, linked
-Largest |diff|, linked
-Model / counts SE
-Cluster / counts SE
-Chance / counts SE
+Mean |diff|
+Largest |diff|
+Cells outside 95%CI: model / exact / chance
 <100
 municipality
-82.8%
-0.0003
-0.0013
-0.005
-0.014
-0.93
-1.69
-0.13
+81.9%
+0.0050
+0.0147
+9 / 9 / 16
 <100
 state
 81.8%
-0.0009
-0.0032
-0.005
-0.014
-0.93
-1.67
-0.20
+0.0050
+0.0143
+9 / 9 / 17
+<100
+nation
+81.9%
+0.0050
+0.0151
+9 / 9 / 17
 100-399
 municipality
-83.1%
-0.0007
-0.0030
-0.004
-0.011
-0.93
-2.64
-0.23
+82.7%
+0.0043
+0.0112
+8 / 8 / 17
 100-399
 state
 82.7%
-0.0005
-0.0018
-0.004
-0.011
-0.92
-2.62
-0.23
+0.0042
+0.0111
+8 / 8 / 17
+100-399
+nation
+82.8%
+0.0042
+0.0111
+8 / 8 / 17
 400-1,599
 municipality
 83.8%
-0.0010
-0.0057
-0.005
-0.021
-0.94
-4.58
-0.32
+0.0049
+0.0156
+9 / 9 / 13
 400-1,599
 state
 84.0%
-0.0012
-0.0085
-0.006
-0.022
-0.93
-4.59
-0.29
+0.0053
+0.0187
+9 / 9 / 14
+400-1,599
+nation
+84.0%
+0.0052
+0.0173
+9 / 9 / 14
 1,600-6,399
 municipality
 83.1%
-0.0013
-0.0084
-0.010
-0.055
-0.94
-5.84
-0.40
+0.0133
+0.0826
+11 / 11 / 15
 1,600-6,399
 state
 83.3%
-0.0012
-0.0074
-0.010
-0.055
-0.93
-5.87
-0.38
+0.0129
+0.0831
+12 / 12 / 15
+1,600-6,399
+nation
+83.3%
+0.0129
+0.0832
+12 / 12 / 14
 >=6,400
 municipality
-83.1%
-0.0039
+83.0%
+0.0084
+0.0255
+8 / 9 / 10
+>=6,400
+state
+83.3%
+0.0077
+0.0186
+8 / 8 / 10
+>=6,400
+nation
+83.6%
+0.0083
+0.0222
+9 / 9 / 10
+all
+municipality
+83.0%
+0.0058
 0.0168
-0.010
-0.034
-1.04
-9.90
-0.85
->=6,400
-state
-83.4%
-0.0049
-0.0259
-0.009
-0.022
-1.04
-9.86
-0.85
+13 / 13 / 16
 all
+state
+83.2%
+0.0058
+0.0164
+13 / 13 / 16
+all
+nation
+83.3%
+0.0058
+0.0168
+14 / 14 / 17
+infants <400
 municipality
-83.2%
-0.0010
-0.0031
-0.006
-0.017
-0.97
-9.21
-0.59
-all
+87.4%
+0.0049
+0.0188
+3 / 3 / 4
+infants <400
 state
-83.2%
-0.0010
-0.0025
-0.006
-0.016
-0.97
-9.18
-0.59
-Standard error ratios: medians over the twenty cells.
+87.6%
+0.0049
+0.0193
+4 / 4 / 4
+infants <400
+nation
+87.7%
+0.0049
+0.0192
+4 / 4 / 4
+infants 400-1,599
+municipality
+89.9%
+0.0084
+0.0239
+4 / 4 / 6
+infants 400-1,599
+state
+90.2%
+0.0085
+0.0244
+4 / 4 / 6
+infants 400-1,599
+nation
+90.2%
+0.0085
+0.0242
+4 / 4 / 6
+infants 1,600-6,399
+municipality
+91.8%
+0.0147
+0.0866
+0 / 0 / 0
+infants 1,600-6,399
+state
+92.0%
+0.0144
+0.0830
+0 / 0 / 0
+infants 1,600-6,399
+nation
+92.0%
+0.0144
+0.0834
+0 / 0 / 0
+infants 6,400-25,599
+municipality
+88.9%
+0.0261
+0.1310
+0 / 0 / 0
+infants 6,400-25,599
+state
+88.7%
+0.0261
+0.1315
+0 / 0 / 0
+infants 6,400-25,599
+nation
+88.8%
+0.0265
+0.1354
+0 / 0 / 0
+infants <25,600
+municipality
+89.6%
+0.0045
+0.0239
+2 / 2 / 2
+infants <25,600
+state
+89.8%
+0.0045
+0.0242
+2 / 2 / 2
+infants <25,600
+nation
+89.8%
+0.0045
+0.0241
+2 / 2 / 2
+Differences over the twenty cells against the table of the linked pairs.
+
+Supplementary Table S3 - Placebo: the key birth date shifted by 7 or 14 days (the same weekday)
+Data
+Size class
+Shift (days)
+Share found (should be 0)
+Mean z of the 20 cells
+SD of z
+Cells with |z| > 1.96
+infants
+<400
+shift -14
+-0.28%
+-0.05
+0.81
+0%
+infants
+<400
+shift -7
+-0.35%
+-0.11
+1.07
+5%
+infants
+<400
+shift +7
+-0.30%
+-0.27
+0.89
+0%
+infants
+<400
+shift +14
+-0.11%
+0.21
+1.17
+15%
+infants
+400-1,599
+shift -14
+-0.36%
+0.11
+0.95
+5%
+infants
+400-1,599
+shift -7
+-0.92%
+-0.54
+1.28
+25%
+infants
+400-1,599
+shift +7
+0.24%
+-0.00
+0.85
+0%
+infants
+400-1,599
+shift +14
+-0.31%
+-0.13
+0.98
+0%
+infants
+1,600-6,399
+shift -14
+-0.66%
+-0.12
+1.13
+15%
+infants
+1,600-6,399
+shift -7
+0.12%
+0.05
+1.17
+10%
+infants
+1,600-6,399
+shift +7
+-0.22%
+0.02
+0.82
+0%
+infants
+1,600-6,399
+shift +14
+-0.29%
+-0.18
+0.78
+0%
+infants
+6,400-25,599
+shift -14
+0.99%
+0.09
+1.17
+0%
+infants
+6,400-25,599
+shift -7
+2.06%
+0.01
+1.16
+10%
+infants
+6,400-25,599
+shift +7
+-1.20%
+0.14
+1.04
+15%
+infants
+6,400-25,599
+shift +14
+0.97%
+0.03
+0.86
+5%
+infants
+>=25,600
+shift -14
+3.17%
+0.40
+0.93
+5%
+infants
+>=25,600
+shift -7
+-4.84%
+-0.15
+1.18
+5%
+infants
+>=25,600
+shift +7
+1.63%
+0.35
+0.90
+0%
+infants
+>=25,600
+shift +14
+-8.52%
+0.08
+1.11
+5%
+infants
+<25,600
+shift -14
+-0.18%
+0.04
+1.07
+0%
+infants
+<25,600
+shift -7
+0.05%
+-0.21
+1.15
+10%
+infants
+<25,600
+shift +7
+-0.28%
+-0.05
+0.77
+0%
+infants
+<25,600
+shift +14
+-0.02%
+-0.13
+0.82
+5%
+infants
+all
+shift -14
+0.29%
+0.35
+1.09
+15%
+infants
+all
+shift -7
+-0.63%
+-0.17
+1.17
+5%
+infants
+all
+shift +7
+-0.02%
+0.21
+0.82
+0%
+infants
+all
+shift +14
+-1.20%
+0.01
+0.88
+5%
+admissions
+<100
+shift -14
+-0.01%
+0.08
+0.80
+0%
+admissions
+<100
+shift -7
+-0.01%
+0.01
+0.95
+5%
+admissions
+<100
+shift +7
+0.02%
+0.67
+1.05
+10%
+admissions
+<100
+shift +14
+-0.03%
+-0.14
+1.09
+5%
+admissions
+100-399
+shift -14
+-0.09%
+-1.25
+0.99
+25%
+admissions
+100-399
+shift -7
+-0.08%
+-0.60
+1.57
+20%
+admissions
+100-399
+shift +7
+-0.10%
+-0.84
+1.56
+20%
+admissions
+100-399
+shift +14
+-0.09%
+-1.13
+1.17
+15%
+admissions
+400-1,599
+shift -14
+-0.21%
+-1.51
+1.62
+30%
+admissions
+400-1,599
+shift -7
+-0.14%
+-0.98
+1.27
+25%
+admissions
+400-1,599
+shift +7
+-0.15%
+-0.84
+1.47
+25%
+admissions
+400-1,599
+shift +14
+-0.20%
+-1.35
+1.60
+35%
+admissions
+1,600-6,399
+shift -14
+-0.13%
+-0.58
+0.91
+5%
+admissions
+1,600-6,399
+shift -7
+-0.23%
+-0.58
+1.49
+10%
+admissions
+1,600-6,399
+shift +7
+-0.20%
+-0.95
+1.09
+20%
+admissions
+1,600-6,399
+shift +14
+-0.14%
+-0.51
+1.26
+20%
+admissions
+>=6,400
+shift -14
+-0.22%
+-0.18
+1.41
+15%
+admissions
+>=6,400
+shift -7
+-0.27%
+-0.35
+1.15
+10%
+admissions
+>=6,400
+shift +7
+-0.21%
+-0.06
+1.30
+15%
+admissions
+>=6,400
+shift +14
+-0.05%
+-0.24
+1.06
+5%
+admissions
+all
+shift -14
+-0.15%
+-0.79
+1.35
+20%
+admissions
+all
+shift -7
+-0.16%
+-0.59
+1.51
+25%
+admissions
+all
+shift +7
+-0.15%
+-0.44
+1.58
+25%
+admissions
+all
+shift +14
+-0.11%
+-0.67
+1.07
+5%
+z = T(j, k) / its exact model standard error; under the null the mean is 0, the SD 1 and 5% of cells fall outside.
+
+Supplementary Table S4 - Dispersion of the daily births of SINASC 2018 beyond Poisson, by the municipality's size class
+Births a year
+phi: excess variance / mean squared, per sex
+psi: covariance of the sexes / product of means
+Municipalities
+<400
+0.0877
+0.0586
+4,369
+400-1,599
+0.0316
+0.0173
+927
+1,600-6,399
+0.0098
+0.0064
+227
+6,400-25,599
+0.0075
+0.0073
+40
+>=25,600
+0.0066
+0.0066
+7
+all
+0.0075
+0.0069
+5,570
+Moments within municipality and weekday over the 52 weeks of 2018, each sum over municipalities of (variance - mean) over (mean squared - variance / 52). Classification heterogeneity: sd of the municipality effect on the logit of certification as the declared class 0.42.
+
+Supplementary Table S5 - Findability (A1): the share of linked units whose partner shares the key, by the class on the other register and the unit's own class
+Data
+Class on the other register | class recorded
+Share findable
+Linked units
+admissions
+Branca certified, recorded black
+90.8%
+23,304
+admissions
+Branca certified, recorded brown
+88.8%
+326,589
+admissions
+Branca certified, recorded indigenous
+92.0%
+163
+admissions
+Branca certified, recorded missing
+88.4%
+333,078
+admissions
+Branca certified, recorded other
+87.2%
+18,354
+admissions
+Branca certified, recorded white
+92.9%
+1,130,468
+admissions
+Preta certified, recorded black
+92.7%
+93,508
+admissions
+Preta certified, recorded brown
+88.7%
+96,499
+admissions
+Preta certified, recorded indigenous
+73.7%
+38
+admissions
+Preta certified, recorded missing
+86.9%
+80,285
+admissions
+Preta certified, recorded other
+85.7%
+5,079
+admissions
+Preta certified, recorded white
+91.0%
+27,650
+admissions
+Parda certified, recorded black
+90.4%
+51,412
+admissions
+Parda certified, recorded brown
+88.9%
+729,126
+admissions
+Parda certified, recorded indigenous
+82.6%
+484
+admissions
+Parda certified, recorded missing
+85.8%
+370,214
+admissions
+Parda certified, recorded other
+85.8%
+33,450
+admissions
+Parda certified, recorded white
+90.2%
+166,567
+admissions
+Indigena certified, recorded black
+89.3%
+159
+admissions
+Indigena certified, recorded brown
+76.4%
+3,112
+admissions
+Indigena certified, recorded indigenous
+82.5%
+3,478
+admissions
+Indigena certified, recorded missing
+79.2%
+1,739
+admissions
+Indigena certified, recorded other
+88.1%
+151
+admissions
+Indigena certified, recorded white
+89.9%
+774
+infants
+Branca certified, recorded Preta
+94.4%
+518
+infants
+Branca certified, recorded Parda
+94.4%
+15,778
+infants
+Branca certified, recorded Indigena
+70.9%
+79
+infants
+Branca certified, recorded other
+94.5%
+5,125
+infants
+Branca certified, recorded Branca
+95.9%
+69,252
+infants
+Preta certified, recorded Preta
+96.3%
+4,097
+infants
+Preta certified, recorded Parda
+95.1%
+12,234
+infants
+Preta certified, recorded Indigena
+73.1%
+26
+infants
+Preta certified, recorded other
+94.3%
+1,897
+infants
+Preta certified, recorded Branca
+95.7%
+4,051
+infants
+Parda certified, recorded Preta
+94.5%
+2,945
+infants
+Parda certified, recorded Parda
+94.7%
+114,528
+infants
+Parda certified, recorded Indigena
+84.8%
+547
+infants
+Parda certified, recorded other
+94.1%
+15,723
+infants
+Parda certified, recorded Branca
+95.0%
+45,012
+infants
+Indigena certified, recorded Preta
+86.7%
+15
+infants
+Indigena certified, recorded Parda
+91.1%
+503
+infants
+Indigena certified, recorded Indigena
+94.1%
+3,935
+infants
+Indigena certified, recorded other
+88.0%
+92
+infants
+Indigena certified, recorded Branca
+90.3%
+155
+Admissions: recorded is the hospital's race (missing and other apart). Infants: recorded is the certificate's race (other: not one of the four or none).
 
