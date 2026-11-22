@@ -122,3 +122,9 @@ sih_admissions_to_radiotherapy, sih_readmissions with its `differ` rule, sia_rad
 give identical pairs, pass and control counts, horizons, control reach and verdicts. Back to back under the same load:
 I21 SP 2019 46.5-49.9 s to 16.8-25.0 s (4,653 pairs), neurosurgery readmissions AL 2019 4.5-4.9 s to 2.6-4.0 s. Stored
 runs stay valid (no change of pairs, no LINKAGE_VERSION bump).
+The first version windowed only cohort follow-up and left the day explosion for windows a record carries (a delivery
+admission's stay holding a birth's date): two mechanisms for one job. Every window is now its two ends, on either side
+(`_join_window_right` for a partner's stay), and the engine no longer explodes days anywhere (the `<side>_days` view feeds
+only the control's range and reach diagnostics). Ten slices, identical outputs: the eight above plus
+sinasc_births_to_delivery_admission AL 2019 (30,620 pairs, 68.7 s to 39.0 s) and sinasc_births_to_ciha_delivery SE 2019
+(633 pairs, 112.3 s to 19.2 s).

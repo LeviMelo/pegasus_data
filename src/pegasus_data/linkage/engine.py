@@ -478,8 +478,7 @@ class LinkResult(Report):
                 **({"horizons": self.horizons} if self.horizons else {})}
 
 
-def _prepare(con: duckdb.DuckDBPyConnection, name: str, table: pa.Table, side: Side, *, materialise: bool = True,
-             windowed: bool = False) -> int:
+def _prepare(con: duckdb.DuckDBPyConnection, name: str, table: pa.Table, side: Side, *, materialise: bool = True) -> int:
     """Register one side as a relation with an `_id` per record (or per group). A table by default: the identity's
     window function, the group window and the day explosion are evaluated once, not by each of the six queries a pass
     and a validation issue (a key query over the view took 1.4-1.8 s per 3 M rows, over the table 0.4 s). The
@@ -506,33 +505,27 @@ def _prepare(con: duckdb.DuckDBPyConnection, name: str, table: pa.Table, side: S
                  else f"{quote(side.earliest)} ASC NULLS LAST, _id" if side.earliest else "_id")
         base = (f"SELECT * EXCLUDE (_n), _n AS _group_size FROM (SELECT *, count(*) OVER (PARTITION BY {keys}) AS _n, "
                 f"row_number() OVER (PARTITION BY {keys} ORDER BY {order}) AS _k FROM ({base})) WHERE _k = 1")
-    if windowed and side.explode_days and isinstance(side.explode_days[1], int):
-        # a cohort's follow-up window as its two ends, not one row per day: the passes test the partner's date against
-        # them (`_join_window`). The day-by-day form (366 rows a person) took half a national link's time in joins over
-        # the exploded rows (SIH-RD I21, SE 2018: 11.8 of 22 s; 2026-11-22). `<name>_days` lists the days for what
-        # still reads them one by one (the control's range and its reach), as a view computed when read.
-        start, end, new = side.explode_days
-        base = (f"SELECT *, CAST({quote(start)} AS DATE) AS _w0, "
-                f"CAST(CAST({quote(start)} AS TIMESTAMP) + INTERVAL {end} DAY AS DATE) AS _w1 FROM ({base}) "
-                f"WHERE {quote(start)} IS NOT NULL")
-    elif side.explode_days:
+    if side.explode_days:
+        # a window of days as its two ends, never one row per day: a pass tests the partner's date against them
+        # (`_join_window`). The day-by-day form (366 rows a person) took half a national link's time in joins over the
+        # exploded rows (SIH-RD I21, SE 2018: 11.8 of 22 s; 2026-11-22). The window is a count of days from the start (a
+        # cohort's follow-up) or an interval the record carries (an admission's stay, at most 120 days). `<name>_days`
+        # lists the days for what still reads them one by one (the control's range and its reach), a view read lazily.
         start, end, new = side.explode_days
         if isinstance(end, int):
-            # a window of that many days from the start (a cohort's follow-up), not an interval the record carries
-            stop, valid = f"CAST({quote(start)} AS TIMESTAMP) + INTERVAL {end} DAY", f"{quote(start)} IS NOT NULL"
+            stop, valid = f"CAST(CAST({quote(start)} AS TIMESTAMP) + INTERVAL {end} DAY AS DATE)", f"{quote(start)} IS NOT NULL"
         else:
-            stop = f"CAST({quote(end)} AS TIMESTAMP)"
+            stop = f"CAST({quote(end)} AS DATE)"
             valid = (f"{quote(start)} IS NOT NULL AND {quote(end)} IS NOT NULL AND {quote(end)} >= {quote(start)} "
                      f"AND {quote(end)} - {quote(start)} <= 120")
-        base = (f"SELECT *, CAST(unnest(generate_series(CAST({quote(start)} AS TIMESTAMP), {stop}, INTERVAL 1 DAY)) "
-                f"AS DATE) AS {quote(new)} FROM ({base}) WHERE {valid}")
+        base = f"SELECT *, CAST({quote(start)} AS DATE) AS _w0, {stop} AS _w1 FROM ({base}) WHERE {valid}"
     if side.explode_values:
         role, offsets, new = side.explode_values
         shifts = ", ".join(str(int(o)) for o in offsets)
         base = (f"SELECT *, CAST(floor(TRY_CAST({quote(role)} AS DOUBLE)) AS INTEGER) + unnest([{shifts}]) AS {quote(new)} "
                 f"FROM ({base}) WHERE TRY_CAST({quote(role)} AS DOUBLE) IS NOT NULL")
     con.execute(f"CREATE OR REPLACE TEMP {'TABLE' if materialise else 'VIEW'} {name} AS {base}")
-    if windowed and side.explode_days and isinstance(side.explode_days[1], int):
+    if side.explode_days:
         new = side.explode_days[2]
         con.execute(f"CREATE OR REPLACE TEMP VIEW {name}_days AS SELECT *, CAST(unnest(generate_series("
                     f"CAST(_w0 AS TIMESTAMP), CAST(_w1 AS TIMESTAMP), INTERVAL 1 DAY)) AS DATE) AS {quote(new)} FROM {name}")
@@ -571,7 +564,8 @@ def _join(keys: tuple[tuple[str, str], ...], moved: dict[tuple[str, str], str], 
 
 
 def _join_window(keys: tuple[tuple[str, str], ...], day: tuple[str, str], moved: dict[tuple[str, str], str],
-                 day_back: str | None, one_each: bool = False, outcome: Outcome | None = None) -> str:
+                 day_back: str | None, one_each: bool = False, outcome: Outcome | None = None,
+                 side: str = "left") -> str:
     """`_join` for a pass that keys a cohort's follow-up day (``day``: the window's day role and the partner's date) on
     the window's ends instead of its days: the same pairs, by the same rules.
 
@@ -579,7 +573,13 @@ def _join_window(keys: tuple[tuple[str, str], ...], day: tuple[str, str], moved:
     day the rotation moved onto it (``day_back``, `placebo.rotation_inverse`). A key value shared by two records drops
     both, as `_join` drops a (keys, day) row held twice: a candidate pair stands only if no other person with the same
     keys has that day in the window (the rotation is a bijection, so the moved day is unique exactly when the day is),
-    and a partner only if its keys and date are its own. Then the one-partner rule of a cohort, as in `_join`."""
+    and a partner only if its keys and date are its own. Then the one-partner rule of a cohort, as in `_join`.
+
+    ``side="right"``: the partner carries the window (an admission's stay holding a birth's date). The left record's date
+    (moved, for the control) must fall inside it, and a stay stands only if no other partner with the same keys covers
+    that date."""
+    if side == "right":
+        return _join_window_right(keys, day, moved, one_each, outcome)
     other = [k for k in keys if k != day]
     if not other:
         raise ValueError("a windowed pass needs a key besides the follow-up day")
@@ -612,6 +612,37 @@ def _join_window(keys: tuple[tuple[str, str], ...], day: tuple[str, str], moved:
         SELECT c.l, c.r FROM c JOIN holders USING (l, r) WHERE holders.n = 1{each}"""
 
 
+def _join_window_right(keys: tuple[tuple[str, str], ...], day: tuple[str, str], moved: dict[tuple[str, str], str],
+                       one_each: bool = False, outcome: Outcome | None = None) -> str:
+    """`_join_window` with the window on the partner's side (``day``: the left record's date and the partner's day role)."""
+    other = [k for k in keys if k != day]
+    if not other:
+        raise ValueError("a windowed pass needs a key besides the window's day")
+    lk = [f"{moved.get(key, quote(key[0]))} AS k_{i}" for i, key in enumerate(other)]
+    rk = [f"{quote(right)} AS k_{i}" for i, (_l, right) in enumerate(other)]
+    kn = ", ".join(f"k_{i}" for i in range(len(other)))
+    notnull = " AND ".join(f"k_{i} IS NOT NULL" for i in range(len(other)))
+    point = moved.get(day, quote(day[0]))
+    differ = outcome.differ if outcome is not None else ""
+    lx = f", {quote(differ)} AS _differ" if differ else ""
+    on = " AND ua._differ IS DISTINCT FROM b._differ" if differ else ""
+    if one_each and outcome is not None and outcome.first:
+        each = " QUALIFY count(*) OVER (PARTITION BY c.r) = 1 AND row_number() OVER (PARTITION BY c.l ORDER BY c.r) = 1"
+    else:
+        each = (" QUALIFY count(*) OVER (PARTITION BY c.l) = 1 AND count(*) OVER (PARTITION BY c.r) = 1"
+                if one_each else "")
+    return f"""
+        WITH a AS (SELECT DISTINCT _id, {', '.join(lk)}, {point} AS _p{lx} FROM L WHERE _id NOT IN (SELECT l FROM linked)),
+             ua AS (SELECT * FROM a WHERE {notnull} AND _p IS NOT NULL QUALIFY count(*) OVER (PARTITION BY {kn}, _p) = 1),
+             b AS (SELECT DISTINCT _id, {', '.join(rk)}, _w0, _w1{lx} FROM R WHERE _id NOT IN (SELECT r FROM linked)
+                   AND {notnull}),
+             c AS (SELECT ua._id AS l, b._id AS r, ua._p AS _p, {', '.join(f'ua.k_{i}' for i in range(len(other)))}
+                   FROM ua JOIN b USING ({kn}) WHERE ua._p BETWEEN b._w0 AND b._w1{on}),
+             holders AS (SELECT c.l, c.r, count(*) AS n FROM c JOIN b h USING ({kn})
+                         WHERE c._p BETWEEN h._w0 AND h._w1 GROUP BY c.l, c.r)
+        SELECT c.l, c.r FROM c JOIN holders USING (l, r) WHERE holders.n = 1{each}"""
+
+
 def where_roles(side: Side) -> set[str]:
     """The roles a side's filter reads."""
     return set(re.findall(r'"([^"]+)"', side.where))
@@ -634,14 +665,14 @@ def run(spec: LinkSpec, left: pa.Table, right: pa.Table) -> LinkResult:
         raise ValueError(f"{spec.name}: no pass can run on these tables ({why_skipped}); the scope lacks or cannot "
                          "read a role every pass keys on")
     con = connect()
-    windowed = (spec.outcome is not None and spec.left.explode_days is not None
-                and isinstance(spec.left.explode_days[1], int))
-    day_role = spec.left.explode_days[2] if windowed and spec.left.explode_days else None
-    n_left = _prepare(con, "L", left, spec.left, windowed=windowed)
+    day_role = spec.left.explode_days[2] if spec.left.explode_days else None          # the left side's window day
+    right_day = spec.right.explode_days[2] if spec.right.explode_days else None       # the partner's window day
+    n_left = _prepare(con, "L", left, spec.left)
     n_right = _prepare(con, "R", right, spec.right)
     # the control: each key pairing the control role moves round the range both sides hold (`placebo.shared_range`)
     control_keys = sorted({k for p in spec.passes if not why_skipped[p.name] for k in p.keys if k[0] == spec.control_role})
-    ranges = {key: placebo.shared_range(con, [key[0]], [key[1]], left="L_days" if key[0] == day_role else "L")
+    ranges = {key: placebo.shared_range(con, [key[0]], [key[1]], left="L_days" if key[0] == day_role else "L",
+                                        right="R_days" if key[1] == right_day else "R")
               for key in control_keys}
     moved = {key: sql for key in control_keys
              if (sql := placebo.rotation(key[0], ranges[key], spec.control_shift_days))}
@@ -651,6 +682,9 @@ def run(spec: LinkSpec, left: pa.Table, right: pa.Table) -> LinkResult:
 
     def pass_sql(keys: tuple[tuple[str, str], ...], control: bool, one: bool) -> str:
         day = next((k for k in keys if k[0] == day_role), None) if day_role else None
+        partner_day = next((k for k in keys if k[1] == right_day), None) if right_day else None
+        if day is None and partner_day is not None:
+            return _join_window(keys, partner_day, moved if control else {}, None, one, spec.outcome, side="right")
         if day is None:
             return _join(keys, moved if control else {}, one, spec.outcome)
         if control and day in moved:
@@ -712,7 +746,8 @@ def run(spec: LinkSpec, left: pa.Table, right: pa.Table) -> LinkResult:
         worst_pass = chance
     upper = upper95(kept_control, kept_pairs)
     reach = {f"{key[0]} ~ {key[1]}": placebo.key_reach(con, *key, moved.get(key, quote(key[0])),
-                                                       view="L_days" if key[0] == day_role else "L")
+                                                       view="L_days" if key[0] == day_role else "L",
+                                                       right_view="R_days" if key[1] == right_day else "R")
              for key in control_keys}
 
     failures = placebo.key_failures(reach)

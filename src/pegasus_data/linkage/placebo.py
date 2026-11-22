@@ -129,12 +129,13 @@ def moved_sql(source: str, moves: dict[str, str]) -> str:
     return f"SELECT * REPLACE ({', '.join(f'{sql} AS {quote(role)}' for role, sql in moves.items())}) FROM {source}"
 
 
-def key_reach(con: duckdb.DuckDBPyConnection, left: str, right: str, moved: str, view: str = "L") -> dict[str, float | int]:
+def key_reach(con: duckdb.DuckDBPyConnection, left: str, right: str, moved: str, view: str = "L",
+              right_view: str = "R") -> dict[str, float | int]:
     """Whether the control can find a partner at all, for the key pairing ``left`` with ``right``: the share of left
     records whose own value is among the partner's values (what a real pair needs) and whose moved value (``moved``,
     SQL) is (what a control pair needs). The second should be close to the first."""
     n, real, shifted = con.execute(f"""
-        WITH rv AS (SELECT DISTINCT {quote(right)} AS v FROM R WHERE {quote(right)} IS NOT NULL),
+        WITH rv AS (SELECT DISTINCT {quote(right)} AS v FROM {right_view} WHERE {quote(right)} IS NOT NULL),
              a AS (SELECT DISTINCT _id, {quote(left)} AS v, {moved} AS s FROM {view} WHERE {quote(left)} IS NOT NULL)
         SELECT count(*), count(r1.v), count(r2.v) FROM a LEFT JOIN rv r1 ON r1.v = a.v
                                                         LEFT JOIN rv r2 ON r2.v = a.s""").fetchone() or (0, 0, 0)
