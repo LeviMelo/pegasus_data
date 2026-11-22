@@ -778,7 +778,7 @@ def drop_redundant_partitions(catalog: CatalogStore, lake_dir: str | Path, *, dr
 
     root = Path(lake_dir)
     listed = [dict(r) for r in catalog.query(
-        "SELECT family_id, schema_signature, uf, year, relative_path, row_count FROM lake_partitions")]
+        "SELECT family_id, schema_signature, uf, year, relative_path, row_count, source_paths FROM lake_partitions")]
     known = {str(r["relative_path"]) for r in listed}
 
     def dataset(family: str) -> str:
@@ -814,6 +814,17 @@ def drop_redundant_partitions(catalog: CatalogStore, lake_dir: str | Path, *, dr
         candidates += [(root / str(r["relative_path"]), refs, r) for r in rows if id(r) not in kept]
 
     out = {"partitions": 0, "rows": 0, "bytes": 0, "unlisted_kept": 0, "listed_kept": 0}
+    # a partition holding a source that a delta stands on stays: its versions are read from it (ADR-0234). Roraima's
+    # preliminary SIM and SINASC state files were landed as snapshot versions and dropped beside the national file,
+    # and their two deltas lost their base (2026-11-22)
+    based = {str(r["source_id"]) for r in catalog.query("SELECT DISTINCT source_id FROM lake_versions")}
+    if based:
+        def stands_on(row: dict | None) -> bool:
+            return row is not None and bool(based & set(json.loads(row.get("source_paths") or "[]")))
+
+        held = [c for c in candidates if stands_on(c[2])]
+        out["versions_base_kept"] = len(held)
+        candidates = [c for c in candidates if not stands_on(c[2])]
     hashed: dict[tuple[tuple[str, ...], tuple[str, ...]], str] = {}
     serial = iter(range(1 << 30))
     con = duckdb.connect()
