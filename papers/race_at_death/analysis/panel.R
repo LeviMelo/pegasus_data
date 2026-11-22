@@ -30,6 +30,7 @@ prepare <- function(D, unit) {
     D[[paste0(v, "_w")]] <- D[[v]] - m
   }
   D$yr <- factor(D$year)
+  D$ry <- factor(paste(substr(as.character(D[[unit]]), 1, 1), D$year))   # region by year: the first digit of a municipality or immediate region code
   D
 }
 
@@ -57,8 +58,8 @@ fit <- function(D, key, unit, years) {
   E <- D[n > 0 & D$year %in% years & is.finite(D$lgdp) & is.finite(D$lw), ]
   E$n <- E[[paste0("n_", key)]]; E$y <- E[[paste0("y_", key)]]
   E$unit <- factor(E[[unit]])
-  f_comp <- cbind(y, n - y) ~ lw_b + lw_w + yr + (1 | unit)
-  f_all <- as.formula(paste("cbind(y, n - y) ~", paste(c(paste0(VARS, "_b"), paste0(VARS, "_w")), collapse = " + "), "+ yr + (1 | unit)"))
+  f_comp <- cbind(y, n - y) ~ lw_b + lw_w + ry + (1 | unit)
+  f_all <- as.formula(paste("cbind(y, n - y) ~", paste(c(paste0(VARS, "_b"), paste0(VARS, "_w")), collapse = " + "), "+ ry + (1 | unit)"))
   m1 <- glmer(f_comp, data = E, family = binomial, nAGQ = 0)
   m2 <- glmer(f_all, data = E, family = binomial, nAGQ = 0)
   # how much each variable moves inside a place, against how much it differs between places (by the deaths' weight)

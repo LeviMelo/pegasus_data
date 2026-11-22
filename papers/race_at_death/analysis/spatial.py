@@ -290,6 +290,11 @@ for o, (y, t) in OUTC.items():
         q = np.where(ml.p_sim < 0.05, ml.q, 0)
         M.loc[M.index[ids], f"{o}_lisa"] = q
         S["lisa"][o] = {lab: int((q == k).sum()) for k, lab in ((1, "high-high"), (2, "low-high"), (3, "low-low"), (4, "high-low"), (0, "not significant"))}
+        # Benjamini-Hochberg over the municipalities tested: the clusters that survive a 5% false discovery rate (the floor of a
+        # permutation p-value is 1/1000, so with thousands of units only the strongest can survive)
+        from statsmodels.stats.multitest import multipletests
+        qf = np.where(multipletests(ml.p_sim, alpha=0.05, method="fdr_bh")[0], ml.q, 0)
+        S["lisa"][o]["fdr"] = {lab: int((qf == k).sum()) for k, lab in ((1, "high-high"), (2, "low-high"), (3, "low-low"), (4, "high-low"))}
     if o in ("PW", "disagree", "KK"):
         cc_ = fits["composition_state_context"]
         S["glm"][o] = {p: {"est": float(v), "se": float(cc_.bse[p])} for p, v in cc_.params.items() if not p.startswith(("C(state)", "bs("))}

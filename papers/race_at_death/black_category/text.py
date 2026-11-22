@@ -4,9 +4,12 @@
 import json as _json
 
 BK = _json.loads((HERE / "results" / "black.json").read_text(encoding="utf-8"))
+MC = _json.loads((HERE / "results" / "mechanism.json").read_text(encoding="utf-8"))
+MB = MC["black"]
 DESIGN = "cross-sectional study of linked birth, hospital and death records and of census microdata"
-OBJECTIVE = ("to measure how often the Black category is used for children of Black mothers on Brazilian death certificates, set it against how families, "
-             "hospitals and certificates classify Black people at other moments, and find by whom, where and when it is used")
+OBJECTIVE = ("to measure how often the infants of mothers who declared themselves Black are recorded as Black on Brazilian death certificates, set it "
+             "against the hospital's record of the same mothers, and test whether the category follows the person, the hospital that records her or the "
+             "certifier")
 I, CEN, CH = R["infants"], R["census"], R["children"]
 IL = I["linkage"]["rows"]["Preta"]
 CB = I["cluster_bootstrap"]
@@ -36,34 +39,33 @@ DL = BK["delivery_link"]
 assert CB["Preta>Preta"]["est"] < 0.5 * LD["family_child_0"], "the certificate's Black share is no longer under half the family's"
 assert CB["Preta>Parda"]["est"] > 0.5, "Black mothers' infants are no longer mostly certified Brown"
 assert HO["matrix"]["black"]["black"]["est"] < 0.6, "hospitals now record most Black mothers as Black"
-assert LD["certificate_adult_women"]["est"] > 2 * CB["Preta>Preta"]["est"], "adult women no longer far above infants"
 assert PK["fixed"]["yc"]["Estimate"] - 1.96 * PK["fixed"]["yc"]["Std. Error"] > 0, "no longer rising"
 
 d = new_doc()
-TITLE = ("Black children recorded as Brown: the Black category on the death certificates of children of Black mothers, against the family, the hospital and the "
-         "certificates of adults, Brazil, 2013-2023")
+TITLE = ("Infants of Black mothers recorded as Brown: the Black category from the birth record to the delivery admission and the death certificate, Brazil, "
+         "2012-2023")
 para(d, TITLE, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER)
 para(d, "[Authors, affiliations, ORCID, funding, conflicts of interest and contributions: to be supplied by the authors; not part of the blinded text]", italic=True)
 
 d.add_heading("Abstract", level=1)
 para(d, f"Objective: {OBJECTIVE[0].upper() + OBJECTIVE[1:]}.")
-para(d, f"Methods: {DESIGN[0].upper() + DESIGN[1:]}, Brazil. Infant deaths of 2013-2023 were linked to their birth records (the mother's declaration of her own race) "
-        "and the birth records to the mothers' delivery admissions (the hospital's record of the mother); the family's classification of children came from the 2010 "
-        "Census. The certificate's category was related to the hospital's record of the same mother within hospitals, to each delivery hospital's practice by "
-        "logistic regression with clustered errors, and to the certifier, the child and the place by multilevel logistic regression, in space and over time.")
-para(d, f"Results: Of infants of mothers who declared themselves Black, {cbci('Preta>Preta')} were certified Black, {cbci('Preta>Parda')} Brown and "
-        f"{cbci('Preta>Branca')} White; counted net, certificates recorded {f2(NT0['certificate_ratio'])} as many Black infants as there were infants of Black mothers. "
-        f"Hospitals recorded Black mothers as Black at delivery in {ci(HO['black_bootstrap']['black'])} of admissions with a race (net ratio "
-        f"{f2(NT0['hospital_ratio'])}). Within the same hospital, an infant whose mother the hospital had recorded as Black had {f2(IN['within_hospital_or']['est'])} "
-        f"(95%CI {f2(IN['within_hospital_or']['lo'])}; {f2(IN['within_hospital_or']['hi'])}) times the odds of being certified Black, and the delivery hospital's "
-        f"practice predicted the certificate at equal composition, region and year. The category was used more for children of 1-4 "
-        f"({f2(LD['certificate_1_4']['est'])}) and 5-9 years ({f2(LD['certificate_5_9']['est'])}) than for infants in the same municipalities "
-        f"({f2(LD['certificate_infant_below_25600']['est'])}), less by verification services and medical examiners, and it rose from "
-        f"{f2(cell(I['by_year']['2013'], 'Preta', 'Preta')['est'])} in 2013 to {f2(cell(I['by_year']['2023'], 'Preta', 'Preta')['est'])} in 2023, faster than in the "
-        "hospital.")
-para(d, "Conclusion: Black families are recorded as Brown more often than as Black in Brazil's health records, and the infant certificate undercounts Black infants "
-        "by about two thirds even net. The certificate follows the hospital's record of the same mother, and the category's use varies with the institution, the "
-        "certifier and the place, so statistics of the Black population built from these records undercount it unevenly across the country.")
+para(d, f"Methods: {DESIGN[0].upper() + DESIGN[1:]}, Brazil. Infant deaths of 2013-2023 were linked to their birth records (the mother's declared race) and the "
+        "birth records to the mothers' delivery admissions (the hospital's record of the mother). The certificate was related to the hospital's record of the same "
+        "mother within delivery hospitals and within the establishments where infants died elsewhere, to each hospital's practice estimated without the mother, to "
+        "the certifying physician and to the year, standardised for who the mothers were.")
+para(d, f"Results: Of infants of mothers who declared themselves Black, {cbci('Preta>Preta')} were certified Black and {cbci('Preta>Parda')} Brown; certificates "
+        f"recorded {ci(MB['net']['certificate_ratio'])} as many infants as Black as there were infants of Black mothers. Hospitals recorded these mothers as Black in "
+        f"{ci(HO['black_bootstrap']['black'])} of admissions with a race. Within the same hospital, an infant whose mother the hospital had recorded as Black had "
+        f"{f2(MB['clogit_delivery_hospital_adjusted']['or'])} (95%CI {f2(MB['clogit_delivery_hospital_adjusted']['lo'])}; "
+        f"{f2(MB['clogit_delivery_hospital_adjusted']['hi'])}) times the odds of being certified Black, and {f2(MB['clogit_death_estab_elsewhere']['or'])} (95%CI "
+        f"{f2(MB['clogit_death_estab_elsewhere']['lo'])}; {f2(MB['clogit_death_estab_elsewhere']['hi'])}) among infants who died in another establishment, where "
+        "the delivery chart was not at hand. Beside the mother's own record, the hospital's practice added little (odds ratio "
+        f"{f2(MB['practice_loo_eb']['practice_person']['or_per_logit'])} per logit unit). Standardised to the mothers of 2013, the certificate's use of the "
+        f"category rose from {f2(MB['certificate_by_year_standardised']['2013']['standardised_2013'])} to "
+        f"{f2(MB['certificate_by_year_standardised']['2023']['standardised_2013'])} in 2023, faster than the hospital's record of the same infants' mothers.")
+para(d, "Conclusion: The infants of Black mothers are recorded as Black on a minority of death certificates, fewer than the hospitals record their mothers. The "
+        "hospital sets how often it records Black, and a mother who changes hospital takes on its rate; within that rate, the certificate goes with which "
+        "mothers it records Black, also where her chart was not at hand: staff sort the same people alike at levels each institution sets. Statistics of the Black population from these records undercount it, by amounts that differ between hospitals.")
 para(d, "Keywords: Race Factors; Racial Groups; Death Certificates; Hospital Records; Medical Record Linkage; Infant Mortality; Brazil.")
 
 # ================================================================= introduction
@@ -73,8 +75,7 @@ para(d, "Brazil classifies its population in five categories of colour or race, 
         f"moves between categories across surveys, in both directions {cite('muniz2022')}; people choose other terms than the census's according to education, "
         f"colour and the local population {cite('bailey2006')}; and skin colour carries inequalities that the census categories do not capture "
         f"{cite('monk2016', 'perreira2014')}. Black and Brown people also differ in the discrimination they report, and Brown people differ among themselves by "
-        f"status {cite('daflon2017')}. Statistics and policy nonetheless often group Black and Brown as negros, and the verification commissions of "
-        f"affirmative action now decide by observation who belongs to the category {cite('silva2024')}. Since 2010, Brazilians, especially those of darker skin, have "
+        f"status {cite('daflon2017')}. Statistics and policy nonetheless often group Black and Brown as negros. Since 2010, Brazilians, especially those of darker skin, have "
         f"increasingly identified as Black {cite('freemannc2024')}.")
 para(d, "Health records add classifications made by others. The Ministry of Health instructs that the race on the death certificate be asked of the informant "
         f"{cite('manual_do2022')}, but in practice the certifier or hospital staff often enter it {cite('travassos2004')}; the hospital records the race of its patients "
@@ -103,21 +104,24 @@ para(d, f"Records of the same families. (1) Infant deaths of 2013-2023 were link
         f"their patients as Yellow (Asian) were left out as writing a default ({HO['facilities_left_out']} hospitals), from all analyses. (3) The "
         "family's classification is the race a household reported for a child under 10 against the race it reported for the child's mother, in the 2010 Census sample; "
         "it concerns other children than those who died. (4) For adult women, deaths at 15-49 years in hospital in 2015-2022 were related to the birth records on "
-        "which they were mothers and to the admission that ended in death (exploratory; Supplementary Text S1). After infancy, deaths at 1-9 years were related to the "
+        "which they were mothers and to the admission that ended in death (exploratory; Supplementary Text S1, Supplementary Table S1). After infancy, deaths at 1-9 years were related to the "
         "births of the same birth date, sex and municipality, with births of the other sex as a control for chance agreement (Supplementary Text S2).")
-para(d, "Measures. For people who declared themselves Black, or whose mothers did: the proportion recorded Black by each record, and the categories used instead. For "
-        "linked infant deaths of Black mothers, the certificate's category by the race the hospital recorded for the same mother at the delivery. For each hospital with "
-        "30 or more Black mothers, the share of them it recorded as Black over 2012-2023, its practice, set against the certificates of Black mothers' infants delivered "
-        "in it. Gross shares were complemented by net counts: the number each record called Black against the number who declared themselves Black. The primary "
-        "analyses were the infant certificate against the mother's declaration and against the hospital's record of the same mother; the others are exploratory.")
-para(d, f"Analysis. Proportions from the linkage carry 95% confidence intervals (95%CI) from a bootstrap over municipalities, those of the hospital from a bootstrap "
-        "over hospitals. The hospital's record of the mother was related to the certificate within delivery hospitals by a Mantel-Haenszel odds ratio. The use of the Black category on "
-        f"infant certificates was modelled by logistic regression with a random intercept for the municipality {cite('bates2015')}, with the municipality's racial "
-        "composition (a natural spline with three degrees of freedom on the logit of the White share), standardised socioeconomic context and health services, the "
-        "certifier, the place and age at death, the cause, the mother's schooling and age, the birth weight, the region and the year per decade (fitted with nAGQ = 0), "
-        f"and with a crossed random intercept for the establishment of death; spatial structure by Moran's I {cite('moran1950', 'assuncao1999')} and Besag-York-Mollié "
-        f"models with penalised-complexity priors {cite('riebler2016', 'rue2009')}; change over 2013-2023 by binomial mixed models with random intercepts and slopes "
-        "for 133 intermediate regions, the hospital's change by a quasi-binomial model of yearly counts. The delivery hospital's practice, as the logit of its share "
-        "(with 0.01 added to both counts' shares), entered a logistic model of the certificate, with errors clustered by municipality, alone and with composition (a "
-        "spline with three degrees of freedom), region and year; the hospital is dated by the birth, the certificate by the death. Analyses used Python 3.11 and R 4.4; the code accompanies the "
-        "article. Ethics: public, anonymised data; under Resolution 510/2016 of the National Health Council no review was required.")
+para(d, "Measures. For infants of mothers who declared themselves Black, the proportion certified Black, and the categories used instead; for their mothers, "
+        "the proportion the delivery admission recorded Black. Gross shares were complemented by net counts: the number each record called Black against the "
+        "number of mothers who declared themselves Black, which counts Brown mothers recorded Black against Black mothers recorded otherwise. The mother's "
+        "declaration is the reference; it is entered on the birth record by staff on her answer, and its dependence on who filled it (physician, nursing, other "
+        "staff) was examined within hospitals. The primary analyses were the infant certificate against the mother's declaration and against the hospital's "
+        "record of the same mother; the others are exploratory.")
+para(d, f"Analysis. Proportions from the linkage carry 95% confidence intervals (95%CI) from a bootstrap over municipalities, those of the hospital and the "
+        "net ratios from bootstraps over hospitals and municipalities. Person against place: the hospital's record of the mother was related to the certificate "
+        "within delivery hospitals (Mantel-Haenszel, with the Breslow-Day test of heterogeneity, and conditional logistic regression with the mother's schooling "
+        "and age, low birth weight, the year and the infant's age at death); and, to separate copying from the delivery chart, within the establishments of death "
+        "of infants who died where they were delivered and of those who died elsewhere. The hospital's practice was its share of Black mothers recorded Black over "
+        "2012-2023 without the infant's own mother, shrunk by a beta prior fitted to the hospitals, entered as a logit in logistic models of the certificate with "
+        "errors clustered by hospital, alone, with composition (a spline with three degrees of freedom), region and year, and beside the hospital's record of the "
+        f"mother. The certifier: crossed random intercepts for the certifying physician, the establishment of death and the municipality {cite('bates2015')} "
+        "(Laplace approximation; physicians identified by state and registration, filed in 2014-2018). Time: the yearly proportion standardised to the region, "
+        "schooling and age of the Black mothers of 2013, and the hospital's record and the certificate of the same infants in one logistic model with a "
+        "record-by-year interaction and errors clustered by infant. The same mothers across births: births with the same mother's birth date and municipality of "
+        "residence in two years and a higher parity, in municipalities with fewer than 1,600 births a year, with the mother's birth date moved by one day as a "
+        "control for chance pairs. Analyses used Python 3.11 and R 4.4; the code accompanies the article. Ethics: public, anonymised data; under Resolution 510/2016 of the National Health Council no review was required.")

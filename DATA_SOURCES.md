@@ -394,6 +394,24 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   (`RACA_COR`) records Black for 0.36, Brown 0.53, White 0.10, and leaves 21.8% blank; White mothers White 0.76, Brown
   mothers Brown 0.80. The share recorded Black varies between hospitals from 0.01 to 0.64 (10th to 90th percentile); net, the
   admissions record 0.74 as many Black mothers as declared themselves Black.
+  The admission's race is filled from 2023: among Black-declared mothers' linked deliveries it was blank on 34.5% in 2012,
+  21.5% in 2022 and 2.8% in 2023 (youth admissions: race filled on 62-80% to 2022, 97% in 2023, 100% in 2024).
+- **SINASC's colour fields after the 2011 form** (measured 2026-11-22). `RACACOR` equals `RACACORMAE` on every record that has
+  both, from 2011: it is the mother's race copied, not the newborn's. The newborn's own colour (`RACACORN`) is filed on
+  52 records of 2012 and 160 of 2013, so it cannot be used. `TPFUNCRESP` (who filled the record: 1 physician, 2 nursing,
+  3 midwife, 4 registry clerk, 5 other) is absent before 2014 and filled on 94-97% from 2014; among linked deliveries,
+  "other" (766,688 in 2016) and nursing (691,407) fill most records.
+- **SIM's certifier and investigation fields** (infant deaths, measured 2026-11-22). The certifying physician's
+  registration (`CRM`) is filed for 2014-2018 only (98%), with no state, so a physician is identified as state plus CRM.
+  `TPPOS` (investigated) is filled on 72-77%, and `FONTEINV` (the investigation's source: 1 committee, 2 home visit or
+  family interview, 3 health establishment or chart, 5 SVO, 6 IML, 8 several) on about half. `FONTES` is filled from 2016.
+- **Census 2022 public sample microdata** (released 2026-08-31, `ftp.ibge.gov.br/Censos/Censo_Demografico_2022/
+  Microdados_e_Areas_de_Ponderacao/`; read 2026-11-22). Fixed-width files by state, about 1 GB for the country. The person
+  record has the state but no municipality and no weighting area. Age is in five-year groups (P0180), and there is no
+  order number of the mother, only whether she lives in the household (P0300). The relationship to the person responsible
+  (P0170) uses the 2010 codes, and the level of instruction (P0770) is compatible with 2010. New against 2010: who gave
+  each person's information (P1210, with the informant's order number P1220). The pairing script is
+  `data/probes/census2022/pairs.py`, with 5.33 M mother-child records under 25.
 - **SINASC writes 7-digit municipality codes to 2005** (measured 2026-11-21): `CODMUNRES` and `CODMUNNASC` are 7
   digits on every birth of 2000 and 2005, 6 from 2008 (lake years 2000-2024).
 - **COVID-19 in SIM is `CAUSABAS` B34.2, not U07.1** (measured on SIM-DO 2020, all

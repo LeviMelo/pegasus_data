@@ -26,9 +26,28 @@ settings = load_settings()
 log = lambda m: print(m, flush=True)  # noqa: E731
 
 
+def query_present(dataset, year, columns):
+    """The columns of a dataset as filed (codes) for one year; a column that year's files do not carry comes back as nulls."""
+    from pegasus_data.normalize.engine import MissingColumnError
+
+    cols = list(columns)
+    while True:
+        try:
+            raw = pegasus_data.query(dataset, period=year, geography="BR", select=[c for c in cols if c in columns], present="codes", provenance="all")
+            break
+        except MissingColumnError as e:
+            gone = str(e).split("'")[1]
+            log(f"{dataset} {year}: {gone} not filed that year")
+            cols.remove(gone)
+    for c in columns:
+        if c not in cols:
+            raw = raw.append_column(c, pa.nulls(raw.num_rows, pa.string()))
+    return raw
+
+
 def filed(dataset, year, columns, wanted):
     """The columns of a dataset as filed (codes), for the records of one year whose identity is in ``wanted``."""
-    raw = pegasus_data.query(dataset, period=year, geography="BR", select=list(columns), present="codes", provenance="all")
+    raw = query_present(dataset, year, list(columns))
     ids = record_ids(raw).to_pylist()
     values = [raw[c].cast(pa.string()).to_pylist() for c in columns]
     return {i: tuple(v[n] for v in values) for n, i in enumerate(ids) if i in wanted}
@@ -153,4 +172,50 @@ if "delivery" in WANTED and not (OUT / "delivery_by_facility.parquet").exists():
     out = out.append_column("delivery_facility", pa.array([mother.get(b, (None, None))[1] if b else None for b in bl], pa.string()))
     pq.write_table(out, OUT / "infant_linkage_delivery.parquet")
     print("written delivery", out.num_rows, "with the hospital's record of the mother", sum(1 for b in bl if b in mother), flush=True)
+# who records what (the reviews of papers 1 and 3): every linked delivery as a record, with who filled the birth record, the mother's birth date,
+# residence and parity (to follow the same mother across births and hospitals); and the linked infant deaths with the certifying physician,
+# the municipality of occurrence and whether and how the death was investigated, in the order of infant_linkage_context.parquet.
+if "mechanism" in WANTED and not (OUT / "infant_linkage_mechanism.parquet").exists():
+    import pyarrow.compute as pc
+
+    from pegasus_data.linkage import engine
+    from pegasus_data.linkage.roles import role_table
+
+    spec = engine.load_links()["sinasc_births_to_delivery_admission"]
+    BCOLS = ["TPFUNCRESP", "DTNASCMAE", "CODMUNRES", "QTDFILVIVO", "ESCMAE", "IDADEMAE", "CODESTAB", "RACACORMAE"]
+    for byear in range(2012, 2024):
+        f = OUT / "deliveries" / f"{byear}.parquet"
+        if f.exists():
+            continue
+        f.parent.mkdir(exist_ok=True)
+        pairs, _ = mr._stored_pairs(settings, "sinasc_births_to_delivery_admission", byear, [])
+        raw = query_present("SINASC-DN", byear, BCOLS)
+        left = pa.table({"_id": record_ids(raw)} | {c.lower(): raw[c].cast(pa.string()) for c in BCOLS})
+        right = role_table(spec.right.dataset, period=engine.padded_period(byear, spec.right), geography="BR", where=spec.right.where or None,
+                           roles=["patient.race", "admission.facility"], root=settings.root)
+        right = right.append_column("_id", record_ids(right)).select(["_id", "patient.race", "admission.facility"])
+        j = pa.table({"l": pairs["l"], "r": pairs["r"]}).join(left, "l", "_id").join(right, "r", "_id")
+        j = j.append_column("birth_year", pa.array([byear] * j.num_rows, pa.int64()))
+        pq.write_table(j.rename_columns([c.replace(".", "_") for c in j.column_names]), f)
+        print("deliveries", byear, "pairs", pairs.num_rows, "written", j.num_rows, flush=True)
+        del raw, left, right, j
+    ctx = pq.read_table(OUT / "infant_linkage_context.parquet")
+    DCOLS = {"occurrence_mun": "CODMUNOCOR", "crm": "CRM", "investigated": "TPPOS", "investigation_source": "FONTEINV", "sources": "FONTES"}
+    BC = {"filler": "TPFUNCRESP", "mother_birth_date": "DTNASCMAE", "parity": "QTDFILVIVO"}
+    parts = []
+    for year in range(2013, 2024):
+        t = mr.infant_deaths(settings, "sim_infant_deaths_to_sinasc", [year], [], ids=True)
+        c = ctx.filter(pc.equal(ctx["year"], year))
+        for col in ("recorded", "declared", "mun", "age_days", "linked"):
+            assert t[col].to_pylist() == c[col].to_pylist(), (year, col)
+        dids, bids = t["death_id"].to_pylist(), t["birth_id"].to_pylist()
+        dl = filed("SIM-DO", year, DCOLS.values(), set(dids))
+        bl = {}
+        for by in (year - 1, year):
+            bl |= filed("SINASC-DN", by, BC.values(), {b for b in bids if b})
+        cols = {n: pa.array([dl.get(i, (None,) * len(DCOLS))[k] for i in dids], pa.string()) for k, n in enumerate(DCOLS)}
+        cols |= {n: pa.array([bl.get(b, (None,) * len(BC))[k] if b else None for b in bids], pa.string()) for k, n in enumerate(BC)}
+        parts.append(pa.table(cols))
+        print("infant mechanism", year, t.num_rows, "deaths annotated", sum(i in dl for i in dids), flush=True)
+    pq.write_table(pa.concat_tables(parts), OUT / "infant_linkage_mechanism.parquet")
 print("DONE", flush=True)

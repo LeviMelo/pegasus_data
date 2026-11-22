@@ -1,0 +1,120 @@
+﻿Who becomes Brown when killed: the race of young people at birth, in hospital and on the death certificate by cause of death, Brazil, 2015-2024
+[Authors, affiliations, ORCID, funding, conflicts of interest and contributions: to be supplied by the authors; not part of the blinded text]
+Abstract
+Objective: To measure whether the race on the death certificate of young people in Brazil depends on how they died, and whether a departure from their race at birth was already present in an earlier hospital record or arises at death.
+Methods: Cross-sectional study of birth, hospital and death records related without identifiers, Brazil. Deaths at 15-24 years in 2015-2024 of people born in 2000-2009 were related to the live births and to the earlier hospital admissions with the same birth date, sex and municipality of residence, with records of the other sex as a control for chance agreement, in municipalities with fewer than 1,600 births a year. The race recorded at birth (by staff, before the 2011 form) and at an earlier admission was cross-classified with the certified race, by cause of death.
+Results: Of young people recorded White at birth, 0.68 (95%CI 0.64; 0.71) were certified White after a natural death, 0.35 (95%CI 0.31; 0.39) after an assault by firearm and 0.32 (95%CI 0.15; 0.49) after a legal intervention; the gap held at equal municipal composition, in every region and within deaths certified by medical examiners. Of those an earlier hospital admission had recorded White, 0.82 (95%CI 0.80; 0.84) were certified White after a natural death and 0.47 (95%CI 0.40; 0.55) after a firearm assault. The deceased was found among the candidates in 47%-54% of deaths, alike for every cause.
+Conclusion: In the smaller Brazilian municipalities, young people killed by assault are certified darker than they were recorded at birth and in hospital during life; the departure arises at death, and part of the racial gap in homicide rates is made by the certificate. The large cities, where most homicides occur, require identified linkage.
+Keywords: Homicide; Violence; Racial Groups; Death Certificates; Young Adult; Brazil.
+Introduction
+Black and Brown young people die by homicide far more often than White ones in Brazil [1,2]. These rates take the victim's race from the death certificate, completed for violent deaths by the medical examiner of a medico-legal institute, who in most cases has never seen the person alive [3]. Race is also a status marker that observers read from circumstances: people incarcerated or poor are seen as darker [4,5], and on United States certificates the race recorded depended on the cause of death [6]. If certifiers record young people killed by firearms as Brown more often than they would the same people dying of other causes, part of the racial gap in homicide is made at death. If instead the young people who are killed were already recorded as Brown before they died, the certificate reports a classification made in life.
+The two readings predict different things about a record made before death. Public Brazilian files carry no identifier, but deaths, births and hospital admissions share the birth date, sex and municipality of residence, which in smaller municipalities relate a death to its own birth and admissions with a measurable rate of chance agreement. We know of no study that compared the race of the same young people at birth, in hospital and at death by cause. This study aimed to measure whether the race on the death certificate of young people in Brazil depends on how they died, and whether a departure from their race at birth was already present in an earlier hospital record or arises at death.
+Methods
+Design and data. This is a cross-sectional study of birth, hospital and death records related without identifiers, reported according to the RECORD statement [7]. Deaths came from the Mortality Information System (SIM), births from the Live Birth Information System (SINASC) and admissions from the Hospital Information System (SIH) of the Unified Health System [8].
+Population. Deaths at 15-24 years in 2015-2024 of people born in 2000-2009, residents of municipalities with fewer than 1,600 live births a year on average in 2000-2009, where a birth date, sex and municipality are shared by few other people. Causes (underlying cause, ICD-10): natural (A00-R99); transport accidents (V01-V99); suicide (X60-X84); assault by firearm (X93-X95); assault by other means (X85-Y09 otherwise); legal intervention (Y35-Y36); other external causes.
+Race at birth and certified race. For each death, the live births of 2000-2009 with the same birth date, sex and municipality of residence are its candidates; the deceased is among them unless the family moved. The births of the other sex on the same day and in the same municipality cannot contain the deceased and estimate the chance candidates; their count, scaled by the ratio of births of the two sexes, was subtracted from the candidates by race at birth and certified race, which estimates the cross-classification of the deaths found (Supplementary Text S1; validated against one-to-one linkage in infants, where it holds below 25,600 births a year). Before 2011 the birth record carried the newborn's colour as recorded by staff, not the mother's declaration. Proportions are of deaths recorded in a race at birth.
+Race at an earlier admission. The same design related each death to the SIH admissions of 2010-2024 of people born in 2000-2009 with its birth date, sex and municipality that ended at least 30 days before the death and not in death, with the admissions of the other sex, scaled by the ratio of the two sexes' admissions in the municipality and birth year, as the control. The hospital's race (White, Black, Brown) was cross-classified with the certified race; intervals came from a bootstrap over municipalities.
+Analysis. Cross-classifications were compared between causes, within strata of the certifier (attending physician, medical examiner, death verification service), the place of death, the mother's schooling at birth and the municipality's composition, and standardised to the composition of natural deaths. Standard errors of the candidate estimates are those of a difference of counts (Poisson); they omit the variance of the denominator. Analyses used Python 3.11; the code accompanies the article. Ethics: public, anonymised data; under Resolution 510/2016 of the National Health Council no review was required.
+Results
+Of 80,326 deaths at 15-24 years in the smaller municipalities, 23,780 were of natural causes, 20,795 assaults by firearm and 1,268 legal interventions. The deceased was among the candidate births in 47%-54% of deaths, alike for every cause; the others had moved or were born elsewhere.
+Race at birth and on the certificate
+Of young people recorded White at birth, 0.68 (95%CI 0.64; 0.71) were certified White when they died of natural causes, against 0.58 (95%CI 0.54; 0.61) in transport accidents, 0.35 (95%CI 0.31; 0.39) in assaults by firearm and 0.32 (95%CI 0.15; 0.49) in legal interventions; the remainder were mostly certified Brown (0.61 (95%CI 0.56; 0.67) for firearm deaths). Of those recorded Brown at birth, 0.65 (95%CI 0.61; 0.69) of natural and 0.83 (95%CI 0.79; 0.87) of firearm deaths were certified Brown (Table 1, Figure 1). The departure toward Brown was specific to the cause: it was larger for every kind of assault than for transport accidents or suicide, which are also certified by medical examiners.
+Table 1 - Certified race of young people aged 15-24 according to the race recorded at their birth, by cause of death, Brazil, 2015-2024
+Cause of death
+Deaths
+Found among candidates
+White at birth: certified White
+White at birth: certified Brown
+Brown at birth: certified Brown
+Brown at birth: certified White
+Black at birth: certified Black
+Natural causes
+23,780
+52%
+0.68 (95%CI 0.64; 0.71)
+0.29 (95%CI 0.26; 0.33)
+0.65 (95%CI 0.61; 0.69)
+0.21 (95%CI 0.19; 0.24)
+0.27 (95%CI 0.21; 0.33)
+Transport accidents
+16,115
+54%
+0.58 (95%CI 0.54; 0.61)
+0.38 (95%CI 0.35; 0.42)
+0.78 (95%CI 0.73; 0.84)
+0.13 (95%CI 0.11; 0.16)
+0.23 (95%CI 0.15; 0.30)
+Suicide
+5,925
+51%
+0.62 (95%CI 0.55; 0.69)
+0.35 (95%CI 0.29; 0.41)
+0.76 (95%CI 0.66; 0.85)
+0.14 (95%CI 0.09; 0.18)
+0.47 (95%CI 0.26; 0.68)
+Other external causes
+7,391
+49%
+0.55 (95%CI 0.48; 0.62)
+0.41 (95%CI 0.34; 0.49)
+0.80 (95%CI 0.72; 0.88)
+0.10 (95%CI 0.07; 0.13)
+0.39 (95%CI 0.27; 0.52)
+Assault by other means
+5,052
+47%
+0.47 (95%CI 0.39; 0.55)
+0.46 (95%CI 0.36; 0.57)
+0.81 (95%CI 0.71; 0.91)
+0.09 (95%CI 0.06; 0.12)
+0.37 (95%CI 0.23; 0.52)
+Assault by firearm
+20,795
+53%
+0.35 (95%CI 0.31; 0.39)
+0.61 (95%CI 0.56; 0.67)
+0.83 (95%CI 0.79; 0.87)
+0.07 (95%CI 0.06; 0.09)
+0.29 (95%CI 0.22; 0.35)
+Legal intervention
+1,268
+53%
+0.32 (95%CI 0.15; 0.49)
+0.61 (95%CI 0.41; 0.82)
+0.84 (95%CI 0.67; 1.01)
+0.06 (95%CI -0.00; 0.11)
+0.27 (95%CI 0.09; 0.44)
+People born in 2000-2009, residents of municipalities with fewer than 1,600 births a year. Candidate estimator with the other sex as control; 95% confidence intervals from the difference of counts. Race at birth: the newborn's colour on the birth record of 2000-2009.
+
+
+Figure 1 - Young people aged 15-24 certified in their race at birth, by cause of death, Brazil, 2015-2024
+Candidate estimator, municipalities with fewer than 1,600 births a year; bars, 95% confidence intervals.
+
+Composition, place, certifier and schooling
+The gap did not come from where the victims lived. In every fifth of municipal composition, those recorded White at birth were certified White less often after an assault than after a natural death (from 0.17 against 0.39 where under 20% of births were White to 0.79 against 0.91 where 80% or more were; Figure 2A), and standardised to the composition of natural deaths it was 0.45 for assaults and 0.65 for natural deaths. It held in each region (assault against natural: North 0.19 against 0.31; Northeast 0.15 against 0.44; Southeast 0.49 against 0.70; South 0.65 against 0.86; Centre-West 0.29 against 0.59), in 2015-2019 and 2020-2024, and in deaths in the street (0.35 for assaults, 0.46 for natural causes) as in health facilities. Within deaths certified by medical examiners, those recorded White at birth were certified White in 0.37 (95%CI 0.34; 0.41) of assaults and 0.60 (95%CI 0.57; 0.63) of other external deaths (Figure 2B). The certified race rose steeply with the mother's schooling at birth: among those recorded White at birth who died by assault, 0.26 (95%CI 0.21; 0.30) were certified White when the mother had 0-3 years of schooling and 0.52 (95%CI 0.41; 0.63) with 8-11 (Figure 2C).
+
+Figure 2 - Young people recorded White at birth and certified White, by cause of death, against the municipality's share of White births (A), by certifier (B) and by the mother's schooling at birth (C), Brazil, 2015-2024
+Candidate estimator, municipalities with fewer than 1,600 births a year; bars, 95% confidence intervals; cells with a standard error above 0.15 are not drawn.
+
+An earlier hospital record
+Young people whose earlier admission recorded them as White were certified White in 0.82 (95%CI 0.80; 0.84) of natural deaths, 0.79 (95%CI 0.71; 0.87) of transport deaths, 0.47 (95%CI 0.40; 0.55) of firearm assaults and 0.48 (95%CI 0.42; 0.55) of all assaults (Figure 3). Of young people certified Brown after an assault, 0.18 (95%CI 0.15; 0.22) had been recorded White at an earlier admission, against 0.16 (95%CI 0.15; 0.18) of those certified Brown after a natural death.
+
+Figure 3 - Young people recorded White at an earlier hospital admission and certified White at death, by cause of death, Brazil, 2015-2024
+Admissions of 2010-2024 that ended at least 30 days before the death; candidate estimator with the other sex as control, municipalities with fewer than 1,600 births a year; bars, 95% confidence intervals from a bootstrap over municipalities.
+
+Discussion
+Young people who died by assault were certified in a darker category than their race at birth far more often than those who died of natural causes: of those recorded White at birth, about 0.35 of firearm deaths and 0.68 of natural deaths were certified White. The departure held at equal municipal composition, in every region, in both halves of the decade, for deaths in the street and in health facilities, and within deaths certified by medical examiners. The same young people's earlier hospital admissions, recorded while they were alive, called White most of those later certified Brown after an assault: of those a hospital had recorded White, 0.47 of firearm deaths were certified White, against 0.82 of natural deaths.
+Two readings were set against each other. Selection in life would mean that the young people who are killed had already become Brown, in their own declarations and in the eyes of others, before they died, so that the certificate reports a classification made in life. Labelling at death would mean that the certificate classes them darker because of how they died. An earlier hospital record is a classification made in life by staff who saw the person; under selection it should already show the victims as Brown. It did not: among young people a hospital had recorded White, the certificate called half of the firearm deaths Brown and a sixth of the natural deaths. The departure is made at death, or between the last admission and death, and it is largest where the certifier, a medical examiner, sees a body with wounds and knows the circumstances. This is what studies of observer classification predict when race is read as a status marker [4,5], and what was found on United States certificates by cause of death [6].
+The mother's schooling at birth ordered the departure, as it ordered the certified race of natural deaths: young people of less schooled mothers were certified darker after every cause. Social position at birth and the manner of death both moved the certificate, and the second did so at every level of the first.
+Strengths and limitations. The study follows the same young people from birth to death through records made by different observers, with the chance agreement measured by a negative control, and tests the two readings against a record made in life. Limitations: it covers the smaller municipalities, where a birth date, sex and municipality are shared by few people; the capitals and large cities, where most homicides occur, cannot be reached without identified records, which the public files do not carry and which require a data-use agreement (the Center for Data and Knowledge Integration for Health's 100 Million Cohort, or a state health secretariat); people who moved are not found, about half of the deaths, alike for every cause; the race at birth is the newborn's colour recorded by staff, not a declaration; the hospital record is that of admissions in the public system, weighted by their number, and some years have the race blank on a quarter of admissions; and the standard errors of the estimator omit the variance of its denominator.
+Implications. Rates of homicide by race in Brazil take the victim's race from a certificate that classes victims darker than their earlier records, so part of the racial gap in homicide rates is made at death. The size of that part in the large cities, and its direction for Black victims, require identified linkage. Recording whether the race on the certificate was asked of a relative, and comparing it with the hospital and birth records already linked by health secretariats, would measure it.
+In conclusion, this study set out to measure whether the race on the death certificate of young people in Brazil depends on how they died, and whether a departure from their race at birth was already present in an earlier hospital record or arises at death. Young people who died by assault were certified darker than their race at birth, and darker than earlier hospital records of the same people, much more often than those who died of other causes: the departure arises at death.
+References
+1. Soares Filho AM. Vitimização por homicídios segundo características de raça no Brasil. Revista de Saúde Pública. 2011;45(4):745-755. doi:10.1590/s0034-89102011005000045
+2. CERQUEIRA DRC, MOURA RLd. VIDAS PERDIDAS E RACISMO NO BRASIL. Publicatio UEPG: Ciencias Sociais Aplicadas. 2014;22(1):79-90. doi:10.5212/publicatioci.soc.v.22i1.0007
+3. Conselho Federal de Medicina (BR). Resolução CFM nº 1.779, de 11 de novembro de 2005. Regulamenta a responsabilidade médica no fornecimento da Declaração de Óbito. Diário Oficial da União. 2005 Nov 11 [cited 2026 Nov 21]. Available from: https://sistemas.cfm.org.br/normas/arquivos/resolucoes/BR/2005/1779_2005.pdf
+4. Saperstein A, Penner AM. The Race of a Criminal Record: How Incarceration Colors Racial Perceptions. Social Problems. 2010;57(1):92-113. doi:10.1525/sp.2010.57.1.92
+5. Penner AM, Saperstein A. How social status shapes race. Proceedings of the National Academy of Sciences. 2008;105(50):19628-19630. doi:10.1073/pnas.0805762105
+6. Noymer A, Penner AM, Saperstein A. Cause of Death Affects Racial Classification on Death Certificates. PLoS ONE. 2011;6(1):e15812. doi:10.1371/journal.pone.0015812
+7. Benchimol EI, Smeeth L, Guttmann A, Harron K, Moher D, Petersen I, et al. The REporting of studies Conducted using Observational Routinely-collected health Data (RECORD) Statement. PLOS Medicine. 2015;12(10):e1001885. doi:10.1371/journal.pmed.1001885
+8. Ministério da Saúde (BR). Departamento de Informática do Sistema Único de Saúde. Transferência de arquivos: Sistema de Informações sobre Mortalidade e Sistema de Informações sobre Nascidos Vivos [Internet]. Brasília: Ministério da Saúde; [cited 2026 Nov 21]. Available from: https://datasus.saude.gov.br/transferencia-de-arquivos/

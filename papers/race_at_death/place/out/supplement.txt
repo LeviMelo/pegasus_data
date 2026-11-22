@@ -1549,169 +1549,169 @@ SD within
 Brown mother, certified White
 municipality-years (32,139; 178,656 deaths)
 composition (logit of White births)
-0.58 (0.01)
-0.07 (0.02)
+0.45 (0.01)
+0.06 (0.02)
 1.36
 0.35
 Brown mother, certified White
 municipality-years (32,139; 178,656 deaths)
 GDP per capita (log)
-0.20 (0.02)
-0.01 (0.05)
+0.04 (0.02)
+0.03 (0.05)
 0.70
 0.24
 Brown mother, certified White
 municipality-years (32,139; 178,656 deaths)
 physicians per 1,000 (log)
--0.13 (0.03)
+-0.11 (0.03)
 -0.04 (0.04)
 0.69
 0.20
 Brown mother, certified White
 municipality-years (32,139; 178,656 deaths)
 race left blank on certificates
--2.60 (0.29)
--1.54 (0.20)
+-2.01 (0.27)
+-1.45 (0.20)
 0.04
 0.04
 Brown mother, certified White
 municipality-years (32,139; 178,656 deaths)
 natural deaths certified by a verification service
--0.61 (0.19)
-0.49 (0.19)
+0.08 (0.17)
+0.61 (0.20)
 0.09
 0.03
 Brown mother, certified White
 municipality-years (32,139; 178,656 deaths)
 external deaths certified by a medical examiner
-0.15 (0.06)
-0.08 (0.07)
+0.19 (0.05)
+0.05 (0.07)
 0.21
 0.09
 Brown mother, certified White
 immediate region-years (5,370; 178,656 deaths)
 composition (logit of White births)
-0.62 (0.02)
-0.10 (0.03)
+0.51 (0.03)
+0.05 (0.03)
 1.25
 0.23
 Brown mother, certified White
 immediate region-years (5,370; 178,656 deaths)
 GDP per capita (log)
-0.25 (0.05)
--0.07 (0.07)
+0.04 (0.06)
+-0.04 (0.07)
 0.61
 0.23
 Brown mother, certified White
 immediate region-years (5,370; 178,656 deaths)
 physicians per 1,000 (log)
--0.19 (0.07)
-0.10 (0.09)
+-0.12 (0.07)
+0.12 (0.09)
 0.57
 0.16
 Brown mother, certified White
 immediate region-years (5,370; 178,656 deaths)
 race left blank on certificates
--3.26 (0.59)
--1.55 (0.26)
+-2.52 (0.55)
+-1.45 (0.26)
 0.04
 0.03
 Brown mother, certified White
 immediate region-years (5,370; 178,656 deaths)
 natural deaths certified by a verification service
--0.81 (0.39)
-0.66 (0.25)
+-0.15 (0.36)
+0.85 (0.27)
 0.08
 0.02
 Brown mother, certified White
 immediate region-years (5,370; 178,656 deaths)
 external deaths certified by a medical examiner
-0.11 (0.11)
--0.15 (0.14)
+0.18 (0.11)
+-0.30 (0.15)
 0.20
 0.05
 Black mother, certified Black
 municipality-years (8,236; 22,289 deaths)
 composition (logit of White births)
-0.24 (0.02)
-0.16 (0.09)
+0.00 (0.04)
+0.18 (0.09)
 1.35
 0.26
 Black mother, certified Black
 municipality-years (8,236; 22,289 deaths)
 GDP per capita (log)
--0.12 (0.06)
--0.24 (0.14)
+-0.01 (0.06)
+-0.26 (0.14)
 0.65
 0.23
 Black mother, certified Black
 municipality-years (8,236; 22,289 deaths)
 physicians per 1,000 (log)
-0.31 (0.07)
-0.05 (0.15)
+0.26 (0.07)
+-0.08 (0.15)
 0.62
 0.19
 Black mother, certified Black
 municipality-years (8,236; 22,289 deaths)
 race left blank on certificates
--1.83 (0.78)
--0.27 (0.51)
+-2.49 (0.75)
+-0.35 (0.51)
 0.04
 0.04
 Black mother, certified Black
 municipality-years (8,236; 22,289 deaths)
 natural deaths certified by a verification service
--1.65 (0.41)
--0.88 (0.66)
+-1.01 (0.40)
+-1.74 (0.69)
 0.09
 0.03
 Black mother, certified Black
 municipality-years (8,236; 22,289 deaths)
 external deaths certified by a medical examiner
--0.59 (0.19)
--0.05 (0.24)
+-0.72 (0.19)
+-0.10 (0.24)
 0.14
 0.08
 Black mother, certified Black
 immediate region-years (3,481; 22,289 deaths)
 composition (logit of White births)
-0.30 (0.04)
-0.34 (0.14)
+0.03 (0.06)
+0.39 (0.16)
 1.27
 0.17
 Black mother, certified Black
 immediate region-years (3,481; 22,289 deaths)
 GDP per capita (log)
--0.14 (0.12)
--0.40 (0.23)
+0.10 (0.13)
+-0.35 (0.23)
 0.52
 0.22
 Black mother, certified Black
 immediate region-years (3,481; 22,289 deaths)
 physicians per 1,000 (log)
-0.48 (0.14)
-0.71 (0.29)
+0.37 (0.15)
+0.34 (0.31)
 0.47
 0.16
 Black mother, certified Black
 immediate region-years (3,481; 22,289 deaths)
 race left blank on certificates
--1.04 (1.26)
-0.59 (0.63)
+-2.19 (1.19)
+0.37 (0.64)
 0.04
 0.03
 Black mother, certified Black
 immediate region-years (3,481; 22,289 deaths)
 natural deaths certified by a verification service
--1.96 (0.75)
--0.64 (0.84)
+-1.44 (0.71)
+-1.76 (0.92)
 0.08
 0.02
 Black mother, certified Black
 immediate region-years (3,481; 22,289 deaths)
 external deaths certified by a medical examiner
--0.95 (0.29)
-0.53 (0.50)
+-0.97 (0.28)
+0.53 (0.52)
 0.13
 0.04
 Binomial mixed models with year effects and a random intercept for the place (nAGQ = 0); every variable split into the place's mean over 2013-2023 and the year's deviation from it; all variables in one model. SD: standard deviation of the place means and of the deviations, weighted by deaths. Share of the within variance of composition that is not sampling noise: 0.59 in municipalities, 0.94 in immediate regions.

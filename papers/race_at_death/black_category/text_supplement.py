@@ -60,6 +60,7 @@ LAB = {"null": "none", "composition": "composition", "socioeconomic": "socioecon
        "composition_socioeconomic": "composition + socioeconomic", "socioeconomic_services": "socioeconomic + services",
        "composition_socioeconomic_services": "composition + socioeconomic + services", "full": "all, with individual variables, region and year",
        "individual_only": "individual variables, region and year", "individual_no_region": "individual variables and year"}
+SQ = ML["sequence"]
 rows = [[kl, f"{SQ[k]['var_mun']:.3f}", pct(SQ[k]["pcv"]), f2(SQ[k]["mor"])] for k, kl in LAB.items() if k in SQ]
 table(s, "Supplementary Table S4 - Between-municipality variance of being certified Black, infants of Black mothers, under successive fixed parts of a multilevel "
          "logistic model, Brazil, 2013-2023",

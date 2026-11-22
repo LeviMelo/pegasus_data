@@ -11,9 +11,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from matplotlib.colors import TwoSlopeNorm
 
-from pegasus_data.geography import mesh
 
 warnings.simplefilter("ignore")
 matplotlib.use("Agg")
@@ -38,15 +36,12 @@ L = BK["ladder"]
 rows = [("Mother's own declaration (reference)", {"est": 1.0, "se": 0.0}, "#777777"),
         ("Family: child under 1 (census)", {"est": L["family_child_0"], "se": 0.0}, FAMILY),
         ("Family: child 1-4 (census)", {"est": L["family_child_1_4"], "se": 0.0}, FAMILY),
-        ("Family: child 5-9 (census)", {"est": L["family_child_5_9"], "se": 0.0}, FAMILY),
         ("Hospital: the mother herself, at delivery", BK["hospital"]["black_bootstrap"]["black"], HOSP),
         ("Certificate: infant", L["certificate_infant"], CERT),
         ("Certificate: infant, municipalities under 25,600 births", L["certificate_infant_below_25600"], CERT),
         ("Certificate: child 1-4", L["certificate_1_4"], CERT),
-        ("Certificate: child 5-9", L["certificate_5_9"], CERT),
-        ("Hospital: adult woman, admission ending in death", L["hospital_adult_women_death"], HOSP),
-        ("Certificate: adult woman", L["certificate_adult_women"], CERT)]
-fig, ax = plt.subplots(figsize=(7.0, 3.6))
+        ]
+fig, ax = plt.subplots(figsize=(7.0, 2.9))
 y = np.arange(len(rows))[::-1]
 for yi, (lab, x, col) in zip(y, rows, strict=True):
     ax.barh(yi, x["est"], color=col, height=0.62)
@@ -61,22 +56,9 @@ ax.legend(handles=[plt.Rectangle((0, 0), 1, 1, color=c, label=lab) for lab, c in
 save(fig, "black_ladder")
 
 # ---------------------------------------------------------------- 2. where and when
-E = pd.read_parquet(RES / "municipal_estimates.parquet")
-G = mesh("municipality", "minima").to_crs(5880)
-G["mun"] = G.code.astype(str).str[:6]
-G = G.merge(E[["mun", "KK_mean", "nK"]], on="mun", how="left")
-ST = mesh("state", "minima").to_crs(5880)
-fig = plt.figure(figsize=(7.2, 4.6))
-gs = fig.add_gridspec(1, 3, width_ratios=[1.3, 1, 1], wspace=0.45)
+fig = plt.figure(figsize=(7.2, 3.4))
+gs = fig.add_gridspec(1, 2, wspace=0.3)
 ax = fig.add_subplot(gs[0, 0])
-G.plot(column="KK_mean", ax=ax, cmap="viridis", vmin=0, vmax=0.5, lw=0, missing_kwds={"color": "#DDDDDD"})
-ST.boundary.plot(ax=ax, color="#222222", lw=0.35)
-ax.set_axis_off()
-ax.set_title("A. Certified Black,\nBYM2, 2013-2023", fontsize=8, loc="left")
-sm = plt.cm.ScalarMappable(norm=matplotlib.colors.Normalize(0, 0.5), cmap="viridis")
-cb = plt.colorbar(sm, ax=ax, orientation="horizontal", fraction=0.045, pad=0.01, shrink=0.8, ticks=[0, 0.1, 0.2, 0.3, 0.4, 0.5])
-cb.ax.tick_params(labelsize=6.5)
-ax = fig.add_subplot(gs[0, 1])
 yrs = sorted(int(v) for v in R["infants"]["by_year"])
 v = [R["infants"]["by_year"][str(t)]["rows"]["Preta"]["Preta"] for t in yrs]
 ax.errorbar(yrs, [x["est"] for x in v], yerr=[1.96 * x["se"] for x in v], fmt="-o", color="black", ms=3, capsize=1.5, label="Brazil (linkage)")
@@ -91,9 +73,9 @@ ax.set_ylim(0, 0.5)
 ax.set_xticks([2013, 2018, 2023])
 ax.set_xlabel("Year of death")
 ax.set_ylabel("Proportion certified Black")
-ax.set_title("B. By year and region\n(regional lines: model)", fontsize=8, loc="left")
+ax.set_title("A. By year and region\n(regional lines: model)", fontsize=8, loc="left")
 ax.legend(fontsize=6, frameon=False, loc="upper left")
-ax = fig.add_subplot(gs[0, 2])
+ax = fig.add_subplot(gs[0, 1])
 hy = BK["hospital"]["black_by_year"]
 hx = sorted(int(t) for t in hy)
 ax.errorbar(hx, [hy[str(t)]["est"] for t in hx], yerr=[1.96 * hy[str(t)]["se"] for t in hx], fmt="-s", color=HOSP, ms=3, capsize=1, label="hospital: the Black mother,\nat delivery (by year of birth)")
@@ -101,7 +83,7 @@ ax.errorbar(yrs, [x["est"] for x in v], yerr=[1.96 * x["se"] for x in v], fmt="-
 ax.set_ylim(0, 0.5)
 ax.set_xticks([2013, 2018, 2023])
 ax.set_xlabel("Year")
-ax.set_title("C. Two records of the same\nfamilies, by year", fontsize=8, loc="left")
+ax.set_title("B. Two records of the same\nfamilies, by year", fontsize=8, loc="left")
 ax.set_ylabel("Proportion recorded Black")
 ax.legend(fontsize=6, frameon=False, loc="center", bbox_to_anchor=(0.55, 0.55))
 save(fig, "black_where_when")

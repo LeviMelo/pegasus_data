@@ -1,4 +1,4 @@
-﻿Supplementary material - Black children recorded as Brown: the Black category on the death certificates of children of Black mothers, against the family, the hospital and the certificates of adults, Brazil, 2013-2023
+﻿Supplementary material - Infants of Black mothers recorded as Brown: the Black category from the birth record to the delivery admission and the death certificate, Brazil, 2012-2023
 Supplementary Text S1 - Three readings of race for the same woman (exploratory)
 Deaths of women aged 15 to 49 years in 2015 to 2022 in municipalities with fewer than 2,000 mothers on the birth records (106,565 deaths) were related to the birth records on which they were the mother, by birth date and municipality (19,332 pairs). These deaths were then related to the hospital admission that ended in death, through a probabilistic linkage of admissions in the Hospital Information System to death certificates on birth date, sex, date of death and hospital. 5,579 women had the three races recorded; the mean estimated proportion of false pairs among them was 28.2%. False pairs were removed in expectation, taking the declared race of a false pair to follow the racial composition of mothers in the region; intervals are from 400 bootstrap resamples of the women. The certificate recorded the race the woman had declared as a mother for 0.80 (95%CI 0.77; 0.82) of White, 0.71 (95%CI 0.69; 0.73) of Brown and 0.55 (95%CI 0.48; 0.63) of Black women; the hospital record did so for 0.76 (95%CI 0.73; 0.78), 0.77 (95%CI 0.75; 0.79) and 0.37 (95%CI 0.31; 0.44) (Supplementary Table S1). For comparison, among 1,208,430 delivery admissions of 2022 related to the birth record, the hospital recorded the declared race for 0.74 of White, 0.80 of Brown and 0.37 of Black mothers.
 Supplementary Text S2 - Estimation without individual linkage and its control
@@ -17,18 +17,18 @@ White
 0.80 (95%CI 0.77; 0.82)
 0.90 (95%CI 0.88; 0.91)
 0.50 (95%CI 0.44; 0.56)
-0.40 (95%CI 0.16; 0.64)
+0.40 (95%CI 0.14; 0.66)
 Brown
 0.77 (95%CI 0.75; 0.79)
 0.71 (95%CI 0.69; 0.73)
 0.46 (95%CI 0.39; 0.52)
 0.77 (95%CI 0.75; 0.79)
-0.57 (95%CI 0.47; 0.67)
+0.57 (95%CI 0.46; 0.68)
 Black
 0.37 (95%CI 0.31; 0.44)
 0.55 (95%CI 0.48; 0.63)
 0.51 (95%CI 0.24; 0.78)
-0.40 (95%CI 0.29; 0.50)
+0.40 (95%CI 0.30; 0.50)
 0.79 (95%CI 0.70; 0.88)
 95%CI: 95% confidence interval (bootstrap), after removal of the expected false pairs.
 

@@ -1,0 +1,1213 @@
+{
+ "national": {
+  "mother_over_mother": {
+   "white": {
+    "est": 0.8046272532995203,
+    "se": 0.015678165416084664
+   },
+   "black": {
+    "est": 1.1464912195793735,
+    "se": 0.028502180143983258
+   },
+   "indigenous": {
+    "est": 1.961612527668095,
+    "se": 0.1297071088866129
+   }
+  },
+  "certified_over_mother": {
+   "white": {
+    "est": 1.3053813549689537,
+    "se": 0.07560926047345409
+   },
+   "black": {
+    "est": 0.4858702320830491,
+    "se": 0.03530185571101358
+   },
+   "indigenous": {
+    "est": 2.4738853787116186,
+    "se": 0.2172330683361239
+   }
+  },
+  "certified_over_child": {
+   "white": {
+    "est": 0.7896723813139137,
+    "se": 0.12230502618635387
+   },
+   "black": {
+    "est": 0.8007470466942217,
+    "se": 0.08045978886019026
+   },
+   "indigenous": {
+    "est": 2.2780449385100576,
+    "se": 0.23534887075855895
+   }
+  },
+  "mother_over_child": {
+   "white": {
+    "est": 0.4867481190569154,
+    "se": 0.07322441305454283
+   },
+   "black": {
+    "est": 1.88949517282244,
+    "se": 0.13036216058681385
+   },
+   "indigenous": {
+    "est": 1.8063251953489698,
+    "se": 0.1463116760557148
+   }
+  },
+  "rates": {
+   "mother": {
+    "white": 10.842548679578993,
+    "black": 15.449249087728676,
+    "brown": 13.475244139590291,
+    "indigenous": 26.43320771760639
+   },
+   "certified": {
+    "white": 14.10231082364258,
+    "black": 5.248958863023959,
+    "brown": 10.80321146763888,
+    "indigenous": 26.725906892921508
+   },
+   "certified_over_child": {
+    "white": 10.360557399170139,
+    "black": 10.50585779090775,
+    "brown": 13.120070606916123,
+    "indigenous": 29.88811043897985
+   }
+  }
+ },
+ "waterfall": [
+  {
+   "step": "deaths and births by the mother's race",
+   "ratios": {
+    "white": 0.8046272532995203,
+    "black": 1.1464912195793735,
+    "indigenous": 1.961612527668095
+   }
+  },
+  {
+   "step": "Brown mothers' infants certified White",
+   "ratios": {
+    "white": 1.6127779750398932,
+    "black": 1.5323496403992052,
+    "indigenous": 2.6218048599426536
+   }
+  },
+  {
+   "step": "White mothers' infants certified Brown",
+   "ratios": {
+    "white": 1.276338747271718,
+    "black": 1.3717138757624978,
+    "indigenous": 2.346961823274204
+   }
+  },
+  {
+   "step": "Black mothers' infants certified Brown",
+   "ratios": {
+    "white": 1.1797221328766005,
+    "black": 0.5724633316094347,
+    "indigenous": 2.169300911573408
+   }
+  },
+  {
+   "step": "Brown mothers' infants certified Black",
+   "ratios": {
+    "white": 1.20161481376785,
+    "black": 0.7535681780672361,
+    "indigenous": 2.209557690089863
+   }
+  },
+  {
+   "step": "Indigenous mothers' infants certified Brown",
+   "ratios": {
+    "white": 1.1969592705878525,
+    "black": 0.7506485492878078,
+    "indigenous": 1.9654434621400654
+   }
+  },
+  {
+   "step": "all flows and deaths with no race (certified deaths over births by the mother's race)",
+   "ratios": {
+    "white": 1.3053813549689537,
+    "black": 0.4858702320830491,
+    "indigenous": 2.4738853787116186
+   }
+  },
+  {
+   "step": "certified deaths over births by the child's race (households' flows)",
+   "ratios": {
+    "white": 0.7896723813139137,
+    "black": 0.8007470466942217,
+    "indigenous": 2.2780449385100576
+   }
+  }
+ ],
+ "region_standardised": {
+  "mother_over_mother": {
+   "white": 0.8655462888179416,
+   "black": 1.1798107733787113
+  },
+  "certified_over_mother": {
+   "white": 1.6579498922640465,
+   "black": 0.5255750376977254
+  },
+  "certified_over_child": {
+   "white": 0.8052357602388353,
+   "black": 0.8512989579506107
+  }
+ },
+ "by_region": {
+  "North": {
+   "mother_over_mother": {
+    "white": 0.959683729545035,
+    "black": 0.9727709809951136,
+    "indigenous": 1.9887871637777095
+   },
+   "certified_over_mother": {
+    "white": 2.7356291112424693,
+    "black": 0.5096779176528393,
+    "indigenous": 2.4450178459305207
+   },
+   "certified_over_child": {
+    "white": 0.7391742993323106,
+    "black": 0.6266230279304607,
+    "indigenous": 2.1009701140352113
+   },
+   "mother_over_child": {
+    "white": 0.25930910935689166,
+    "black": 1.1959723513256804,
+    "indigenous": 1.7089373810617798
+   },
+   "rates": {
+    "mother": {
+     "white": 14.334726578497621,
+     "black": 14.530209908500371,
+     "brown": 14.936927799425547,
+     "indigenous": 29.706370273771952
+    },
+    "certified": {
+     "white": 33.519183727439014,
+     "black": 6.244994138063123,
+     "brown": 12.25282462073788,
+     "indigenous": 29.958374860760976
+    },
+    "certified_over_child": {
+     "white": 11.129160442535257,
+     "black": 9.434565326641778,
+     "brown": 15.056205894317655,
+     "indigenous": 31.632638614722183
+    }
+   }
+  },
+  "Northeast": {
+   "mother_over_mother": {
+    "white": 0.8806302763193097,
+    "black": 1.2055595204155727,
+    "indigenous": 1.3777242108917143
+   },
+   "certified_over_mother": {
+    "white": 1.6893322982770642,
+    "black": 0.4300660822803249,
+    "indigenous": 1.6837974582592174
+   },
+   "certified_over_child": {
+    "white": 0.5225573849943672,
+    "black": 0.6442208467400687,
+    "indigenous": 1.5809529857237525
+   },
+   "mother_over_child": {
+    "white": 0.27240339559577414,
+    "black": 1.8058772989483023,
+    "indigenous": 1.293574351255399
+   },
+   "rates": {
+    "mother": {
+     "white": 12.942079070574911,
+     "black": 17.717363412390085,
+     "brown": 14.69638214650959,
+     "indigenous": 20.247561495763005
+    },
+    "certified": {
+     "white": 20.579247708165582,
+     "black": 5.239014519022464,
+     "brown": 12.181882587075489,
+     "indigenous": 20.511822936929928
+    },
+    "certified_over_child": {
+     "white": 8.0269919627149,
+     "black": 9.895861598150914,
+     "brown": 15.360976982080977,
+     "indigenous": 24.28498242345476
+    }
+   }
+  },
+  "Southeast": {
+   "mother_over_mother": {
+    "white": 0.8498529213167464,
+    "black": 1.1820901785626752,
+    "indigenous": 1.3098336299270164
+   },
+   "certified_over_mother": {
+    "white": 1.439878925256074,
+    "black": 0.5489180025575607,
+    "indigenous": 1.470963870892232
+   },
+   "certified_over_child": {
+    "white": 0.9983230388687483,
+    "black": 0.9508465697610379,
+    "indigenous": 1.8471341584108854
+   },
+   "mother_over_child": {
+    "white": 0.5892354809273492,
+    "black": 2.0476398773543028,
+    "indigenous": 1.6447980045940718
+   },
+   "rates": {
+    "mother": {
+     "white": 10.396575829744362,
+     "black": 14.460961268429234,
+     "brown": 12.233382470035053,
+     "indigenous": 16.023695767011542
+    },
+    "certified": {
+     "white": 13.41500280362396,
+     "black": 5.114135927754998,
+     "brown": 9.316757519204735,
+     "indigenous": 13.704613704613704
+    },
+    "certified_over_child": {
+     "white": 10.891353760854322,
+     "black": 10.37340215577639,
+     "brown": 10.909648817877507,
+     "indigenous": 20.15158498776848
+    }
+   }
+  },
+  "South": {
+   "mother_over_mother": {
+    "white": 0.8443387110934154,
+    "black": 1.2064070562011333,
+    "indigenous": 1.6548817959839768
+   },
+   "certified_over_mother": {
+    "white": 1.85692941506725,
+    "black": 1.116500161277933,
+    "indigenous": 3.256549483354362
+   },
+   "certified_over_child": {
+    "white": 1.3498966592083401,
+    "black": 1.818356493922467,
+    "indigenous": 3.2180498079845523
+   },
+   "mother_over_child": {
+    "white": 0.6137928539970916,
+    "black": 1.9647808222852017,
+    "indigenous": 1.6353174035967424
+   },
+   "rates": {
+    "mother": {
+     "white": 9.651457651239461,
+     "black": 13.790184507830162,
+     "brown": 11.430789000235299,
+     "indigenous": 18.916604630223276
+    },
+    "certified": {
+     "white": 10.772005841788129,
+     "black": 6.476792365964927,
+     "brown": 5.800977546256389,
+     "indigenous": 18.8911704312115
+    },
+    "certified_over_child": {
+     "white": 10.0481783766198,
+     "black": 13.535236403898674,
+     "brown": 7.443664896920814,
+     "indigenous": 23.95408439223738
+    }
+   }
+  },
+  "Centre-West": {
+   "mother_over_mother": {
+    "white": 0.8827228748313548,
+    "black": 1.1936831931473058,
+    "indigenous": 2.251434316304502
+   },
+   "certified_over_mother": {
+    "white": 1.9332682479020407,
+    "black": 0.3899932609398087,
+    "indigenous": 3.185261581475511
+   },
+   "certified_over_child": {
+    "white": 0.8828246961908167,
+    "black": 0.7399084190398966,
+    "indigenous": 2.64578764411275
+   },
+   "mother_over_child": {
+    "white": 0.4030943738094033,
+    "black": 2.264696169743388,
+    "indigenous": 1.8701186521863327
+   },
+   "rates": {
+    "mother": {
+     "white": 11.545806987563546,
+     "black": 15.613094602323978,
+     "brown": 13.079764121632609,
+     "indigenous": 29.448229792612068
+    },
+    "certified": {
+     "white": 18.41992009165615,
+     "black": 3.7158033866181204,
+     "brown": 9.527865629431004,
+     "indigenous": 30.348744342887567
+    },
+    "certified_over_child": {
+     "white": 11.152548191051471,
+     "black": 9.347115385321713,
+     "brown": 12.632800417990255,
+     "indigenous": 33.423707256461
+    }
+   }
+  }
+ },
+ "by_period": {
+  "neonatal": {
+   "mother_over_mother": {
+    "white": 0.8096490008438368,
+    "black": 1.1271337795443659,
+    "indigenous": 1.4139413330352801
+   },
+   "certified_over_mother": {
+    "white": 1.2066053965507972,
+    "black": 0.4296207973864335,
+    "indigenous": 1.6843325872000834
+   },
+   "certified_over_child": {
+    "white": 0.7299192325472953,
+    "black": 0.7080441689763798,
+    "indigenous": 1.5509955950493448
+   },
+   "mother_over_child": {
+    "white": 0.4897859557217207,
+    "black": 1.8575928007155122,
+    "indigenous": 1.3020093512774908
+   },
+   "rates": {
+    "mother": {
+     "white": 7.5997644259065735,
+     "black": 10.579832979588984,
+     "brown": 9.386492687554613,
+     "indigenous": 13.27194998316688
+    },
+    "certified": {
+     "white": 9.36702108317773,
+     "black": 3.3351973050958685,
+     "brown": 7.76311883732188,
+     "indigenous": 13.075674036008065
+    },
+    "certified_over_child": {
+     "white": 6.8816778189854615,
+     "black": 6.675439740781224,
+     "brown": 9.427999033495203,
+     "indigenous": 14.622784971080542
+    }
+   }
+  },
+  "post-neonatal": {
+   "mother_over_mother": {
+    "white": 0.7706548025186739,
+    "black": 1.1987514567229864,
+    "indigenous": 3.2564706386388447
+   },
+   "certified_over_mother": {
+    "white": 1.5576136375723146,
+    "black": 0.6295076468536869,
+    "indigenous": 4.490071361901262
+   },
+   "certified_over_child": {
+    "white": 0.9422568092203301,
+    "black": 1.0374712336839724,
+    "indigenous": 4.1346233853627865
+   },
+   "mother_over_child": {
+    "white": 0.46619695521114507,
+    "black": 1.9756235828155324,
+    "indigenous": 2.9986783217989177
+   },
+   "rates": {
+    "mother": {
+     "white": 3.1587900055135525,
+     "black": 4.913489292762341,
+     "brown": 4.098839058927439,
+     "indigenous": 13.347749047903276
+    },
+    "certified": {
+     "white": 4.735289740464848,
+     "black": 1.9137615579280902,
+     "brown": 3.040092630317,
+     "indigenous": 13.650232856913442
+    },
+    "certified_over_child": {
+     "white": 3.478879580184678,
+     "black": 3.830418050126526,
+     "brown": 3.6920715734209186,
+     "indigenous": 15.26532546789931
+    }
+   }
+  }
+ },
+ "by_cause": {
+  "congenital": {
+   "mother_over_mother": {
+    "white": 0.982433373244015,
+    "black": 1.1148889581166859,
+    "indigenous": 1.2197446401399334
+   },
+   "certified_over_mother": {
+    "white": 1.7532975083160667,
+    "black": 0.47804458271036987,
+    "indigenous": 1.569433232918933
+   },
+   "certified_over_child": {
+    "white": 1.060633058127775,
+    "black": 0.7878498465575272,
+    "indigenous": 1.4451920300537169
+   },
+   "mother_over_child": {
+    "white": 0.5943094700860911,
+    "black": 1.8374125057559374,
+    "indigenous": 1.1231858709608604
+   },
+   "rates": {
+    "mother": {
+     "white": 2.8377450387055427,
+     "black": 3.2203411404443454,
+     "brown": 2.888485994052961,
+     "indigenous": 3.5232153093653666
+    },
+    "certified": {
+     "white": 3.779459786915242,
+     "black": 1.03048699273051,
+     "brown": 2.1556294747405293,
+     "indigenous": 3.3831165355173707
+    },
+    "certified_over_child": {
+     "white": 2.7766591269952245,
+     "black": 2.0625327962219755,
+     "brown": 2.617926252361558,
+     "indigenous": 3.783406155181319
+    }
+   }
+  },
+  "external": {
+   "mother_over_mother": {
+    "white": 0.776955587703844,
+    "black": 1.7145631670306627,
+    "indigenous": 4.897062345674839
+   },
+   "certified_over_mother": {
+    "white": 1.5734351333626526,
+    "black": 0.6773984629065397,
+    "indigenous": 6.153861437667331
+   },
+   "certified_over_child": {
+    "white": 0.9518278040940858,
+    "black": 1.1163985418125004,
+    "indigenous": 5.666702677903035
+   },
+   "mother_over_child": {
+    "white": 0.47000852799206544,
+    "black": 2.825716213327969,
+    "indigenous": 4.509395700435636
+   },
+   "rates": {
+    "mother": {
+     "white": 0.29853249628841977,
+     "black": 0.6587928967864609,
+     "brown": 0.3842336692251358,
+     "indigenous": 1.8816162335028936
+    },
+    "certified": {
+     "white": 0.4772120917221883,
+     "black": 0.20545031095255067,
+     "brown": 0.30329314606209334,
+     "indigenous": 1.8664239958603215
+    },
+    "certified_over_child": {
+     "white": 0.3505938373998136,
+     "black": 0.4112114052122306,
+     "brown": 0.3683374617675681,
+     "indigenous": 2.0872588809702846
+    }
+   }
+  },
+  "ill-defined": {
+   "mother_over_mother": {
+    "white": 0.5916668111230795,
+    "black": 1.251576352777014,
+    "indigenous": 4.9460261393684215
+   },
+   "certified_over_mother": {
+    "white": 1.3173499721529864,
+    "black": 0.5554448482777911,
+    "indigenous": 6.4066282879705545
+   },
+   "certified_over_child": {
+    "white": 0.7969126306071744,
+    "black": 0.9154107259321399,
+    "indigenous": 5.899459720291258
+   },
+   "mother_over_child": {
+    "white": 0.35792064740735013,
+    "black": 2.0626825889329554,
+    "indigenous": 4.554483368342064
+   },
+   "rates": {
+    "mother": {
+     "white": 0.20972189280364303,
+     "black": 0.44363306637808575,
+     "brown": 0.35445945059104617,
+     "indigenous": 1.7531657079694838
+    },
+    "certified": {
+     "white": 0.35809650480567196,
+     "black": 0.1509871051619795,
+     "brown": 0.2718309578892112,
+     "indigenous": 1.7415199043591527
+    },
+    "certified_over_child": {
+     "white": 0.26308308183517043,
+     "black": 0.30220260750505135,
+     "brown": 0.3301278857065237,
+     "indigenous": 1.9475761642705525
+    }
+   }
+  },
+  "infectious or respiratory": {
+   "mother_over_mother": {
+    "white": 0.5666552768684887,
+    "black": 1.1457701057974763,
+    "indigenous": 5.4689102864513
+   },
+   "certified_over_mother": {
+    "white": 1.182101942800716,
+    "black": 0.6223723910898743,
+    "indigenous": 7.41394939134544
+   },
+   "certified_over_child": {
+    "white": 0.7150962073833561,
+    "black": 1.0257118489696928,
+    "indigenous": 6.827038160563459
+   },
+   "mother_over_child": {
+    "white": 0.34279026597516943,
+    "black": 1.8883067284744317,
+    "indigenous": 5.035974384433377
+   },
+   "rates": {
+    "mother": {
+     "white": 0.7171413340766805,
+     "black": 1.4500510905989135,
+     "brown": 1.2655689682090738,
+     "indigenous": 6.921283148452163
+    },
+    "certified": {
+     "white": 1.1471084058679468,
+     "black": 0.603948420647918,
+     "brown": 0.9703971919292679,
+     "indigenous": 7.19447567046732
+    },
+    "certified_over_child": {
+     "white": 0.8427471660985307,
+     "black": 1.2088104300202054,
+     "brown": 1.178508790002213,
+     "indigenous": 8.045724481904578
+    }
+   }
+  },
+  "other": {
+   "mother_over_mother": {
+    "white": 0.7126451961579435,
+    "black": 1.1268485680350415,
+    "indigenous": 3.8034884622285974
+   },
+   "certified_over_mother": {
+    "white": 1.5391591392835204,
+    "black": 0.6336680503247512,
+    "indigenous": 5.317746719600208
+   },
+   "certified_over_child": {
+    "white": 0.9310930159317301,
+    "black": 1.0443278603561361,
+    "indigenous": 4.8967773944210125
+   },
+   "mother_over_child": {
+    "white": 0.4311048468248948,
+    "black": 1.8571227528329828,
+    "indigenous": 3.502392517705762
+   },
+   "rates": {
+    "mother": {
+     "white": 0.5211378366226134,
+     "black": 0.8240333732873724,
+     "brown": 0.7312725033890689,
+     "indigenous": 2.781386529385346
+    },
+    "certified": {
+     "white": 0.8160026870826972,
+     "black": 0.3359463089854044,
+     "brown": 0.5301613499579693,
+     "indigenous": 2.819263779597809
+    },
+    "certified_over_child": {
+     "white": 0.5994934293480316,
+     "black": 0.6724008016987393,
+     "brown": 0.6438598712375991,
+     "indigenous": 3.1528384626510992
+    }
+   }
+  },
+  "perinatal": {
+   "mother_over_mother": {
+    "white": 0.7821818036743416,
+    "black": 1.1362308881853396,
+    "indigenous": 1.2580203750881607
+   },
+   "certified_over_mother": {
+    "white": 1.1449401382897284,
+    "black": 0.44464158232321793,
+    "indigenous": 1.479192923346984
+   },
+   "certified_over_child": {
+    "white": 0.6926156881462694,
+    "black": 0.7327994397934307,
+    "indigenous": 1.362095423299438
+   },
+   "mother_over_child": {
+    "white": 0.47317005500099213,
+    "black": 1.8725854518324283,
+    "indigenous": 1.158431580004976
+   },
+   "rates": {
+    "mother": {
+     "white": 6.1512710690851975,
+     "black": 8.935600594980617,
+     "brown": 7.864247212335121,
+     "indigenous": 9.893383227847849
+    },
+    "certified": {
+     "white": 7.524431347248833,
+     "black": 2.922139724545596,
+     "brown": 6.571899347059809,
+     "indigenous": 9.721107007119533
+    },
+    "certified_over_child": {
+     "white": 5.527980757493369,
+     "black": 5.848699750249548,
+     "brown": 7.98131034584066,
+     "indigenous": 10.871306294002018
+    }
+   }
+  }
+ },
+ "by_year": {
+  "2013": {
+   "mother_over_mother": {
+    "white": 0.8016943249277999,
+    "black": 1.122330142720808,
+    "indigenous": 2.136978908502386
+   },
+   "certified_over_mother": {
+    "white": 1.324501405206228,
+    "black": 0.5042538402425226,
+    "indigenous": 2.8218334023220204
+   },
+   "certified_over_child": {
+    "white": 0.8332598745587503,
+    "black": 0.816712658050693,
+    "indigenous": 2.58824144696781
+   },
+   "mother_over_child": {
+    "white": 0.5043556088336413,
+    "black": 1.8177773988415689,
+    "indigenous": 1.9600793504430705
+   },
+   "rates": {
+    "mother": {
+     "white": 11.741604324443278,
+     "black": 16.437632209022407,
+     "brown": 14.645986580359937,
+     "indigenous": 31.298164416438166
+    },
+    "certified": {
+     "white": 14.725945326814466,
+     "black": 5.606347002018799,
+     "brown": 11.118104721468077,
+     "indigenous": 31.37343927355278
+    },
+    "certified_over_child": {
+     "white": 11.200318227919405,
+     "black": 10.977897712621383,
+     "brown": 13.44156675473002,
+     "indigenous": 34.790020186776836
+    }
+   }
+  },
+  "2014": {
+   "mother_over_mother": {
+    "white": 0.8542073427985453,
+    "black": 1.1681454685539432,
+    "indigenous": 2.092704911753869
+   },
+   "certified_over_mother": {
+    "white": 1.3940623240125318,
+    "black": 0.5208825722994408,
+    "indigenous": 2.916315303666604
+   },
+   "certified_over_child": {
+    "white": 0.863367735901983,
+    "black": 0.8298137527261443,
+    "indigenous": 2.6622281367434852
+   },
+   "mother_over_child": {
+    "white": 0.5290258884696746,
+    "black": 1.8609629627491926,
+    "indigenous": 1.910375702849363
+   },
+   "rates": {
+    "mother": {
+     "white": 11.773251597506354,
+     "black": 16.100154862536662,
+     "brown": 13.782662601488473,
+     "indigenous": 28.843045723181287
+    },
+    "certified": {
+     "white": 14.766194894679602,
+     "black": 5.517295351385194,
+     "brown": 10.59220570008523,
+     "indigenous": 30.89021158274319
+    },
+    "certified_over_child": {
+     "white": 11.119672089467425,
+     "black": 10.687516387214972,
+     "brown": 12.879415835305,
+     "indigenous": 34.28794322156857
+    }
+   }
+  },
+  "2015": {
+   "mother_over_mother": {
+    "white": 0.8218782863746564,
+    "black": 1.1764307242066876,
+    "indigenous": 2.1006027707330177
+   },
+   "certified_over_mother": {
+    "white": 1.3359845672739294,
+    "black": 0.49966342863332114,
+    "indigenous": 2.6407843439959233
+   },
+   "certified_over_child": {
+    "white": 0.8215743413304486,
+    "black": 0.787565324194897,
+    "indigenous": 2.401418084168311
+   },
+   "mother_over_child": {
+    "white": 0.5054205926643811,
+    "black": 1.8542802847046125,
+    "indigenous": 1.9101997074321175
+   },
+   "rates": {
+    "mother": {
+     "white": 11.114436068812347,
+     "black": 15.909124611696317,
+     "brown": 13.52321414626811,
+     "indigenous": 28.406901104866733
+    },
+    "certified": {
+     "white": 14.116823084465612,
+     "black": 5.279746784940087,
+     "brown": 10.566606404197412,
+     "indigenous": 27.904128761371588
+    },
+    "certified_over_child": {
+     "white": 10.587353729558242,
+     "black": 10.149090901357441,
+     "brown": 12.886665511502216,
+     "indigenous": 30.9462716039495
+    }
+   }
+  },
+  "2016": {
+   "mother_over_mother": {
+    "white": 0.7920077612483751,
+    "black": 1.1277009302568095,
+    "indigenous": 1.9956659444988138
+   },
+   "certified_over_mother": {
+    "white": 1.315384724978355,
+    "black": 0.473593589030075,
+    "indigenous": 2.667735260071342
+   },
+   "certified_over_child": {
+    "white": 0.803958419284559,
+    "black": 0.7536872912117213,
+    "indigenous": 2.4355844373507005
+   },
+   "mother_over_child": {
+    "white": 0.48407229892746684,
+    "black": 1.7946481521484847,
+    "indigenous": 1.8219997273800366
+   },
+   "rates": {
+    "mother": {
+     "white": 11.109507062212419,
+     "black": 15.818281160533568,
+     "brown": 14.02701792303328,
+     "indigenous": 27.993241971871996
+    },
+    "certified": {
+     "white": 14.516444129033287,
+     "black": 5.226527832103694,
+     "brown": 11.035892278034597,
+     "indigenous": 29.440838956461942
+    },
+    "certified_over_child": {
+     "white": 10.817695592876303,
+     "black": 10.141270360478838,
+     "brown": 13.45554114913424,
+     "indigenous": 32.77210661896331
+    }
+   }
+  },
+  "2017": {
+   "mother_over_mother": {
+    "white": 0.8140657351011659,
+    "black": 1.155275871171754,
+    "indigenous": 1.9667347376129778
+   },
+   "certified_over_mother": {
+    "white": 1.2762289177978647,
+    "black": 0.4619408997933433,
+    "indigenous": 2.304386928679565
+   },
+   "certified_over_child": {
+    "white": 0.7777546838204894,
+    "black": 0.7433617666953635,
+    "indigenous": 2.109757245922347
+   },
+   "mother_over_child": {
+    "white": 0.4961049147085554,
+    "black": 1.8590861146933577,
+    "indigenous": 1.8006233292877476
+   },
+   "rates": {
+    "mother": {
+     "white": 10.940153989348897,
+     "black": 15.525645394259863,
+     "brown": 13.438907348175434,
+     "indigenous": 26.430765917218935
+    },
+    "certified": {
+     "white": 13.963313190712368,
+     "black": 5.054128902316213,
+     "brown": 10.941072558366795,
+     "indigenous": 25.21246458923513
+    },
+    "certified_over_child": {
+     "white": 10.36292698792588,
+     "black": 9.90467029531594,
+     "brown": 13.324158894191509,
+     "indigenous": 28.110740772841222
+    }
+   }
+  },
+  "2018": {
+   "mother_over_mother": {
+    "white": 0.7912210684069136,
+    "black": 1.1626012667942998,
+    "indigenous": 1.9982524577840954
+   },
+   "certified_over_mother": {
+    "white": 1.2852976634161992,
+    "black": 0.500241847533318,
+    "indigenous": 2.442369176732352
+   },
+   "certified_over_child": {
+    "white": 0.7736280677699234,
+    "black": 0.8151658006424074,
+    "indigenous": 2.2407306665672304
+   },
+   "mother_over_child": {
+    "white": 0.4762405190277578,
+    "black": 1.8945092201850047,
+    "indigenous": 1.8332795894888725
+   },
+   "rates": {
+    "mother": {
+     "white": 10.474450142221182,
+     "black": 15.3909058928867,
+     "brown": 13.238335732529208,
+     "indigenous": 26.453536914497498
+    },
+    "certified": {
+     "white": 13.704018501314463,
+     "black": 5.333646616541353,
+     "brown": 10.66213601049463,
+     "indigenous": 26.040872350160136
+    },
+    "certified_over_child": {
+     "white": 10.046989286623417,
+     "black": 10.586433464706914,
+     "brown": 12.986846916742666,
+     "indigenous": 29.100026148359376
+    }
+   }
+  },
+  "2019": {
+   "mother_over_mother": {
+    "white": 0.8116574647543311,
+    "black": 1.1289818601164832,
+    "indigenous": 2.027021104858122
+   },
+   "certified_over_mother": {
+    "white": 1.3228780328472085,
+    "black": 0.4631532508919612,
+    "indigenous": 2.547190318130915
+   },
+   "certified_over_child": {
+    "white": 0.7885844052021613,
+    "black": 0.7657355651144069,
+    "indigenous": 2.3425874940700737
+   },
+   "mother_over_child": {
+    "white": 0.4838393284780739,
+    "black": 1.8665561798288446,
+    "indigenous": 1.8642008242011108
+   },
+   "rates": {
+    "mother": {
+     "white": 10.796027452399102,
+     "black": 15.016826289852851,
+     "brown": 13.301211312911162,
+     "indigenous": 26.96183605144854
+    },
+    "certified": {
+     "white": 14.198227787471346,
+     "black": 4.970946068639913,
+     "brown": 10.732832078942861,
+     "indigenous": 27.33856595760816
+    },
+    "certified_over_child": {
+     "white": 10.299501683235949,
+     "black": 10.00107875552983,
+     "brown": 13.060747353475204,
+     "indigenous": 30.59594341345983
+    }
+   }
+  },
+  "2020": {
+   "mother_over_mother": {
+    "white": 0.7822792435776221,
+    "black": 1.1467919714185555,
+    "indigenous": 1.748647326347397
+   },
+   "certified_over_mother": {
+    "white": 1.2417759605054572,
+    "black": 0.4696863179160929,
+    "indigenous": 2.207780299080831
+   },
+   "certified_over_child": {
+    "white": 0.7347165860998415,
+    "black": 0.7876802447315254,
+    "indigenous": 2.03519530952401
+   },
+   "mother_over_child": {
+    "white": 0.46284801244192797,
+    "black": 1.9232099089258272,
+    "indigenous": 1.6119533443049476
+   },
+   "rates": {
+    "mother": {
+     "white": 9.746710215077055,
+     "black": 14.288310873845264,
+     "brown": 12.4593746991191,
+     "indigenous": 21.78705225557502
+    },
+    "certified": {
+     "white": 12.717008586237146,
+     "black": 4.8100503856958134,
+     "brown": 10.240984678959935,
+     "indigenous": 22.609844217396372
+    },
+    "certified_over_child": {
+     "white": 9.14191080082941,
+     "black": 9.800925517601621,
+     "brown": 12.442771775928174,
+     "indigenous": 25.323470755846753
+    }
+   }
+  },
+  "2021": {
+   "mother_over_mother": {
+    "white": 0.803419811327003,
+    "black": 1.1816199040817288,
+    "indigenous": 1.8367412377069685
+   },
+   "certified_over_mother": {
+    "white": 1.2890242220098826,
+    "black": 0.4969880955217552,
+    "indigenous": 2.224175851750165
+   },
+   "certified_over_child": {
+    "white": 0.751017199951932,
+    "black": 0.8379212245754315,
+    "indigenous": 2.0595961299178773
+   },
+   "mother_over_child": {
+    "white": 0.4680921326271938,
+    "black": 1.9922094833507442,
+    "indigenous": 1.7008300588575818
+   },
+   "rates": {
+    "mother": {
+     "white": 10.198198501076318,
+     "black": 14.998876259653933,
+     "brown": 12.693486465353676,
+     "indigenous": 23.314650041190365
+    },
+    "certified": {
+     "white": 13.475137301127763,
+     "black": 5.195389434761379,
+     "brown": 10.4537502639919,
+     "indigenous": 23.250978897397694
+    },
+    "certified_over_child": {
+     "white": 9.55011625456568,
+     "black": 10.655208838593289,
+     "brown": 12.716241725458385,
+     "indigenous": 26.19032224485432
+    }
+   }
+  },
+  "2022": {
+   "mother_over_mother": {
+    "white": 0.7614385076305882,
+    "black": 1.14199460810186,
+    "indigenous": 1.8783700447512932
+   },
+   "certified_over_mother": {
+    "white": 1.2631329781938407,
+    "black": 0.48529517360523977,
+    "indigenous": 2.306675759337378
+   },
+   "certified_over_child": {
+    "white": 0.7506054108501498,
+    "black": 0.8329279944772277,
+    "indigenous": 2.1507723820436526
+   },
+   "mother_over_child": {
+    "white": 0.45247798428509867,
+    "black": 1.96004273350519,
+    "indigenous": 1.751414952515783
+   },
+   "rates": {
+    "mother": {
+     "white": 10.402465663702122,
+     "black": 15.601469560396762,
+     "brown": 13.661596516929608,
+     "indigenous": 25.661533660879176
+    },
+    "certified": {
+     "white": 14.293149979967266,
+     "black": 5.491422376456616,
+     "brown": 11.315633608430604,
+     "indigenous": 26.101497746110223
+    },
+    "certified_over_child": {
+     "white": 10.258240244883524,
+     "black": 11.383311858035901,
+     "brown": 13.666621765042768,
+     "indigenous": 29.393792648090663
+    }
+   }
+  },
+  "2023": {
+   "mother_over_mother": {
+    "white": 0.789260938277214,
+    "black": 1.103928078883448,
+    "indigenous": 1.8811111642371416
+   },
+   "certified_over_mother": {
+    "white": 1.2821720423220626,
+    "black": 0.4709346442743304,
+    "indigenous": 2.2943953757355944
+   },
+   "certified_over_child": {
+    "white": 0.7639081251332263,
+    "black": 0.8242436221410379,
+    "indigenous": 2.157488206363029
+   },
+   "mother_over_child": {
+    "white": 0.4702355251080979,
+    "black": 1.932127290665091,
+    "indigenous": 1.768864771355413
+   },
+   "rates": {
+    "mother": {
+     "white": 10.665192778586302,
+     "black": 14.917253856101933,
+     "brown": 13.512885614060812,
+     "indigenous": 25.419239989669254
+    },
+    "certified": {
+     "white": 14.450330337479912,
+     "black": 5.307525786323698,
+     "brown": 11.270196089527744,
+     "indigenous": 25.858285791445837
+    },
+    "certified_over_child": {
+     "white": 10.342682721293246,
+     "black": 11.159575331611405,
+     "brown": 13.539170982753289,
+     "indigenous": 29.21060171922276
+    }
+   }
+  }
+ },
+ "absolute": {
+  "mother": {
+   "black": {
+    "difference_per_1000": 4.606700408149684,
+    "excess_deaths": 8542.955458998487
+   },
+   "brown": {
+    "difference_per_1000": 2.6326954600112975,
+    "excess_deaths": 44851.45021738604
+   },
+   "indigenous": {
+    "difference_per_1000": 15.590659038027399,
+    "excess_deaths": 4368.736522340847
+   }
+  },
+  "certified": {
+   "black": {
+    "difference_per_1000": -8.85335196061862,
+    "excess_deaths": -16418.21363694469
+   },
+   "brown": {
+    "difference_per_1000": -3.2990993560037003,
+    "excess_deaths": -56204.52223797102
+   },
+   "indigenous": {
+    "difference_per_1000": 12.623596069278928,
+    "excess_deaths": 3537.3209725529946
+   }
+  }
+ },
+ "linked_scale": {
+  "white": 1.2701612222503587,
+  "black": 1.2850165016501651,
+  "brown": 1.2866550617646442,
+  "indigenous": 1.632657510355352
+ },
+ "no_race_share": 0.0839256089652604
+}

@@ -16,5 +16,6 @@
  "ibge_mesh2022": "Instituto Brasileiro de Geografia e Estatística. Malhas territoriais: malha municipal 2022 [Internet]. Rio de Janeiro: IBGE; 2023 [cited 2026 Nov 21]. Available from: https://www.ibge.gov.br/geociencias/organizacao-do-territorio/malhas-territoriais/15774-malhas.html",
  "ibge_metro": "Instituto Brasileiro de Geografia e Estatística. Regiões metropolitanas, aglomerações urbanas e regiões integradas de desenvolvimento [Internet]. Rio de Janeiro: IBGE [cited 2026 Nov 21]. Available from: https://www.ibge.gov.br/geociencias/organizacao-do-territorio/estrutura-territorial/18354-regioes-metropolitanas-aglomeracoes-urbanas-e-regioes-integradas-de-desenvolvimento.html",
  "cnes": "Ministério da Saúde (BR). Cadastro Nacional de Estabelecimentos de Saúde (CNES): arquivos de profissionais, leitos e equipes, competências de dezembro de 2013 a 2023 [Internet]. Brasília: Ministério da Saúde [cited 2026 Nov 21]. Available from: https://cnes.datasus.gov.br/",
- "mundlak1978": "Mundlak Y. On the pooling of time series and cross section data. Econometrica. 1978;46(1):69-85. doi:10.2307/1913646"
+ "mundlak1978": "Mundlak Y. On the pooling of time series and cross section data. Econometrica. 1978;46(1):69-85. doi:10.2307/1913646",
+ "ibge_microdata2022": "Instituto Brasileiro de Geografia e Estatística. Censo Demográfico 2022: microdados da amostra, acesso público, e documentação [Internet]. Rio de Janeiro: IBGE; 2026 [cited 2026 Nov 22]. Available from: https://ftp.ibge.gov.br/Censos/Censo_Demografico_2022/Microdados_e_Areas_de_Ponderacao/"
 }

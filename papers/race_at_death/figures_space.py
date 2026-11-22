@@ -179,17 +179,17 @@ RG["PW_change"], RG["PW_2013"] = change(RG, "PW")
 RG["intermediate"] = RG.intermediate.astype(str)
 GI = INT.assign(intermediate=INT.intermediate.astype(str)).merge(RG, on="intermediate", how="left")
 ax = fig.add_subplot(gs[1, 1])
-choropleth(ax, GI, "KK_change", "PuOr_r", TwoSlopeNorm(vmin=-0.2, vcenter=0, vmax=0.2), "C. Black mother, infant certified\nBlack: change 2013-2023",
+choropleth(ax, GI, "PW_change", "PuOr_r", TwoSlopeNorm(vmin=-0.2, vcenter=0, vmax=0.2), "C. Brown mother, infant certified\nWhite: change 2013-2023",
            "Change over the decade (model)", ticks=[-0.2, -0.1, 0, 0.1, 0.2], edge="#FFFFFF")
 ax = fig.add_subplot(gs[1, 0])
 RG["region"] = (RG.intermediate.str[:1].astype(int)).map(REGION)
 for rn, col in OKABE.items():
     x = RG[RG.region == rn]
-    ax.scatter(x.KK_2013, x.KK_change, s=10, color=col, alpha=0.8, lw=0, label=rn)
+    ax.scatter(x.PW_2013, x.PW_change, s=10, color=col, alpha=0.8, lw=0, label=rn)
 ax.axhline(0, color="#999999", lw=0.6)
 ax.set_xlabel("Proportion in 2013 (model)")
 ax.set_ylabel("Change 2013-2023")
-ax.set_title("B. Black mother, certified Black:\n133 intermediate regions", fontsize=8, loc="left")
+ax.set_title("B. Brown mother, certified White:\n133 intermediate regions", fontsize=8, loc="left")
 ax.legend(fontsize=5.8, frameon=False, loc="upper left", markerscale=1.2)
 ax = fig.add_subplot(gs[:, 2])
 UFN = {11: "RO", 12: "AC", 13: "AM", 14: "RR", 15: "PA", 16: "AP", 17: "TO", 21: "MA", 22: "PI", 23: "CE", 24: "RN", 25: "PB", 26: "PE", 27: "AL", 28: "SE", 29: "BA",

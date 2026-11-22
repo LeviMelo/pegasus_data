@@ -31,6 +31,8 @@ CONV = C14["conventional_2016_2024"]
 REB = R["reboucas"]
 PNL = json.loads((HERE / "results" / "panel.json").read_text(encoding="utf-8"))
 WB = {lv: PNL["PW"][lv] for lv in ("municipality", "immediate")}
+PL = json.loads((HERE / "results" / "panel_long.json").read_text(encoding="utf-8"))
+MC = json.loads((HERE / "results" / "mechanism.json").read_text(encoding="utf-8"))
 G, MO, BY, BD_, PN, RA, MS, ML = SP["graph"], SP["moran"], SP["bym2"], SP["border"], SP["panel"], SP["ratio"], SP["misstated"], SP.get("multilevel", {})
 
 
@@ -71,7 +73,6 @@ assert IR["ratio_mother"]["Branca"]["est"] < 1 < IR["ratio_certificate"]["Branca
 for lv_ in ("municipality", "immediate"):
     b_, w_ = WB[lv_]["all"]["lw_b"], WB[lv_]["all"]["lw_w"]
     assert w_["est"] + 1.96 * w_["se"] < 0.5 * b_["est"], "the within-place composition slope is no longer far below the between slope"
-    assert w_["est"] - 1.96 * w_["se"] > 0, "the within-place composition slope no longer differs from zero"
 assert WB["immediate"]["lw_reliability"] > 0.9, "the regional yearly composition is now mostly sampling noise"
 assert PNL["census"]["coef"]["cw_w"]["est"] + 1.96 * PNL["census"]["coef"]["cw_w"]["se"] < PNL["census"]["coef"]["cw_b"]["est"], "census: within reaches between"
 FW = I["flow"]
@@ -111,18 +112,19 @@ para(d, f"Methods: {DESIGN[0].upper() + DESIGN[1:]}. Infant deaths of 2013-2023 
 para(d, f"Results: Among {n0(I['linked_with_race'])} linked infant deaths, the certificate recorded the mother's race for {cbci('Branca>Branca')} of children of White mothers, "
         f"{cbci('Parda>Parda')} of Brown and {cbci('Preta>Preta')} of Black mothers. The smoothed proportion of Brown mothers' infants certified White ranged from {f2(DI['PW']['p5'])} to "
         f"{f2(DI['PW']['p95'])} across the municipalities holding 90% of births, with a between-municipality variance (log-odds) {FV['PW']['M0'] / FV['famPW']['M0']:.0f} times that of the "
-        f"family's classification of Brown mothers' children aged 0-9, spatially clustered (Moran's I {f2(mP_['rate']['I'])}); within the same places, "
-        f"a change in composition from one year to another moved it about {WB['immediate']['all']['lw_w']['est'] / WB['immediate']['lw_reliability'] / WB['immediate']['all']['lw_b']['est'] * 100:.0f}% as far as the gradient between them. Racial composition explained "
+        f"family's classification of Brown mothers' children aged 0-9, spatially clustered (Moran's I {f2(mP_['rate']['I'])}); whether it follows a place's "
+        f"population as it changes was not settled by two panel designs. Racial composition was associated with "
         f"{pct(mP_['deviance_explained']['composition'], 0)} of the deviance between municipalities, the state {pct(mP_['deviance_explained']['state'], 0)}, both "
         f"{pct(mP_['deviance_explained']['composition_state'], 0)}, and socioeconomic and service context {pct(mP_['deviance_explained']['context'], 0)} alone and little in addition"
         + (f"; in multilevel models composition explained {pct(bw_['composition']['pcv'], 0)} of the municipal variance, context {pct(bw_['socioeconomic_services']['pcv'], 0)}, "
            f"and the deaths' own characteristics none" if bw_ else "")
-        + f". Across state borders, neighbouring municipalities differed by {f2(BD_['PW']['slope_state_effect'])} of the difference between their states. The Black category "
-        f"for Black mothers' infants rose from {f2(cell(I['by_year']['2013'], 'Preta', 'Preta')['est'])} in 2013 to {f2(cell(I['by_year']['2023'], 'Preta', 'Preta')['est'])} in "
-        "2023, unevenly between regions.")
-para(d, "Conclusion: The race on the death certificate of a child is a third classification, distinct from the mother's declaration and the family's, and it is associated "
-        "with place: with the racial composition of the municipality and with the state, more than with wealth, services or the circumstances of the death. The analyses "
-        "by place and context were exploratory and ecological.")
+        + f". At state borders the certified race moved by {f2(BD_['PW']['slope_state_effect'])} of the difference between the states' interiors (a regression "
+        "slope on estimated state effects). Where the birth record lay at hand, the certificate agreed with the mother only slightly more often, and the "
+        "cells the Brown-to-White exchange does not involve followed the local majority too.")
+para(d, "Conclusion: The race on the death certificate of a child differed from both the mother's declaration and the family's classification, was not a copy of "
+        "the birth record, and was associated with place: with the racial composition of the municipality, in every cell in the direction of the local majority, "
+        "and with the state, more than with wealth, services or the circumstances of the death. The analyses by place and context were exploratory and "
+        "ecological, and they do not separate a local classification norm from a Brown category that differs between regions.")
 para(d, "Keywords: Race Factors; Death Certificates; Medical Record Linkage; Spatial Analysis; Infant Mortality; Vital Statistics; Brazil.")
 
 # ================================================================= introduction
@@ -144,7 +146,7 @@ para(d, f"What this does to mortality statistics has been measured where a secon
         f"and linked birth and infant death records changed infant mortality rates of the smaller groups {cite('hahn1992')}. In São Paulo, 17.3% of 1,012 older adults had on the "
         f"certificate a race other than the one they had reported in a survey, and the correction changed the ranking of mortality {cite('santos2019')}. A cohort of 19.5 million "
         f"Brazilian births linked to deaths, classified by the mother's race, found higher mortality before age 5 among children of Indigenous, Black and Brown mothers than among "
-        f"children of White mothers {cite('reboucas2022')}. No study was found that compared, for the same people and for the country, the race on the death certificate with the "
+        f"children of White mothers {cite('reboucas2022')}. To our knowledge no study has compared, for the same people and for the country, the race on the death certificate with the "
         "race on the birth record, or either with the race families assign to their children, and none asked where in the country the two disagree.")
 para(d, "Where matters because both the composition of the population and the services that fill certificates vary across Brazil's municipalities. The share of White "
         "births ranges from almost none to almost all between neighbouring regions; certificates are completed by hospital physicians, by medico-legal institutes organised by "

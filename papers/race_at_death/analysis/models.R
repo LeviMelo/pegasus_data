@@ -130,7 +130,7 @@ if (stage == "areal") {
 # sets composition, the socioeconomic context, the health services and the recording quality against one another
 # (the proportional change in the municipal variance, PCV, and the median odds ratio, MOR). Sequence fitted with nAGQ = 0
 # (PIRLS), the full model with its fixed effects reported, and with a crossed random intercept for the establishment of death.
-if (stage == "individual") {
+if (stage %in% c("individual", "laplace")) {
   I <- as.data.frame(read_parquet(file.path(sp, "individual.parquet")))
   lv <- function(v, ref) relevel(factor(v), ref = ref)
   I$certifier <- lv(I$certifier, "attending physician"); I$death_place <- lv(I$death_place, "hospital"); I$school <- lv(I$school, "8-11")
@@ -160,6 +160,35 @@ if (stage == "individual") {
   }
   OUTS <- list(brown_white = list(sub = "brown", y = "y_white"), brown_brown = list(sub = "brown", y = "y_brown"), black_black = list(sub = "black", y = "y_black"),
                black_brown = list(sub = "black", y = "y_brown"), white_white = list(sub = "white", y = "y_white"))
+  if (stage == "laplace") {
+    # the key models refitted by the Laplace approximation (glmmTMB), against the PIRLS fits (nAGQ = 0) of the individual stage, which
+    # understate random-effect variances for binary outcomes with small clusters
+    suppressPackageStartupMessages(library(glmmTMB))
+    lap <- list()
+    for (o in c("brown_white", "black_black")) {
+      d <- I[I$dec == OUTS[[o]]$sub, ]
+      d$y <- d[[OUTS[[o]]$y]]
+      r <- list()
+      for (k in c("null", "composition", "composition_socioeconomic_services", "full")) {
+        t0 <- Sys.time()
+        m <- glmmTMB(as.formula(paste("y ~", SEQ[[k]], "+ (1 | mun)")), data = d, family = binomial)
+        s2 <- VarCorr(m)$cond$mun[1]
+        r[[k]] <- list(var_mun = s2, mor = exp(sqrt(2 * s2) * qnorm(0.75)), aic = AIC(m))
+        if (k == "full") r$full_fixed <- lapply(split(as.data.frame(summary(m)$coefficients$cond[, 1:2]), rownames(summary(m)$coefficients$cond)),
+                                              function(x) list(est = x[[1]], se = x[[2]]))
+        say("laplace", o, k, round(as.numeric(difftime(Sys.time(), t0, units = "secs"))), "s var", round(s2, 3))
+      }
+      for (k in c("composition", "composition_socioeconomic_services", "full")) r[[k]]$pcv <- 1 - r[[k]]$var_mun / r$null$var_mun
+      t0 <- Sys.time()
+      me <- glmmTMB(as.formula(paste("y ~", SEQ$full, "+ (1 | mun) + (1 | death_estab)")), data = d, family = binomial)
+      r$establishment <- list(var_mun = VarCorr(me)$cond$mun[1], var_estab = VarCorr(me)$cond$death_estab[1], aic = AIC(me))
+      say("laplace", o, "establishment", round(as.numeric(difftime(Sys.time(), t0, units = "secs"))), "s")
+      lap[[o]] <- r
+      write(toJSON(lap, auto_unbox = TRUE, digits = NA, null = "null", na = "null"), file.path(sp, "laplace.json"))
+    }
+    say("laplace done")
+    quit(save = "no")
+  }
   for (o in names(OUTS)) {
     d <- I[I$dec == OUTS[[o]]$sub, ]
     d$y <- d[[OUTS[[o]]$y]]

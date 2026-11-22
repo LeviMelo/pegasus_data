@@ -1,0 +1,383 @@
+﻿Supplementary material - The race of a child in the household: partners, schooling, age and who answers, in the Brazilian Censuses of 2010 and 2022
+Supplementary Text S1 - The cohort series
+The share of each five-year birth cohort reported White at the Censuses of 2000, 2010 and 2022 was read from a cohort-component population account of every municipality, built for this research programme from the censuses, the mortality and live birth registers and the official estimates of IBGE; in a census year the account takes the census population by single year of age and race as given, so the shares at the three dates are census shares. A cohort's White share can fall between censuses through reclassification, but also through higher mortality or emigration of White people, differences in coverage between censuses and the change of the 2022 questionnaire; the series describes the cohorts and does not separate these.
+Supplementary Text S2 - Design-based standard errors
+For a weighted proportion r = sum(w y) / sum(w), the linearised variable z = w (y - r) / sum(w) was summed within households and its variance estimated as the between-household variance within states, sum over states of n_h / (n_h - 1) sum (z_hi - mean_h)^2, which treats households as sampled with replacement within states. With the weighting areas of 2010 as strata the standard error of Brown mothers' children aged 0-9 reported White was 0.00050, against 0.00050 with states. The logistic models use the weights scaled to a mean of 1 and standard errors clustered by household.
+Supplementary Table S1 - Odds ratios of the race reported for children aged 0-9, logistic models of the Censuses of 2010 and 2022 together, Brazil
+Outcome
+Term
+Odds ratio
+95%CI
+Brown mother, child White
+census: 2022
+1.03
+1.02; 1.04
+Brown mother, child White
+partner: white
+9.36
+9.27; 9.46
+Brown mother, child White
+partner: black
+0.85
+0.83; 0.87
+Brown mother, child White
+partner: other
+1.71
+1.60; 1.82
+Brown mother, child White
+partner: no partner
+2.05
+2.03; 2.08
+Brown mother, child White
+instruction: primary complete
+1.11
+1.10; 1.13
+Brown mother, child White
+instruction: secondary complete
+1.21
+1.20; 1.23
+Brown mother, child White
+instruction: higher complete
+1.38
+1.36; 1.41
+Brown mother, child White
+age: 5-9
+0.72
+0.71; 0.72
+Brown mother, child White
+mother_age: 35-44
+1.05
+1.04; 1.06
+Brown mother, child White
+mother_age: 45 or more
+1.13
+1.10; 1.15
+Brown mother, child White
+mother_age: under 25
+1.06
+1.04; 1.07
+Brown mother, child White
+sex: 2
+1.10
+1.09; 1.11
+Brown mother, child White
+region: North
+0.71
+0.70; 0.73
+Brown mother, child White
+region: Northeast
+0.90
+0.89; 0.92
+Brown mother, child White
+region: South
+1.43
+1.40; 1.46
+Brown mother, child White
+region: Southeast
+1.18
+1.16; 1.21
+Black mother, child Black
+census: 2022
+0.94
+0.92; 0.96
+Black mother, child Black
+partner: white
+0.06
+0.05; 0.06
+Black mother, child Black
+partner: brown
+0.07
+0.07; 0.07
+Black mother, child Black
+partner: other
+0.11
+0.10; 0.12
+Black mother, child Black
+partner: no partner
+0.28
+0.28; 0.29
+Black mother, child Black
+instruction: primary complete
+0.94
+0.91; 0.96
+Black mother, child Black
+instruction: secondary complete
+1.01
+0.99; 1.04
+Black mother, child Black
+instruction: higher complete
+1.06
+1.02; 1.10
+Black mother, child Black
+age: 5-9
+1.30
+1.27; 1.32
+Black mother, child Black
+mother_age: 35-44
+1.04
+1.01; 1.06
+Black mother, child Black
+mother_age: 45 or more
+1.03
+0.99; 1.08
+Black mother, child Black
+mother_age: under 25
+0.90
+0.87; 0.93
+Black mother, child Black
+sex: 2
+0.89
+0.88; 0.91
+Black mother, child Black
+region: North
+1.00
+0.95; 1.06
+Black mother, child Black
+region: Northeast
+1.31
+1.25; 1.36
+Black mother, child Black
+region: South
+1.48
+1.41; 1.56
+Black mother, child Black
+region: Southeast
+1.24
+1.19; 1.30
+References: census 2010; partner of the mother's race; mother with no or incomplete primary schooling; child aged 0-4; mother aged 25-34; boy; Centre-West. Weighted; standard errors clustered by household.
+
+Supplementary Table S2 - Children aged 0-9 by the mother's race, the race reported for the child, the mother's instruction and the region, Brazilian Censuses of 2010 and 2022
+Census
+Cell
+Group
+Proportion (95%CI)
+2010
+Brown mother, child White
+instruction: higher complete
+0.29 (95%CI 0.29; 0.30)
+2010
+Brown mother, child White
+instruction: none or primary incomplete
+0.18 (95%CI 0.18; 0.18)
+2010
+Brown mother, child White
+instruction: not determined
+0.23 (95%CI 0.21; 0.25)
+2010
+Brown mother, child White
+instruction: primary complete
+0.22 (95%CI 0.22; 0.22)
+2010
+Brown mother, child White
+instruction: secondary complete
+0.24 (95%CI 0.24; 0.25)
+2010
+Brown mother, child White
+region: Centre-West
+0.23 (95%CI 0.23; 0.23)
+2010
+Brown mother, child White
+region: North
+0.14 (95%CI 0.13; 0.14)
+2010
+Brown mother, child White
+region: Northeast
+0.18 (95%CI 0.18; 0.18)
+2010
+Brown mother, child White
+region: South
+0.33 (95%CI 0.33; 0.34)
+2010
+Brown mother, child White
+region: Southeast
+0.25 (95%CI 0.25; 0.25)
+2010
+Black mother, child Black
+instruction: higher complete
+0.44 (95%CI 0.42; 0.45)
+2010
+Black mother, child Black
+instruction: none or primary incomplete
+0.50 (95%CI 0.49; 0.50)
+2010
+Black mother, child Black
+instruction: not determined
+0.50 (95%CI 0.44; 0.56)
+2010
+Black mother, child Black
+instruction: primary complete
+0.45 (95%CI 0.45; 0.46)
+2010
+Black mother, child Black
+instruction: secondary complete
+0.46 (95%CI 0.45; 0.46)
+2010
+Black mother, child Black
+region: Centre-West
+0.39 (95%CI 0.38; 0.41)
+2010
+Black mother, child Black
+region: North
+0.43 (95%CI 0.42; 0.45)
+2010
+Black mother, child Black
+region: Northeast
+0.51 (95%CI 0.50; 0.51)
+2010
+Black mother, child Black
+region: South
+0.48 (95%CI 0.47; 0.49)
+2010
+Black mother, child Black
+region: Southeast
+0.47 (95%CI 0.46; 0.47)
+2010
+Black mother, child Brown
+instruction: higher complete
+0.37 (95%CI 0.36; 0.39)
+2010
+Black mother, child Brown
+instruction: none or primary incomplete
+0.37 (95%CI 0.37; 0.38)
+2010
+Black mother, child Brown
+instruction: not determined
+0.38 (95%CI 0.33; 0.44)
+2010
+Black mother, child Brown
+instruction: primary complete
+0.40 (95%CI 0.39; 0.41)
+2010
+Black mother, child Brown
+instruction: secondary complete
+0.39 (95%CI 0.38; 0.40)
+2010
+Black mother, child Brown
+region: Centre-West
+0.45 (95%CI 0.44; 0.46)
+2010
+Black mother, child Brown
+region: North
+0.44 (95%CI 0.43; 0.45)
+2010
+Black mother, child Brown
+region: Northeast
+0.36 (95%CI 0.36; 0.37)
+2010
+Black mother, child Brown
+region: South
+0.28 (95%CI 0.27; 0.29)
+2010
+Black mother, child Brown
+region: Southeast
+0.40 (95%CI 0.39; 0.40)
+2022
+Brown mother, child White
+instruction: higher complete
+0.27 (95%CI 0.27; 0.27)
+2022
+Brown mother, child White
+instruction: none or primary incomplete
+0.18 (95%CI 0.18; 0.18)
+2022
+Brown mother, child White
+instruction: primary complete
+0.21 (95%CI 0.20; 0.21)
+2022
+Brown mother, child White
+instruction: secondary complete
+0.22 (95%CI 0.22; 0.22)
+2022
+Brown mother, child White
+region: Centre-West
+0.21 (95%CI 0.21; 0.22)
+2022
+Brown mother, child White
+region: North
+0.15 (95%CI 0.14; 0.15)
+2022
+Brown mother, child White
+region: Northeast
+0.18 (95%CI 0.18; 0.18)
+2022
+Brown mother, child White
+region: South
+0.33 (95%CI 0.33; 0.33)
+2022
+Brown mother, child White
+region: Southeast
+0.26 (95%CI 0.25; 0.26)
+2022
+Black mother, child Black
+instruction: higher complete
+0.44 (95%CI 0.43; 0.45)
+2022
+Black mother, child Black
+instruction: none or primary incomplete
+0.47 (95%CI 0.47; 0.48)
+2022
+Black mother, child Black
+instruction: primary complete
+0.45 (95%CI 0.44; 0.45)
+2022
+Black mother, child Black
+instruction: secondary complete
+0.46 (95%CI 0.46; 0.47)
+2022
+Black mother, child Black
+region: Centre-West
+0.38 (95%CI 0.37; 0.39)
+2022
+Black mother, child Black
+region: North
+0.39 (95%CI 0.38; 0.40)
+2022
+Black mother, child Black
+region: Northeast
+0.49 (95%CI 0.49; 0.50)
+2022
+Black mother, child Black
+region: South
+0.45 (95%CI 0.44; 0.46)
+2022
+Black mother, child Black
+region: Southeast
+0.46 (95%CI 0.45; 0.46)
+2022
+Black mother, child Brown
+instruction: higher complete
+0.37 (95%CI 0.36; 0.37)
+2022
+Black mother, child Brown
+instruction: none or primary incomplete
+0.38 (95%CI 0.37; 0.38)
+2022
+Black mother, child Brown
+instruction: primary complete
+0.40 (95%CI 0.39; 0.40)
+2022
+Black mother, child Brown
+instruction: secondary complete
+0.38 (95%CI 0.37; 0.38)
+2022
+Black mother, child Brown
+region: Centre-West
+0.45 (95%CI 0.44; 0.46)
+2022
+Black mother, child Brown
+region: North
+0.47 (95%CI 0.46; 0.48)
+2022
+Black mother, child Brown
+region: Northeast
+0.38 (95%CI 0.37; 0.38)
+2022
+Black mother, child Brown
+region: South
+0.29 (95%CI 0.29; 0.30)
+2022
+Black mother, child Brown
+region: Southeast
+0.37 (95%CI 0.37; 0.38)
+Design-based 95% confidence intervals.
+

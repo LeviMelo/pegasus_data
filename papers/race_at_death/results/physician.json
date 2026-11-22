@@ -1,0 +1,58 @@
+{
+  "PW": {
+    "deaths": 82173,
+    "physicians": 22103,
+    "establishments": 3703,
+    "municipalities": 4421,
+    "physicians_with_5": 4358,
+    "all": {
+      "physician": 0.785931316019398,
+      "mun6": 0.0795952686099077,
+      "death_estab": 0.4551548524223,
+      "lws": 0.670500666121917,
+      "aic": 76294.5658928271
+    },
+    "no_physician": {
+      "mun6": 0.0825696543873134,
+      "death_estab": 0.482946018207499,
+      "lws": 0.597964751718508,
+      "aic": 79048.5668539978
+    },
+    "no_establishment": {
+      "physician": 1.08860445839998,
+      "mun6": 0.160781586627872,
+      "lws": 0.755934661694214,
+      "aic": 77542.9716943905
+    },
+    "lrt_physician": 0,
+    "lrt_establishment": 6.77482467987111e-274
+  },
+  "KK": {
+    "deaths": 9337,
+    "physicians": 5883,
+    "establishments": 1564,
+    "municipalities": 1844,
+    "physicians_with_5": 212,
+    "all": {
+      "physician": 0.285377861795214,
+      "mun6": 0.209304624091089,
+      "death_estab": 0.42122793981858,
+      "lws": 0.307580667183383,
+      "aic": 8111.63242336216
+    },
+    "no_physician": {
+      "mun6": 0.208195718869202,
+      "death_estab": 0.42957614560421,
+      "lws": 0.296268484155268,
+      "aic": 8120.7531427715
+    },
+    "no_establishment": {
+      "physician": 0.611898087128817,
+      "mun6": 0.45522998951443,
+      "lws": 0.318654355095469,
+      "aic": 8198.71056572366
+    },
+    "lrt_physician": 0.000853686682612052,
+    "lrt_establishment": 3.79521177592054e-21
+  }
+}

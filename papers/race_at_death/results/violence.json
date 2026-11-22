@@ -1,0 +1,732 @@
+{
+ "deaths": {
+  "natural": {
+   "white": 9240,
+   "black": 1748,
+   "brown": 11815
+  },
+  "transport": {
+   "white": 5576,
+   "black": 774,
+   "brown": 9588
+  },
+  "suicide": {
+   "white": 2055,
+   "black": 298,
+   "brown": 3165
+  },
+  "assault by firearm": {
+   "white": 3259,
+   "black": 1558,
+   "brown": 15978
+  },
+  "other assault": {
+   "white": 922,
+   "black": 409,
+   "brown": 3561
+  },
+  "legal intervention": {
+   "white": 225,
+   "black": 148,
+   "brown": 897
+  },
+  "all assault": {
+   "white": 4406,
+   "black": 2115,
+   "brown": 20436
+  }
+ },
+ "natural": {
+  "records_found": {
+   "white": 3.4654065621742576,
+   "black": 2.264285585598473,
+   "brown": 2.4704580083000596
+  },
+  "cells": {
+   "certified white|hospital white": {
+    "est": 0.6797331351242415,
+    "se": 0.015565829794283684,
+    "n_est": 24805.331617589723
+   },
+   "certified white|hospital black": {
+    "est": 0.006720961416318784,
+    "se": 0.0018012551829816074,
+    "n_est": 24805.331617589723
+   },
+   "certified white|hospital brown": {
+    "est": 0.31354590345943967,
+    "se": 0.015456303745368005,
+    "n_est": 24805.331617589723
+   },
+   "certified black|hospital white": {
+    "est": 0.12759984303608243,
+    "se": 0.021762122684259116,
+    "n_est": 2734.9596802098413
+   },
+   "certified black|hospital black": {
+    "est": 0.25541992965887733,
+    "se": 0.02543384114494768,
+    "n_est": 2734.9596802098413
+   },
+   "certified black|hospital brown": {
+    "est": 0.6169802273050404,
+    "se": 0.0295894963927666,
+    "n_est": 2734.9596802098413
+   },
+   "certified brown|hospital white": {
+    "est": 0.16363823646821407,
+    "se": 0.009100759655899876,
+    "n_est": 20301.39889967579
+   },
+   "certified brown|hospital black": {
+    "est": 0.04344304478965693,
+    "se": 0.004647543898500914,
+    "n_est": 20301.39889967579
+   },
+   "certified brown|hospital brown": {
+    "est": 0.7929187187421289,
+    "se": 0.010646293010153116,
+    "n_est": 20301.39889967579
+   },
+   "hospital white|certified white": {
+    "est": 0.8212033518730244,
+    "se": 0.010094182103735038,
+    "n_est": 20532.071367906214
+   },
+   "hospital white|certified black": {
+    "est": 0.0169968445780041,
+    "se": 0.0030249641192707922,
+    "n_est": 20532.071367906214
+   },
+   "hospital white|certified brown": {
+    "est": 0.1617998035489715,
+    "se": 0.009386401230343283,
+    "n_est": 20532.071367906214
+   },
+   "hospital black|certified white": {
+    "est": 0.09541694330893943,
+    "se": 0.024337574963655295,
+    "n_est": 1747.2334675511836
+   },
+   "hospital black|certified black": {
+    "est": 0.3998110281839593,
+    "se": 0.03864853066595023,
+    "n_est": 1747.2334675511836
+   },
+   "hospital black|certified brown": {
+    "est": 0.5047720285071012,
+    "se": 0.04270683514361819,
+    "n_est": 1747.2334675511836
+   },
+   "hospital brown|certified white": {
+    "est": 0.30425995080273643,
+    "se": 0.012042070568576754,
+    "n_est": 25562.385362017958
+   },
+   "hospital brown|certified black": {
+    "est": 0.06601168166697177,
+    "se": 0.005568708816890292,
+    "n_est": 25562.385362017958
+   },
+   "hospital brown|certified brown": {
+    "est": 0.6297283675302917,
+    "se": 0.012058242135509269,
+    "n_est": 25562.385362017958
+   }
+  }
+ },
+ "transport": {
+  "records_found": {
+   "white": 0.5422097308295589,
+   "black": 0.4516186691516691,
+   "brown": 0.5001811412256236
+  },
+  "cells": {
+   "certified white|hospital white": {
+    "est": 0.81331829752082,
+    "se": 0.03768338659732984,
+    "n_est": 1549.0255038199325
+   },
+   "certified white|hospital black": {
+    "est": -0.0026012348991075835,
+    "se": 0.008439516158995287,
+    "n_est": 1549.0255038199325
+   },
+   "certified white|hospital brown": {
+    "est": 0.18928293737828775,
+    "se": 0.036621020224806865,
+    "n_est": 1549.0255038199325
+   },
+   "certified black|hospital white": {
+    "est": 0.17067593149642776,
+    "se": 0.06914218767897787,
+    "n_est": 162.24117630914918
+   },
+   "certified black|hospital black": {
+    "est": 0.17431135867920963,
+    "se": 0.05819913544688299,
+    "n_est": 162.24117630914918
+   },
+   "certified black|hospital brown": {
+    "est": 0.6550127098243624,
+    "se": 0.08665352894454324,
+    "n_est": 162.24117630914918
+   },
+   "certified brown|hospital white": {
+    "est": 0.1465533559296445,
+    "se": 0.030159907578059603,
+    "n_est": 2077.9309666919617
+   },
+   "certified brown|hospital black": {
+    "est": 0.03049413655224031,
+    "se": 0.007870713550795693,
+    "n_est": 2077.9309666919617
+   },
+   "certified brown|hospital brown": {
+    "est": 0.8229525075181152,
+    "se": 0.0300039481343434,
+    "n_est": 2077.9309666919617
+   },
+   "hospital white|certified white": {
+    "est": 0.7913291588123076,
+    "se": 0.03953819903658016,
+    "n_est": 1592.0692060356355
+   },
+   "hospital white|certified black": {
+    "est": 0.01739287701103893,
+    "se": 0.006749507234063089,
+    "n_est": 1592.0692060356355
+   },
+   "hospital white|certified brown": {
+    "est": 0.1912779641766534,
+    "se": 0.04024557355520964,
+    "n_est": 1592.0692060356355
+   },
+   "hospital black|certified white": {
+    "est": -0.045989178658711174,
+    "se": 0.18795896682547264,
+    "n_est": 87.61581132045026
+   },
+   "hospital black|certified black": {
+    "est": 0.32277826855619257,
+    "se": 0.1104804401897981,
+    "n_est": 87.61581132045026
+   },
+   "hospital black|certified brown": {
+    "est": 0.7232109101025187,
+    "se": 0.16088659805650482,
+    "n_est": 87.61581132045026
+   },
+   "hospital brown|certified white": {
+    "est": 0.13899139229675297,
+    "se": 0.02765360360243838,
+    "n_est": 2109.512629464958
+   },
+   "hospital brown|certified black": {
+    "est": 0.05037658037928009,
+    "se": 0.013303514796619158,
+    "n_est": 2109.512629464958
+   },
+   "hospital brown|certified brown": {
+    "est": 0.8106320273239669,
+    "se": 0.0314528544424497,
+    "n_est": 2109.512629464958
+   }
+  }
+ },
+ "suicide": {
+  "records_found": {
+   "white": 0.6300154085551967,
+   "black": 0.6265805335457394,
+   "brown": 0.6140293964441591
+  },
+  "cells": {
+   "certified white|hospital white": {
+    "est": 0.7418892557600997,
+    "se": 0.03442739151524294,
+    "n_est": 757.7453820948826
+   },
+   "certified white|hospital black": {
+    "est": -0.0034236380698311397,
+    "se": 0.008565344694931597,
+    "n_est": 757.7453820948826
+   },
+   "certified white|hospital brown": {
+    "est": 0.2615343823097314,
+    "se": 0.034037870348722146,
+    "n_est": 757.7453820948826
+   },
+   "certified black|hospital white": {
+    "est": 0.27851915820143397,
+    "se": 0.09764124720620762,
+    "n_est": 108.69405449931254
+   },
+   "certified black|hospital black": {
+    "est": 0.24398083388465003,
+    "se": 0.07427982832528311,
+    "n_est": 108.69405449931254
+   },
+   "certified black|hospital brown": {
+    "est": 0.477500007913916,
+    "se": 0.09821427838480261,
+    "n_est": 108.69405449931254
+   },
+   "certified brown|hospital white": {
+    "est": 0.1724732955065362,
+    "se": 0.045838460103207815,
+    "n_est": 1005.8605561451157
+   },
+   "certified brown|hospital black": {
+    "est": 0.03654562629298704,
+    "se": 0.015668087070366377,
+    "n_est": 1005.8605561451157
+   },
+   "certified brown|hospital brown": {
+    "est": 0.7909810782004767,
+    "se": 0.044738841228827875,
+    "n_est": 1005.8605561451157
+   },
+   "hospital white|certified white": {
+    "est": 0.7339705232840394,
+    "se": 0.05870697841537461,
+    "n_est": 765.9206190770597
+   },
+   "hospital white|certified black": {
+    "est": 0.0395254753647042,
+    "se": 0.01566132280352057,
+    "n_est": 765.9206190770597
+   },
+   "hospital white|certified brown": {
+    "est": 0.22650400135125628,
+    "se": 0.05766813995499679,
+    "n_est": 765.9206190770597
+   },
+   "hospital black|certified white": {
+    "est": -0.04274950081214498,
+    "se": 0.14709955724193718,
+    "n_est": 60.6848241054026
+   },
+   "hospital black|certified black": {
+    "est": 0.43699996574077465,
+    "se": 0.1563525701557676,
+    "n_est": 60.6848241054026
+   },
+   "hospital black|certified brown": {
+    "est": 0.6057495350713703,
+    "se": 0.166376977549133,
+    "n_est": 60.6848241054026
+   },
+   "hospital brown|certified white": {
+    "est": 0.18951659501163232,
+    "se": 0.02798967773644299,
+    "n_est": 1045.6945495568486
+   },
+   "hospital brown|certified black": {
+    "est": 0.04963343445331381,
+    "se": 0.01651254312061606,
+    "n_est": 1045.6945495568486
+   },
+   "hospital brown|certified brown": {
+    "est": 0.7608499705350539,
+    "se": 0.03187113924501387,
+    "n_est": 1045.6945495568486
+   }
+  }
+ },
+ "assault by firearm": {
+  "records_found": {
+   "white": 0.5915372748486533,
+   "black": 0.5088502869094298,
+   "brown": 0.5086300709959158
+  },
+  "cells": {
+   "certified white|hospital white": {
+    "est": 0.5551177354113673,
+    "se": 0.03705303306331668,
+    "n_est": 1037.5827410477118
+   },
+   "certified white|hospital black": {
+    "est": 0.024954064976255134,
+    "se": 0.008868371606141614,
+    "n_est": 1037.5827410477118
+   },
+   "certified white|hospital brown": {
+    "est": 0.4199281996123776,
+    "se": 0.03630261969270948,
+    "n_est": 1037.5827410477118
+   },
+   "certified black|hospital white": {
+    "est": 0.1012752354748789,
+    "se": 0.0636085374007585,
+    "n_est": 322.48639407243184
+   },
+   "certified black|hospital black": {
+    "est": 0.2519210223690263,
+    "se": 0.04457012746083018,
+    "n_est": 322.48639407243184
+   },
+   "certified black|hospital brown": {
+    "est": 0.6468037421560948,
+    "se": 0.06350616426359415,
+    "n_est": 322.48639407243184
+   },
+   "certified brown|hospital white": {
+    "est": 0.17302059867045738,
+    "se": 0.019683482284842877,
+    "n_est": 3538.4578075209834
+   },
+   "certified brown|hospital black": {
+    "est": 0.03388245064707825,
+    "se": 0.005478018516252184,
+    "n_est": 3538.4578075209834
+   },
+   "certified brown|hospital brown": {
+    "est": 0.7930969506824643,
+    "se": 0.020757701472901693,
+    "n_est": 3538.4578075209834
+   },
+   "hospital white|certified white": {
+    "est": 0.4717801294839837,
+    "se": 0.03909362944838131,
+    "n_est": 1220.8665552368898
+   },
+   "hospital white|certified black": {
+    "est": 0.026751396667421195,
+    "se": 0.0181611651291786,
+    "n_est": 1220.8665552368898
+   },
+   "hospital white|certified brown": {
+    "est": 0.501468473848595,
+    "se": 0.0403060776648469,
+    "n_est": 1220.8665552368898
+   },
+   "hospital black|certified white": {
+    "est": 0.11404888973619635,
+    "se": 0.0375208049979299,
+    "n_est": 227.02463126327166
+   },
+   "hospital black|certified black": {
+    "est": 0.3578514879322304,
+    "se": 0.04708734714054478,
+    "n_est": 227.02463126327166
+   },
+   "hospital black|certified brown": {
+    "est": 0.5280996223315731,
+    "se": 0.04887364773345629,
+    "n_est": 227.02463126327166
+   },
+   "hospital brown|certified white": {
+    "est": 0.12626955818840757,
+    "se": 0.015840015207435047,
+    "n_est": 3450.635756140966
+   },
+   "hospital brown|certified black": {
+    "est": 0.060448398852084695,
+    "se": 0.009123994746717337,
+    "n_est": 3450.635756140966
+   },
+   "hospital brown|certified brown": {
+    "est": 0.8132820429595077,
+    "se": 0.018671919840468586,
+    "n_est": 3450.635756140966
+   }
+  }
+ },
+ "other assault": {
+  "records_found": {
+   "white": 0.6401441552031839,
+   "black": 0.4659365735198127,
+   "brown": 0.5277009923170232
+  },
+  "cells": {
+   "certified white|hospital white": {
+    "est": 0.6163872181878144,
+    "se": 0.05765532094875767,
+    "n_est": 327.5703373304875
+   },
+   "certified white|hospital black": {
+    "est": 0.03533132974504118,
+    "se": 0.013552877360503871,
+    "n_est": 327.5703373304875
+   },
+   "certified white|hospital brown": {
+    "est": 0.34828145206714445,
+    "se": 0.05615429645057282,
+    "n_est": 327.5703373304875
+   },
+   "certified black|hospital white": {
+    "est": -0.07719058104291131,
+    "se": 0.19675828873724854,
+    "n_est": 63.270777601729904
+   },
+   "certified black|hospital black": {
+    "est": 0.24191912037109067,
+    "se": 0.10382656875140175,
+    "n_est": 63.270777601729904
+   },
+   "certified black|hospital brown": {
+    "est": 0.8352714606718207,
+    "se": 0.1789688511320902,
+    "n_est": 63.270777601729904
+   },
+   "certified brown|hospital white": {
+    "est": 0.20206833163555182,
+    "se": 0.02623842065389682,
+    "n_est": 941.3505527133586
+   },
+   "certified brown|hospital black": {
+    "est": 0.03295149690877924,
+    "se": 0.01115900446235582,
+    "n_est": 941.3505527133586
+   },
+   "certified brown|hospital brown": {
+    "est": 0.7649801714556689,
+    "se": 0.02769069506200806,
+    "n_est": 941.3505527133586
+   },
+   "hospital white|certified white": {
+    "est": 0.521403775441766,
+    "se": 0.05984419017297807,
+    "n_est": 387.2433965728618
+   },
+   "hospital white|certified black": {
+    "est": -0.012611985457563295,
+    "se": 0.024552842631355418,
+    "n_est": 387.2433965728618
+   },
+   "hospital white|certified brown": {
+    "est": 0.4912082100157973,
+    "se": 0.057952118325170866,
+    "n_est": 387.2433965728618
+   },
+   "hospital black|certified white": {
+    "est": 0.199891748119384,
+    "se": 0.0718445704672419,
+    "n_est": 57.8988162933351
+   },
+   "hospital black|certified black": {
+    "est": 0.26436483234921276,
+    "se": 0.09571201045585784,
+    "n_est": 57.8988162933351
+   },
+   "hospital black|certified brown": {
+    "est": 0.5357434195314031,
+    "se": 0.1177617183596833,
+    "n_est": 57.8988162933351
+   },
+   "hospital brown|certified white": {
+    "est": 0.1286136552194391,
+    "se": 0.026782915545006152,
+    "n_est": 887.0494547793792
+   },
+   "hospital brown|certified black": {
+    "est": 0.059577596875230496,
+    "se": 0.016986587456456276,
+    "n_est": 887.0494547793792
+   },
+   "hospital brown|certified brown": {
+    "est": 0.8118087479053304,
+    "se": 0.030095991564578043,
+    "n_est": 887.0494547793792
+   }
+  }
+ },
+ "legal intervention": {
+  "records_found": {
+   "white": 0.6364278646906938,
+   "black": 0.5841127209489659,
+   "brown": 0.5444586999533616
+  },
+  "cells": {
+   "certified white|hospital white": {
+    "est": 0.4744605161484654,
+    "se": 0.1542019146169196,
+    "n_est": 84.6850457806834
+   },
+   "certified white|hospital black": {
+    "est": 0.010991826064585073,
+    "se": 0.020151608149714412,
+    "n_est": 84.6850457806834
+   },
+   "certified white|hospital brown": {
+    "est": 0.5145476577869494,
+    "se": 0.15876987840192477,
+    "n_est": 84.6850457806834
+   },
+   "certified black|hospital white": {
+    "est": 0.14088435129581245,
+    "se": 0.18041993692971423,
+    "n_est": 25.27686097648404
+   },
+   "certified black|hospital black": {
+    "est": 0.06674220780629592,
+    "se": 0.12044018954171869,
+    "n_est": 25.27686097648404
+   },
+   "certified black|hospital brown": {
+    "est": 0.7923734408978916,
+    "se": 0.20766490278866534,
+    "n_est": 25.27686097648404
+   },
+   "certified brown|hospital white": {
+    "est": 0.22433004629383022,
+    "se": 0.0563568923871382,
+    "n_est": 208.86180044986523
+   },
+   "certified brown|hospital black": {
+    "est": 0.03855371014809342,
+    "se": 0.0268099228458103,
+    "n_est": 208.86180044986523
+   },
+   "certified brown|hospital brown": {
+    "est": 0.7371162435580764,
+    "se": 0.06163003089173063,
+    "n_est": 208.86180044986523
+   },
+   "hospital white|certified white": {
+    "est": 0.44351010895830345,
+    "se": 0.13151458831498336,
+    "n_est": 90.59480205655686
+   },
+   "hospital white|certified black": {
+    "est": 0.03930815102662562,
+    "se": 0.04104466645735033,
+    "n_est": 90.59480205655686
+   },
+   "hospital white|certified brown": {
+    "est": 0.5171817400150709,
+    "se": 0.12697804242779018,
+    "n_est": 90.59480205655686
+   },
+   "hospital black|certified white": {
+    "est": 0.08723705532617286,
+    "se": 0.45890409264168686,
+    "n_est": 10.670274117029077
+   },
+   "hospital black|certified black": {
+    "est": 0.1581059201928985,
+    "se": 1.2154506458945709,
+    "n_est": 10.670274117029077
+   },
+   "hospital black|certified brown": {
+    "est": 0.7546570244809286,
+    "se": 1.5791919178501899,
+    "n_est": 10.670274117029077
+   },
+   "hospital brown|certified white": {
+    "est": 0.20028850038742999,
+    "se": 0.06013314754586159,
+    "n_est": 217.55863103344672
+   },
+   "hospital brown|certified black": {
+    "est": 0.09206122143669472,
+    "se": 0.043068588721000334,
+    "n_est": 217.55863103344672
+   },
+   "hospital brown|certified brown": {
+    "est": 0.7076502781758753,
+    "se": 0.06929593563325519,
+    "n_est": 217.55863103344672
+   }
+  }
+ },
+ "all assault": {
+  "records_found": {
+   "white": 0.6040011709905817,
+   "black": 0.5058181977659301,
+   "brown": 0.5135258348929257
+  },
+  "cells": {
+   "certified white|hospital white": {
+    "est": 0.5642495168252439,
+    "se": 0.03070719253010755,
+    "n_est": 1449.8381241588827
+   },
+   "certified white|hospital black": {
+    "est": 0.02648312621592252,
+    "se": 0.006678017994256969,
+    "n_est": 1449.8381241588827
+   },
+   "certified white|hospital brown": {
+    "est": 0.4092673569588336,
+    "se": 0.031329412920293474,
+    "n_est": 1449.8381241588827
+   },
+   "certified black|hospital white": {
+    "est": 0.07623965191008115,
+    "se": 0.06006308554787942,
+    "n_est": 411.03403265064577
+   },
+   "certified black|hospital black": {
+    "est": 0.2389937052947388,
+    "se": 0.043417241379453395,
+    "n_est": 411.03403265064577
+   },
+   "certified black|hospital brown": {
+    "est": 0.6847666427951801,
+    "se": 0.0637501465635896,
+    "n_est": 411.03403265064577
+   },
+   "certified brown|hospital white": {
+    "est": 0.181138184635795,
+    "se": 0.017782798981214668,
+    "n_est": 4688.670160684207
+   },
+   "certified brown|hospital black": {
+    "est": 0.033903628049251865,
+    "se": 0.004760948962748235,
+    "n_est": 4688.670160684207
+   },
+   "certified brown|hospital brown": {
+    "est": 0.7849581873149531,
+    "se": 0.0176161021228569,
+    "n_est": 4688.670160684207
+   },
+   "hospital white|certified white": {
+    "est": 0.4815848423156008,
+    "se": 0.03265924430817903,
+    "n_est": 1698.7047538663085
+   },
+   "hospital white|certified black": {
+    "est": 0.018447638708938622,
+    "se": 0.01592581880578897,
+    "n_est": 1698.7047538663085
+   },
+   "hospital white|certified brown": {
+    "est": 0.49996751897546055,
+    "se": 0.03391434398394007,
+    "n_est": 1698.7047538663085
+   },
+   "hospital black|certified white": {
+    "est": 0.12989533680674453,
+    "se": 0.03248031775166007,
+    "n_est": 295.59372167363586
+   },
+   "hospital black|certified black": {
+    "est": 0.33232961075498396,
+    "se": 0.048133602300118816,
+    "n_est": 295.59372167363586
+   },
+   "hospital black|certified brown": {
+    "est": 0.5377750524382714,
+    "se": 0.045327072320576305,
+    "n_est": 295.59372167363586
+   },
+   "hospital brown|certified white": {
+    "est": 0.1302611754013493,
+    "se": 0.013354096379414107,
+    "n_est": 4555.243841953792
+   },
+   "hospital brown|certified black": {
+    "est": 0.06178865597061538,
+    "se": 0.008488414399238876,
+    "n_est": 4555.243841953792
+   },
+   "hospital brown|certified brown": {
+    "est": 0.8079501686280353,
+    "se": 0.013885914910696136,
+    "n_est": 4555.243841953792
+   }
+  }
+ }
+}
