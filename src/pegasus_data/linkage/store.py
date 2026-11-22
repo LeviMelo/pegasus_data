@@ -28,7 +28,9 @@ from .roles import load_roles, table_key
 #: written under another version is stale (`fingerprint`). 3: one placebo for both engines (`placebo`: the deterministic
 #: control and the anchors' control move round the partner's range, as the probabilistic one does). 4: round the range
 #: both sides hold (`placebo.shared_range`), not the partner's whole range (OQ 97).
-LINKAGE_VERSION = 4
+#: 5: a cohort's passes judged horizon by horizon, each kept to its reach (`engine._pass_reach`), not dropped on its
+#: whole window's chance.
+LINKAGE_VERSION = 5
 #: The identity rule of a run read from a state's files: the content key of the whole record, decoded whole even when
 #: projected (`retrieve._decode_one`, 2026-11-09); before, the file and row. Only runs of a scope but the nation's carry it.
 STATE_IDENTITY = "content-key-1"

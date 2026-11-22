@@ -390,6 +390,9 @@ class PassReport:
     kept: bool
     #: why the pass did not run: a key role the scope lacks ("absent") or no value of which normalised ("all null")
     skipped: str = ""
+    #: a cohort's pass kept to a shorter follow-up than the window: the longest horizon (days) up to which it is
+    #: admissible at every horizon; it contributes its pairs within that many days only (`_pass_reach`)
+    reach_days: int | None = None
 
 
 class LinkNotViable(RuntimeError):
@@ -570,7 +573,12 @@ def run(spec: LinkSpec, left: pa.Table, right: pa.Table) -> LinkResult:
              if (sql := placebo.rotation(key[0], placebo.shared_range(con, [key[0]], [key[1]]), spec.control_shift_days))}
     con.execute("CREATE TEMP TABLE linked (l VARCHAR, r VARCHAR, pass VARCHAR)")
     reports: list[PassReport] = []
-    kept_controls: list[pa.Table] = []      # a cohort's control pairs, kept to read the false-match rate by horizon
+    kept_controls: list[pa.Table] = []      # a cohort's control pairs, within each pass's reach, by horizon
+    horizons = _horizon_days(spec)
+    if horizons:
+        # one record per id, for the days from origin to event (the views `validate` makes again after the passes)
+        con.execute("CREATE OR REPLACE TEMP TABLE _vl AS SELECT DISTINCT ON (_id) * FROM L")
+        con.execute("CREATE OR REPLACE TEMP TABLE _vr AS SELECT DISTINCT ON (_id) * FROM R")
     for p in spec.passes:
         if why_skipped[p.name]:
             reports.append(PassReport(p.name, 0, 0, None, False, skipped=why_skipped[p.name]))
@@ -584,27 +592,45 @@ def run(spec: LinkSpec, left: pa.Table, right: pa.Table) -> LinkResult:
             control = con.execute(f"SELECT count(*) FROM ({_join(p.keys, moved)})").fetchone()[0]  # type: ignore[index]
         n = real.num_rows
         chance = 100.0 * control / n if n else None
-        kept = bool(n) and control < n and (chance is None or chance < chance_drop())
-        reports.append(PassReport(p.name, n, int(control), round(chance, 2) if chance is not None else None, kept))
+        reach: int | None = None
+        if one and horizons:
+            # A pass judged on its whole window was dropped when its year held too many coincidences, and its deaths
+            # within 30 days went with it: chronic subdural haematoma, Brazil 2019, 1,049 pairs at 34.8% chance within
+            # the year, and the run kept the in-hospital deaths alone and called them viable (2026-11-22). Judged horizon
+            # by horizon, a pass is kept as far as it is admissible and contributes its pairs within that reach.
+            reach = _pass_reach(_offsets(con, spec, real), _offsets(con, spec, coincidences), horizons)
+            kept = reach is not None
+            if kept and reach is not None and reach < horizons[-1]:
+                real = _within(con, spec, real, reach)
+                coincidences = _within(con, spec, coincidences, reach)
+        else:
+            kept = bool(n) and control < n and (chance is None or chance < chance_drop())
+        short = reach if reach is not None and reach < horizons[-1] else None
+        reports.append(PassReport(p.name, n, int(control), round(chance, 2) if chance is not None else None, kept,
+                                  reach_days=short))
         if kept:
             con.register("_new", real)
             con.execute("INSERT INTO linked SELECT l, r, ? FROM _new", [p.name])
             con.unregister("_new")
             if one:
                 kept_controls.append(coincidences)
-    kept_pairs = sum(r.pairs for r in reports if r.kept)
-    kept_control = sum(r.control_pairs for r in reports if r.kept)
+    kept_pairs = int(con.execute("SELECT count(*) FROM linked").fetchone()[0])  # type: ignore[index]
+    kept_control = (sum(c.num_rows for c in kept_controls) if horizons
+                    else sum(r.control_pairs for r in reports if r.kept))
     chance = round(100.0 * kept_control / kept_pairs, 2) if kept_pairs else None
     validations = validate(con, spec)       # makes _vl and _vr, a record once each, which the cohort's outcome reads
     pairs, carried = _pairs(con, spec)
     worst_pass = max((r.chance_percent or 0.0) for r in reports if r.kept) if any(r.kept for r in reports) else None
+    if horizons:
+        # a cohort's passes are judged by horizon: the run's own rate is that of the pairs it kept, within their reach
+        worst_pass = chance
     upper = upper95(kept_control, kept_pairs)
     reach = {f"{key[0]} ~ {key[1]}": placebo.key_reach(con, *key, moved.get(key, quote(key[0]))) for key in control_keys}
 
     failures = placebo.key_failures(reach)
     result = LinkResult(spec.name, n_left, n_right, pairs, validations, passes=reports, chance_percent=chance,
                         chance_upper95_percent=upper, control_reach=reach, carried=carried,
-                        horizons=_horizons(con, spec, pairs, kept_controls, validations, failures),
+                        horizons=_horizons(con, spec, pairs, kept_controls, validations, failures, reports),
                         role_gaps={"left": role_gaps(left), "right": role_gaps(right)})
     result.decide(worst_pass, upper, placebo_failures=failures,
                   left_out=[f"pass {name!r} skipped: {why}" for name, why in why_skipped.items() if why])
@@ -615,37 +641,77 @@ def run(spec: LinkSpec, left: pa.Table, right: pa.Table) -> LinkResult:
 HORIZONS = (7, 30, 90, 180, 365)
 
 
-def _horizons(con: duckdb.DuckDBPyConnection, spec: LinkSpec, pairs: pa.Table, controls: list[pa.Table],
-              validations: dict[str, dict[str, Any]], placebo_failures: list[str]) -> list[dict[str, Any]]:
-    """For a cohort spec whose left side looks for the event within a window (`explode_days` of a count of days), the
-    pairs and the control's coincidences found within each horizon, and the verdict that horizon would have by itself.
-    The window is a key: a false pair needs a namesake dying inside the person's window, so the false-match rate grows
-    with the horizon (Alagoas I21-I22: 2.1% within 30 days, 16% within 365), and one run holds every horizon's. Read
-    after `validate`, which makes the views of the one record per id that the offsets read."""
+def _horizon_days(spec: LinkSpec) -> list[int]:
+    """The follow-up horizons of a cohort spec (those inside its window, and the window), or [] for any other spec."""
     window = spec.left.explode_days[1] if spec.left.explode_days else None
     if spec.outcome is None or not isinstance(window, int):
         return []
+    return [h for h in HORIZONS if h < window] + [window]
+
+
+def _offsets(con: duckdb.DuckDBPyConnection, spec: LinkSpec, table: pa.Table) -> np.ndarray:
+    """Days from each pair's origin to its event, in the pairs' order, read through the one-record-per-id views."""
+    if not table.num_rows:
+        return np.zeros(0, dtype=np.int64)
+    assert spec.outcome is not None
     origin, event = quote(spec.outcome.origin), quote(spec.outcome.event)
+    con.register("_t", table.select(["l", "r"]).append_column("_k", pa.array(range(table.num_rows), pa.int64())))
+    out = con.execute(f"""SELECT CAST(r.{event} - l.{origin} AS INTEGER) AS d FROM _t k JOIN _vl l ON l._id = k.l
+                          JOIN _vr r ON r._id = k.r ORDER BY k._k""").fetchnumpy()
+    con.unregister("_t")
+    return np.asarray(out["d"], dtype=np.int64)
 
-    def offsets(table: pa.Table) -> np.ndarray:
-        if not table.num_rows:
-            return np.zeros(0, dtype=np.int64)
-        con.register("_t", table.select(["l", "r"]))
-        out = con.execute(f"""SELECT CAST(r.{event} - l.{origin} AS INTEGER) FROM _t k JOIN _vl l ON l._id = k.l
-                              JOIN _vr r ON r._id = k.r""").fetchnumpy()
-        con.unregister("_t")
-        return np.asarray(next(iter(out.values())), dtype=np.int64)
 
-    real = offsets(pairs)
-    control = offsets(pa.concat_tables(controls)) if controls else np.zeros(0, dtype=np.int64)
+def _pass_reach(real: np.ndarray, control: np.ndarray, horizons: list[int]) -> int | None:
+    """The longest horizon up to which a pass is admissible at every horizon (pairs found, fewer coincidences than pairs,
+    chance under `chance_drop`), or None when it is admissible at none. A horizon with no pair yet is passed over."""
+    reach = None
+    for days in horizons:
+        n, c = int((real <= days).sum()), int((control <= days).sum())
+        if n == 0:
+            continue
+        if c >= n or 100.0 * c / n >= chance_drop():
+            break
+        reach = days
+    return reach
+
+
+def _within(con: duckdb.DuckDBPyConnection, spec: LinkSpec, table: pa.Table, days: int) -> pa.Table:
+    """The pairs of ``table`` whose event falls within ``days`` of the origin."""
+    if not table.num_rows:
+        return table
+    return table.filter(pa.array(_offsets(con, spec, table) <= days))
+
+
+def _horizons(con: duckdb.DuckDBPyConnection, spec: LinkSpec, pairs: pa.Table, controls: list[pa.Table],
+              validations: dict[str, dict[str, Any]], placebo_failures: list[str],
+              reports: list[PassReport] | None = None) -> list[dict[str, Any]]:
+    """For a cohort spec whose left side looks for the event within a window (`explode_days` of a count of days), the
+    pairs and the control's coincidences found within each horizon, and the verdict that horizon would have by itself.
+    The window is a key: a false pair needs a namesake dying inside the person's window, so the false-match rate grows
+    with the horizon (Alagoas I21-I22: 2.1% within 30 days, 16% within 365), and one run holds every horizon's. A pass
+    kept to a shorter reach (`_pass_reach`) finds no death after it: a horizon past a pass's reach names it
+    (``short_passes``) and is at most "use with caution", since deaths only that pass would find are missing there."""
+    horizons = _horizon_days(spec)
+    if not horizons:
+        return []
+    real = _offsets(con, spec, pairs)
+    control = np.concatenate([_offsets(con, spec, c) for c in controls]) if controls else np.zeros(0, dtype=np.int64)
+    short = [(r.name, r.reach_days) for r in reports or [] if r.kept and r.reach_days is not None]
     rows = []
-    for days in [h for h in HORIZONS if h < window] + [window]:
+    for days in horizons:
         n, c = int((real <= days).sum()), int((control <= days).sum())
         chance = round(100.0 * c / n, 2) if n else None
         upper = upper95(c, n)
         verdict, reasons = judge(n, chance, validations, upper, placebo_failures=placebo_failures)
+        limited = [f"{name} (to {reach} days)" for name, reach in short if reach is not None and reach < days]
+        if limited:
+            reasons = [*reasons, f"pass {', '.join(limited)} kept only to a shorter horizon: deaths only it finds are "
+                                 "missing here"]
+            if verdict == "viable":
+                verdict = "use with caution"
         rows.append({"days": days, "pairs": n, "control_pairs": c, "chance_percent": chance, "chance_upper95_percent": upper,
-                     "verdict": verdict, "verdict_reasons": reasons})
+                     "verdict": verdict, "verdict_reasons": reasons, **({"short_passes": limited} if limited else {})})
     return rows
 
 
