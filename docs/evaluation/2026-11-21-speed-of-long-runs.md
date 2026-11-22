@@ -55,3 +55,14 @@ to 0.9 units a second (126 partitions in 139 s).
 **Record keys over a whole file (5eb7ed9).** Role tables read whole files, and the key computed on read (ADR-0231) cost
 about 7-14 µs a row in batches. DuckDB now hashes a whole file in one pass, joined by position to the columns pyarrow
 reads. SIH-RD SE, AL and PE 2019 (857,219 rows) took 3.5 s, against 11.5 s, with identical keys and types.
+
+**The real home re-encoded to ADR-0232 (2026-11-22).**
+- The 12,309 partition files went from 35.18 GB to 29.89 GB (−15%), every file rewritten value for value; 734 new
+  partitions landed meanwhile (0.67 GB).
+- One file at a time, the rewrite used 1.4 of 20 cores, because pyarrow compresses a file's columns in one thread: about
+  1.8 files a second. In a process pool of 7 workers (cores less two, and the free memory at 1 GiB a worker) it ran at
+  3.6 files a second on the larger SIA, SIH and SIM files, with the machine at 79% CPU.
+- It stopped once, on file 13,040: a reader (another session's analysis) held the file open and Windows refused the
+  rename. A locked file is now retried for 30 s, then left and counted (4917c831).
+- Because the run stopped, its carry of role tables and runs never ran. Those built since the previous re-encode were
+  recomputed on demand; 32 stale role tables were removed and 4 carried by the final run.
