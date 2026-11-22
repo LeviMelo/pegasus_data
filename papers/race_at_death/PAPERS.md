@@ -2,16 +2,16 @@
 
 One evidence base (`analysis/`, `results/`, `figures/`, `references/`), several papers, each a folder with its own text
 files and `out/`, built by `build.py <folder>`. Each paper asks its own question on its own primary data and cites the
-others where it leans on them; none repeats another's results as its own. Built: 1, 2 and 6. Planned: 3 to 5.
+others where it leans on them; none repeats another's results as its own. All six are built and revised on their final reviews (2026-11-22). The sections below record each design as first written; current numbers are only in each manuscript (`<folder>/out/manuscript.docx`).
 
 | # | folder | question | primary evidence | state |
 |---|---|---|---|---|
-| 1 | `place/` | Is the race on a child's death certificate a classification of place, and what explains where it departs from the mother and the family? | infant linkage x municipality: BYM2 maps, Moran, border test, binomial and multilevel models, region-year panel; municipality-year panel, between and within (`panel.py`, `panel.R`) | built, four audits answered (`place/audits/`) |
-| 2 | `indicators/` | What do the classification of deaths and the choice of denominator do to racial inequality in infant and child mortality, nationally and by region? | rates under four classifications; Poisson BYM2 ratios for 510 immediate regions | built (short report), audit 1 answered (`indicators/audits/`) |
-| 3 | `black_category/` | Why are Black children recorded as Brown? | infant linkage + births linked to delivery admissions; net counts, within-hospital MH, delivery-hospital practice, multilevel, BYM2, panel | built, audit 1 answered (`black_category/audits/`) |
-| 4 | `family/` | How do families classify their children, and what does mixing and schooling do across generations? | see below | planned |
-| 5 | `violence/` | Does the race at death of young people depend on how they died? | see below | planned, needs identified data |
-| 6 | `estimator/` | Can a race-by-race table between two registers be estimated without linking them? | infant linkage, admissions-to-certificates linkage 2016-2022, simulation from the real births | built, audit answered (`estimator/audits/`) |
+| 1 | `place/` | Is the race on a child's death certificate a classification of place, and what explains where it departs from the mother and the family? | infant linkage x municipality: BYM2 maps, Moran, border test, binomial and multilevel models, region-year panel; municipality-year panel, between and within (`panel.py`, `panel.R`) | built, six reviews answered, revision verified (`place/audits/`) |
+| 2 | `indicators/` | What do the classification of deaths and the choice of denominator do to racial inequality in infant and child mortality, nationally and by region? | rates under four classifications; Poisson BYM2 ratios for 510 immediate regions | built (short report), three reviews answered, revision verified (`indicators/audits/`) |
+| 3 | `black_category/` | Why are Black children recorded as Brown? | infant linkage + births linked to delivery admissions; net counts, within-hospital MH, delivery-hospital practice, multilevel, BYM2, panel | built, three reviews answered, revision verified (`black_category/audits/`) |
+| 4 | `family/` | How do families classify their children, and what does mixing and schooling do across generations? | census microdata 2000, 2010, 2022: children by mother and father, siblings, informant | built, two reviews answered, revision verified (`family/audits/`) |
+| 5 | `violence/` | Does the race at death of young people depend on how they died? | births, hospital records and certificates of the same deaths related without identifiers | built, two reviews answered, revision verified (`violence/audits/`) |
+| 6 | `estimator/` | Can a race-by-race table between two registers be estimated without linking them? | infant linkage, admissions-to-certificates linkage 2016-2022, simulation from the real births | built, three reviews answered (`estimator/audits/`) |
 
 ## 3. Black children become Brown on paper (`black_category/`)
 

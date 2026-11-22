@@ -207,7 +207,7 @@ for sc in SIM["scenarios"]:
                      f"{pct(b['p_black_black']['cover_super_model'], 0)} ({pct(b['p_black_black']['cover_super_model_mcse'], 1) if 'cover_super_model_mcse' in b['p_black_black'] else pct((b['p_black_black']['cover_super_model'] * (1 - b['p_black_black']['cover_super_model']) / REPS) ** 0.5, 1)})",
                      pct(b["p_black_black"]["cover_found_chance"], 0), pct(SR[sc][size]["_invalid"] / REPS, 0)])
 table(d, f"Table 4 - Simulation: bias of the estimator against all deaths (against the deaths found), coverage with its Monte Carlo error, and failed replicates, in the "
-         f"smallest and the largest valid municipalities, {REPS} replicates a scenario",
+         f"smallest and the largest valid municipalities, {REPS} replicates a scenario ({SIM.get('replicates_pooled', REPS)} for pooled12 and application)",
       ["Scenario", "Births a year", "Found", "White as White", "Black as Black", "Brown as Brown", "Indigenous as Indigenous", "White/Brown rate ratio",
        "Coverage of the system's value, model (MC error)", "Coverage of the found, chance", "Failed replicates"], rows,
       ["Bias: mean of estimate less truth; the rate ratio's truth is the deaths by municipality of birth over the births of the same municipalities. Coverage "

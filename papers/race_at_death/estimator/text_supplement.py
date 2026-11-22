@@ -39,7 +39,7 @@ para(s, "Births. Each municipality's 2018 births by the race on the birth record
         "keeps it.")
 para(s, "The estimator was computed as for the real data: candidates and the other sex's births of the death's day in its municipality of residence, scaled by the "
         f"municipality's ratio of boys to girls, deaths sharing a key and a class counted together. Every replicate drew a new world; {SIM['replicates']} replicates "
-        "a scenario. Monte Carlo error of the bias: the standard deviation of estimate less truth over the replicates, over the square root of their number. "
+        f"a scenario ({SIM.get('replicates_pooled', SIM['replicates'])} for the two pooled ones). Monte Carlo error of the bias: the standard deviation of estimate less truth over the replicates, over the square root of their number. "
         "Targets: the table of all deaths of the size class (the estimand), of those found among their candidates (for the bias of the estimator itself), and the "
         "mean of the first over replicates (the system's classification, for the coverage of the model and cluster errors).")
 

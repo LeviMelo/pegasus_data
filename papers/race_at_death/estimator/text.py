@@ -160,7 +160,7 @@ para(d, "Methods: For each record of one register (a death), the records of the 
 para(d, f"Results: In municipalities under 25,600 births a year ({pct(E['infants_births_share']['below_25600'], 0)} of births), on the linked infants, the estimated "
         f"proportions differed from the linkage by {pp(l25['mean_abs_diff'])} on average over the 20 cells (candidates without the control: "
         f"{pp(l25['nocontrol_mean_abs_diff'])}); {l25['outside_model']} of {l25['cells']} cells lay outside the 95% model interval and {l25['outside_chance']} "
-        f"outside the chance interval (adequate for infants). On all units the difference was {pp(a25['mean_abs_diff'])}; the unique-key link, the uniform attribution and "
+        f"outside the chance interval (adequate for infants pooled below 25,600 births; up to {max(v['outside_model'] for v in SZ_INF.values())} of 20 outside in one size class). On all units the difference was {pp(a25['mean_abs_diff'])}; the unique-key link, the uniform attribution and "
         f"a Goodman regression on the same units gave {pp(cmpi['comparators']['unique']['mean_abs_diff'])}, {pp(cmpi['comparators']['uniform']['mean_abs_diff'])} and "
         f"{pp(cmpi['comparators']['goodman']['mean_abs_diff'])}. In admissions the estimate on the linked units differed from the table of the people among them "
         f"whom the key finds, its target, by {pp(pair_t['mean_abs_diff'])} on average, with {pair_t['outside_model']} of {pair_t['cells']} cells outside the model "
