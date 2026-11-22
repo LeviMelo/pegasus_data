@@ -1211,6 +1211,44 @@ def land_snapshot(source: str, table: pa.Table, label: str, read_on: str, root: 
 
 # --- the fields --------------------------------------------------------------------------------------------------------
 
+#: How long a landing's working file must lie untouched before it is taken as left by a process that died.
+LEFTOVER_SECONDS = 24 * 3600
+
+
+def _sweep_leftovers(settings: Any, source: str, spec: dict[str, Any]) -> dict[str, int]:
+    """Remove what a landing killed before its cleanup left: staged parts and re-land copies under ``<work>/intake``, and
+    the source's downloaded and extracted files (``raw/``, unless the declaration keeps them), untouched for a day. A
+    landing removes its own on success and on failure (`_land_unit`, `_land`); an interrupted one could not (3.2 GB of
+    extracted SISAGUA CSVs lay in the work directory for six weeks, 2026-11-22). A day spares a running landing, which
+    touches its files, and a partial download the next run resumes."""
+    import time
+
+    cutoff = time.time() - LEFTOVER_SECONDS
+    out = {"removed": 0, "bytes": 0}
+    places = [Path(settings.work_dir) / "intake"]
+    if not _origin(spec).get("keep"):
+        places.append(_cache(source, settings.root, "raw"))
+    for place in places:
+        if not place.is_dir():
+            continue
+        for entry in place.iterdir():
+            try:
+                files = [entry] if entry.is_file() else [f for f in entry.rglob("*") if f.is_file()]
+                newest = max([entry.stat().st_mtime, *(f.stat().st_mtime for f in files)])
+                if newest >= cutoff:
+                    continue
+                size = sum(f.stat().st_size for f in files)
+                if entry.is_file():
+                    entry.unlink()
+                else:
+                    shutil.rmtree(entry)
+            except OSError:                          # held open or already gone: the next landing tries again
+                continue
+            out["removed"] += 1
+            out["bytes"] += size
+    return out
+
+
 #: Units of one file source in flight at the start (`build_source`); `concurrency.adaptive_map` moves it by the rate.
 INTAKE_WORKERS = 4
 
@@ -1222,6 +1260,7 @@ def build_source(settings: Any, source: str, names: list[str] | None = None, yea
     ``fetch=False`` downloads nothing: units whose records the lake holds are read again where the declaration changed,
     the others are reported ``not_held``."""
     spec = declared_sources()[source]
+    _sweep_leftovers(settings, source, spec)
     if _origin(spec).get("on_request") and not years:
         raise ValueError(f"{source} is declared on request (too large to land whole): name the years to build")
     fields = [f for f in spec.get("fields") or {} if not names or f in names]
