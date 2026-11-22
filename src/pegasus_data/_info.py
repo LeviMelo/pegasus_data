@@ -419,6 +419,19 @@ def _is_link(name: str) -> bool:
         return False
 
 
+def _run_current(cfg: Settings, name: str, run: dict[str, Any]) -> bool:
+    """Whether ``link()`` would serve this stored run: written under the current spec and the current fingerprint (engine
+    version, role tables, inherited links). A run that is not current is history; its numbers describe code or data that
+    have changed, and a study that read them as the link's present yield was misled (2026-11-22)."""
+    from .linkage import store
+
+    try:
+        return (run.get("spec_digest") == store._spec_digest(name)
+                and run.get("fingerprint") == store._fingerprint_of(cfg, name, str(run.get("period") or "")))
+    except Exception:  # noqa: BLE001 - a run that cannot be checked is not served as current
+        return False
+
+
 def _link(name: str, cfg: Settings) -> Info:
     """A declared record link as data: what it joins and how (keys, control, held-out validations, parameters, outcome),
     and every stored run of it, with its scope, verdict, false-match rate and how much it linked. A link is not a
@@ -439,7 +452,7 @@ def _link(name: str, cfg: Settings) -> Info:
         rate = d.get("chance_percent") if d.get("chance_percent") is not None else d.get("estimated_fdr_percent")
         upper = d.get("chance_upper95_percent") if d.get("chance_upper95_percent") is not None else d.get("fdr_upper95_percent")
         horizons = [(h.get("days"), h.get("pairs"), h.get("control_pairs"), h.get("verdict")) for h in d.get("horizons") or []]
-        runs.append({
+        runs.append({"current": _run_current(cfg, name, run),
             "method": run.get("method") or d.get("method"), "period": run.get("period"), "geography": run.get("geography"),
             "params": d.get("params"), "verdict": d.get("verdict"), "left": d.get("left_records"), "right": d.get("right_records"),
             "pairs": d.get("pairs"), "linked_share": d.get("linked_share"), "false_match_percent": rate,
@@ -468,12 +481,15 @@ def _link(name: str, cfg: Settings) -> Info:
         lines += [f"      {key}" for key in k["keys"]]
     lines += [f"  control: {spec.control_role} shifted by {spec.control_shift_days} days (its pairs are chance)",
               "  held out (fields no pass reads; true pairs agree):"] + [f"    {v}" for v in validations]
-    lines += ["", f"  stored runs ({len(runs)}):" if runs else "  stored runs: none (link() computes and stores one)"]
+    stale = sum(1 for r in runs if not r["current"])
+    lines += ["", (f"  stored runs ({len(runs)}" + (f"; {stale} stale" if stale else "") + "):") if runs
+              else "  stored runs: none (link() computes and stores one)"]
     for r in runs[:40]:
         share = f"{100 * r['linked_share']:.1f}% linked" if isinstance(r["linked_share"], (int, float)) else ""
         rate = f", chance {r['false_match_percent']:.2f}%" if isinstance(r["false_match_percent"], (int, float)) else ""
         lines.append(f"    {r['method'] or '?':<13} {r['period'] or '':<22} {r['geography'] or '':<8} {r['verdict'] or '':<17} "
-                     f"{r['pairs'] or 0:>9,} pairs of {r['left'] or 0:,} {share}{rate}")
+                     f"{r['pairs'] or 0:>9,} pairs of {r['left'] or 0:,} {share}{rate}"
+                     + ("" if r["current"] else "  [stale: link() recomputes it]"))
         # which codes the run was for, and its horizons: sixteen runs of one spec could not be told apart (2026-11-22)
         params = r["params"] or {}
         if params.get("codes"):

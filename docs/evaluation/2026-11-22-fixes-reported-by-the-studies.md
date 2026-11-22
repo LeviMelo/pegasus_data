@@ -32,3 +32,10 @@ said which series carries which ages, so the study looked only at POPSVS (80+). 
 from the files: series, place, years, axes, age range. `read_modelled` returns `(table, manifest)`; the products' calls now
 show it. INPC: `price_index(index="INPC")` (SIDRA 1736, variable 2289, December 1993 = 100) beside IPCA; 2012 to 2024 annual
 factor 1.982 against IPCA's 1.986.
+
+**The newborn link's 11-17% (science-1).** No defect in the keys: in AL 2022, 85% of 6,913 newborn admissions have a
+birth agreeing on birth date, sex, hospital and residence, 40% exactly one, and the 7-day control finds 826 unique pairs
+against the first pass's 2,600 (deterministic: not viable). The linked share is what the data identify; the link's
+description now says so. `info <link>` marked no stored run as stale while `link()` would recompute it: every run of the
+newborn, death and infant-death links was stale after the day's spec and role-table changes. Each run now shows
+`[stale: link() recomputes it]` and the header counts them.

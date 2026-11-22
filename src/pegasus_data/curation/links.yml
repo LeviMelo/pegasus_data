@@ -306,7 +306,12 @@ links:
     description: >
       Admissions of babies in their first 28 days (the patient is the baby) to
       their birth record: the baby's birth date and sex, the mother's residence,
-      and usually the hospital of birth.
+      and usually the hospital of birth. Its linked share is the share the data
+      identify, not coverage: in AL 2022, 85% of 6,913 newborn admissions have a
+      birth agreeing on all four keys but only 40% have exactly one (a maternity
+      ward has several same-sex births a day from one municipality), and the
+      first pass's 7-day control finds 826 unique pairs against its 2,600. The
+      linked newborns are a selected subset (smaller hospitals and places).
     person: [patient, baby]   # the same person on each side (linkage/entities.py)
     same_event: false   # a birth and a later admission of the baby
     left: {dataset: SIH-RD, where: "\"patient.age_years\" < 0.0767 AND \"admission.start\" - \"patient.birth_date\" <= 28"}
