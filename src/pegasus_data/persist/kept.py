@@ -75,11 +75,22 @@ def write_text_atomic(text: str, path: str | Path) -> None:
     write_atomic(path, lambda tmp: tmp.write_text(text, encoding="utf-8"), require_nonempty=False)
 
 
+def remove_if_free(path: Path) -> bool:
+    """Delete a cache file nothing needs, unless another process holds it open: Windows then refuses (``PermissionError``),
+    and the file is left for a later prune, never an error in the caller. Two studies reading one field at once, one
+    rebuilding its cube, had crashed the other on the stale sibling it was reading (2026-11-22). True when removed."""
+    try:
+        path.unlink(missing_ok=True)
+        return True
+    except PermissionError:
+        return False
+
+
 def prune_siblings(keep: Path, siblings: Iterable[Path]) -> None:
-    """Remove every path of ``siblings`` except ``keep``."""
+    """Remove every path of ``siblings`` except ``keep``; one held open by a reader is left (`remove_if_free`)."""
     for stale in list(siblings):
         if stale != keep:
-            stale.unlink(missing_ok=True)
+            remove_if_free(stale)
 
 
 def kept(target: Path, build: Callable[[], Any], *, read: Callable[[Path], Any], write: Callable[[Any, Path], object],
@@ -99,11 +110,17 @@ def kept(target: Path, build: Callable[[], Any], *, read: Callable[[Path], Any],
 
 def cap_by_recency(files: Iterable[Path], limit_bytes: float, *, keep: Path | None = None) -> None:
     """Delete the least recently modified of ``files`` (except ``keep``) until what is left fits ``limit_bytes``."""
-    files = sorted(files, key=lambda f: f.stat().st_mtime)
-    total = sum(f.stat().st_size for f in files)
+    sized = []
     for f in files:
+        try:
+            st = f.stat()
+        except FileNotFoundError:        # removed by another process meanwhile
+            continue
+        sized.append((st.st_mtime, st.st_size, f))
+    sized.sort(key=lambda x: x[0])
+    total = sum(size for _, size, _ in sized)
+    for _, size, f in sized:
         if total <= limit_bytes:
             break
-        if f != keep:
-            total -= f.stat().st_size
-            f.unlink(missing_ok=True)
+        if f != keep and remove_if_free(f):
+            total -= size

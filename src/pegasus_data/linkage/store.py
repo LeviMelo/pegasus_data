@@ -20,7 +20,7 @@ from typing import Any
 import pyarrow as pa
 import pyarrow.parquet as pq
 
-from ..persist.kept import write_json_atomic, write_parquet_atomic
+from ..persist.kept import remove_if_free, write_json_atomic, write_parquet_atomic
 from .engine import load_links, raw_links
 from .roles import load_roles, table_key
 
@@ -273,7 +273,7 @@ def carried_currency(settings: Any) -> Iterator[dict[str, int]]:
     counts = {"role_tables_carried": len(caches), "role_tables_stale_removed": len(stale), "runs_carried": len(current)}
     yield counts
     for path in stale:
-        path.unlink(missing_ok=True)
+        remove_if_free(path)        # one a reader holds open is left for a later prune
     for path, dataset, year in caches:
         new = table_key(dataset, year, settings)
         if new is None:
@@ -287,7 +287,7 @@ def carried_currency(settings: Any) -> Iterator[dict[str, int]]:
             continue
         write_parquet_atomic(stored_form(table), target, compression="zstd")
         if target != path:
-            path.unlink(missing_ok=True)
+            remove_if_free(path)
     for path, key in current:
         body = json.loads(path.read_text(encoding="utf-8"))
         body["run"]["fingerprint"] = fingerprint(settings, key)
