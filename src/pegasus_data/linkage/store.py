@@ -279,9 +279,15 @@ def carried_currency(settings: Any) -> Iterator[dict[str, int]]:
         if new is None:
             continue
         target = path.with_name(f"{year}_BR__{new}.parquet")
-        write_parquet_atomic(stored_form(pq.read_table(path)), target, compression="zstd")
+        try:
+            table = pq.read_table(path)
+        except FileNotFoundError:
+            # replaced while the lake was rewritten: a build of the same year writes the new table and removes the old
+            # (`roles._national_year`); the re-encode of 2026-11-21 stopped here, the new table being the current one
+            continue
+        write_parquet_atomic(stored_form(table), target, compression="zstd")
         if target != path:
-            path.unlink()
+            path.unlink(missing_ok=True)
     for path, key in current:
         body = json.loads(path.read_text(encoding="utf-8"))
         body["run"]["fingerprint"] = fingerprint(settings, key)

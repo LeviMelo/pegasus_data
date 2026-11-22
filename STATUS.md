@@ -17,8 +17,19 @@ holds and can do, one space × time object, and the principles audits' defects c
   - the 50 products of `curation/products.yml`;
   - every function and command.
 
-  `search()` reads it, and `info()` with no target prints its overview (about 420 lines). It also lists the home's
-  undescribed stores; one is left, `registries/tse` (the electorate zip, no reader yet).
+  `search()` reads it. A stale map is served while one detached process rebuilds it (52 s; it was 11 min). The map
+  is also written as text files to grep, the manual (`<home>/manual/`, `INDEX.md` about 850 tokens; plan
+  agent-interface): `pegasus-data info` prints its index, `info --all` the overview (about 420 lines). It also lists
+  the home's undescribed stores; one is left, `registries/tse` (the electorate zip, no reader yet).
+- **Storage and speed (2026-11-21/22).**
+  - The record key is computed on read, not stored (ADR-0231): the lake went from 42.9 to 27.1 GB and the role tables
+    from 13 to 2.8 GB.
+  - Row filters drop raw rows before normalising: the SIH-SP extract is download-bound, 5.6 → 2.8 s a file.
+  - Intake units land four at a time: TISS 0.33 → 0.9 units a second.
+  - Every DuckDB spill directory is per process.
+  - A cohort link's passes are judged horizon by horizon (LINKAGE_VERSION 5), so every stored run is recomputed once.
+  - ANS TISS hospital files 2015-2025 are landing nationally.
+  - The science of the ABNc 2027 studies runs in its own session (`../abnc2027_neuro`).
 - **The catalog's open questions.** None are open; the 733 were noise or answered (ADR-0216). Real ones are in
   `OPEN_QUESTIONS.md`.
 - **SI-PNI per-dose records** are declared on request (`PNI.DOSES`, 200 GiB zipped, built by naming years). June 2020 is
