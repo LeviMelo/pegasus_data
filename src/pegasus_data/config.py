@@ -199,6 +199,29 @@ class Settings:
     def work_dir(self) -> Path:
         return self.work_root or (self.root / "work")
 
+    def duckdb_spill(self) -> Path:
+        """This process's own DuckDB temp directory (``<work>/duckdb_spill/<pid>``), created, with those of processes
+        that no longer exist removed first. Every DuckDB connection that spills uses it: a directory shared by two
+        processes made one's reads fail ("don't know what type", the ABNc study, 2026-11-22), and a dead run's kept
+        6.7 GB for a day (2026-10-04)."""
+        import os
+        import shutil
+
+        import psutil
+
+        root = self.work_dir / "duckdb_spill"
+        root.mkdir(parents=True, exist_ok=True)
+        for stale in root.iterdir():
+            if stale.is_dir() and stale.name.isdigit() and psutil.pid_exists(int(stale.name)):
+                continue
+            if stale.is_dir():
+                shutil.rmtree(stale, ignore_errors=True)
+            else:
+                stale.unlink(missing_ok=True)
+        mine = root / str(os.getpid())
+        mine.mkdir(exist_ok=True)
+        return mine
+
     @property
     def registries_dir(self) -> Path:
         """Where the registries (establishments, teams, the IBGE and SIDRA caches) are built and read: always under

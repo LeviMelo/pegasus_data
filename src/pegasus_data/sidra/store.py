@@ -166,8 +166,9 @@ def load_facts(lake: Path, table: int, *, variables: list[int] | None = None, pe
         where.append("level = ?")
         args.append(level)
     con = duckdb.connect()
-    spill = Path(lake) / "sidra" / "duck_tmp"
-    spill.mkdir(parents=True, exist_ok=True)
+    from ..config import load_settings
+
+    spill = load_settings().duckdb_spill()       # this process's own: a shared one broke another process's reads
     con.execute(f"SET memory_limit='2GB'; SET threads=2; SET preserve_insertion_order=false; SET temp_directory='{spill.as_posix()}'")
     drop = "_rn, value_raw, request, fetched" if light else "_rn"
     listing = ",".join("?" * len(files))

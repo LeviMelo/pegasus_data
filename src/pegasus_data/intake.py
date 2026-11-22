@@ -274,8 +274,7 @@ def _duck(settings: Any, spec: dict[str, Any]) -> Any:
     from .geography import municipalities
 
     con = duckdb.connect(":memory:")
-    work = Path(settings.work_dir) / "duckdb"
-    work.mkdir(parents=True, exist_ok=True)
+    work = settings.duckdb_spill()          # this process's own: a shared one broke another process's reads
     # a decode slot's share of the machine (`decode.admission`: total RAM over the slots), not a fixed 2 GB: SRAG's ~190
     # columns of text ran out of memory re-landing a year under 2 GB (the parquet writer's buffers do not spill, 2026-10-24)
     import psutil

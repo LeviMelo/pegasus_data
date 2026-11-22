@@ -338,8 +338,7 @@ def land_uf(uf: str | int, settings: Settings | None = None, *, keep_raw: bool |
 def _connect(settings: Settings) -> Any:
     import duckdb
 
-    spill = Path(settings.work_dir) / "duckdb_spill" / "cnefe"
-    spill.mkdir(parents=True, exist_ok=True)
+    spill = settings.duckdb_spill()          # this process's own: a shared one broke another process's reads
     con = duckdb.connect()
     con.execute(f"SET memory_limit='{DUCKDB_MEMORY_GB}GB'")
     con.execute(f"SET threads={DUCKDB_THREADS}")

@@ -30,27 +30,13 @@ def connect() -> duckdb.DuckDBPyConnection:
     that no longer exist are removed first: one shared directory kept 6.7 GB
     of a killed run's temp files for a day (2026-10-04).
     """
-    import os
-    import shutil
-
     import psutil
 
     from ..config import load_settings
 
     con = duckdb.connect()
     total = psutil.virtual_memory().total
-    root = load_settings().work_dir / "duckdb_spill"
-    root.mkdir(parents=True, exist_ok=True)
-    for stale in root.iterdir():
-        alive = stale.is_dir() and stale.name.isdigit() and psutil.pid_exists(int(stale.name))
-        if not alive:
-            # Loose files are the pre-2026-10-04 layout; a dead pid's directory is a crash's.
-            if stale.is_dir():
-                shutil.rmtree(stale, ignore_errors=True)
-            else:
-                stale.unlink(missing_ok=True)
-    spill = root / str(os.getpid())
-    spill.mkdir(exist_ok=True)
+    spill = load_settings().duckdb_spill()
     con.execute(f"SET memory_limit = '{max(1, int(total * 0.4) // 2**30)}GB'")
     con.execute(f"SET temp_directory = '{spill.as_posix()}'")
     return con
