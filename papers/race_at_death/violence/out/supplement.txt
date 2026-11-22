@@ -1,4 +1,4 @@
-﻿Supplementary material - Recorded darker before they were killed: the race of young people at birth, in hospital during life and on the death certificate, by cause of death, Brazil, 2015-2024
+﻿Supplementary material - Where the race of young people who die violently changes: the same deaths at birth, in hospital and on the death certificate, Brazil, 2015-2024
 Supplementary Text S1 - Relating records without identifiers
 For a death i, let C_i be the set of records in the other register (live births, or hospital admissions) with the birth date, sex and municipality of residence of i. If the person stayed in the municipality, one element of C_i is the person (for admissions, possibly several, one per admission); the others agree by chance. The records of the other sex with the same birth date and municipality cannot contain the person and share the day's size; scaled by the ratio of the two sexes' records in the municipality (and, for admissions, the birth year, since young women are admitted for childbirth), their count estimates the chance candidates. The cross-classification of the records' race by the certified race, candidates minus scaled control, estimates that of the people found, who are those who did not move: the shares found were alike for every cause of death (Table 1 of the main text). The estimator reproduced one-to-one linkage of infant deaths in municipalities below 25,600 births a year; in simulation it was nearly unbiased for the people found where each row holds enough deaths, with a small-sample bias in sparse rows, and moving that depends on the class recorded biased it against all deaths (companion methods paper). Here the restriction to municipalities with fewer than 1,600 births a year keeps chance candidates few. For the hospital records, each death contributes whether any admission with its key was recorded in each race, so that a person with several admissions counts once.
 Supplementary Table S1 - Young people certified in their race at birth, by cause, region and period, Brazil, 2015-2024
@@ -173,7 +173,7 @@ white
 assault by firearm
 brown
 0.13 (95%CI 0.11; 0.15)
-0.81 (95%CI 0.79; 0.84)
+0.81 (95%CI 0.79; 0.83)
 0.06 (95%CI 0.05; 0.08)
 assault by firearm
 black
@@ -184,7 +184,7 @@ other assault
 white
 0.48 (95%CI 0.38; 0.57)
 0.50 (95%CI 0.40; 0.60)
-0.02 (95%CI -0.03; 0.08)
+0.02 (95%CI -0.04; 0.08)
 other assault
 brown
 0.13 (95%CI 0.09; 0.17)
@@ -192,19 +192,19 @@ brown
 0.07 (95%CI 0.03; 0.11)
 other assault
 black
-0.20 (95%CI 0.08; 0.33)
-0.55 (95%CI 0.38; 0.72)
+0.20 (95%CI 0.08; 0.32)
+0.55 (95%CI 0.39; 0.72)
 0.24 (95%CI 0.11; 0.37)
 legal intervention
 white
-0.24 (95%CI 0.03; 0.46)
-0.69 (95%CI 0.49; 0.89)
-0.06 (95%CI -0.03; 0.15)
+0.24 (95%CI 0.04; 0.45)
+0.69 (95%CI 0.49; 0.90)
+0.06 (95%CI -0.02; 0.15)
 legal intervention
 brown
 0.15 (95%CI 0.08; 0.23)
 0.74 (95%CI 0.64; 0.83)
-0.11 (95%CI 0.03; 0.18)
+0.11 (95%CI 0.04; 0.18)
 legal intervention
 black
 not estimable

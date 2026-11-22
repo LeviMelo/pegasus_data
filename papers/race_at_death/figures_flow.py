@@ -127,16 +127,17 @@ box(ax, 2, 22, 171, "One pairing rule for both censuses", [
 save(fig, "flow_family")
 
 # ---------------------------------------------------------------- paper 5: deaths related to births and admissions without identifiers
-TOT = sum(VI["deaths_total"][k] for k in ("natural", "transport", "suicide", "other external", "assault by firearm", "other assault", "legal intervention"))
+TOT = sum(VI["deaths_total"][k] for k in ("natural", "transport", "suicide", "other external", "undetermined intent", "assault by firearm", "other assault", "legal intervention"))
 fig, ax = canvas(47)
-a = box(ax, 2, 45, 44, "Live births 2000-2009 (SINASC)", ["the newborn's colour,", "recorded by staff"], "SINASC")
-b = box(ax, 65.5, 45, 44, "Deaths at 15-24, 2015-2024 (SIM)", [f"{n0(TOT)} deaths in municipalities", "under 1,600 births a year", "certified race and cause"], "SIM")
-c = box(ax, 129, 45, 44, "Admissions 2010-2024 (SIH)", ["race recorded in hospital:", "earlier admissions (30+ days)", "and the admission of the death"], "SIH")
+a = box(ax, 2, 45, 44, "Births (SINASC)", ["2000-2009: the newborn's", "colour, recorded by staff"], "SINASC")
+b = box(ax, 65.5, 45, 44, "Deaths (SIM)", [f"15-24 years, 2015-2024: {n0(TOT)}", "in municipalities under", "1,600 births a year"], "SIM")
+c = box(ax, 129, 45, 44, "Admissions (SIH)", ["2010-2024: race in hospital,", "earlier admissions (30+ days)", "and the admission of death"], "SIH")
 harrow(ax, a, b, "birth date,\nsex,\nmunicipality;\nother sex\nas control", both=True)
 harrow(ax, b, c, "same key;\ncontrol\nscaled by\nmunicipality,\nbirth year", both=True)
-box(ax, 2, 19, 171, "Estimated for the people found", [
-    f"found among birth candidates: about half of deaths, alike for every cause; an earlier admission: {100 * VI['with_admission']['natural']:.0f}% of natural "
-    f"and {100 * VI['with_admission']['assault by firearm']:.0f}% of firearm deaths;", "one record per person; checked by a shifted-date placebo, men only and a 180-day window"], "result")
+TR_ = VI["three_records"]
+box(ax, 2, 19, 171, "Estimated for the people found, the same deaths in all three records", [
+    f"found among birth candidates: about half of deaths, alike for every cause; with an earlier admission: {100 * VI['with_admission']['natural']:.0f}% of natural "
+    f"and {100 * VI['with_admission']['assault by firearm']:.0f}% of firearm deaths;", "one record per person; shifted-date placebos at 7 and 14 days; men only; a 180-day window"], "result")
 save(fig, "flow_violence")
 # ---------------------------------------------------------------- paper 2: the 2 x 2 of numerators and denominators
 D2 = json.loads((RES / "indicators2.json").read_text(encoding="utf-8"))

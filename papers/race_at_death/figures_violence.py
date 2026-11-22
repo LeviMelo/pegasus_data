@@ -34,23 +34,37 @@ def cell(m, a="Branca", b="Branca"):
     return r if r and r["se"] <= 0.15 else None
 
 
-# ---------------------------------------------------------------- 1. by cause
-fig, ax = plt.subplots(figsize=(7.2, 2.8))
-for i, k in enumerate(KINDS):
-    for dx, (a, b, col, lab) in zip((-0.15, 0.15), (("Branca", "Branca", "#E69F00", "White at birth, certified White"),
-                                                    ("Parda", "Parda", "#0072B2", "Brown at birth, certified Brown")), strict=True):
-        c = cell(Y["by_kind"][k], a, b)
-        if c:
-            ax.errorbar(i + dx, c["est"], yerr=1.96 * c["se"], fmt="o", color=col, ms=4, capsize=1.5, label=lab if i == 0 else None)
-ax.set_xticks(range(len(KINDS)), [KL[k] for k in KINDS])
-ax.set_ylim(0, 1)
-ax.set_ylabel("Proportion of deaths")
+# ---------------------------------------------------------------- 1. by cause: birth against certificate, the same deaths found among their birth candidates
+BC = VI["birth_cert"]
+G1 = ["natural", "transport", "suicide", "other external", "undetermined intent", "assault by firearm", "other assault"]
+GL1 = ["natural", "transport", "suicide", "other external", "undetermined", "assault, firearm", "assault, other"]
+fig, axes = plt.subplots(1, 2, figsize=(6.9, 2.9), gridspec_kw={"width_ratios": [1, 1], "wspace": 0.3})
+ax = axes[0]
+for i, g in enumerate(G1):
+    b, c = BC[g]["birth_white"], BC[g]["certified_white"]
+    ax.plot([i, i], [b["est"], c["est"]], "-", color="#999999", lw=1)
+    ax.errorbar(i - 0.08, b["est"], yerr=1.96 * b["se"], fmt="s", color="#009E73", ms=4, capsize=1.2, label="at birth" if i == 0 else None)
+    ax.errorbar(i + 0.08, c["est"], yerr=1.96 * c["se"], fmt="o", color="#D55E00", ms=4, capsize=1.2, label="on the certificate" if i == 0 else None)
+ax.set_xticks(range(len(G1)), GL1, fontsize=6.5, rotation=35, ha="right")
+ax.set_ylim(0, 0.7)
+ax.set_ylabel("Share White", fontsize=7)
+ax.set_title("A. Share White at birth and at death", fontsize=8, loc="left")
 ax.legend(frameon=False, fontsize=7, loc="lower left")
-fig.tight_layout()
+ax = axes[1]
+for i, g in enumerate(G1):
+    for dx, (k, col, lab) in zip((-0.15, 0.15), (("white_white", "#E69F00", "White at birth, certified White"),
+                                                 ("brown_brown", "#0072B2", "Brown at birth, certified Brown")), strict=True):
+        v = BC[g][k]
+        ax.errorbar(i + dx, v["est"], yerr=1.96 * v["se"], fmt="o", color=col, ms=4, capsize=1.2, label=lab if i == 0 else None)
+ax.set_xticks(range(len(G1)), GL1, fontsize=6.5, rotation=35, ha="right")
+ax.set_ylim(0, 1)
+ax.set_ylabel("Proportion of deaths", fontsize=7)
+ax.set_title("B. Certified in the race at birth", fontsize=8, loc="left")
+ax.legend(frameon=False, fontsize=7, loc="lower left")
 save(fig, "violence_cause")
 
 # ---------------------------------------------------------------- 2. composition, certifier, schooling
-fig, axes = plt.subplots(1, 3, figsize=(7.2, 2.7), sharey=True)
+fig, axes = plt.subplots(1, 3, figsize=(6.9, 2.8), sharey=True)
 ax = axes[0]
 for cz, col in CAUSE3.items():
     bins = YC["by_composition"][cz]
@@ -65,7 +79,7 @@ for cz, col in CAUSE3.items():
 ax.set_xlabel("municipality's share of White births")
 ax.set_ylabel("White at birth, certified White")
 ax.set_title("A. Composition", fontsize=8, loc="left")
-ax.legend(frameon=False, fontsize=6)
+ax.legend(frameon=False, fontsize=7)
 ax = axes[1]
 CERTS = ["physician", "medical examiner", "death verification service"]
 for j, (cz, col) in enumerate(CAUSE3.items()):
@@ -89,7 +103,7 @@ fig.tight_layout()
 save(fig, "violence_strata")
 
 # ---------------------------------------------------------------- 3. the earlier hospital record
-fig, axes = plt.subplots(1, 2, figsize=(7.2, 2.8), gridspec_kw={"width_ratios": [1.3, 1]})
+fig, axes = plt.subplots(1, 2, figsize=(6.9, 3.0), gridspec_kw={"width_ratios": [1.15, 1.15]})
 ax = axes[0]
 G = ["natural", "transport", "suicide", "other assault", "assault by firearm", "all assault"]
 GL = ["natural", "transport", "suicide", "assault,\nother", "assault,\nfirearm", "all\nassaults"]
@@ -104,16 +118,19 @@ ax.set_ylabel("Proportion of deaths")
 ax.set_title("A. Agreement of the two records", fontsize=8, loc="left")
 ax.legend(frameon=False, fontsize=6.5, loc="lower left")
 ax = axes[1]
+TR = VI["three_records"]
 for i, g in enumerate(G):
-    mg = VI["person"][g]["margins"]
-    ax.plot([i, i], [mg["hospital_white"]["est"], mg["certified_white"]["est"]], "-", color="#999999", lw=1)
-    ax.plot(i, mg["hospital_white"]["est"], "s", color="#56B4E9", ms=5, label="hospital, in life" if i == 0 else None)
-    ax.plot(i, mg["certified_white"]["est"], "o", color="#D55E00", ms=5, label="certificate" if i == 0 else None)
+    t = TR[g]
+    xs = [i - 0.2, i, i + 0.2]
+    vals = [t["birth_white"], t["hospital_white"], t["certified_white"]]
+    ax.plot(xs, [v["est"] for v in vals], "-", color="#bbbbbb", lw=0.8)
+    for x_, v, col, mk, lab in zip(xs, vals, ("#009E73", "#56B4E9", "#D55E00"), ("s", "D", "o"), ("birth", "hospital, in life", "certificate"), strict=True):
+        ax.errorbar(x_, v["est"], yerr=1.96 * v["se"], fmt=mk, color=col, ms=3.5, capsize=1, label=lab if i == 0 else None)
 ax.set_xticks(range(len(G)), GL, fontsize=7)
-ax.set_ylim(0, 0.6)
-ax.set_ylabel("Share White")
-ax.set_title("B. The same deaths, two records", fontsize=8, loc="left")
-ax.legend(frameon=False, fontsize=6.5)
+ax.set_ylim(0, 0.75)
+ax.set_ylabel("Share White", fontsize=7)
+ax.set_title("B. The same deaths, three records", fontsize=8, loc="left")
+ax.legend(frameon=False, fontsize=6.5, loc="upper right", ncol=3)
 fig.tight_layout()
 save(fig, "violence_hospital")
 print("violence figures written")
