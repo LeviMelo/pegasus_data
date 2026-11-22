@@ -216,7 +216,7 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   `sim_infant_deaths_to_sinasc` 2013-2023). Of 748 infant deaths whose underlying cause is spina bifida (Q05), 517
   (69%) link to a birth record, level with the link's overall 66-72%, so the link is not the bottleneck. The birth
   record codes Q05 in 298 of the 517 (58%), any neural tube defect (Q00-Q07) in 360 (70%) and any anomaly in 399 (77%).
-  Conditional on the baby dying in infancy, so a lower bound of the gap in survivors is not implied. Published: about
+  Conditional on the baby dying in infancy: recording among survivors may differ. Published: about
   40% of defects unreported (Luquetti & Koifman, Cad Saude Publica 2009, PMID 19649413; 2010, PMID 20877936).
 - **SIM's DOINF, DOMAT and DOEXT are copies of DO rows** (checked nationally
   for 2022, 2026-09-30, after omnisus reported it for RR and SP). Every row
