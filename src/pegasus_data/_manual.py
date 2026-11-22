@@ -129,7 +129,7 @@ def write_manual(*, settings: Settings | None = None, root: str | Path | None = 
         sidra = q("SELECT id, name, research, subject, frequency, first_period, last_period, levels, curated "
                   "FROM sidra_tables ORDER BY id").fetchall()
         (staged / "sidra.md").write_text("\n".join(
-            ["# IBGE SIDRA tables: `cube('sidra:<table>/<variable>')`; `pegasus-data sidra inspect <table>`", "",
+            ["# IBGE SIDRA tables: `cube('sidra:<table>/<variable>')`; `pegasus-data sidra show <table>` describes one; `pegasus-data sidra fetch <table> -v <variables> --level <N1..N6>` lands its values", "",
              *_table(["table", "name", "research", "subject", "frequency", "first", "last", "levels", "curated"],
                      [list(s) for s in sidra])]) + "\n", encoding="utf-8")
         counts.update(fields=len(fields), products=len(products), operations=len(operations), sidra_tables=len(sidra))

@@ -137,7 +137,9 @@ def _sidra(ident: str, *, place: str, by: list[str], where: dict[str, Sequence[A
         if "nivelTerritorial" not in summarisation:
             raise AggregationRefused(
                 f"sidra:{table_id}/{variable_id} ({variable['name']}) is not summed over territory by IBGE "
-                f"(summarização {sorted(summarisation)}), and the {level} level is not held")
+                f"(summarização {sorted(summarisation)}), and the {level} level is not held: fetch the level IBGE "
+                f"publishes with `pegasus-data sidra fetch {table_id} -v {variable_id} --level {level}` "
+                f"(`pegasus-data sidra show {table_id}` lists its levels)")
         facts = _facts_or_none(sidra, table_id, variable_id, wanted_periods, "N6")
         rolled = True
     if facts is None:
