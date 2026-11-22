@@ -421,15 +421,16 @@ products:
 
   # ------------------------------------------------------------------------------------------------- prices
   price_index:
-    label: "Consumer price index (IPCA)"
+    label: "Consumer price indices (IPCA, INPC)"
     kind: prices
-    source: "IBGE, SIDRA table 1737, variable 2266 (IPCA)"
+    source: "IBGE, SIDRA table 1737, variable 2266 (IPCA); table 1736, variable 2289 (INPC)"
     what: >
       Monthly index number (December 1993 = 100) or yearly mean, with a `factor` to express nominal reais in those of a
-      reference month; a year IBGE has not finished has a null index, never a mean of the months there are.
+      reference month; a year IBGE has not finished has a null index, never a mean of the months there are. IPCA by
+      default; `index="INPC"` (households of one to five minimum wages) for a deflator sensitivity.
     grain: "month or year"
     period: "1993-12 to date"
-    call: 'price_index(reference="2025-12")'
+    call: 'price_index(reference="2025-12", index="IPCA")'
     stores: [lake/sidra, registries/sidra]
 
   sidra_aggregates:
@@ -555,7 +556,7 @@ products:
       only) and 2024-2030 a forecast. Earlier versions are kept.
     grain: "municipality × year × sex × age × race (version -2: place × five-year band)"
     period: "1991-2030"
-    call: 'pegasus_data.modelled.read_modelled("population_account")'
+    call: 'table, manifest = pegasus_data.read_modelled("population_account")'
     stores: [lake/modelled/population_account]
     # what the account counts, as event types stratified by roles (`population_account.vital_events`, read from the records cube):
     # the strata are under these names, sex read from its label (M, F or unknown), never from a code
@@ -595,7 +596,7 @@ products:
       population_account had this shape (to 2023, by a migration regression after 2022).
     grain: "place × year × sex × five-year age band"
     period: "2000-2030"
-    call: 'pegasus_data.modelled.read_modelled("population_account_bands")'
+    call: 'table, manifest = pegasus_data.read_modelled("population_account_bands")'
     stores: [lake/modelled/population_account_bands]
     # no build of its own: population_account's build writes it beside the account (`population_tensor.band_tables`)
 
@@ -631,7 +632,7 @@ products:
       bounds; the birth's race is the mother's declaration. Fitted on 2021 deaths, scored on 2022.
     grain: "state × age band × declared race × recorded race"
     period: "2021-2022"
-    call: 'pegasus_data.modelled.read_modelled("race_confusion_infant")'
+    call: 'table, manifest = pegasus_data.read_modelled("race_confusion_infant")'
     stores: [lake/modelled/race_confusion_infant]
     build: pegasus_data.studies.modelled_race.build_infant_product
     # the stored link run of each year (a probabilistic run takes hours: the build reads it, never runs it); the births whose
@@ -652,7 +653,7 @@ products:
       on deaths of 2015-2018, scored on 2019-2022.
     grain: "state × age band × declared race × recorded race"
     period: "2015-2022"
-    call: 'pegasus_data.modelled.read_modelled("race_confusion_women")'
+    call: 'table, manifest = pegasus_data.read_modelled("race_confusion_women")'
     stores: [lake/modelled/race_confusion_women]
     build: pegasus_data.studies.modelled_race.build_women_product
     # one link run per death year over the births from `births_from` (run by the build, which keeps the pairs `engine.link` drops at this chance rate). A municipality's class is
@@ -683,7 +684,7 @@ products:
       2011 form on is the mother's own declaration. Children born from 2012, so the oldest age grows with the years read.
     grain: "state × age band × declared race × recorded race"
     period: "2013-2024"
-    call: 'pegasus_data.modelled.read_modelled("race_confusion_child")'
+    call: 'table, manifest = pegasus_data.read_modelled("race_confusion_child")'
     stores: [lake/modelled/race_confusion_child]
     build: pegasus_data.studies.modelled_race.build_child_product
     # the pass of the link run by the build one birth cohort at a time. `births_from` is 2012: the form of 2011 made the
@@ -728,7 +729,7 @@ products:
       to 2011 (the ratio is assumed 100% where no Busca Ativa survey was made), a model after; each row says its basis.
     grain: "system × UF × year"
     period: "2000-2023"
-    call: 'pegasus_data.modelled.read_modelled("system_completeness")'
+    call: 'table, manifest = pegasus_data.read_modelled("system_completeness")'
     stores: [lake/modelled/system_completeness, resources/published_coverage_idb2012.csv]
     build: pegasus_data.studies.completeness.build_completeness
     # the deaths whose ill-defined share (by UF of residence and year) is a covariate of the SIM series
@@ -753,7 +754,7 @@ products:
       coverage assumed. A value above 1 means the census counted fewer children than were registered.
     grain: "UF × system × five-year birth period"
     period: "2000-2004 to 2017-2021"
-    call: 'pegasus_data.modelled.read_modelled("registration_completeness")'
+    call: 'table, manifest = pegasus_data.read_modelled("registration_completeness")'
     stores: [lake/modelled/registration_completeness]
     build: pegasus_data.studies.population_account.build_registration_completeness
     # the census term of the interval is the account's own (see `population_account`)

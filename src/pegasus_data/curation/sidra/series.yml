@@ -211,3 +211,11 @@ series:
     comparability: {level: strict, note: "one index number on one base (December 1993 = 100) for the whole series; the number is the price level of the month, so the ratio of two months is the inflation between them"}
     sources:
       - {id: ipca, table: 1737, variable: 2266, periods: all, level: N1, role: index, priority: 1}
+  price_index_inpc:
+    what: >
+      INPC, IBGE's national consumer price index for households earning one to five minimum wages (Índice Nacional de
+      Preços ao Consumidor): the monthly index number, December 1993 = 100 (table 1736, variable 2289), national level. The
+      deflator of incomes and of the wage-earning population's spending; IPCA covers one to forty minimum wages.
+    comparability: {level: strict, note: "one index number on one base (December 1993 = 100) for the whole series"}
+    sources:
+      - {id: inpc, table: 1736, variable: 2289, periods: all, level: N1, role: index, priority: 1}

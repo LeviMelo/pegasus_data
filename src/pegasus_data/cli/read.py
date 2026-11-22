@@ -323,15 +323,16 @@ def price_index_cmd(
     reference: Annotated[str | None, typer.Option("--reference", help="A month (2025-12) or, with --grain year, a year: adds `factor`, nominal reais x factor = reais of that month")] = None,
     years: Annotated[str | None, typer.Option("--years", help="Rows to keep, e.g. 2014-2025")] = None,
     refresh: Annotated[bool, typer.Option("--refresh", help="Re-read IBGE's list of months first, for those published since")] = False,
+    index: Annotated[str, typer.Option("--index", help="IPCA (default) or INPC")] = "IPCA",
     out: Annotated[Path | None, typer.Option("--out", help="Write the table as .csv or .parquet")] = None,
     root: RootOpt = None,
     as_json: JsonOpt = False,
 ) -> None:
-    """IBGE's IPCA (December 1993 = 100), to deflate the nominal reais of SIH and SIA; fetches table 1737 once."""
+    """IBGE's IPCA or INPC (December 1993 = 100), to deflate the nominal reais of SIH and SIA; fetches its table once."""
     from ..sidra.prices import price_index
 
     table = price_index(_settings(root).root, grain=grain, reference=reference, refresh=refresh,
-                        years=_parse_years(years) if years else None)
+                        years=_parse_years(years) if years else None, index=index)
     if out is not None:
         import pyarrow.csv as pacsv
         import pyarrow.parquet as pq

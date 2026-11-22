@@ -90,6 +90,7 @@ $PD info SIH.RD                                                # what it is
 $PD facts SIH.RD                                               # what the curation documents of it, with sources
 $PD garbage-codes [GBD2017] --out garbage.csv                  # the GBD garbage codes with level and package (curation/garbage_codes.yml)
 $PD price-index --years 2014-2025 --reference 2025-12 --out ipca.csv   # IPCA by month with the deflator to December 2025 (fetches SIDRA 1737 once)
+$PD price-index --index INPC --grain year --reference 2024                # INPC (SIDRA 1736), the deflator sensitivity
 $PD publications SIH.RD --years 2014..2023 --uf AL --out files.csv   # the files it was read from: size, date, digest, rows, status
 $PD search raça                                                # anything held or doable: datasets, columns, fields, roles, links, operations, SIDRA, codes; each with its call
 $PD compendium [--out map.sqlite]                              # the one map (default: refresh the home's own, which search reads)

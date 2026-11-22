@@ -66,6 +66,43 @@ def _write_code_windows(staged: Path, cfg: Settings) -> int:
     return written
 
 
+def _write_populations(staged: Path, cfg: Settings) -> int:
+    """``populations.md``: every population series with its geography, years, the axes its files carry and, for a series
+    with ages, the youngest and oldest age it holds and whether the oldest stands for "and over" (projpop's 90, the
+    census's 100), read from the files: a study asking for ages beyond 80 finds which series has them. Returns the series
+    written."""
+    import pyarrow.compute as pc
+
+    from .api import load_population
+    from .sources.ibge import KNOWN_SERIES, materialised
+
+    rows = []
+    for name, spec in KNOWN_SERIES.items():
+        directory = cfg.population_dir / name
+        held = materialised(directory) if directory.exists() else None
+        axes = held.stratifications(spec.stratifications) if held else []
+        ages = ""
+        if held and held.years and "age" in axes:
+            try:
+                t = load_population(series=name, years=max(held.years), by=["age"], settings=cfg)
+                ages = f"single years {pc.min(t.column('age')).as_py()}-{pc.max(t.column('age')).as_py()}+"
+            except Exception as exc:                     # a series that will not load says so, never a guessed range
+                ages = f"not read: {type(exc).__name__}"
+        elif held and any(c in held.columns for c in ("age_group", "fxetaria")):
+            ages = "age groups"
+        years = f"{min(held.years)}-{max(held.years)}" if held and held.years else "none held"
+        place = "state" if "uf" in axes and "municipality" not in axes else ("municipality" if "municipality" in axes else "")
+        rows.append([name, spec.kind, spec.authority, place, years, ", ".join(a for a in axes if a not in ("year",)), ages,
+                     f'load_population(series="{name}", years=..., by=[...])'])
+    (staged / "populations.md").write_text("\n".join(
+        ["# Population series: `load_population(series=..., years=..., by=[...])`", "",
+         "Denominators as their producers publish them. Ages: the single years the files hold, the oldest standing for 'and over' "
+         "(80+, 90+, 100+). Above 80 by single year: projpop (states, to 90+, 2000-2070) and CENSO (municipalities, to 100+, "
+         "census years). The modelled population account is a product (`products.md`, `read_modelled`).", "",
+         *_table(["series", "kind", "authority", "place", "years", "axes", "ages", "call"], rows)]) + "\n", encoding="utf-8")
+    return len(rows)
+
+
 def write_manual(*, settings: Settings | None = None, root: str | Path | None = None) -> dict[str, int]:
     """Write the manual from the home's current map (built here when stale). Returns the pages written by kind."""
     from ._compendium import current
@@ -134,6 +171,7 @@ def write_manual(*, settings: Settings | None = None, root: str | Path | None = 
                      [list(s) for s in sidra])]) + "\n", encoding="utf-8")
         counts.update(fields=len(fields), products=len(products), operations=len(operations), sidra_tables=len(sidra))
         counts["code_windows"] = _write_code_windows(staged, cfg)
+        counts["populations"] = _write_populations(staged, cfg)
         systems = q("SELECT code, translated_name, kind, datasets, year_min, year_max FROM systems ORDER BY kind, code").fetchall()
         held = [d for d in datasets if d["rows_held"]]
         index = [
@@ -148,7 +186,8 @@ def write_manual(*, settings: Settings | None = None, root: str | Path | None = 
             "- `columns/<CODE>.md`: its columns with their meaning, codelist and fill, and the roles they state.",
             f"- `links/<name>.md`: record linkages ({len(links)}) with their stored runs and verdicts.",
             f"- `fields.md` ({len(fields)} municipal context fields), `products.md` ({len(products)}), `operations.md` "
-            f"({len(operations)} functions and commands), `sidra.md` ({len(sidra)} IBGE tables).",
+            f"({len(operations)} functions and commands), `sidra.md` ({len(sidra)} IBGE tables), `populations.md` (the "
+            "population series with their places, years and ages).",
             "- `codes/<CLASSIFICATION>.md`: every code of a classification that dates its codes (SIGTAP's procedures), with "
             "its name and the months it is valid; a code is labelled only inside them.", "",
             "Read data through the library (`pegasus_data.query`, `load_field`, `cube`, `link`), never by opening its "

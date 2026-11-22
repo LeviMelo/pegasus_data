@@ -25,3 +25,10 @@ defect in `semantics_for`: a series with underscores was matched on its last wor
 SISCAN, SIH.BASE_AIH1, two DADOS_ABERTOS) fell through to role-derived axes and ignored their curated ones. The series
 is now matched as the whole end of the key; the default place and time columns of all 15 are unchanged, and no other
 dataset of the 180 resolves differently (SIA.PA still to core.yml's SIASUS_PA).
+
+**Second round (science-1, after the crash).** Ages above 80: no defect in the data. `projpop` holds single years to 90+
+by state, sex and year 2000-2070, and `CENSO` single years to 100+ by municipality for 2022, but no page of the manual
+said which series carries which ages, so the study looked only at POPSVS (80+). The manual now has `populations.md`, read
+from the files: series, place, years, axes, age range. `read_modelled` returns `(table, manifest)`; the products' calls now
+show it. INPC: `price_index(index="INPC")` (SIDRA 1736, variable 2289, December 1993 = 100) beside IPCA; 2012 to 2024 annual
+factor 1.982 against IPCA's 1.986.
