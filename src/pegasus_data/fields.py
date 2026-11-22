@@ -654,14 +654,22 @@ def load_field(name: str, *, years: list[int] | int | None = None, settings: Any
         wanted = [int(y) for y in wanted]
     spec = declared_fields()[name]
     declared = _years(spec["years"]) if str(spec.get("years") or "").strip() else None
-    if wanted and declared is not None and (absent := [y for y in wanted if y not in declared]):
-        raise ValueError(f"field {name!r} holds no data for {absent}; it holds {declared}")
+    if wanted and declared is not None and not any(y in declared for y in wanted):
+        raise ValueError(f"field {name!r} holds no data for {wanted}; it holds {declared}")
+    if wanted and declared is not None:
+        wanted = [y for y in wanted if y in declared] or wanted
     table = _load_field(name, spec, wanted, settings)
     if wanted and "year" in table.column_names:
         got = set(table.column("year").to_pylist())
-        if absent := [y for y in wanted if y not in got]:
+        if absent := [y for y in (years if isinstance(years, list) else wanted) if y not in got]:
             held = _held_years(name, spec, settings)
-            raise ValueError(f"field {name!r} holds no data for {absent}; it holds {held if held else 'no year'}")
+            if not got:   # none of the years asked: an empty table would read as a field with no value
+                raise ValueError(f"field {name!r} holds no data for {absent}; it holds {held if held else 'no year'}")
+            # some held: the table answers those, and the years without data are named, never silently missing
+            import warnings
+
+            warnings.warn(f"field {name!r} holds no data for {sorted(absent)} (it holds {held}); those years are absent "
+                          "from the table, not zero", UserWarning, stacklevel=2)
     return table
 
 
