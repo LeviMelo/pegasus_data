@@ -681,13 +681,13 @@ CREATE TABLE IF NOT EXISTS lake_partitions (
   -- the normalisation plan and options. Equal fingerprint and an intact file
   -- means rebuilding would reproduce the same bytes, so the build skips it.
   build_fingerprint TEXT,
-  -- {source id: digest} of the version of each source the file holds (ADR-0233); NULL for a file written before,
+  -- {source id: digest} of the version of each source the file holds (ADR-0234); NULL for a file written before,
   -- whose `_blob_sha256` says it
   source_digests   TEXT,
   PRIMARY KEY (family_id, schema_signature, uf, year, relative_path)
 );
 
--- A version DATASUS overwrote, kept as its difference from the version that replaced it (ADR-0233,
+-- A version DATASUS overwrote, kept as its difference from the version that replaced it (ADR-0234,
 -- `persist.versions`): the rows its successor does not hold, and runs of `_row` for the rows both hold. A version is
 -- read by following `successor_sha256` to the version the lake holds. Local to the home, never in the seed.
 CREATE TABLE IF NOT EXISTS lake_versions (

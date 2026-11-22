@@ -21,6 +21,10 @@ holds and can do, one space × time object, and the principles audits' defects c
   is also written as text files to grep, the manual (`<home>/manual/`, `INDEX.md` about 850 tokens; plan
   agent-interface): `pegasus-data info` prints its index, `info --all` the overview (about 420 lines). It also lists
   the home's undescribed stores; one is left, `registries/tse` (the electorate zip, no reader yet).
+- **Versions as deltas (2026-11-22, ADR-0234; branch `claude/versions-as-deltas-2bb44d`).** A replaced version is a delta
+  against its successor in the lake; a partition takes one month's new version carrying the others; `as_of` reads the
+  lake; snapshots and queries land their downloads and release them; `prune` judges by version. Checked on a scratch
+  home (evaluation 2026-11-22-versions-as-deltas). The real home's migration (`prune --keep-versions`) is pending.
 - **Storage and speed (2026-11-21/22).**
   - The record key is computed on read, not stored (ADR-0231): the lake went from 42.9 to 27.1 GB and the role tables
     from 13 to 2.8 GB.

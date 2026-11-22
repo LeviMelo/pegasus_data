@@ -156,13 +156,14 @@ outward action and needs the user's explicit go-ahead (CLAUDE.md §4). CI
 (`.github/workflows/checks.yml`) triggers on pushes to `main`, but the branch
 is `master`, so pushes currently run no CI (STATUS).
 
-## 8. Snapshots of files DATASUS rewrites (ADR-0141)
+## 8. Snapshots of files DATASUS rewrites (ADR-0141, ADR-0234)
 
 ```bash
 $PD snapshot --dry-run                 # observe, report what would be fetched (files, bytes), fetch nothing
 $PD snapshot [--only sinan_prelim ...] # fetch what changed since each file's last kept version
-$PD snapshot --versions DENGBR26       # the kept versions of matching paths (mtime, size, sha256, observed)
-$PD query SINAN.ZIKA --period 2026 --as-of 2026-09-30   # the files as they were kept on that date
+$PD snapshot --versions DENGBR26       # the known versions of matching paths and where each is stored (lake, delta, download)
+$PD query SINAN.ZIKA --period 2026 --as-of 2026-09-30   # the files as they were on that date, from the lake; no network
+$PD prune --keep-versions              # kept downloads of replaced versions become deltas, then downloads the lake holds go
 ```
 
 - Declared series and their disk budget: `curation/snapshots.yml` (SINAN/SIM/SINASC preliminary in full;
@@ -170,7 +171,11 @@ $PD query SINAN.ZIKA --period 2026 --as-of 2026-09-30   # the files as they were
   home fetches the whole declared set; a run after that fetches only what changed, and the report gives
   `bytes_downloaded`, `versions_kept` and `store_bytes`.
 - It refuses to start under 4 GiB free RAM, if it would leave under 10 GiB of disk, or above `--max-gb`.
-- Versions are never pruned (`prune` skips their blobs). One run holds one FTP connection.
+- Each fetched version is built into its partition: the other sources are carried, the version it replaces is kept
+  as a delta under `<lake>/versions/` (`lake_versions`), and the download is released (`landed` in the report). A
+  partition built by another plan is decoded whole, which refetches its other files. One run holds one FTP connection.
+- A query that downloads files builds them into the lake after answering and releases them (`report.landed`); the
+  next read of those months is the lake's. `keep_downloads` in the config keeps them.
 - While the FTP data channel is down (ADR-0122) it observes by `MDTM`/`SIZE` and takes bytes from the
   mirror only when the mirror's size and original mtime equal DATASUS's.
 

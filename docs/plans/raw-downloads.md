@@ -30,3 +30,8 @@ them. But it has run once (2026-10-05): its daily task was never registered.
 | R5 snapshot versions kept as Parquet partitions keyed by their digest; `as_of` reads them; the blobs released | `query(as_of=...)` equal to the blob read for three versions of one file |
 
 R4 needs the author: registering the task is a change to their machine. R5 decides whether any raw download remains.
+
+**2026-11-22 (ADR-0234).** R5 is done as deltas against successors, not partitions keyed by digest. R1 and R2 are done
+(a query lands what it downloaded; CNES's fields read through `query`, and one month built covers that month). R3 is
+`prune --keep-versions` on the real home, held for the coordinated migration. R4 ran its first scheduled run on
+2026-11-22.

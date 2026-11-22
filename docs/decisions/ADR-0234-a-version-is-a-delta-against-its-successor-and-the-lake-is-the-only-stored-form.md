@@ -1,4 +1,4 @@
-## ADR-0233: A version is a delta against its successor, and the lake is the only stored form of a publication
+## ADR-0234: A version is a delta against its successor, and the lake is the only stored form of a publication
 
 **Date:** 2026-11-22. **Status:** active. **Amends** ADR-0141 (versions kept as blobs, `as_of` read from them),
 ADR-0208 (a download no partition holds stays) and ADR-0209 (a republished month needs its whole partition rebuilt).

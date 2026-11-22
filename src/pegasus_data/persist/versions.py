@@ -1,4 +1,4 @@
-"""The versions DATASUS overwrote, kept as deltas against their successors in the lake (ADR-0233).
+"""The versions DATASUS overwrote, kept as deltas against their successors in the lake (ADR-0234).
 
 DATASUS rewrites a preliminary or current-year file under the same name (ADR-0141), so the lake's partition of it is
 the version last built, and every earlier version exists only if it was kept. A kept version is its difference from the
@@ -78,9 +78,13 @@ def partition_digests(lake_root: Path, rows: Iterable[Mapping[str, Any]]) -> dic
 
 
 def source_rows(files: Sequence[Path], source_id: str, sha: str | None = None) -> pa.Table:
-    """The rows of one source in partition files, as stored (no partition columns), in ``_row`` order. A split
-    partition's files can differ by a column: read file by file and promoted."""
+    """The rows of one source in partition files (no partition columns), in ``_row`` order, each typed column's text
+    as filed given back whole (`raw_text`, ADR-0232): a file's renders are its own, so rows taken out of it carry no
+    render metadata and are compared and kept by their whole text. A split partition's files can differ by a column:
+    read file by file and promoted."""
     import pyarrow.dataset as ds
+
+    from ..raw_text import META_KEY, quote, renders_of, restored
 
     pieces = []
     for file in files:
@@ -89,6 +93,11 @@ def source_rows(files: Sequence[Path], source_id: str, sha: str | None = None) -
         if sha is not None:
             test = test & (ds.field("_blob_sha256") == sha)
         table = dataset.to_table(filter=test)
+        renders = renders_of(pq.read_schema(file).metadata)
+        if renders:
+            table = restored(table, renders, quote)
+        meta = {k: v for k, v in (table.schema.metadata or {}).items() if k != META_KEY}
+        table = table.replace_schema_metadata(meta or None)
         if table.num_rows:
             pieces.append(table)
     if not pieces:
@@ -154,9 +163,11 @@ def _runs(pairs: pa.Table) -> pa.Table:
 def _write(path: Path, table: pa.Table, *, runs: bool = False) -> int:
     """A delta file: removed rows in the lake's encoding; runs as three delta-encoded integer columns (2.3 times
     smaller than dictionary-encoded on dengue 2026's 231,311 runs)."""
-    from .kept import ZSTD_LEVEL
+    from .kept import ENCODING, ZSTD_LEVEL
     from .staging import staged_file
 
+    if runs:
+        table = table.replace_schema_metadata({b"pegasus.encoding": f"{ENCODING}-delta".encode()})
     path.parent.mkdir(parents=True, exist_ok=True)
     with staged_file(path) as staged:
         writer = (pq.ParquetWriter(staged, table.schema, compression="zstd", compression_level=ZSTD_LEVEL,

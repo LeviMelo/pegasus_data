@@ -11,7 +11,7 @@ while it was current. ``snapshot()`` is that someone:
    from DATASUS alone (never the mirror, which can lag);
 3. record each version in ``snapshot_versions`` and build it into the lake: its
    partition takes the new version and keeps the one it replaces as a delta
-   (`persist.versions`, ADR-0233); the download is then released. The lake is the
+   (`persist.versions`, ADR-0234); the download is then released. The lake is the
    only stored form of every version.
 
 ``versions()`` lists what was kept of a path. ``digests_as_of()`` answers which
@@ -533,7 +533,7 @@ def versions(
 ) -> list[dict[str, Any]]:
     """The known versions of the files whose path contains ``path``, oldest first: the ones a snapshot observed and
     the ones kept as deltas, each with where it is stored (``stored``): ``lake`` (the partition holds it), ``delta``
-    (kept against its successor, ADR-0233), ``download`` (a blob not yet landed) or ``lost``."""
+    (kept against its successor, ADR-0234), ``download`` (a blob not yet landed) or ``lost``."""
     from .persist.versions import current_digest
 
     resolved = settings or load_settings(root=Path(root) if root else None)
@@ -585,7 +585,7 @@ def digests_as_of(
 ) -> tuple[dict[str, str], list[str]]:
     """``({path: sha256}, [paths with no version by then])`` for a date.
 
-    The versions of a path are the ones a snapshot observed, the ones kept as deltas (`lake_versions`, ADR-0233) and,
+    The versions of a path are the ones a snapshot observed, the ones kept as deltas (`lake_versions`, ADR-0234) and,
     given ``lake_root``, the one the lake holds, each at the server modification time listed for it (the time a
     snapshot first saw it, where the server gave none). The version a date saw is the latest on or before it. A state
     that was overwritten before anything read it is not in the history, so a path whose every known version is newer

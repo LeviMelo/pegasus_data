@@ -396,7 +396,7 @@ def prune(
 ) -> None:
     """Delete downloaded files whose records the lake holds, and lake partitions that hold records twice.
 
-    A download goes when a verified partition holds its path at its version, or a delta keeps that version (ADR-0233).
+    A download goes when a verified partition holds its path at its version, or a delta keeps that version (ADR-0234).
     The catalog keeps each file's checksum, size and path; a refetch reproduces the current version only, so a
     replaced version is released only once kept (``--keep-versions`` keeps them first: snapshot versions and superseded
     downloads, decoded and stored as deltas). Kits, registries and files no partition was built from are kept. A lake partition
@@ -988,7 +988,7 @@ def snapshot(
     Lists the declared series again, fetches only files whose listed size or
     modification time changed since their last kept version (ADR-0141), and
     builds each into the lake: its partition takes the new version and keeps the
-    one it replaces as a delta, then the download is released (ADR-0233).
+    one it replaces as a delta, then the download is released (ADR-0234).
     Scheduled daily (RUNBOOK §8). Read a past state with query(..., as_of="2026-09-30").
     """
     from .. import snapshot as snap

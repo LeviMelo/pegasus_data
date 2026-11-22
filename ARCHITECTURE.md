@@ -163,7 +163,7 @@ it (ADR-0200):
 ```text
 <home>/_catalog/catalog.sqlite   the catalog (catalog/schema.sql, catalog/store.py)
 <home>/blobs/sha256/..           downloaded files, content-addressed
-                                 (released once the lake holds their version, ADR-0233)
+                                 (released once the lake holds their version, ADR-0234)
 <home>/lake/versions/<sys>/<family>/<source>/   replaced versions as deltas (`persist/versions.py`, `lake_versions`)
 <home>/lake/<sys>/<family>/schema_signature=/uf=/year=/   the Parquet lake
 <home>/lake/reference/           version-scoped code tables (persist/reference.py); `_stamps.json`: each system's dictionary fingerprint (a digest of the dictionary rows' content; a torn file reads as no stamps), a stale system rewritten on read

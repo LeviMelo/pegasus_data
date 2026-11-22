@@ -219,7 +219,7 @@ class BlobStore:
     def prune_verified(self, lake_dir: Path, *, paths: Iterable[str] | None = None, held: Iterable[str] = (),
                        dry_run: bool = False) -> dict[str, int]:
         """Delete the blobs whose records the lake holds: for every path the blob was fetched for, a verified partition
-        holds that path at the blob's version, or a delta keeps that version (`persist.versions`, ADR-0233), or the
+        holds that path at the blob's version, or a delta keeps that version (`persist.versions`, ADR-0234), or the
         caller holds the path (``held``: an extract that kept a file's matching records). ``paths`` limits it to the
         blobs fetched for those source paths: a build, a snapshot or an extract releasing its own files.
 

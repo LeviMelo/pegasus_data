@@ -511,7 +511,12 @@ def _catalog_coverage(
         if not ufs_year:
             year_parts = one_reading(year_parts, declared_widths(store))        # no reading decided from the publications: the lake's own
         if selected:
-            expected = {_publication_identity(row) for row in selected}
+            # the publications of the months asked, where the year is filed by month: a partition grows by the files a
+            # query read (ADR-0234), so one month built covers that month (CNES's December register)
+            asked = set(period.months_in(year)) if period is not None else set()
+            needed = [row for row in selected if not asked or resolution != "month"
+                      or (month_of(row.get("normalized_date")) or 0) in asked | {0}] or selected
+            expected = {_publication_identity(row) for row in needed}
             # a partition built from a version the server has since replaced covers nothing: the year is read from the
             # current files (and the next build rewrites the partition)
             stale = _republished_since_build(store, year_parts)

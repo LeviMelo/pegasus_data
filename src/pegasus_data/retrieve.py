@@ -1233,7 +1233,7 @@ def _decode_selected_file(
     if remembered is not None:
         return {**remembered, "position": position}
     if not pipeline.blobs.has(digest):
-        # a version with no download: the lake holds it, or a delta against what the lake holds (ADR-0233; `as_of`)
+        # a version with no download: the lake holds it, or a delta against what the lake holds (ADR-0234; `as_of`)
         return _version_outcome(position, pipeline, item, path, member, digest, keep_columns, record_key)
     try:
         work = functools.partial(

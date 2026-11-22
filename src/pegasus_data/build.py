@@ -79,7 +79,7 @@ class BuildStats:
     #: Representations read and refused for their columns (not the family's): the publication was read from another
     #: representation, or, when none had the columns, is in `files_mismatched` and `errors`.
     schema_refused: list[str] = field(default_factory=list)
-    #: Sources whose rows were taken from the partition being replaced, at the version it held, not decoded (ADR-0233).
+    #: Sources whose rows were taken from the partition being replaced, at the version it held, not decoded (ADR-0234).
     files_carried: int = 0
     #: Versions a rewrite replaced, kept as deltas against their successors (`persist.versions`).
     versions_kept: int = 0
@@ -164,7 +164,7 @@ def lake_batches(table: Any, plan: NormalizePlan, digest: str, normalized_date: 
 @dataclass(slots=True)
 class _Held:
     """The partition a build replaces: its files, the version of each source it holds, and the sources it can give
-    as stored instead of decoding them (ADR-0233)."""
+    as stored instead of decoding them (ADR-0234)."""
 
     files: list[Path] = field(default_factory=list)
     digests: dict[str, str] = field(default_factory=dict)
@@ -594,7 +594,7 @@ class Builder:
         Parquet is what a home keeps, not the DBC beside it (ADR-0208). A rebuild fetches a released file again.
 
         ``paths`` builds those files into their partitions and leaves the rest of each partition as it is: a partition
-        is the sources it already holds and these (ADR-0233). A query lands the files it downloaded so, and a snapshot
+        is the sources it already holds and these (ADR-0234). A query lands the files it downloaded so, and a snapshot
         the versions it fetched. In every rewrite, a source the replaced partition holds at its current version is
         carried from it rather than decoded, when the partition was built by the current plan (`_held`), and a version
         it held that the new partition replaces is kept as a delta.
@@ -1155,7 +1155,7 @@ def build_lake(dataset: str, years: Sequence[int], *, root: str | None = None, l
 
 
 def land(pipeline: Pipeline, paths: Sequence[str], *, release: bool | None = None) -> dict[str, Any]:
-    """Build downloaded files into their partitions, and release the downloads the lake then holds (ADR-0233).
+    """Build downloaded files into their partitions, and release the downloads the lake then holds (ADR-0234).
 
     A partition grows by the files named and keeps the sources it holds (`Builder.build` ``paths``); a file whose
     partition held another version of it is the new version there, the old one kept as a delta. What a query
@@ -1175,7 +1175,7 @@ def land(pipeline: Pipeline, paths: Sequence[str], *, release: bool | None = Non
 
 def keep_downloaded_versions(pipeline: Pipeline, *, land_versioned: bool = True,
                              on_progress: Callable[[str], None] | None = None) -> dict[str, Any]:
-    """Turn the home's kept downloads of replaced versions into deltas, so `prune` can release them (ADR-0233).
+    """Turn the home's kept downloads of replaced versions into deltas, so `prune` can release them (ADR-0234).
 
     1. Partitions written before ``source_digests`` existed get it from their files.
     2. ``land_versioned``: a path with a kept download of an older version (a snapshot's, or a superseded fetch) and no

@@ -312,7 +312,7 @@ def _read_fetched(
 
 
 def _land_read(source_reports: list[Any], report: QueryReport, resolved: Settings) -> None:
-    """The files a query read from downloads, built into the lake and released (ADR-0233): the next read of them is
+    """The files a query read from downloads, built into the lake and released (ADR-0234): the next read of them is
     the lake's, and no download is kept for it. A landing that fails is said and leaves the answer as read."""
     paths = sorted({p for item in source_reports for p in getattr(item, "paths_read", ())})
     if not paths or resolved.keep_downloads:
