@@ -157,6 +157,7 @@ datasets:
       - One patient readmitted three times is three rows. There is no stable patient key.
       - DIAG_SECUN is present and dead from the 113-column generation onward, filled with '0000'.
       - MUNIC_RES and MUNIC_MOV answer different questions (residence vs occurrence).
+      - "RACA_COR 99 (no information) all but disappears from 2023: Sao Paulo 247,460 AIHs with 99 in 2022, 19,909 in 2023, 1,398 in 2024; Bahia 183,467, 31,925, 4; Rio Grande do Sul 86,503, 8,364, 29 (lake, 2026-11-22). Stated race jumps to 98-100%: a change of recording, not of the people; a trend in race across 2022-2023 is a trend in the field's filling first."
       - VAL_TOT is nominal reais at billing time, never deflated; `price_index()` (IBGE's IPCA) deflates by competence month (Alagoas AIH type 1, 2014 to 2023: R$ 153.7 to 222.8 million nominal, R$ 287.8 to 247.5 million in December 2025 reais).
       - An AIH may be re-presented after rejection; the same episode can appear across competências.
       - >-
