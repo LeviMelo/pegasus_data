@@ -40,31 +40,41 @@ DATASUS's republications were replayed by setting each path's listing and latest
   Re-run on master's form of the fix (49c69386, here 20b3023f) with those versions forgotten: 91 transferred from
   DATASUS and 1 adopted from its kept download, 0 failed, none from the mirror; the partitions were current and
   reused, and the 91 downloads released again.
-- **(d) The real home migrated** (01:54-02:19 local, branch head 81ad2362; `prune --keep-versions`; log
-  `data/probes/live/2026-11-22-migration.log`, census `...-migration-blobs-{before,after}.txt`, `scratch/left.py`).
-  The catalog was backed up first (`_catalog/catalog.before-versions-2026-11-22.sqlite`).
-  - Two attempts stopped early and wrote nothing but digests. Attempt 1 crashed: a partition file's row groups carried
-    differing dictionaries. The fix also covers the 8,670 intake units, which keep no digest and are released by path.
-    Attempt 2 was stopped to add the handling of files a reader holds open: a redundant partition is moved aside whole,
-    and a locked one or a locked blob is left and counted.
-  - 933 versioned paths with no partition were landed: 464 partitions, 42.4 M rows, 8 changed files downloaded.
-  - 225 downloads of replaced versions became deltas (30.9 MB); 1,577 downloads were of versions the lake holds.
-  - `prune` released 1,079 downloads (2.80 GB) and dropped 114 partitions as redundant (15.6 M rows, 486 MB).
-    Among them were 108 preliminary state files of SIM and SINASC landed in this run, whose records the national
-    file holds. Two of those were the bases of deltas (Roraima's DORR2026 and DNRR2026), so their two versions became
-    unreadable. `prune` now keeps a partition a delta stands on, and the two were landed again.
-  - Read back, all 225 kept versions gave the row counts recorded when they were kept.
-  - Blobs went from 11,511 (21.95 GB, 823 snapshot versions, 1.74 GB) to 8,815 (15.92 GB, 116 snapshot versions, 0.41 GB).
-    1,617 of the 2,696 blobs that went were released by another process in the same window: CNES PF, LT, EQ, HB and ST
-    partitions written 01:30-02:00 by queries landing what they downloaded (R2 in use on the real home).
-  - What stays, by reason (15.92 GB):
+- **(d) The real home: every download landed or released** (2026-11-22, 01:54-11:23 local; logs under
+  `data/probes/live/`: `2026-11-22-migration.log`, `-land-rest.log`, `-prune3.log`, `-land-dbc.log`,
+  `-other-reps.txt`; blob censuses `-blobs-{before,after,final2}.txt`; reasons from `scratch/left2.py`, `left303.py`).
+
+| | Downloads (blobs) | Snapshot versions kept as blobs | Partitions listed (bytes) | Deltas |
+|---|---|---|---|---|
+| before, 01:30 | 11,511 files, 21.95 GB | 823, 1.74 GB | 29.89 GB (re-encode evaluation of 2026-11-21) | 0 |
+| after, 11:23 | 136 files, 0.66 GB | 14, 0.02 GB | 17,621 files, 39.50 GB, 3.06 billion rows | 258, 46 MB |
+
+  - Steps, all on master code (81ad2362, then 1e4759b2 and e6ccf766):
+    1. `prune --keep-versions` (01:54-02:19). The catalog was backed up first; the backup was later removed by
+       another session's cleanup. 933 versioned paths landed, 225 versions became deltas, and 1,079 downloads
+       (2.80 GB) were released.
+    2. Every download no partition held was landed with the downloads it read released (`build.land`, smallest
+       first, a batch only with 4 GB free). The 04:00 snapshot was let run alone, and the OS crash during it left no
+       partial lake file or catalog row (checked: 0 rows point at missing files). 8,787 paths in 288 batches, then
+       a pass over the snapshot's new versions (61 files, 22 kept as deltas): about 6,170 partitions written
+       (1.01 billion rows; SIA-PA and SIA-BI most of them). Blobs went from 8,815 (15.92 GB) to 1,049 (2.83 GB).
+    3. (The CNES registers had been landed by another session's queries the same night, R2 in use.)
+    4. `prune --keep-versions`. It dropped 487 state partitions (43.1 M rows, 1.0 GB) whose every record the national
+       reading holds (SIM, SINASC, RESP, SINAN preliminary state files), and released their downloads by that
+       containment. It kept the 2 partitions deltas stand on, and released 659 downloads (1.37 GB).
+    5. The Dados Abertos copies (CSV, JSON, XML) of final SINAN publications were released once the lake held the DBC.
+       The DBCs of 204 such publications were downloaded first (0.72 GB) and landed (202 partitions, 16.0 M rows).
+       254 copies (0.81 GB) went.
+  - Failures: 3 corrupt LHA members in SIA APAC 2005 (ACPR0510, ACSP0502, ACSP0504), 2 in APAC 2001 (UDSP0103,
+    UOSP0103) and 3 ESUSNOTIFICA DCCR files whose layout no family has. No file was locked. One run raised: `prune`'s
+    delta-base list shadowed a parameter; fixed in e6ccf766, nothing lost.
+  - What stays (0.66 GB), and why:
 
 | Kept because | Size | Blobs |
 |---|---|---|
-| no partition holds the path: files only a query or an extract read (SIA 10.04 GB, CNES 0.75, IBGE 0.19, SIH 0.13, and smaller systems) | 11.2 GB | 8,091 |
-| no partition holds the path: SIM, SINASC and SINAN files, among them the preliminary state files beside their national file (112 snapshot versions) | 3.6 GB | 411 |
-| intake sources (Dados Abertos), held by path, not listed as such by their units | 0.88 GB | 285 |
-| no family reads it (kits, documents, archive members) | 0.28 GB | 23 |
-| held by the lake, released at the next `prune` (the two landed again with release off) | <0.01 GB | 3 |
-| no fetch row | <0.01 GB | 2 |
+| SIA APAC archives with a member not held (corrupt members above, or members of families not built) | 0.28 GB | 53 |
+| no family reads it: kits and documentation (CNES 0.13, IBGE 0.08, SIA 0.07) | 0.28 GB | 29 |
+| Dados Abertos copies of current-year publications, which DATASUS rewrites (released when the year is final) | 0.07 GB | 33 |
+| SIM preliminary files the lake holds that prune kept (to examine) | 0.02 GB | 4 |
+| other (a representation or national reading the build does not choose, no fetch row) | <0.01 GB | 17 |
 

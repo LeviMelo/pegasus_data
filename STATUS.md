@@ -24,8 +24,9 @@ holds and can do, one space × time object, and the principles audits' defects c
 - **Versions as deltas (2026-11-22, ADR-0234; branch `claude/versions-as-deltas-2bb44d`).** A replaced version is a delta
   against its successor in the lake; a partition takes one month's new version carrying the others; `as_of` reads the
   lake; snapshots and queries land their downloads and release them; `prune` judges by version. Checked on a scratch
-  home, then the real home migrated (evaluation 2026-11-22-versions-as-deltas): 225 versions became deltas (30.9 MB),
-  blobs 21.95 → 15.92 GB. What stays is mostly files only a query read (SIA 10 GB), never landed.
+  home, then the real home migrated (evaluation 2026-11-22-versions-as-deltas): every download landed
+  or released, blobs 21.95 → 0.66 GB (kits and documentation, corrupt archive members, current-year copies), 258
+  versions kept as deltas (46 MB), listed lake 29.9 → 39.5 GB.
 - **Storage and speed (2026-11-21/22).**
   - The record key is computed on read, not stored (ADR-0231).
   - One Parquet encoding (ADR-0232): zstd 9, 262,144-row groups. A typed intake column's text is stored only where a
