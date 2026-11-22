@@ -71,14 +71,15 @@ def rows_filters(rows: Mapping[str, Sequence[str]] | None) -> dict[str, tuple[st
     return out
 
 
-def rows_expression(rows: Mapping[str, Sequence[str]]) -> Any:
-    """The rows whose every named column starts with one of its codes (``{column: prefixes}``), as a scan predicate."""
+def rows_expression(rows: Mapping[str, Sequence[str]], join: str = "all") -> Any:
+    """The rows whose every named column (``join="all"``) or any of them (``"any"``) starts with one of its codes
+    (``{column: prefixes}``), as a scan predicate."""
     import pyarrow.compute as pc
 
     out = None
     for column, prefixes in rows_filters(rows).items():
         hit = prefix_match(pc.field(column).cast(pa.string()), prefixes)
-        out = hit if out is None else (out & hit)
+        out = hit if out is None else ((out & hit) if join == "all" else (out | hit))
     return out
 
 
@@ -104,6 +105,8 @@ class ReadRequest:
     historical_labels: str = "current"
     allow_borrowed_labels: bool = False
     on_missing_column: str = "raise"
+    #: how the row filters combine: "all" (every named column matches) or "any" (one does; an extract's filters)
+    filters_join: str = "all"
 
     @classmethod
     def build(

@@ -352,6 +352,7 @@ def read_source(
                 as_of=as_of,
                 memo=decoded_before,
                 record_key=record_key,
+                row_filter=(request.filters, request.filters_join) if request.filters else None,
             )
 
         decoded_before: dict[tuple[str, str, str], dict[str, Any]] = {}
@@ -423,7 +424,7 @@ def read_source(
 
         # the records asked for, tested on the decoded codes before anything is rendered
         if request.filters:
-            table = table.filter(rows_expression(request.filters))
+            table = table.filter(rows_expression(request.filters, request.filters_join))
         if request.condition is not None:
             import pyarrow.compute as pc
 
@@ -499,6 +500,7 @@ def fetch(
     only_paths: Sequence[str] | None = None,
     as_of: str | date | datetime | None = None,
     rows: Mapping[str, Sequence[str]] | None = None,
+    rows_join: str = "all",
     condition: object = None,
 ) -> pa.Table | tuple[Any, ...]:
     """Download, decode, normalise and label a DATASUS dataset in one call.
@@ -530,8 +532,9 @@ def fetch(
 
     ``rows`` (``{column: code prefixes}``, as in :func:`~pegasus_data.api.load`) keeps only the records whose columns
     start with one of their codes, tested on the decoded codes BEFORE anything is rendered (a labelled year is not
-    filtered by its label text, and a year is not labelled to be thrown away). The filter's columns are read and
-    dropped again unless asked for.
+    filtered by its label text, and a year is not labelled to be thrown away), and on the raw rows before they are
+    normalised or hashed. ``rows_join="any"`` keeps a record that any one of the columns matches (an extract's filters).
+    The filter's columns are read and dropped again unless asked for.
 
     ``condition`` (a list of clauses on roles, :mod:`pegasus_data.conditions`) keeps the records that satisfy it, tested
     on the decoded codes before anything is rendered, as `load` does; the records it cannot decide are counted in the
@@ -561,11 +564,12 @@ def fetch(
     want_ufs = _clean_ufs(uf)
     want_months = _clean_months(months)
     _check_choice("on_missing_column", on_missing_column, ("raise", "null_fill"))
+    _check_choice("rows_join", rows_join, ("all", "any"))
     request = ReadRequest.build(
         None, system, series_name, columns=columns, rows=rows, condition=condition, years=want_years,
         profile=profile if labels else "codes", render=render, companions=companions, derived=derived,
         strict_labels=strict_labels, historical_labels=historical_labels,
-        allow_borrowed_labels=allow_borrowed_labels, on_missing_column=on_missing_column,
+        allow_borrowed_labels=allow_borrowed_labels, on_missing_column=on_missing_column, filters_join=rows_join,
     )
     rendered, fetch_report = read_source(
         dataset, request, uf=want_ufs, years=want_years, months=want_months, settings=resolved_settings,
@@ -1198,6 +1202,7 @@ def _decode_selected_file(
     decoded_cache: dict[tuple[str, frozenset[str] | None], Future[tuple[Any, int]]], cache_lock: threading.Lock,
     keep_columns: frozenset[str] | None, members_by_path: Mapping[str, frozenset[str] | None],
     alternatives: Sequence[tuple[str, NormalizePlan]], record_key: bool,
+    row_filter: tuple[Mapping[str, Sequence[str]], str] | None = None,
 ) -> dict[str, object]:
     """Decode one selected file. Returns what the caller needs to fold in.
 
@@ -1227,6 +1232,7 @@ def _decode_selected_file(
                 decode_members=members_by_path.get(path),
                 alternatives=alternatives,
                 record_key=record_key,
+                row_filter=row_filter,
         )
         decoded_batches, matched_here, read_bytes, used_family, failure = (
             work()
@@ -1379,8 +1385,10 @@ def _read_families(
     as_of: str | date | datetime | None = None,
     memo: dict[tuple[str, str, str], dict[str, Any]] | None = None,
     record_key: bool = True,
+    row_filter: tuple[Mapping[str, Sequence[str]], str] | None = None,
 ) -> tuple[pa.Table, FetchReport]:
-    """Download and normalise the matching files, entirely in memory.
+    """Download and normalise the matching files, entirely in memory. ``row_filter`` (the request's row filters and
+    how they combine) drops the raw rows that cannot match before they are normalised (`normalize_table`).
 
     A source is decoded while the others are still downloading, and ``memo`` keeps what a source decoded to across the
     repeated reads of one ``fetch()`` (a refused representation is read again from another): only sources that have
@@ -1455,7 +1463,7 @@ def _read_families(
     decode = functools.partial(
         _decode_selected_file, pipeline=pipeline, registry=registry, memo=memo, decoded_cache=decoded_cache,
         cache_lock=threading.Lock(), keep_columns=keep_columns, members_by_path=members_by_path,
-        alternatives=alternatives, record_key=record_key,
+        alternatives=alternatives, record_key=record_key, row_filter=row_filter,
     )
     outcomes = _acquire_and_decode(
         pipeline, selected, positions_by_path, decode, report=report, on_progress=on_progress, as_of=as_of)
@@ -1517,6 +1525,7 @@ def _decode_one(
     decode_members: frozenset[str] | None = None,
     alternatives: Sequence[tuple[str, NormalizePlan]] = (),
     record_key: bool = True,
+    row_filter: tuple[Mapping[str, Sequence[str]], str] | None = None,
 ) -> tuple[list[pa.RecordBatch], bool, int, str | None, str | None]:
     """Read one file and normalise it. Split out so it can be given a deadline.
 
@@ -1622,7 +1631,9 @@ def _decode_one(
         matched = True
         if (short := short_body_note(decoded)) is not None:
             warnings.warn(f"{path}: {short}; the answer is short of that file's own records", stacklevel=2)
-        for batch in normalize_table(decoded, chosen, blob_sha256=digest, record_key=record_key):
+        for batch in normalize_table(decoded, chosen, blob_sha256=digest, record_key=record_key,
+                                     rows=row_filter[0] if row_filter else None,
+                                     rows_join=row_filter[1] if row_filter else "all"):
             batches.append(_project(batch, keep_columns))
     # Bytes are counted once per SOURCE, not once per member reading it.
     return batches, matched, (size if owner else 0), used_family, None

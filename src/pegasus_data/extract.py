@@ -260,8 +260,11 @@ def _build_extract(dataset: str, years: Sequence[int], filters: dict[str, Sequen
     def read(f: dict[str, Any]) -> tuple[dict[str, Any], Any, int, Any]:
         """One file fetched, decoded and filtered in the worker: only its kept records wait for their turn."""
         try:
+            # the filters go into the read: rows that cannot match are dropped raw, before they are normalised and
+            # hashed (SIH-SP: 1.3% of 1.6 billion rows kept, and the rest had cost two thirds of the extract's time)
             table, report = fetch(dataset, labels=False, provenance=True, only_paths=[f["path"]], report=True,
-                                  max_bytes=None, settings=settings, on_missing_column="null_fill")
+                                  max_bytes=None, settings=settings, on_missing_column="null_fill",
+                                  rows=filt, rows_join="any")
         except Exception as exc:  # noqa: BLE001 - a file that does not open is a recorded gap, not an absence
             return f, exc, 0, None
         mask = None

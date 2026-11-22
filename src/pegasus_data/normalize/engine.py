@@ -30,7 +30,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-from collections.abc import Iterable, Iterator, Sequence
+from collections.abc import Iterable, Iterator, Mapping, Sequence
 from dataclasses import dataclass, field
 
 import pyarrow as pa
@@ -374,7 +374,7 @@ def normalize_batch(batch: pa.RecordBatch, plan: NormalizePlan) -> pa.RecordBatc
 
 def add_provenance(
     batch: pa.RecordBatch, *, source_path: str, blob_sha256: str, schema_signature: str,
-    first_row: int = 0, record_key: bool = True,
+    first_row: int = 0, record_key: bool = True, rows: pa.Array | None = None,
 ) -> pa.RecordBatch:
     n = batch.num_rows
     stamp = utcnow()
@@ -396,7 +396,7 @@ def add_provenance(
     extra = {
         "_source_path": _constant(source_path),
         "_blob_sha256": _constant(blob_sha256),
-        "_row": pa.array(range(first_row, first_row + n), type=pa.int64()),
+        "_row": rows if rows is not None else pa.array(range(first_row, first_row + n), type=pa.int64()),
         "_ingested_at": _constant(stamp),
         "_schema_signature": _constant(schema_signature),
         # a content key over a projection is not the record's key: the same record read with other
@@ -419,15 +419,31 @@ def normalize_table(
     blob_sha256: str = "",
     with_provenance: bool = True,
     record_key: bool = True,
+    rows: Mapping[str, Sequence[str]] | None = None,
+    rows_join: str = "all",
 ) -> Iterator[pa.RecordBatch]:
     """Stream a decoded table through the plan, batch by batch.
 
     ``record_key=False`` leaves ``_record_key`` null: a caller that drops provenance (``fetch()`` by default) does not
     pay to hash every row. A batch that lacks some of the family's columns has none either way.
+
+    ``rows`` (``{column: code prefixes}``, combined by ``rows_join``) drops, before they are normalised or hashed, the
+    raw rows that cannot match (`raw_rows_mask`): an extract kept 1.3% of SIH-SP's 1.6 billion rows and had normalised
+    and hashed all of them, two thirds of its time (2026-11-21). A kept row's ``_row`` is still its ordinal in the file.
+    The test is a superset of the normalised one, which the caller applies after.
     """
+    import pyarrow.compute as pc
+
     first_row = 0
     for batch in table.batches():
+        n = batch.num_rows
         complete = not plan.columns or set(plan.columns) <= set(batch.schema.names)
+        ordinals = None
+        mask = raw_rows_mask(batch, plan, rows, rows_join) if rows else None
+        if mask is not None:
+            kept = pc.indices_nonzero(pc.fill_null(mask, False))
+            batch = batch.take(kept)
+            ordinals = pc.add(kept.cast(pa.int64()), pa.scalar(first_row, pa.int64()))
         out = normalize_batch(batch, plan)
         if with_provenance:
             out = add_provenance(
@@ -437,9 +453,33 @@ def normalize_table(
                 schema_signature=plan.schema_signature,
                 first_row=first_row,
                 record_key=record_key and complete,
+                rows=ordinals,
             )
-        first_row += batch.num_rows
+        first_row += n
         yield out
+
+
+def raw_rows_mask(batch: pa.RecordBatch, plan: NormalizePlan, rows: Mapping[str, Sequence[str]],
+                  join: str = "all") -> pa.Array | None:
+    """Which raw rows can match ``rows`` (``{column: prefixes}``), or None when this batch cannot be tested raw. A code
+    column is normalised by nulling its sentinels (`normalize_batch`), so a raw prefix test keeps every row the
+    normalised test keeps, and the sentinels besides. A column typed on the way (a date, a number) or absent from the
+    batch is not tested raw: under ``"all"`` it restricts nothing here, under ``"any"`` nothing is dropped."""
+    import pyarrow.compute as pc
+
+    from .._query_engine.request import prefix_match, rows_filters
+
+    out = None
+    for column, prefixes in rows_filters(rows).items():
+        fp = plan.for_field(column)
+        raw = column in batch.schema.names and fp.semantic_type not in {"date", "money", "numeric_measure"}             and (fp.physical_type or "").upper() not in ("L", "D")
+        if not raw:
+            if join == "any":
+                return None
+            continue
+        hit = prefix_match(batch.column(column).cast(pa.string()), prefixes)
+        out = hit if out is None else (pc.and_kleene(out, hit) if join == "all" else pc.or_kleene(out, hit))
+    return out
 
 
 class MissingColumnError(KeyError):
