@@ -29,13 +29,13 @@ from __future__ import annotations
 
 import json
 import threading
-from collections import OrderedDict
 from collections.abc import Mapping
 from dataclasses import asdict, dataclass, field
 from datetime import UTC
 from pathlib import Path
 from typing import Any
 
+from ._bounded import Bounded
 from .config import UF_NUMERIC, Settings, curation_root, load_settings
 from .config import load_settings as _load
 from .normalize.time import month_label
@@ -322,20 +322,16 @@ def capabilities(
     with _CAPABILITY_LOCK:
         hit = _CAPABILITY_CACHE.get(key)
         if hit is not None:
-            _CAPABILITY_CACHE.move_to_end(key)
             return hit
     built = _capabilities_uncached(name, settings=resolved)
     with _CAPABILITY_LOCK:
         _CAPABILITY_CACHE[key] = built
-        while len(_CAPABILITY_CACHE) > _CAPABILITY_LIMIT:
-            _CAPABILITY_CACHE.popitem(last=False)
     return built
 
 
 #: Sized above the number of built artifacts (51 on 2026-10-14), so browsing the
 #: whole catalogue never evicts a descriptor that costs seconds to rebuild.
-_CAPABILITY_LIMIT = 96
-_CAPABILITY_CACHE: OrderedDict[tuple, Capability] = OrderedDict()
+_CAPABILITY_CACHE: Bounded[tuple, Capability] = Bounded(96)
 _CAPABILITY_LOCK = threading.Lock()
 
 

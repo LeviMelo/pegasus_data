@@ -46,6 +46,10 @@ def arrow_type_for(physical_type: str | None, width: int | None, decimals: int |
             return pa.int32()
         if width and width <= 18:
             return pa.int64()
+        if width:
+            # wider than an int64 holds: exact, as a decimal of its own width (a float64 rounds a 19-digit code). No
+            # catalogued DBF has one (schema_header_facts 2026-11-21: integer fields are at most 18 digits)
+            return pa.decimal128(min(38, width), 0)
         return pa.float64()
     return {
         "string": pa.string(),

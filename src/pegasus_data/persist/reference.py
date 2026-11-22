@@ -38,7 +38,7 @@ from __future__ import annotations
 
 import functools
 import re
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, cast
@@ -47,6 +47,7 @@ import pyarrow as pa
 import pyarrow.compute as pc
 import pyarrow.parquet as pq
 
+from .._bounded import Bounded
 from .._lazy import LazyModule
 from ..catalog.store import CatalogStore
 from ..config import UF_ABBREVIATIONS, curation_root
@@ -458,12 +459,36 @@ def _health_regions() -> pa.Table:
     return pa.table({"code": list(names), "label": list(names.values())})
 
 
-#: Standard classifications served from one canonical table for every system
-#: (ADR-0087): name -> file under pegasus_data/resources.
-CLASSIFICATIONS: dict[str, str] = {
-    "ICD10": "icd10.parquet", "CBO2002": "cbo2002.parquet", "BANCO_BR": "banks.parquet",
-    "SIGTAP": "sigtap.parquet", "CNAE20": "cnae20.parquet",
-    "NATURALIDADE": "countries.parquet",
+@dataclass(frozen=True, slots=True)
+class CanonicalTable:
+    """A table the package serves itself, one for every system and every year: read before any system's copy, any
+    vintage or the lake (``read_reference_table``), so it is vintage-free (``lookups._vintage_free``)."""
+
+    #: the shipped file under pegasus_data/resources it is read from; its content is the table's fingerprint
+    resource: str
+    #: a table derived from the file (states, health regions, 7-digit municipalities); None: the file's code and label
+    derive: Callable[[], pa.Table] | None = None
+
+    def read(self) -> pa.Table:
+        if self.derive is not None:
+            return self.derive()
+        from importlib.resources import files as _files
+
+        import pyarrow.parquet as _pq
+
+        return _pq.read_table(str(_files("pegasus_data.resources") / self.resource), columns=["code", "label"])
+
+
+#: The canonical tables, by name: the standard classifications served from one table for every system (ADR-0087), and
+#: the tables derived from the shipped geography (UF_BR, ADR-0087; MUNIC_BR7, ADR-0118; CIR_BR). The one list the
+#: reader, its fingerprint and the vintage planner read (was three if-chains and this dict of files).
+CLASSIFICATIONS: dict[str, CanonicalTable] = {
+    "ICD10": CanonicalTable("icd10.parquet"), "CBO2002": CanonicalTable("cbo2002.parquet"),
+    "BANCO_BR": CanonicalTable("banks.parquet"), "SIGTAP": CanonicalTable("sigtap.parquet"),
+    "CNAE20": CanonicalTable("cnae20.parquet"), "NATURALIDADE": CanonicalTable("countries.parquet"),
+    "UF_BR": CanonicalTable("municipalities.parquet", _states),
+    MUNIC_BR7: CanonicalTable("municipalities.parquet", _municipalities7),
+    "CIR_BR": CanonicalTable("geography.parquet", _health_regions),
 }
 
 
@@ -540,24 +565,13 @@ def _read_reference_table(
     from ..registry import is_registry
     from ..registry import lookup as registry_lookup
 
-    if table_id.upper() == "UF_BR":
-        return _states()
-    if table_id.upper() == "CIR_BR":
-        return _health_regions()
-    if table_id.upper() == MUNIC_BR7:
-        return _municipalities7()
     if table_id.upper() == SIA_UPS_TABLE:
         return _legacy_sia_establishments(lake_root, year=year, competencia=competencia)
     canonical = CLASSIFICATIONS.get(table_id.upper())
     if canonical is not None:
-        # A published standard classification, one table for every system
-        # (ADR-0087): DATASUS's official ICD-10 with full descriptions, where
-        # each system's own .CNV carries "N03.9 NE".
-        from importlib.resources import files as _files
-
-        import pyarrow.parquet as _pq
-
-        return _pq.read_table(str(_files("pegasus_data.resources") / canonical), columns=["code", "label"])
+        # A canonical table, one for every system (ADR-0087): DATASUS's official ICD-10 with full descriptions, where
+        # each system's own .CNV carries "N03.9 NE"; the states and municipalities of the shipped geography.
+        return canonical.read()
     if is_registry(table_id):
         # A registry (CADGER*: establishment names) comes from the system's own
         # CURRENT kit, built by `pegasus-data registries build` into the root in
@@ -625,7 +639,7 @@ def reference_fingerprint(lake_root: str | Path, table_id: str, system: str | No
 
     It follows ``_read_reference_table``'s own order of sources, and a source added there is added here:
 
-    * the canonical tables of the package (UF_BR, MUNIC_BR7, CIR_BR, the ``CLASSIFICATIONS``): the file's content;
+    * the canonical tables of the package (``CLASSIFICATIONS``): their file's content;
     * a curated table written in the curation (``CURATED.<SYSTEM>...``): its codes, labels and windows;
     * the lake's warehouse table, when one is materialised: its files' names, sizes and times;
     * else the shipped label pack: the rows of this system and the shared ones (`labelpack.packed_fingerprint`), and
@@ -642,17 +656,13 @@ def reference_fingerprint(lake_root: str | Path, table_id: str, system: str | No
     from ..registry import is_registry
 
     name = table_id.upper()
-    if name in ("UF_BR", "MUNIC_BR7"):
-        return "resource:" + resource_digest("municipalities.parquet")
-    if name == "CIR_BR":
-        return "resource:" + resource_digest("geography.parquet")
     if name == SIA_UPS_TABLE:
         parts = [reference_fingerprint(lake_root, table_id, "SIASUS")
                  for uf in UF_ABBREVIATIONS for table_id in sia_establishment_tables(uf)]
         return "sia-ups:" + hashlib.sha256("|".join(parts).encode()).hexdigest()[:16]
     canonical = CLASSIFICATIONS.get(name)
     if canonical is not None:
-        return "resource:" + resource_digest(canonical)
+        return "resource:" + resource_digest(canonical.resource)
     held = ["registry"] if is_registry(name) else []
     inline = inline_codelist(name)
     if inline is not None:
@@ -758,7 +768,7 @@ def _scoped_table(
 
 #: ``(scoped table's key, covering windows, served) -> the first request that was answered so``: see
 #: :func:`reference_vintage`.
-_VINTAGES: dict[tuple, tuple[int | None, int | None]] = {}
+_VINTAGES: Bounded[tuple, tuple[int | None, int | None]] = Bounded(4096)
 
 
 def reference_vintage(
@@ -811,13 +821,11 @@ def reference_vintage(
         return year, competencia
     key = (scope, tuple(covering), served)
     if key not in _VINTAGES:
-        if len(_VINTAGES) > 4096:
-            _VINTAGES.clear()
         _VINTAGES[key] = (year, competencia)
     return _VINTAGES[key]
 
 
-_WINDOWS: dict[tuple, list[tuple[str, str]]] = {}
+_WINDOWS: Bounded[tuple, list[tuple[str, str]]] = Bounded(512)
 
 
 def _windows_of(table: pa.Table, scope: tuple) -> list[tuple[str, str]]:
@@ -829,21 +837,18 @@ def _windows_of(table: pa.Table, scope: tuple) -> list[tuple[str, str]]:
         distinct = pairs.group_by(["valid_from", "valid_to"], use_threads=False).aggregate([])
         windows = [(str(lo or ""), str(hi or "")) for lo, hi in zip(
             distinct["valid_from"].to_pylist(), distinct["valid_to"].to_pylist(), strict=True)]
-        if len(_WINDOWS) > 512:
-            _WINDOWS.clear()
         _WINDOWS[scope] = windows
     return windows
 
 
 #: ``(table directory, its modification time) -> the systems it holds``: read off the directory names once per state of
 #: the table (a rebuild renames directories inside it, which moves the time).
-_HELD: dict[tuple[str, int], frozenset[str]] = {}
+_HELD: Bounded[tuple[str, int], frozenset[str]] = Bounded(512)
 
 #: ``(table directory, its time, system, code width) -> every window of that scope``, newest used last. A monthly
 #: dataset asks a single-window table for each of its months, and every ask read, concatenated and filtered it again
 #: (MUNICBR, 25,733 rows, 48-1,047 ms a month); the windows are chosen below, in memory, from one read.
-_WAREHOUSE: dict[tuple[str, int, str | None, int | None], pa.Table] = {}
-_WAREHOUSE_MAX = 48
+_WAREHOUSE: Bounded[tuple[str, int, str | None, int | None], pa.Table] = Bounded(48)
 
 
 def _systems_held(base: Path, stamp: int) -> frozenset[str]:
@@ -853,8 +858,6 @@ def _systems_held(base: Path, stamp: int) -> frozenset[str]:
         held = frozenset(
             d.name.split("=", 1)[1] for d in base.iterdir() if d.is_dir() and d.name.startswith("system=")
         )
-        if len(_HELD) > 512:
-            _HELD.clear()
         _HELD[key] = held
     return held
 
@@ -874,8 +877,6 @@ def _warehouse_table(base: Path, stamp: int, scope: str | None, code_width: int 
             width_filter = pc.field("code_width") == code_width
             scan_filter = width_filter if scan_filter is None else (scan_filter & width_filter)
         table = dataset.to_table(filter=scan_filter) if scan_filter is not None else dataset.to_table()
-        while len(_WAREHOUSE) >= _WAREHOUSE_MAX:
-            _WAREHOUSE.pop(next(iter(_WAREHOUSE)))
     _WAREHOUSE[key] = table
     return table
 

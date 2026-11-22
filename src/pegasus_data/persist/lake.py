@@ -26,6 +26,7 @@ from typing import TYPE_CHECKING
 import pyarrow as pa
 import pyarrow.parquet as pq
 
+from .._bounded import Bounded
 from .._lazy import LazyModule
 from ..catalog.store import CatalogStore, utcnow
 from .staging import staged_file, staged_tree
@@ -179,7 +180,7 @@ class PartialLakeError(RuntimeError):
 
 
 #: ``(path, mtime_ns, size) -> column names`` of a Parquet file's schema, read once per file state.
-_SCHEMAS: dict[tuple[str, int, int], tuple[str, ...]] = {}
+_SCHEMAS: Bounded[tuple[str, int, int], tuple[str, ...]] = Bounded(4096)
 
 
 class Lake:
@@ -493,8 +494,6 @@ class Lake:
                 continue                # any other OSError (a locked or unreadable file) is not "absent": it raises
             key = (str(path), stat.st_mtime_ns, stat.st_size)
             if key not in _SCHEMAS:
-                if len(_SCHEMAS) > 4096:
-                    _SCHEMAS.clear()
                 _SCHEMAS[key] = tuple(pq.read_schema(path).names)
             return (*_SCHEMAS[key], "schema_signature", "uf", "year")
         return ()

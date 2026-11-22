@@ -36,6 +36,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
+from .._bounded import Bounded
 from ..catalog.store import CatalogStore, utcnow
 from .epoch import curated, curation_fingerprint
 
@@ -1041,7 +1042,8 @@ def load_variable_docs(catalog: CatalogStore, system: str | None = None) -> dict
     a copy; the docs in it are shared and must not be edited.
     """
     epoch = _docs_epoch(catalog)
-    cache: dict[tuple[object, ...], dict[str, VariableDoc]] = catalog.__dict__.setdefault("_variable_docs_cache", {})
+    cache: Bounded[tuple[object, ...], dict[str, VariableDoc]] = catalog.__dict__.setdefault(
+        "_variable_docs_cache", Bounded(32))
     key = None if epoch is None else (*epoch, str(system).upper() if system else None)
     if key is not None and key in cache:
         return dict(cache[key])
@@ -1053,8 +1055,6 @@ def load_variable_docs(catalog: CatalogStore, system: str | None = None) -> dict
     else:
         docs = _load_variable_docs(catalog, system)
     if key is not None:
-        if len(cache) >= 32:
-            cache.clear()
         cache[key] = docs
     return dict(docs)
 

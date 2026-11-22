@@ -25,7 +25,7 @@ persistent default (``pegasus-data config set presentation <preset>``).
 from __future__ import annotations
 
 import re
-from collections.abc import Mapping
+from collections.abc import Iterable, Mapping
 from dataclasses import dataclass, replace
 from functools import lru_cache
 from typing import Any, Literal
@@ -228,20 +228,50 @@ class ColumnNames(dict):  # type: ignore[type-arg]
     municipal: frozenset[str] = frozenset()
 
 
-#: Tables whose codes are municipalities (DATASUS files the 6-digit form).
-_MUNICIPAL_TABLES = ("BR_MUNIC", "MUNIC")
+#: ``codelist -> whether its codes are municipalities``, read once per process from the shipped pack.
+_MUNICIPAL: dict[str, bool] = {}
+
+
+def municipal_codelists(names: Iterable[str]) -> frozenset[str]:
+    """The codelists among ``names`` whose codes are municipalities: a majority of the single codes the shipped label
+    pack lists for one are IBGE municipality codes (6 or 7 digits, the current division). Read off the codes, not the
+    name: of the codelists the catalog binds, 378 are 99-100% municipality codes, the lowest of them 0.53 (CAPITAL),
+    while no other reaches 0.26 (MUNICDF and MUNIC_DF, whose codes are the Federal District's administrative regions;
+    CBO's 6-digit occupations meet a municipality code 6% of the time), measured 2026-11-21. Name prefixes (BR_MUNIC*,
+    MUNIC*) had missed the tables keyed by municipality and labelled with its region (SP_REGSAUD, CIRSP, BR_TERRCID)."""
+    import pyarrow.dataset as pads
+
+    from .geography import municipalities
+    from .labelpack import _dataset
+
+    wanted = {str(n).upper() for n in names if n}
+    todo = sorted(wanted - set(_MUNICIPAL))
+    dataset = _dataset() if todo else None
+    if dataset is not None:
+        places = {str(r["code7"]) for r in municipalities().values()}
+        places |= {code[:6] for code in places}
+        rows = dataset.to_table(columns=["codelist", "code_lo", "code_hi"],
+                                filter=pads.field("codelist").isin(todo + [t.lower() for t in todo]))
+        codes: dict[str, set[str]] = {}
+        for codelist, lo, hi in zip(*(rows.column(c).to_pylist() for c in ("codelist", "code_lo", "code_hi")),
+                                    strict=True):
+            if lo == hi and lo is not None:
+                codes.setdefault(str(codelist).upper(), set()).add(str(lo))
+        for name in todo:
+            held = codes.get(name, set())
+            _MUNICIPAL[name] = bool(held) and 2 * len(held & places) > len(held)
+    return frozenset(name for name in wanted if _MUNICIPAL.get(name))
 
 
 def documented_names(store: Any, system: str) -> ColumnNames:
-    """The curated names of a system's columns, and its municipality columns."""
+    """The curated names of a system's columns, and its municipality columns (bound to a codelist of municipalities)."""
     from .semantics.curation import load_variable_docs
 
     docs = load_variable_docs(store, system)
     out = ColumnNames({name: (doc.official_name, doc.translated_name) for name, doc in docs.items()})
-    out.municipal = frozenset(
-        name for name, doc in docs.items()
-        if any(str(c).upper().startswith(_MUNICIPAL_TABLES) for c in [doc.codelist, *doc.codelists] if c)
-    )
+    bound = {name: [c for c in [doc.codelist, *doc.codelists] if c] for name, doc in docs.items()}
+    municipal = municipal_codelists(c for cs in bound.values() for c in cs)
+    out.municipal = frozenset(name for name, cs in bound.items() if any(str(c).upper() in municipal for c in cs))
     return out
 
 

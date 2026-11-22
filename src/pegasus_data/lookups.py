@@ -19,6 +19,7 @@ from typing import Any
 import pyarrow as pa
 import pyarrow.compute as pc
 
+from ._bounded import Bounded
 from .identifiers import LABEL_PREFIX
 from .persist.decisions import unrecorded
 from .persist.reference import CLASSIFICATIONS, read_reference_table, reference_vintage
@@ -107,7 +108,7 @@ def _vintage_free(codelist: str) -> bool:
 
     name = codelist.upper()
     return (
-        name in CLASSIFICATIONS or name in ("UF_BR", "CIR_BR", "MUNIC_BR7") or is_registry(name)
+        name in CLASSIFICATIONS or is_registry(name)
         or (inline_codelist(codelist) is not None and not inline_windows(codelist))
     )
 
@@ -203,13 +204,11 @@ def _cached_registry(
     # Asked month by month, a registry is usually one table twelve times.
     key = (codelist, _content_digest(table))
     if key not in _REGISTRIES_BY_CONTENT:
-        if len(_REGISTRIES_BY_CONTENT) > 16:
-            _REGISTRIES_BY_CONTENT.clear()
         _REGISTRIES_BY_CONTENT[key] = _cleaned(table)
     return _REGISTRIES_BY_CONTENT[key]
 
 
-_REGISTRIES_BY_CONTENT: dict[tuple[str, bytes], tuple[pa.Array, pa.Array, frozenset[int]]] = {}
+_REGISTRIES_BY_CONTENT: Bounded[tuple[str, bytes], tuple[pa.Array, pa.Array, frozenset[int]]] = Bounded(16)
 
 
 def _contradictions(
@@ -275,14 +274,12 @@ def _lookup_map_uncached(
     if known is not None:
         return known
     built = _map_from_table(table)
-    if len(_MAPS_BY_CONTENT) > 512:
-        _MAPS_BY_CONTENT.clear()
     _MAPS_BY_CONTENT[(codelist, digest)] = built
     return built
 
 
 #: ``(codelist, content digest) -> code -> label`` (see ``_lookup_map_uncached``).
-_MAPS_BY_CONTENT: dict[tuple[str, bytes], dict[str, str]] = {}
+_MAPS_BY_CONTENT: Bounded[tuple[str, bytes], dict[str, str]] = Bounded(512)
 
 #: Above this many rows a table is cut to a column's own codes before it becomes
 #: a dict. CADGERBR (692,004 establishments) cost 0.9 s of a 7-second query to

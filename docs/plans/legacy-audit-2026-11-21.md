@@ -82,3 +82,6 @@ Line numbers are from the tree as read (2026-11-21).
 | 6 | fixed: systems from the link specs, death from the declared `fatal` codes; the five links are the product's composition |
 | 14 | horizons declared; distance and order bands kept (learned weights per level, measured re-link needed to change) |
 | 10 | fixed: `PLAUSIBLE_YEARS`, measured on the lake's date roles |
+| 17, 30 | fixed: one canonical-table registry; municipality columns from the codes, measured |
+| 33 | fixed: wider integers exact (none catalogued) |
+| 34 | fixed: one bounded cache |

@@ -29,6 +29,7 @@ import numpy as np
 import pyarrow as pa
 import pyarrow.compute  # noqa: F401 - pa.compute
 
+from .._bounded import Bounded
 from ..config import curation_root, load_settings
 from ..semantics.curation import read_yaml
 from . import store
@@ -174,8 +175,6 @@ def build_entities(*, period: object, geography: object, method: str | None = No
         keep = _SEEDED.get(key)
         if keep is None:
             keep = _SEEDED[key] = _component_mask(edges, seeds)
-            while len(_SEEDED) > 16:
-                _SEEDED.pop(next(iter(_SEEDED)))
     if draw is not None:
         p = edges.column("p_match").to_numpy(zero_copy_only=False)
         import zlib
@@ -336,7 +335,7 @@ def _merge(edges: pa.Table) -> Entities:
 
 
 #: the seeds' component masks of undrawn edge sets, by scope and cohort (`build_entities`)
-_SEEDED: dict[tuple, np.ndarray] = {}
+_SEEDED: Bounded[tuple, np.ndarray] = Bounded(16)
 
 
 def _seeds_digest(seeds: tuple[str, str, Any]) -> str:
