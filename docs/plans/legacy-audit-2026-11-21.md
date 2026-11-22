@@ -81,3 +81,4 @@ Line numbers are from the tree as read (2026-11-21).
 | 13, 25 | fixed: `links.yml` `held_out:`; each compare type's discovery part in `roles._TYPES` |
 | 6 | fixed: systems from the link specs, death from the declared `fatal` codes; the five links are the product's composition |
 | 14 | horizons declared; distance and order bands kept (learned weights per level, measured re-link needed to change) |
+| 10 | fixed: `PLAUSIBLE_YEARS`, measured on the lake's date roles |
