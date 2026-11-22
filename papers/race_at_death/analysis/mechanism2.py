@@ -154,10 +154,12 @@ if len(DEL) == 12:
         pr_[["rate"]].rename(columns={"rate": "rate_2"}), left_on="admission_facility_2", right_index=True)
     mvh["dy"] = (mvh.hosp_2 == "black").astype(int) - (mvh.hosp_1 == "black").astype(int)
     mvh["dp"] = mvh.rate_2 - mvh.rate
-    r = sm.OLS(mvh.dy, sm.add_constant(mvh.dp)).fit(cov_type="HC1")
+    r = sm.OLS(mvh.dy, sm.add_constant(mvh.dp)).fit(cov_type="cluster", cov_kwds={"groups": pd.factorize(mvh.admission_facility_2)[0]})
+    r1 = sm.OLS(mvh.dy, sm.add_constant(mvh.dp)).fit(cov_type="cluster", cov_kwds={"groups": pd.factorize(mvh.admission_facility_1)[0]})
     cm = ctrl[BB(ctrl) & (ctrl.admission_facility_1 != ctrl.admission_facility_2)]
     shr = len(cm) / max(len(mvh), 1)
-    mv["movers_practice_slope"] = {"est": float(r.params["dp"]), "se": float(r.bse["dp"]), "n": int(len(mvh)), "chance_share": float(shr),
+    mv["movers_practice_slope"] = {"est": float(r.params["dp"]), "se": float(r.bse["dp"]), "se_origin_cluster": float(r1.bse["dp"]),
+                                   "destinations": int(mvh.admission_facility_2.nunique()), "n": int(len(mvh)), "chance_share": float(shr),
                                    "corrected": float(r.params["dp"] / (1 - shr)) if shr < 1 else None}
     M["movers"] = mv
     print("movers", mv, flush=True)

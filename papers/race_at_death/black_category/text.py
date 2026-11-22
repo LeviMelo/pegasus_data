@@ -6,6 +6,16 @@ import json as _json
 BK = _json.loads((HERE / "results" / "black.json").read_text(encoding="utf-8"))
 MC = _json.loads((HERE / "results" / "mechanism.json").read_text(encoding="utf-8"))
 MB = MC["black"]
+R3 = MC["review3"]
+_MVT = MC["movers"]
+
+
+def _odds(p):
+    return p / (1 - p)
+
+
+OR_SAME = _odds(_MVT["hospital_black_again|same hospital"]["est"]) / _odds(_MVT["hospital_black_after_not|same hospital"]["est"])
+OR_OTHER = _odds(_MVT["hospital_black_again|another hospital"]["est"]) / _odds(_MVT["hospital_black_after_not|another hospital"]["est"])
 DESIGN = "cross-sectional study of linked birth, hospital and death records and of census microdata"
 OBJECTIVE = ("to measure how often the infants of mothers who declared themselves Black are recorded as Black on Brazilian death certificates, set it "
              "against the hospital's record of the same mothers, and test whether the category follows the person, the hospital that records her or the "
@@ -25,6 +35,11 @@ lo_r, hi_r = min(slopes, key=slopes.get), max(slopes, key=slopes.get)
 def orx(term):
     e_, s_ = FX[term]["est"], FX[term]["se"]
     return f"{math.exp(e_):.2f} (95%CI {math.exp(e_ - 1.96 * s_):.2f}; {math.exp(e_ + 1.96 * s_):.2f})"
+
+
+def ci3(x):
+    """An odds ratio with its interval, from a dict with or_per_sd, lo and hi."""
+    return f"{x['or_per_sd']:.2f} (95%CI {x['lo']:.2f}; {x['hi']:.2f})"
 
 
 def cbci(key):
@@ -59,13 +74,19 @@ para(d, f"Results: Of infants of mothers who declared themselves Black, {cbci('P
         f"{f2(MB['clogit_delivery_hospital_adjusted']['or'])} (95%CI {f2(MB['clogit_delivery_hospital_adjusted']['lo'])}; "
         f"{f2(MB['clogit_delivery_hospital_adjusted']['hi'])}) times the odds of being certified Black, and {f2(MB['clogit_death_estab_elsewhere']['or'])} (95%CI "
         f"{f2(MB['clogit_death_estab_elsewhere']['lo'])}; {f2(MB['clogit_death_estab_elsewhere']['hi'])}) among infants who died in another establishment, where "
-        "the delivery chart was not at hand. Beside the mother's own record, the hospital's practice added little (odds ratio "
-        f"{f2(MB['practice_loo_eb']['practice_person']['or_per_logit'])} per logit unit). Standardised to the mothers of 2013, the certificate's use of the "
-        f"category rose from {f2(MB['certificate_by_year_standardised']['2013']['standardised_2013'])} to "
-        f"{f2(MB['certificate_by_year_standardised']['2023']['standardised_2013'])} in 2023, faster than the hospital's record of the same infants' mothers.")
-para(d, "Conclusion: The infants of Black mothers are recorded as Black on a minority of death certificates, fewer than the hospitals record their mothers. The "
-        "hospital sets how often it records Black, and a mother who changes hospital takes on its rate; within that rate, the certificate goes with which "
-        "mothers it records Black, also where her chart was not at hand: staff sort the same people alike at levels each institution sets. Statistics of the Black population from these records undercount it, by amounts that differ between hospitals.")
+        f"the delivery chart was not at hand, and {f2(R3['within_hospital_by_visits']['none']['est'])} (95%CI {f2(R3['within_hospital_by_visits']['none']['lo'])}; "
+        f"{f2(R3['within_hospital_by_visits']['none']['hi'])}) for mothers with no prenatal visit. One standard deviation of the delivery hospital's practice, "
+        f"estimated without the mother, multiplied the odds by {f2(R3['practice_per_sd']['practice_composition_region_year']['or_per_sd'])} at equal composition, "
+        f"region and year, {pct(R3['practice_per_sd']['share_through_mothers_record'], 0)} of it through the hospital's record of the mother herself; a Black "
+        f"mother who changed hospital moved by {f2(MC['movers']['movers_practice_slope']['est'])} of the difference in the two hospitals' practice. Over "
+        "2013-2022, the certificate's use of the category rose faster than the hospital's record of the same infants' mothers (difference "
+        f"{f2(R3['joint_trend_2013_2022']['hospital_minus_certificate'])} in log-odds per decade, 95%CI "
+        f"{f2(R3['joint_trend_2013_2022']['hospital_minus_certificate'] - 1.96 * R3['joint_trend_2013_2022']['difference_se'])}; "
+        f"{f2(R3['joint_trend_2013_2022']['hospital_minus_certificate'] + 1.96 * R3['joint_trend_2013_2022']['difference_se'])}).")
+para(d, "Conclusion: The infants of Black mothers are recorded as Black on a minority of death certificates, fewer than the hospitals record their mothers. A "
+        "mother's hospital record follows the level her hospital sets, and the certificate goes with that record also where no chart or shared prenatal record "
+        "was likely at hand, which is compatible with staff reading the same person alike, or with her own varying answer, and not with copying. Taking the "
+        "mother's declaration as the reference, these records count fewer infants as Black, by amounts that differ between hospitals.")
 para(d, "Keywords: Race Factors; Racial Groups; Death Certificates; Hospital Records; Medical Record Linkage; Infant Mortality; Brazil.")
 
 # ================================================================= introduction

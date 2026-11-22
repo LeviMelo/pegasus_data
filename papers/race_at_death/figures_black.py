@@ -39,12 +39,12 @@ rows = [("Mother's own declaration (reference)", {"est": 1.0, "se": 0.0}, "#7777
         ("Family: child 1-4 (census)", {"est": L["family_child_1_4"], "se": 0.0}, FAMILY),
         ("Hospital: the mother herself, at delivery", BK["hospital"]["black_bootstrap"]["black"], HOSP),
         ("Certificate: infant", L["certificate_infant"], CERT),
-        ("Certificate: infant, municipalities under 25,600 births", L["certificate_infant_below_25600"], CERT),
+        ("Certificate: infant, municipalities <25,600 births", L["certificate_infant_below_25600"], CERT),
         ("Certificate: child 1-4", L["certificate_1_4"], CERT),
-        ("Count: hospital records Black, per Black-declared mother", MC["black"]["net"]["hospital_ratio"], HOSP),
-        ("Count: infants certified Black, per infant of a Black mother", MC["black"]["net"]["certificate_ratio"], CERT),
+        ("Count: hospital Black / Black-declared mothers", MC["black"]["net"]["hospital_ratio"], HOSP),
+        ("Count: certified Black / infants of Black mothers", MC["black"]["net"]["certificate_ratio"], CERT),
         ]
-fig, ax = plt.subplots(figsize=(6.9, 3.2))
+fig, ax = plt.subplots(figsize=(4.4, 3.2))
 y = np.arange(len(rows))[::-1]
 for yi, (lab, x, col) in zip(y, rows, strict=True):
     ax.barh(yi, x["est"], color="white" if lab.startswith("Count") else col, edgecolor=col, hatch="////" if lab.startswith("Count") else None, height=0.62)
@@ -54,31 +54,29 @@ for yi, (lab, x, col) in zip(y, rows, strict=True):
 ax.set_yticks(y, [r[0] for r in rows], fontsize=7)
 ax.set_xlim(0, 1.08)
 ax.axhline(1.5, color="#cccccc", lw=0.6)
-ax.set_xlabel("Recorded Black: proportion of Black-declared mothers or their children (solid), or ratio of counts (hatched)")
+ax.set_xlabel("Recorded Black: proportion (solid) or ratio of counts (hatched)", fontsize=7)
 ax.legend(handles=[plt.Rectangle((0, 0), 1, 1, color=c, label=lab) for lab, c in (("family (census 2010)", FAMILY), ("hospital (SIH)", HOSP), ("death certificate (SIM)", CERT))],
-          fontsize=6.5, frameon=False, loc="center right")
+          fontsize=7, frameon=False, loc="center right")
 save(fig, "black_ladder")
 
 # ---------------------------------------------------------------- 2. where and when
-fig = plt.figure(figsize=(7.2, 3.4))
+fig = plt.figure(figsize=(6.9, 3.4))
 gs = fig.add_gridspec(1, 2, wspace=0.3)
 ax = fig.add_subplot(gs[0, 0])
 yrs = sorted(int(v) for v in R["infants"]["by_year"])
 v = [R["infants"]["by_year"][str(t)]["rows"]["Preta"]["Preta"] for t in yrs]
 ax.errorbar(yrs, [x["est"] for x in v], yerr=[1.96 * x["se"] for x in v], fmt="-o", color="black", ms=3, capsize=1.5, label="Brazil (linkage)")
-pk = S["panel"]["KK"]
-base = pk["by_macro"]["(Intercept)"]["Estimate"]
-for rn, col in OKABE.items():
-    a = base + (0 if rn == "North" else pk["by_macro"][f"macro{rn}"]["Estimate"])
-    b = pk["by_macro"]["yc"]["Estimate"] + (0 if rn == "North" else pk["by_macro"][f"yc:macro{rn}"]["Estimate"])
-    xs = np.array(yrs)
-    ax.plot(xs, 1 / (1 + np.exp(-(a + b * (xs - 2018) / 10))), "-", color=col, lw=1.1, label=rn)
-ax.set_ylim(0, 0.5)
+RY = MC["review3"]["by_region_year"]
+for j, (rn, col) in enumerate(OKABE.items()):
+    pts = [(t, RY[f"{rn}|{t}"]) for t in yrs if f"{rn}|{t}" in RY]
+    ax.errorbar([t + (j - 2) * 0.08 for t, _ in pts], [q["est"] for _, q in pts], yerr=[1.96 * q["se"] for _, q in pts], fmt="-", color=col, lw=0.9,
+                elinewidth=0.5, alpha=0.85, label=rn)
+ax.set_ylim(0, 0.6)
 ax.set_xticks([2013, 2018, 2023])
 ax.set_xlabel("Year of death")
 ax.set_ylabel("Proportion certified Black")
-ax.set_title("A. By year and region\n(regional lines: model)", fontsize=8, loc="left")
-ax.legend(fontsize=6, frameon=False, loc="upper left")
+ax.set_title("A. By year and region", fontsize=8, loc="left")
+ax.legend(fontsize=6.5, frameon=False, loc="upper left", ncol=2)
 ax = fig.add_subplot(gs[0, 1])
 hy = BK["hospital"]["black_by_year"]
 hx = sorted(int(t) for t in hy)
@@ -90,8 +88,10 @@ ax.set_ylim(0, 0.5)
 ax.set_xticks([2013, 2018, 2023])
 ax.set_xlabel("Year")
 ax.set_title("B. Two records of the same\nfamilies, by year", fontsize=8, loc="left")
+ax.axvline(2022.5, color="#bbbbbb", lw=0.7, ls=":")
+ax.text(2022.4, 0.48, "hospital race\nfield filled\nfrom 2023", fontsize=6, ha="right", va="top", color="#666666")
 ax.set_ylabel("Proportion recorded Black")
-ax.legend(fontsize=6, frameon=False, loc="center", bbox_to_anchor=(0.55, 0.55))
+ax.legend(fontsize=6.5, frameon=False, loc="lower right")
 save(fig, "black_where_when")
 
 # ---------------------------------------------------------------- 3. the hospital and the certificate
@@ -99,42 +99,44 @@ MB, MV = MC["black"], MC["movers"]
 fig = plt.figure(figsize=(6.9, 3.1))
 axes = [fig.add_axes(r) for r in ((0.075, 0.25, 0.19, 0.62), (0.505, 0.25, 0.21, 0.62), (0.815, 0.25, 0.17, 0.62))]
 ax = axes[0]
-bh = BK["individual"]["black_mother_by_hospital"]
-order = [h for h in ("black", "brown", "white") if h in bh]
-for k, (c, col, lab) in enumerate((("black", "#000000", "certified Black"), ("brown", "#0072B2", "certified Brown"), ("white", "#E69F00", "certified White"))):
-    xs = np.arange(len(order)) + (k - 1) * 0.26
-    ax.bar(xs, [bh[h][c]["est"] for h in order], width=0.25, color=col, label=lab,
-           yerr=[1.96 * bh[h][c]["se"] for h in order], error_kw={"lw": 0.7, "capsize": 1.5})
-ax.set_xticks(range(len(order)), [f"{h.capitalize()}\n(n={bh[h]['black']['n']:,})" for h in order], fontsize=5.6)
-ax.set_xlabel("Hospital's record of the\nmother at delivery", fontsize=7)
-ax.set_ylim(0, 1)
-ax.set_ylabel("Proportion of the infant deaths", fontsize=7)
+RB = MC["review3"]["by_hospital_record_region_standardised"]
+order = ["black", "brown", "white"]
+ax.bar(range(3), [RB[h]["region_standardised"] for h in order], width=0.55, color=["#000000", "#0072B2", "#E69F00"], alpha=0.85, label="standardised to region")
+ax.plot(range(3), [RB[h]["crude"] for h in order], "D", color="#777777", ms=3.5, mfc="white", label="crude")
+for i, h in enumerate(order):
+    ax.text(i, RB[h]["region_standardised"] + 0.012, f"{RB[h]['region_standardised']:.2f}", ha="center", fontsize=6.3)
+ax.set_xticks(range(3), [f"{h.capitalize()}\n{RB[h]['n']:,}" for h in order], fontsize=6.3)
+ax.set_xlabel("Hospital's record of the\nmother (infant deaths)", fontsize=7)
+ax.set_ylim(0, 0.4)
+ax.set_ylabel("Infants certified Black", fontsize=7)
 ax.set_title("A. Certificate by the\nhospital's record", fontsize=7.5, loc="left")
-ax.legend(fontsize=5.8, frameon=False, loc="upper right", handlelength=1)
+ax.legend(fontsize=6, frameon=False, loc="upper right", handlelength=1)
 ax = axes[1]
 pl = MB["practice_loo_eb"]
 OR = [("Same delivery hospital (MH)", MB["mh_delivery_hospital"]["est"], MB["mh_delivery_hospital"]["lo"], MB["mh_delivery_hospital"]["hi"]),
       ("Same delivery hospital, adjusted", MB["clogit_delivery_hospital_adjusted"]["or"], MB["clogit_delivery_hospital_adjusted"]["lo"], MB["clogit_delivery_hospital_adjusted"]["hi"]),
       ("Died where delivered", MB["clogit_death_estab_died_there"]["or"], MB["clogit_death_estab_died_there"]["lo"], MB["clogit_death_estab_died_there"]["hi"]),
       ("Died elsewhere (no chart)", MB["clogit_death_estab_elsewhere"]["or"], MB["clogit_death_estab_elsewhere"]["lo"], MB["clogit_death_estab_elsewhere"]["hi"])]
-for k, lab in (("practice", "Practice alone"), ("practice_composition_region_year", "Practice, + mothers, region-year"), ("practice_person", "Practice, + mother's record")):
-    c_, s_ = pl[k]["coef"], pl[k]["se"]
-    OR.append((lab, math.exp(c_), math.exp(c_ - 1.96 * s_), math.exp(c_ + 1.96 * s_)))
+VZ = MC["review3"]["within_hospital_by_visits"]["none"]
+OR.append(("No prenatal visit, same hospital", VZ["est"], VZ["lo"], VZ["hi"]))
+PS = MC["review3"]["practice_per_sd"]
+for k, lab in (("practice", "Practice, 1 SD alone"), ("practice_composition_region_year", "Practice, + composition, region-year"), ("practice_person", "Practice, + mother's record")):
+    OR.append((lab, PS[k]["or_per_sd"], PS[k]["lo"], PS[k]["hi"]))
 OR.append(("Mother's record, + practice", pl["practice_person"]["hb_or"], math.exp(math.log(pl["practice_person"]["hb_or"]) - 1.96 * pl["practice_person"]["hb_se"]),
            math.exp(math.log(pl["practice_person"]["hb_or"]) + 1.96 * pl["practice_person"]["hb_se"])))
 yy = np.arange(len(OR))[::-1]
 for j, (lab, e_, lo_, hi_) in enumerate(OR):
-    col = "#000000" if j < 4 or j == 7 else HOSP
+    col = "#000000" if j < 5 or j == 8 else HOSP
     ax.errorbar([e_], [yy[j]], xerr=[[e_ - lo_], [hi_ - e_]], fmt="o", color=col, ms=3, capsize=1.5, lw=0.9)
-    ax.text(3.6, yy[j], f"{e_:.2f}", va="center", fontsize=5.8)
+    ax.text(5.6, yy[j], f"{e_:.2f}", va="center", fontsize=6)
 ax.axvline(1, color="#999999", lw=0.7)
 ax.axhline(3.5, color="#dddddd", lw=0.6)
 ax.set_xscale("log")
-ax.set_xticks([1, 2, 3], ["1", "2", "3"])
+ax.set_xticks([1, 2, 4], ["1", "2", "4"])
 ax.xaxis.set_minor_formatter(matplotlib.ticker.NullFormatter())
-ax.set_xlim(0.8, 4.2)
-ax.set_yticks(yy, [o[0] for o in OR], fontsize=6.0)
-ax.set_xlabel("Odds ratio of certified Black\n(black: mother recorded Black;\nblue: per logit of hospital practice)", fontsize=6.3)
+ax.set_xlim(0.8, 7.5)
+ax.set_yticks(yy, [o[0] for o in OR], fontsize=6.3)
+ax.set_xlabel("Odds ratio of certified Black\n(black: mother recorded Black;\nblue: per SD of hospital practice)", fontsize=6.5)
 ax.set_title("B. Person or hospital", fontsize=7.5, loc="left")
 ax = axes[2]
 for k, (h, col, mk) in enumerate((("same hospital", "#000000", "o"), ("another hospital", HOSP, "s"))):
@@ -147,6 +149,7 @@ ax.set_ylim(0, 1)
 ax.set_xlabel("Hospital's record at\nthe first delivery", fontsize=7)
 ax.set_ylabel("Recorded Black at the next delivery", fontsize=7)
 ax.set_title("C. Same mother,\ntwo births", fontsize=7.5, loc="left")
+ax.text(-0.25, 0.97, f"slope on the practice\ngap {MV['movers_practice_slope']['est']:.2f}", fontsize=6.3, color="#333333", va="top")
 ax.legend(fontsize=5.8, frameon=False, loc="lower right", handlelength=1.2)
 for a_ in axes:
     a_.tick_params(labelsize=6.3)
