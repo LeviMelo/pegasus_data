@@ -1566,13 +1566,12 @@ def _write_products(db: sqlite3.Connection, cfg: Settings, report: CompendiumRep
 
 
 def _write_fields(db: sqlite3.Connection, cfg: Settings, report: CompendiumReport) -> None:
-    from .fields import cnes_cube, cube_of, declared_fields, load_field
+    from .fields import _held_years, cnes_cube, declared_fields
+    from .fields import _years as _field_years
 
-    built = cfg.lake_dir / "fields"
     rows = []
     held = _held_periods(cfg)
     for name, spec in sorted(declared_fields().items()):
-        held_dir = built / name
         cnes = cnes_cube(name, spec)
         if cnes is not None:
             # A field read from records (a cube over a dataset's files at one month of each year) is held for the years
@@ -1580,16 +1579,13 @@ def _write_fields(db: sqlite3.Connection, cfg: Settings, report: CompendiumRepor
             # had looked only at lake/fields and said "none held" of twelve years of CNES registers
             support = str(cnes["support"]).split(":", 1)[1].split("/", 1)[0]
             years = sorted(held(str(cnes["dataset"]), int(cnes["month"])) & held(support, int(cnes["month"])))
-        elif cube_of(spec) is not None:
-            # A SIDRA or series field is its cube: what is held is what the fact store answers (ADR-0217).
-            try:
-                years = sorted(set(load_field(name, settings=cfg).column("year").to_pylist()))
-            except (LookupError, FileNotFoundError, KeyError, ValueError):
-                years = []
+            if str(spec.get("years") or "").strip():
+                # load_field serves the declared years only: a register held beyond them (2024-2025) is not a field year
+                years = [y for y in years if y in _field_years(spec["years"])]
         else:
-            years = sorted(
-                int(p.name.split("=", 1)[1]) for p in held_dir.glob("year=*") if p.name.split("=", 1)[1].isdigit()
-            ) if held_dir.is_dir() else []
+            # every other field: the years load_field serves, by its own logic (a cube, a records cube, a climate cube or
+            # a register is what it answers, a stored field the folders it holds)
+            years = _held_years(name, spec, cfg)
         source = str(spec.get("source") or ("series" if spec.get("series") else "sidra" if spec.get("table") else ""))
         origin = spec.get("intake") or spec.get("table") or spec.get("measure") or spec.get("series")
         rows.append((

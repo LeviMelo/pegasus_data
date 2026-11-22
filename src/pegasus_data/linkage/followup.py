@@ -27,7 +27,7 @@ from typing import Any, cast
 import pyarrow as pa
 import pyarrow.compute as pc
 
-from ..config import UF_NUMERIC, load_settings
+from ..config import UF_CODES, UF_NUMERIC, load_settings
 from ..ontology import dataset_key
 from . import store
 from .engine import (
@@ -156,7 +156,10 @@ def _geography(area: object) -> object:
     """An area as the scope the lake files are cut at: a state by its sigla or its IBGE number, or "BR"."""
     def one(a: object) -> str:
         text = str(a).strip().upper()
-        return UF_NUMERIC.get(text, text)
+        text = UF_NUMERIC.get(text, text)
+        if text not in UF_CODES:   # as query: a place that is not a federal unit raises, never an empty follow-up
+            raise ValueError(f"{a!r} is not a federal unit; known: {', '.join(sorted(UF_CODES))}")
+        return text
 
     return [one(a) for a in area] if isinstance(area, (list, tuple, set)) else one(area)
 

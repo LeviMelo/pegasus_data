@@ -118,6 +118,14 @@ def plan(
             "this dataset is held as one national publication; BR is the whole of it",
         ))
     elif spec.geography and spec.geography.ufs and not has_uf_axis:
+        from .readplan import resolve_family
+
+        with shared_catalog(resolved) as catalog:
+            known = bool(resolve_family(catalog, system, series, None))
+        if not known:   # a dataset the catalog does not hold has no partitions at all: say so, not "no UF axis"
+            from .._request import DatasetUnknown
+
+            raise DatasetUnknown(f"no dataset {dataset!r}: nothing catalogued for system={system!r} series={series!r}")
         raise ValueError(
             "requested UF is not a source/publication partition for this dataset; "
             "Pegasus will not manufacture it by filtering a record field"

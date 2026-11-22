@@ -147,8 +147,11 @@ def load_roles() -> dict[str, DatasetRoles]:
 
 
 def dataset_roles(dataset: str) -> DatasetRoles:
+    roles = load_roles()
+    name = dataset.upper()
     try:
-        return load_roles()[dataset.upper()]
+        # the ontology's dotted name (SIM.DO) and the declaration's hyphenated one (SIM-DO) are one dataset everywhere
+        return roles[name] if name in roles else roles[name.replace(".", "-")]
     except KeyError:
         raise KeyError(f"no roles declared for {dataset!r}; declared: {sorted(load_roles())}") from None
 
