@@ -46,3 +46,12 @@ the 100 entries written meanwhile were read again.
 from 2012-09 (`valid_to` null). A query of `max(valid_to)` skipped them and seemed to end them in 2012.
 
 **Readers no longer wait on the map (OQ #100 resolved).** A stale map is served as it was and rebuilt by one detached `pegasus-data compendium` (a lock file holds its process), which replaces it in one rename. The overview says a new map is being built. On the real home during the re-encode, `info()` took 1.3 s and then 0.4 s, `info CNES.HB` 1.7 s, and the rebuild replaced the map about a minute later. A missing map is still built in the call, and `current(wait=True)` rebuilds in it.
+
+**Intake units side by side (c66eeb1).** A file source's units landed one after another. For ANS TISS hospital files
+(about 8,100, averaging 340 KB) that was about 3 s a unit, spent waiting on the previous unit's landing, not on the
+server. Four now land at once and share the host's 1.1 s request schedule. The national landing went from about 0.33
+to 0.9 units a second (126 partitions in 139 s).
+
+**Record keys over a whole file (5eb7ed9).** Role tables read whole files, and the key computed on read (ADR-0231) cost
+about 7-14 µs a row in batches. DuckDB now hashes a whole file in one pass, joined by position to the columns pyarrow
+reads. SIH-RD SE, AL and PE 2019 (857,219 rows) took 3.5 s, against 11.5 s, with identical keys and types.
