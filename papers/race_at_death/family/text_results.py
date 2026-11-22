@@ -26,53 +26,59 @@ para(d, f"Households reported most White mothers' children as White and most Bro
         f"{chg(v(2010, 'black', 'black'), v(2022, 'black', 'black'))} for Black mothers' children reported Black and by "
         f"{chg(v(2010, 'black', 'white'), v(2022, 'black', 'white'))} for Black mothers' children reported White. The intervals reflect sampling alone; the "
         "changes are small against what the next sections show about who the mothers and partners are.")
-figure(d, "family_matrix", "Figure 2 - Race reported for children aged 0-4 according to the race of their mother (A-C), and at 0-9 years in 2010, 2022 and 2022 "
-                           "standardised to the 2010 mothers' schooling and region (D), Brazilian Censuses of 2010 and 2022",
+figure(d, "family_matrix", "Figure 2 - Race reported for children aged 0-4 according to the race of their mother (A-C), and the change 2010-2022 at 0-9 years, "
+                           "crude and at the 2010 mothers' schooling and region (D), Brazilian Censuses of 2010 and 2022",
        ["Children of the household's couple living with their mother. Weighted proportions with design-based 95% confidence intervals (most narrower than the "
-        "markers)."])
-d.add_heading("Father, stepfather and siblings", level=2)
-para(d, f"The child's race followed the father's (Figure 3A, 3B). A Brown mother's child aged 0-9 was reported White in {dci(F_W[0])} in 2010 and "
-        f"{dci(F_W[1])} in 2022 when the father was White, against {dci(F_B[0])} and {dci(F_B[1])} when he was Brown, and "
-        f"{f2(rel(2010, 'brown', 'is_white', FATHER, 'black')['est'])} and {f2(rel(2022, 'brown', 'is_white', FATHER, 'black')['est'])} when he was Black. With a "
-        f"White stepfather the share was {f2(rel(2010, 'brown', 'is_white', STEP5, 'white')['est'])} and {f2(rel(2022, 'brown', 'is_white', STEP5, 'white')['est'])} "
-        f"for the mother's own child and {f2(rel(2010, 'brown', 'is_white', STEP6, 'white')['est'])} and {f2(rel(2022, 'brown', 'is_white', STEP6, 'white')['est'])} "
-        f"for the man's stepchild, against {min(rel(y, 'brown', 'is_white', r, 'brown')['est'] for y in (2010, 2022) for r in (STEP5, STEP6)):.2f}-"
-        f"{max(rel(y, 'brown', 'is_white', r, 'brown')['est'] for y in (2010, 2022) for r in (STEP5, STEP6)):.2f} "
-        "with a Brown stepfather: the gap a White partner makes was two to three times larger when he was the father. A stepfather still mattered, "
-        f"and a Black stepfather went with more White children ({f2(rel(2022, 'brown', 'is_white', STEP5, 'black')['est'])}) than a Black father "
-        f"({f2(rel(2022, 'brown', 'is_white', FATHER, 'black')['est'])}). Black mothers' children were reported Black in "
-        f"{dci(rel(2022, 'black', 'is_black', FATHER, 'black'))} with a Black father, {dci(rel(2022, 'black', 'is_black', FATHER, 'brown'))} with a Brown father and "
-        f"{dci(rel(2022, 'black', 'is_black', FATHER, 'white'))} with a White one, and in {f2(rel(2022, 'black', 'is_black', STEP5, 'black')['est'])} with a "
-        f"Black stepfather. With no partner, Brown mothers' children were reported White in {dci(bp(2022, 'brown', 'is_white', 'partner', 'no partner'))}.")
-para(d, f"Siblings of the same couple were reported in different races in {pct(SIB['2010|brown|white']['discordant'], 0)} (2010) and "
-        f"{pct(SIB['2022|brown|white']['discordant'], 0)} (2022) of households of a Brown mother and a White partner with two or more children aged 0-9, "
-        f"{pct(SIB['2022|black|white']['discordant'], 0)} of a Black mother and a White partner and {pct(SIB['2022|white|brown']['discordant'], 0)} of a White "
-        f"mother and a Brown partner, against {pct(SIB['2022|brown|brown']['discordant'], 0)} where both were Brown, {pct(SIB['2022|black|black']['discordant'], 0)} "
-        f"where both were Black and {pct(SIB['2022|white|white']['discordant'], 1)} where both were White (Figure 3C): in mixed couples the household did not "
-        "apply one category to all its children.")
+        "markers). D: percentage points with 95% confidence intervals from a household bootstrap; White mothers' children as a check."])
+d.add_heading("Mother, father, stepfather and siblings", level=2)
+para(d, f"Among children of both members of the couple, the mother's and the father's races counted about alike (Figure 3C): the child of a Brown mother and a "
+        f"White father was reported White in {dci(BW[0])} in 2010 and {dci(BW[1])} in 2022, and the child of a White mother and a Brown father in {dci(WB[0])} "
+        f"and {dci(WB[1])}; the child of a Black mother and a White father in {f2(PAR['2022|black|white']['white']['est'])} and of a White mother and a Black "
+        f"father in {f2(PAR['2022|white|black']['white']['est'])} (2022). With a Brown father, a Brown mother's child was reported White in {dci(F_B[0])} and "
+        f"{dci(F_B[1])} (Figure 3A). A White stepfather went with fewer White children than a White father: {f2(rel(2010, 'brown', 'is_white', STEP5, 'white')['est'])} "
+        f"(2010) and {f2(rel(2022, 'brown', 'is_white', STEP5, 'white')['est'])} (2022) for the mother's own child and {f2(rel(2010, 'brown', 'is_white', STEP6, 'white')['est'])} "
+        f"and {f2(rel(2022, 'brown', 'is_white', STEP6, 'white')['est'])} for the man's stepchild, against "
+        f"{min(rel(y, 'brown', 'is_white', r, 'brown')['est'] for y in (2010, 2022) for r in (STEP5, STEP6)):.2f}-"
+        f"{max(rel(y, 'brown', 'is_white', r, 'brown')['est'] for y in (2010, 2022) for r in (STEP5, STEP6)):.2f} with a Brown stepfather; the gap between a White "
+        "and a Brown partner was two to three times larger when he was the father. The remaining stepfather gap may come from the household's reading, from the "
+        "child's absent father or from which mothers form unions with White men, which these data do not separate. Black mothers' children were reported Black "
+        f"in {dci(rel(2022, 'black', 'is_black', FATHER, 'black'))} with a Black father, {dci(rel(2022, 'black', 'is_black', FATHER, 'brown'))} with a Brown father "
+        f"and {dci(rel(2022, 'black', 'is_black', FATHER, 'white'))} with a White one in 2022 (Figure 3B). With no partner, Brown mothers' children were reported "
+        f"White in {dci(bp(2022, 'brown', 'is_white', 'partner', 'no partner'))} in 2022.")
+para(d, f"Full siblings were reported in different races in {pct(FSW[0]['observed']['est'], 0)} (2010) and {pct(FSW[1]['observed']['est'], 0)} (2022) of "
+        f"households of a Brown mother and a White father with two or more children aged 0-9, against {pct(FS['2010|brown|brown']['observed']['est'], 0)} and "
+        f"{pct(FS['2022|brown|brown']['observed']['est'], 0)} where both parents were Brown and {pct(FS['2010|white|white']['observed']['est'], 0)} and "
+        f"{pct(FS['2022|white|white']['observed']['est'], 0)} where both were White (Figure 3D). Had each child been classified independently with the proportions "
+        f"of its parents' races, {pct(FSW[0]['independent'], 0)} and {pct(FSW[1]['independent'], 0)} of the mixed households would have differed: siblings shared "
+        "a classification more than chance, in every couple type, but in mixed couples two in five households did not give all their children one category.")
 para(d, f"In the model of both censuses (Table 1), a White partner multiplied the odds of a Brown mother's child being reported White by "
         f"{orf('brown|is_white', 'partner[T.white]')}, a mother with higher education by {orf('brown|is_white', 'instruction[T.higher complete]')} against no or "
         f"incomplete primary schooling, and the South by {orf('brown|is_white', 'C(region)[T.South]')} against the Centre-West. Between the censuses the odds "
         f"rose with White partners (census by partner interaction {IA['C(census)[T.2022]:partner[T.white]']['est']:.2f} in log-odds, standard error "
         f"{IA['C(census)[T.2022]:partner[T.white]']['se']:.2f}) and with Black partners ({IA['C(census)[T.2022]:partner[T.black]']['est']:.2f}, "
         f"{IA['C(census)[T.2022]:partner[T.black]']['se']:.2f}), not with no partner ({IA['C(census)[T.2022]:partner[T.no partner]']['est']:.2f}, "
-        f"{IA['C(census)[T.2022]:partner[T.no partner]']['se']:.2f}); the rise held among fathers ({f2(F_W[0]['est'])} to {f2(F_W[1]['est'])}), so it is not the "
-        f"growth of stepfather households. A Brown partner multiplied the odds of a Black mother's child being reported Black by {orf('black|is_black', 'partner[T.brown]')}.")
-d.add_heading("Who the mothers and partners were", level=2)
-para(d, f"Partners changed between the censuses: {pct(PMIX['partner_share']['2010']['white'], 0)} of Brown mothers of children aged 0-9 had a White partner in "
-        f"2010 and {pct(PMIX['partner_share']['2022']['white'], 0)} in 2022, and {pct(PMIX['partner_share']['2010']['no partner'], 0)} and "
+        f"{IA['C(census)[T.2022]:partner[T.no partner]']['se']:.2f}); among fathers the share rose from {f2(F_W[0]['est'])} to {f2(F_W[1]['est'])}, so the rise is "
+        f"not the growth of stepfather households. A Brown partner multiplied the odds of a Black mother's child being reported Black by {orf('black|is_black', 'partner[T.brown]')}.")
+d.add_heading("Changes between the censuses", level=2)
+para(d, f"Partners changed: {pct(PMIX['partner_share']['2010']['white'], 0)} of Brown mothers of children aged 0-9 had a White partner in 2010 and "
+        f"{pct(PMIX['partner_share']['2022']['white'], 0)} in 2022, and {pct(PMIX['partner_share']['2010']['no partner'], 0)} and "
         f"{pct(PMIX['partner_share']['2022']['no partner'], 0)} no partner; {pct(KMIX['partner_share']['2010']['black'], 0)} and "
         f"{pct(KMIX['partner_share']['2022']['black'], 0)} of Black mothers had a Black partner. At the partners of 2010, Brown mothers' children would have been "
-        f"reported White in {f2(PMIX['2022_at_2010_partners'])} in 2022 (observed {f2(PMIX['crude']['2022'])}; 2010 {f2(PMIX['crude']['2010'])}). The mothers "
-        "changed more: the share of Black mothers of children aged 0-9 with no or incomplete primary schooling fell from "
-        f"{pct(DR['black|is_black']['instruction_2010']['none or primary incomplete'], 0)} to {pct(DR['black|is_black']['instruction_2022']['none or primary incomplete'], 0)} "
-        f"and with higher education rose from {pct(DR['black|is_black']['instruction_2010']['higher complete'], 0)} to "
-        f"{pct(DR['black|is_black']['instruction_2022']['higher complete'], 0)}. Given the 2010 mothers' instruction and region, the 2022 share of Brown mothers' "
-        f"children aged 0-9 reported White was {f2(DR['brown|is_white']['2022_at_2010_mothers'])} (observed {f2(DR['brown|is_white']['2022'])}; 2010 "
-        f"{f2(DR['brown|is_white']['2010'])}), of Black mothers' children reported Black {f2(DR['black|is_black']['2022_at_2010_mothers'])} (observed "
-        f"{f2(DR['black|is_black']['2022'])}; 2010 {f2(DR['black|is_black']['2010'])}) and reported White {f2(DR['black|is_white']['2022_at_2010_mothers'])} "
-        f"(observed {f2(DR['black|is_white']['2022'])}; 2010 {f2(DR['black|is_white']['2010'])}): the small national changes depend on who the women declaring "
-        "each category were (Figure 2D).")
+        f"reported White in {f2(PMIX['2022_at_2010_partners'])} in 2022 (observed {f2(PMIX['crude']['2022'])}; 2010 {f2(PMIX['crude']['2010'])}). Schooling rose "
+        "for mothers of every race: no or incomplete primary schooling fell from "
+        f"{pct(V3['instruction_by_mother']['2010|white']['none or primary incomplete'], 0)} to {pct(V3['instruction_by_mother']['2022|white']['none or primary incomplete'], 0)} "
+        f"among White mothers, {pct(V3['instruction_by_mother']['2010|brown']['none or primary incomplete'], 0)} to "
+        f"{pct(V3['instruction_by_mother']['2022|brown']['none or primary incomplete'], 0)} among Brown and {pct(V3['instruction_by_mother']['2010|black']['none or primary incomplete'], 0)} "
+        f"to {pct(V3['instruction_by_mother']['2022|black']['none or primary incomplete'], 0)} among Black mothers. In percentage points, the crude change of children "
+        f"aged 0-9 reported White was {pp(DB['brown|is_white']['change'], DB['brown|is_white']['change_se'])} for Brown mothers and "
+        f"{pp(DB['white|is_white']['change'], DB['white|is_white']['change_se'])} for White mothers; the change of Black mothers' children reported Black was "
+        f"{pp(DB['black|is_black']['change'], DB['black|is_black']['change_se'])} and reported White {pp(DB['black|is_white']['change'], DB['black|is_white']['change_se'])}. "
+        "At the 2010 mothers' instruction and region the changes were "
+        f"{pp(DB['brown|is_white']['std_change'], DB['brown|is_white']['std_change_se'])}, {pp(DB['white|is_white']['std_change'], DB['white|is_white']['std_change_se'])}, "
+        f"{pp(DB['black|is_black']['std_change'], DB['black|is_black']['std_change_se'])} and {pp(DB['black|is_white']['std_change'], DB['black|is_white']['std_change_se'])} "
+        "(Figure 2D). Within equal schooling and region, children of White and Brown mothers were reported White less often in 2022, and the crude "
+        "changes were small because more schooled mothers report lighter children; the White mothers' standardised fall shows that this is the expansion of "
+        "schooling, not a change in who declared each category.")
 rows = []
 for key, lab in (("brown|is_white", "Brown mother, child White"), ("black|is_black", "Black mother, child Black")):
     for term, val in MD[key].items():
@@ -83,36 +89,42 @@ table(d, "Table 1 - Odds ratios of the race reported for children aged 0-9, logi
       ["References: census 2010; partner of the mother's race; mother with no or incomplete primary schooling; child aged 0-4; mother aged 25-34; boy; "
        "Centre-West. Weighted; standard errors clustered by household. Census by partner interactions in the text."])
 figure(d, "family_partner", "Figure 3 - Children aged 0-9 reported White, of Brown mothers (A), and reported Black, of Black mothers (B), by the race of the mother's "
-                            "partner and whether he is the father, and households whose children aged 0-9 are reported in different races (C), Brazilian Censuses of "
-                            "2010 and 2022",
-       ["Partner: the man of the household's couple. A, B: weighted proportions with design-based 95% confidence intervals; father, child of both; stepfather, "
-        "child of the responsible woman only or stepchild of the responsible man. C: households with two or more children aged 0-9 of the couple, by the "
-        "mother's and the partner's race."])
+                            "partner and whether he is the father; children of both reported White by the mother's and the father's race (C); and households whose "
+                            "full siblings aged 0-9 are reported in different races (D), Brazilian Censuses of 2010 and 2022",
+       ["Partner: the man of the household's couple; father, child of both; stepfather, child of the responsible woman only or stepchild of the responsible "
+        "man. Weighted proportions with design-based 95% confidence intervals (grey 2010, orange 2022). D: households with two or more children aged 0-9, all "
+        "children of both; the vertical mark is the share expected if each child were classified independently with the proportions of its parents' races."])
 d.add_heading("Who answered", level=2)
 para(d, f"In 2022 the mother answered for {pct(IN2['share_0_14']['mother'], 0)} of the children aged 0-14 of the pairs, the partner for "
         f"{pct(IN2['share_0_14']['partner'], 0)}, another resident for {pct(IN2['share_0_14']['other resident'], 0)} and a non-resident for "
         f"{pct(IN2['share_0_14']['non-resident'], 0)}; the mother answered for herself in {pct(IN2['mother_informant']['self'], 0)} of the pairs and the partner "
-        f"for her in {pct(IN2['mother_informant']['partner'], 0)}. Within the same couple, the child leaned toward the answering partner's race (Figure 4): a "
-        f"Brown mother's child with a White partner was reported White in {dci(IN2['brown|white|partner']['white'])} when he answered and "
-        f"{dci(IN2['brown|white|mother']['white'])} when the mother did; a Black mother's child with a White partner in {f2(IN2['black|white|partner']['white']['est'])} "
-        f"and {f2(IN2['black|white|mother']['white']['est'])}; with a Black partner, the child was reported Black in {f2(IN2['black|black|partner']['black']['est'])} "
-        f"and {f2(IN2['black|black|mother']['black']['est'])}, and with a Brown partner in {f2(IN2['black|brown|partner']['black']['est'])} and "
-        f"{f2(IN2['black|brown|mother']['black']['est'])}. Who answers is not chosen at random: the partner answers in households where he is at home, which "
-        "may differ in other ways.")
-figure(d, "family_informant", "Figure 4 - Children aged 0-9 reported in a race according to who answered for them, by the mother's and the partner's race, Brazilian "
-                              "Census of 2022",
+        f"for her in {pct(IN2['mother_informant']['partner'], 0)}. The child of a Brown mother and a White partner was reported White in {dci(MB_['white'])} when "
+        f"she answered for both, {dci(PS['white'])} when he answered for the child and she for herself, and {dci(PB['white'])} when he answered for both "
+        f"(Figure 4); for a Black mother and a White partner, {f2(IC['black|white|child by mother|mother by mother']['white']['est'])}, "
+        f"{f2(IC['black|white|child by partner|mother by mother']['white']['est'])} and {f2(IC['black|white|child by partner|mother by partner']['white']['est'])}. "
+        "When a White mother had a Brown or Black partner, who answered made no difference (White "
+        f"{f2(IC['white|brown|child by mother|mother by mother']['white']['est'])} and {f2(IC['white|brown|child by partner|mother by partner']['white']['est'])} "
+        f"with a Brown partner; {f2(IC['white|black|child by mother|mother by mother']['white']['est'])} and "
+        f"{f2(IC['white|black|child by partner|mother by partner']['white']['est'])} with a Black one). The difference sat where one respondent, the partner, "
+        "classified both the mother and the child, and where the mother was not White; who answers is not random, and a partner who answers for the whole "
+        "household may differ in other ways.")
+figure(d, "family_informant", "Figure 4 - Children aged 0-9 reported in a race according to who answered for the child and for the mother, by the mother's and the "
+                              "partner's race, Brazilian Census of 2022",
        ["Weighted proportions with design-based 95% confidence intervals."])
 d.add_heading("Age and cohort", level=2)
 para(d, f"Older children were reported Black more often: Black mothers' children were reported Black in {dci(bp(2010, 'black', 'is_black', 'age', '0-4'))} at "
         f"0-4 years and {dci(bp(2010, 'black', 'is_black', 'age', '20-24'))} at 20-24 in 2010, and {dci(bp(2022, 'black', 'is_black', 'age', '0-4'))} and "
         f"{dci(bp(2022, 'black', 'is_black', 'age', '20-24'))} in 2022 (Figure 5B). The children aged 0-4 in 2010 (born 2006-2010) overlap for about three of "
-        f"five birth years those aged 10-14 in 2022 (born 2008-2012), who were reported Black in {dci(bp(2022, 'black', 'is_black', 'age', '10-14'))}; the "
-        f"difference ({bp(2022, 'black', 'is_black', 'age', '10-14')['est'] - bp(2010, 'black', 'is_black', 'age', '0-4')['est']:+.2f}) is about half the "
-        f"gradient between 0-4 and 10-14 in the 2010 cross-section ({bp(2010, 'black', 'is_black', 'age', '10-14')['est'] - bp(2010, 'black', 'is_black', 'age', '0-4')['est']:+.2f}), "
-        "and different mothers, partners and informants report each time, so age and cohort cannot be separated. For Brown mothers the gradient ran the "
-        f"other way: their children were reported White in {dci(bp(2022, 'brown', 'is_white', 'age', '0-4'))} at 0-4 years and "
-        f"{dci(bp(2022, 'brown', 'is_white', 'age', '10-14'))} at 10-14 (Figure 5A). Across the whole population, five-year birth cohorts of {CF['first']}-"
-        f"{CF['last'] + 4} were reported White less often at each later census in {CF['white_fell']} of {CF['intervals']} intervals (Figure 5D).")
+        f"five birth years those aged 10-14 in 2022 (born 2008-2012), who were reported Black in {dci(bp(2022, 'black', 'is_black', 'age', '10-14'))}; that rise "
+        f"({bp(2022, 'black', 'is_black', 'age', '10-14')['est'] - bp(2010, 'black', 'is_black', 'age', '0-4')['est']:+.2f}) was about half the 2010 cross-section's "
+        f"gradient between 0-4 and 10-14 ({bp(2010, 'black', 'is_black', 'age', '10-14')['est'] - bp(2010, 'black', 'is_black', 'age', '0-4')['est']:+.2f}). For Brown "
+        f"mothers the gradient ran the other way: their children were reported White in {dci(bp(2022, 'brown', 'is_white', 'age', '0-4'))} at 0-4 years and "
+        f"{dci(bp(2022, 'brown', 'is_white', 'age', '10-14'))} at 10-14 (Figure 5A). In the whole population, free of the pairing, the cohort born in 2005-2009 "
+        f"was reported White in {f2(C05[2010])} in 2010 and {f2(C05[2022])} in 2022, and the cohort born in 1995-1999 in {f2(C95[2000])} in 2000 and "
+        f"{f2(C95[2010])} in 2010: the two largest falls of any cohort, between the ages at which households report the child and those at which young people "
+        f"report for themselves. Five-year birth cohorts of {CF['first']}-{CF['last'] + 4} were reported White less often at each later census in "
+        f"{CF['white_fell']} of {CF['intervals']} intervals (Figure 5D). Different mothers, partners and informants report each time, so age and cohort cannot "
+        "be separated.")
 figure(d, "family_age", "Figure 5 - Children of Brown mothers reported White (A) and of Black mothers reported Black (B), by age; children of the couple living with "
                         "the mother (C); and the share of each five-year birth cohort reported White at the Censuses of 2000, 2010 and 2022 (D), Brazil",
        ["A, B: children of the household's couple living with their mother; design-based 95% confidence intervals. C: share of all children of the age and "

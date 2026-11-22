@@ -6,8 +6,10 @@ mother co-resident). Estimates are weighted; their standard errors are design-ba
 primary units = households (the 2022 public file carries no weighting area; 2010's weighting areas give a sensitivity).
 
     python papers/race_at_death/analysis/family.py      -> results/family.json   (about ten minutes)
+    python papers/race_at_death/analysis/family.py review2   -> adds "review2" to it
 """
 import json
+import sys
 import warnings
 from pathlib import Path
 
@@ -66,6 +68,95 @@ for y, d in D.items():
     for c in ("white", "brown", "black"):
         d[f"is_{c}"] = (d.child == c).astype(int)
     d["same"] = (d.child == d.mother).astype(int)
+
+
+def review2():
+    """Review 2: the child's and the mother's informant crossed; full siblings against independence; both parents' races among fathers;
+    the 2022 reweighting with bootstrap intervals and a White-mother placebo. Written into family.json under "review2"."""
+    out = {}
+    # 1. who answered for the child crossed with who answered for the mother (2022), children 0-9 with a partner
+    d = D[2022]
+    sub = d[d.age.isin(["0-4", "5-9"]) & d.mother.isin(["white", "brown", "black"]) & (d.partner != "no partner")].copy()
+    sub["child_by"] = sub.informant.where(sub.informant.isin(["mother", "partner"]), "other")
+    sub["mother_by"] = sub.mother_informant.map({"self": "mother", "partner": "partner"}).fillna("other")
+    cross = {}
+    for (m, p, cb, mb), g in sub.groupby(["mother", "partner", "child_by", "mother_by"]):
+        if len(g) >= 300 and cb != "other" and mb != "other":
+            cross[f"{m}|{p}|child by {cb}|mother by {mb}"] = {"white": ratio(g, "is_white"), "black": ratio(g, "is_black"), "brown": ratio(g, "is_brown")}
+    out["informant_cross"] = cross
+    # 2. full siblings (every child aged 0-9 of the couple a child of both) against independence within the mother-by-partner cell
+    sib = {}
+    for y, d in D.items():
+        s0 = d[d.age.isin(["0-4", "5-9"]) & d.mother.isin(["white", "brown", "black"]) & d.child.isin(["white", "brown", "black"])]
+        h = s0.groupby("hh").agg(n=("child", "size"), k=("child", "nunique"), allfull=("rel", lambda r: bool((r == "04").all())), w=("w", "first"),
+                                 uf=("uf", "first"), mother=("mother", "first"), partner=("partner", "first"))
+        h = h[(h.n >= 2) & h.allfull].reset_index()
+        h["disc"] = (h.k > 1).astype(int)
+        kids = s0[s0.hh.isin(h.hh)]
+        for (m, p), x in h.groupby(["mother", "partner"]):
+            if len(x) < 300:
+                continue
+            kk = kids[(kids.mother == m) & (kids.partner == p)]
+            pc = (kk.groupby("child").w.sum() / kk.w.sum()).to_dict()
+            expected = float(np.average(1 - sum(pc.get(c, 0) ** x.n for c in ("white", "brown", "black")), weights=x.w))
+            sib[f"{y}|{m}|{p}"] = {"observed": ratio(x, "disc"), "independent": expected, "households": int(len(x))}
+    out["full_siblings"] = sib
+    # 3. both parents' races among children of both (fathers): the child White, Brown or Black
+    par = {}
+    for y, d in D.items():
+        s0 = d[d.age.isin(["0-4", "5-9"]) & (d.rel == "04")]
+        for (m, p), g in s0.groupby(["mother", "partner"]):
+            if m in ("white", "brown", "black") and p in ("white", "brown", "black"):
+                par[f"{y}|{m}|{p}"] = {c: ratio(g, f"is_{c}") for c in ("white", "brown", "black")}
+    out["parents"] = par
+    # 4. the 2022 proportions at the 2010 mothers' instruction and region, with a household bootstrap, for each mother's race (White a placebo)
+    rng = np.random.default_rng(2026)
+    cells = [("brown", "is_white"), ("black", "is_black"), ("black", "is_white"), ("white", "is_white"), ("brown", "is_brown")]
+    S10 = {m: D[2010][(D[2010].mother == m) & D[2010].age.isin(["0-4", "5-9"])][["hh", "w", "instruction", "region", "is_white", "is_black", "is_brown"]]
+           for m in ("white", "brown", "black")}
+    S22 = {m: D[2022][(D[2022].mother == m) & D[2022].age.isin(["0-4", "5-9"])][["hh", "w", "instruction", "region", "is_white", "is_black", "is_brown"]]
+           for m in ("white", "brown", "black")}
+
+    def std(a10, a22, outc, w10, w22):
+        p10 = (a10.assign(w=w10).groupby(["instruction", "region"]).w.sum())
+        p10 = p10 / p10.sum()
+        g22 = a22.assign(w=w22, wy=w22 * a22[outc]).groupby(["instruction", "region"])[["w", "wy"]].sum()
+        r22 = g22.wy / g22.w
+        common = p10.index.intersection(r22.index)
+        return (float((w10 * a10[outc]).sum() / w10.sum()), float((w22 * a22[outc]).sum() / w22.sum()),
+                float((r22[common] * p10[common]).sum() / p10[common].sum()))
+
+    def hh_mult(a):
+        u, inv = np.unique(a.hh.to_numpy(), return_inverse=True)
+        return inv, len(u)
+
+    idx = {(m, y): hh_mult(S10[m] if y == 2010 else S22[m]) for m in S10 for y in (2010, 2022)}
+    est = {f"{m}|{o}": std(S10[m], S22[m], o, S10[m].w.to_numpy(), S22[m].w.to_numpy()) for m, o in cells}
+    reps = {k: [] for k in est}
+    for _ in range(200):
+        mult = {}
+        for (m, y), (inv, n) in idx.items():
+            mult[(m, y)] = rng.poisson(1.0, n)[inv]
+        for m, o in cells:
+            reps[f"{m}|{o}"].append(std(S10[m], S22[m], o, S10[m].w.to_numpy() * mult[(m, 2010)], S22[m].w.to_numpy() * mult[(m, 2022)]))
+    dr = {}
+    for k, (a, b, c) in est.items():
+        r = np.array(reps[k])
+        dr[k] = {"2010": a, "2022": b, "2022_at_2010_mothers": c, "se": {"2010": float(r[:, 0].std()), "2022": float(r[:, 1].std()), "std": float(r[:, 2].std())},
+                 "change": b - a, "change_se": float((r[:, 1] - r[:, 0]).std()), "std_change": c - a, "std_change_se": float((r[:, 2] - r[:, 0]).std())}
+    out["drift_boot"] = dr
+    out["instruction_by_mother"] = {f"{y}|{m}": ((S10[m] if y == 2010 else S22[m]).groupby("instruction").w.sum()
+                                                 / (S10[m] if y == 2010 else S22[m]).w.sum()).to_dict() for m in S10 for y in (2010, 2022)}
+    return out
+
+
+if sys.argv[1:] == ["review2"]:
+    F = json.loads(OUT.read_text(encoding="utf-8"))
+    F["review2"] = review2()
+    OUT.write_text(json.dumps(F, indent=1, default=float), encoding="utf-8")
+    print("review2 written", {k: (round(v["observed"]["est"], 3), round(v["independent"], 3)) for k, v in F["review2"]["full_siblings"].items()}, flush=True)
+    sys.exit(0)
+
 
 # ------------------------------------------------------------------ the household's classification of the child by the mother's race, two censuses
 F["matrix"] = {}

@@ -1,150 +1,64 @@
-﻿Supplementary material - The race of a child in the household: partners, schooling, age and who answers, in the Brazilian Censuses of 2010 and 2022
+﻿Supplementary material - The race of a child in the household: mothers, fathers, stepfathers, siblings and who answers, in the Brazilian Censuses of 2010 and 2022
 Supplementary Text S1 - The cohort series
-The share of each five-year birth cohort reported White at the Censuses of 2000, 2010 and 2022 was read from a cohort-component population account of every municipality, built for this research programme from the censuses, the mortality and live birth registers and the official estimates of IBGE; in a census year the account takes the census population by single year of age and race as given, so the shares at the three dates are census shares. A cohort's White share can fall between censuses through reclassification, but also through higher mortality or emigration of White people, differences in coverage between censuses and the change of the 2022 questionnaire; the series describes the cohorts and does not separate these.
+The share of each five-year birth cohort reported White at the Censuses of 2000, 2010 and 2022 was read from a cohort-component population account of every municipality, built for this research programme from the censuses, the mortality and live birth registers and the official estimates of IBGE; in a census year the account takes the census population by single year of age and race as given, so the shares at the three dates are census shares. A cohort's White share can fall between censuses through reclassification, but also through higher mortality or emigration of White people, differences in coverage between censuses and the change of the 2022 questionnaire; the series describes the cohorts and does not separate these. The Census of 2000 was taken on 1 August 2000, so the cohort born in 2000 held only eight months of births then and is not compared with its later counts.
 Supplementary Text S2 - Design-based standard errors
 For a weighted proportion r = sum(w y) / sum(w), the linearised variable z = w (y - r) / sum(w) was summed within households and its variance estimated as the between-household variance within states, sum over states of n_h / (n_h - 1) sum (z_hi - mean_h)^2, which treats households as sampled with replacement within states. With the weighting areas of 2010 as strata the standard error of Brown mothers' children aged 0-9 reported White was 0.00050, against 0.00050 with states. The logistic models use the weights scaled to a mean of 1 and standard errors clustered by household.
-Supplementary Table S1 - Odds ratios of the race reported for children aged 0-9, logistic models of the Censuses of 2010 and 2022 together, Brazil
-Outcome
-Term
-Odds ratio
-95%CI
-Brown mother, child White
-census: 2022
-1.03
-1.02; 1.04
-Brown mother, child White
-partner: white
-9.36
-9.27; 9.46
-Brown mother, child White
-partner: black
-0.85
-0.83; 0.87
-Brown mother, child White
-partner: other
-1.71
-1.60; 1.82
-Brown mother, child White
-partner: no partner
-2.05
-2.03; 2.08
-Brown mother, child White
-instruction: primary complete
-1.11
-1.10; 1.13
-Brown mother, child White
-instruction: secondary complete
-1.21
-1.20; 1.23
-Brown mother, child White
-instruction: higher complete
-1.38
-1.36; 1.41
-Brown mother, child White
-age: 5-9
-0.72
-0.71; 0.72
-Brown mother, child White
-mother_age: 35-44
-1.05
-1.04; 1.06
-Brown mother, child White
-mother_age: 45 or more
-1.13
-1.10; 1.15
-Brown mother, child White
-mother_age: under 25
-1.06
-1.04; 1.07
-Brown mother, child White
-sex: 2
-1.10
-1.09; 1.11
-Brown mother, child White
-region: North
-0.71
-0.70; 0.73
-Brown mother, child White
-region: Northeast
-0.90
-0.89; 0.92
-Brown mother, child White
-region: South
-1.43
-1.40; 1.46
-Brown mother, child White
-region: Southeast
-1.18
-1.16; 1.21
-Black mother, child Black
-census: 2022
-0.94
-0.92; 0.96
-Black mother, child Black
-partner: white
-0.06
-0.05; 0.06
-Black mother, child Black
-partner: brown
-0.07
-0.07; 0.07
-Black mother, child Black
-partner: other
-0.11
-0.10; 0.12
-Black mother, child Black
-partner: no partner
-0.28
-0.28; 0.29
-Black mother, child Black
-instruction: primary complete
-0.94
-0.91; 0.96
-Black mother, child Black
-instruction: secondary complete
-1.01
-0.99; 1.04
-Black mother, child Black
-instruction: higher complete
-1.06
-1.02; 1.10
-Black mother, child Black
-age: 5-9
-1.30
-1.27; 1.32
-Black mother, child Black
-mother_age: 35-44
-1.04
-1.01; 1.06
-Black mother, child Black
-mother_age: 45 or more
-1.03
-0.99; 1.08
-Black mother, child Black
-mother_age: under 25
-0.90
-0.87; 0.93
-Black mother, child Black
-sex: 2
-0.89
-0.88; 0.91
-Black mother, child Black
-region: North
-1.00
-0.95; 1.06
-Black mother, child Black
-region: Northeast
-1.31
-1.25; 1.36
-Black mother, child Black
-region: South
-1.48
-1.41; 1.56
-Black mother, child Black
-region: Southeast
-1.24
-1.19; 1.30
-References: census 2010; partner of the mother's race; mother with no or incomplete primary schooling; child aged 0-4; mother aged 25-34; boy; Centre-West. Weighted; standard errors clustered by household.
+Supplementary Table S1 - Race reported for children aged 0-4 according to the race of their mother, Brazilian Censuses of 2010 and 2022
+Mother's race
+Census
+Children (sample records)
+Reported White (95%CI)
+Reported Brown (95%CI)
+Reported Black (95%CI)
+White
+2010
+472,649
+0.870 (95%CI 0.869; 0.871)
+0.121 (95%CI 0.120; 0.122)
+0.006 (95%CI 0.006; 0.007)
+White
+2022
+393,556
+0.863 (95%CI 0.862; 0.864)
+0.124 (95%CI 0.122; 0.125)
+0.011 (95%CI 0.011; 0.012)
+Brown
+2010
+555,884
+0.235 (95%CI 0.234; 0.237)
+0.748 (95%CI 0.746; 0.749)
+0.011 (95%CI 0.011; 0.012)
+Brown
+2022
+572,030
+0.239 (95%CI 0.238; 0.240)
+0.743 (95%CI 0.741; 0.744)
+0.017 (95%CI 0.016; 0.017)
+Black
+2010
+87,679
+0.151 (95%CI 0.149; 0.154)
+0.402 (95%CI 0.397; 0.406)
+0.437 (95%CI 0.433; 0.441)
+Black
+2022
+115,649
+0.178 (95%CI 0.175; 0.181)
+0.388 (95%CI 0.384; 0.391)
+0.433 (95%CI 0.429; 0.437)
+Indigenous
+2010
+12,146
+0.066 (95%CI 0.060; 0.073)
+0.081 (95%CI 0.074; 0.088)
+0.006 (95%CI 0.003; 0.008)
+Indigenous
+2022
+31,637
+0.040 (95%CI 0.036; 0.045)
+0.082 (95%CI 0.075; 0.088)
+0.005 (95%CI 0.003; 0.006)
+Children of the household's couple living with their mother. Weighted proportions; 95% confidence intervals (95%CI) by Taylor linearisation, strata the states, primary units the households; they reflect sampling only. Rows do not sum to 1: the remainder is Yellow, Indigenous or not reported.
 
 Supplementary Table S2 - Children aged 0-9 by the mother's race, the race reported for the child, the mother's instruction and the region, Brazilian Censuses of 2010 and 2022
 Census
