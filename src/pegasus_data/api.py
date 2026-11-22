@@ -1001,6 +1001,9 @@ def load_population(
     zero. The municipality codes are as filed (`sources.ibge.materialised`: ``code_widths``; ``geography.to_code7``
     maps every width to one).
 
+    ``sex`` is ``"1"`` (male) or ``"2"`` (female) in every series; where a series files it otherwise (projpop's ``M``/``F``)
+    the value as filed is ``sex_filed`` (`_one_sex_coding`).
+
     The table carries what the series is (``table.schema.metadata[b"pegasus.series"]``, JSON): its authority and, from
     ``curation/populations.yml``, the producer, vintage, reference date, years, method, limitations and the documents
     that state them, or ``"undocumented"``.
@@ -1047,13 +1050,35 @@ def load_population(
     if years is not None and "year" in dataset.schema.names:
         year_filter = pads.field("year").isin(list(years))
         expression = year_filter if expression is None else (expression & year_filter)
-    table = dataset.to_table(filter=expression)
+    table = _one_sex_coding(dataset.to_table(filter=expression))
     # the series' own description travels with its numbers: a methods paragraph quotes it
     described = {"series": series, "authority": spec.authority, "directory": spec.directory, "notes": spec.notes,
                  "kind": spec.kind, "years": list(held.years), "municipality_code_widths": list(held.code_widths),
                  "documentation": series_documentation(series) or "undocumented: no document has been read"}
     return table.replace_schema_metadata({**(table.schema.metadata or {}),
                                           SERIES_METADATA: json.dumps(described, ensure_ascii=False).encode("utf-8")})
+
+
+def _one_sex_coding(table: pa.Table) -> pa.Table:
+    """``sex`` as one coding across the population series, ``"1"`` male and ``"2"`` female (POPSVS, POP and CENSO file it
+    so): projpop and the census covariates file ``M``/``F``, and a study that stacked two series compared codes that
+    never met (2026-11-22). A value is read as a sex from its whole spelling (`semantics.categories.canonical_sex`), never
+    by its first letter; the value as filed is kept as ``sex_filed`` wherever it was rewritten, and one the spellings do
+    not hold stays null, never a sex."""
+    if "sex" not in table.column_names:
+        return table
+    import pyarrow.compute as pc
+
+    from .semantics.categories import canonical_sex
+
+    filed = pc.cast(table.column("sex"), pa.string())
+    if pc.all(pc.or_kleene(pc.is_null(filed), pc.is_in(filed, value_set=pa.array(["1", "2"])))).as_py():
+        return table
+    canonical = canonical_sex(filed)              # M, F or null
+    from_label = pc.if_else(pc.equal(canonical, "M"), pa.scalar("1"), pa.scalar("2"))   # null stays null
+    coded = pc.if_else(pc.is_in(filed, value_set=pa.array(["1", "2"])), filed, from_label)
+    at = table.column_names.index("sex")
+    return table.set_column(at, "sex", coded).add_column(at + 1, "sex_filed", filed)
 
 
 def load_reference(

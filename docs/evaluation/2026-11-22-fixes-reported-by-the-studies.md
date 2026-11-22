@@ -39,3 +39,9 @@ against the first pass's 2,600 (deterministic: not viable). The linked share is 
 description now says so. `info <link>` marked no stored run as stale while `link()` would recompute it: every run of the
 newborn, death and infant-death links was stale after the day's spec and role-table changes. Each run now shows
 `[stale: link() recomputes it]` and the header counts them.
+
+**Sex across population series (science-1).** POPSVS, POP and CENSO filed sex as "1"/"2", projpop and the census
+covariates as "M"/"F", so two series stacked never met. `load_population` now returns "1"/"2" for every series, read from
+the whole spelling (`canonical_sex`), with the filed value as `sex_filed` where it was rewritten. projpop 2024 by sex now
+equals POPSVS's (103,662,286 and 108,921,464). The one internal reader of projpop's M/F (the population account's IBGE
+calibration, `population_tensor`) reads the new coding.

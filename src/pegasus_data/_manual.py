@@ -98,7 +98,9 @@ def _write_populations(staged: Path, cfg: Settings) -> int:
         ["# Population series: `load_population(series=..., years=..., by=[...])`", "",
          "Denominators as their producers publish them. Ages: the single years the files hold, the oldest standing for 'and over' "
          "(80+, 90+, 100+). Above 80 by single year: projpop (states, to 90+, 2000-2070) and CENSO (municipalities, to 100+, "
-         "census years). The modelled population account is a product (`products.md`, `read_modelled`).", "",
+         "census years). `sex` is \"1\" male and \"2\" female in every series (projpop's filed M/F kept as `sex_filed`). "
+         "POPSVS's state totals are projpop's (Revisão 2024): 212,583,750 for 2024 in both. The modelled population account "
+         "is a product (`products.md`, `read_modelled`).", "",
          *_table(["series", "kind", "authority", "place", "years", "axes", "ages", "call"], rows)]) + "\n", encoding="utf-8")
     return len(rows)
 
