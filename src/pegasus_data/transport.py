@@ -9,8 +9,10 @@ and resumed). They share, so a server is treated the same whoever asks:
   (`servicodados.ibge.gov.br`: "unable to get local issuer certificate"; INEP: a reset), so `fetch_municipalities` failed
   after 77 s of retries. IPv4 only: from this network `zenodo.org` answers 403 over IPv6 and serves over IPv4, which failed
   every BR-DWGD read (``PEGASUS_IPV6=1`` lets the system choose).
-* **One politeness.** At most one request per `INTERVAL` to a host (reserved under a lock, so threads share the schedule;
-  ``interval=0`` for a caller that is throttled by the server itself, as BR-DWGD's ranged reads are by Zenodo's 429).
+* **No pause of our own.** A server that wants fewer requests says so (429, ``Retry-After``, a 503), and is answered
+  with its own delay (`_backoff`). A fixed pause per host (1.1 s until 2026-11-22) had no ground in any server's
+  behaviour, and it was the bound of the ANS TISS landing (about 8,100 files at under 1 a second). ``interval`` still
+  spaces a caller's requests to a host when it asks (reserved under a lock, so threads share the schedule).
 * **One classification.** A reset, a timeout, a truncated body, 408/425/429 and 5xx are transient and retried with
   backoff (the server's ``Retry-After`` honoured); any other 4xx raises `SourceAbsent` at once (the thing asked for is not
   there: a month not yet published waited 195 s and stopped the source); a certificate that does not verify is not
@@ -40,8 +42,8 @@ __all__ = ["BROWSER_AGENT", "INTERVAL", "RESUME_WINDOW", "SourceAbsent", "downlo
 
 #: Government servers reset connections from clients that do not look like a browser (INEP, INMET), and drop long transfers at random.
 BROWSER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36"
-#: Seconds between two requests to one host.
-INTERVAL = 1.1
+#: Seconds between two requests to one host when a caller asks for spacing; none by default (module docstring).
+INTERVAL = 0.0
 #: Statuses that mean "try again": the request timed out, the server is busy, the server failed. Every other 4xx says the
 #: URL has no such thing, and asking again does not change that.
 RETRYABLE = frozenset({408, 425, 429})

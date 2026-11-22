@@ -237,8 +237,7 @@ def _build_extract(dataset: str, years: Sequence[int], filters: dict[str, Sequen
     by file (module docstring), ``workers`` files at a time. A file already in the manifest is not read again, so an
     interrupted extract resumes. Returns the manifest. ``ufs`` reads only those states' files (an extract that is not
     whole says so when read)."""
-    from concurrent.futures import ThreadPoolExecutor
-
+    from .concurrency import Pace, adaptive_map
     from .config import load_settings
     from .retrieve import fetch
 
@@ -275,19 +274,13 @@ def _build_extract(dataset: str, years: Sequence[int], filters: dict[str, Sequen
         # the file's own records, counted before the read's row filter dropped the ones that cannot match
         return f, (table.filter(mask) if mask is not None else table.slice(0, 0)),             int(getattr(report, "rows_decoded", 0) or table.num_rows), report
 
-    pool = ThreadPoolExecutor(max_workers=max(1, workers), thread_name_prefix="extract")
+    # as many files in flight as the total rate keeps rising with (`concurrency.adaptive_map`), starting at ``workers``:
+    # a fixed six was short of the line one hour and past it the next (2026-11-21)
+    pace = Pace()
 
     def results():
-        # at most ``workers`` files in flight, taken in order: a slow month never lets decoded ones pile up behind it
-        from collections import deque
-
-        window: deque = deque()
-        for f in todo:
-            window.append(pool.submit(read, f))
-            if len(window) >= max(1, workers):
-                yield window.popleft().result()
-        while window:
-            yield window.popleft().result()
+        return adaptive_map(read, todo, start=max(1, workers),
+                            measure=lambda out: getattr(out[3], "bytes_downloaded", 0) or 0, pace=pace)
 
     for i, (f, kept, rows, report) in enumerate(results()):
         if isinstance(kept, Exception):
@@ -308,7 +301,7 @@ def _build_extract(dataset: str, years: Sequence[int], filters: dict[str, Sequen
             done = sum(v["rows"] for v in manifest["files"].values())
             log(f"extract {dataset}: {i + 1}/{len(todo)} files, {done:,} rows read, "
                 f"{sum(v['kept'] for v in manifest['files'].values()):,} kept, {time.time() - t0:.0f} s")
-    pool.shutdown()
+    manifest["pace"] = pace.as_dict()
     _write_manifest(mpath, manifest)
     return manifest
 

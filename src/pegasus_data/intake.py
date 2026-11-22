@@ -1181,7 +1181,7 @@ def land_snapshot(source: str, table: pa.Table, label: str, read_on: str, root: 
 
 # --- the fields --------------------------------------------------------------------------------------------------------
 
-#: Units of one file source landed at once (`build_source`); their requests share the host's schedule.
+#: Units of one file source in flight at the start (`build_source`); `concurrency.adaptive_map` moves it by the rate.
 INTAKE_WORKERS = 4
 
 
@@ -1200,7 +1200,7 @@ def build_source(settings: Any, source: str, names: list[str] | None = None, yea
         report["units"]["api"] = _land_api(settings, source, spec, refresh)
     else:
         absent: dict[str, SourceAbsent] = {}
-        from concurrent.futures import ThreadPoolExecutor
+        from .concurrency import Pace, adaptive_map
 
         def land(unit: dict[str, Any]) -> tuple[str, dict[str, Any] | SourceAbsent]:
             try:
@@ -1209,16 +1209,19 @@ def build_source(settings: Any, source: str, names: list[str] | None = None, yea
                 return unit["key"], exc
 
         # Units of a file source are independent (each its own download, DuckDB connection and part files, named by the
-        # unit's key) and land side by side: one at a time, ANS's 8,100 TISS hospital files waited on each other's
-        # landing, about 3 s a unit for a 340 KB file (2026-11-21). The requests still share one schedule per host
-        # (`transport.INTERVAL`), so the server sees no more than it did.
-        with ThreadPoolExecutor(max_workers=INTAKE_WORKERS, thread_name_prefix="intake") as pool:
-            for key, outcome in pool.map(land, list(_units(spec, years))):
-                if isinstance(outcome, SourceAbsent):
-                    absent[key] = outcome
-                    report["units"][key] = {"absent": outcome.status, "url": outcome.url}
-                else:
-                    report["units"][key] = outcome
+        # unit's key) and land side by side, as many at once as the total rate keeps rising with (`concurrency`): one at a
+        # time, ANS's 8,100 TISS hospital files waited on each other's landing, about 3 s a unit for a 340 KB file
+        # (2026-11-21). A server that wants fewer says so and is answered by its own signals (`transport._backoff`).
+        pace = Pace()
+        # units completed a second: a source's files are of one kind, and their sizes are not listed before the download
+        for key, outcome in adaptive_map(land, list(_units(spec, years)), start=INTAKE_WORKERS, measure=lambda _out: 1,
+                                         pace=pace):
+            if isinstance(outcome, SourceAbsent):
+                absent[key] = outcome
+                report["units"][key] = {"absent": outcome.status, "url": outcome.url}
+            else:
+                report["units"][key] = outcome
+        report["pace"] = pace.as_dict()
         if absent and len(absent) == len(report["units"]):
             first = next(iter(absent.values()))
             raise SourceAbsent(first.url, first.status, f"{source}: all {len(absent)} units are absent")
