@@ -1,6 +1,6 @@
 ## ADR-0229: race at birth against race at death is read from a death's candidates, with the other sex's births as the control
 
-**Date:** 2026-11-21. **Status:** active. **Extends** ADR-0226. **Request:** the race research line (docs/plans/race.md, R2).
+**Date:** 2026-11-21. **Status:** active, amended by ADR-0233 (its errors; movers and twins). **Extends** ADR-0226. **Request:** the race research line (docs/plans/race.md, R2).
 
 **Context.** After infancy a certificate shares with a birth record only the birth date, the sex and the municipality
 (the mother's and the birth's fields are filled on 0.0% of the deaths at 1-14). A one-to-one link exists only where a

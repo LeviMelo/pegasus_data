@@ -1115,27 +1115,133 @@ def candidate_counts(settings: Any, name: str, years: list[int], *, births_from:
         con.register("b_raw", births)
         con.execute(f"""CREATE OR REPLACE TEMP TABLE b AS SELECT "baby.birth_date" dn, "baby.sex" sex, "mother.residence" mun, "baby.race" j{b_sel},
                        count(*) n FROM b_raw WHERE "mother.residence" IS NOT NULL AND "baby.sex" IS NOT NULL GROUP BY ALL""")
-        con.execute("CREATE OR REPLACE TEMP TABLE bs AS SELECT mun, sex, sum(n) n FROM b GROUP BY ALL")
-        con.execute("CREATE OR REPLACE TEMP TABLE bm AS SELECT mun, sum(n) births FROM b GROUP BY ALL")
         con.execute(f"""CREATE OR REPLACE TEMP TABLE d AS SELECT "deceased.birth_date" dn, "deceased.sex" sex, "deceased.residence" mun,
                         "deceased.race" k, CAST("deceased.age_years" AS INTEGER) age, substr("death.cause", 1, 3) cause, year("death.date") dy{d_sel},
                         count(*) n FROM d_all
                         WHERE year("deceased.birth_date") = {born} AND "deceased.residence" IS NOT NULL AND "deceased.sex" IS NOT NULL
                         GROUP BY ALL""")
-        parts.append(con.execute(f"""
-            SELECT {born} AS born, false AS control, d.mun, bm.births, d.age, d.sex, d.cause, d.dy AS year{d_out}{b_out}, d.k AS recorded, b.j AS declared,
-                   CAST(sum(d.n * b.n) AS DOUBLE) AS n
-            FROM d JOIN b ON b.dn = d.dn AND b.sex = d.sex AND b.mun = d.mun JOIN bm ON bm.mun = d.mun GROUP BY ALL
-            UNION ALL
-            SELECT {born}, true, d.mun, bm.births, d.age, d.sex, d.cause, d.dy{d_out}{b_out}, d.k, b.j, sum(d.n * b.n * same.n / opp.n)
-            FROM d JOIN b ON b.dn = d.dn AND b.sex <> d.sex AND b.mun = d.mun JOIN bm ON bm.mun = d.mun
-            JOIN bs same ON same.mun = d.mun AND same.sex = d.sex JOIN bs opp ON opp.mun = d.mun AND opp.sex = b.sex GROUP BY ALL
-            UNION ALL
-            SELECT {born}, NULL, d.mun, bm.births, d.age, d.sex, d.cause, d.dy{d_out}{b_null}, d.k, NULL, CAST(sum(d.n) AS DOUBLE) FROM d LEFT JOIN bm ON bm.mun = d.mun GROUP BY ALL
-        """).to_arrow_table())
+        parts.append(_candidates(con, born, d_out=d_out, b_out=b_out, b_null=b_null))
         con.unregister("b_raw")
         log(f"{name} candidates, born {born}: {deaths.num_rows} deaths read, {parts[-1].num_rows} cells")
     return pa.concat_tables(parts)
+
+
+def _candidates(con: Any, born: int, *, scale: str = "mun", d_out: str = "", b_out: str = "", b_null: str = "") -> pa.Table:
+    """The candidate and control counts of ADR-0229 from two temp tables of ``con``: ``d`` (the units: ``dn`` birth date,
+    ``sex``, ``mun`` residence, ``k`` their colour, ``age``, ``cause``, ``dy`` year, ``n``) and ``b`` (the register they
+    are looked for in: ``dn``, ``sex``, ``mun``, ``j`` its colour, ``n``). A unit's candidates share its birth date, sex
+    and residence; its control is the other sex's records of the same birth date and residence, scaled by the register's
+    records of the unit's sex over the other's within ``scale`` (an expression of ``mun``) and birth year, over which the
+    register's sex ratio is taken to be the same.
+
+    Two variance columns go with ``n`` (ADR-0233): ``v``, the cell's variance if the register's records are Poisson,
+    with units that share a key counted together (d.n squared: they share their candidates) and the control's scale
+    squared; ``w`` (control rows), the variance of the chance candidates the control stands for (d.n squared times the
+    expected chance candidates). The chance variance of a cell is its control rows' v + w; its model variance the sum
+    of v over candidates and control."""
+    con.execute(f"CREATE OR REPLACE TEMP TABLE bs AS SELECT {scale} s, year(dn) yb, sex, sum(n) n FROM b GROUP BY ALL")
+    con.execute("CREATE OR REPLACE TEMP TABLE bm AS SELECT mun, sum(n) births FROM b GROUP BY ALL")
+    s_of_d = scale.replace("mun", "d.mun")
+    return con.execute(f"""
+        SELECT {born} AS born, false AS control, d.mun, bm.births, d.age, d.sex, d.cause, d.dy AS year{d_out}{b_out}, d.k AS recorded, b.j AS declared,
+               CAST(sum(d.n * b.n) AS DOUBLE) AS n, CAST(sum(d.n * d.n * b.n) AS DOUBLE) AS v, NULL::DOUBLE AS w
+        FROM d JOIN b ON b.dn = d.dn AND b.sex = d.sex AND b.mun = d.mun JOIN bm ON bm.mun = d.mun GROUP BY ALL
+        UNION ALL
+        SELECT {born}, true, d.mun, bm.births, d.age, d.sex, d.cause, d.dy{d_out}{b_out}, d.k, b.j, sum(d.n * b.n * same.n / opp.n),
+               sum(d.n * d.n * b.n * (same.n / opp.n) * (same.n / opp.n)), sum(d.n * d.n * b.n * same.n / opp.n)
+        FROM d JOIN b ON b.dn = d.dn AND b.sex <> d.sex AND b.mun = d.mun JOIN bm ON bm.mun = d.mun
+        JOIN bs same ON same.s = {s_of_d} AND same.yb = year(d.dn) AND same.sex = d.sex
+        JOIN bs opp ON opp.s = {s_of_d} AND opp.yb = year(d.dn) AND opp.sex = b.sex GROUP BY ALL
+        UNION ALL
+        SELECT {born}, NULL, d.mun, bm.births, d.age, d.sex, d.cause, d.dy{d_out}{b_null}, d.k, NULL, CAST(sum(d.n) AS DOUBLE), NULL::DOUBLE, NULL::DOUBLE
+        FROM d LEFT JOIN bm ON bm.mun = d.mun GROUP BY ALL
+    """).to_arrow_table()
+
+
+#: The roles of an admission that ended in death and of its certificate, for `pair_candidate_counts` on ``sih_deaths_to_sim``.
+SIH_DEATH = {"birth_date": "patient.birth_date", "sex": "patient.sex", "residence": "patient.residence", "race": "patient.race", "date": "admission.end"}
+SIM_DEATH = {"birth_date": "deceased.birth_date", "sex": "deceased.sex", "residence": "deceased.residence", "race": "deceased.race", "date": "death.date"}
+
+
+def pair_candidate_counts(settings: Any, name: str, years: list[int], *, unit: dict[str, str], register: dict[str, str],
+                          scale: str = "mun", log: Any = print) -> pa.Table:
+    """ADR-0229's estimator between the two sides of a stored link ``name`` that record one event (an admission that
+    ended in death and its certificate), for each of ``years``: the left side's records (``unit``) are looked for among
+    the right side's (``register``) whose event falls in the same year, by birth date, sex and residence alone. ``unit``
+    and ``register`` name the roles ``birth_date``, ``sex``, ``residence``, ``race`` and ``date`` (of the event). The
+    link's other keys (the day, the hospital) are not used, so its stored pairs are a known answer (`pair_truth`).
+    Layout as `candidate_counts` (``born`` is the year; ``births`` the register's records in the municipality that
+    year); ``recorded`` is the unit's colour, ``declared`` the register's. A register of deaths changes its sex ratio with
+    age, so the control is scaled within birth year as well as within ``scale``."""
+    from ..linkage import engine
+    from ..linkage.identity import connect
+
+    spec = engine.load_links()[name]
+    con = connect()
+    roles = ("birth_date", "sex", "residence", "race", "date")
+    parts = []
+    for year in years:
+        left = engine._side_table(spec.left, [unit[r] for r in roles], period=year, geography="BR", root=settings.root)
+        right = engine._side_table(spec.right, [register[r] for r in roles], period=year, geography="BR", root=settings.root)
+        con.register("l_raw", left)
+        con.register("r_raw", right)
+        u, g = unit, register
+        con.execute(f"""CREATE OR REPLACE TEMP TABLE d AS SELECT "{u['birth_date']}" dn, "{u['sex']}" sex, "{u['residence']}" mun, "{u['race']}" k,
+                        CAST(date_diff('year', "{u['birth_date']}", "{u['date']}") AS INTEGER) age, NULL::VARCHAR cause, year("{u['date']}") dy, count(*) n
+                        FROM l_raw WHERE year("{u['date']}") = {year} AND "{u['birth_date']}" IS NOT NULL AND "{u['residence']}" IS NOT NULL
+                        AND "{u['sex']}" IN ('M', 'F') GROUP BY ALL""")
+        con.execute(f"""CREATE OR REPLACE TEMP TABLE b AS SELECT "{g['birth_date']}" dn, "{g['sex']}" sex, "{g['residence']}" mun, "{g['race']}" j, count(*) n
+                        FROM r_raw WHERE year("{g['date']}") = {year} AND "{g['birth_date']}" IS NOT NULL AND "{g['residence']}" IS NOT NULL
+                        AND "{g['sex']}" IN ('M', 'F') GROUP BY ALL""")
+        parts.append(_candidates(con, year, scale=scale))
+        con.unregister("l_raw")
+        con.unregister("r_raw")
+        log(f"{name} candidates, {year}: {left.num_rows} units, {right.num_rows} records, {parts[-1].num_rows} cells")
+    return pa.concat_tables(parts)
+
+
+def pair_truth(settings: Any, name: str, years: list[int], *, unit: dict[str, str], register: dict[str, str], notes: list[str]) -> pa.Table:
+    """The known answer for `pair_candidate_counts`: each unit whose event falls in its year, with its residence, age,
+    sex and colour (``recorded``), whether the stored link paired it, the colour of its partner (``declared``), and
+    whether the partner shares its birth date, sex and residence and so is among its candidates (``findable``)."""
+    import pyarrow.compute as pc
+
+    from ..linkage import engine, store
+    from ..linkage.identity import record_ids
+
+    spec = engine.load_links()[name]
+    roles = ("birth_date", "sex", "residence", "race", "date")
+    method = engine.link_method(name)
+    out = []
+    for year in years:
+        try:
+            pairs, report = _stored_pairs(settings, name, year, notes)
+        except FileNotFoundError:          # stored under an earlier text of the spec: the newest such run, said in the notes
+            runs = sorted((store.links_dir(settings) / name).glob(f"{method}_BR_{year}_*.parquet"), key=lambda f: f.stat().st_mtime)
+            if not runs:
+                raise
+            digest = runs[-1].stem.rsplit("_", 1)[1]
+            found = store.load(settings, store.RunKey(name, method, str(year), "BR", digest), allow_stale=True)
+            if found is None:
+                raise
+            pairs, report = found
+            notes.append(f"link {name} {year}: the stored run {runs[-1].name} was made under an earlier text of the spec (digest {digest})")
+        left = engine._side_table(spec.left, [unit[r] for r in roles], period=year, geography="BR", root=settings.root)
+        right = engine._side_table(spec.right, [register[r] for r in ("race", "birth_date", "sex", "residence")], period=year, geography="BR", root=settings.root)
+        if left.num_rows != report["left_records"]:
+            raise ValueError(f"{name} {year}: the stored run linked {report['left_records']} units, the data now holds {left.num_rows}")
+        colour = dict(zip(record_ids(right).to_pylist(), right[register["race"]].to_pylist(), strict=True))
+        key_r = dict(zip(record_ids(right).to_pylist(), zip(*(right[register[r]].cast(pa.string()).to_pylist() for r in ("birth_date", "sex", "residence")), strict=True), strict=True))
+        key_l = list(zip(*(left[unit[r]].cast(pa.string()).to_pylist() for r in ("birth_date", "sex", "residence")), strict=True))
+        partner = dict(zip(pairs["l"].to_pylist(), pairs["r"].to_pylist(), strict=True))
+        lid = record_ids(left).to_pylist()
+        t = pa.table({"year": pa.array([year] * left.num_rows, pa.int64()), "mun": left[unit["residence"]].cast(pa.string()),
+                      "sex": left[unit["sex"]], "age": pc.years_between(left[unit["birth_date"]], left[unit["date"]]),
+                      "recorded": left[unit["race"]], "linked": pa.array([i in partner for i in lid], pa.bool_()),
+                      "declared": pa.array([colour.get(partner.get(i)) for i in lid], pa.string()),
+                      "findable": pa.array([i in partner and key_r.get(partner[i]) == kl for i, kl in zip(lid, key_l, strict=True)], pa.bool_())})
+        out.append(t.filter(pc.equal(pc.year(left[unit["date"]]), year)))
+    return pa.concat_tables(out)
 
 
 def candidate_difference(counts: pa.Table, mask: Any = None) -> tuple[np.ndarray, np.ndarray, float]:
@@ -1158,6 +1264,78 @@ def candidate_difference(counts: pa.Table, mask: Any = None) -> tuple[np.ndarray
             V[j, k] += v
     return T, np.sqrt(V), deaths
 
+
+def candidate_estimates(T: np.ndarray, V: np.ndarray, deaths: np.ndarray, exposure: np.ndarray | None = None, ref: int = 0,
+                        control: np.ndarray | None = None, var_model: np.ndarray | None = None,
+                        var_chance: np.ndarray | None = None) -> dict[str, np.ndarray]:
+    """What `candidate_difference` estimates, with its standard errors, from its pieces per cluster (a municipality):
+    ``T`` (clusters, declared, recorded) candidates less control, ``V`` the same shape candidates plus control,
+    ``deaths`` (clusters,) the group's deaths, ``exposure`` (clusters, declared) person-years by declared class,
+    ``control`` (same shape as T) the scaled control; ``var_model`` and ``var_chance`` (same shape) the cells' variances
+    from `_candidates`' columns v and w, which count units sharing a key together and the control's scale; without them
+    the model variance is V and the chance variance twice the control (exact for one unit a key and a scale of one).
+
+    Returned: ``p`` (declared, recorded) the rows of T over their sums (how a declared class is recorded), ``mix`` the
+    declared mix of the deaths, ``found`` the share found among the candidates (t), ``ratio`` each declared class's
+    rate over class ``ref``'s (``exposure`` given). Four standard errors, for two questions and the earlier practice:
+
+    * ``<name>_se_chance`` (``control`` given): the error in the table of THESE deaths. Only the chance candidates are
+      random; a cell's chance candidates and its control are each Poisson with the control's mean, so the cell's
+      variance is twice its control, and a ratio's (a row's sum, the deaths, the reference row) follows by the delta
+      method. It is zero where no death has a chance candidate.
+    * ``<name>_se_model``: the error in the classification as a property of the system that produced the deaths, if
+      deaths are independent Poisson counts: a cell of T is then the people found (Poisson) plus chance less control,
+      of variance candidates plus control (``V``), and a proportion's follows by the delta method with its row's sum.
+      ``ratio_se_poisson`` is this for the ratio (its reference row is its denominator).
+    * ``<name>_se``: the same question without the Poisson model,
+      linearised over the clusters as sampled units, so it carries the denominator, the covariance between cells, the
+      dependence within a municipality (a day's chance candidates are shared by its deaths, twins) and the variation of
+      the classification between municipalities; with few clusters it is unstable.
+    * ``p_se_poisson``: the counts' own (candidates plus control over the row's sum, as if the denominator were known),
+      the earlier practice, kept for comparison. For a ratio the earlier practice already had its denominators:
+      ``ratio_se_poisson`` is the model error with V, ``ratio_se_model`` with ``var_model``."""
+    Ts, Vs, D = T.sum(0), V.sum(0), float(deaths.sum())
+    m = T.shape[0]
+    inflate = m / max(m - 1, 1)
+    row, row_m = Ts.sum(1), T.sum(2)                         # (J,), (M, J)
+    tot, tot_m = Ts.sum(), T.sum((1, 2))
+    with np.errstate(divide="ignore", invalid="ignore"):
+        p = Ts / row[:, None]
+        z = (T - p[None] * row_m[:, :, None]) / row[None, :, None]
+        vrow = Vs.sum(1)
+        Vm = Vs if var_model is None else var_model.sum(0)
+        vmrow = Vm.sum(1)
+        out = {"p": p, "p_se": np.sqrt(inflate * (z ** 2).sum(0)), "p_se_poisson": np.sqrt(Vs) / row[:, None],
+               "p_se_model": np.sqrt(((1 - p) ** 2 * Vm + p ** 2 * (vmrow[:, None] - Vm)) / row[:, None] ** 2)}
+        mix = row / tot
+        z = (row_m - mix[None] * tot_m[:, None]) / tot
+        out |= {"mix": mix, "mix_se": np.sqrt(inflate * (z ** 2).sum(0)),
+                "mix_se_model": np.sqrt((1 - mix) ** 2 * vmrow + mix ** 2 * (vmrow.sum() - vmrow)) / tot}
+        found = tot / D
+        z = (tot_m - found * deaths) / D
+        out |= {"found": np.array(found), "found_se": np.array(np.sqrt(inflate * (z ** 2).sum()))}
+        if control is not None or var_chance is not None:
+            v = 2 * control.sum(0) if var_chance is None else var_chance.sum(0)   # (J, K): the chance candidates' and the control's variances
+            vrow_c = v.sum(1)
+            out |= {"p_se_chance": np.sqrt(((1 - p) ** 2 * v + p ** 2 * (vrow_c[:, None] - v)) / row[:, None] ** 2),
+                    "mix_se_chance": np.sqrt((1 - mix) ** 2 * vrow_c + mix ** 2 * (vrow_c.sum() - vrow_c)) / tot,
+                    "found_se_chance": np.array(np.sqrt(v.sum()) / D)}
+        if exposure is not None:
+            e = exposure.sum(0)
+            rate = row / e
+            ratio = rate / rate[ref]
+            z = ratio[None] * (row_m / row[None] - row_m[:, [ref]] / row[ref])
+            out |= {"ratio": ratio, "ratio_se": np.sqrt(inflate * (z ** 2).sum(0)),
+                    "ratio_se_poisson": ratio * np.sqrt(vrow / row ** 2 + vrow[ref] / row[ref] ** 2)}
+            rel = vmrow / row ** 2 + vmrow[ref] / row[ref] ** 2
+            rel[ref] = 0.0
+            out["ratio_se_model"] = ratio * np.sqrt(rel)
+            out["ratio_se_poisson"][ref] = 0.0
+            if control is not None or var_chance is not None:
+                rel = vrow_c / row ** 2 + vrow_c[ref] / row[ref] ** 2
+                rel[ref] = 0.0
+                out["ratio_se_chance"] = ratio * np.sqrt(rel)
+    return out
 
 def _build_product(population: Population, settings: Any, version: str, validation: str, log: Any) -> dict[str, Any]:
     from dataclasses import replace

@@ -1,0 +1,206 @@
+{
+ "morris2019": {
+  "doi": "10.1002/sim.8086",
+  "title": "Using simulation studies to evaluate statistical methods",
+  "journal": "Statistics in Medicine",
+  "short_journal": "Statistics in Medicine",
+  "year": 2019,
+  "volume": "38",
+  "issue": "11",
+  "pages": "2074-2102",
+  "authors": [
+   "Morris TP",
+   "White IR",
+   "Crowther MJ"
+  ],
+  "abstract": "<jats:p>\n                    Simulation studies are computer experiments that involve creating data by pseudo‐random sampling. A key strength of simulation studies is the ability to understand the behavior of statistical methods because some “truth” (usually some parameter/s of interest) is known from the process of generating the data. This allows us to consider properties of methods, such as bias. While widely used, simulation studies are often poorly designed, analyzed, and reported. This tutorial outlines the rationale for using simulation studies and offers guidance for design, execution, analysis, reporting, and presentation. In particular, this tutorial provides a structured approach for planning and reporting simulation studies, which involves defining aims, data‐generating mechanisms, estimands, methods, and performance measures (“ADEMP”); coherent terminology for simulation studies; guidance on coding simulation studies; a critical discussion of key performance measures and their estimation; guidance on structuring tabular and graphical presentation of results; and new graphical presentations. With a view to describing recent practice, we review 100 articles taken from Volume 34 of\n                    <jats:italic>Statistics in Medicine</jats:italic>\n                    , which included at least one simulation study and identify areas for improvement.\n                  </jats:p>",
+  "type": "journal-article"
+ },
+ "lipsitch2010": {
+  "doi": "10.1097/ede.0b013e3181d61eeb",
+  "title": "Negative Controls",
+  "journal": "Epidemiology",
+  "short_journal": "",
+  "year": 2010,
+  "volume": "21",
+  "issue": "3",
+  "pages": "383-388",
+  "authors": [
+   "Lipsitch M",
+   "Tchetgen Tchetgen E",
+   "Cohen T"
+  ],
+  "abstract": null,
+  "type": "journal-article"
+ },
+ "binder1983": {
+  "doi": "10.2307/1402588",
+  "title": "On the Variances of Asymptotically Normal Estimators from Complex Surveys",
+  "journal": "International Statistical Review / Revue Internationale de Statistique",
+  "short_journal": "International Statistical Review / Revue Internationale de Statistique",
+  "year": 1983,
+  "volume": "51",
+  "issue": "3",
+  "pages": "279",
+  "authors": [
+   "Binder DA"
+  ],
+  "abstract": null,
+  "type": "journal-article"
+ },
+ "lahiri2005": {
+  "doi": "10.1198/016214504000001277",
+  "title": "Regression Analysis With Linked Data",
+  "journal": "Journal of the American Statistical Association",
+  "short_journal": "Journal of the American Statistical Association",
+  "year": 2005,
+  "volume": "100",
+  "issue": "469",
+  "pages": "222-230",
+  "authors": [
+   "Lahiri P",
+   "Larsen MD"
+  ],
+  "abstract": null,
+  "type": "journal-article"
+ },
+ "hof2012": {
+  "doi": "10.1002/sim.5498",
+  "title": "Methods for analyzing data from probabilistic linkage strategies based on partially identifying variables",
+  "journal": "Statistics in Medicine",
+  "short_journal": "Statistics in Medicine",
+  "year": 2012,
+  "volume": "31",
+  "issue": "30",
+  "pages": "4231-4242",
+  "authors": [
+   "Hof MHP",
+   "Zwinderman AH"
+  ],
+  "abstract": "<jats:p>In record linkage studies, unique identifiers are often not available, and therefore, the linkage procedure depends on combinations of partially identifying variables with low discriminating power. As a consequence, wrongly linked covariate and outcome pairs will be created and bias further analysis of the linked data. In this article, we investigated two estimators that correct for linkage error in regression analysis. We extended the estimators developed by Lahiri and Larsen and also suggested a weighted least squares approach to deal with linkage error. We considered both linear and logistic regression problems and evaluated the performance of both methods with simulations. Our results show that all wrong covariate and outcome pairs need to be removed from the analysis in order to calculate unbiased regression coefficients in both approaches. This removal requires strong assumptions on the structure of the data. In addition, the bias significantly increases when the assumptions do not hold and wrongly linked records influence the coefficient estimation. Our simulations showed that both methods had similar performance in linear regression problems. With logistic regression problems, the weighted least squares method showed less bias. Because the specific structure of the data in record linkage problems often leads to different assumptions, it is necessary that the analyst has prior knowledge on the nature of the data. These assumptions are more easily introduced in the weighted least squares approach than in the Lahiri and Larsen estimator. Copyright © 2012 John Wiley &amp; Sons, Ltd.</jats:p>",
+  "type": "journal-article"
+ },
+ "goldstein2012": {
+  "doi": "10.1002/sim.5508",
+  "title": "The analysis of record‐linked data using multiple imputation with data value priors",
+  "journal": "Statistics in Medicine",
+  "short_journal": "Statistics in Medicine",
+  "year": 2012,
+  "volume": "31",
+  "issue": "28",
+  "pages": "3481-3493",
+  "authors": [
+   "Goldstein H",
+   "Harron K",
+   "Wade A"
+  ],
+  "abstract": "<jats:p>Probabilistic record linkage techniques assign match weights to one or more potential matches for those individual records that cannot be assigned ‘unequivocal matches’ across data files. Existing methods select the single record having the maximum weight provided that this weight is higher than an assigned threshold. We argue that this procedure, which ignores all information from matches with lower weights and for some individuals assigns no match, is inefficient and may also lead to biases in subsequent analysis of the linked data. We propose that a multiple imputation framework be utilised for data that belong to records that cannot be matched unequivocally. In this way, the information from all potential matches is transferred through to the analysis stage. This procedure allows for the propagation of matching uncertainty through a full modelling process that preserves the data structure. For purposes of statistical modelling, results from a simulation example suggest that a full probabilistic record linkage is unnecessary and that standard multiple imputation will provide unbiased and efficient parameter estimates. Copyright © 2012 John Wiley &amp; Sons, Ltd.</jats:p>",
+  "type": "journal-article"
+ },
+ "belin1995": {
+  "doi": "10.1080/01621459.1995.10476563",
+  "title": "A Method for Calibrating False-Match Rates in Record Linkage",
+  "journal": "Journal of the American Statistical Association",
+  "short_journal": "Journal of the American Statistical Association",
+  "year": 1995,
+  "volume": "90",
+  "issue": "430",
+  "pages": "694-707",
+  "authors": [
+   "Belin TR",
+   "Rubin DB"
+  ],
+  "abstract": null,
+  "type": "journal-article"
+ },
+ "chipperfield2015": {
+  "doi": "10.1515/jos-2015-0024",
+  "title": "Using the Bootstrap to Account for Linkage Errors when Analysing Probabilistically Linked Categorical Data",
+  "journal": "Journal of Official Statistics",
+  "short_journal": "",
+  "year": 2015,
+  "volume": "31",
+  "issue": "3",
+  "pages": "397-414",
+  "authors": [
+   "Chipperfield JO",
+   "Chambers RL"
+  ],
+  "abstract": "<jats:title>Abstract</jats:title>\n                  <jats:p>Record linkage is the act of bringing together records that are believed to belong to the same unit (e.g., person or business) from two or more files. Record linkage is not an error-free process and can lead to linking a pair of records that do not belong to the same unit. This occurs because linking fields on the files, which ideally would uniquely identify each unit, are often imperfect. There has been an explosion of record linkage applications, particularly involving government agencies and in the field of health, yet there has been little work on making correct inference using such linked files. Naively treating a linked file as if it were linked without errors can lead to biased inferences. This article develops a method of making inferences for cross tabulated variables when record linkage is not an error-free process. In particular, it develops a parametric bootstrap approach to estimation which can accommodate the sophisticated probabilistic record linkage techniques that are widely used in practice (e.g., 1-1 linkage). The article demonstrates the effectiveness of this method in a simulation and in a real application.</jats:p>",
+  "type": "journal-article"
+ },
+ "goodman1953": {
+  "doi": "10.2307/2088121",
+  "title": "Ecological Regressions and Behavior of Individuals",
+  "journal": "American Sociological Review",
+  "short_journal": "American Sociological Review",
+  "year": 1953,
+  "volume": "18",
+  "issue": "6",
+  "pages": "663",
+  "authors": [
+   "Goodman LA"
+  ],
+  "abstract": null,
+  "type": "journal-article"
+ },
+ "lash2014": {
+  "doi": "10.1093/ije/dyu149",
+  "title": "Good practices for quantitative bias analysis",
+  "journal": "International Journal of Epidemiology",
+  "short_journal": "International Journal of Epidemiology",
+  "year": 2014,
+  "volume": "43",
+  "issue": "6",
+  "pages": "1969-1985",
+  "authors": [
+   "Lash TL",
+   "Fox MP",
+   "MacLehose RF",
+   "Maldonado G",
+   "McCandless LC",
+   "Greenland S"
+  ],
+  "abstract": null,
+  "type": "journal-article"
+ },
+ "pita2018": {
+  "doi": "10.1109/jbhi.2018.2796941",
+  "title": "On the Accuracy and Scalability of Probabilistic Data Linkage Over the Brazilian 114 Million Cohort",
+  "journal": "IEEE Journal of Biomedical and Health Informatics",
+  "short_journal": "IEEE J. Biomed. Health Inform.",
+  "year": 2018,
+  "volume": "22",
+  "issue": "2",
+  "pages": "346-353",
+  "authors": [
+   "Pita R",
+   "Pinto C",
+   "Sena S",
+   "Fiaccone R",
+   "Amorim L",
+   "Reis S",
+   "Barreto ML",
+   "Denaxas S",
+   "Barreto ME"
+  ],
+  "abstract": null,
+  "type": "journal-article"
+ },
+ "tancredi2011": {
+  "doi": "10.1214/10-aoas447",
+  "title": "A hierarchical Bayesian approach to record linkage and population size problems",
+  "journal": "The Annals of Applied Statistics",
+  "short_journal": "Ann. Appl. Stat.",
+  "year": 2011,
+  "volume": "5",
+  "issue": "2B",
+  "pages": "1553-1585",
+  "authors": [
+   "Tancredi A",
+   "Liseo B"
+  ],
+  "abstract": "<jats:p>We propose and illustrate a hierarchical Bayesian approach for matching statistical records observed on different occasions. We show how this model can be profitably adopted both in record linkage problems and in capture–recapture setups, where the size of a finite population is the real object of interest. There are at least two important differences between the proposed model-based approach and the current practice in record linkage. First, the statistical model is built up on the actually observed categorical variables and no reduction (to 0–1 comparisons) of the available information takes place. Second, the hierarchical structure of the model allows a two-way propagation of the uncertainty between the parameter estimation step and the matching procedure so that no plug-in estimates are used and the correct uncertainty is accounted for both in estimating the population size and in performing the record linkage. We illustrate and motivate our proposal through a real data example and simulations.</jats:p>",
+  "type": "journal-article"
+ }
+}

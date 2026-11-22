@@ -1,0 +1,400 @@
+﻿Cross-classifying two registers without linking them: an estimator from birth date, sex and municipality with the other sex as a negative control, validated on Brazilian birth, death and hospital records
+[Authors, affiliations, ORCID, funding, conflicts of interest and contributions: to be supplied by the authors; not part of the blinded text]
+Abstract
+Objective: To state, validate and give the variance of an estimator of the cross-classification of a variable recorded in two registers that share no identifier, only the birth date, sex and municipality of residence.
+Methods: For each record of one register (a death), the records of the other (births) that share its birth date, sex and municipality are counted by their class; one of them is the person when the key was kept, the rest agree by chance. The other sex's records of the same day and municipality, scaled by the sex ratio, estimate the chance agreements and are subtracted. The difference, summed over a group, is proportional to the cross-classification. It was validated against the one-to-one linkage of 383,975 Brazilian infant deaths of 2013-2023 to their births, and against the linkage of 3,766,913 hospital admissions that ended in death (2016-2022) to their death certificates by the day of death and the hospital; a simulation built from the real births (200 replicates of each of 7 scenarios) measured bias and coverage under families that move, twins, unequal moving by race and a broken control.
+Results: In municipalities under 25,600 births a year (85% of births) the estimated proportions differed from the infant linkage by 0.005 on average over the 20 cells of the table, against 0.069 without the control, and failed above. For admissions the difference from the linked certificates sharing the key was at most 0.003; the 10% of linked admissions whose certificate did not share it were classified differently (certified White and recorded White in hospital 0.50 against 0.63). In simulation, with the assumptions holding and the real number of deaths, the bias was at most 0.004 below 6,400 births a year and 0.009 above; with a twelfth of the deaths it reached 0.020 and 0.134, the small-sample bias of a ratio of sums; the model intervals covered in 92%-100% of replicates; families moving, above all when moving depended on the class recorded, biased the estimate against all deaths (coverage down to 0%).
+Conclusions: A cross-classification between registers can be estimated without linking individuals, for the people whose key the two registers share, with the error of the chance agreements and the proportion's denominator. Its bias is the difference between those people and the rest, which the public files cannot measure: where it could be measured, in the admissions, it was 13 percentage points in one cell.
+Keywords: Medical Record Linkage; Vital Statistics; Data Accuracy; Bias; Negative Controls; Simulation; Race Factors; Brazil.
+Introduction
+Many questions in epidemiology need the cross-classification of a variable recorded twice for the same people in two registers: the race declared at birth against the race certified at death, the diagnosis of an admission against the underlying cause on the certificate. Linking the records gives it [1]. Where the registers carry no identifier, linkage rests on partially identifying variables, its errors bias what is estimated from the linked pairs [2,3], the rate of false matches must itself be estimated [4], and methods correct regression on linked data for known or modelled probabilities of a false link [5,6], correct cross-tabulations of linked files by a bootstrap of the linkage [7], carry every candidate record into the analysis by multiple imputation [8], or model the linkage and the analysis jointly [9]. All work from individual pairs. A cohort of 114 million Brazilians has been linked to national health databases with 93-97% true matches [10], outside the public files, which carry no identifier.
+After the first year of life a Brazilian death certificate shares with the person's birth record only the birth date, the sex and the municipality of residence: the mother's fields and the birth weight, which allow infant deaths to be linked one to one, are not filled. Where many children are born a day, the key is shared by several births and no individual link exists. Yet the question needs only the table, not who is whom. If the false agreements could be counted, they could be subtracted from the table of all agreements. The idea is borrowed from negative controls, comparisons known to carry a bias and not the effect [11]: here, records that agree with a death as often by chance as its candidates do and can never be the person. The births of the other sex on the same day in the same municipality are such records. The estimator built on them gave, for race at death after infancy, the table of race on the birth record by race on the certificate where no other source did.
+This study aimed to state, validate and give the variance of an estimator of the cross-classification of a variable recorded in two registers that share no identifier, only the birth date, sex and municipality of residence: its assumptions and estimands, a variance that includes the denominator of each proportion, two validations against linked records with known answers, and a simulation study of its bias and coverage.
+Methods
+Design and data. This is a methodological study with validation against linked records and a simulation study, reported according to the RECORD statement [12] and, for the simulation, the ADEMP structure [13]. Live births came from the Live Birth Information System (SINASC), deaths from the Mortality Information System (SIM) and admissions that ended in death from the Hospital Information System of the Unified Health System (SIH), all public files of the Ministry of Health [14]. The race on a birth record is the mother's declaration of her own race since the 2011 form; on a certificate it is recorded by the certifier or hospital staff.
+The estimator. Let a group G hold units i (deaths) with key x_i (birth date, sex, municipality of residence) and class k_i in the first register (the race on the certificate), and let the second register hold records r with key x_r and class j_r (the race on the birth record). The candidates of i in class j are C_i(j), the records with x_r = x_i and j_r = j. Its control K_i(j) is the number of records of class j with the birth date and municipality of i and the other sex, times s_i, the ratio of the register's records of i's sex to those of the other sex in that municipality and birth year. The estimator is T(j, k) = sum over the units of G certified k of C_i(j) - K_i(j) (Figure 1). Three assumptions are used. (A1) The person's own record is among the candidates with a probability t_j that may depend on the class j but not, given j, on the class k: the person kept the key (did not move, and the birth date and municipality were recorded alike). (A2) Given the day and the municipality, the records of the two sexes have the same composition by class and stand in the ratio s: the chance candidates' expectation is the control's. (A3) A record related to the person and sharing the key is of the person's class: a twin of the same sex adds to the candidates, one of the other sex to the control, both in the person's own cell. Under A2 and A3 the expectation of T(j, k) is t_j N(j, k) plus a twins' term in the person's own cell, with N(j, k) the units of G by (j, k). Three quantities follow. The row T(j, k) / T(j, +) estimates P(k | j), how a class declared in the second register is recorded in the first, under A1-A3; as a ratio of sums it is consistent, with a small-sample bias in rows with few units. The row sums over T(+, +) estimate the declared mix, and a rate by declared class (row sum over person-years by that class) gives ratios between classes, both only if t_j is the same for all j; T(+, +) over the units of G is the share found, t, which counts only units found in one of the classes of the rows. No individual is linked, and the case of one candidate (the unique link) is included. A unit whose birth date or municipality differs between the registers is not among its candidates; it adds chance only, which its control removes.
+
+Figure 1 - The estimator for one death: its candidates, its control and their difference
+The same key (birth date, municipality of residence) with the other sex gives records that agree by chance as often and are never the person.
+
+Variance. Four standard errors were compared (Supplementary Text S1), each by the delta method with a proportion's row sum, or a ratio's reference row, as denominator, and each counting together the units that share a key, which share their candidates. (i) Counts, the earlier practice: candidates plus control, over the row's sum as if the sum were known. (ii) Model: with the register's records Poisson, a cell is the people found plus the chance candidates less the control, the control's variance carrying its scale squared. (iii) Chance: the error in the table of these units only, in which the people found are fixed and only the chance agreements and the control vary. (iv) Clusters: Taylor linearisation with municipalities (pooled over years) as sampled units, which allows for dependence within a municipality and makes the variation of the classification between municipalities part of the error.
+Validation 1: infant deaths and their births. Infant deaths of 2013-2023 (383,975) were linked to their birth records by probabilistic linkage [1] on birth date, sex, residence, birth weight and the mother's age; 80.5% were linked, with an estimated 0.57-0.75% of false links a year. The estimator was run on the same deaths with birth date, sex and municipality alone, and the twenty cells of the table (four races on the birth record by four races and none on the certificate) were compared with the linked pairs', and with the linked pairs whose birth record shares the estimator's key (the findable pairs), by the municipality's births a year. As a baseline, the candidates were also tabulated without the control.
+Validation 2: admissions that ended in death and their certificates. The 3,766,913 admissions of 2016-2022 that ended in death in the year of the admission's end were the units, the death certificates of the same year the register, the race recorded by the hospital and the race on the certificate the two classes. The known answer was a probabilistic linkage of the two on birth date, sex, the day of death and the hospital or its municipality, 0.66-1.00% of false links a year, 95.9% of the units linked, 98.4% or more of the linked certificates giving a hospital as the place of death. The estimator used birth date, sex and residence, and the year. Deaths change their sex ratio with age, so the control was scaled within birth year and municipality, and, as a check, within birth year and state. This pair differs from the first in the register (deaths of all ages instead of births), in who assigns the classes (hospital staff and certifiers), and in the density of chance agreements, which is lower; its known answer also tells which linked pairs share the estimator's key.
+Simulation (ADEMP). Aims: bias and coverage of the estimator, and of its four errors, under departures from A1-A3. Data-generating mechanism: the 2018 birth cohort of every municipality by declared race, spread over days with a weekday and seasonal pattern (stronger on weekdays for White births); deaths by declared race at the rates estimated at 1-9 years, 77,693 in all as in 2013-2024, drawn from one cohort; the certified race drawn from the infant linkage's table for the decile of White births of the municipality where the death is certified (Supplementary Text S2). Scenarios: ideal (no departure); twins (2% of births twins, dying at twice the rate); movers (28% of children dying resident in another municipality of the state, certified there; the share found at 1-9 years implies about as many); unequal (movers 22% of White and 30-34% of other children); selective (movers 22%, and 12 points more among the children certified in a class other than the declared one); sparse (as ideal, with a twelfth of the deaths, so that deaths sharing a day are as rare as in one real cohort); a2 (as ideal, with boys 52.5% of White and 50.5% of Black and Indigenous births, breaking A2). Estimands: P(k | j) for all deaths of a group of municipalities by size (the target) and for those found among their candidates; the declared mix; the White to Brown, Black to Brown and Indigenous to Brown rate ratios. Methods: the estimator and its four errors from the same package function as for the real data. Performance: bias with its Monte Carlo error (the standard deviation of estimate less truth over the replicates), empirical standard error, mean standard error, coverage of the 95% interval.
+Unequal shares found. Where t differs between classes the declared mix and rate ratios are biased by the ratio of their t: a ratio between classes a and b estimates the true ratio times t_a / t_b. The data cannot identify the t_j without linked records; the size of the bias is shown by the simulation, as a bias analysis [15]. The limit of 25,600 births a year was chosen on the infant validation itself. Ethics: public, anonymised data; under Resolution 510/2016 of the National Health Council no review was required. Analysis code: the package pegasus_data (functions candidate_counts, pair_candidate_counts, candidate_estimates) and the scripts of the paper's repository.
+Results
+Infant deaths. Below 25,600 births a year the estimator reproduced the linked table cell by cell (Table 1, Figure 2A): the mean absolute difference over the twenty cells was 0.005 in municipalities under 400 births a year, 0.020 at 6,400-25,599 and 0.005 over all of them, the largest 0.10; 9 of the 80 cells of the four classes differed by more than 1.96 model standard errors. The candidates without the control differed by 0.069 on average, and by up to 0.44 in a cell at 1,600-6,399 births a year. Of the linked pairs, 94.5% shared the estimator's key; against them alone the difference was 0.005. Infants declared Black on the birth record were certified Black in 0.135 (95%CI 0.123; 0.147) by the estimator and 0.140 in the linked pairs, in the smallest municipalities. In the 7 municipalities of 25,600 births or more the chance candidates overwhelmed the people: the largest difference was 0.65. The share found was 89.8% overall, against 80.5% linked.
+Table 1 - The estimator against the one-to-one linkage of infant deaths to their births, by the municipality's births a year, Brazil, 2013-2023
+Births a year
+Municipalities
+Found
+Linked
+White certified White
+Black certified Black
+Brown certified Brown
+Mean |difference|
+Mean |difference|, findable
+Mean |difference|, no control
+Largest |difference|
+Cells outside 95%CI
+<400
+4,494
+87.3%
+78.1%
+0.78 / 0.78
+0.14 / 0.14
+0.65 / 0.66
+0.005
+0.005
+0.015
+0.016
+3 of 20
+400-1,599
+1,141
+89.8%
+78.9%
+0.78 / 0.78
+0.16 / 0.17
+0.66 / 0.67
+0.008
+0.008
+0.037
+0.030
+4 of 20
+1,600-6,399
+274
+92.6%
+83.2%
+0.79 / 0.79
+0.19 / 0.19
+0.61 / 0.62
+0.012
+0.013
+0.081
+0.048
+2 of 20
+6,400-25,599
+53
+88.9%
+81.5%
+0.69 / 0.72
+0.20 / 0.19
+0.64 / 0.65
+0.020
+0.019
+0.077
+0.096
+0 of 20
+<25,600
+5,523
+89.7%
+80.4%
+0.77 / 0.77
+0.17 / 0.18
+0.64 / 0.65
+0.005
+0.005
+0.069
+0.026
+2 of 20
+>=25,600
+7
+90.3%
+81.6%
+0.85 / 0.71
+0.19 / 0.21
+0.63 / 0.58
+0.107
+0.108
+0.096
+0.648
+0 of 20
+all
+5,529
+89.8%
+80.5%
+0.78 / 0.76
+0.18 / 0.18
+0.64 / 0.64
+0.007
+0.007
+0.123
+0.022
+1 of 20
+Cells: the estimator / the linked pairs. Differences over the twenty cells of the table (race on the birth record: White, Black, Brown, Indigenous; on the certificate: the same and other or none) against all linked pairs, against the linked pairs sharing the estimator's key (findable) and, for the candidates without the control, against all linked pairs; rows with fewer than 30 linked pairs left out. 95%CI: the model standard error. Size classes by the municipality's births in the year of birth; a municipality may fall in two classes. The limit of 25,600 was chosen on these data.
+
+
+Figure 2 - Each cell of the race-by-race table estimated without linkage against the known answer, by municipality size
+A: infant deaths, Brazil 2013-2023, against the one-to-one linkage to the birth record. B and C: admissions to the Unified Health System that ended in death, 2016-2022, against the death certificates linked by the day of death and the hospital (B: all linked; C: those sharing birth date, sex and residence). Bars: 95% intervals from the model standard error; estimates with a standard error of 0.15 or more not drawn.
+
+Admissions that ended in death. Chance candidates were fewer than in births: 0.01 a unit where a municipality recorded fewer than 100 deaths a year and 0.91 at 6,400 or more (Table 2). Against the linked certificates that shared the key, the estimator differed by 0.0010 on average and 0.003 at most over the twenty cells (Figure 2C), whether the control was scaled within the municipality or the state. Where chance candidates were few the control changed little; at 6,400 certificates a year or more the candidates without it differed by 0.031 on average, with it by 0.004. Against all linked certificates the differences were larger (0.006 on average, 0.017 at most; Figure 2B): the 86.2% of units whose linked certificate shared their key differed from the rest. Among the linked admissions whose certificate gave another birth date or residence, those certified White had been recorded White by the hospital in 50.2%, against 62.8% among those that shared it. The share found was 83.2% against 86.2% findable; the share found counts only the units whose certificate gives one of the four races of the rows. The chance intervals, narrow where chance candidates are few, excluded the findable pairs' value in 5 of the twenty cells; the model intervals in 2.
+Table 2 - The estimator against the linkage of admissions that ended in death to their death certificates, by the municipality's certificates a year, Brazil, 2016-2022
+Certificates a year
+Municipality-years
+Chance candidates a unit
+Linked
+Findable
+Found
+Certified White, White in hospital
+Certified Black, Black in hospital
+Mean |difference|, findable
+Mean |difference|, findable, no control
+Mean |difference|, linked
+Cells outside 95%CI, model / chance
+<100
+22,621
+0.01
+96.6%
+85.7%
+82.8%
+0.70 / 0.70 / 0.69
+0.27 / 0.27 / 0.26
+0.0003
+0.0002
+0.005
+0 / 3
+100-399
+12,275
+0.02
+96.4%
+86.6%
+83.1%
+0.66 / 0.66 / 0.65
+0.28 / 0.28 / 0.27
+0.0007
+0.0007
+0.004
+0 / 5
+400-1,599
+3,110
+0.04
+96.4%
+87.1%
+83.8%
+0.68 / 0.68 / 0.67
+0.32 / 0.32 / 0.31
+0.0010
+0.0022
+0.005
+0 / 4
+1,600-6,399
+748
+0.09
+95.8%
+86.4%
+83.1%
+0.64 / 0.64 / 0.63
+0.35 / 0.35 / 0.34
+0.0013
+0.0058
+0.010
+0 / 2
+>=6,400
+140
+0.91
+94.7%
+85.0%
+83.1%
+0.47 / 0.47 / 0.46
+0.34 / 0.33 / 0.32
+0.0039
+0.0310
+0.010
+3 / 4
+all
+38,894
+0.24
+95.9%
+86.2%
+83.2%
+0.63 / 0.63 / 0.62
+0.32 / 0.32 / 0.31
+0.0010
+0.0171
+0.006
+2 / 5
+Proportions of the race on the certificate recorded so by the hospital. Cells: the estimator / the findable pairs / all linked pairs. Linked: units with a linked certificate; findable: those whose certificate shares birth date, sex and residence. Control scaled within the municipality and birth year. Cells outside: of twenty, against the findable pairs.
+
+Simulation. With the assumptions holding and the real number of deaths (ideal, twins), the largest bias of the five main cells was 0.004 below 6,400 births a year and 0.009 at 6,400-25,599, where rows are small and the ratio of sums is biased (up to 3.0 Monte Carlo errors; Table 3, Figure 3, Supplementary Table S1). With a twelfth of the deaths (sparse) the same small-sample bias grew to 0.020 below 6,400 births and 0.134 above, largest for the rare Black row: the estimator is nearly unbiased only where each row holds enough deaths. Twins raised the share found from 95.9% to 97.0% and left the proportions as they were. In these scenarios the model intervals covered the system's classification in 92%-100% of replicates, the cluster intervals in 89%-100% and the earlier counts' intervals in 86%-100%, too wide for common cells and too narrow for rare ones; the chance intervals covered the table of the deaths found in 90%-100%, also with deaths as sparse as in one real cohort. Movers certified where they died, 26% of deaths lost from the candidates, biased the proportions against all deaths: White recorded White by +0.013 under 400 births a year, while against the deaths found the bias was -0.0003; coverage of all deaths fell to 86%. Moving unequal by race moved the national White to Brown rate ratio from 0.66 to 0.72 (the ratio of the shares found, 1.11), while equal moving left it at 0.66. Moving that depended on the class recorded biased the proportions by up to 0.038 against all deaths (coverage down to 0%) and by at most 0.013 against those found. With A2 broken (boys 52.5% of White and 50.5% of Black births) the proportions were biased by up to 0.011 and the White to Brown ratio by +0.065. In municipalities of 25,600 births or more a row sum was at or below zero in 28 of 200 replicates without any departure.
+Table 3 - Simulation: bias of the estimator against all deaths (against the deaths found) and coverage, in the smallest and the largest valid municipalities, 200 replicates a scenario
+Scenario
+Births a year
+Found
+White as White
+Black as Black
+Brown as Brown
+White/Brown rate ratio
+Coverage of all deaths, model
+Coverage of the system's value, model
+Coverage of the found, chance
+ideal
+<400
+96.1%
+0.000 (0.000)
++0.001 (+0.001)
+0.000 (0.000)
+-0.001
+100%
+96%
+92%
+ideal
+6,400-25,599
+96.8%
++0.006 (+0.006)
++0.009 (+0.009)
+-0.003 (-0.003)
+-0.001
+98%
+98%
+96%
+twins
+<400
+97.4%
+0.000 (0.000)
++0.001 (+0.001)
+0.000 (0.000)
+0.000
+100%
+98%
+95%
+twins
+6,400-25,599
+98.2%
++0.007 (+0.007)
++0.007 (+0.007)
++0.005 (+0.005)
++0.002
+96%
+96%
+95%
+movers
+<400
+69.4%
++0.013 (0.000)
+-0.001 (+0.001)
++0.007 (0.000)
++0.001
+100%
+96%
+94%
+movers
+6,400-25,599
+72.3%
++0.007 (+0.007)
++0.013 (+0.012)
++0.003 (-0.002)
++0.001
+98%
+97%
+97%
+unequal
+<400
+70.2%
++0.011 (0.000)
+-0.003 (0.000)
++0.007 (0.000)
++0.077
+100%
+94%
+94%
+unequal
+6,400-25,599
+73.8%
++0.006 (+0.006)
++0.014 (+0.014)
++0.010 (+0.005)
++0.068
+96%
+96%
+96%
+selective
+<400
+72.3%
++0.032 (0.000)
++0.028 (+0.001)
++0.038 (-0.001)
++0.016
+80%
+71%
+94%
+selective
+6,400-25,599
+75.3%
++0.029 (+0.009)
++0.034 (+0.013)
++0.035 (+0.004)
++0.016
+97%
+97%
+96%
+sparse
+<400
+95.8%
+0.000 (0.000)
++0.003 (+0.003)
+0.000 (0.000)
+-0.002
+100%
+94%
+93%
+sparse
+6,400-25,599
+97.2%
++0.041 (+0.041)
++0.134 (+0.134)
++0.021 (+0.021)
++0.069
+95%
+94%
+94%
+a2
+<400
+96.1%
++0.001 (+0.001)
++0.001 (+0.001)
+0.000 (0.000)
+0.000
+100%
+98%
+92%
+a2
+6,400-25,599
+96.9%
+-0.011 (-0.011)
++0.007 (+0.007)
++0.008 (+0.008)
++0.045
+97%
+98%
+96%
+Bias: mean of estimate less truth. Coverage (Black as Black): of the table of all deaths in the replicate and of the system's classification (the mean of that table over replicates) by the model interval; of the table of the deaths found in the replicate by the chance interval. All sizes, estimands and Monte Carlo errors: Supplementary Table S1.
+
+
+Figure 3 - Simulation: bias against all deaths and coverage of the model interval, by scenario and municipality size
+Bars: 95% Monte Carlo intervals of the bias. Coverage: of the system's classification for the proportions, of the true ratio for the rate ratio.
+
+Discussion
+Main findings. The cross-classification of a variable recorded in two registers was estimated without linking any individual, from the birth date, sex and municipality alone, by subtracting the other sex's records of the same day as a negative control. Against linked records it reproduced the table: within 0.005 on average over the cells for infant deaths in municipalities under 25,600 births a year, where the candidates without the control missed by 0.069, and within 0.003 of the linked certificates that shared the key for admissions that ended in death. In simulation, with the assumptions holding and the real number of deaths, it was nearly unbiased (at most 0.004 below 6,400 births a year; 0.020 with a twelfth of the deaths) and its model intervals covered 92%-100%; families moving biased it against all deaths, by up to 0.038 when moving depended on the class recorded.
+What is estimated. The estimator describes the people whose key the two registers share. Its own error is that of the chance agreements; its bias is the difference between those people and the rest. In the admissions, the linked certificates that did not share the key were classified differently from those that did, by 13 percentage points for White, so the estimate departed from the full linked table by 0.006 on average while matching the findable pairs almost exactly. A linkage that uses other fields (the day of death, the hospital) reaches people the estimator cannot, and comparing linked and unlinked records is the way to see who they are [3]. Without such a linkage the size of this bias is not identified. After infancy, the people not found are mostly children whose families moved, or whose birth date or municipality was recorded differently; in the simulation their departure was small when moving was unrelated to the class recorded, because their certification differed only through the gradient of classification between places that was put into it, and it was several times larger when moving followed the class recorded. The simulation shows the mechanism, not its size in the data. It is not a property of the estimator but of the key, and is shared by any linkage on the same key.
+Comparison with linkage methods. Regression on linked data can be corrected when the probability that each pair is a true link is known or modelled [5], and with partially identifying variables unbiased coefficients required removing all wrong pairs [6]. The estimator removes them in expectation instead of one by one: the false agreements are counted where they can be counted, among records that cannot be the person, and the count is subtracted, where linkage estimates its false-match rate from a model of the match weights [4]. Like multiple imputation over all candidate records [8] it uses every candidate, but it needs no model of which candidate is the person. Its price is that it gives tables, not linked records: no individual covariate of one register can be related to the other's beyond the classes counted, though any class of either register can be added to the counting (the certifier, the mother's schooling).
+Variance. The earlier practice took each cell's counts as Poisson and ignored the row's sum in the denominator of a proportion; its intervals were too wide for common cells and too narrow for rare ones. With the denominator, the shared keys and the control's scale, the model interval covered nominally in the simulation. The chance interval answers another question, the distance from a perfect linkage of the same units, and covered nominally in the simulation, where that linkage is known. In the real validations it was narrower than the error of the known answers themselves (about 1% of false links, units linked or not, the key compared on the linked fields), so the cells it excluded test the known answer as much as the estimator. The cluster error treats the municipalities as a sample of places; because the classification varies between them, it was several times the model error for the admissions. For a national table, in which every municipality is present, the model error is the one to report.
+Assumptions. A2 requires that the two sexes born on a day share the composition by class and the sex ratio of the municipality and year. For births this is nearly exact; in the simulation a two-point difference in the share of boys between White and Black births biased the White to Brown ratio by +0.065. For a register of deaths of all ages it is not exact: in 2019, 28.1% of the certificates of men aged 15-29 gave White against 39.3% of women's, and men's were 3.9 times as many, against 1.01 at 60 or more. In the admissions the chance candidates were few, and scaling within the municipality or the state changed nothing; with many chance candidates in such a register, the control should be scaled within finer strata (age as well as place). A1 fails when moving, or the recording of the birth date and municipality, depends on the class recorded given the class declared. Unequal shares found by declared class leave the proportions unbiased and scale the rate ratios by the ratio of the shares; the data cannot identify them without linked records.
+Limitations. First, neither validation tests the setting in which the estimator is needed: at 1-12 years 26%-39% of deaths are not found, by moving or by recording in proportions unknown, against 10% of infant deaths; there the simulation stands in. Second, above 25,600 births a year (seven municipalities) the chance candidates swamp the person and the estimates fail; the limit was chosen on the infant validation itself, and results without those municipalities should be given beside national ones. Classes rare among the units and common among the chance candidates (Indigenous deaths where Indigenous births are few) have unstable rows. Third, the simulation's world was built from the real births and the linked infants' classification, but its municipalities are fixed, the movers' destinations, the differential moving and the twins' mortality were set, not measured, and the heterogeneity of classification between municipalities is only the decile gradient, so it cannot tell whether the cluster error is right. Fourth, the known answers are themselves linkages with about 1% of false links. The paper makes no statement about race; that is left to the papers that use the estimator.
+Use. Wherever two public registers share a date of birth, a sex and a place but no identifier, as Brazilian death certificates after infancy do with birth records, the table between them can be estimated, with its variance, for the people who kept the key. The functions are released with the data package, and the companion papers on race at death after infancy rest on them.
+In conclusion, this study set out to state, validate and give the variance of an estimator of the cross-classification of a variable recorded in two registers that share no identifier, only the birth date, sex and municipality of residence. Candidates less the other sex's records of the same day reproduced linked tables between births and deaths and between admissions and certificates, without linking anyone. The estimate is of the people whose key the registers share, with the error of the chance agreements and the denominator; its bias is the selection of those people, which a key without identifiers cannot avoid and the public files cannot measure.
+References
+1. Fellegi IP, Sunter AB. A Theory for Record Linkage. Journal of the American Statistical Association. 1969;64(328):1183-1210. doi:10.1080/01621459.1969.10501049
+2. Doidge JC, Harron KL. Reflections on modern methods: linkage error bias. International Journal of Epidemiology. 2019:dyz203. doi:10.1093/ije/dyz203
+3. Harron KL, Doidge JC, Knight HE, Gilbert RE, Goldstein H, Cromwell DA, et al. A guide to evaluating linkage quality for the analysis of linked data. International Journal of Epidemiology. 2017;46(5):1699-1710. doi:10.1093/ije/dyx177
+4. Belin TR, Rubin DB. A Method for Calibrating False-Match Rates in Record Linkage. Journal of the American Statistical Association. 1995;90(430):694-707. doi:10.1080/01621459.1995.10476563
+5. Lahiri P, Larsen MD. Regression Analysis With Linked Data. Journal of the American Statistical Association. 2005;100(469):222-230. doi:10.1198/016214504000001277
+6. Hof MHP, Zwinderman AH. Methods for analyzing data from probabilistic linkage strategies based on partially identifying variables. Statistics in Medicine. 2012;31(30):4231-4242. doi:10.1002/sim.5498
+7. Chipperfield JO, Chambers RL. Using the Bootstrap to Account for Linkage Errors when Analysing Probabilistically Linked Categorical Data. Journal of Official Statistics. 2015;31(3):397-414. doi:10.1515/jos-2015-0024
+8. Goldstein H, Harron K, Wade A. The analysis of record‐linked data using multiple imputation with data value priors. Statistics in Medicine. 2012;31(28):3481-3493. doi:10.1002/sim.5508
+9. Tancredi A, Liseo B. A hierarchical Bayesian approach to record linkage and population size problems. The Annals of Applied Statistics. 2011;5(2B):1553-1585. doi:10.1214/10-aoas447
+10. Pita R, Pinto C, Sena S, Fiaccone R, Amorim L, Reis S, et al. On the Accuracy and Scalability of Probabilistic Data Linkage Over the Brazilian 114 Million Cohort. IEEE Journal of Biomedical and Health Informatics. 2018;22(2):346-353. doi:10.1109/jbhi.2018.2796941
+11. Lipsitch M, Tchetgen Tchetgen E, Cohen T. Negative Controls. Epidemiology. 2010;21(3):383-388. doi:10.1097/ede.0b013e3181d61eeb
+12. Benchimol EI, Smeeth L, Guttmann A, Harron K, Moher D, Petersen I, et al. The REporting of studies Conducted using Observational Routinely-collected health Data (RECORD) Statement. PLOS Medicine. 2015;12(10):e1001885. doi:10.1371/journal.pmed.1001885
+13. Morris TP, White IR, Crowther MJ. Using simulation studies to evaluate statistical methods. Statistics in Medicine. 2019;38(11):2074-2102. doi:10.1002/sim.8086
+14. Ministério da Saúde (BR). Departamento de Informática do Sistema Único de Saúde. Transferência de arquivos: Sistema de Informações sobre Mortalidade e Sistema de Informações sobre Nascidos Vivos [Internet]. Brasília: Ministério da Saúde; [cited 2026 Nov 21]. Available from: https://datasus.saude.gov.br/transferencia-de-arquivos/
+15. Lash TL, Fox MP, MacLehose RF, Maldonado G, McCandless LC, Greenland S. Good practices for quantitative bias analysis. International Journal of Epidemiology. 2014;43(6):1969-1985. doi:10.1093/ije/dyu149

@@ -73,6 +73,20 @@ BLACK = {
     "muniz2022": "Muniz Bailey Does race response shift impact racial inequality? Demographic Research 2022",
     "travassos2011": "Travassos Laguardia Marques Mota Szwarcwald Comparison between two race/skin color classifications in relation to health-related outcomes in Brazil International Journal for Equity in Health 2011",
 }
+ESTIMATOR = {
+    "morris2019": "Morris White Crowther Using simulation studies to evaluate statistical methods Statistics in Medicine 2019",
+    "lipsitch2010": "Lipsitch Tchetgen Tchetgen Cohen Negative controls: a tool for detecting confounding and bias in observational studies Epidemiology 2010",
+    "binder1983": "Binder On the variances of asymptotically normal estimators from complex surveys International Statistical Review 1983",
+    "lahiri2005": "Lahiri Larsen Regression analysis with linked data Journal of the American Statistical Association 2005",
+    "hof2012": "Hof Zwinderman Methods for analyzing data from probabilistic linkage strategies based on partially identifying variables Statistics in Medicine 2012",
+    "goldstein2012": "Goldstein Harron Wade The analysis of record-linked data using multiple imputation with data value priors Statistics in Medicine 2012",
+    "belin1995": "Belin Rubin A method for calibrating false-match rates in record linkage Journal of the American Statistical Association 1995",
+    "chipperfield2015": "Chipperfield Chambers Using the bootstrap to account for linkage errors when analysing probabilistically linked categorical data Journal of Official Statistics 2015",
+    "goodman1953": "Goodman Ecological regressions and behavior of individuals American Sociological Review 1953",
+    "lash2014": "Lash Fox MacLehose Maldonado McCandless Greenland Good practices for quantitative bias analysis International Journal of Epidemiology 2014",
+    "pita2018": "Pita Pinto Sena Barreto Denaxas On the accuracy and scalability of probabilistic data linkage over the Brazilian 114 million cohort IEEE Journal of Biomedical and Health Informatics 2018",
+    "tancredi2011": "Tancredi Liseo A hierarchical Bayesian approach to record linkage and population size problems Annals of Applied Statistics 2011",
+}
 TARGET = "crossref.json"
 if sys.argv[1:] == ["theory"]:
     QUERIES, TARGET = THEORY, "crossref_theory.json"
@@ -80,6 +94,8 @@ if sys.argv[1:] == ["methods"]:
     QUERIES, TARGET = METHODS, "crossref_methods.json"
 if sys.argv[1:] == ["black"]:
     QUERIES, TARGET = BLACK, "crossref_black.json"
+if sys.argv[1:] == ["estimator"]:
+    QUERIES, TARGET = ESTIMATOR, "crossref_estimator.json"
 if sys.argv[1:] == ["methods2"]:
     QUERIES, TARGET = METHODS2, "crossref_methods2.json"
 out = {}
