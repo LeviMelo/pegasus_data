@@ -870,16 +870,20 @@ def reencode_lake(catalog: CatalogStore, lake_dir: str | Path, *, dry_run: bool 
                   compression: str = "zstd") -> dict[str, int]:
     """Rewrite, value for value, the listed partition files not written as the lake writes now: those that store what
     the lake computes (the record key, `Lake._read_derived`) and those of another encoding than `persist.kept.ENCODING`
-    (smaller row groups, a lower zstd level; their ``pegasus.encoding`` stamp says). Batch by batch into row groups of
+    (smaller row groups, a lower zstd level; their ``pegasus.encoding`` stamp says), and those whose typed columns keep
+    their text as filed whole (``<NAME>__RAW``), which keep it only where a render does not give it back (`raw_text`;
+    the renders are chosen over the file and named in its metadata). Batch by batch into row groups of
     the encoding's size, into a temporary file beside the partition that replaces it in one rename, so a reader sees the
     old file or the new one; the catalog's byte size follows. A file that stores a key is rewritten only when the key its
     fields hash to is the key it stores, on every row (`record_key_sql`): one that differed would change the identity of
     its records, and is kept and counted instead."""
+    import json
     import os
 
     import duckdb
 
     from ..normalize.engine import key_fields, record_key_sql
+    from ..raw_text import META_KEY, choose, compacted_sql, quote
     from .kept import ENCODING
 
     root = Path(lake_dir)
@@ -894,8 +898,10 @@ def reencode_lake(catalog: CatalogStore, lake_dir: str | Path, *, dry_run: bool 
         source = pq.ParquetFile(path)
         names = source.schema_arrow.names
         keyed = RECORD_KEY in names
-        encoded = (source.schema_arrow.metadata or {}).get(b"pegasus.encoding") == ENCODING.encode()
-        if not keyed and encoded:
+        meta = source.schema_arrow.metadata or {}
+        encoded = meta.get(b"pegasus.encoding") == ENCODING.encode()
+        raw_whole = META_KEY not in meta and any(n.endswith("__RAW") and n.removesuffix("__RAW") in names for n in names)
+        if not keyed and encoded and not raw_whole:
             source.close()
             continue
         out["files"] += 1
@@ -915,11 +921,31 @@ def reencode_lake(catalog: CatalogStore, lake_dir: str | Path, *, dry_run: bool 
             continue
         keep = [n for n in names if n != RECORD_KEY]
         schema = source.schema_arrow.remove(names.index(RECORD_KEY)) if keyed else source.schema_arrow
+        renders: dict[str, str] = {}
+        types: dict[str, str] = {}
+        if raw_whole:
+            relation = f"read_parquet('{path.as_posix()}', hive_partitioning=false)"
+            described = {str(r[0]): str(r[1]) for r in con.execute(f"DESCRIBE SELECT * FROM {relation}").fetchall()}
+            types = {n.removesuffix("__RAW"): str(described[n.removesuffix("__RAW")]) for n in names
+                     if n.endswith("__RAW") and n.removesuffix("__RAW") in described and not n.startswith("_")}
+            renders = choose(con, relation, types, quote)
+            if renders:
+                schema = schema.with_metadata({**(schema.metadata or {}), META_KEY: json.dumps(
+                    {n: {"render": r, "type": types[n]} for n, r in renders.items()}, sort_keys=True).encode()})
+        swaps = ", ".join(f"{compacted_sql(n, r, types[n], quote)} AS {quote(n + '__RAW')}" for n, r in renders.items())
         temporary = path.with_name(f".{path.name}.reencode")
         writer = parquet_writer(temporary, schema, compression)
         groups = RowGroups(writer)
         try:
             for batch in source.iter_batches(batch_size=65_536, columns=keep):
+                if swaps:
+                    con.register("_b", batch)
+                    compacted = con.execute(f"SELECT * REPLACE ({swaps}) FROM _b").to_arrow_table()
+                    con.unregister("_b")
+                    for n in renders:          # only the raw columns change: the others keep their own types
+                        at = batch.schema.names.index(f"{n}__RAW")
+                        batch = batch.set_column(at, batch.schema.field(at),
+                                                 compacted.column(f"{n}__RAW").combine_chunks().cast(batch.schema.field(at).type))
                 groups.write(batch)
             groups.flush()
         finally:
