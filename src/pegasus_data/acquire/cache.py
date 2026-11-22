@@ -241,6 +241,7 @@ class BlobStore:
         want = None if paths is None else {str(p) for p in paths}
         holders = {str(p) for p in held}
         covered: set[tuple[str, str]] = set()
+        by_path: set[str] = set()
         uncovered: set[tuple[str, str]] = set()
         for row in self.catalog.query(
                 "SELECT relative_path, source_paths, source_digests, row_count FROM lake_partitions"):
@@ -255,6 +256,9 @@ class BlobStore:
                 verified, digests = False, {}
             pairs = {(s, str(digests[s])) for s in sources if s in digests}
             (covered if verified else uncovered).update(pairs)
+            if verified and sources and not digests:
+                # a file that records no digest (an intake unit, ADR-0162) holds its sources by path, as before
+                by_path.update(sources)
         covered -= uncovered
         for row in self.catalog.query("SELECT source_id, sha256, removed_path, kept_path FROM lake_versions"):
             removed_held = not row["removed_path"] or (Path(lake_dir) / str(row["removed_path"])).is_file()
@@ -277,7 +281,7 @@ class BlobStore:
             path = self.path_for(digest)
             if not path.is_file():
                 continue
-            if all(source in holders or (source, digest) in covered for source in sources):
+            if all(source in holders or source in by_path or (source, digest) in covered for source in sources):
                 out["blobs"] += 1
                 out["bytes"] += path.stat().st_size
                 if not dry_run:

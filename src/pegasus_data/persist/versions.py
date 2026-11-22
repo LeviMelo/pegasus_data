@@ -54,10 +54,15 @@ def partitions_holding(catalog: CatalogStore, source_id: str) -> list[dict[str, 
 
 
 def file_digests(path: Path) -> dict[str, str]:
-    """``{source id: digest}`` of one partition file, from its two provenance columns."""
+    """``{source id: digest}`` of one partition file, from its two provenance columns. Empty for a file that has
+    none: an intake unit (ADR-0162) names its source in `_SOURCE_PATH` and keeps no digest, and is held by path."""
+    if not {"_source_path", "_blob_sha256"} <= set(pq.read_schema(path).names):
+        return {}
     table = pq.read_table(path, columns=["_source_path", "_blob_sha256"])
     if not table.num_rows:
         return {}
+    # a file's row groups can carry differing dictionaries, which Arrow will not group over: decode them first
+    table = pa.table({name: table.column(name).cast(pa.string()) for name in table.column_names})
     pairs = table.group_by(["_source_path", "_blob_sha256"]).aggregate([])
     out: dict[str, str] = {}
     for source, sha in zip(pairs.column(0).to_pylist(), pairs.column(1).to_pylist(), strict=True):
