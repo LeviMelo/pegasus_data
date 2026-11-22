@@ -845,8 +845,8 @@ def drop_redundant_partitions(catalog: CatalogStore, lake_dir: str | Path, *, dr
         def stands_on(row: dict | None) -> bool:
             return row is not None and bool(based & set(json.loads(row.get("source_paths") or "[]")))
 
-        held = [c for c in candidates if stands_on(c[2])]
-        out["versions_base_kept"] = len(held)
+        bases = [c for c in candidates if stands_on(c[2])]
+        out["versions_base_kept"] = len(bases)
         candidates = [c for c in candidates if not stands_on(c[2])]
     hashed: dict[tuple[tuple[str, ...], tuple[str, ...]], str] = {}
     serial = iter(range(1 << 30))
