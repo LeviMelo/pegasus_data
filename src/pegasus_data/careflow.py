@@ -159,9 +159,21 @@ def _need(*modules: str) -> None:
 def care_flow_communities(flows: pa.Table, *, resolution: float = 1.0, seed: int = 0) -> pa.Table:
     """Directed-modularity communities (Leiden, ``RBConfiguration``) of the flow graph, per vintage and group.
 
-    ``community`` is the code of the municipality that treats most events inside it (its anchor);
-    ``size`` its municipalities. Self-flows are in the graph, as in any modularity. A larger
-    ``resolution`` gives more, smaller communities. The seed fixes the run.
+    **Input** (``flows``, as `proximity.care_flows` returns it, or built by hand with the same columns):
+
+    * ``from``, ``to``: municipality codes of residence and of treatment, one width throughout (the codes come back as
+      given); a row with ``from == to`` is a self-flow and stays in the graph;
+    * ``weight``: events on the edge (summed when an edge repeats);
+    * ``vintage``: the period the edge belongs to (a year, or any label);
+    * ``share`` and ``kind``: read by `care_flows`' other uses, ignored here;
+    * **every other column without a dot is a group**, and communities are computed per group: a hand-built table with
+      an extra column (a name, a count) is split by it. Drop what is not a classifier first. A column with a dot
+      (a measure's ``<role>_n``/``_sum``) rides along and is not read.
+
+    **Output**, one row per municipality, vintage and group: ``municipality``, ``vintage``, the group columns,
+    ``community`` (the code of the municipality that treats most events inside the community, its anchor) and ``size``
+    (its municipalities). A larger ``resolution`` gives more, smaller communities; report it with any result. The seed
+    fixes the run.
     """
     _need("igraph", "leidenalg")
     import igraph
