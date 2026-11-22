@@ -110,6 +110,10 @@ def curation_docs(root: Path | None = None) -> tuple[list[dict[str, Any]], list[
                 # a standard or a DATASUS table the package ships (ICD10, CBO2002): the column's code system is external
                 body["codelist"] = decl["codelist"]
                 body["code_system"] = "external"
+            if (decl or {}).get("key"):
+                # the code means something only with other columns of the record (ADR-0088): the lookup key is their
+                # concatenation, `COLUMN:width` padding a part with zeros (TISS's item: its table's two digits and its code)
+                body["key"] = list(decl["key"])
             if (decl or {}).get("label_from"):
                 # the record names its own code in a sibling column (ADR-0090): no table to choose
                 body["label_from"] = str(decl["label_from"]).upper()   # columns land upper-cased: the sibling's name too

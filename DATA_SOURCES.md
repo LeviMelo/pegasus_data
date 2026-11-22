@@ -1199,6 +1199,22 @@ TabNet's state forms classify by `territorio/{UF}_macsaud.cnv` and `{UF}_regsaud
 - **Landed in the lake** by `pegasus-data fields --name ans_beneficiaries_quarterly` (declared `ans_beneficiaries_municipal`, whole records, every column; dental-only counts are `ans_dental_beneficiaries_quarterly`): 2012 7,071,709 rows, 2020-2021
   13,944,450, all 107 quarters 176,199,297. National medical-hospital links in December: 41.0 million (2008), 47.7 (2012), 50.5 (2014), 47.0 (2019), 47.9 (2020), 52.8 (2025); municipalities placed 5,558 (2012), 5,570 (2020-2021).
 
+## 17. TUSS, the supplementary-health terminology, and its correspondence to SIGTAP (measured 2026-11-22; docs/evaluation/2026-11-22-tuss-terminology.md)
+
+- **Terminology.** `dadosabertos.ans.gov.br/FTP/PDA/terminologia_unificada_saude_suplementar_TUSS-049/pda-049-tuss.zip` (PDA 049, 1.4 MB, listed 2026-06-26, dictionary `.ods` 2026-07-14; answers a
+  browser User-Agent): one CSV per table (18, 19 OPME 1.39 M terms, 20 medicines 45,355, 22 procedures, 23-79 small domains, 63 groups, 64 the "forma de envio"). Table 22 has 5,966 terms of 8
+  digits; `NM_TERMO`, `DT_INICIO_VIGENCIA`, `DT_FIM_VIGENCIA` (empty for all 5,966: only terms in force are listed), `DT_FIM_IMPLANTACAO`. **One name per code**, the current version: a term revised
+  in 2024-06 starts then though its implementation is 2010-10, so a code's window here is from the earlier of its start and its implementation. The same data are served by ANS's OCL service
+  (`consulta-ocl.apps.sa-1a.mendixcloud.com/rest/oclservice/ANS/concepts/tuss-22`, 20 per page, `extras` with the dates; `/source` lists the tables), linked from gov.br/ans "Códigos da TUSS".
+  Held: tables 22 and 63 (`resources/tuss.parquet`, key `table+code`); 19, 20 and the small domains are not.
+- **Correspondence to SIGTAP.** The official one is a workbook, `padraotiss_mapeamento_tuss_sigtap.zip` (1.2 MB, `Last-Modified` 2017-03-30; at gov.br/ans "Padrão TISS - Tabelas relacionadas" and the older
+  `ans.gov.br/images/stories/.../tiss3/`), "MAPEAMENTO TUSS x SIGTAP 2017 04": TUSS table 22 of 2016-06 against the SIGTAP of that time, 6,919 pair rows, degrees of equivalence 1-5. It is **not
+  current and not complete**: 4,299 mapped pairs for 3,172 TUSS and 2,911 SIGTAP codes, 152 terms marked "does not exist in SIGTAP", 2,468 rows with no answer (`not_yet_mapped`); of the 5,966 current terms 266
+  are not in the workbook at all. A term maps to several procedures (up to 111) and a procedure from several terms: a pair is not a conversion. Grades: 1 same meaning, 2 same with a synonym, 3 TUSS less
+  specific than SIGTAP, 4 more specific, 5 not mappable, 59 pairs "dúvida"; 1,082 pairs are marked "validated by the Ministry". ANS's "Compatibilização TUSS x SIP/Rol" and the TUNEP (ressarcimento ao SUS)
+  are other tables, not read. The SIGTAP wiki of the Ministry points at the same workbook; no newer TUSS-SIGTAP file was found on gov.br, dadosabertos or the wiki (2026-11-22).
+- **Use in TISS.** A TISS item is the pair `CD_TABELA_REFERENCIA` + `CD_PROCEDIMENTO`; the label is looked up by their concatenation (`22` + `10101012`), a code of table 63 being 3 digits and 19, 20, 22 8.
+
 ## SINAN residence codes and representations (measured 2026-10-24; ADR-0207)
 
 - `ID_MN_RESI` (SINAN-DENG 2010-2026) writes Federal District residents with region codes as well as 530010: 5300xx (530020-530180, as SIH did before 2018) and SINAN's 5399xx (539901-539934), 22,958 rows, 13,585 of them in 2024; DATASUS's TabWin tables AGLBR and BR_CAPITAL map 530000-539999 to Brasília. `XX0000` is the state with its municipality unknown (BR_DIVADM: "Município ignorado - UF").

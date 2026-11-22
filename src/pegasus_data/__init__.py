@@ -60,6 +60,8 @@ _EXPORTS: dict[str, str] = {
     "RenderReport": ".api",
     "procedure_history": ".sources.sigtap",
     "procedure_window": ".sources.sigtap",
+    "tuss_terms": ".sources.tuss",
+    "tuss_sigtap": ".sources.tuss",
     "explore": "._explore",
     "lake_coverage": "._explore",
     "publications": "._explore",

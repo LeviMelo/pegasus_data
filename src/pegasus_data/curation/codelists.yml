@@ -81,6 +81,9 @@ label_bindings:
 code_windows:
   SIGTAP: {registry: sigtap, file: procedure_windows.parquet, code: CO_PROCEDIMENTO,   # 227 monthly exports, `sigtap --history`
            names: procedure_history.parquet, name: NO_PROCEDIMENTO}   # each code's latest name, for the manual (`_manual`)
+  # TUSS tables 22 and 63 (ANS, PDA 049), a code keyed by its table's two digits and its own (a TISS item is a pair): dated by the
+  # terms' starts of validity (none ends: the file lists the terms in force), `pegasus-data tuss`
+  TUSS: {registry: tuss, file: code_windows.parquet, code: code, names: terms.parquet, name: name}
 
 # Bridges between classifications (`view._bridge_code`): a recipe's short name for a bridge, the classification each
 # lands in and the width of its codes there, and the share of the evidence a claim must hold to cross (a code the old
