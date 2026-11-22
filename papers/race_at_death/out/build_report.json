@@ -1,7 +1,7 @@
 {
- "words_introduction_to_conclusion": 8126,
- "words_all_paragraphs": 10934,
- "references": 56,
+ "words_introduction_to_conclusion": 8646,
+ "words_all_paragraphs": 11472,
+ "references": 58,
  "reference_keys": [
   "manual_do2022",
   "romero2006",
@@ -43,7 +43,6 @@
   "ibge_pib",
   "ibge_sidra2010",
   "cnes",
-  "ibge_projections2024",
   "besag1991",
   "riebler2016",
   "simpson2017",
@@ -54,11 +53,14 @@
   "keele2015",
   "bates2015",
   "merlo2006",
+  "rey2010",
+  "lindgren2015",
   "miranda2015",
   "ibge_census2022",
   "saperstein2010",
   "atlas2025",
-  "soaresfilho2011"
+  "soaresfilho2011",
+  "ibge_projections2024"
  ],
  "tables": 6,
  "figures": 9,

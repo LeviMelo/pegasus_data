@@ -58,11 +58,17 @@ METHODS = {
     "simpson2017": "Simpson Rue Riebler Martins Sorbye Penalising model component complexity: a principled, practical approach to constructing priors Statistical Science 2017",
     "keele2015": "Keele Titiunik Geographic boundaries as regression discontinuities Political Analysis 2015",
 }
+METHODS2 = {
+    "lindgren2015": "Lindgren Rue Bayesian spatial modelling with R-INLA Journal of Statistical Software 2015",
+    "rey2010": "Rey Anselin PySAL: a Python library of spatial analytical methods Handbook of Applied Spatial Analysis 2010",
+}
 TARGET = "crossref.json"
 if sys.argv[1:] == ["theory"]:
     QUERIES, TARGET = THEORY, "crossref_theory.json"
 if sys.argv[1:] == ["methods"]:
     QUERIES, TARGET = METHODS, "crossref_methods.json"
+if sys.argv[1:] == ["methods2"]:
+    QUERIES, TARGET = METHODS2, "crossref_methods2.json"
 out = {}
 for key, q in QUERIES.items():
     url = "https://api.crossref.org/works?rows=1&query.bibliographic=" + urllib.parse.quote(q)

@@ -97,18 +97,20 @@ para(d, f"Methods: {DESIGN[0].upper() + DESIGN[1:]}. Infant deaths of 2013-2023 
         "models; mortality rate ratios were estimated nationally and for 510 immediate regions.")
 para(d, f"Results: Among {n0(I['linked_with_race'])} linked infant deaths, the certificate recorded the mother's race for {cbci('Branca>Branca')} of children of White mothers, "
         f"{cbci('Parda>Parda')} of Brown and {cbci('Preta>Preta')} of Black mothers. Brown mothers' infants were certified White in {f2(DI['PW']['p5'])} to "
-        f"{f2(DI['PW']['p95'])} of deaths across municipalities, a variance between municipalities (log-odds) {FV['PW']['M0'] / FV['famPW']['M0']:.0f} times that of the family's classification, spatially "
-        f"clustered (Moran's I {f2(mP_['rate']['I'])}). The municipality's racial composition explained {pct(mP_['deviance_explained']['composition'], 0)} of it, the "
-        f"socioeconomic and service context {pct(mP_['deviance_explained']['context'], 0)}"
-        + (f" ({pct(bw_['composition']['pcv'], 0)} and {pct(bw_['socioeconomic_services']['pcv'], 0)} of the municipal variance in multilevel models)" if bw_ else "")
-        + f"; at state borders about half of the states' difference appeared as a step (slope {f2(BD_['PW']['slope_state_effect'])}). The White to Brown infant mortality "
-        f"ratio was {ci(IR['ratio_mother']['Branca'], log=True)} by the mother's race and {ci(IR['ratio_certificate']['Branca'], log=True)} by certified race over the same "
-        f"births; it was reversed in {MS['reversed']} of {MS['regions']} immediate regions and misstated most where White births were fewest. At 1-4 years the ratios were {rr(C14)} and {rc(C14)} "
-        f"({f2(CONV['ratio_certificate_population'])} over the census-based population). At 15-24 years, people recorded White at birth were certified White in "
+        f"{f2(DI['PW']['p95'])} of deaths across municipalities, with a between-municipality variance (log-odds) {FV['PW']['M0'] / FV['famPW']['M0']:.0f} times that of the "
+        f"family's classification, spatially clustered (Moran's I {f2(mP_['rate']['I'])}). Racial composition explained {pct(mP_['deviance_explained']['composition'], 0)} of "
+        f"the deviance between municipalities, the state {pct(mP_['deviance_explained']['state'], 0)}, both {pct(mP_['deviance_explained']['composition_state'], 0)}, and "
+        f"socioeconomic and service context {pct(mP_['deviance_explained']['context'], 0)} alone and little in addition"
+        + (f"; in multilevel models composition explained {pct(bw_['composition']['pcv'], 0)} of the municipal variance and context {pct(bw_['socioeconomic_services']['pcv'], 0)}"
+           if bw_ else "")
+        + f". The certified race stepped at state borders. The White to Brown infant mortality ratio was {ci(IR['ratio_mother']['Branca'], log=True)} by the mother's race "
+        f"and {ci(IR['ratio_certificate']['Branca'], log=True)} by certified race over the same births, reversed in {MS['reversed']} of {MS['regions']} immediate regions "
+        f"by posterior means and credibly in {MS['reversed_credible']}; at 1-4 years the ratios were {rr(C14)} and {rc(C14)} ({f2(CONV['ratio_certificate_population'])} over "
+        f"the census-based population, 2016-2024). At 15-24 years, people recorded White at birth were certified White in "
         f"{cc(cell(Y['by_kind']['natural'], 'Branca', 'Branca'))} of natural deaths and {cc(cell(Y['by_kind']['assault by firearm'], 'Branca', 'Branca'))} of assaults by firearm.")
-para(d, "Conclusion: The race on the death certificate is a third classification, distinct from the mother's declaration and the family's, and it is a classification of "
-        "place: it follows the racial composition of the municipality and, in part, the state, more than wealth or services. It reverses or compresses mortality inequalities "
-        "between White and Brown children by an amount that differs between regions. The analyses by place, context and cause were exploratory.")
+para(d, "Conclusion: The race on the death certificate is a third classification, distinct from the mother's declaration and the family's, and it is associated with place: "
+        "with the racial composition of the municipality and with the state, more than with wealth or services. It reverses or compresses mortality inequalities between "
+        "White and Brown children by an amount that differs between regions. The analyses by place, context and cause were exploratory and ecological.")
 para(d, "Keywords: Race Factors; Death Certificates; Medical Record Linkage; Spatial Analysis; Child Mortality; Health Status Disparities; Brazil.")
 
 # ================================================================= introduction
@@ -122,7 +124,7 @@ para(d, f"Race is not one variable. Self-identification, classification by an ob
         f"In a Brazilian national survey, interviewers and respondents classified people consistently as White, Brown or Black in 79% of cases, with agreement varying with "
         f"education and with the racial composition of the place {cite('telles2002')}; income differences between groups depended on who classified "
         f"{cite('telles1998', 'bailey2013')}, and Brown people were reclassified as White more often in whiter cities {cite('muniz2017')}. Parents do not simply transmit "
-        f"their race to their children: in household surveys, more educated non-White parents classified their children as White more often, mostly because of whom they married "
+        f"their race to their children: in household surveys, more educated non-White parents classified their children as White more often, partly because of whom they married "
         f"{cite('schwartzman2007')}. Classification by others also responds to the social position and circumstances of the person classified {cite('penner2008', 'saperstein2012', 'freeman2011')}, "
         f"and on United States death certificates it varied with the cause of death {cite('noymer2011')}.")
 para(d, f"What this does to mortality statistics has been measured where a second classification of the same person exists. In the United States, certificates agreed with "
@@ -162,7 +164,8 @@ para(d, "The three classifications. The categories are the five of the official 
         "of the household, and the sample questionnaire identifies each person's mother when she lives in the household, which gives the race reported for the child and for the "
         f"mother by the same household ({n0(CEN['pairs_records'])} pair records of children under 25; {pct(CEN['with_mother']['1-4'])} of children aged 1-4 and "
         f"{pct(CEN['with_mother']['15-19'])} of people aged 15-19 lived with their mother). It concerns other children than those who died: it is a population reference, applied "
-        "by the mother's race, the child's age and the place, and not a second label of the deceased. (3) Certificate: the race field of the death certificate.")
+        "by the mother's race, the child's age and the place, and not a second label of the deceased. (3) Certificate: the race field of the death certificate. Figure 1 "
+        "shows how the records relate.")
 para(d, f"Linkage of infant deaths. Deaths before one year of age in 2013 to 2023 ({n0(I['certificates'])} certificates) were linked to birth records by a probabilistic linkage "
         f"{cite('fellegi1969')} on birth date, sex, municipality of residence of the mother, birth weight and mother's age, keeping one-to-one pairs. {n0(I['linked'])} "
         f"({pct(I['linked'] / I['certificates'])}) were linked and {n0(I['linked_with_race'])} had the mother's race on the birth record. The linked share was compared across "
@@ -200,8 +203,8 @@ para(d, "Measures. (1) For each class of mother (or of colour recorded at birth)
         "proportion of children the family classified in each race. (2) Mortality rates by the mother's race: the deaths of an age group were distributed by the mother's race in "
         "the estimated proportions and divided by the person-years of the same cohorts, counted from the live births by mother's race (infants: per 1,000 live births of "
         "2013-2023). Rates by certified race used the certified deaths over the same denominators, so that the two differ only in the classification of the deaths; for infants "
-        "this is the Ministry's own indicator, certified deaths over live births by race. Rates by certified race were also computed over the population by race of the "
-        f"census-based population account {cite('ibge_projections2024')}, which is how rates after infancy are usually computed. The rate ratio under the family's "
+        "this is the Ministry's own indicator, certified deaths over live births by race. Rates by certified race were also computed over the population by race of a "
+        "census-based population account (Supplementary Text S3), which is how rates after infancy are usually computed. The rate ratio under the family's "
         "classification was obtained by passing both the deaths and the births, by mother's race, through the census proportions of the same age.")
 para(d, f"Small-area estimation. For each municipality, the linked infant deaths of each class of mother certified in each race, and the census children of each class of "
         f"mother classified in each race, were modelled as binomial counts with a logit link and a Besag-York-Mollié random effect {cite('besag1991')} in the BYM2 "
@@ -237,7 +240,11 @@ para(d, "Statistical analysis. Proportions from the one-to-one linkage carry 95%
         "candidates per death are more numerous, are restricted to municipalities with fewer than 1,600 births per year; rate ratios use all municipalities and are repeated "
         "without the largest. Proportions by cause of death at 15-24 years were also standardised directly to the distribution of the natural deaths over five classes of "
         "municipal composition. An estimate of the candidate estimator is reported as not estimable, in tables and figures alike, when its standard error exceeds 0.15 or it "
-        "lies outside 0 to 1 by more than two standard errors. Census proportions are weighted; their standard errors treat the sample as simple and are understated. No "
+        "lies outside 0 to 1 by more than two standard errors. The White to Brown ratio at 1-4 years was recomputed with the proportion of the deceased found among the "
+        "candidates differing by 10 points between White and Brown mothers. Municipalities were grouped by thirds of GDP per capita, weighted by linked deaths, and as state "
+        "capitals, other members of metropolitan regions and the interior. The linked cohort of Rebouças et al. was compared through the White to Brown ratio of its crude "
+        "rates. Census proportions are weighted; their standard errors treat the sample as simple and are understated. Local Moran statistics are reported at p < 0.05 "
+        "without correction for multiplicity. No "
         "hypothesis test was pre-registered, and the analyses by composition, place, context, certifier, cause and schooling are exploratory. Analyses used Python 3.11 (DuckDB, "
-        "statsmodels, esda, geopandas) and R 4.4 (R-INLA, lme4); the code that produces every number, table and figure accompanies the article.")
+        f"statsmodels, esda {cite('rey2010')}, geopandas) and R 4.4 (R-INLA {cite('lindgren2015')}, lme4); the code that produces every number, table and figure accompanies the article.")
 para(d, "Ethics. The study used only public, anonymised data and, under Resolution 510/2016 of the National Health Council, did not require review by a research ethics committee.")

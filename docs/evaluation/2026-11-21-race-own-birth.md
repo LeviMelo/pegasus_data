@@ -478,7 +478,7 @@ empirical Bayes; no PARDISO, 45 s a municipal model, 28 min in all), lme4 panels
 | logit variance of the smoothed field: alone, + composition, + composition and state | 1.38, 0.41, 0.09 (family 0.28) |
 | Moran's I of the EB rate; of residuals after composition, after composition + state | 0.77; 0.29; 0.15 |
 | deviance explained: composition, state, context, composition + state, all | 71%, 75%, 42%, 81%, 82% |
-| border slope (state step given interior state effects), 1,069 pairs | 0.46 (0.32-0.59) |
+| border slope (state step given interior state effects), 1,069 pairs, errors clustered by state pair | 0.46 (0.26-0.65) |
 | multilevel municipal variance explained: composition, socioeconomic, services, all municipal | 87%, 55%, 43%, 89% |
 
 The certificate is whiter than the family where over about 35% of births are White and less White below (South +0.37,
@@ -498,3 +498,7 @@ mothers' infants certified Black 39%, 19%, 22%, 49%, 58%. With a crossed effect 
 residual variance is 0.29 between establishments against 0.03 between municipalities (Black: 0.31 against 0.10; AIC
 lower by about 3,400 and 270). Verification services certify Brown mothers' infants White more often (OR 1.58) and,
 with medical examiners, Black mothers' infants Black less often (0.59, 0.65).
+
+Audit 3 (`papers/race_at_death/out/audit_report_3.md`): composition taken from the 2010 Census share of White residents
+instead of the births (correlation 0.94) explains 69% of the deviance (71% from births; 80% with the state); the
+deaths' own characteristics, region and year alone explain 74% of the municipal variance (multilevel).

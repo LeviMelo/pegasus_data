@@ -266,6 +266,14 @@ for o, (y, t) in OUTC.items():
         mi = Moran(m.resid_pearson.to_numpy(), w, permutations=999)
         res[lab] = {"I": float(mi.I), "p": float(mi.p_sim), "deviance": float(m.deviance), "df_resid": float(m.df_resid),
                     "dispersion": float(m.pearson_chi2 / m.df_resid)}
+    d["lcw"] = np.log(d.census_white.clip(0.005, 0.995) / (1 - d.census_white.clip(0.005, 0.995))).fillna(d.lws)
+    for lab, f in (("census_composition", "bs(lcw, df=3)"), ("census_composition_state", "bs(lcw, df=3) + C(state)"),
+                   ("census_composition_context", "bs(lcw, df=3) + " + CONTEXT)):
+        m = smf.glm(f"p ~ {f}", data=d, family=sm.families.Binomial(), var_weights=d[t]).fit()
+        fits[lab] = m
+        mi = Moran(m.resid_pearson.to_numpy(), w, permutations=999)
+        res[lab] = {"I": float(mi.I), "p": float(mi.p_sim), "deviance": float(m.deviance), "df_resid": float(m.df_resid), "dispersion": float(m.pearson_chi2 / m.df_resid)}
+    res["corr_birth_census_composition"] = float(np.corrcoef(d.white_share, d.census_white.fillna(d.white_share))[0, 1])
     dev0 = fits["none"].deviance
     res["deviance_explained"] = {k: float(1 - v.deviance / dev0) for k, v in fits.items()}
     for a_, b_ in (("composition", "composition_state"), ("state", "composition_state"), ("composition", "composition_context"),
@@ -310,13 +318,14 @@ for o, (y, t) in (("PW", ("PW", "nP")), ("disagree", ("disagree", "n")), ("KK", 
     dX = pi_.lws.to_numpy() - pj.lws.to_numpy()
     wt = 1 / (pi_.evar.to_numpy() + pj.evar.to_numpy())
     good = np.isfinite(dA)
-    fit = sm.WLS(D[good], sm.add_constant(np.column_stack([dA[good], dX[good]]), has_constant="add"), weights=wt[good]).fit(cov_type="HC1")
+    grp = pd.factorize(np.array(["|".join(sorted((a_, b_))) for a_, b_ in zip(pi_.state, pj.state, strict=True)])[good])[0]
+    fit = sm.WLS(D[good], sm.add_constant(np.column_stack([dA[good], dX[good]]), has_constant="add"), weights=wt[good]).fit(cov_type="cluster", cov_kwds={"groups": grp})
     if o == "PW":
         pd.DataFrame({"D": D[good], "dA": dA[good], "dX": dX[good], "w": wt[good]}).to_parquet(PAPER / "results" / "border_pairs.parquet", index=False)
     within = edges[~edges.cross_state & edges.i.isin(di.index) & edges.j.isin(di.index)]
     Dw = di.loc[within.i].elogit.to_numpy() - di.loc[within.j].elogit.to_numpy()
     ww = 1 / (di.loc[within.i].evar.to_numpy() + di.loc[within.j].evar.to_numpy())
-    S["border"][o] = {"pairs": int(good.sum()), "slope_state_effect": float(fit.params[1]), "slope_se": float(fit.bse[1]),
+    S["border"][o] = {"pairs": int(good.sum()), "state_pairs": int(grp.max() + 1), "interior_by_state_min": int(inner.groupby("state").size().min()), "slope_state_effect": float(fit.params[1]), "slope_se": float(fit.bse[1]),
                       "slope_composition": float(fit.params[2]), "composition_se": float(fit.bse[2]),
                       "sd_state_effects": float(np.nanstd(list(alpha.values()))),
                       "msd_cross": float(np.average(D ** 2, weights=wt)), "msd_within": float(np.average(Dw ** 2, weights=ww))}

@@ -50,7 +50,7 @@ figure(s, "figS5", "Supplementary Figure S5 - Classification of children accordi
                    "classification (under 1 year and 1-4 years) and death certificate (under 1 year, linkage; 1-9 years, candidate estimator), Brazil",
        ["Bars: 95% confidence intervals."])
 figure(s, "figS6", "Supplementary Figure S6 - Proportion classified with the mother's race by the child's age in the family's classification and on the certificate (A, B), and "
-                   f"proportion certified White among people recorded White at birth by single year of age at death, natural causes and assault (C), Brazil",
+                   "proportion certified White among people recorded White at birth by single year of age at death, natural causes and assault (C), Brazil",
        [f"C: people born in {YOUTH_BORN} who died in {YOUTH_YEARS}, municipalities with fewer than 1,600 live births per year; age at death and birth cohort are confounded "
         "(age 24 comes only from the earliest cohorts). The family's age gradient is cross-sectional (age 0 born in 2010, age 19 born in 1991) and conditional on living with the mother."])
 figure(s, "figS7", "Supplementary Figure S7 - Share of White, Brown and Black people in five-year birth cohorts at the censuses of 2000, 2010 and 2022 and, for cohorts born from "
@@ -209,7 +209,9 @@ for k, v in CB.items():
     rows.append([f"{EN[a]} mother, certified {EN[b]}: interval, bootstrap over municipalities", "", ci(v)])
     rows.append([f"{EN[a]} mother, certified {EN[b]}: interval, binomial", "", ci({"est": v["est"], "se": v["se_binomial"]})])
 table(s, "Supplementary Table S11 - Flow of infant death certificates, linked share and intervals of the linkage's proportions, Brazil, 2013-2023",
-      ["Group", "Certificates", "Share or estimate"], rows)
+      ["Group", "Certificates", "Share or estimate"], rows,
+      [f"The linkage read {n0(I['certificates'])} certificates and a direct count of the files gives {n0(I['flow']['lake_infant_deaths'])}: the difference is in how "
+       "invalid dates are read. The candidate estimator holds 3 deaths more than the direct count with sex and municipality, for the same reason."])
 rows = []
 LAB = {"null": "none", "composition": "composition", "socioeconomic": "socioeconomic context and place", "services": "services and recording",
        "composition_socioeconomic": "composition + socioeconomic", "socioeconomic_services": "socioeconomic + services",

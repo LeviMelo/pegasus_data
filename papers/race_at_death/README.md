@@ -27,9 +27,9 @@ and `data/probes/race_chain`.
 ## The thesis
 
 The race on a Brazilian death certificate is neither the race the mother declared for herself nor the race families
-report for children: it is a third classification, and a classification of place. It follows the racial composition
-of the municipality continuously across space and across state borders, more than the wealth or the services of the
-place, and it changes the measured mortality inequality between White and Brown children differently in each region.
+report for children: it is a third classification, associated with place. It follows the racial composition of the
+municipality and the state, with a step at state borders, more than the wealth or the services of the place, and it
+changes the measured mortality inequality between White and Brown children differently in each region.
 
 The numbers are in `results/results.json` and `results/spatial.json` and nowhere else; the study record is
 `docs/evaluation/2026-11-21-race-own-birth.md`, with ADR-0226, ADR-0229 and `docs/plans/race.md`.

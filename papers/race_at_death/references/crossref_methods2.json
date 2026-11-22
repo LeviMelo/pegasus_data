@@ -1,0 +1,35 @@
+{
+ "lindgren2015": {
+  "doi": "10.18637/jss.v063.i19",
+  "title": "Bayesian spatial modelling with R-INLA",
+  "journal": "Journal of Statistical Software",
+  "short_journal": "J. Stat. Soft.",
+  "year": 2015,
+  "volume": "63",
+  "issue": "19",
+  "pages": null,
+  "authors": [
+   "Lindgren F",
+   "Rue H"
+  ],
+  "abstract": null,
+  "type": "journal-article"
+ },
+ "rey2010": {
+  "doi": "10.1007/978-3-642-03647-7_11",
+  "title": "PySAL: A Python Library of Spatial Analytical Methods",
+  "journal": "In: Fischer MM, Getis A, editors. Handbook of Applied Spatial Analysis. Berlin: Springer",
+  "short_journal": "",
+  "year": 2010,
+  "volume": null,
+  "issue": null,
+  "pages": "175-193",
+  "authors": [
+   "Rey SJ",
+   "Anselin L"
+  ],
+  "abstract": null,
+  "type": "book-chapter"
+ },
+ "_corrections": "Crossref gave HTML in the R-INLA title and the chapter's online date (2009); the Handbook is of 2010. Corrected 2026-11-21."
+}

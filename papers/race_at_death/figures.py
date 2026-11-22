@@ -130,7 +130,7 @@ for ax, (title, B) in zip(axes[:3], blocks, strict=True):
             ypos = max(B[key][race]["est"], last + 0.06 * top)
             ax.text(xpos + dx / 55, ypos, f"{B[key][race]['est']:.1f}", ha=ha, va="center", fontsize=6.3, color=COL[race])
             last = ypos
-    ax.set_xticks([0, 1], ["mother", "certificate"], fontsize=6.3)
+    ax.set_xticks([0, 1], ["mother", "certif."], fontsize=6.3)
     ax.set_xlabel("race by", fontsize=6.3, color="#555555")
     ax.set_xlim(-0.8, 1.8)
     ax.set_title(title, fontsize=7.3, loc="left")

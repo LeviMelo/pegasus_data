@@ -14,7 +14,7 @@ Deaths of women aged 15 to 49 years in 2015 to 2022 in municipalities with fewer
 
 Supplementary Text S3 - Birth cohorts at three censuses (exploratory)
 
-The racial composition of five-year birth cohorts at the censuses of 2000, 2010 and 2022 was read, by single year of age and race, from a cohort-component population account of every municipality built for this research programme from the censuses, the Mortality and Live Birth Information Systems and the official estimates [41]; in a census year the account takes the census population as given, so the shares at the three dates are census shares. The account is not a published product and its census-year values carry the censuses' own coverage error, which is not quantified by race. A cohort's White share can fall between censuses through reclassification, but also through higher mortality or emigration of White people, through differences in coverage between censuses and through the change of the 2022 questionnaire; the comparison between the first census of a cohort aged 0-4 and later ones also compares a race reported for small children by an adult of the household with one reported for adults. The analysis describes the cohorts and does not separate these explanations.
+The racial composition of five-year birth cohorts at the censuses of 2000, 2010 and 2022 was read, by single year of age and race, from a cohort-component population account of every municipality built for this research programme from the censuses, the Mortality and Live Birth Information Systems and the official estimates [58]; in a census year the account takes the census population as given, so the shares at the three dates are census shares. The account is not a published product and its census-year values carry the censuses' own coverage error, which is not quantified by race. A cohort's White share can fall between censuses through reclassification, but also through higher mortality or emigration of White people, through differences in coverage between censuses and through the change of the 2022 questionnaire; the comparison between the first census of a cohort aged 0-4 and later ones also compares a race reported for small children by an adult of the household with one reported for adults. The analysis describes the cohorts and does not separate these explanations.
 
 
 
@@ -147,6 +147,8 @@ SINASC: Live Birth Information System. SIM: Mortality Information System. CNES: 
 
 
 Supplementary Table S11 - Flow of infant death certificates, linked share and intervals of the linkage's proportions, Brazil, 2013-2023
+
+The linkage read 383,975 certificates and a direct count of the files gives 383,971: the difference is in how invalid dates are read. The candidate estimator holds 3 deaths more than the direct count with sex and municipality, for the same reason.
 
 
 

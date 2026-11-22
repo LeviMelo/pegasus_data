@@ -64,18 +64,18 @@ def choropleth(ax, frame, col, cmap, norm, title, label, ticks=None, edge=None):
 
 # ---------------------------------------------------------------- Figure 3: the municipality (infant deaths, Brown mothers)
 fig, axes = plt.subplots(2, 2, figsize=(7.2, 7.6))
-seq = matplotlib.colors.Normalize(0, 0.8)
+seq = matplotlib.colors.Normalize(0, 0.9)
 choropleth(axes[0, 0], G, "PW_mean", "viridis", seq, "A. Certificate: Brown mother, infant certified White",
-           "Proportion (BYM2 posterior mean)", ticks=[0, 0.2, 0.4, 0.6, 0.8])
+           "Proportion (BYM2 posterior mean)", ticks=[0, 0.3, 0.6, 0.9])
 choropleth(axes[0, 1], G, "famPW_mean", "viridis", seq, "B. Family (census 2010): Brown mother, child White, ages 0-9",
-           "Proportion (BYM2 posterior mean)", ticks=[0, 0.2, 0.4, 0.6, 0.8])
+           "Proportion (BYM2 posterior mean)", ticks=[0, 0.3, 0.6, 0.9])
 G["diff_PW"] = G.PW_mean - G.famPW_mean
 choropleth(axes[1, 0], G, "diff_PW", "PuOr_r", TwoSlopeNorm(vmin=-0.3, vcenter=0, vmax=0.3), "C. Certificate minus family (A - B)",
            "Difference in proportion", ticks=[-0.3, -0.15, 0, 0.15, 0.3])
 LISA = {0: ("not significant", "#EEEEEE"), 1: ("high-high", "#B2182B"), 3: ("low-low", "#2166AC"), 2: ("low-high", "#92C5DE"), 4: ("high-low", "#F4A582")}
 G["lisa_c"] = G.PW_lisa.map(lambda q: LISA.get(q, ("fewer than 5 linked deaths", "#FFFFFF"))[1] if pd.notna(q) else "#FFFFFF")
 G.plot(color=G.lisa_c, ax=axes[1, 1], lw=0)
-basemap(axes[1, 1], "D. Local clusters of the raw rate (local Moran, p < 0.05)")
+basemap(axes[1, 1], "D. Local clusters of the empirical-Bayes rate (local Moran, p < 0.05)")
 axes[1, 1].legend(handles=[Patch(fc=c, ec="#999999", lw=0.3, label=f"{lab} ({S['lisa']['PW'].get(lab, 0):,})") for k, (lab, c) in LISA.items()]
                   + [Patch(fc="#FFFFFF", ec="#999999", lw=0.3, label="fewer than 5 linked deaths")], fontsize=6.5, frameon=False, loc="lower left")
 fig.tight_layout(h_pad=3.0)
@@ -120,7 +120,7 @@ ax.scatter(BP.dA, BP.D, s=2, color="#BBBBBB", lw=0)
 ax.errorbar(bb.x, bb.y, yerr=1.96 * bb.se, fmt="o", color="black", ms=3, capsize=1.5)
 xs = np.linspace(BP.dA.min(), BP.dA.max(), 10)
 bt = S["border"]["PW"]
-ax.plot(xs, xs, ":", color="#0072B2", lw=1, label="jump as large as the states' difference")
+ax.plot(xs, xs, ":", color="#0072B2", lw=1, label="full state difference")
 ax.plot(xs, bt["slope_state_effect"] * xs, "-", color="#D55E00", lw=1.2, label=f"fitted, slope {bt['slope_state_effect']:.2f}")
 ax.set_ylim(-4, 4)
 ax.set_xlabel("Difference of the states' effects,\nfrom municipalities away from borders")
@@ -263,12 +263,12 @@ if "multilevel" in S:
 fig = plt.figure(figsize=(7.2, 7.4))
 gs = fig.add_gridspec(2, 2, hspace=0.32, wspace=0.18)
 GR = IMM.merge(RT, on="immediate", how="left")
-lr = TwoSlopeNorm(vmin=np.log(1 / 3), vcenter=0, vmax=np.log(3))
-ticks = [np.log(v) for v in (1 / 3, 0.5, 1, 2, 3)]
+lr = TwoSlopeNorm(vmin=np.log(1 / 4), vcenter=0, vmax=np.log(4))
+ticks = [np.log(v) for v in (1 / 4, 0.5, 1, 2, 4)]
 for k, (col, title) in enumerate((("mother_log_rr", "A. By the mother's race"), ("certificate_log_rr", "B. By the race on the certificate"))):
     ax = fig.add_subplot(gs[0, k])
     cb = choropleth(ax, GR, col, "PuOr_r", lr, title, "White to Brown infant rate ratio (BYM2)", ticks=ticks, edge="#FFFFFF")
-    cb.ax.set_xticklabels(["1/3", "1/2", "1", "2", "3"])
+    cb.ax.set_xticklabels(["1/4", "1/2", "1", "2", "4"])
 ax = fig.add_subplot(gs[1, 0])
 cb = choropleth(ax, GR, "misstated", "PuOr_r", TwoSlopeNorm(vmin=-1.2, vcenter=0, vmax=1.2), "C. Misstatement: B over A",
                 "Ratio of the two rate ratios", ticks=[np.log(v) for v in (0.33, 0.5, 1, 2, 3)], edge="#FFFFFF")
