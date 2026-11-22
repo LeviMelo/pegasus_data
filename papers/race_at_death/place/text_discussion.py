@@ -16,7 +16,7 @@ para(d, "The race on the death certificate of a child in Brazil was neither the 
         "schooling, urbanisation, the supply of physicians and the services that certify accounted for less than composition and little in addition to it, and the "
         "characteristics of the deaths, without the macro-region, accounted for none of it. The White category for Brown mothers' infants became less common over the "
         "decade, unevenly between regions.")
-para(d, "The three readings set out in the Introduction make different predictions, and the data narrow them (Table 4). The certificate does not transmit the "
+para(d, "The three readings set out in the Introduction make different predictions, and the data narrow them (Table 1). The certificate does not transmit the "
         "mother's race: its agreement with her varied from one region of the country to another, and it was only slightly higher where the birth record, with "
         "the mother's race on it, lay at hand, where a copy would make it complete. Nor does it record what the family would answer, as the Ministry of Health "
         f"instructs {cite('manual_do2022')}. Nationally the two agree on the exchange between Brown and White in infants ({f2(cell(IL, 'Parda', 'Branca')['est'])} on the "

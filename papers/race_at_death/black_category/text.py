@@ -105,7 +105,10 @@ para(d, f"Records of the same families. (1) Infant deaths of 2013-2023 were link
         "family's classification is the race a household reported for a child under 10 against the race it reported for the child's mother, in the 2010 Census sample; "
         "it concerns other children than those who died. (4) For adult women, deaths at 15-49 years in hospital in 2015-2022 were related to the birth records on "
         "which they were mothers and to the admission that ended in death (exploratory; Supplementary Text S1, Supplementary Table S1). After infancy, deaths at 1-9 years were related to the "
-        "births of the same birth date, sex and municipality, with births of the other sex as a control for chance agreement (Supplementary Text S2).")
+        "births of the same birth date, sex and municipality, with births of the other sex as a control for chance agreement (Supplementary Text S2). Figure 1 shows the records and what each comparison holds fixed.")
+figure(d, "flow_black", "Figure 1 - Records of the same families and the comparisons that separate the person, the hospital's chart and the hospital, Brazil, "
+                          "2012-2023", ["SINASC: Live Birth Information System. SIH: Hospital Information System. SIM: Mortality Information System. "
+                                        "Counts are of records with a race."])
 para(d, "Measures. For infants of mothers who declared themselves Black, the proportion certified Black, and the categories used instead; for their mothers, "
         "the proportion the delivery admission recorded Black. Gross shares were complemented by net counts: the number each record called Black against the "
         "number of mothers who declared themselves Black, which counts Brown mothers recorded Black against Black mothers recorded otherwise. The mother's "

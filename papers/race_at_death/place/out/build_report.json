@@ -1,6 +1,6 @@
 {
- "words_introduction_to_conclusion": 7609,
- "words_all_paragraphs": 9917,
+ "words_introduction_to_conclusion": 7482,
+ "words_all_paragraphs": 9691,
  "references": 55,
  "reference_keys": [
   "manual_do2022",
@@ -59,8 +59,8 @@
   "miranda2015",
   "ibge_census2022"
  ],
- "tables": 4,
- "figures": 7,
- "supplementary_tables": 11,
- "supplementary_figures": 6
+ "tables": 1,
+ "figures": 5,
+ "supplementary_tables": 14,
+ "supplementary_figures": 8
 }

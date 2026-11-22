@@ -2122,3 +2122,215 @@ Black
 0.073
 C(m -> c) = (1 - λ) F(m -> c) + λ π(c) over ten classes of municipal composition, F the family's classification in the census and π the local reference. λ = 0: the certificate records the family's classification; λ = 1: it records the local distribution whatever the mother's race. With the certified race of local deaths as the reference, the reference contains the certificates being modelled, which biases λ upward; the fit for Black mothers is poor under both references.
 
+
+Supplementary Figure S7 - Infant deaths certified as each cell of the table by place within the state (A), and Brown mothers' infants certified White by municipal composition and GDP per capita (B), Brazil, 2013-2023
+A: one-to-one linkage, 95% confidence intervals. B: proportions without intervals (binomial intervals understate the clustering by place).
+
+
+Supplementary Figure S8 - Change of Brown mothers' infants certified White against its level in 2013 by intermediate region (A), and the proportion certified as the mother's race by state and year (B), Brazil, 2013-2023
+A: binomial mixed model with random intercept and slope for the year by intermediate region. B: one-to-one linkage, all mothers.
+
+Supplementary Table S12 - Sources and study populations
+Population
+Source and period
+Classification compared with the certificate
+Records
+Infant deaths
+SIM 2013-2023 linked one-to-one to SINASC
+Mother's declaration
+383,975 deaths; 296,512 linked with the mother's race
+Deaths at 1-9 years
+SIM 2013-2024, born 2012-2023; candidate estimator
+Mother's declaration
+77,693 deaths (60,146 at 1-4, 17,547 at 5-9)
+Children under 25 living with their mother
+2010 Census sample
+Family's classification of other children, by the mother's race
+6,252,654 pair records
+Municipalities
+IBGE mesh 2022; SIDRA; CNES; SIM
+Context of the place
+5,570 municipalities, 16,503 pairs of neighbours
+SIM: Mortality Information System. SINASC: Live Birth Information System. IBGE: Brazilian Institute of Geography and Statistics. CNES: National Register of Health Establishments.
+
+Supplementary Table S13 - Proportion of children assigned to each race according to the mother's race, in the family's classification (2010 Census) and on the death certificate (2013-2024), Brazil
+Mother's race
+Classification of the child
+White (95%CI)
+Brown (95%CI)
+Black (95%CI)
+Indigenous (95%CI)
+White
+Family, census, under 1 year
+0.88
+0.11
+0.01
+0.00
+White
+Certificate, under 1 year
+0.76 (95%CI 0.76; 0.77)
+0.17 (95%CI 0.17; 0.18)
+0.01 (95%CI 0.01; 0.01)
+0.00 (95%CI 0.00; 0.00)
+White
+Family, census, 1-4 years
+0.85
+0.14
+0.01
+0.00
+White
+Certificate, 1-4 years
+0.80 (95%CI 0.74; 0.86)
+0.16 (95%CI 0.12; 0.20)
+0.01 (95%CI -0.00; 0.03)
+-0.00 (95%CI -0.01; 0.00)
+White
+Certificate, 5-9 years
+0.79 (95%CI 0.67; 0.90)
+0.20 (95%CI 0.12; 0.29)
+-0.01 (95%CI -0.04; 0.03)
+-0.00 (95%CI -0.01; 0.01)
+Brown
+Family, census, under 1 year
+0.28
+0.71
+0.01
+0.00
+Brown
+Certificate, under 1 year
+0.25 (95%CI 0.25; 0.25)
+0.64 (95%CI 0.64; 0.64)
+0.02 (95%CI 0.02; 0.02)
+0.00 (95%CI 0.00; 0.00)
+Brown
+Family, census, 1-4 years
+0.21
+0.77
+0.01
+0.00
+Brown
+Certificate, 1-4 years
+0.32 (95%CI 0.29; 0.34)
+0.59 (95%CI 0.56; 0.63)
+0.03 (95%CI 0.03; 0.04)
+0.00 (95%CI -0.00; 0.01)
+Brown
+Certificate, 5-9 years
+0.27 (95%CI 0.21; 0.32)
+0.65 (95%CI 0.58; 0.72)
+0.04 (95%CI 0.02; 0.06)
+0.00 (95%CI -0.00; 0.01)
+Black
+Family, census, under 1 year
+0.19
+0.41
+0.39
+0.00
+Black
+Certificate, under 1 year
+0.18 (95%CI 0.18; 0.19)
+0.55 (95%CI 0.54; 0.56)
+0.18 (95%CI 0.18; 0.19)
+0.00 (95%CI 0.00; 0.00)
+Black
+Family, census, 1-4 years
+0.14
+0.39
+0.47
+0.00
+Black
+Certificate, 1-4 years
+0.23 (95%CI 0.13; 0.33)
+0.49 (95%CI 0.40; 0.59)
+0.24 (95%CI 0.20; 0.27)
+-0.01 (95%CI -0.02; 0.01)
+Black
+Certificate, 5-9 years
+0.12 (95%CI -0.02; 0.26)
+0.54 (95%CI 0.40; 0.69)
+0.29 (95%CI 0.23; 0.36)
+0.00 (95%CI -0.01; 0.01)
+Indigenous
+Family, census, under 1 year
+0.07
+0.07
+0.00
+0.85
+Indigenous
+Certificate, under 1 year
+0.03 (95%CI 0.03; 0.04)
+0.11 (95%CI 0.10; 0.12)
+0.00 (95%CI 0.00; 0.00)
+0.84 (95%CI 0.83; 0.85)
+Indigenous
+Family, census, 1-4 years
+0.06
+0.07
+0.01
+0.86
+Indigenous
+Certificate, 1-4 years
+0.02 (95%CI -0.00; 0.04)
+0.07 (95%CI 0.03; 0.10)
+0.00 (95%CI -0.00; 0.01)
+0.91 (95%CI 0.85; 0.97)
+Indigenous
+Certificate, 5-9 years
+0.04 (95%CI -0.04; 0.12)
+-0.06 (95%CI -0.20; 0.07)
+0.01 (95%CI -0.02; 0.04)
+1.01 (95%CI 0.84; 1.19)
+95%CI: 95% confidence interval. Census proportions are weighted sample estimates (standard errors below 0.005 under simple random sampling, not shown). Certificate, under 1 year: one-to-one linkage, binomial intervals (intervals from the bootstrap over municipalities are 3 to 10 times wider; text). Certificate at 1-9 years: candidate estimator, municipalities with fewer than 25,600 live births per year; estimates are differences of counts and can leave the interval 0 to 1. Not estimable: standard error above 0.15, or outside 0 to 1 by more than two standard errors. Rows do not sum to 1: the remainder is another category or no race recorded.
+
+Supplementary Table S14 - What composition, state and municipal context explain of the variation between municipalities in the certified race of linked infant deaths, Brazil, 2013-2023
+Explanation
+Brown mother, certified White: deviance explained
+Moran's I of residuals
+Black mother, certified Black: deviance explained
+Moran's I of residuals
+Brown, certified White: municipal variance explained (multilevel)
+Black, certified Black: municipal variance explained (multilevel)
+Composition
+71%
+0.29
+22%
+0.28
+87%
+39%
+State
+75%
+0.27
+37%
+0.18
+-
+-
+Context (socioeconomic, services, recording)
+42%
+0.44
+23%
+0.26
+60%
+32%
+Composition + state
+81%
+0.15
+41%
+0.15
+-
+-
+Composition + context
+74%
+0.26
+34%
+0.21
+89%
+49%
+Composition + state + context
+82%
+0.14
+44%
+0.13
+-
+-
+Deviance explained and Moran's I: binomial models of the municipal proportions, municipalities with five or more linked deaths (3,459 and 605); Moran's I without any term: 0.71 and 0.40. Composition: B-spline of the logit share of White births. Context: GDP per capita, illiteracy, urban share, population, capital, metropolitan region, physicians, certification by verification service and medical examiner, deaths in hospital, race left blank. Multilevel: proportional change in the variance of a municipal random intercept of a logistic model of the individual deaths (context there: socioeconomic and services blocks; state not entered).
+

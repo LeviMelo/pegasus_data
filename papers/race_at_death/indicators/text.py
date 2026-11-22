@@ -96,7 +96,7 @@ para(d, f"Design and data. This is a {DESIGN}, reported according to the RECORD 
         f"and live births from the Live Birth Information System (SINASC), public files of the Ministry of Health {cite('datasus')}, deaths of 2013-2024 and births of "
         f"2012-2023; the family's classification from the sample of the 2010 Census {cite('ibge_microdata2010')}; immediate regions from IBGE {cite('ibge_regions2017')}.")
 para(d, f"The mother's race for each death. Infant deaths of 2013-2023 ({n0(I['certificates'])}) were linked to their birth records by probabilistic linkage "
-        f"{cite('fellegi1969')} on birth date, sex, residence, birth weight and mother's age; {pct(I['linked'] / I['certificates'])} were linked, with an estimated "
+        f"{cite('fellegi1969')} on birth date, sex, residence, birth weight and mother's age (Figure 1); {pct(I['linked'] / I['certificates'])} were linked, with an estimated "
         f"{min(v['fdr_percent'] for v in I['link_quality'].values()):.2f}-{max(v['fdr_percent'] for v in I['link_quality'].values()):.2f}% of false links a year, and the linked "
         f"share was {pct(ls_['Branca'])}, {pct(ls_['Parda'])} and {pct(ls_['Preta'])} for deaths certified White, Brown and Black ({pct(ls_['Indigena'])} for Indigenous). "
         "Linked deaths with the mother's race were scaled to every infant certificate, which assumes that unlinked deaths are distributed by the mother's race as linked "
@@ -108,6 +108,10 @@ para(d, f"The mother's race for each death. Infant deaths of 2013-2023 ({n0(I['c
         f"{f2(cell(VAL['1,600-6,399']['linkage'], 'Branca', 'Branca')['est'])} at 1,600-6,399 births) but not above "
         f"({f2(cell(VAL['>=25,600']['candidates'], 'Branca', 'Branca')['est'])} against {f2(cell(VAL['>=25,600']['linkage'], 'Branca', 'Branca')['est'])}); after infancy the "
         "main estimates are therefore restricted to the smaller municipalities, and all municipalities are a sensitivity analysis.")
+figure(d, "flow_infants", "Figure 1 - Infant deaths linked to their birth records, with the number of records at each step, and the census reference of how "
+                          "households classify infants, Brazil, 2013-2023",
+       ["SIM: Mortality Information System. SINASC: Live Birth Information System. The census gives the proportions in which households classify infants of "
+        "mothers of each race, which reclassify births by the child's race (Methods)."])
 para(d, "Rates. Infant mortality: deaths of 2013-2023 over live births of the same years, per 1,000. At 1-4 and 5-9 years: deaths of 2013-2024 of children born in "
         "2012-2023 over the person-years those birth cohorts contribute at each age, per 100,000; the 5-9 year rates therefore cover the cohorts born in 2012-2019. Births "
         "with no race or of Yellow (Asian) mothers enter no race's rate.")

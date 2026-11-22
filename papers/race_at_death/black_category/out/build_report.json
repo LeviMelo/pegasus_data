@@ -1,6 +1,6 @@
 {
- "words_introduction_to_conclusion": 3349,
- "words_all_paragraphs": 4340,
+ "words_introduction_to_conclusion": 3433,
+ "words_all_paragraphs": 4448,
  "references": 16,
  "reference_keys": [
   "telles2002",
@@ -20,8 +20,8 @@
   "fellegi1969",
   "bates2015"
  ],
- "tables": 2,
- "figures": 4,
- "supplementary_tables": 4,
- "supplementary_figures": 0
+ "tables": 1,
+ "figures": 5,
+ "supplementary_tables": 5,
+ "supplementary_figures": 1
 }

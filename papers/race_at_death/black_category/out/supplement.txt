@@ -32,7 +32,35 @@ Black
 0.79 (95%CI 0.70; 0.88)
 95%CI: 95% confidence interval (bootstrap), after removal of the expected false pairs.
 
-Supplementary Table S2 - Certified race of infants according to the mother's declaration and the race the hospital recorded for the same mother at delivery, Brazil, 2013-2023
+Supplementary Table S2 - Race recorded for mothers who declared themselves Black, or for their children, by record, Brazil
+Record
+Who classifies
+Black (95%CI)
+Brown (95%CI)
+White (95%CI)
+Family (census 2010), child under 1
+household
+0.39
+0.41
+0.19
+Hospital, the mother at delivery (2012-2023)
+hospital staff
+0.36 (95%CI 0.33; 0.39)
+0.53 (95%CI 0.49; 0.56)
+0.10 (95%CI 0.09; 0.11)
+Death certificate, infant (2013-2023)
+certifier or informant
+0.18 (95%CI 0.17; 0.20)
+0.55 (95%CI 0.53; 0.57)
+0.18 (95%CI 0.16; 0.21)
+Death certificate, child 1-4 (2013-2024)
+certifier or informant
+0.24 (95%CI 0.20; 0.27)
+0.49 (95%CI 0.40; 0.59)
+0.23 (95%CI 0.13; 0.33)
+95%CI: 95% confidence interval. Census: weighted proportions of other, surviving children in 2010; standard errors below 0.005 treating the sample as simple. Hospital: admissions with a race (21.8% had none), bootstrap over hospitals. Certificate, infant: bootstrap over municipalities; the remainder is another category or none. Certificate, 1-4 years: candidate estimator, municipalities with fewer than 25,600 births a year. The populations and years differ between rows.
+
+Supplementary Table S3 - Certified race of infants according to the mother's declaration and the race the hospital recorded for the same mother at delivery, Brazil, 2013-2023
 Mother's declaration
 Hospital's record of the mother
 Infant deaths
@@ -77,7 +105,7 @@ White
 0.01 (95%CI 0.01; 0.02)
 Infant deaths linked to the birth record, the birth record linked to the delivery admission; binomial intervals.
 
-Supplementary Table S3 - Race recorded by the hospital at delivery according to the race the mother declared on the birth record, and for Black mothers by year of birth, Brazil, 2012-2023
+Supplementary Table S4 - Race recorded by the hospital at delivery according to the race the mother declared on the birth record, and for Black mothers by year of birth, Brazil, 2012-2023
 Mother's declaration
 Admissions
 Hospital: White (95%CI)
@@ -160,7 +188,7 @@ Black, births of 2023
 0.36 (95%CI 0.36; 0.36)
 Delivery admissions in the public system linked to the birth record; hospitals recording over a tenth of patients as Yellow left out (490). Hospitals with 30 or more Black mothers: 1,595; share recorded Black at the 10th, 50th and 90th percentiles 0.01, 0.24, 0.64.
 
-Supplementary Table S4 - Between-municipality variance of being certified Black, infants of Black mothers, under successive fixed parts of a multilevel logistic model, Brazil, 2013-2023
+Supplementary Table S5 - Between-municipality variance of being certified Black, infants of Black mothers, under successive fixed parts of a multilevel logistic model, Brazil, 2013-2023
 Fixed part
 Municipal variance (log-odds)
 Variance explained
@@ -206,4 +234,8 @@ individual variables and year
 -1.4%
 2.11
 Random intercept for the municipality, nAGQ = 0; 22,289 deaths in 2,766 municipalities. With a crossed random effect for the establishment of death: 0.31 between establishments, 0.10 between municipalities.
+
+
+Supplementary Figure S1 - Each hospital's practice against the certificates of Black mothers' infants who died there, Brazil, 2012-2023
+Hospitals with 10 or more deaths of Black mothers' infants; practice, share of Black mothers recorded Black at delivery, 2012-2023; area, deaths; the dotted line is equality.
 

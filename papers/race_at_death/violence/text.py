@@ -101,7 +101,11 @@ para(d, "Race at birth and certified race. For each death, the live births of 20
 para(d, "Race at an earlier admission. The same design related each death to the SIH admissions of 2010-2024 of people born in 2000-2009 with its birth date, "
         "sex and municipality that ended at least 30 days before the death and not in death, with the admissions of the other sex, scaled by the ratio of the two "
         "sexes' admissions in the municipality and birth year, as the control. The hospital's race (White, Black, Brown) was cross-classified with the certified "
-        "race; intervals came from a bootstrap over municipalities.")
+        "race; intervals came from a bootstrap over municipalities (Figure 1).")
+figure(d, "flow_violence", "Figure 1 - Deaths at 15-24 years related to the live births and the hospital admissions of the same birth date, sex and "
+                           "municipality, with the other sex as control, Brazil, births of 2000-2009, admissions of 2010-2024, deaths of 2015-2024",
+       ["SINASC: Live Birth Information System. SIM: Mortality Information System. SIH: Hospital Information System. Municipalities with fewer than "
+        "1,600 live births a year."])
 para(d, "Analysis. Cross-classifications were compared between causes, within strata of the certifier (attending physician, medical examiner, death "
         "verification service), the place of death, the mother's schooling at birth and the municipality's composition, and standardised to the composition of "
         "natural deaths. Standard errors of the candidate estimates are those of a difference of counts (Poisson); they omit the variance of the denominator. "

@@ -27,12 +27,12 @@ INSTR = {"1": "none or primary incomplete", "2": "primary complete", "3": "secon
 REGION = {"1": "North", "2": "Northeast", "3": "Southeast", "4": "South", "5": "Centre-West"}
 PARTNERS = lambda ref: [ref] + [x for x in ("white", "brown", "black", "other", "no partner") if x != ref]  # noqa: E731
 con = duckdb.connect()
-con.execute("PRAGMA disable_progress_bar; SET memory_limit='8GB'")
+con.execute("PRAGMA disable_progress_bar; SET memory_limit='1500MB'")
 
 
 def load(year, rule="couple"):
-    d = con.execute(f"""SELECT uf, hh, wa, w, sex, age_group, race, mother_race, mother_age_group, mother_instruction, partner_race, informant
-                        FROM '{(CEN / f'pairs_{year}.parquet').as_posix()}' WHERE rule = '{rule}'""").df()
+    d = con.execute(f"""SELECT uf, hh, wa, w, rel, sex, age_group, race, mother_race, mother_age_group, mother_instruction, partner_race, informant,
+                        mother_informant, order_agrees FROM '{(CEN / f'pairs2_{year}.parquet').as_posix()}' WHERE rule = '{rule}'""").df()
     d["year"] = year
     return d
 
@@ -148,7 +148,7 @@ F["informant"] = inf
 print("informant", {k: v for k, v in inf.items() if k.startswith("model")}, flush=True)
 
 # ------------------------------------------------------------------ the pairs the rule keeps: co-residence and the couple rule, by age and race
-P = pd.concat([con.execute(f"SELECT * FROM '{(CEN / f'persons_{y}.parquet').as_posix()}'").df() for y in (2010, 2022)])
+P = pd.concat([con.execute(f"SELECT * FROM '{(CEN / f'persons2_{y}.parquet').as_posix()}'").df() for y in (2010, 2022)])
 P["race"] = P.race.map(RACE)
 co = {}
 for (y, a, r), g in P[P.age_group.between(1, 5)].groupby(["year", "age_group", "race"]):
@@ -164,5 +164,61 @@ F["rule_check_2010"] = {"couple": F["matrix"][2010]["brown|all"]["white"],
 # the design sensitivity: weighting areas as strata (2010)
 d10 = D[2010][(D[2010].mother == "brown") & D[2010].age.isin(["0-4", "5-9"])]
 F["design_check_2010"] = {"state_strata": ratio(d10, "is_white"), "weighting_area_strata": ratio(d10, "is_white", strata="wa")}
+# ------------------------------------------------------------------ review 1: father or stepfather, siblings, who answered, coverage, category drift
+v2 = {}
+REL = {"04": "child of both (father)", "05": "child of the mother only (stepfather)", "06": "stepchild of the responsible man (stepfather)"}
+for y, d in D.items():
+    for m, outc in (("brown", "is_white"), ("black", "is_black")):
+        sub = d[(d.mother == m) & d.age.isin(["0-4", "5-9"])]
+        for (rel, part), g in sub.groupby(["rel", "partner"]):
+            if len(g) >= 200 and rel in REL:
+                v2[f"{y}|{m}|{outc}|{REL[rel]}|{part}"] = ratio(g, outc)
+        v2[f"{y}|{m}|relation_mix"] = (sub.groupby("rel").w.sum() / sub.w.sum()).to_dict()
+# siblings: households with two or more children 0-9 of the couple, reported in different races
+sib = {}
+for y, d in D.items():
+    sub = d[d.age.isin(["0-4", "5-9"]) & d.mother.isin(["white", "brown", "black"])]
+    g = sub.groupby("hh").agg(n=("race", "size"), k=("race", "nunique"), w=("w", "first"), mother=("mother", "first"), partner=("partner", "first"))
+    g = g[g.n >= 2]
+    for (m, part), x in g.groupby(["mother", "partner"]):
+        if len(x) >= 200:
+            sib[f"{y}|{m}|{part}"] = {"households": int(len(x)), "discordant": float((x.w * (x.k > 1)).sum() / x.w.sum())}
+v2["siblings"] = sib
+# who answered for the child, within the mother's and the partner's race (2022); who answered for the mother
+d = D[2022]
+inf2 = {}
+sub = d[d.age.isin(["0-4", "5-9"]) & d.mother.isin(["white", "brown", "black"])]
+for (m, part, who), g in sub.groupby(["mother", "partner", "informant"]):
+    if len(g) >= 300 and who in ("mother", "partner", "other resident", "non-resident"):
+        inf2[f"{m}|{part}|{who}"] = {"same": ratio(g, "same"), "white": ratio(g, "is_white"), "black": ratio(g, "is_black")}
+inf2["share_0_14"] = {w: float(g.w.sum() / d[d.age.isin(["0-4", "5-9", "10-14"])].w.sum()) for w, g in d[d.age.isin(["0-4", "5-9", "10-14"])].groupby("informant")}
+inf2["mother_informant"] = {w: float(g.w.sum() / sub.w.sum()) for w, g in sub.groupby("mother_informant")}
+v2["informant"] = inf2
+# the couple rule against the mother's order number (2010): coverage at 0-9 by mother's race; does the order number point at the couple's woman
+o10["age_group"] = o10.age_group.astype(int)
+cov = {}
+for m in ("white", "brown", "black"):
+    a_ = D[2010][(D[2010].mother == m) & D[2010].age.isin(["0-4", "5-9"])]
+    b_ = o10[(o10.mother == m) & o10.age_group.isin([1, 2])]
+    cov[m] = {"couple_share_of_order": float(len(a_) / len(b_)), "couple": ratio(a_, f"is_{ {'white': 'white', 'brown': 'white', 'black': 'black'}[m]}"),
+              "order": ratio(b_.assign(is_white=(b_.child == "white").astype(int), is_black=(b_.child == "black").astype(int)),
+                             f"is_{ {'white': 'white', 'brown': 'white', 'black': 'black'}[m]}")}
+c10 = D[2010]
+cov["order_agrees"] = float(c10.order_agrees.astype(float).mean())
+v2["coverage"] = cov
+# category drift: the 2022 Black and Brown mothers reweighted to the 2010 mothers' instruction and region
+drift = {}
+for m, outc in (("black", "is_black"), ("black", "is_white"), ("brown", "is_white")):
+    a10 = D[2010][(D[2010].mother == m) & D[2010].age.isin(["0-4", "5-9"])]
+    a22 = D[2022][(D[2022].mother == m) & D[2022].age.isin(["0-4", "5-9"])]
+    p10 = a10.groupby(["instruction", "region"]).w.sum() / a10.w.sum()
+    r22 = a22.groupby(["instruction", "region"]).apply(lambda g, o=outc: (g.w * g[o]).sum() / g.w.sum())
+    common = p10.index.intersection(r22.index)
+    drift[f"{m}|{outc}"] = {"2010": ratio(a10, outc)["est"], "2022": ratio(a22, outc)["est"],
+                            "2022_at_2010_mothers": float((r22[common] * p10[common]).sum() / p10[common].sum()),
+                            "instruction_2010": (a10.groupby("instruction").w.sum() / a10.w.sum()).to_dict(),
+                            "instruction_2022": (a22.groupby("instruction").w.sum() / a22.w.sum()).to_dict()}
+v2["drift"] = drift
+F["review1"] = v2
 OUT.write_text(json.dumps(F, indent=1, default=float), encoding="utf-8")
 print("written", OUT, flush=True)

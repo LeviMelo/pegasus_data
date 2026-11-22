@@ -1,17 +1,15 @@
 {
- "words_introduction_to_conclusion": 2234,
- "words_all_paragraphs": 3020,
- "references": 9,
+ "words_introduction_to_conclusion": 2846,
+ "words_all_paragraphs": 3620,
+ "references": 7,
  "reference_keys": [
   "schwartzman2007",
   "telles2002",
   "muniz2017",
   "carvalho2004",
-  "marteleto2012",
   "freemannc2024",
   "ibge_microdata2010",
-  "ibge_microdata2022",
-  "ibge_sidra2010"
+  "ibge_microdata2022"
  ],
  "tables": 1,
  "figures": 5,

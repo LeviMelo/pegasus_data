@@ -175,4 +175,12 @@ table(s, "Supplementary Table S11 - Weight of the local distribution (λ) in a m
       ["C(m -> c) = (1 - λ) F(m -> c) + λ π(c) over ten classes of municipal composition, F the family's classification in the census and π the local reference. λ = 0: the "
        "certificate records the family's classification; λ = 1: it records the local distribution whatever the mother's race. With the certified race of local deaths as the "
        "reference, the reference contains the certificates being modelled, which biases λ upward; the fit for Black mothers is poor under both references."])
+figure(s, "place_within_state", "Supplementary Figure S7 - Infant deaths certified as each cell of the table by place within the state (A), and Brown mothers' infants "
+                                "certified White by municipal composition and GDP per capita (B), Brazil, 2013-2023",
+       ["A: one-to-one linkage, 95% confidence intervals. B: proportions without intervals (binomial intervals understate the clustering by place)."])
+figure(s, "time_regions", "Supplementary Figure S8 - Change of Brown mothers' infants certified White against its level in 2013 by intermediate region (A), and the "
+                          "proportion certified as the mother's race by state and year (B), Brazil, 2013-2023",
+       ["A: binomial mixed model with random intercept and slope for the year by intermediate region. B: one-to-one linkage, all mothers."])
+for t_ in SUPP_TABLES:
+    table(s, *t_)
 s.save(OUT / "supplement.docx")

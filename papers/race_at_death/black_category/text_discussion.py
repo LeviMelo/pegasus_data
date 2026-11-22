@@ -10,7 +10,7 @@ para(d, f"The infants of mothers who declared themselves Black were recorded as 
         "recorded at delivery, also when the infant died in another establishment, where the delivery chart was not at hand; beside the mother's own record, the "
         "hospital's practice added little. The category's use rose over the decade, faster on the certificate than in the hospital, and not because the "
         "Black mothers changed.")
-para(d, "Three readings were set against each other (Table 2). If the certificate copied the delivery chart, the association between the hospital's record of a "
+para(d, "Three readings were set against each other (Table 1). If the certificate copied the delivery chart, the association between the hospital's record of a "
         "mother and her infant's certificate would vanish where the chart was not at hand; it remained, at a similar size. If a hospital-wide practice decided "
         "the category, the hospital's practice would predict the certificate as well as the mother's own record; it predicted it far less. The two are not "
         "exclusive, and the data show both. The hospital sets how often it records Black: a mother who changed hospital took on the new hospital's rate in "
@@ -56,7 +56,7 @@ RD3 = [["Copying the delivery chart", "association only where the infant died wh
        ["The reference is the filler's", "declared share varies with who filled the record within hospitals",
         f"{100 * w_ph['est']:.1f} and {100 * w_ot['est']:.1f} percentage points", "weakened"],
        ["The rise is who declares", "no rise at the mothers of 2013", f"{f2(STD['2013']['standardised_2013'])} to {f2(STD['2023']['standardised_2013'])}", "excluded"]]
-table(d, "Table 2 - Readings of who records the infant of a Black mother as Black, what each predicts, and what the data showed, Brazil, 2012-2023",
+table(d, "Table 1 - Readings of who records the infant of a Black mother as Black, what each predicts, and what the data showed, Brazil, 2012-2023",
       ["Reading", "Prediction", "Result", "Status"], RD3, ["Odds ratios from conditional and clustered logistic models; see Results."])
 d.add_heading("References", level=1)
 for i, k in enumerate(order, 1):

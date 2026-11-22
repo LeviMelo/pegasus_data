@@ -15,7 +15,7 @@ para(d, f"Of {n0(sum(Y['by_kind'][k]['deaths'] for k in KINDS))} deaths at 15-24
         f"{pct(max(Y['by_kind'][k]['found'] for k in KINDS), 0)} of deaths, alike for every cause; the others had moved or were born elsewhere.")
 d.add_heading("From birth to the certificate", level=2)
 para(d, f"Of young people recorded White at birth, {cc(nat)} were certified White when they died of natural causes, against {cc(yc('transport'))} in transport "
-        f"accidents, {cc(yc('suicide'))} in suicides, {cc(fire)} in assaults by firearm and {cc(leg)} in legal interventions (Table 1, Figure 1). Because fewer "
+        f"accidents, {cc(yc('suicide'))} in suicides, {cc(fire)} in assaults by firearm and {cc(leg)} in legal interventions (Table 1, Figure 2). Because fewer "
         "of those who died by assault were White at birth, the margins show the net change: among the deaths found, the share White was "
         f"{f2(MB_['natural'][0])} at birth and {f2(MB_['natural'][1])} on the certificate for natural deaths, {f2(MB_['transport'][0])} and "
         f"{f2(MB_['transport'][1])} for transport accidents, {f2(MB_['suicide'][0])} and {f2(MB_['suicide'][1])} for suicides, and "
@@ -32,7 +32,7 @@ table(d, "Table 1 - Race at birth and on the death certificate of young people a
       ["People born in 2000-2009, residents of municipalities with fewer than 1,600 births a year. Candidate estimator with the other sex as control; 95% "
        "confidence intervals from the difference of counts. Shares: among the deaths found among their birth candidates. Race at birth: the newborn's colour on "
        "the birth record of 2000-2009."])
-figure(d, "violence_cause", "Figure 1 - Young people aged 15-24 certified in their race at birth, by cause of death, Brazil, 2015-2024",
+figure(d, "violence_cause", "Figure 2 - Young people aged 15-24 certified in their race at birth, by cause of death, Brazil, 2015-2024",
        ["Candidate estimator, municipalities with fewer than 1,600 births a year; bars, 95% confidence intervals."])
 para(d, f"The lower share certified White among those White at birth who died by assault did not come from where they lived: it held in every fifth of "
         f"municipal composition (from {f2(cell(COMP['assault'][0]['matrix'], 'Branca', 'Branca')['est'])} against "
@@ -44,8 +44,8 @@ para(d, f"The lower share certified White among those White at birth who died by
         f"{cc(cell(CERT['assault']['physician'], 'Branca', 'Branca'))} by attending physicians, against {cc(cell(CERT['external, not assault']['medical examiner'], 'Branca', 'Branca'))} "
         f"of other external deaths certified by medical examiners. It fell steeply with the mother's schooling at birth: among those White at birth who died by "
         f"assault, {cc(cell(SCH['assault']['0-3'], 'Branca', 'Branca'))} were certified White when the mother had 0-3 years of schooling and "
-        f"{cc(cell(SCH['assault']['8-11'], 'Branca', 'Branca'))} with 8-11 (Figure 2).")
-figure(d, "violence_strata", "Figure 2 - Young people recorded White at birth and certified White, by cause of death, against the municipality's share of White "
+        f"{cc(cell(SCH['assault']['8-11'], 'Branca', 'Branca'))} with 8-11 (Figure 3).")
+figure(d, "violence_strata", "Figure 3 - Young people recorded White at birth and certified White, by cause of death, against the municipality's share of White "
                              "births (A), by certifier (B) and by the mother's schooling at birth (C), Brazil, 2015-2024",
        ["Candidate estimator, municipalities with fewer than 1,600 births a year; bars, 95% confidence intervals; cells with a standard error above 0.15 are not drawn."])
 d.add_heading("Hospital records made during life", level=2)
@@ -56,7 +56,7 @@ para(d, f"An earlier admission, ending at least 30 days before the death, was fo
         f"{f2(PM['natural']['hospital_white']['est'])} for natural and {f2(PM['all external, not assault']['hospital_white']['est'])} for other external deaths). "
         f"From the hospital record to the certificate, the share White changed by {PM['natural']['net_shift']['est']:+.2f} for natural deaths, "
         f"{PM['transport']['net_shift']['est']:+.2f} for transport accidents and {PM['assault by firearm']['net_shift']['est']:+.2f} for firearm assaults "
-        f"(Figure 3). The two records agreed less for violent deaths, in both directions: of those recorded White in hospital, {cc(hv('natural', 'white', 'white'))} "
+        f"(Figure 4). The two records agreed less for violent deaths, in both directions: of those recorded White in hospital, {cc(hv('natural', 'white', 'white'))} "
         f"were certified White after a natural death, {cc(hv('transport', 'white', 'white'))} after a transport accident and "
         f"{cc(hv('assault by firearm', 'white', 'white'))} after a firearm assault, while of those recorded Brown, {cc(hv('assault by firearm', 'brown', 'white'))} "
         f"of firearm deaths were certified White (Supplementary Table S2). The results were the same for men alone "
@@ -68,7 +68,7 @@ para(d, f"An earlier admission, ending at least 30 days before the death, was fo
         f"{f2(VI['terminal']['natural']['cells']['hospital white|certified white']['est'])} of natural deaths. With the admissions' birth dates moved by a week, "
         f"where the person cannot be among them, the estimator still counted {pct(abs(PLC['assault by firearm']), 0)} as many persons for firearm deaths and "
         f"{pct(abs(PLC['natural']), 0)} for natural deaths, a residual of chance agreement the control did not remove.")
-figure(d, "violence_hospital", "Figure 3 - Young people recorded White at an earlier hospital admission and certified White at death (A), and the share White in the "
+figure(d, "violence_hospital", "Figure 4 - Young people recorded White at an earlier hospital admission and certified White at death (A), and the share White in the "
                                "hospital and on the certificate of the same deaths (B), by cause of death, Brazil, 2015-2024",
        ["Admissions of 2010-2024 that ended at least 30 days before the death, one record per person; candidate estimator with the other sex as control, "
         "municipalities with fewer than 1,600 births a year; bars, 95% confidence intervals from 1,000 bootstrap replicates over municipalities."])

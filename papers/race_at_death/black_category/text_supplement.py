@@ -44,13 +44,14 @@ for lab, block in (("Black", IN["black_mother_by_hospital"]), ("Brown", IN["brow
     for h in ("black", "brown", "white"):
         if h in block:
             rows.append([lab, RN[h], n0(block[h]["black"]["n"])] + [ci(block[h][c]) for c in ("white", "brown", "black")])
-table(s, "Supplementary Table S2 - Certified race of infants according to the mother's declaration and the race the hospital recorded for the same mother at delivery, "
+table(s, *LADDER)
+table(s, "Supplementary Table S3 - Certified race of infants according to the mother's declaration and the race the hospital recorded for the same mother at delivery, "
          "Brazil, 2013-2023",
       ["Mother's declaration", "Hospital's record of the mother", "Infant deaths", "Certified White (95%CI)", "Certified Brown (95%CI)", "Certified Black (95%CI)"], rows,
       ["Infant deaths linked to the birth record, the birth record linked to the delivery admission; binomial intervals."])
 rows = [[RN[j], n0(HO["matrix"][j]["black"]["n"])] + [ci(HO["matrix"][j][h]) for h in ("white", "brown", "black")] for j in ("white", "brown", "black")]
 rows += [[f"Black, births of {y}", n0(v["n"]), "-", "-", ci(v)] for y, v in HO["black_by_year"].items()]
-table(s, "Supplementary Table S3 - Race recorded by the hospital at delivery according to the race the mother declared on the birth record, and for Black mothers by year "
+table(s, "Supplementary Table S4 - Race recorded by the hospital at delivery according to the race the mother declared on the birth record, and for Black mothers by year "
          "of birth, Brazil, 2012-2023",
       ["Mother's declaration", "Admissions", "Hospital: White (95%CI)", "Hospital: Brown (95%CI)", "Hospital: Black (95%CI)"], rows,
       [f"Delivery admissions in the public system linked to the birth record; hospitals recording over a tenth of patients as Yellow left out ({HO['facilities_left_out']}). "
@@ -62,9 +63,12 @@ LAB = {"null": "none", "composition": "composition", "socioeconomic": "socioecon
        "individual_only": "individual variables, region and year", "individual_no_region": "individual variables and year"}
 SQ = ML["sequence"]
 rows = [[kl, f"{SQ[k]['var_mun']:.3f}", pct(SQ[k]["pcv"]), f2(SQ[k]["mor"])] for k, kl in LAB.items() if k in SQ]
-table(s, "Supplementary Table S4 - Between-municipality variance of being certified Black, infants of Black mothers, under successive fixed parts of a multilevel "
+table(s, "Supplementary Table S5 - Between-municipality variance of being certified Black, infants of Black mothers, under successive fixed parts of a multilevel "
          "logistic model, Brazil, 2013-2023",
       ["Fixed part", "Municipal variance (log-odds)", "Variance explained", "Median odds ratio"], rows,
       [f"Random intercept for the municipality, nAGQ = 0; {n0(ML['n'])} deaths in {n0(ML['municipalities'])} municipalities. With a crossed random effect for the "
        f"establishment of death: {f2(EST['var_estab'])} between establishments, {f2(EST['var_mun'])} between municipalities."])
+figure(s, "black_practice", "Supplementary Figure S1 - Each hospital's practice against the certificates of Black mothers' infants who died there, Brazil, 2012-2023",
+       ["Hospitals with 10 or more deaths of Black mothers' infants; practice, share of Black mothers recorded Black at delivery, 2012-2023; area, deaths; the dotted "
+        "line is equality."])
 s.save(OUT / "supplement.docx")

@@ -1,6 +1,6 @@
 {
- "words_introduction_to_conclusion": 2492,
- "words_all_paragraphs": 3533,
+ "words_introduction_to_conclusion": 2579,
+ "words_all_paragraphs": 3649,
  "references": 18,
  "reference_keys": [
   "cardoso2005",
@@ -23,7 +23,7 @@
   "lindgren2015"
  ],
  "tables": 1,
- "figures": 2,
+ "figures": 3,
  "supplementary_tables": 4,
  "supplementary_figures": 1
 }

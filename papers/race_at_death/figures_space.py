@@ -81,65 +81,117 @@ axes[1, 1].legend(handles=[Patch(fc=c, ec="#999999", lw=0.3, label=f"{lab} ({S['
 fig.tight_layout(h_pad=3.0)
 save(fig, "map_municipal")
 
-# ---------------------------------------------------------------- Figure 4: composition, state and context
-fig = plt.figure(figsize=(7.2, 6.0))
-gs = fig.add_gridspec(2, 3, height_ratios=[1.15, 1], hspace=0.55, wspace=0.6)
+# ---------------------------------------------------------------- Figure 4: what the place's variation goes with (composition, state, context, the multilevel models)
+PNL = json.loads((RES / "panel.json").read_text(encoding="utf-8"))
+PLG = json.loads((RES / "panel_long.json").read_text(encoding="utf-8"))
+MLs = S["multilevel"]
+fig = plt.figure(figsize=(6.9, 8.4))
+gs = fig.add_gridspec(3, 4, width_ratios=[1, 1, 0.78, 0.92], height_ratios=[1.15, 1, 0.95], hspace=0.62, wspace=0.75)
 ax = fig.add_subplot(gs[0, :2])
 E["region"] = (E.uf // 10).map(REGION)
 for rn, col in OKABE.items():
     x = E[(E.region == rn) & (E.nP > 0)]
-    ax.scatter(x.white_share, x.PW_mean, s=np.clip(x.nP, 1, 400) ** 0.5 * 0.9, color=col, alpha=0.45, lw=0, label=rn)
+    ax.scatter(x.white_share, x.PW_mean, s=np.clip(x.nP, 1, 400) ** 0.5 * 0.7, color=col, alpha=0.45, lw=0, label=rn)
 gi = [b for b in R["gradient_infants"] if b["matrix"]["rows"].get("Parda", {}).get("n", 0) >= 100]
-ax.plot([b["white_share"] for b in gi], [b["matrix"]["rows"]["Parda"]["Branca"]["est"] for b in gi], "-", color="black", lw=1.6, label="national, by class of composition")
+ax.plot([b["white_share"] for b in gi], [b["matrix"]["rows"]["Parda"]["Branca"]["est"] for b in gi], "-", color="black", lw=1.6, label="certificate, by class")
 gf = R["census"]["gradient"]["0"]
 ax.plot([b["white_share"] for b in gf if "Parda" in b["matrix"]], [b["matrix"]["Parda"].get("Branca", {"est": 0})["est"] for b in gf if "Parda" in b["matrix"]], "--",
-        color="black", lw=1.2, label="family (census, under 1 year)")
+        color="black", lw=1.2, label="family (census), by class")
 ax.set_xlim(0, 1)
 ax.set_ylim(0, 1)
-ax.set_xlabel("Share of White mothers among the municipality's live births")
-ax.set_ylabel("Brown mother, infant certified White")
-ax.set_title("A. Municipalities (BYM2 posterior means; area of a point: linked deaths)", fontsize=8, loc="left")
-ax.legend(fontsize=6.5, frameon=False, loc="upper left", ncol=2, markerscale=1.5)
-# B: what each explanation leaves: Moran's I of residuals and deviance explained
-ax = fig.add_subplot(gs[0, 2])
-MO = S["moran"]["PW"]
-steps = [("none", "none"), ("composition", "composition"), ("state", "state"), ("context", "context"), ("composition_state", "composition\n+ state"),
-         ("composition_context", "composition\n+ context"), ("composition_state_context", "all three")]
-y = np.arange(len(steps))[::-1]
-ax.barh(y, [MO["deviance_explained"][k] for k, _ in steps], color="#999999", height=0.4, label="deviance explained")
-ax.plot([MO[k]["I"] for k, _ in steps], y, "o", color="#D55E00", ms=4, label="Moran's I of residuals")
-ax.set_yticks(y, [lab for _, lab in steps], fontsize=6.5)
-ax.set_xlim(0, 1)
-ax.set_title("B. Brown mother, certified White:\nwhat each explanation removes", fontsize=8, loc="left")
-ax.legend(fontsize=6, frameon=False, loc="upper center", bbox_to_anchor=(0.4, -0.12), ncol=1)
-# C: the border test
+ax.set_xlabel("Share of White mothers among the municipality's live births", fontsize=7)
+ax.set_ylabel("Brown mother, infant certified White", fontsize=7)
+ax.set_title("A. Municipalities (BYM2 posterior means; area: linked deaths)", fontsize=7.5, loc="left")
+ax.legend(fontsize=5.8, frameon=False, loc="upper left", ncol=2, markerscale=1.5)
 ax = fig.add_subplot(gs[1, 0])
+MO = S["moran"]["PW"]
+steps = [("none", "none"), ("composition", "composition"), ("state", "state"), ("context", "context"), ("composition_state", "comp. + state"),
+         ("composition_context", "comp. + context"), ("composition_state_context", "all three")]
+y = np.arange(len(steps))[::-1]
+ax.barh(y, [MO["deviance_explained"][k] for k, _ in steps], color="#999999", height=0.45, label="deviance explained")
+ax.plot([MO[k]["I"] for k, _ in steps], y, "o", color="#D55E00", ms=3.5, label="Moran's I, residuals")
+for yi, (k, _) in zip(y, steps, strict=True):
+    if MO["deviance_explained"][k] > 0:
+        ax.text(MO["deviance_explained"][k] - 0.02, yi, f"{100 * MO['deviance_explained'][k]:.0f}%", ha="right", va="center", fontsize=5.3, color="white")
+ax.set_yticks(y, [lab for _, lab in steps], fontsize=6)
+ax.set_xlim(0, 1)
+ax.set_title("B. Binomial models: what\neach explanation removes", fontsize=7.5, loc="left")
+ax.legend(fontsize=5.6, frameon=False, loc="upper center", bbox_to_anchor=(0.35, -0.1), ncol=1)
+ax = fig.add_subplot(gs[1, 1])
 q = pd.qcut(BP.dA, 8, duplicates="drop")
 bb = BP.groupby(q, observed=True).apply(lambda d: pd.Series({"x": np.average(d.dA, weights=d.w), "y": np.average(d.D, weights=d.w), "se": 1 / np.sqrt(d.w.sum())}))
-ax.scatter(BP.dA, BP.D, s=2, color="#BBBBBB", lw=0)
-ax.errorbar(bb.x, bb.y, yerr=1.96 * bb.se, fmt="o", color="black", ms=3, capsize=1.5)
+ax.scatter(BP.dA, BP.D, s=1.5, color="#BBBBBB", lw=0)
+ax.errorbar(bb.x, bb.y, yerr=1.96 * bb.se, fmt="o", color="black", ms=2.5, capsize=1.2)
 xs = np.linspace(BP.dA.min(), BP.dA.max(), 10)
 bt = S["border"]["PW"]
-ax.plot(xs, xs, ":", color="#0072B2", lw=1, label="full state difference")
-ax.plot(xs, bt["slope_state_effect"] * xs, "-", color="#D55E00", lw=1.2, label=f"fitted, slope {bt['slope_state_effect']:.2f}")
+ax.plot(xs, xs, ":", color="#0072B2", lw=1, label="full state\ndifference")
+ax.plot(xs, bt["slope_state_effect"] * xs, "-", color="#D55E00", lw=1.2, label=f"slope {bt['slope_state_effect']:.2f}")
 ax.set_ylim(-4, 4)
-ax.set_xlabel("Difference of the states' effects,\nfrom municipalities away from borders")
-ax.set_ylabel("Difference across the border")
-ax.set_title(f"C. {bt['pairs']:,} pairs of neighbours\nacross state borders (log-odds)", fontsize=8, loc="left")
-ax.legend(fontsize=5.8, frameon=False, loc="upper left")
-# D: capital, metropolitan, interior; E: composition by GDP
-ax = fig.add_subplot(gs[1, 1])
-PL = ["capital", "metropolitan, not capital", "interior"]
+ax.set_xlabel("States' difference away\nfrom borders (log-odds)", fontsize=6.5)
+ax.set_ylabel("Difference across the border", fontsize=6.5)
+ax.set_title(f"C. {bt['pairs']:,} neighbour pairs\nacross state borders", fontsize=7.5, loc="left")
+ax.legend(fontsize=5.6, frameon=False, loc="upper left")
+ax = fig.add_subplot(gs[2, :2])
+SEQ = [("composition", "composition"), ("socioeconomic", "socioeconomic, place"), ("services", "services, recording"),
+       ("socioeconomic_services", "socioec. + services"), ("composition_socioeconomic", "comp. + socioec."),
+       ("composition_socioeconomic_services", "comp. + socioec. + serv."), ("full", "all, with individual,\nregion and year")]
+OUTS = [("brown_white", "Brown mother, certified White", "#0072B2", "o"), ("black_black", "Black mother, certified Black", "#000000", "s"),
+        ("white_white", "White mother, certified White", "#E69F00", "^")]
+y = np.arange(len(SEQ))[::-1]
+for k, (o, lab, col, mk) in enumerate(OUTS):
+    if o in MLs:
+        ax.plot([100 * MLs[o]["sequence"][s_]["pcv"] for s_, _ in SEQ], y + (1 - k) * 0.18, mk, color=col, ms=3.5, label=lab, lw=0)
+for yi in y:
+    ax.axhline(yi, color="#eeeeee", lw=0.5, zorder=0)
+ax.set_yticks(y, [lab for _, lab in SEQ], fontsize=6)
+ax.set_xlim(0, 100)
+ax.set_xlabel("Between-municipality variance explained (%)", fontsize=7)
+ax.set_title("D. Multilevel models: what each set of municipal variables explains", fontsize=7.5, loc="left")
+ax.legend(fontsize=5.6, frameon=False, loc="upper center", bbox_to_anchor=(0.45, -0.22), ncol=3)
+ax = fig.add_subplot(gs[:, 3])
+TERMS = [("z_lgdp", "GDP per capita"), ("z_illit", "illiteracy"), ("z_urban", "urban share"), ("z_lpop", "population"),
+         ("capital", "state capital"), ("metro", "metropolitan region"), ("z_phys", "physicians"), ("z_svo", "verification service share"),
+         ("z_iml", "medical examiner share"), ("z_hosp", "deaths in hospital"), ("z_blank", "race left blank"),
+         ("certifiermedical examiner (IML)", "certifier: medical examiner"), ("certifierdeath verification service", "certifier: verification service"),
+         ("certifiersubstitute physician", "certifier: substitute physician"), ("death_placehome", "died at home"), ("death_placeother health facility", "died in other facility"),
+         ("age_group28-364 days", "died at 28-364 days"), ("cause_groupexternal", "external cause"), ("school0-3", "mother 0-3 years of school"),
+         ("school12 or more", "mother 12+ years of school"), ("mother_age<20", "mother under 20"), ("low_weight<2500 g", "birth weight < 2500 g"),
+         ("yc", "per decade")]
+yy = np.arange(len(TERMS))[::-1]
+for k, (o, lab, col, mk) in enumerate(OUTS[:2]):
+    if o not in MLs:
+        continue
+    fx = MLs[o]["full_fit"]["fixed"]
+    for j, (t, _) in enumerate(TERMS):
+        if t in fx:
+            e_, s_ = fx[t]["est"], fx[t]["se"]
+            ax.errorbar([math.exp(e_)], [yy[j] + (0.5 - k) * 0.36], xerr=[[math.exp(e_) - math.exp(e_ - 1.96 * s_)], [math.exp(e_ + 1.96 * s_) - math.exp(e_)]],
+                        fmt=mk, color=col, ms=2.6, capsize=1, lw=0.8)
+ax.axhline(len(TERMS) - 11.5, color="#cccccc", lw=0.6)
+ax.axvline(1, color="#999999", lw=0.7)
+ax.set_xscale("log")
+ax.set_xticks([0.5, 1, 2], ["0.5", "1", "2"])
+ax.set_xlim(0.4, 2.6)
+ax.xaxis.set_minor_formatter(matplotlib.ticker.NullFormatter())
+ax.set_yticks(yy, [lab for _, lab in TERMS], fontsize=5.8)
+ax.set_xlabel("Odds ratio, full multilevel model\n(blue: Brown mother, White;\nblack: Black mother, Black)", fontsize=6.3)
+ax.set_title("E. Terms of the full model", fontsize=7.5, loc="left")
+save(fig, "place_explain")
+
+# Supplementary: place within the state, composition and wealth
+fig, axes = plt.subplots(1, 2, figsize=(6.0, 2.8), gridspec_kw={"wspace": 0.4})
+ax = axes[0]
+PLC = ["capital", "metropolitan, not capital", "interior"]
 for k, (m, c, col, lab) in enumerate((("Parda", "Branca", "#0072B2", "Brown mother, White"), ("Preta", "Preta", "#000000", "Black mother, Black"),
                                       ("Branca", "Branca", "#E69F00", "White mother, White"))):
-    v = [S["by_place"][p]["rows"][m][c] for p in PL]
+    v = [S["by_place"][p]["rows"][m][c] for p in PLC]
     ax.errorbar(np.arange(3) + (k - 1) * 0.18, [x["est"] for x in v], yerr=[1.96 * x["se"] for x in v], fmt="o", color=col, ms=3.5, capsize=1.5, label=lab)
 ax.set_xticks(range(3), ["state\ncapital", "metropolitan,\nnot capital", "interior"], fontsize=6.5)
 ax.set_ylim(0, 1)
 ax.set_ylabel("Proportion of infant deaths")
-ax.set_title("D. Place within\nthe state", fontsize=8, loc="left")
+ax.set_title("A. Place within the state", fontsize=8, loc="left")
 ax.legend(fontsize=5.8, frameon=False, loc="center", bbox_to_anchor=(0.5, 0.5))
-ax = fig.add_subplot(gs[1, 2])
+ax = axes[1]
 for comp, col in zip(("<30%", "30-59%", ">=60%"), ("#D55E00", "#009E73", "#0072B2"), strict=True):
     v = [S["comp_gdp"].get(f"{comp}|{q}", {}).get("rows", {}).get("Parda", {}).get("Branca") for q in ("low", "middle", "high")]
     xs_ = [i for i, x in enumerate(v) if x and x["se"] < 0.1]
@@ -147,41 +199,79 @@ for comp, col in zip(("<30%", "30-59%", ">=60%"), ("#D55E00", "#009E73", "#0072B
 ax.set_xticks(range(3), ["low", "middle", "high"])
 ax.set_xlabel("Municipal GDP per capita (tertile)")
 ax.set_ylim(0, 1)
-ax.set_title("E. Brown mother, certified White:\ncomposition and wealth", fontsize=8, loc="left")
+ax.set_title("B. Brown mother, certified White:\ncomposition and wealth", fontsize=8, loc="left")
 ax.legend(fontsize=6, frameon=False, loc="upper left")
-save(fig, "composition_state")
+save(fig, "place_within_state")
 
 
-# ---------------------------------------------------------------- Figure 6: time by place
+# ---------------------------------------------------------------- Figure 5: over time, and between against within places
 def change(df, o):
     a, b = df[f"{o}_intercept"], df[f"{o}_slope"]
     return 1 / (1 + np.exp(-(a + 0.5 * b))) - 1 / (1 + np.exp(-(a - 0.5 * b))), 1 / (1 + np.exp(-(a - 0.5 * b)))
 
 
-fig = plt.figure(figsize=(7.2, 7.0))
-gs = fig.add_gridspec(2, 3, width_ratios=[1.05, 1.35, 0.7], height_ratios=[1, 1.35], hspace=0.38, wspace=0.42)
-ax = fig.add_subplot(gs[0, :2])
-yrs = sorted(int(y) for y in R["infants"]["by_year"])
-for (m, c), col, lab in ((("Branca", "Branca"), "#E69F00", "White mother, certified White"), (("Parda", "Parda"), "#0072B2", "Brown mother, certified Brown"),
-                         (("Preta", "Parda"), "#999999", "Black mother, certified Brown"), (("Parda", "Branca"), "#56B4E9", "Brown mother, certified White"),
-                         (("Preta", "Preta"), "#000000", "Black mother, certified Black")):
-    v = [R["infants"]["by_year"][str(y)]["rows"][m][c] for y in yrs]
-    ax.errorbar(yrs, [x["est"] for x in v], yerr=[1.96 * x["se"] for x in v], fmt="-o", ms=2.5, lw=1, color=col, capsize=1, label=lab)
-ax.set_ylim(0, 1)
-ax.set_xlim(2012.5, 2029.6)
-ax.set_xticks(range(2013, 2024, 2))
-ax.set_xlabel("Year of death")
-ax.set_ylabel("Proportion of infant deaths")
-ax.set_title("A. Brazil, by mother's race (linkage)", fontsize=8, loc="left")
-ax.legend(fontsize=6, frameon=False, loc="center right")
 RG["KK_change"], RG["KK_2013"] = change(RG, "KK")
 RG["PW_change"], RG["PW_2013"] = change(RG, "PW")
 RG["intermediate"] = RG.intermediate.astype(str)
 GI = INT.assign(intermediate=INT.intermediate.astype(str)).merge(RG, on="intermediate", how="left")
-ax = fig.add_subplot(gs[1, 1])
-choropleth(ax, GI, "PW_change", "PuOr_r", TwoSlopeNorm(vmin=-0.2, vcenter=0, vmax=0.2), "C. Brown mother, infant certified\nWhite: change 2013-2023",
-           "Change over the decade (model)", ticks=[-0.2, -0.1, 0, 0.1, 0.2], edge="#FFFFFF")
+fig = plt.figure(figsize=(6.9, 6.4))
+gs = fig.add_gridspec(2, 2, width_ratios=[1.25, 1], height_ratios=[1, 1], hspace=0.5, wspace=0.35)
+ax = fig.add_subplot(gs[0, 0])
+yrs = sorted(int(y) for y in R["infants"]["by_year"])
+for (m, c), col, lab in ((("Branca", "Branca"), "#E69F00", "White mother, White"), (("Parda", "Parda"), "#0072B2", "Brown mother, Brown"),
+                         (("Preta", "Parda"), "#999999", "Black mother, Brown"), (("Parda", "Branca"), "#56B4E9", "Brown mother, White"),
+                         (("Preta", "Preta"), "#000000", "Black mother, Black")):
+    v = [R["infants"]["by_year"][str(y)]["rows"][m][c] for y in yrs]
+    ax.errorbar(yrs, [x["est"] for x in v], yerr=[1.96 * x["se"] for x in v], fmt="-o", ms=2, lw=1, color=col, capsize=0.8)
+    ax.text(yrs[-1] + 0.4, v[-1]["est"] + (0.025 if lab == "Brown mother, White" else -0.025 if lab == "Black mother, Black" else 0), lab, fontsize=5.6, color=col,
+            va="center")
+ax.set_ylim(0, 1)
+ax.set_xlim(2012.5, 2028.5)
+ax.set_xticks(range(2013, 2024, 2))
+ax.tick_params(labelsize=6.5)
+ax.set_xlabel("Year of death", fontsize=7)
+ax.set_ylabel("Proportion of infant deaths", fontsize=7)
+ax.set_title("A. Certified race by mother's race, Brazil", fontsize=7.5, loc="left")
+ax = fig.add_subplot(gs[0, 1])
+choropleth(ax, GI, "PW_change", "PuOr_r", TwoSlopeNorm(vmin=-0.2, vcenter=0, vmax=0.2), "B. Brown mother, certified White:\nchange 2013-2023, intermediate regions",
+           "Change over the decade (model; grey: no estimate)", ticks=[-0.2, -0.1, 0, 0.1, 0.2], edge="#FFFFFF")
+ax.title.set_fontsize(7.5)
 ax = fig.add_subplot(gs[1, 0])
+SHORT = {"lw": "Composition\n(logit White births)", "lgdp": "GDP per capita\n(log)", "lphys": "Physicians\n(log)", "iml": "External deaths by\nmedical examiner"}
+vs = ["lw", "lgdp", "lphys", "iml"]
+for k, (lv, part, col, mk, lab) in enumerate((("municipality", "b", "#777777", "o", "between municipalities"), ("municipality", "w", "#D55E00", "o", "within municipality"),
+                                               ("immediate", "b", "#AAAAAA", "s", "between regions"), ("immediate", "w", "#0072B2", "s", "within region"))):
+    for i, v in enumerate(vs):
+        c = PNL["PW"][lv]["all"][f"{v}_{part}"]
+        ax.errorbar(c["est"], i + (k - 1.5) * 0.17, xerr=1.96 * c["se"], fmt=mk, color=col, ms=3, capsize=1.2, label=lab if i == 0 else None)
+ax.axvline(0, color="k", lw=0.6)
+ax.set_yticks(range(len(vs)), [SHORT[v] for v in vs], fontsize=6.3)
+ax.invert_yaxis()
+ax.tick_params(axis="x", labelsize=6.5)
+ax.set_xlabel("Change in log-odds of White, per unit", fontsize=7)
+ax.set_title("C. Yearly panel 2013-2023: between\nand within places (Brown mother, White)", fontsize=7.5, loc="left")
+ax.legend(fontsize=5.6, frameon=False, loc="upper center", bbox_to_anchor=(0.4, -0.2), ncol=2)
+ax = fig.add_subplot(gs[1, 1])
+cc_ = PNL["census"]["coef"]
+L2 = PLG["2012-2023 (mother declared)"]
+pts = [(0, cc_["cw_b"], "#777777"), (1, cc_["cw_w"], "#D55E00"), (2.6, L2["between"]["lc"], "#777777"), (3.6, L2["within"]["lc"], "#D55E00")]
+for x_, c, col in pts:
+    ax.errorbar(x_, c["est"], yerr=1.96 * c["se"], fmt="o", color=col, ms=3.5, capsize=1.5)
+ax.axhline(0, color="k", lw=0.6)
+ax.axvline(1.8, color="#dddddd", lw=0.6)
+ax.set_xticks([0, 1, 2.6, 3.6], ["between", "within", "between", "within"], fontsize=6.3)
+ax.text(0.5, -0.2, "certified White,\ncensus 2010-2022", transform=ax.get_xaxis_transform(), ha="center", va="top", fontsize=5.8)
+ax.text(3.1, -0.2, "excess White over births,\nyearly census 2012-2023", transform=ax.get_xaxis_transform(), ha="center", va="top", fontsize=5.8)
+ax.set_xlim(-0.6, 4.2)
+ax.tick_params(axis="y", labelsize=6.5)
+ax.set_ylabel("Log-odds per unit of the logit\nof the census White share", fontsize=6.5)
+ax.set_title("D. Census composition: two\ndesigns, two answers", fontsize=7.5, loc="left")
+save(fig, "place_time")
+
+# Supplementary: the change by region against its level, and the agreement by state and year
+fig = plt.figure(figsize=(6.9, 4.2))
+gs = fig.add_gridspec(1, 2, width_ratios=[1.2, 1], wspace=0.35)
+ax = fig.add_subplot(gs[0, 0])
 RG["region"] = (RG.intermediate.str[:1].astype(int)).map(REGION)
 for rn, col in OKABE.items():
     x = RG[RG.region == rn]
@@ -189,75 +279,24 @@ for rn, col in OKABE.items():
 ax.axhline(0, color="#999999", lw=0.6)
 ax.set_xlabel("Proportion in 2013 (model)")
 ax.set_ylabel("Change 2013-2023")
-ax.set_title("B. Brown mother, certified White:\n133 intermediate regions", fontsize=8, loc="left")
-ax.legend(fontsize=5.8, frameon=False, loc="upper left", markerscale=1.2)
-ax = fig.add_subplot(gs[:, 2])
+ax.set_title("A. Brown mother, certified White:\n133 intermediate regions", fontsize=8, loc="left")
+ax.legend(fontsize=5.8, frameon=False, loc="lower left", markerscale=1.2)
+ax = fig.add_subplot(gs[0, 1])
 UFN = {11: "RO", 12: "AC", 13: "AM", 14: "RR", 15: "PA", 16: "AP", 17: "TO", 21: "MA", 22: "PI", 23: "CE", 24: "RN", 25: "PB", 26: "PE", 27: "AL", 28: "SE", 29: "BA",
        31: "MG", 32: "ES", 33: "RJ", 35: "SP", 41: "PR", 42: "SC", 43: "RS", 50: "MS", 51: "MT", 52: "GO", 53: "DF"}
 H = pd.DataFrame(S["state_year"]["agree"]).T
 H = H.loc[[u for u in UFN.values() if u in H.index]]
 im = ax.imshow(H.to_numpy(float), aspect="auto", cmap="viridis", vmin=0.4, vmax=0.9)
-ax.set_yticks(range(len(H)), H.index, fontsize=6)
+ax.set_yticks(range(len(H)), H.index, fontsize=5.5)
 cols_ = [int(c) for c in H.columns]
 ax.set_xticks([i for i, c in enumerate(cols_) if c % 2 == 1], [str(c) for c in cols_ if c % 2 == 1], fontsize=5.8, rotation=90)
-cb = plt.colorbar(im, ax=ax, orientation="horizontal", fraction=0.03, pad=0.07)
-cb.set_label("Certified as the\nmother's race", fontsize=6.5)
+cb = plt.colorbar(im, ax=ax, orientation="vertical", fraction=0.05, pad=0.03)
+cb.set_label("Certified as the mother's race", fontsize=6.5)
 cb.ax.tick_params(labelsize=6)
-ax.set_title("D. State by year,\nall mothers", fontsize=8, loc="left")
+ax.set_title("B. State by year, all mothers", fontsize=8, loc="left")
 for sp_ in ax.spines.values():
     sp_.set_visible(False)
-save(fig, "time_place")
-
-# ---------------------------------------------------------------- Figure 5: competing explanations, the multilevel models of linked infants
-if "multilevel" in S:
-    MLs = S["multilevel"]
-    fig = plt.figure(figsize=(7.2, 5.6))
-    gs = fig.add_gridspec(1, 2, width_ratios=[1, 1.35], wspace=0.75)
-    ax = fig.add_subplot(gs[0, 0])
-    SEQ = [("composition", "composition"), ("socioeconomic", "socioeconomic\nand place"), ("services", "services and\nrecording"),
-           ("socioeconomic_services", "socioeconomic\n+ services"), ("composition_socioeconomic", "composition\n+ socioeconomic"),
-           ("composition_socioeconomic_services", "composition + socio-\neconomic + services"), ("full", "all, with individual,\nregion and year")]
-    OUTS = [("brown_white", "Brown mother, certified White", "#0072B2"), ("black_black", "Black mother, certified Black", "#000000"),
-            ("white_white", "White mother, certified White", "#E69F00")]
-    y = np.arange(len(SEQ))[::-1]
-    for k, (o, lab, col) in enumerate(OUTS):
-        if o not in MLs:
-            continue
-        ax.barh(y + (1 - k) * 0.26, [100 * MLs[o]["sequence"][s_]["pcv"] for s_, _ in SEQ], height=0.25, color=col, label=lab)
-    ax.set_yticks(y, [lab for _, lab in SEQ], fontsize=6.5)
-    ax.set_xlim(0, 100)
-    ax.set_xlabel("Between-municipality variance explained (%)")
-    ax.set_title("A. What each set of municipal\nvariables explains", fontsize=8, loc="left")
-    ax.legend(fontsize=6, frameon=False, loc="upper center", bbox_to_anchor=(0.4, -0.08))
-    ax = fig.add_subplot(gs[0, 1])
-    TERMS = [("z_lgdp", "GDP per capita (+1 SD)"), ("z_illit", "illiteracy (+1 SD)"), ("z_urban", "urban share (+1 SD)"), ("z_lpop", "population (+1 SD)"),
-             ("capital", "state capital"), ("metro", "metropolitan region"), ("z_phys", "physicians (+1 SD)"), ("z_svo", "verification service share (+1 SD)"),
-             ("z_iml", "medical examiner share, external (+1 SD)"), ("z_hosp", "deaths in hospital (+1 SD)"), ("z_blank", "race left blank (+1 SD)"),
-             ("certifiermedical examiner (IML)", "certifier: medical examiner"), ("certifierdeath verification service", "certifier: verification service"),
-             ("certifiersubstitute physician", "certifier: substitute physician"), ("death_placehome", "died at home"), ("death_placeother health facility", "died in other facility"),
-             ("age_group28-364 days", "died at 28-364 days"), ("cause_groupexternal", "external cause"), ("school0-3", "mother 0-3 years of school"),
-             ("school12 or more", "mother 12+ years of school"), ("mother_age<20", "mother under 20"), ("low_weight<2500 g", "birth weight < 2500 g"),
-             ("yc", "per decade (year)")]
-    yy = np.arange(len(TERMS))[::-1]
-    for k, (o, lab, col) in enumerate(OUTS[:2]):
-        if o not in MLs:
-            continue
-        fx = MLs[o]["full_fit"]["fixed"]
-        for j, (t, _) in enumerate(TERMS):
-            if t in fx:
-                e_, s_ = fx[t]["est"], fx[t]["se"]
-                ax.errorbar([math.exp(e_)], [yy[j] + (0.5 - k) * 0.35], xerr=[[math.exp(e_) - math.exp(e_ - 1.96 * s_)], [math.exp(e_ + 1.96 * s_) - math.exp(e_)]],
-                            fmt="o", color=col, ms=3, capsize=1.2, lw=0.9, label=lab if j == 0 else None)
-    ax.axvline(1, color="#999999", lw=0.7)
-    ax.set_xscale("log")
-    ax.set_xticks([0.5, 1, 2], ["0.5", "1", "2"])
-    ax.set_xlim(0.4, 2.6)
-    ax.xaxis.set_minor_formatter(matplotlib.ticker.NullFormatter())
-    ax.set_yticks(yy, [lab for _, lab in TERMS], fontsize=6.3)
-    ax.set_xlabel("Odds ratio (full model)")
-    ax.set_title("B. Full model: municipal and individual terms", fontsize=8, loc="left")
-    ax.legend(fontsize=6, frameon=False, loc="lower center", bbox_to_anchor=(0.4, -0.16), ncol=2)
-    save(fig, "multilevel")
+save(fig, "time_regions")
 
 # ---------------------------------------------------------------- Figure 8: consequences, the mortality ratio by immediate region
 fig = plt.figure(figsize=(7.2, 7.4))
@@ -320,32 +359,3 @@ fig.tight_layout()
 save(fig, "map_disagree")
 print("spatial figures written")
 
-# ---------------------------------------------------------------- between and within places (results/panel.json from analysis/panel.R)
-PNL = json.loads((RES / "panel.json").read_text(encoding="utf-8"))
-SHORT = {"lw": "Composition\n(logit White births)", "lgdp": "GDP per capita\n(log)", "lphys": "Physicians\n(log)", "blank": "Race blank\n(proportion)",
-         "svo": "Natural deaths by\nverification service", "iml": "External deaths by\nmedical examiner"}
-fig, axes = plt.subplots(1, 2, figsize=(7.2, 3.4), gridspec_kw={"width_ratios": [2.3, 1]})
-ax = axes[0]
-vs = ["lw", "lgdp", "lphys", "iml"]
-for k, (lv, part, col, mk, lab) in enumerate((("municipality", "b", "#777777", "o", "between municipalities"), ("municipality", "w", "#D55E00", "o", "within municipality"),
-                                               ("immediate", "b", "#AAAAAA", "s", "between regions"), ("immediate", "w", "#0072B2", "s", "within region"))):
-    for i, v in enumerate(vs):
-        c = PNL["PW"][lv]["all"][f"{v}_{part}"]
-        ax.errorbar(c["est"], i + (k - 1.5) * 0.17, xerr=1.96 * c["se"], fmt=mk, color=col, ms=3.5, capsize=1.5, label=lab if i == 0 else None)
-ax.axvline(0, color="k", lw=0.6)
-ax.set_yticks(range(len(vs)), [SHORT[v] for v in vs])
-ax.invert_yaxis()
-ax.set_xlabel("Change in log-odds of White, per unit")
-ax.set_title("A. Brown mothers' infants certified White:\nbetween and within places, 2013-2023", fontsize=8, loc="left")
-ax.legend(fontsize=6, frameon=False, loc="lower right")
-ax = axes[1]
-cc_ = PNL["census"]["coef"]
-for i, (t, col, lab) in enumerate((("cw_b", "#777777", "between"), ("cw_w", "#D55E00", "within"))):
-    ax.errorbar(i, cc_[t]["est"], yerr=1.96 * cc_[t]["se"], fmt="o", color=col, ms=4, capsize=2)
-ax.axhline(0, color="k", lw=0.6)
-ax.set_xticks([0, 1], ["between", "within\n(2010-2022)"])
-ax.set_xlim(-0.6, 1.6)
-ax.set_ylabel("Log-odds of White per unit of\nthe logit of census White share")
-ax.set_title(f"B. Census composition,\n{PNL['census']['municipalities']:,} municipalities", fontsize=8, loc="left")
-fig.tight_layout()
-save(fig, "between_within")
