@@ -1,108 +1,2124 @@
-Supplementary material - Race on the death certificate and place: the mother's declaration, the family's classification and the certified race of infants and children across 5,570 Brazilian municipalities, 2013-2024
-
+﻿Supplementary material - Race on the death certificate and place: the mother's declaration, the family's classification and the certified race of infants and children across 5,570 Brazilian municipalities, 2013-2024
 Supplementary Text S1 - Estimation without individual linkage and its control
-
 Let G be a group of deaths. For a death i, let C_i be the set of live births with the birth date, sex and municipality of residence of i. If the family did not move, exactly one element of C_i is the deceased; the remaining elements, and all elements when the family moved, are births that agree by chance. Write N(j, k) for the number of deaths in G with race j on the birth record and certified race k, and t for the probability that the deceased is in C_i. The expected number of candidates with race j among deaths certified k is t N(j, k) + E(j, k), where E(j, k) is the expected number of chance candidates.
-
 E(j, k) depends on how many children were born on the birth date of the deceased in the municipality. That is not the number of an arbitrary day: a day on which more children were born contributes more people and therefore more deaths, so the birth date of a death is a size-biased draw from the days of the year, and a control drawn from other days would undercount E. The births of the other sex on the same day in the same municipality share the day, cannot contain the deceased and have the racial composition of that day's births; multiplied by the ratio of births of the two sexes in the municipality and year, their count estimates E(j, k). With this control the estimated t for infants was 89.8% overall (Supplementary Table S4).
-
 The estimator of t N(j, k) is the difference of the two counts. Its variance was approximated by the sum of the candidate count and the control count, which ignores the scaling factor of the control (close to 1). A proportion is a ratio of two such differences; the variance of its denominator was ignored, which understates the error of rows with few deaths. A twin of the same sex is a candidate and a twin of the other sex is in the control; both share the mother's race with the deceased. Mortality by the mother's race uses the shares of each race among the estimated deaths, so that t cancels provided it does not differ by race.
 
-
-
 Supplementary Figure S1 - Estimates without individual linkage against the one-to-one linkage for every cell of the table of mother's race by certified race, by size of municipality (A), and proportion of infant deaths certified with the mother's race by year of death (B), Brazil, 2013-2023
-
 Bars: 95% confidence intervals.
 
 
-
-
-
 Supplementary Figure S2 - Brown mothers' infants certified White by municipality: raw proportion, BYM2 posterior mean and width of the 95% credible interval, Brazil, 2013-2023
-
 Raw proportions are drawn for municipalities with five or more linked deaths of Brown mothers.
-
-
-
 
 
 Supplementary Figure S3 - The other cells of the table by municipality: White mothers' infants certified White (A) and Brown (B), Black mothers' infants certified Black (C) and Brown (D), BYM2 posterior means, Brazil, 2013-2023
 
 
-
-
-
 Supplementary Figure S4 - Infant deaths certified in a race other than the mother's, all linked deaths, by municipality (A) and its local clusters (B), Brazil, 2013-2023
 
 
-
-
-
 Supplementary Figure S5 - Classification of children according to the share of White mothers among the live births of the municipality: family's classification (under 1 year and 1-4 years) and death certificate (under 1 year, linkage; 1-9 years, candidate estimator), Brazil
-
 Bars: 95% confidence intervals.
-
-
-
 
 
 Supplementary Figure S6 - Certified race of infants, family's classification and the mixture model of the certifier with its two reference distributions, by the share of White mothers among the live births of the municipality, Brazil
 
-
-
 Supplementary Table S1 - Live births, proportion with the mother's race field filled and share of each race on the birth record, by year, Brazil, 2000-2024
-
+Year
+Live births
+Mother's race filled, %
+White, %
+Brown, %
+Black, %
+2000
+3,206,761
+0.0%
+55.8%
+39.7%
+3.2%
+2001
+3,115,474
+0.0%
+54.0%
+41.6%
+3.0%
+2002
+3,059,402
+0.0%
+53.5%
+42.7%
+2.7%
+2003
+3,038,251
+0.0%
+51.9%
+44.5%
+2.5%
+2004
+3,026,548
+0.0%
+51.6%
+45.1%
+2.3%
+2005
+3,035,096
+0.0%
+49.8%
+47.0%
+2.3%
+2006
+2,944,928
+0.0%
+48.9%
+48.4%
+1.9%
+2007
+2,891,328
+0.0%
+47.8%
+49.6%
+1.8%
+2008
+2,934,828
+0.0%
+47.3%
+50.1%
+1.7%
+2009
+2,881,581
+0.0%
+46.9%
+50.6%
+1.7%
+2010
+2,861,868
+2.5%
+46.9%
+50.8%
+1.6%
+2011
+2,913,160
+55.0%
+43.5%
+51.4%
+4.1%
+2012
+2,905,789
+92.7%
+39.0%
+54.3%
+5.5%
+2013
+2,904,027
+95.3%
+38.1%
+55.2%
+5.6%
+2014
+2,979,259
+96.1%
+37.4%
+56.0%
+5.4%
+2015
+3,017,668
+94.9%
+37.1%
+56.5%
+5.2%
+2016
+2,857,800
+95.3%
+36.7%
+56.7%
+5.4%
+2017
+2,923,535
+95.8%
+36.3%
+56.7%
+5.6%
+2018
+2,944,932
+96.4%
+35.5%
+57.2%
+6.0%
+2019
+2,849,146
+96.5%
+34.8%
+57.5%
+6.4%
+2020
+2,730,145
+96.6%
+34.2%
+57.7%
+6.7%
+2021
+2,677,101
+96.7%
+33.3%
+58.2%
+7.0%
+2022
+2,561,922
+97.4%
+34.0%
+57.1%
+7.3%
+2023
+2,537,576
+97.9%
+33.7%
+56.7%
+7.9%
+2024
+2,389,325
+98.1%
+33.6%
+56.7%
+8.1%
 Births of 2024 are shown and not used. Before 2010 the shares are of the colour recorded for the newborn; the dedicated field for the mother's race did not exist.
 
-
-
 Supplementary Table S2 - Flow of infant death certificates, linked share and intervals of the linkage's proportions, Brazil, 2013-2023
+Group
+Certificates
+Share or estimate
+Infant certificates with a valid age under one year
+383,971
 
-The linkage read 383,975 certificates and a direct count of the files gives 383,971: the difference is in how invalid dates are read. The candidate estimator holds 3 deaths more than the direct count with sex and municipality, for the same reason.
+of which no sex recorded
+2,148
+excluded from the candidate estimator
+of which no municipality of residence
+317
+excluded from the candidate estimator
+Deaths in the candidate estimator
+381,514
 
+Linked one-to-one
+309,203
+80.5%
+Linked, no mother's race on the birth record
+12,691
 
+Linked with the mother's race
+296,512
+
+Linked share by certified race: Black
+
+80.2%
+Linked share by certified race: Brown
+
+81.1%
+Linked share by certified race: Indigenous
+
+61.9%
+Linked share by certified race: other
+
+78.9%
+Linked share by certified race: White
+
+81.1%
+Linked share by births per year: <400
+
+78.1%
+Linked share by births per year: 400-1,599
+
+78.9%
+Linked share by births per year: 1,600-6,399
+
+83.2%
+Linked share by births per year: 6,400-25,599
+
+81.5%
+Linked share by births per year: >=25,600
+
+81.6%
+Linked share by region: North
+
+76.2%
+Linked share by region: Northeast
+
+78.9%
+Linked share by region: Southeast
+
+81.3%
+Linked share by region: South
+
+89.0%
+Linked share by region: Centre-West
+
+79.0%
+Linked share by age at death: 0-6 d
+
+87.8%
+Linked share by age at death: 7-27 d
+
+86.2%
+Linked share by age at death: 28-364 d
+
+64.9%
+Linked share by year of death: 2013
+
+76.8%
+Linked share by year of death: 2014
+
+78.0%
+Linked share by year of death: 2015
+
+79.4%
+Linked share by year of death: 2016
+
+80.1%
+Linked share by year of death: 2017
+
+81.4%
+Linked share by year of death: 2018
+
+81.7%
+Linked share by year of death: 2019
+
+81.7%
+Linked share by year of death: 2020
+
+82.3%
+Linked share by year of death: 2021
+
+82.1%
+Linked share by year of death: 2022
+
+81.2%
+Linked share by year of death: 2023
+
+82.3%
+Linkage 2013: threshold (bits), estimated false links, delivery type and plurality agree
+
+18.1; 0.70%; 97.6%; 99.1%
+Linkage 2014: threshold (bits), estimated false links, delivery type and plurality agree
+
+18.0; 0.67%; 97.5%; 99.1%
+Linkage 2015: threshold (bits), estimated false links, delivery type and plurality agree
+
+17.9; 0.70%; 97.7%; 99.0%
+Linkage 2016: threshold (bits), estimated false links, delivery type and plurality agree
+
+17.9; 0.74%; 97.7%; 99.2%
+Linkage 2017: threshold (bits), estimated false links, delivery type and plurality agree
+
+18.0; 0.57%; 97.7%; 99.1%
+Linkage 2018: threshold (bits), estimated false links, delivery type and plurality agree
+
+18.3; 0.59%; 97.8%; 99.0%
+Linkage 2019: threshold (bits), estimated false links, delivery type and plurality agree
+
+18.3; 0.69%; 97.7%; 99.0%
+Linkage 2020: threshold (bits), estimated false links, delivery type and plurality agree
+
+18.6; 0.63%; 97.6%; 99.1%
+Linkage 2021: threshold (bits), estimated false links, delivery type and plurality agree
+
+18.4; 0.75%; 97.8%; 99.0%
+Linkage 2022: threshold (bits), estimated false links, delivery type and plurality agree
+
+18.9; 0.69%; 97.8%; 99.0%
+Linkage 2023: threshold (bits), estimated false links, delivery type and plurality agree
+
+18.8; 0.60%; 97.9%; 99.0%
+White mother, certified White: interval, bootstrap over municipalities
+
+0.76 (95%CI 0.75; 0.78)
+White mother, certified White: interval, binomial
+
+0.76 (95%CI 0.76; 0.77)
+Brown mother, certified Brown: interval, bootstrap over municipalities
+
+0.64 (95%CI 0.62; 0.66)
+Brown mother, certified Brown: interval, binomial
+
+0.64 (95%CI 0.64; 0.64)
+Black mother, certified Black: interval, bootstrap over municipalities
+
+0.18 (95%CI 0.17; 0.20)
+Black mother, certified Black: interval, binomial
+
+0.18 (95%CI 0.18; 0.19)
+Brown mother, certified White: interval, bootstrap over municipalities
+
+0.25 (95%CI 0.23; 0.27)
+Brown mother, certified White: interval, binomial
+
+0.25 (95%CI 0.25; 0.25)
+Black mother, certified Brown: interval, bootstrap over municipalities
+
+0.55 (95%CI 0.53; 0.57)
+Black mother, certified Brown: interval, binomial
+
+0.55 (95%CI 0.54; 0.56)
+White mother, certified Brown: interval, bootstrap over municipalities
+
+0.17 (95%CI 0.16; 0.19)
+White mother, certified Brown: interval, binomial
+
+0.17 (95%CI 0.17; 0.18)
+Black mother, certified White: interval, bootstrap over municipalities
+
+0.18 (95%CI 0.16; 0.21)
+Black mother, certified White: interval, binomial
+
+0.18 (95%CI 0.18; 0.19)
+The linkage read 383,975 certificates; 4 of them have a birth date after the date of death (0 linked), and a count of the files by valid dates gives 383,971. The candidate estimator holds 3 of these 4 among its 381,514 deaths with sex and municipality.
 
 Supplementary Table S3 - Variables of the municipality: definition, source and years
-
+Variable
+Definition
+Source
+Years
+Racial composition
+share of White mothers among the live births of residents
+SINASC
+2012-2023
+GDP per capita
+gross domestic product at current prices over the mean of the 2010 and 2022 census populations
+IBGE, PIB dos Municípios, SIDRA table 5938
+2013-2021 (mean)
+Illiteracy
+people aged 15 or more who cannot read and write, over people aged 15 or more
+Census 2010, SIDRA table 3149 (preliminary universe results)
+2010
+Low income
+people with household income per head up to half a minimum wage or none
+Census 2010, SIDRA table 3578
+2010
+Urban share and population size
+urban population over resident population; resident population
+Census 2010, SIDRA table 202
+2010
+Physicians
+distinct physicians registered, per 1,000 inhabitants
+CNES, professionals, December
+2013-2023 (mean)
+Death verification service
+natural deaths of residents certified by a death verification service
+SIM
+2013-2023
+Medico-legal certification
+external deaths of residents certified by a medical examiner
+SIM
+2013-2023
+Deaths in hospital
+deaths of residents that occurred in a hospital
+SIM
+2013-2023
+Race left blank
+deaths of residents with no race on the certificate
+SIM
+2013-2023
+Capital, metropolitan region
+state capital; member of a metropolitan region
+IBGE
+current division
+Immediate and intermediate region
+IBGE's 510 immediate and 133 intermediate geographic regions
+IBGE, Divisão regional 2017
+2017
+Contiguity
+queen contiguity of municipal polygons; municipalities with no land neighbour joined to the nearest
+IBGE mesh 2022
+2022
 SINASC: Live Birth Information System. SIM: Mortality Information System. CNES: National Register of Health Establishments. IBGE: Brazilian Institute of Geography and Statistics. All variables were read through the pegasus_data library from the public files.
 
-
-
 Supplementary Table S4 - Proportion of infant deaths certified with the mother's race: one-to-one linkage and estimate without individual linkage, by live births per year in the municipality of residence, Brazil, 2013-2023
-
+Live births per year
+Deaths
+Deceased found among candidates
+Mother's race
+Linked pairs
+Linkage (95%CI)
+Without individual linkage (95%CI)
+<400
+81,576
+87.3%
+White
+18,487
+0.78 (95%CI 0.78; 0.79)
+0.78 (95%CI 0.76; 0.79)
+<400
+81,576
+87.3%
+Brown
+38,693
+0.66 (95%CI 0.66; 0.67)
+0.65 (95%CI 0.64; 0.66)
+<400
+81,576
+87.3%
+Black
+3,534
+0.14 (95%CI 0.13; 0.15)
+0.14 (95%CI 0.12; 0.15)
+<400
+81,576
+87.3%
+Indigenous
+1,482
+0.86 (95%CI 0.84; 0.88)
+0.87 (95%CI 0.82; 0.92)
+400-1,599
+96,882
+89.8%
+White
+21,162
+0.78 (95%CI 0.77; 0.79)
+0.78 (95%CI 0.76; 0.80)
+400-1,599
+96,882
+89.8%
+Brown
+45,996
+0.67 (95%CI 0.67; 0.68)
+0.66 (95%CI 0.65; 0.68)
+400-1,599
+96,882
+89.8%
+Black
+4,323
+0.17 (95%CI 0.16; 0.18)
+0.16 (95%CI 0.14; 0.17)
+400-1,599
+96,882
+89.8%
+Indigenous
+2,490
+0.88 (95%CI 0.87; 0.90)
+0.91 (95%CI 0.86; 0.96)
+1,600-6,399
+88,856
+92.6%
+White
+25,616
+0.79 (95%CI 0.78; 0.79)
+0.79 (95%CI 0.76; 0.83)
+1,600-6,399
+88,856
+92.6%
+Brown
+41,281
+0.62 (95%CI 0.61; 0.62)
+0.61 (95%CI 0.59; 0.63)
+1,600-6,399
+88,856
+92.6%
+Black
+5,679
+0.19 (95%CI 0.18; 0.20)
+0.19 (95%CI 0.17; 0.21)
+1,600-6,399
+88,856
+92.6%
+Indigenous
+505
+0.78 (95%CI 0.75; 0.82)
+0.83 (95%CI 0.71; 0.95)
+6,400-25,599
+62,026
+88.9%
+White
+14,321
+0.72 (95%CI 0.71; 0.72)
+0.69 (95%CI 0.61; 0.77)
+6,400-25,599
+62,026
+88.9%
+Brown
+28,630
+0.65 (95%CI 0.64; 0.66)
+0.64 (95%CI 0.59; 0.69)
+6,400-25,599
+62,026
+88.9%
+Black
+3,879
+0.19 (95%CI 0.17; 0.20)
+0.20 (95%CI 0.16; 0.24)
+6,400-25,599
+62,026
+88.9%
+Indigenous
+130
+0.35 (95%CI 0.27; 0.44)
+0.34 (95%CI 0.20; 0.48)
+>=25,600
+52,174
+90.3%
+White
+11,166
+0.71 (95%CI 0.70; 0.72)
+0.85 (95%CI 0.61; 1.09)
+>=25,600
+52,174
+90.3%
+Brown
+24,155
+0.58 (95%CI 0.57; 0.58)
+0.63 (95%CI 0.50; 0.75)
+>=25,600
+52,174
+90.3%
+Black
+4,890
+0.21 (95%CI 0.20; 0.22)
+0.19 (95%CI 0.13; 0.25)
+>=25,600
+52,174
+90.3%
+Indigenous
+93
+0.25 (95%CI 0.16; 0.34)
+0.16 (95%CI 0.04; 0.28)
+all
+381,514
+89.8%
+White
+90,752
+0.76 (95%CI 0.76; 0.77)
+0.78 (95%CI 0.74; 0.82)
+all
+381,514
+89.8%
+Brown
+178,755
+0.64 (95%CI 0.64; 0.64)
+0.64 (95%CI 0.62; 0.66)
+all
+381,514
+89.8%
+Black
+22,305
+0.18 (95%CI 0.18; 0.19)
+0.18 (95%CI 0.16; 0.19)
+all
+381,514
+89.8%
+Indigenous
+4,700
+0.84 (95%CI 0.83; 0.85)
+0.86 (95%CI 0.82; 0.89)
 95%CI: 95% confidence interval. The estimates without individual linkage are printed even where the tables of the main text would call them not estimable, so that the comparison is complete.
 
-
-
 Supplementary Table S5 - Spatial models of the municipal proportions (BYM2): standard deviation of the municipal effect, share of it spatially structured (phi) and deviance information criterion, by fixed part, Brazil
-
+Outcome
+Fixed part
+SD of the municipal effect (logit)
+Phi
+DIC
+Brown mother, certified White
+none
+0.54
+0.99
+17,205
+Brown mother, certified White
+composition
+0.43
+0.98
+17,027
+Brown mother, certified White
+state
+0.51
+0.98
+17,189
+Brown mother, certified White
+composition + state
+0.39
+0.95
+16,998
+Brown mother, certified White
+context
+0.53
+0.99
+17,202
+Brown mother, certified White
+composition + context
+0.42
+0.98
+17,027
+Brown mother, certified White
+all
+0.38
+0.95
+17,001
+Black mother, certified Black
+none
+0.71
+0.92
+4,505
+Black mother, certified Black
+composition
+0.70
+0.92
+4,504
+Black mother, certified Black
+state
+0.64
+0.85
+4,485
+Black mother, certified Black
+composition + state
+0.62
+0.84
+4,483
+Black mother, certified Black
+context
+0.69
+0.92
+4,488
+Black mother, certified Black
+composition + context
+0.68
+0.91
+4,489
+Black mother, certified Black
+all
+0.62
+0.85
+4,480
+Certified race differs from the mother's
+none
+0.47
+0.98
+23,473
+Certified race differs from the mother's
+composition
+0.36
+0.96
+23,193
+Certified race differs from the mother's
+state
+0.44
+0.95
+23,462
+Certified race differs from the mother's
+composition + state
+0.34
+0.92
+23,179
+Certified race differs from the mother's
+context
+0.43
+0.98
+23,401
+Certified race differs from the mother's
+composition + context
+0.32
+0.96
+23,100
+Certified race differs from the mother's
+all
+0.30
+0.93
+23,095
+Family: Brown mother, child White
+none
+0.44
+0.89
+33,280
+Family: Brown mother, child White
+composition
+0.36
+0.82
+33,158
+Family: Brown mother, child White
+state
+0.44
+0.89
+33,284
+Family: Brown mother, child White
+composition + state
+0.36
+0.80
+33,162
+Family: Brown mother, child White
+context
+0.43
+0.90
+33,252
+Family: Brown mother, child White
+composition + context
+0.36
+0.82
+33,142
+Family: Brown mother, child White
+all
+0.35
+0.80
+33,145
 Binomial model with a BYM2 effect on the queen contiguity of 5,570 municipalities; composition: B-spline of the logit share of White births; context: the variables of Supplementary Table S3. DIC: deviance information criterion.
 
-
-
 Supplementary Table S6 - Between-municipality variance of the certified race of linked infant deaths under successive fixed parts of a multilevel logistic model, Brazil, 2013-2023
-
+Outcome
+Fixed part
+Municipal variance (log-odds)
+Variance explained
+Median odds ratio
+AIC
+Brown mother, certified White
+none
+1.318
+0.0%
+2.99
+181,767
+Brown mother, certified White
+composition
+0.172
+87.0%
+1.48
+177,017
+Brown mother, certified White
+socioeconomic context and place
+0.599
+54.6%
+2.09
+179,441
+Brown mother, certified White
+services and recording
+0.754
+42.8%
+2.29
+180,053
+Brown mother, certified White
+composition + socioeconomic
+0.155
+88.3%
+1.46
+176,874
+Brown mother, certified White
+socioeconomic + services
+0.533
+59.6%
+2.01
+179,132
+Brown mother, certified White
+composition + socioeconomic + services
+0.146
+88.9%
+1.44
+176,779
+Brown mother, certified White
+all, with individual variables, region and year
+0.115
+91.3%
+1.38
+171,083
+Brown mother, certified White
+individual variables, region and year
+0.342
+74.1%
+1.75
+172,767
+Brown mother, certified White
+individual variables and year
+1.331
+-0.9%
+3.01
+176,308
+Brown mother, certified Brown
+none
+0.838
+0.0%
+2.39
+217,647
+Brown mother, certified Brown
+composition
+0.188
+77.6%
+1.51
+213,850
+Brown mother, certified Brown
+socioeconomic context and place
+0.471
+43.8%
+1.92
+215,839
+Brown mother, certified Brown
+services and recording
+0.542
+35.3%
+2.02
+216,347
+Brown mother, certified Brown
+composition + socioeconomic
+0.179
+78.7%
+1.50
+213,773
+Brown mother, certified Brown
+socioeconomic + services
+0.427
+49.0%
+1.87
+215,633
+Brown mother, certified Brown
+composition + socioeconomic + services
+0.159
+81.0%
+1.46
+213,631
+Brown mother, certified Brown
+all, with individual variables, region and year
+0.150
+82.0%
+1.45
+210,080
+Brown mother, certified Brown
+individual variables, region and year
+0.306
+63.5%
+1.69
+211,418
+Brown mother, certified Brown
+individual variables and year
+0.842
+-0.5%
+2.40
+214,194
+Black mother, certified Black
+none
+0.601
+0.0%
+2.10
+20,543
+Black mother, certified Black
+composition
+0.365
+39.4%
+1.78
+20,314
+Black mother, certified Black
+socioeconomic context and place
+0.489
+18.8%
+1.95
+20,400
+Black mother, certified Black
+services and recording
+0.468
+22.1%
+1.92
+20,403
+Black mother, certified Black
+composition + socioeconomic
+0.354
+41.1%
+1.76
+20,306
+Black mother, certified Black
+socioeconomic + services
+0.411
+31.7%
+1.84
+20,336
+Black mother, certified Black
+composition + socioeconomic + services
+0.306
+49.2%
+1.69
+20,266
+Black mother, certified Black
+all, with individual variables, region and year
+0.252
+58.1%
+1.61
+20,058
+Black mother, certified Black
+individual variables, region and year
+0.315
+47.6%
+1.71
+20,104
+Black mother, certified Black
+individual variables and year
+0.610
+-1.4%
+2.11
+20,430
+Black mother, certified Brown
+none
+0.724
+0.0%
+2.25
+29,438
+Black mother, certified Brown
+composition
+0.156
+78.5%
+1.46
+28,469
+Black mother, certified Brown
+socioeconomic context and place
+0.475
+34.3%
+1.93
+28,990
+Black mother, certified Brown
+services and recording
+0.560
+22.6%
+2.04
+29,153
+Black mother, certified Brown
+composition + socioeconomic
+0.150
+79.2%
+1.45
+28,464
+Black mother, certified Brown
+socioeconomic + services
+0.448
+38.1%
+1.89
+28,960
+Black mother, certified Brown
+composition + socioeconomic + services
+0.134
+81.5%
+1.42
+28,449
+Black mother, certified Brown
+all, with individual variables, region and year
+0.121
+83.2%
+1.39
+28,361
+Black mother, certified Brown
+individual variables, region and year
+0.253
+65.1%
+1.62
+28,577
+Black mother, certified Brown
+individual variables and year
+0.697
+3.7%
+2.22
+29,363
+White mother, certified White
+none
+2.024
+0.0%
+3.88
+87,603
+White mother, certified White
+composition
+0.180
+91.1%
+1.50
+83,359
+White mother, certified White
+socioeconomic context and place
+0.813
+59.8%
+2.36
+85,284
+White mother, certified White
+services and recording
+1.159
+42.7%
+2.79
+86,173
+White mother, certified White
+composition + socioeconomic
+0.165
+91.8%
+1.47
+83,273
+White mother, certified White
+socioeconomic + services
+0.685
+66.1%
+2.20
+84,971
+White mother, certified White
+composition + socioeconomic + services
+0.138
+93.2%
+1.43
+83,153
+White mother, certified White
+all, with individual variables, region and year
+0.119
+94.1%
+1.39
+81,192
+White mother, certified White
+individual variables, region and year
+0.441
+78.2%
+1.88
+82,459
+White mother, certified White
+individual variables and year
+2.031
+-0.3%
+3.89
+85,694
 Random intercept for the municipality; fitted by penalised iteratively reweighted least squares (lme4, nAGQ = 0). Variance explained: proportional change from the model with no fixed part. AIC: Akaike information criterion.
 
-
-
 Supplementary Table S7 - Certified race of infants according to the mother's race, by region, state, age at death and year of death, one-to-one linkage, Brazil, 2013-2023
+Group
+Class
+Linked pairs
+White mother, certified White
+White, certified Brown
+Brown, certified Brown
+Brown, certified White
+Black, certified Black
+Black, certified Brown
+Black, certified White
+Region
+North
+38,920
+0.40
+0.51
+0.76
+0.16
+0.05
+0.74
+0.12
+Region
+Northeast
+88,828
+0.41
+0.47
+0.73
+0.13
+0.14
+0.66
+0.06
+Region
+Southeast
+108,839
+0.78
+0.16
+0.52
+0.39
+0.20
+0.52
+0.22
+Region
+South
+37,228
+0.92
+0.04
+0.24
+0.71
+0.36
+0.23
+0.38
+Region
+Centre-West
+22,697
+0.64
+0.28
+0.57
+0.34
+0.09
+0.63
+0.20
+State
+RO
+2,834
+0.60
+0.35
+0.67
+0.26
+0.13
+0.63
+0.23
+State
+AC
+1,934
+0.41
+0.44
+0.65
+0.22
+0.00
+0.76
+0.08
+State
+AM
+10,468
+0.43
+0.49
+0.77
+0.16
+0.07
+0.72
+0.15
+State
+RR
+1,767
+0.43
+0.38
+0.61
+0.18
+0.10
+0.67
+0.12
+State
+PA
+17,018
+0.34
+0.61
+0.81
+0.14
+0.04
+0.83
+0.10
+State
+AP
+2,305
+0.26
+0.57
+0.66
+0.18
+0.03
+0.68
+0.14
+State
+TO
+2,594
+0.42
+0.46
+0.67
+0.21
+0.07
+0.68
+0.12
+State
+MA
+12,393
+0.33
+0.53
+0.72
+0.13
+0.14
+0.67
+0.06
+State
+PI
+5,736
+0.26
+0.56
+0.76
+0.09
+0.09
+0.73
+0.06
+State
+CE
+10,465
+0.34
+0.50
+0.67
+0.16
+0.06
+0.67
+0.12
+State
+RN
+4,503
+0.53
+0.31
+0.58
+0.23
+0.02
+0.50
+0.22
+State
+PB
+5,778
+0.51
+0.39
+0.71
+0.21
+0.11
+0.73
+0.12
+State
+PE
+15,340
+0.48
+0.46
+0.77
+0.15
+0.10
+0.75
+0.08
+State
+AL
+5,093
+0.34
+0.52
+0.75
+0.11
+0.08
+0.76
+0.08
+State
+SE
+5,082
+0.39
+0.57
+0.83
+0.12
+0.08
+0.85
+0.05
+State
+BA
+24,438
+0.35
+0.50
+0.72
+0.10
+0.17
+0.61
+0.04
+State
+MG
+23,847
+0.69
+0.23
+0.62
+0.28
+0.19
+0.57
+0.16
+State
+ES
+5,068
+0.58
+0.29
+0.57
+0.25
+0.10
+0.65
+0.12
+State
+RJ
+23,487
+0.65
+0.28
+0.59
+0.29
+0.22
+0.59
+0.13
+State
+SP
+56,437
+0.83
+0.11
+0.40
+0.53
+0.18
+0.43
+0.33
+State
+PR
+15,160
+0.91
+0.06
+0.25
+0.71
+0.26
+0.28
+0.45
+State
+SC
+8,429
+0.94
+0.04
+0.24
+0.71
+0.44
+0.19
+0.34
+State
+RS
+13,639
+0.92
+0.03
+0.20
+0.70
+0.37
+0.23
+0.36
+State
+MS
+4,442
+0.75
+0.23
+0.53
+0.44
+0.06
+0.55
+0.35
+State
+MT
+6,592
+0.64
+0.32
+0.67
+0.29
+0.10
+0.72
+0.15
+State
+GO
+8,707
+0.56
+0.29
+0.51
+0.34
+0.08
+0.60
+0.19
+State
+DF
+2,956
+0.67
+0.24
+0.60
+0.33
+0.13
+0.61
+0.20
+Age at death
+0-6 d
+168,265
+0.75
+0.19
+0.68
+0.21
+0.18
+0.55
+0.17
+Age at death
+7-27 d
+55,090
+0.77
+0.17
+0.62
+0.28
+0.18
+0.55
+0.19
+Age at death
+28-364 d
+73,157
+0.79
+0.15
+0.57
+0.34
+0.19
+0.55
+0.20
+Year of death
+2013
+28,300
+0.75
+0.16
+0.60
+0.26
+0.15
+0.51
+0.23
+Year of death
+2014
+28,334
+0.77
+0.16
+0.61
+0.27
+0.16
+0.51
+0.22
+Year of death
+2015
+28,025
+0.77
+0.16
+0.63
+0.26
+0.16
+0.55
+0.19
+Year of death
+2016
+27,518
+0.78
+0.16
+0.64
+0.26
+0.17
+0.56
+0.19
+Year of death
+2017
+27,964
+0.77
+0.17
+0.65
+0.25
+0.17
+0.56
+0.19
+Year of death
+2018
+28,068
+0.77
+0.18
+0.64
+0.25
+0.20
+0.55
+0.17
+Year of death
+2019
+27,696
+0.76
+0.18
+0.65
+0.25
+0.17
+0.57
+0.17
+Year of death
+2020
+24,778
+0.75
+0.18
+0.66
+0.24
+0.20
+0.56
+0.14
+Year of death
+2021
+25,093
+0.75
+0.19
+0.66
+0.24
+0.20
+0.55
+0.17
+Year of death
+2022
+25,225
+0.75
+0.19
+0.66
+0.25
+0.20
+0.54
+0.18
+Year of death
+2023
+25,511
+0.77
+0.18
+0.66
+0.25
+0.21
+0.56
+0.16
 
+Supplementary Table S8 - Between and within places: coefficients of yearly municipal variables on the certified race of linked infant deaths, Brazil, 2013-2023
+Outcome
+Units
+Variable
+Between: log-odds (SE)
+Within: log-odds (SE)
+SD between
+SD within
+Brown mother, certified White
+municipality-years (32,139; 178,656 deaths)
+composition (logit of White births)
+0.58 (0.01)
+0.07 (0.02)
+1.36
+0.35
+Brown mother, certified White
+municipality-years (32,139; 178,656 deaths)
+GDP per capita (log)
+0.20 (0.02)
+0.01 (0.05)
+0.70
+0.24
+Brown mother, certified White
+municipality-years (32,139; 178,656 deaths)
+physicians per 1,000 (log)
+-0.13 (0.03)
+-0.04 (0.04)
+0.69
+0.20
+Brown mother, certified White
+municipality-years (32,139; 178,656 deaths)
+race left blank on certificates
+-2.60 (0.29)
+-1.54 (0.20)
+0.04
+0.04
+Brown mother, certified White
+municipality-years (32,139; 178,656 deaths)
+natural deaths certified by a verification service
+-0.61 (0.19)
+0.49 (0.19)
+0.09
+0.03
+Brown mother, certified White
+municipality-years (32,139; 178,656 deaths)
+external deaths certified by a medical examiner
+0.15 (0.06)
+0.08 (0.07)
+0.21
+0.09
+Brown mother, certified White
+immediate region-years (5,370; 178,656 deaths)
+composition (logit of White births)
+0.62 (0.02)
+0.10 (0.03)
+1.25
+0.23
+Brown mother, certified White
+immediate region-years (5,370; 178,656 deaths)
+GDP per capita (log)
+0.25 (0.05)
+-0.07 (0.07)
+0.61
+0.23
+Brown mother, certified White
+immediate region-years (5,370; 178,656 deaths)
+physicians per 1,000 (log)
+-0.19 (0.07)
+0.10 (0.09)
+0.57
+0.16
+Brown mother, certified White
+immediate region-years (5,370; 178,656 deaths)
+race left blank on certificates
+-3.26 (0.59)
+-1.55 (0.26)
+0.04
+0.03
+Brown mother, certified White
+immediate region-years (5,370; 178,656 deaths)
+natural deaths certified by a verification service
+-0.81 (0.39)
+0.66 (0.25)
+0.08
+0.02
+Brown mother, certified White
+immediate region-years (5,370; 178,656 deaths)
+external deaths certified by a medical examiner
+0.11 (0.11)
+-0.15 (0.14)
+0.20
+0.05
+Black mother, certified Black
+municipality-years (8,236; 22,289 deaths)
+composition (logit of White births)
+0.24 (0.02)
+0.16 (0.09)
+1.35
+0.26
+Black mother, certified Black
+municipality-years (8,236; 22,289 deaths)
+GDP per capita (log)
+-0.12 (0.06)
+-0.24 (0.14)
+0.65
+0.23
+Black mother, certified Black
+municipality-years (8,236; 22,289 deaths)
+physicians per 1,000 (log)
+0.31 (0.07)
+0.05 (0.15)
+0.62
+0.19
+Black mother, certified Black
+municipality-years (8,236; 22,289 deaths)
+race left blank on certificates
+-1.83 (0.78)
+-0.27 (0.51)
+0.04
+0.04
+Black mother, certified Black
+municipality-years (8,236; 22,289 deaths)
+natural deaths certified by a verification service
+-1.65 (0.41)
+-0.88 (0.66)
+0.09
+0.03
+Black mother, certified Black
+municipality-years (8,236; 22,289 deaths)
+external deaths certified by a medical examiner
+-0.59 (0.19)
+-0.05 (0.24)
+0.14
+0.08
+Black mother, certified Black
+immediate region-years (3,481; 22,289 deaths)
+composition (logit of White births)
+0.30 (0.04)
+0.34 (0.14)
+1.27
+0.17
+Black mother, certified Black
+immediate region-years (3,481; 22,289 deaths)
+GDP per capita (log)
+-0.14 (0.12)
+-0.40 (0.23)
+0.52
+0.22
+Black mother, certified Black
+immediate region-years (3,481; 22,289 deaths)
+physicians per 1,000 (log)
+0.48 (0.14)
+0.71 (0.29)
+0.47
+0.16
+Black mother, certified Black
+immediate region-years (3,481; 22,289 deaths)
+race left blank on certificates
+-1.04 (1.26)
+0.59 (0.63)
+0.04
+0.03
+Black mother, certified Black
+immediate region-years (3,481; 22,289 deaths)
+natural deaths certified by a verification service
+-1.96 (0.75)
+-0.64 (0.84)
+0.08
+0.02
+Black mother, certified Black
+immediate region-years (3,481; 22,289 deaths)
+external deaths certified by a medical examiner
+-0.95 (0.29)
+0.53 (0.50)
+0.13
+0.04
+Binomial mixed models with year effects and a random intercept for the place (nAGQ = 0); every variable split into the place's mean over 2013-2023 and the year's deviation from it; all variables in one model. SD: standard deviation of the place means and of the deviations, weighted by deaths. Share of the within variance of composition that is not sampling noise: 0.59 in municipalities, 0.94 in immediate regions.
 
-
-Supplementary Table S8 - Certified race at 1-9 years by municipal composition and GDP per capita and by place, candidate estimator, Brazil
-
+Supplementary Table S9 - Certified race at 1-9 years by municipal composition and GDP per capita and by place, candidate estimator, Brazil
+Age and classification
+Class of municipality
+Deaths
+Brown mother, certified White (95%CI)
+Black mother, certified Black (95%CI)
+1-9 years, mother's race
+<30% White births, low GDP
+25,529
+0.23 (95%CI 0.21; 0.25)
+0.20 (95%CI 0.15; 0.25)
+1-9 years, mother's race
+<30% White births, middle GDP
+11,566
+0.23 (95%CI 0.16; 0.29)
+0.33 (95%CI 0.15; 0.51)
+1-9 years, mother's race
+<30% White births, high GDP
+3,939
+0.34 (95%CI 0.22; 0.45)
+0.20 (95%CI 0.09; 0.30)
+1-9 years, mother's race
+30-59% White births, low GDP
+2,186
+0.45 (95%CI 0.29; 0.61)
+0.27 (95%CI 0.11; 0.43)
+1-9 years, mother's race
+30-59% White births, middle GDP
+5,408
+0.47 (95%CI 0.31; 0.63)
+0.26 (95%CI 0.16; 0.36)
+1-9 years, mother's race
+30-59% White births, high GDP
+5,257
+0.50 (95%CI 0.37; 0.62)
+0.23 (95%CI 0.14; 0.32)
+1-9 years, mother's race
+>=60% White births, low GDP
+1,045
+0.63 (95%CI 0.39; 0.88)
+0.22 (95%CI 0.06; 0.38)
+1-9 years, mother's race
+>=60% White births, middle GDP
+6,184
+0.67 (95%CI 0.54; 0.80)
+0.34 (95%CI 0.26; 0.42)
+1-9 years, mother's race
+>=60% White births, high GDP
+6,820
+0.61 (95%CI 0.34; 0.89)
+0.31 (95%CI 0.19; 0.42)
+1-9 years, mother's race
+metropolitan, not capital
+23,868
+0.36 (95%CI 0.31; 0.41)
+0.24 (95%CI 0.19; 0.30)
+1-9 years, mother's race
+interior
+37,790
+0.28 (95%CI 0.26; 0.30)
+0.23 (95%CI 0.20; 0.27)
 GDP thirds, weighted by linked infant deaths (cut points R$ 19,422 and 38,203 per person). 1-9 years: municipalities with fewer than 25,600 live births per year (state capitals cannot be estimated). Not estimable: standard error above 0.15, or outside 0 to 1 by more than two standard errors.
 
-
-
-Supplementary Table S9 - Classification of children according to the share of White mothers among the live births of the municipality: family's classification (2010 Census) and death certificate, Brazil
-
+Supplementary Table S10 - Classification of children according to the share of White mothers among the live births of the municipality: family's classification (2010 Census) and death certificate, Brazil
+Share of White mothers
+Cell
+Family, under 1 year
+Certificate, under 1 year (95%CI)
+Family, 1-9 years
+Certificate, 1-9 years (95%CI)
+0-10%
+Brown mother, child White
+0.21
+0.13 (95%CI 0.13; 0.14)
+0.14
+0.19 (95%CI 0.17; 0.21)
+0-10%
+White mother, child Brown
+0.23
+0.54 (95%CI 0.53; 0.56)
+0.31
+0.56 (95%CI 0.36; 0.76)
+0-10%
+Black mother, child Black
+0.40
+0.11 (95%CI 0.10; 0.12)
+0.51
+0.17 (95%CI 0.13; 0.22)
+0-10%
+Black mother, child Brown
+0.43
+0.71 (95%CI 0.69; 0.72)
+0.37
+0.66 (95%CI 0.53; 0.80)
+10-20%
+Brown mother, child White
+0.25
+0.16 (95%CI 0.16; 0.17)
+0.17
+0.24 (95%CI 0.19; 0.29)
+10-20%
+White mother, child Brown
+0.19
+0.47 (95%CI 0.46; 0.49)
+0.27
+0.55 (95%CI 0.35; 0.74)
+10-20%
+Black mother, child Black
+0.39
+0.14 (95%CI 0.13; 0.15)
+0.50
+0.27 (95%CI 0.17; 0.37)
+10-20%
+Black mother, child Brown
+0.43
+0.64 (95%CI 0.63; 0.66)
+0.38
+not estimable
+20-30%
+Brown mother, child White
+0.32
+0.26 (95%CI 0.25; 0.26)
+0.22
+0.38 (95%CI 0.29; 0.46)
+20-30%
+White mother, child Brown
+0.14
+0.36 (95%CI 0.34; 0.37)
+0.21
+0.32 (95%CI 0.07; 0.57)
+20-30%
+Black mother, child Black
+0.35
+0.14 (95%CI 0.13; 0.16)
+0.45
+0.24 (95%CI 0.12; 0.35)
+20-30%
+Black mother, child Brown
+0.44
+0.66 (95%CI 0.65; 0.68)
+0.41
+not estimable
+30-40%
+Brown mother, child White
+0.33
+0.33 (95%CI 0.32; 0.34)
+0.24
+0.41 (95%CI 0.26; 0.56)
+30-40%
+White mother, child Brown
+0.11
+0.26 (95%CI 0.25; 0.27)
+0.16
+0.24 (95%CI -0.02; 0.50)
+30-40%
+Black mother, child Black
+0.41
+0.19 (95%CI 0.17; 0.20)
+0.49
+0.29 (95%CI 0.17; 0.40)
+30-40%
+Black mother, child Brown
+0.39
+0.57 (95%CI 0.55; 0.58)
+0.39
+0.51 (95%CI 0.24; 0.78)
+40-50%
+Brown mother, child White
+0.35
+0.45 (95%CI 0.44; 0.46)
+0.26
+0.50 (95%CI 0.37; 0.63)
+40-50%
+White mother, child Brown
+0.08
+0.17 (95%CI 0.17; 0.18)
+0.12
+0.18 (95%CI 0.04; 0.32)
+40-50%
+Black mother, child Black
+0.40
+0.21 (95%CI 0.20; 0.23)
+0.50
+0.24 (95%CI 0.14; 0.34)
+40-50%
+Black mother, child Brown
+0.40
+0.48 (95%CI 0.47; 0.50)
+0.35
+0.48 (95%CI 0.26; 0.70)
+50-60%
+Brown mother, child White
+0.39
+0.52 (95%CI 0.51; 0.53)
+0.28
+0.58 (95%CI 0.41; 0.75)
+50-60%
+White mother, child Brown
+0.07
+0.13 (95%CI 0.12; 0.14)
+0.11
+0.12 (95%CI 0.00; 0.25)
+50-60%
+Black mother, child Black
+0.41
+0.21 (95%CI 0.19; 0.24)
+0.49
+0.21 (95%CI 0.10; 0.32)
+50-60%
+Black mother, child Brown
+0.36
+0.45 (95%CI 0.42; 0.48)
+0.37
+0.43 (95%CI 0.21; 0.66)
+60-70%
+Brown mother, child White
+0.45
+0.61 (95%CI 0.60; 0.62)
+0.32
+0.64 (95%CI 0.46; 0.83)
+60-70%
+White mother, child Brown
+0.05
+0.08 (95%CI 0.08; 0.09)
+0.08
+0.12 (95%CI 0.04; 0.19)
+60-70%
+Black mother, child Black
+0.35
+0.22 (95%CI 0.20; 0.25)
+0.47
+0.23 (95%CI 0.13; 0.33)
+60-70%
+Black mother, child Brown
+0.36
+0.37 (95%CI 0.34; 0.39)
+0.35
+0.39 (95%CI 0.20; 0.58)
+70-80%
+Brown mother, child White
+0.43
+0.67 (95%CI 0.66; 0.69)
+0.32
+0.57 (95%CI 0.32; 0.82)
+70-80%
+White mother, child Brown
+0.04
+0.05 (95%CI 0.05; 0.06)
+0.06
+0.05 (95%CI -0.00; 0.09)
+70-80%
+Black mother, child Black
+0.45
+0.31 (95%CI 0.28; 0.33)
+0.54
+0.42 (95%CI 0.27; 0.58)
+70-80%
+Black mother, child Brown
+0.29
+0.28 (95%CI 0.25; 0.30)
+0.27
+0.35 (95%CI 0.18; 0.51)
+80-90%
+Brown mother, child White
+0.48
+0.75 (95%CI 0.73; 0.77)
+0.34
+not estimable
+80-90%
+White mother, child Brown
+0.02
+0.04 (95%CI 0.03; 0.04)
+0.04
+0.06 (95%CI 0.01; 0.11)
+80-90%
+Black mother, child Black
+0.43
+0.36 (95%CI 0.33; 0.39)
+0.51
+0.24 (95%CI 0.16; 0.32)
+80-90%
+Black mother, child Brown
+0.25
+0.21 (95%CI 0.18; 0.23)
+0.26
+0.18 (95%CI 0.06; 0.30)
+90-100%
+Brown mother, child White
+0.49
+0.79 (95%CI 0.75; 0.84)
+0.34
+not estimable
+90-100%
+White mother, child Brown
+0.02
+0.02 (95%CI 0.02; 0.03)
+0.04
+0.06 (95%CI 0.02; 0.09)
+90-100%
+Black mother, child Black
+0.23
+0.23 (95%CI 0.15; 0.32)
+0.44
+0.14 (95%CI -0.14; 0.43)
+90-100%
+Black mother, child Brown
+0.28
+0.21 (95%CI 0.13; 0.30)
+0.23
+not estimable
 95%CI: 95% confidence interval. Not estimable: standard error above 0.15.
 
-
-
-Supplementary Table S10 - Weight of the local distribution (λ) in a mixture model of the certified race of children, by mother's race, age and reference distribution, Brazil
-
+Supplementary Table S11 - Weight of the local distribution (λ) in a mixture model of the certified race of children, by mother's race, age and reference distribution, Brazil
+Age at death
+Local reference distribution
+Mother's race
+λ (95%CI)
+Cells
+Root mean square difference from the family's classification
+From the model with λ
+Under 1 year
+Certified race of local deaths
+White
+0.55 (95%CI 0.51; 0.59)
+40
+0.138
+0.029
+Under 1 year
+Certified race of local deaths
+Brown
+0.62 (95%CI 0.57; 0.66)
+40
+0.136
+0.030
+Under 1 year
+Certified race of local deaths
+Black
+0.32 (95%CI 0.23; 0.42)
+40
+0.126
+0.087
+Under 1 year
+Race of the mothers of local births
+White
+0.44 (95%CI 0.40; 0.48)
+40
+0.138
+0.039
+Under 1 year
+Race of the mothers of local births
+Brown
+0.75 (95%CI 0.70; 0.80)
+40
+0.136
+0.028
+Under 1 year
+Race of the mothers of local births
+Black
+0.41 (95%CI 0.32; 0.50)
+40
+0.126
+0.074
+1-9 years
+Certified race of local deaths
+White
+0.38 (95%CI 0.27; 0.49)
+40
+0.099
+0.050
+1-9 years
+Certified race of local deaths
+Brown
+0.72 (95%CI 0.64; 0.80)
+40
+0.206
+0.034
+1-9 years
+Certified race of local deaths
+Black
+0.54 (95%CI 0.47; 0.61)
+38
+0.167
+0.095
+1-9 years
+Race of the mothers of local births
+White
+0.30 (95%CI 0.21; 0.38)
+40
+0.099
+0.051
+1-9 years
+Race of the mothers of local births
+Brown
+0.85 (95%CI 0.72; 0.98)
+40
+0.206
+0.067
+1-9 years
+Race of the mothers of local births
+Black
+0.59 (95%CI 0.53; 0.65)
+38
+0.167
+0.073
 C(m -> c) = (1 - λ) F(m -> c) + λ π(c) over ten classes of municipal composition, F the family's classification in the census and π the local reference. λ = 0: the certificate records the family's classification; λ = 1: it records the local distribution whatever the mother's race. With the certified race of local deaths as the reference, the reference contains the certificates being modelled, which biases λ upward; the fit for Black mothers is poor under both references.
 

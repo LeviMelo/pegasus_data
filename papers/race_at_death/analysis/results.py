@@ -378,7 +378,9 @@ flow = con.execute(f"""WITH d AS (SELECT SEXO, CODMUNRES, try_strptime(trim(DTNA
                               count(*) FILTER (date_diff('day', b, o) BETWEEN 0 AND 364 AND (trim(SEXO) NOT IN ('1', '2') OR SEXO IS NULL)),
                               count(*) FILTER (date_diff('day', b, o) BETWEEN 0 AND 364 AND substr(trim(CODMUNRES), 3, 4) = '0000') FROM d""").fetchone()
 R["infants"]["flow"] = {"lake_infant_deaths": int(flow[0]), "with_sex_and_municipality": int(flow[1]), "no_sex": int(flow[2]), "no_municipality": int(flow[3]),
-                        "candidate_deaths": float(R["infant_rates"]["deaths"]), "linked_no_mother_race": int(L.linked.sum() - len(LL))}
+                        "candidate_deaths": float(R["infant_rates"]["deaths"]), "linked_no_mother_race": int(L.linked.sum() - len(LL)),
+                        "birth_after_death": int((L.age_days < 0).sum()), "birth_after_death_linked": int(L[L.age_days < 0].linked.sum())}
+assert R["infants"]["certificates"] - R["infants"]["flow"]["birth_after_death"] == R["infants"]["flow"]["lake_infant_deaths"], "the certificate counts no longer reconcile"
 Lx = L.assign(size=pd.cut(L.births_year, [s[0] for s in SIZES] + [10**9], labels=[s[2] for s in SIZES], right=False))
 R["infants"]["linked_share"] = {
     "by_certified": {(NAME.get(k, "other")): float(x.linked.mean()) for k, x in Lx.assign(rc=Lx.rec.where(Lx.rec.isin(RACES), "other")).groupby("rc")},
@@ -455,6 +457,13 @@ for j in ("white", "black", "indigenous"):
     v = np.array([x[j] for x in loo_lr])
     R["infant_rates"]["ratio_mother_linkage"][NAME[j]] = {"est": float(full_lr[j]), "se": float(np.sqrt((len(v) - 1) / len(v) * ((v - v.mean()) ** 2).sum())),
                                                           "loo_min": float(v.min()), "loo_max": float(v.max())}
+# the linked rates per 1,000 live births by the mother's race: linked deaths scaled to every infant certificate (unlinked deaths and
+# deaths without the mother's race taken to fall as the linked ones do)
+_scale = len(L) / len(LL)
+R["infant_rates"]["rate_mother_linkage"] = {NAME[j]: float(1e3 * _scale * (LL.dec == j).sum() / b_) for j, b_ in
+                                            (("white", lk_births[:, 0].sum()), ("black", lk_births[:, 1].sum()), ("brown", lk_births[:, 3].sum()),
+                                             ("indigenous", lk_births[:, 4].sum()))}
+R["infant_rates"]["linkage_scale"] = float(_scale)
 # the candidate estimator's infant ratio with the same jackknife
 loo_c = []
 for u in UF:

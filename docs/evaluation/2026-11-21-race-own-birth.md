@@ -531,3 +531,35 @@ mothers recorded Black offset half of it. The hospital's trend is +0.11 log-odds
 Certificate's Black for Black mothers' children: infant 0.18 (0.18 in municipalities under 25,600 births), 1-4 0.24,
 5-9 0.29, adult women 0.55 (exploratory); families 0.39, 0.47, 0.52. The delivery link 2012-2023 links 0.53-0.61 of
 births a year, with estimated false links 0.65-0.92%.
+
+## Between and within places: the municipality-year panel (paper 1; `papers/race_at_death/analysis/panel.py`, `panel.R`)
+
+The run: the infant linkage by municipality and year, 2013-2023. Each municipality-year carries:
+- the share of White mothers among its births (SINASC);
+- GDP per capita (SIDRA 5938 over POPSVS);
+- CNES physicians;
+- from its own SIM certificates, the share with no race, natural deaths certified by a verification service, and external deaths certified by a medical examiner.
+
+Census 2010 and 2022 (tables 9605, 9542, 9923) give composition, literacy and urbanisation at two time points. 61,270
+municipality-years. Mundlak binomial mixed models (place mean and yearly deviation, year effects, random intercept),
+nAGQ = 0. Output: `results/panel.json`, 2026-11-21.
+
+Brown mothers' infants certified White (178,656 deaths). Composition, per logit unit:
+
+| units | between | within | within variance not sampling noise | corrected within / between |
+|---|---|---|---|---|
+| 4,974 municipalities | 0.58 (0.56; 0.60) | 0.07 (0.03; 0.11) | 59% | 21% |
+| 510 immediate regions | 0.62 (0.58; 0.66) | 0.10 (0.04; 0.16) | 94% | 16% |
+
+- Within a municipality, GDP per capita and physicians: about 0.
+- Race left blank, within: -1.54 per unit.
+- Verification-service share: within +0.49, between -0.61.
+- Census 2010 to 2022, 1,458 municipalities: between 1.01 (0.95; 1.06), within 0.29 (-0.05; 0.63). The White share fell 3.7 points on average.
+- The Black category (Black mothers, 22,289 deaths): within does not differ from between (regions: 0.30 against 0.34 (0.06; 0.62)).
+
+Reading: the composition gradient behaves as a trait of the place, not a response to its changing population. The
+decade's within change is small.
+
+The certificate count is now one number. The linkage reads 383,975 infant certificates. Four have a birth date after
+the death (none linked), which leaves 383,971 with valid dates. The candidate estimator holds 3 of the 4.
+

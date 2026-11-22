@@ -114,8 +114,11 @@ save(fig, "classifications")
 
 # ---------------------------------------------------------------- Figure 7: mortality under the classifications
 fig, axes = plt.subplots(1, 4, figsize=(7.2, 2.9), gridspec_kw={"width_ratios": [1, 1, 1, 1.35], "wspace": 0.55})
-blocks = [("A. Under 1 year\nper 1,000 births", R["infant_rates"]), ("B. 1-4 years\nper 100,000", R["children"]["1-4"]["rates"]),
-          ("C. 5-9 years\nper 100,000", R["children"]["5-9"]["rates"])]
+IRL = dict(R["infant_rates"])     # infants by the mother's race: the linked deaths (scaled to every certificate), Poisson intervals
+IRL["by_mother"] = {k: {"est": v, "se": v / math.sqrt(v * R["infant_rates"]["births"][k] / 1e3)} for k, v in R["infant_rates"]["rate_mother_linkage"].items()}
+IRL["ratio_mother"] = R["infant_rates"]["ratio_mother_linkage"]
+C14W, C59W = R["children"]["1-4"]["without_large"]["rates"], R["children"]["5-9"]["without_large"]["rates"]   # municipalities under 25,600 births a year
+blocks = [("A. Under 1 year\nper 1,000 births", IRL), ("B. 1-4 years\nper 100,000", C14W), ("C. 5-9 years\nper 100,000", C59W)]
 for ax, (title, B) in zip(axes[:3], blocks, strict=True):
     for race in ("Branca", "Parda", "Preta"):
         a, b = B["by_mother"][race], B["by_certificate"][race]
@@ -136,9 +139,9 @@ for ax, (title, B) in zip(axes[:3], blocks, strict=True):
     ax.set_title(title, fontsize=7.3, loc="left")
 axes[0].set_ylabel("Mortality rate over the births of the same cohorts")
 ax = axes[3]
-rows = [("under 1 y", R["infant_rates"], R["infant_rates"]["ratio_household"], R["infant_rates"]["ratio_certificate_population"]),
-        ("1-4 y", R["children"]["1-4"]["rates"], R["children"]["1-4"]["ratio_household"], R["children"]["1-4"]["conventional_2016_2024"]["ratio_certificate_population"]),
-        ("5-9 y", R["children"]["5-9"]["rates"], R["children"]["5-9"]["ratio_household"], None)]
+rows = [("under 1 y", IRL, R["infant_rates"]["ratio_household"], R["infant_rates"]["ratio_certificate_population"]),
+        ("1-4 y", C14W, R["children"]["1-4"]["ratio_household"], R["children"]["1-4"]["conventional_2016_2024"]["ratio_certificate_population"]),
+        ("5-9 y", C59W, R["children"]["5-9"]["ratio_household"], None)]
 for y, (lab, B, hh, pop) in enumerate(rows[::-1]):
     m, c = B["ratio_mother"]["Branca"], B["ratio_certificate"]["Branca"]
     lo, hi = m["est"] * math.exp(-1.96 * m["se"] / m["est"]), m["est"] * math.exp(1.96 * m["se"] / m["est"])
@@ -238,7 +241,7 @@ for ax, lab in zip(axes, ("1-4", "5-9"), strict=True):
     for i, rn in enumerate(regs):
         B = R["children"][lab]["by_region"][rn]
         m, c = B["rates"]["ratio_mother"]["Branca"], B["rates"]["ratio_certificate"]["Branca"]
-        if m["est"] > 0 and m["se"] / m["est"] < 0.6:
+        if m["est"] > 0 and m["se"] / m["est"] < 0.35:
             lo, hi = m["est"] * math.exp(-1.96 * m["se"] / m["est"]), m["est"] * math.exp(1.96 * m["se"] / m["est"])
             ax.errorbar([m["est"]], [i + 0.2], xerr=[[m["est"] - lo], [hi - m["est"]]], fmt="o", color=BLUE, ms=4, capsize=2)
         else:
@@ -253,7 +256,7 @@ for ax, lab in zip(axes, ("1-4", "5-9"), strict=True):
     ax.set_title(f"Ages {lab}", fontsize=8, loc="left")
     ax.set_xlabel("Mortality rate ratio, White to Brown")
 axes[0].set_yticks(range(5), regs)
-fig.legend(handles=[plt.Line2D([], [], marker="o", ls="", color=BLUE, label="mother's race (n.e.: error above 0.6 of the estimate)"),
+fig.legend(handles=[plt.Line2D([], [], marker="o", ls="", color=BLUE, label="mother's race (n.e.: error above 0.35 of the estimate)"),
                     plt.Line2D([], [], marker="D", ls="", color=GREEN, label="family's classification (no interval)"),
                     plt.Line2D([], [], marker="s", ls="", color=ORANGE, label="certified race")], fontsize=6.3, frameon=False, loc="lower center", ncol=3, bbox_to_anchor=(0.5, -0.1))
 save(fig, "regional_ratios_1to9")

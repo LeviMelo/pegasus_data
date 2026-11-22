@@ -30,12 +30,12 @@ para(s, "The racial composition of five-year birth cohorts at the censuses of 20
         "censuses and through the change of the 2022 questionnaire; the comparison between the first census of a cohort aged 0-4 and later ones also compares a race reported "
         "for small children by an adult of the household with one reported for adults. The analysis describes the cohorts and does not separate these explanations.")
 figure(s, "regional_ratios_1to9", "Supplementary Figure S1 - White to Brown mortality rate ratio by region under the three classifications, ages 1-4 and 5-9, Brazil, 2013-2024",
-       ["Bars: 95% confidence intervals; n.e.: a ratio by the mother's race with a standard error above 0.6 of the estimate, not drawn."])
+       ["Bars: 95% confidence intervals; n.e.: a ratio by the mother's race with a standard error above 0.35 of the estimate (the rule of Supplementary Table S2), not drawn."])
 RTs = MS["top"] + MS["bottom"]
 rows = [[r["name"], r["uf"], f2(r["white_share"]), n0(r["gdp_pc"]), f2(math.exp(r["mother_log_rr"])), f2(math.exp(r["certificate_log_rr"])), f2(math.exp(r["misstated"]))]
         for r in RTs]
-table(s, "Supplementary Table S1 - The 25 immediate regions where the certificate most raises the White to Brown infant mortality rate ratio, and the 10 where it most "
-         "understates it, Brazil, 2013-2023",
+table(s, "Supplementary Table S1 - The 25 immediate regions where the certificate most raises the White to Brown infant mortality rate ratio, and the 10 where it most lowers it relative to the mother's race, "
+         "Brazil, 2013-2023",
       ["Immediate region", "State", "Share of White births", "GDP per capita (R$)", "Rate ratio, mother's race", "Rate ratio, certified race", "Certified over mother's"], rows,
       ["Rate ratios: posterior means of a Poisson BYM2 model over the 510 immediate regions. All regions are in Supplementary Data 2."])
 

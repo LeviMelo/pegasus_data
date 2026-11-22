@@ -26,13 +26,18 @@ para(d, "The three readings set out in the Introduction make different predictio
         "for this only near the borders. The alternative that the gradient follows the wealth or the services of the place explained less than composition and little in "
         "addition to it. Within municipalities, residual clustering was better captured by the establishment where the child died, and the kind of certifier, the mother's "
         "schooling and the child's age at death moved the classification. Composition was measured from the same birth records that give the reference, but in the "
-        "municipal models the census share of White residents explained as much.")
+        "municipal models the census share of White residents explained as much. Over time the gradient behaved as a trait of the place: when a municipality's or a "
+        f"region's share of White births changed, its certificate moved about {WI['all']['lw_w']['est'] / WI['lw_reliability'] / WI['all']['lw_b']['est'] * 100:.0f}% "
+        "as far as the cross-sectional gradient predicts, and not at all with its wealth or physicians. A norm that responded to the local population as it is would "
+        "follow its changes; an observer reading the appearance of a regionally distinct Brown population would not, and neither would a practice settled in each "
+        "place's institutions. The within changes of a decade were small, however, and the census comparison could not exclude a modest response.")
 para(d, "A classification that follows the local majority is what studies of classification by observers in Brazil describe. Agreement between interviewers and "
         f"respondents varied with the local racial composition {cite('telles2002')}, and self-declared Brown people were reclassified as White more often in cities with more "
         f"White residents {cite('muniz2017')}; classification by others also responds to social position {cite('penner2008', 'saperstein2012')}. The certificate shows the "
-        f"same pattern at the scale of the country: Brown mothers' infants were certified White in {f2(g_pb[0])} to {f2(g_pb[1])} of deaths between the least and the most "
-        "White classes of municipalities, a proportion that rose with composition within states and stepped at their borders. One part of the certificate does not follow "
-        "the local majority: the Black category. Its use clustered in space, depended on the state more than on composition, and rose over the decade, most in the South; "
+        f"same pattern at the scale of the country: Brown mothers' infants were certified White in {f2(g_pb[0])} to {f2(g_pb[1])} of linked deaths pooled in the least and the most "
+        f"White of {len(GI)} classes of municipalities by their share of White births (the smoothed municipal values ranged from {f2(DI['PW']['p5'])} to "
+        f"{f2(DI['PW']['p95'])}), a proportion that rose with composition within states and stepped at their borders. One part of the certificate does not follow "
+        "the local majority: the Black category. Its use clustered in space, depended on the state more than on composition, and rose over the decade, without a clear difference between regions; "
         f"whether this follows the growth of Black identification seen between censuses {cite('miranda2015', 'ibge_census2022')} cannot be tested here. On United States "
         f"certificates the race recorded also depended on circumstances other than the person {cite('noymer2011', 'arias2016')}, and in São Paulo correcting the certified "
         f"race of older adults changed the ranking of mortality {cite('santos2019')}.")

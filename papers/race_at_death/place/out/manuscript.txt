@@ -1,281 +1,343 @@
-Race on the death certificate and place: the mother's declaration, the family's classification and the certified race of infants and children across 5,570 Brazilian municipalities, 2013-2024
-
+﻿Race on the death certificate and place: the mother's declaration, the family's classification and the certified race of infants and children across 5,570 Brazilian municipalities, 2013-2024
 [Authors, affiliations, ORCID, funding, conflicts of interest and contributions: to be supplied by the authors; not part of the blinded text]
-
 Abstract
-
 Objective: To compare the race recorded on the death certificates of infants and children in Brazil with the race their mothers declared for themselves and with the race families assign to children, and to find where in the country and over which years they differ and what explains it.
-
 Methods: Cross-sectional study of routinely collected birth and death records and of census microdata. Infant deaths of 2013-2023 in the Mortality Information System were linked one-to-one to their birth records, and deaths at 1-9 years (2013-2024) were related to the live births of the same birth date, sex and municipality, with births of the other sex as the control for chance agreement. The race households report for children came from the 2010 Census sample. Across 5,570 municipalities, proportions were smoothed by Besag-York-Mollié (BYM2) models, spatial structure was measured by Moran's I and a test at state borders, and composition, state, socioeconomic context, health services and recording quality were set against one another in binomial and multilevel models; change over 2013-2023 was modelled by region.
-
-Results: Among 296,512 linked infant deaths, the certificate recorded the mother's race for 0.76 (95%CI 0.75; 0.78) of children of White mothers, 0.64 (95%CI 0.62; 0.66) of Brown and 0.18 (95%CI 0.17; 0.20) of Black mothers. Brown mothers' infants were certified White in 0.09 to 0.76 of deaths across municipalities, with a between-municipality variance (log-odds) 5 times that of the family's classification of Brown mothers' children aged 0-9, spatially clustered (Moran's I 0.77). Racial composition explained 71% of the deviance between municipalities, the state 75%, both 81%, and socioeconomic and service context 42% alone and little in addition; in multilevel models composition explained 87% of the municipal variance, context 60%, and the deaths' own characteristics none. Across state borders, neighbouring municipalities differed by 0.46 of the difference between their states. The Black category for Black mothers' infants rose from 0.15 in 2013 to 0.21 in 2023, unevenly between regions.
-
+Results: Among 296,512 linked infant deaths, the certificate recorded the mother's race for 0.76 (95%CI 0.75; 0.78) of children of White mothers, 0.64 (95%CI 0.62; 0.66) of Brown and 0.18 (95%CI 0.17; 0.20) of Black mothers. The smoothed proportion of Brown mothers' infants certified White ranged from 0.09 to 0.76 across the municipalities holding 90% of births, with a between-municipality variance (log-odds) 5 times that of the family's classification of Brown mothers' children aged 0-9, spatially clustered (Moran's I 0.77); within the same places, a change in composition from one year to another moved it about 16% as far as the gradient between them. Racial composition explained 71% of the deviance between municipalities, the state 75%, both 81%, and socioeconomic and service context 42% alone and little in addition; in multilevel models composition explained 87% of the municipal variance, context 60%, and the deaths' own characteristics none. Across state borders, neighbouring municipalities differed by 0.46 of the difference between their states. The Black category for Black mothers' infants rose from 0.15 in 2013 to 0.21 in 2023, unevenly between regions.
 Conclusion: The race on the death certificate of a child is a third classification, distinct from the mother's declaration and the family's, and it is associated with place: with the racial composition of the municipality and with the state, more than with wealth, services or the circumstances of the death. The analyses by place and context were exploratory and ecological.
-
 Keywords: Race Factors; Death Certificates; Medical Record Linkage; Spatial Analysis; Infant Mortality; Vital Statistics; Brazil.
-
 Introduction
-
 Mortality by race in Brazil is computed from two classifications made by different people. The numerator is the race on the death certificate. The Ministry of Health instructs that it be asked of the person who informs on the deceased and never decided by the physician from observation [1]; the system does not record who gave the information [2], and in practice the physician or hospital staff often enter it [3]. Deaths from violent causes are certified by the medico-legal services [4]. The denominator is a declaration: the census respondent's, or, on the live birth record since the form of 2011, the mother's declaration of her own race [5]. Rates computed from the two were shown to depend on the source [6,7,8].
-
 Race is not one variable. Self-identification, classification by an observer and other dimensions are distinct, though correlated, and which one is used can change findings [9]. In a Brazilian national survey, interviewers and respondents classified people consistently as White, Brown or Black in 79% of cases, with agreement varying with education and with the racial composition of the place [10]; income differences between groups depended on who classified [11,12], and Brown people were reclassified as White more often in whiter cities [13]. Parents do not simply transmit their race to their children: in household surveys, more educated non-White parents classified their children as White more often, partly because of whom they married [14]. Classification by others also responds to the social position of the person classified [15,16] and, in experiments, to cues of status [17], and on United States death certificates it varied with the cause of death [18].
-
 What this does to mortality statistics has been measured where a second classification of the same person exists. In the United States, certificates agreed with survey reports for White and Black decedents and disagreed for American Indian decedents, whose death rates were understated [19,20,21], and linked birth and infant death records changed infant mortality rates of the smaller groups [22]. In São Paulo, 17.3% of 1,012 older adults had on the certificate a race other than the one they had reported in a survey, and the correction changed the ranking of mortality [23]. A cohort of 19.5 million Brazilian births linked to deaths, classified by the mother's race, found higher mortality before age 5 among children of Indigenous, Black and Brown mothers than among children of White mothers [24]. No study was found that compared, for the same people and for the country, the race on the death certificate with the race on the birth record, or either with the race families assign to their children, and none asked where in the country the two disagree.
-
 Where matters because both the composition of the population and the services that fill certificates vary across Brazil's municipalities. The share of White births ranges from almost none to almost all between neighbouring regions; certificates are completed by hospital physicians, by medico-legal institutes organised by the states for violent deaths, and, where they exist, by death verification services; and the 27 state health secretariats train and audit the certifiers. Three readings of the certificate make different predictions in space. Under the first, it transmits the mother's race, and the agreement between the two should not depend on place. Under the second, it records what the family would answer about the child, as the Ministry's instruction intends; it should then follow the family's classification wherever families classify children differently from their mothers. Under the third, it reflects a classification made by whoever fills it. If that classification draws on the local population, it should move continuously with the racial composition of the municipality, across state borders as within states; if it is an administrative practice, it should change at state borders and with the services that certify; if it follows social position, it should follow the wealth and schooling of the place and of the family.
-
 This study aimed to compare the race recorded on the death certificates of infants and children in Brazil with the race their mothers declared for themselves and with the race families assign to children, and to find where in the country and over which years they differ and what explains it.
-
 Methods
-
 Design and reporting. This is a cross-sectional study of routinely collected birth and death records and of census microdata, reported according to the REporting of studies Conducted using Observational Routinely-collected health Data (RECORD) statement [25].
-
 Data sources. Death certificates came from the Mortality Information System (SIM) and live birth records from the Live Birth Information System (SINASC), in the public files of the Ministry of Health [26], read in November 2026: deaths of 2013 to 2024 (those of 2023 and 2024 are subject to revision) and births of 2000 to 2023. The classification made by families came from the person records of the sample of the 2010 Population Census [27] (20,635,472 records representing 190,755,799 people). Municipal boundaries were those of the 2022 mesh [28]; immediate and intermediate geographic regions [29], state capitals and metropolitan regions [30] were taken from the Brazilian Institute of Geography and Statistics (IBGE). All files are public and carry no names; records were related through the variables they share, and no identifier was created or kept.
-
 The three classifications. The categories are the five of the official classification: branca (White), preta (Black), parda (Brown), amarela (Yellow) and indígena (Indigenous); Yellow is not shown separately because of small numbers, and Black and Brown, which Brazilian statistics often group as negros, are kept apart. (1) Mother's declaration: on the birth record, the race field became the mother's self-declared race with the form introduced in 2011 [5]; the dedicated field was filled on 2.5% of births in 2010, 55.0% in 2011 and 92.7% in 2012 (Supplementary Table S1), so cohorts born from 2012 were taken to carry the mother's race. For cohorts born from 2000 to 2010 the field is the colour recorded for the newborn on the previous form, called here the colour recorded at birth. (2) Family's classification: the census asks one resident to report the race of every member of the household, and the sample questionnaire identifies each person's mother when she lives in the household, which gives the race reported for the child and for the mother by the same household (6,252,654 pair records of children under 25; 94.1% of children aged 1-4 and 76.5% of people aged 15-19 lived with their mother). It concerns other children than those who died: it is a population reference, applied by the mother's race, the child's age and the place, and not a second label of the deceased. (3) Certificate: the race field of the death certificate. Figure 1 shows how the records relate.
-
 Linkage of infant deaths. Deaths before one year of age in 2013 to 2023 (383,975 certificates) were linked to birth records by a probabilistic linkage [31] on birth date, sex, municipality of residence of the mother, birth weight and mother's age, keeping one-to-one pairs. 309,203 (80.5%) were linked and 296,512 had the mother's race on the birth record. Candidate pairs were blocked on combinations of birth date, sex, residence, weight and mother's age, scored by log-likelihood ratios and accepted above a threshold set for each year (17.9-18.9 bits); the share of false links, estimated from the pairs the same keys make when the birth date is moved by seven days, was 0.57-0.75% a year, and on fields not used to link the pairs agreed on delivery type in 98% or more and on plurality in 99% or more (Supplementary Table S2). The linked share was compared across certified race, size of municipality, region, year and age at death [32,33]. Each linked pair carries the certifier, place, establishment and underlying cause of the death, and the mother's schooling and age and the birth weight from the birth record.
-
 Deaths after infancy: estimation without individual linkage. After the first year the certificate has no birth weight or mother's age, and a birth date, a sex and a municipality do not identify one birth. For each death, the candidates are all live births with the same birth date, sex and municipality of residence. If the family did not move, one candidate is the deceased; the others agree by chance. The chance candidates were estimated from the births of the other sex on the same day in the same municipality, scaled by the ratio of births of the two sexes: they share the day and the place and cannot contain the deceased, which makes them a negative control [34]. The difference between candidates and control, summed over a group of deaths and cross-classified by the race on the birth record and the race on the certificate, estimates the number of deaths of the group in each pair of classes, times the proportion of the deceased found among their candidates (Supplementary Text S1). The approach estimates a contingency table and not individual links; it differs from methods that correct a regression for linkage error with known link probabilities [35,36] or that impute over candidate links [37]. It was compared with the one-to-one linkage on the infant deaths, by size of municipality.
-
 Study populations. (a) Infant deaths of 2013-2023, linked. (b) Deaths at 1 to 9 years in 2013-2024 of children born in 2012-2023 (77,693 deaths), classified by the mother's race. (c) Children under 10 living with their mother in the 2010 Census sample.
-
 Variables of the death and of the birth. Age at death, sex, municipality of residence, year, underlying cause of death (10th revision of the International Classification of Diseases: perinatal conditions, congenital anomalies, external causes, other), the certifier (attending or substitute physician, medical examiner of a medico-legal institute, death verification service, other), the place and the establishment of death, and the mother's years of schooling and age and the birth weight on the birth record.
-
 Variables of the municipality. Racial composition: the share of White mothers among the municipality's live births of 2012-2023. Socioeconomic context: gross domestic product per capita, mean of 2013-2021 [38]; the proportion of people aged 15 or over who could not read and write, the proportion of people with a household income per head of up to half a minimum wage or none, the urban proportion of the population and the population size, all from the 2010 Census [39]. Health services: physicians per 1,000 inhabitants in the December registers of 2013-2023 [40]; and, from the municipality's own death certificates of 2013-2023, the proportion of natural deaths certified by a death verification service, the proportion of external deaths certified by a medical examiner and the proportion of deaths in hospital. Quality of recording: the proportion of the municipality's death certificates with no race. Place: state capital, metropolitan region, macro-region (North: RO, AC, AM, RR, PA, AP, TO; Northeast: MA, PI, CE, RN, PB, PE, AL, SE, BA; Southeast: MG, ES, RJ, SP; South: PR, SC, RS; Centre-West: MS, MT, GO, DF) and state. The variables, their sources and years are listed in Supplementary Table S3.
-
 Measures. For each class of mother, the proportion of deaths certified in each race, and, in the census, the proportion of children the family classified in each race.
-
 Small-area estimation. For each municipality, the linked infant deaths of each class of mother certified in each race, and the census children of each class of mother classified in each race, were modelled as binomial counts with a logit link and a Besag-York-Mollié random effect [41] in the BYM2 parametrisation [42], which splits the between-municipality variance into a spatially structured part (on the queen contiguity of the 2022 mesh, 16,503 pairs of neighbours; 2 municipalities without a land neighbour joined to the nearest) and an unstructured part, with penalised-complexity priors [43]. Models were fitted by integrated nested Laplace approximation [44] (R-INLA, Gaussian approximation, empirical Bayes integration over the hyperparameters); maps show posterior means, and the raw proportions and the widths of the credible intervals are in the supplement.
-
 Spatial structure and competing explanations. Spatial autocorrelation was measured by Moran's I [45] of the empirical-Bayes standardised proportion [46] and local clusters by the local Moran statistic [47], both with 999 permutations, over municipalities with at least five linked deaths in the class. To set the explanations against one another, binomial models of the municipal proportions were fitted with the composition (a cubic B-spline of the logit share of White births), with state fixed effects, with the municipal context, and with their combinations; for each, the deviance explained, a quasi-likelihood F test of each block given the others, and Moran's I of the Pearson residuals are reported. The border test asks whether the certified race jumps at state borders, as a state practice would make it, or changes continuously, as local composition would [48]: state effects were estimated, with the composition, from the municipalities that touch no other state, and for each pair of neighbouring municipalities in different states the difference of their empirical logits was regressed on the difference of their states' effects and of their composition (slope 1: the full state difference appears at the border; slope 0: none of it does).
-
 Multilevel models. For the linked infant deaths of each class of mother, the certified race (for example, certified White for children of Brown mothers) was modelled by logistic regression with a random intercept for the municipality [49]. A sequence of fixed parts (none; composition; socioeconomic context and place; services and recording; their combinations; and these with the individual variables of the death and the birth, the macro-region and the year) gave the proportional change in the municipal variance and the median odds ratio [50]; the order of entry is reported both ways so that no explanation is credited with variance it shares with another. Models were fitted by penalised iteratively reweighted least squares (nAGQ = 0); for two outcomes the full model was refitted with a crossed random intercept for the establishment of death, to set the place against the institution that certifies.
-
 Time by place. The yearly proportions of linked infant deaths certified with the mother's race (2013-2023) in each of the 133 intermediate regions were modelled by binomial mixed models with a random intercept and a random slope for the year by region; the regional slopes give the change over the decade, and a model with the macro-region by year interaction tests where the change was faster.
-
-Statistical analysis. Proportions from the one-to-one linkage carry 95% confidence intervals (95%CI) from 400 bootstrap resamples of municipalities, because pairs cluster by place; binomial intervals, 3 to 10 times narrower, are in the supplement. For the candidate estimator, the variance of a difference of counts was taken as the sum of the two counts (Poisson); because it lost precision in municipalities with 25,600 or more live births per year (Results), its proportions exclude them, and an estimate is reported as not estimable when its standard error exceeds 0.15 or it lies outside 0 to 1 by more than two standard errors. Municipalities were grouped by thirds of GDP per capita, weighted by linked deaths, and as state capitals, other members of metropolitan regions and the interior. Census proportions are weighted; their standard errors treat the sample as simple and are understated. Local Moran statistics are reported at p < 0.05 without correction for multiplicity. No hypothesis test was pre-registered, and the analyses by place and context are exploratory. Analyses used Python 3.11 (DuckDB, statsmodels, esda [51], geopandas) and R 4.4 (R-INLA [52], lme4); the code that produces every number, table and figure accompanies the article.
-
+Change within places. A municipality-year panel (2013-2023) set the certified race of each municipality's linked infant deaths against what the municipality was that year: the share of White mothers among its live births, GDP per capita [38] over the yearly population, physicians per 1,000 inhabitants, and, from its own death certificates of that year, the proportion with no race, of natural deaths certified by a death verification service and of external deaths certified by a medical examiner. Binomial mixed models with a random intercept for the place and year effects split each variable into the place's mean over the years (between) and the year's deviation from it (within) [51]; the within coefficient is what follows a change inside the same place, the between coefficient the cross-sectional gradient. Because a small municipality's yearly share of White births carries sampling noise that attenuates the within coefficient, the models were fitted on municipality-years and again on immediate region-years, and the share of the within variance that is not sampling noise is reported. As a second time point independent of the birth records, the change between 2013-2015 and 2021-2023 in municipalities with five or more deaths in each period was set against the change in the census share of White residents, literacy and urbanisation between 2010 and 2022 [39].
+Statistical analysis. Proportions from the one-to-one linkage carry 95% confidence intervals (95%CI) from 400 bootstrap resamples of municipalities, because pairs cluster by place; binomial intervals, 3 to 10 times narrower, are in the supplement. For the candidate estimator, the variance of a difference of counts was taken as the sum of the two counts (Poisson); because it lost precision in municipalities with 25,600 or more live births per year (Results), its proportions exclude them, and an estimate is reported as not estimable when its standard error exceeds 0.15 or it lies outside 0 to 1 by more than two standard errors. Municipalities were grouped by thirds of GDP per capita, weighted by linked deaths, and as state capitals, other members of metropolitan regions and the interior. Census proportions are weighted; their standard errors treat the sample as simple and are understated. Local Moran statistics are reported at p < 0.05 without correction for multiplicity. No hypothesis test was pre-registered, and the analyses by place and context are exploratory. Analyses used Python 3.11 (DuckDB, statsmodels, esda [52], geopandas) and R 4.4 (R-INLA [53], lme4); the code that produces every number, table and figure accompanies the article.
 Ethics. The study used only public, anonymised data and, under Resolution 510/2016 of the National Health Council, did not require review by a research ethics committee.
-
 Results
-
-The one-to-one linkage found the birth record of 80.5% of infant deaths; the linked share was 81.1%, 81.1% and 80.2% for deaths certified White, Brown and Black, 61.9% for Indigenous, and was lower after the first month (64.9%) and in the North (76.2%) than in the South (89.0%) (Supplementary Table S2). Of the 383,971 infant certificates, 2,148 had no sex and 317 no municipality of residence and could not enter the candidate estimator. In municipalities with fewer than 25,600 births per year, the candidate estimator reproduced the linkage's proportions; over all sizes, 0.78 against 0.76 for White, 0.64 against 0.64 for Brown and 0.18 against 0.18 for Black mothers; in the largest municipalities its standard error for White reached 0.12 (Supplementary Figure S1, Supplementary Table S4). The deceased was among the candidates for 71.7% of deaths at 1-9 years, against 89.8% of infant deaths; the remainder had moved municipality or had no birth record. Table 1 gives the populations.
-
+The one-to-one linkage found the birth record of 80.5% of infant deaths; the linked share was 81.1%, 81.1% and 80.2% for deaths certified White, Brown and Black, 61.9% for Indigenous, and was lower after the first month (64.9%) and in the North (76.2%) than in the South (89.0%) (Supplementary Table S2). Of the 383,975 infant certificates, 4 had a birth date after the death; 2,148 had no sex and 317 no municipality of residence and could not enter the candidate estimator. In municipalities with fewer than 25,600 births per year, the candidate estimator reproduced the linkage's proportions; over all sizes, 0.78 against 0.76 for White, 0.64 against 0.64 for Brown and 0.18 against 0.18 for Black mothers; in the largest municipalities its standard error for White reached 0.12 (Supplementary Figure S1, Supplementary Table S4). The deceased was among the candidates for 71.7% of deaths at 1-9 years, against 89.8% of infant deaths; the remainder had moved municipality or had no birth record. Table 1 gives the populations.
 Table 1 - Sources and study populations
-
+Population
+Source and period
+Classification compared with the certificate
+Records
+Infant deaths
+SIM 2013-2023 linked one-to-one to SINASC
+Mother's declaration
+383,975 deaths; 296,512 linked with the mother's race
+Deaths at 1-9 years
+SIM 2013-2024, born 2012-2023; candidate estimator
+Mother's declaration
+77,693 deaths (60,146 at 1-4, 17,547 at 5-9)
+Children under 25 living with their mother
+2010 Census sample
+Family's classification of other children, by the mother's race
+6,252,654 pair records
+Municipalities
+IBGE mesh 2022; SIDRA; CNES; SIM
+Context of the place
+5,570 municipalities, 16,503 pairs of neighbours
 SIM: Mortality Information System. SINASC: Live Birth Information System. IBGE: Brazilian Institute of Geography and Statistics. CNES: National Register of Health Establishments.
 
 
-
-
-
 Figure 1 - Design: the two records of the same person, the census reference of other children and the place
-
 The family's classification is a population reference applied by the mother's race, the age and the place; it is not a label of the deceased.
 
-
-
 Three classifications
-
 Families did not classify children as their mothers (Table 2, Figure 2). Before one year, the household reported as White 0.88 of the children of White mothers, as Brown 0.71 of the children of Brown mothers and as Black 0.39 of the children of Black mothers; 0.28 of the children of Brown mothers were reported White and 0.41 of the children of Black mothers Brown. The certificate agreed with the family on the exchange between Brown and White, recording White for 0.25 (95%CI 0.23; 0.27) of the infants of Brown mothers, and departed from it elsewhere: it recorded White for 0.76 (95%CI 0.75; 0.78) of the infants of White mothers, Brown for 0.64 (95%CI 0.62; 0.66) of those of Brown mothers and Black for 0.18 (95%CI 0.17; 0.20) of those of Black mothers, of whom 0.55 (95%CI 0.53; 0.57) were certified Brown. At 1-4 years the certificate recorded the mother's race for 0.80 (95%CI 0.74; 0.86), 0.59 (95%CI 0.56; 0.63) and 0.24 (95%CI 0.20; 0.27) of the children of White, Brown and Black mothers, and the family for 0.85, 0.77 and 0.47. For children of Indigenous mothers the certificate recorded Indigenous in 0.84 (95%CI 0.83; 0.85) of infant deaths, against 0.85 in the family's classification. The certificate left the race blank or recorded another category for 8.8% of the infants of Brown mothers, 8.5% of Black and 5.6% of White mothers.
-
 Table 2 - Proportion of children assigned to each race according to the mother's race, in the family's classification (2010 Census) and on the death certificate (2013-2024), Brazil
-
+Mother's race
+Classification of the child
+White (95%CI)
+Brown (95%CI)
+Black (95%CI)
+Indigenous (95%CI)
+White
+Family, census, under 1 year
+0.88
+0.11
+0.01
+0.00
+White
+Certificate, under 1 year
+0.76 (95%CI 0.76; 0.77)
+0.17 (95%CI 0.17; 0.18)
+0.01 (95%CI 0.01; 0.01)
+0.00 (95%CI 0.00; 0.00)
+White
+Family, census, 1-4 years
+0.85
+0.14
+0.01
+0.00
+White
+Certificate, 1-4 years
+0.80 (95%CI 0.74; 0.86)
+0.16 (95%CI 0.12; 0.20)
+0.01 (95%CI -0.00; 0.03)
+-0.00 (95%CI -0.01; 0.00)
+White
+Certificate, 5-9 years
+0.79 (95%CI 0.67; 0.90)
+0.20 (95%CI 0.12; 0.29)
+-0.01 (95%CI -0.04; 0.03)
+-0.00 (95%CI -0.01; 0.01)
+Brown
+Family, census, under 1 year
+0.28
+0.71
+0.01
+0.00
+Brown
+Certificate, under 1 year
+0.25 (95%CI 0.25; 0.25)
+0.64 (95%CI 0.64; 0.64)
+0.02 (95%CI 0.02; 0.02)
+0.00 (95%CI 0.00; 0.00)
+Brown
+Family, census, 1-4 years
+0.21
+0.77
+0.01
+0.00
+Brown
+Certificate, 1-4 years
+0.32 (95%CI 0.29; 0.34)
+0.59 (95%CI 0.56; 0.63)
+0.03 (95%CI 0.03; 0.04)
+0.00 (95%CI -0.00; 0.01)
+Brown
+Certificate, 5-9 years
+0.27 (95%CI 0.21; 0.32)
+0.65 (95%CI 0.58; 0.72)
+0.04 (95%CI 0.02; 0.06)
+0.00 (95%CI -0.00; 0.01)
+Black
+Family, census, under 1 year
+0.19
+0.41
+0.39
+0.00
+Black
+Certificate, under 1 year
+0.18 (95%CI 0.18; 0.19)
+0.55 (95%CI 0.54; 0.56)
+0.18 (95%CI 0.18; 0.19)
+0.00 (95%CI 0.00; 0.00)
+Black
+Family, census, 1-4 years
+0.14
+0.39
+0.47
+0.00
+Black
+Certificate, 1-4 years
+0.23 (95%CI 0.13; 0.33)
+0.49 (95%CI 0.40; 0.59)
+0.24 (95%CI 0.20; 0.27)
+-0.01 (95%CI -0.02; 0.01)
+Black
+Certificate, 5-9 years
+0.12 (95%CI -0.02; 0.26)
+0.54 (95%CI 0.40; 0.69)
+0.29 (95%CI 0.23; 0.36)
+0.00 (95%CI -0.01; 0.01)
+Indigenous
+Family, census, under 1 year
+0.07
+0.07
+0.00
+0.85
+Indigenous
+Certificate, under 1 year
+0.03 (95%CI 0.03; 0.04)
+0.11 (95%CI 0.10; 0.12)
+0.00 (95%CI 0.00; 0.00)
+0.84 (95%CI 0.83; 0.85)
+Indigenous
+Family, census, 1-4 years
+0.06
+0.07
+0.01
+0.86
+Indigenous
+Certificate, 1-4 years
+0.02 (95%CI -0.00; 0.04)
+0.07 (95%CI 0.03; 0.10)
+0.00 (95%CI -0.00; 0.01)
+0.91 (95%CI 0.85; 0.97)
+Indigenous
+Certificate, 5-9 years
+0.04 (95%CI -0.04; 0.12)
+-0.06 (95%CI -0.20; 0.07)
+0.01 (95%CI -0.02; 0.04)
+1.01 (95%CI 0.84; 1.19)
 95%CI: 95% confidence interval. Census proportions are weighted sample estimates (standard errors below 0.005 under simple random sampling, not shown). Certificate, under 1 year: one-to-one linkage, binomial intervals (intervals from the bootstrap over municipalities are 3 to 10 times wider; text). Certificate at 1-9 years: candidate estimator, municipalities with fewer than 25,600 live births per year; estimates are differences of counts and can leave the interval 0 to 1. Not estimable: standard error above 0.15, or outside 0 to 1 by more than two standard errors. Rows do not sum to 1: the remainder is another category or no race recorded.
 
 
-
-
-
 Figure 2 - Proportion of children assigned to each race according to the mother's race: family's classification, death certificate and their difference, under one year (A-C) and at 1-4 years (D-F), Brazil
-
 Rows: mother's race; columns: race assigned to the child. A, D: 2010 Census sample. B: one-to-one linkage, deaths of 2013-2023. E: candidate estimator, deaths of 2013-2024, municipalities with fewer than 25,600 live births per year.
 
-
-
 The municipality
-
 The linked infant deaths gave a median of 8 deaths of Brown mothers' children per municipality (29.3% of municipalities had 20 or more) and of 0 of Black mothers' children (50.3% of municipalities had none). The municipal resolution is therefore supported for the children of Brown mothers, with credible intervals of median width 0.22; other cells, the Black category above all, rest on few deaths per municipality and are shown as smoothed fields (Supplementary Figures S2, S3; the spatial models' parameters in Supplementary Table S5).
-
 The proportion of Brown mothers' infants certified White ranged, across the municipalities in which 90% of births occur, from 0.09 to 0.76 (Figure 3A); the proportion of Brown mothers' children aged 0-9 whom families reported White ranged from 0.10 to 0.36 (Figure 3B). On the logit scale the smoothed municipal values of the certificate varied 4.9 times as much as the family's (variances 1.38 and 0.28; the family's values rest on more children per municipality and are less shrunk, so the ratio is not inflated by smoothing). The variation was spatially structured: the BYM2 mixing parameter was estimated at 0.99, Moran's I of the standardised proportions was 0.77 (p ≤ 0.001 by 999 permutations, 3,459 municipalities), and local statistics at p < 0.05, without correction for multiplicity, marked 546 municipalities of high values among high values in the South, Southeast and Centre-West and 920 of low values in the North and Northeast (Figure 3D). The certificate classed Brown mothers' infants White more often than families class Brown mothers' children where White births were the majority and less often where they were few (Figure 3C, Figure 4A), the two crossing where about 35% of births were White; weighted by births, the certificate exceeded the family by 0.37 in the South and fell short of it by 0.05 in the Northeast. Certified race differed from the mother's in proportions that were also spatially clustered (Moran's I 0.45; Supplementary Figure S4), as was the use of the Black category for Black mothers' infants (Moran's I 0.42; Supplementary Figure S3).
 
-
-
 Figure 3 - Infant deaths of Brown mothers' children certified White (A), Brown mothers' children aged 0-9 reported White by the family (B), their difference (C) and local clusters of the certified proportion (D), by municipality, Brazil
-
 A: linked infant deaths 2013-2023. B: 2010 Census sample. A-C: posterior means of a binomial BYM2 model on the contiguity of the 5,570 municipalities. D: local Moran statistic of the empirical-Bayes proportion, 999 permutations, municipalities with five or more linked deaths. State borders in black.
 
-
-
 Composition, state and context
-
 For Brown mothers' infants certified White, the municipality's composition alone explained 71% of the deviance between municipalities, the state alone 75%, and the socioeconomic, service and recording context alone 42%; composition and state together explained 81%, and the context added 1% (Table 3, Figure 4B). Composition (3 degrees of freedom) and state (26) each explained about three quarters, and each added to the other (F = 325 for composition given state; F = 66.8 for state given composition; these tests assume independent residuals, which residual clustering contradicts, so their p-values are too small). Part of the deviance is binomial noise (dispersion 8.4 without any term), so the explainable share is below 100%. Moran's I of the residuals fell from 0.71 to 0.29 with composition and to 0.15 with composition and state; in the spatial model, the variance of the municipal field fell from 1.38 to 0.41 and 0.09. Because the composition is measured from the mothers' declarations on the same birth records that give the reference, it was replaced by the share of White residents in the 2010 Census (correlation 0.94): it explained 69% alone and 80% with the state. For Black mothers' infants certified Black, composition explained less (22%) than the state (37%), and residual clustering remained (0.13 with every term).
-
 At state borders, the difference between two neighbouring municipalities in different states was 0.46 (95%CI 0.26; 0.65, errors clustered by the 49 pairs of states) times the difference between their states' effects estimated from municipalities touching no other state (1,069 pairs; Figure 4C); for the certified race differing from the mother's it was 0.35 (95%CI 0.19; 0.52), and for the Black category the state effects estimated away from borders were too unstable for the test. The certified race changes in a step at state borders, as a state practice would make it, and the step is smaller than the difference between the states' interiors; the estimated state effects carry error, which attenuates the slope. The step is small beside the differences between neighbours: the mean squared difference of their logits was 0.56 across state borders and 0.49 within states. By place within the state, Brown mothers' infants were certified White in 0.25 of deaths in state capitals, 0.30 in the rest of the metropolitan regions and 0.22 in the interior (Figure 4D); where 30-59% of births were White, the proportions were 0.38, 0.47 and 0.38. At equal composition, municipal wealth changed the proportion less than composition did: where under 30% of births were White, it was 0.15 in the poorest third of municipalities by GDP per capita and 0.23 in the richest; where 60% or more were White, 0.64 and 0.66 (Figure 4E). Intervals are not given for these proportions: binomial intervals understate the clustering of deaths by place. With composition entered as a spline instead of classes, a doubling of GDP per capita multiplied the odds by 1.06 (95%CI 1.04; 1.08), and with the state as well by 0.97 (95%CI 0.95; 0.99).
-
 In the multilevel models of the 178,656 linked infant deaths of Brown mothers' children, the variance between municipalities of the log-odds of being certified White was 1.32 (median odds ratio 2.99). Composition alone explained 87% of it; the socioeconomic context and place alone 55%; the services and recording alone 43%; and composition with both 89%: most of what wealth and services explain alone, they share with composition. The variables of the death and the birth with the macro-region and the year, without any municipal variable, explained 74%, and without the macro-region none (-1%): the differences between municipalities are not who dies there or of what, and that share belonged to the macro-region. Because the variance of a logistic model is rescaled when individual variables enter, these proportions are not shares of one fixed variance. With everything, 91% was explained and the median odds ratio between municipalities fell to 1.38 (Table 3, Figure 5, Supplementary Table S6). The models were fitted by penalised quasi-likelihood steps (nAGQ = 0), which can understate variance components with binary outcomes; the proportions of variance explained and the differences in the Akaike information criterion are approximate. For Black mothers' children certified Black, composition explained 39%, the socioeconomic context 19%, the services 22%, the individual variables without the macro-region -1%, and all together 58%.
-
 Residual clustering was better captured by the establishment where the death occurred than by the municipality. With a crossed random effect for the establishment (7,429 levels; deaths outside any registered establishment share one level per municipality), the variance of the log-odds of Brown mothers' infants being certified White was 0.29 between establishments and 0.03 between municipalities, and for Black mothers' infants certified Black 0.31 and 0.10; the Akaike information criterion fell by 3,411 and 266. Where a municipality has one hospital the two levels cannot be told apart, and the composition of a hospital's catchment is not measured, so this does not partition the variance between them. Within the full model (Figure 5B), death verification services certified Brown mothers' infants White more often than attending physicians (odds ratio 1.58 (95%CI 1.49; 1.68)), and both verification services and medical examiners certified Black mothers' infants Black less often (0.59 (95%CI 0.47; 0.75) and 0.65 (95%CI 0.53; 0.81)). Brown mothers' infants were certified White more often when the mother had 12 or more years of schooling (1.73 (95%CI 1.67; 1.80) against 8-11 years) and less often with 0-3 years (0.72 (95%CI 0.67; 0.77)), more often when the death occurred after the first month (1.60 (95%CI 1.54; 1.65) against the first week) and less often when the birth weight was under 2,500 g (0.69 (95%CI 0.67; 0.70)).
-
 Table 3 - What composition, state and municipal context explain of the variation between municipalities in the certified race of linked infant deaths, Brazil, 2013-2023
-
+Explanation
+Brown mother, certified White: deviance explained
+Moran's I of residuals
+Black mother, certified Black: deviance explained
+Moran's I of residuals
+Brown, certified White: municipal variance explained (multilevel)
+Black, certified Black: municipal variance explained (multilevel)
+Composition
+71%
+0.29
+22%
+0.28
+87%
+39%
+State
+75%
+0.27
+37%
+0.18
+-
+-
+Context (socioeconomic, services, recording)
+42%
+0.44
+23%
+0.26
+60%
+32%
+Composition + state
+81%
+0.15
+41%
+0.15
+-
+-
+Composition + context
+74%
+0.26
+34%
+0.21
+89%
+49%
+Composition + state + context
+82%
+0.14
+44%
+0.13
+-
+-
 Deviance explained and Moran's I: binomial models of the municipal proportions, municipalities with five or more linked deaths (3,459 and 605); Moran's I without any term: 0.71 and 0.40. Composition: B-spline of the logit share of White births. Context: GDP per capita, illiteracy, urban share, population, capital, metropolitan region, physicians, certification by verification service and medical examiner, deaths in hospital, race left blank. Multilevel: proportional change in the variance of a municipal random intercept of a logistic model of the individual deaths (context there: socioeconomic and services blocks; state not entered).
 
 
-
-
-
 Figure 4 - Brown mothers' infants certified White: municipalities against the composition of their births (A), what each explanation removes (B), the border test (C), place within the state (D) and municipal wealth at equal composition (E), Brazil, 2013-2023
-
 A: one point per municipality, BYM2 posterior means; the solid line is the national linkage by tenth of composition, the dashed line the family's classification under one year. C: grey points are pairs of neighbouring municipalities in different states, black points means by eighth with 95% confidence intervals. E: proportions without intervals (binomial intervals understate the clustering by place).
 
 
-
-
-
 Figure 5 - Multilevel models of the certified race of linked infant deaths: municipal variance explained by each set of variables (A) and odds ratios of the full model (B), Brazil, 2013-2023
-
 Random intercept for the municipality. B: Brown mothers' infants certified White and Black mothers' infants certified Black; municipal variables per standard deviation; reference categories: attending physician, death in hospital, death at 0-6 days, perinatal cause, mother with 8-11 years of schooling and aged 20-34, birth weight 2,500 g or more. Bars: 95% confidence intervals.
 
-
-
 Time and place
-
 From 2013 to 2023 the Black category for Black mothers' infants rose by 0.42 (95%CI 0.20; 0.64) in log-odds per decade, nationally from 0.15 to 0.21 (Figure 6A; by region, state, age and year in Supplementary Table S7); the Brown category for Brown mothers' infants rose by 0.35 and the White category for Brown mothers' infants fell by 0.19. The rise was not uniform: the regional slopes for the Black category varied with a standard deviation of 0.47 (likelihood-ratio p = 0.0004), from 0.19 per decade in the North to 0.99 in the South (Figure 6B, 6C), and in 2023 the certificate still used the category for a minority of Black mothers' infants. The overall agreement with the mother's race changed by 0.06 (95%CI 0.00; 0.12) per decade, an interval that includes no change; the negative correlation of regional level and slope (-0.31) is expected in part from regression to the mean. By state, mean agreement over the years was highest in Santa Catarina (0.82) and Rio Grande do Sul (0.77) and lowest in Goiás (0.50) and Espírito Santo (0.54) (Figure 6D).
 
-
-
 Figure 6 - Certified race of infants by year of death (A), and the change of the Black category for Black mothers' infants by intermediate region (B, C), and agreement with the mother's race by state and year (D), Brazil, 2013-2023
-
 A: one-to-one linkage, 95% confidence intervals. B, C: binomial mixed model with random intercept and slope for the year by intermediate region; change in the probability scale between the fitted values of 2013 and 2023.
 
+Within places, composition moved the certificate far less than it separated places. Over 32,139 municipality-years of 4,974 municipalities (178,656 deaths of Brown mothers' infants, 2013-2023), the log-odds of being certified White rose by 0.58 (95%CI 0.56; 0.60) per unit of the logit of the share of White births between municipalities, and by 0.07 (95%CI 0.03; 0.11) when a municipality's own share rose by the same amount from one year to another (Figure 7A, Supplementary Table S8). The within variation was small (standard deviation 0.35 against 1.36 between municipalities) and 41% of it was sampling noise of the yearly share, which attenuates the coefficient; over 510 immediate regions, where 94% of the within variation was real change, the two coefficients were 0.62 (95%CI 0.58; 0.66) and 0.10 (95%CI 0.04; 0.16). Corrected for its noise, the within coefficient remained about 16% of the between one in regions and 21% in municipalities. A municipality's GDP per capita (0.01 (95%CI -0.08; 0.11)) and physicians (-0.04 (95%CI -0.12; 0.05)) changed the certificate not at all within it; years in which more of its certificates had no race certified fewer Brown mothers' infants White (-1.54 (95%CI -1.92; -1.15) per unit of the proportion), and years with more natural deaths certified by a verification service more (0.49 (95%CI 0.11; 0.87), against -0.61 (95%CI -0.98; -0.25) between municipalities). Between the censuses, the share of White residents fell by 3.7 percentage points on average; in 1,458 municipalities with five or more deaths in 2013-2015 and in 2021-2023, the certificate followed the census composition between municipalities (1.01, 95%CI 0.95; 1.06) and its change much less (0.29, 95%CI -0.05; 0.63), an interval too wide to tell a small effect from none (Figure 7B). For the Black category, the composition coefficients were 0.24 (95%CI 0.20; 0.29) between and 0.16 (95%CI -0.01; 0.33) within municipalities, and 0.30 (95%CI 0.22; 0.39) and 0.34 (95%CI 0.06; 0.62) in regions: there the within change did not differ from the between gradient, on far fewer deaths.
 
+Figure 7 - Between and within places: change in the log-odds of being certified White for Brown mothers' infants per unit of each variable, between places and within the same place over the years (A), and against the census share of White residents (B), Brazil
+A: binomial mixed models of municipality-years and of immediate region-years, 2013-2023, with year effects and a random intercept for the place; all variables in one model; composition is the logit of the share of White mothers among the year's live births. B: deaths of 2013-2015 and 2021-2023 against the Censuses of 2010 and 2022, with literacy and urbanisation in the model. Bars: 95% confidence intervals.
 
 After infancy
-
-The dependence on composition held after infancy, with the candidate estimator. At 1-9 years and middle GDP per capita, Brown mothers' children were certified White in 0.23 (95%CI 0.16; 0.29) of deaths in municipalities with under 30% of White births and in 0.67 (95%CI 0.54; 0.80) where 60% or more were White, with smaller differences by GDP within each class (Supplementary Table S8); the gradient by tenth of composition is in Supplementary Figure S5 and Supplementary Table S9, and a model that mixes the family's classification with the local distribution in Supplementary Figure S6 and Supplementary Table S10.
-
+The dependence on composition held after infancy, with the candidate estimator. At 1-9 years and middle GDP per capita, Brown mothers' children were certified White in 0.23 (95%CI 0.16; 0.29) of deaths in municipalities with under 30% of White births and in 0.67 (95%CI 0.54; 0.80) where 60% or more were White, with smaller differences by GDP within each class (Supplementary Table S9); the gradient by tenth of composition is in Supplementary Figure S5 and Supplementary Table S10, and a model that mixes the family's classification with the local distribution in Supplementary Figure S6 and Supplementary Table S11.
 Discussion
-
 The race on the death certificate of a child in Brazil was neither the race the mother had declared for herself nor the race families assign to children, and it depended on where the child lived. Across municipalities, the certificate's classification of Brown mothers' infants as White varied 5 times as much (in log-odds variance) as families' classification of Brown mothers' children aged 0-9, in two large contiguous blocks: whiter than the family in the South, Southeast and Centre-West and less White in the North and Northeast. The racial composition of the municipality's births and the state each accounted for about three quarters of that variation and together for four fifths, with a step at state borders; wealth, schooling, urbanisation, the supply of physicians and the services that certify accounted for less than composition and little in addition to it, and the characteristics of the deaths themselves accounted for none of it. The Black category, used for fewer than one in five infants of Black mothers, became more common over the decade, unevenly between regions.
-
-The three readings set out in the Introduction make different predictions in space, and the data narrow them. The certificate does not transmit the mother's race: its agreement with her varied from one region of the country to another. Nor does it record what the family would answer, as the Ministry of Health instructs [1]. Nationally the two agree on the exchange between Brown and White in infants (0.25 on the certificate, 0.28 in the family), but this is an average of opposite departures in different regions, and the certificate used the Black category less than half as often as families (0.18 against 0.39). Families themselves classify children by both parents and by schooling [14], but their classification moved with the local composition far less than the certificate did. The data are consistent with the third reading, a classification by whoever fills the certificate that is associated with the local population and has a state component, which could reflect the training, the forms or the practice of each state's certifiers. Two explanations remain open. Municipal associations do not say who classifies. And the Brown category itself is not the same population everywhere: if Brown mothers and their children look different in the South and in the North, an observer who classifies by appearance, with no local norm at all, would produce the same gradient with composition; the comparison of neighbours across state borders controls for this only near the borders. The alternative that the gradient follows the wealth or the services of the place explained less than composition and little in addition to it. Within municipalities, residual clustering was better captured by the establishment where the child died, and the kind of certifier, the mother's schooling and the child's age at death moved the classification. Composition was measured from the same birth records that give the reference, but in the municipal models the census share of White residents explained as much.
-
-A classification that follows the local majority is what studies of classification by observers in Brazil describe. Agreement between interviewers and respondents varied with the local racial composition [10], and self-declared Brown people were reclassified as White more often in cities with more White residents [13]; classification by others also responds to social position [15,16]. The certificate shows the same pattern at the scale of the country: Brown mothers' infants were certified White in 0.13 to 0.79 of deaths between the least and the most White classes of municipalities, a proportion that rose with composition within states and stepped at their borders. One part of the certificate does not follow the local majority: the Black category. Its use clustered in space, depended on the state more than on composition, and rose over the decade, most in the South; whether this follows the growth of Black identification seen between censuses [53,54] cannot be tested here. On United States certificates the race recorded also depended on circumstances other than the person [18,21], and in São Paulo correcting the certified race of older adults changed the ranking of mortality [23].
-
+The three readings set out in the Introduction make different predictions in space, and the data narrow them. The certificate does not transmit the mother's race: its agreement with her varied from one region of the country to another. Nor does it record what the family would answer, as the Ministry of Health instructs [1]. Nationally the two agree on the exchange between Brown and White in infants (0.25 on the certificate, 0.28 in the family), but this is an average of opposite departures in different regions, and the certificate used the Black category less than half as often as families (0.18 against 0.39). Families themselves classify children by both parents and by schooling [14], but their classification moved with the local composition far less than the certificate did. The data are consistent with the third reading, a classification by whoever fills the certificate that is associated with the local population and has a state component, which could reflect the training, the forms or the practice of each state's certifiers. Two explanations remain open. Municipal associations do not say who classifies. And the Brown category itself is not the same population everywhere: if Brown mothers and their children look different in the South and in the North, an observer who classifies by appearance, with no local norm at all, would produce the same gradient with composition; the comparison of neighbours across state borders controls for this only near the borders. The alternative that the gradient follows the wealth or the services of the place explained less than composition and little in addition to it. Within municipalities, residual clustering was better captured by the establishment where the child died, and the kind of certifier, the mother's schooling and the child's age at death moved the classification. Composition was measured from the same birth records that give the reference, but in the municipal models the census share of White residents explained as much. Over time the gradient behaved as a trait of the place: when a municipality's or a region's share of White births changed, its certificate moved about 16% as far as the cross-sectional gradient predicts, and not at all with its wealth or physicians. A norm that responded to the local population as it is would follow its changes; an observer reading the appearance of a regionally distinct Brown population would not, and neither would a practice settled in each place's institutions. The within changes of a decade were small, however, and the census comparison could not exclude a modest response.
+A classification that follows the local majority is what studies of classification by observers in Brazil describe. Agreement between interviewers and respondents varied with the local racial composition [10], and self-declared Brown people were reclassified as White more often in cities with more White residents [13]; classification by others also responds to social position [15,16]. The certificate shows the same pattern at the scale of the country: Brown mothers' infants were certified White in 0.13 to 0.79 of linked deaths pooled in the least and the most White of 10 classes of municipalities by their share of White births (the smoothed municipal values ranged from 0.09 to 0.76), a proportion that rose with composition within states and stepped at their borders. One part of the certificate does not follow the local majority: the Black category. Its use clustered in space, depended on the state more than on composition, and rose over the decade, without a clear difference between regions; whether this follows the growth of Black identification seen between censuses [54,55] cannot be tested here. On United States certificates the race recorded also depended on circumstances other than the person [18,21], and in São Paulo correcting the certified race of older adults changed the ranking of mortality [23].
 Strengths and limitations. The study covers every municipality of the country over eleven years; it compares the certificate with the mother's declaration for the same child, by one-to-one linkage in infancy, and with the family's classification as a population reference; it measures the spatial and temporal structure of the difference with small-area models and sets the competing explanations against one another rather than adjusting for them. Its limitations are these. (1) The family's classification concerns other children, in 2010, living with their mother, and the mother's race there is the household's report of her, not her own declaration on a birth record; it is a reference by mother's race, age and place. (2) After infancy the estimator, validated in infants in municipalities with fewer than 25,600 births a year, finds the deceased only if the family did not move (71.7% at 1-9 years) and assumes that this does not differ by the mother's race; it cannot describe state capitals. (3) The mother's race on the birth record is itself filled by hospital or registry staff in practice, and may carry a place-dependent component; part of what is attributed here to the certificate could belong to the birth record. 7.3% of 2012 births were still on the earlier form. (4) The composition of the municipality is measured from the same mothers' declarations; the census share of White residents was substituted only in the municipal models. (5) The explanations were compared ecologically between municipalities and through municipal random effects. A composition effect at the municipal level does not say which person, certifier or informant classifies, nor exclude that the Brown category differs between regions; the certifier and the informant cannot be separated because the certificate does not record who gave the race; proportions of municipal variance explained in a logistic model are affected by rescaling when individual variables enter; and the multilevel models were fitted by an approximation (nAGQ = 0) that can understate variance components. (6) Municipal estimates for the Black category rest on few deaths, and the time analysis uses intermediate regions because municipal counts by year do not support it. (7) Standard errors of the candidate estimator treat counts as Poisson; census standard errors ignore the sample design. (8) The analyses by place and context were not pre-specified, and many contrasts are reported. (9) Deaths of 2023 may be revised.
-
 Implications. A child's race on the death certificate depends on where the child died, on the state and on the establishment, and only in part on the child's family; statistics by certified race therefore compare places as much as groups. Infant and child deaths that can be linked to their birth records can be classified by the mother's race, as linked cohorts already do [24], which removes the certificate's dependence on place, though not any place-dependence of the birth record itself. Recording on the certificate who informed the race, as the instructions presuppose, would allow the classification to be audited, and the steps at state borders point to the states' practice as one place to act. What the classification does to mortality rate ratios by race, nationally and region by region, is the subject of a companion analysis.
-
 In conclusion, this study set out to compare the race recorded on the death certificates of infants and children in Brazil with the race their mothers declared for themselves and with the race families assign to children, and to find where in the country and over which years they differ and what explains it. The certificate departed from both the mother's declaration and the family's classification. It was associated with the racial composition of the municipality and with the state, with a step at state borders, more than with the wealth or the services of the place or the circumstances of the death; and it used the Black category for 0.18 of the infants of Black mothers, more often each year and unevenly in space. The design does not establish which classification is correct; it establishes that the certificate is a third one, whose relation to the other two depends on place.
-
 References
-
 1. Ministério da Saúde (BR). Secretaria de Vigilância em Saúde. Declaração de Óbito: manual de instruções para preenchimento. Brasília: Ministério da Saúde; 2022 [cited 2026 Nov 21]. Available from: https://bvsms.saude.gov.br/bvs/publicacoes/declaracao_obito_manual_preenchimento.pdf
-
 2. Romero DE, Cunha CBd. Avaliação da qualidade das variáveis sócio-econômicas e demográficas dos óbitos de crianças menores de um ano registrados no Sistema de Informações sobre Mortalidade do Brasil (1996/2001). Cadernos de Saúde Pública. 2006;22(3):673-681. doi:10.1590/s0102-311x2006000300022
-
 3. Travassos C, Williams DR. The concept and measurement of race and their relationship to public health: a review focused on Brazil and the United States. Cadernos de Saúde Pública. 2004;20(3):660-678. doi:10.1590/s0102-311x2004000300003
-
 4. Conselho Federal de Medicina (BR). Resolução CFM nº 1.779, de 11 de novembro de 2005. Regulamenta a responsabilidade médica no fornecimento da Declaração de Óbito. Diário Oficial da União. 2005 Nov 11 [cited 2026 Nov 21]. Available from: https://sistemas.cfm.org.br/normas/arquivos/resolucoes/BR/2005/1779_2005.pdf
-
 5. Ministério da Saúde (BR). Secretaria de Vigilância em Saúde. Manual de instruções para o preenchimento da Declaração de Nascido Vivo. Brasília: Ministério da Saúde; 2011 [cited 2026 Nov 21]. Available from: https://saude.prefeitura.rio/wp-content/uploads/sites/47/2023/05/Manual_Instr_PreenchimentoDN_2011.pdf
-
 6. Chor D, Lima CRdA. Aspectos epidemiológicos das desigualdades raciais em saúde no Brasil. Cadernos de Saúde Pública. 2005;21(5):1586-1594. doi:10.1590/s0102-311x2005000500033
-
 7. Cardoso AM, Santos RV, Coimbra Jr. CEA. Mortalidade infantil segundo raça/cor no Brasil: o que dizem os sistemas nacionais de informação?. Cadernos de Saúde Pública. 2005;21(5):1602-1608. doi:10.1590/s0102-311x2005000500035
-
 8. Caldas ADR, Santos RV, Borges GM, Valente JG, Portela MC, Marinho GL. Mortalidade infantil segundo cor ou raça com base no Censo Demográfico de 2010 e nos sistemas nacionais de informação em saúde no Brasil. Cadernos de Saúde Pública. 2017;33(7). doi:10.1590/0102-311x00046516
-
 9. Roth WD. The multiple dimensions of race. Ethnic and Racial Studies. 2016;39(8):1310-1338. doi:10.1080/01419870.2016.1140793
-
 10. Telles EE. Racial ambiguity among the Brazilian population. Ethnic and Racial Studies. 2002;25(3):415-441. doi:10.1080/01419870252932133
-
 11. Telles EE, Lim N. Does it matter who answers the race question? Racial classification and income inequality in Brazil. Demography. 1998;35(4):465-474. doi:10.2307/3004014
-
 12. Bailey SR, Loveman M, Muniz JO. Measures of “Race” and the analysis of racial inequality in Brazil. Social Science Research. 2013;42(1):106-119. doi:10.1016/j.ssresearch.2012.06.006
-
 13. Muniz JO, Bastos JL. Volatilidade classificatória e a (in)consistência da desigualdade racial. Cadernos de Saúde Pública. 2017;33(suppl 1). doi:10.1590/0102-311x00082816
-
 14. Schwartzman LF. Does Money Whiten? Intergenerational Changes in Racial Classification in Brazil. American Sociological Review. 2007;72(6):940-963. doi:10.1177/000312240707200605
-
 15. Penner AM, Saperstein A. How social status shapes race. Proceedings of the National Academy of Sciences. 2008;105(50):19628-19630. doi:10.1073/pnas.0805762105
-
 16. Saperstein A, Penner AM. Racial Fluidity and Inequality in the United States. American Journal of Sociology. 2012;118(3):676-727. doi:10.1086/667722
-
 17. Freeman JB, Penner AM, Saperstein A, Scheutz M, Ambady N. Looking the Part: Social Status Cues Shape Race Perception. PLoS ONE. 2011;6(9):e25107. doi:10.1371/journal.pone.0025107
-
 18. Noymer A, Penner AM, Saperstein A. Cause of Death Affects Racial Classification on Death Certificates. PLoS ONE. 2011;6(1):e15812. doi:10.1371/journal.pone.0015812
-
 19. Sorlie PD, Rogot E, Johnson NJ. Validity of Demographic Characteristics on the Death Certificate. Epidemiology. 1992;3(2):181-184. doi:10.1097/00001648-199203000-00018
-
 20. Rosenberg HM, Maurer JD, Sorlie PD, Johnson NJ, MacDorman MF, et al. Quality of death rates by race and Hispanic origin: a summary of current research, 1999. Vital Health Stat 2. 1999;(128):1-13. PMID: 10611854
-
 21. Arias E, Heron M, Hakes J. The validity of race and Hispanic-origin reporting on death certificates in the United States: an update. Vital Health Stat 2. 2016;(172):1-21. PMID: 28436642
-
 22. Hahn RA, Mulinare J, Teutsch SM. Inconsistencies in coding of race and ethnicity between birth and death in US infants: a new look at infant mortality, 1983 through 1985. JAMA. 1992;267(2):259-63. doi:10.1001/jama.1992.03480020069033. PMID: 1727523
-
 23. dos Santos HG, do Nascimento CF, de Oliveira Duarte YA, Kawachi I, Chiavegatto Filho ADP. Blurred lines: racial misclassification in death certificates in Brazil. International Journal of Public Health. 2020;65(1):29-36. doi:10.1007/s00038-019-01321-1
-
 24. Rebouças P, Goes E, Pescarini J, Ramos D, Ichihara MY, Sena S, et al. Ethnoracial inequalities and child mortality in Brazil: a nationwide longitudinal study of 19 million newborn babies. The Lancet Global Health. 2022;10(10):e1453-e1462. doi:10.1016/s2214-109x(22)00333-3
-
 25. Benchimol EI, Smeeth L, Guttmann A, Harron K, Moher D, Petersen I, et al. The REporting of studies Conducted using Observational Routinely-collected health Data (RECORD) Statement. PLOS Medicine. 2015;12(10):e1001885. doi:10.1371/journal.pmed.1001885
-
 26. Ministério da Saúde (BR). Departamento de Informática do Sistema Único de Saúde. Transferência de arquivos: Sistema de Informações sobre Mortalidade e Sistema de Informações sobre Nascidos Vivos [Internet]. Brasília: Ministério da Saúde; [cited 2026 Nov 21]. Available from: https://datasus.saude.gov.br/transferencia-de-arquivos/
-
 27. Instituto Brasileiro de Geografia e Estatística. Censo Demográfico 2010: resultados gerais da amostra: microdados [Internet]. Rio de Janeiro: IBGE; 2012 [updated 2016 Mar 11; cited 2026 Nov 21]. Available from: https://ftp.ibge.gov.br/Censos/Censo_Demografico_2010/Resultados_Gerais_da_Amostra/Microdados/
-
 28. Instituto Brasileiro de Geografia e Estatística. Malhas territoriais: malha municipal 2022 [Internet]. Rio de Janeiro: IBGE; 2023 [cited 2026 Nov 21]. Available from: https://www.ibge.gov.br/geociencias/organizacao-do-territorio/malhas-territoriais/15774-malhas.html
-
 29. Instituto Brasileiro de Geografia e Estatística. Divisão regional do Brasil em regiões geográficas imediatas e regiões geográficas intermediárias: 2017. Rio de Janeiro: IBGE; 2017 [cited 2026 Nov 21]. Available from: https://www.ibge.gov.br/geociencias/organizacao-do-territorio/divisao-regional/15778-divisoes-regionais-do-brasil.html
-
 30. Instituto Brasileiro de Geografia e Estatística. Regiões metropolitanas, aglomerações urbanas e regiões integradas de desenvolvimento [Internet]. Rio de Janeiro: IBGE [cited 2026 Nov 21]. Available from: https://www.ibge.gov.br/geociencias/organizacao-do-territorio/estrutura-territorial/18354-regioes-metropolitanas-aglomeracoes-urbanas-e-regioes-integradas-de-desenvolvimento.html
-
 31. Fellegi IP, Sunter AB. A Theory for Record Linkage. Journal of the American Statistical Association. 1969;64(328):1183-1210. doi:10.1080/01621459.1969.10501049
-
 32. Harron KL, Doidge JC, Knight HE, Gilbert RE, Goldstein H, Cromwell DA, et al. A guide to evaluating linkage quality for the analysis of linked data. International Journal of Epidemiology. 2017;46(5):1699-1710. doi:10.1093/ije/dyx177
-
 33. Doidge JC, Harron KL. Reflections on modern methods: linkage error bias. International Journal of Epidemiology. 2019:dyz203. doi:10.1093/ije/dyz203
-
 34. Lipsitch M, Tchetgen Tchetgen E, Cohen T. Negative Controls. Epidemiology. 2010;21(3):383-388. doi:10.1097/ede.0b013e3181d61eeb
-
 35. Lahiri P, Larsen MD. Regression Analysis With Linked Data. Journal of the American Statistical Association. 2005;100(469):222-230. doi:10.1198/016214504000001277
-
 36. Hof MHP, Zwinderman AH. Methods for analyzing data from probabilistic linkage strategies based on partially identifying variables. Statistics in Medicine. 2012;31(30):4231-4242. doi:10.1002/sim.5498
-
 37. Goldstein H, Harron K, Wade A. The analysis of record‐linked data using multiple imputation with data value priors. Statistics in Medicine. 2012;31(28):3481-3493. doi:10.1002/sim.5508
-
 38. Instituto Brasileiro de Geografia e Estatística. Produto Interno Bruto dos Municípios, referência 2010: Tabela 5938 [Internet]. Rio de Janeiro: IBGE; 2025 [cited 2026 Nov 21]. Available from: https://sidra.ibge.gov.br/tabela/5938
-
-39. Instituto Brasileiro de Geografia e Estatística. Censo Demográfico 2010: Tabelas 202 (população residente por situação do domicílio), 3149 (pessoas alfabetizadas, resultados preliminares do universo), 3578 (rendimento domiciliar per capita) e 9605 (população residente por cor ou raça) [Internet]. Rio de Janeiro: IBGE [cited 2026 Nov 21]. Available from: https://sidra.ibge.gov.br/tabela/3149
-
+39. Instituto Brasileiro de Geografia e Estatística. Censo Demográfico 2010: Tabelas 202 (população residente por situação do domicílio), 3149 (pessoas alfabetizadas, resultados preliminares do universo), 3578 (rendimento domiciliar per capita); Censos Demográficos 2010 e 2022: Tabela 9605 (população residente por cor ou raça, universo, 2010 e 2022) [Internet]. Rio de Janeiro: IBGE [cited 2026 Nov 21]. Available from: https://sidra.ibge.gov.br/tabela/3149
 40. Ministério da Saúde (BR). Cadastro Nacional de Estabelecimentos de Saúde (CNES): arquivos de profissionais, leitos e equipes, competências de dezembro de 2013 a 2023 [Internet]. Brasília: Ministério da Saúde [cited 2026 Nov 21]. Available from: https://cnes.datasus.gov.br/
-
 41. Besag J, York J, Mollié A. Bayesian image restoration, with two applications in spatial statistics. Annals of the Institute of Statistical Mathematics. 1991;43(1):1-20. doi:10.1007/bf00116466
-
 42. Riebler A, Sørbye SH, Simpson D, Rue H. An intuitive Bayesian spatial model for disease mapping that accounts for scaling. Statistical Methods in Medical Research. 2016;25(4):1145-1165. doi:10.1177/0962280216660421
-
 43. Simpson D, Rue H, Riebler A, Martins TG, Sørbye SH. Penalising Model Component Complexity: A Principled, Practical Approach to Constructing Priors. Statistical Science. 2017;32(1):1-28. doi:10.1214/16-sts576
-
 44. Rue H, Martino S, Chopin N. Approximate Bayesian Inference for Latent Gaussian models by using Integrated Nested Laplace Approximations. Journal of the Royal Statistical Society Series B: Statistical Methodology. 2009;71(2):319-392. doi:10.1111/j.1467-9868.2008.00700.x
-
 45. Moran PAP. Notes on Continuous Stochastic Phenomena. Biometrika. 1950;37(1/2):17-23. doi:10.2307/2332142
-
 46. Assunção RM, Reis EA. A new proposal to adjust Moran's I for population density. Statistics in Medicine. 1999;18(16):2147-2162. doi:10.1002/(sici)1097-0258(19990830)18:16<2147::aid-sim179>3.0.co;2-i
-
 47. Anselin L. Local Indicators of Spatial Association—LISA. Geographical Analysis. 1995;27(2):93-115. doi:10.1111/j.1538-4632.1995.tb00338.x
-
 48. Keele LJ, Titiunik R. Geographic Boundaries as Regression Discontinuities. Political Analysis. 2015;23(1):127-155. doi:10.1093/pan/mpu014
-
 49. Bates D, Mächler M, Bolker B, Walker S. Fitting linear mixed-effects models using lme4. Journal of Statistical Software. 2015;67(1). doi:10.18637/jss.v067.i01
-
 50. Merlo J, Chaix B, Ohlsson H, Beckman A, Johnell K, Hjerpe P, et al. A brief conceptual tutorial of multilevel analysis in social epidemiology: using measures of clustering in multilevel logistic regression to investigate contextual phenomena. Journal of Epidemiology and Community Health. 2006;60(4):290-297. doi:10.1136/jech.2004.029454
-
-51. Rey SJ, Anselin L. PySAL: A Python Library of Spatial Analytical Methods. In: Fischer MM, Getis A, editors. Handbook of Applied Spatial Analysis. Berlin: Springer. 2010:175-193. doi:10.1007/978-3-642-03647-7_11
-
-52. Lindgren F, Rue H. Bayesian spatial modelling with R-INLA. Journal of Statistical Software. 2015;63(19). doi:10.18637/jss.v063.i19
-
-53. Miranda V. A resurgence of black identity in Brazil? Evidence from an analysis of recent censuses. Demographic Research. 2015;32:1603-1630. doi:10.4054/demres.2015.32.59
-
-54. Instituto Brasileiro de Geografia e Estatística. Censo 2022: pela primeira vez, desde 1991, a maior parte da população do Brasil se declara parda [Internet]. Rio de Janeiro: IBGE; 2023 Dec 22 [cited 2026 Nov 21]. Available from: https://agenciadenoticias.ibge.gov.br/agencia-sala-de-imprensa/2013-agencia-de-noticias/releases/38719-censo-2022-pela-primeira-vez-desde-1991-a-maioria-da-populacao-do-brasil-se-declara-parda
+51. Mundlak Y. On the pooling of time series and cross section data. Econometrica. 1978;46(1):69-85. doi:10.2307/1913646
+52. Rey SJ, Anselin L. PySAL: A Python Library of Spatial Analytical Methods. In: Fischer MM, Getis A, editors. Handbook of Applied Spatial Analysis. Berlin: Springer. 2010:175-193. doi:10.1007/978-3-642-03647-7_11
+53. Lindgren F, Rue H. Bayesian spatial modelling with R-INLA. Journal of Statistical Software. 2015;63(19). doi:10.18637/jss.v063.i19
+54. Miranda V. A resurgence of black identity in Brazil? Evidence from an analysis of recent censuses. Demographic Research. 2015;32:1603-1630. doi:10.4054/demres.2015.32.59
+55. Instituto Brasileiro de Geografia e Estatística. Censo 2022: pela primeira vez, desde 1991, a maior parte da população do Brasil se declara parda [Internet]. Rio de Janeiro: IBGE; 2023 Dec 22 [cited 2026 Nov 21]. Available from: https://agenciadenoticias.ibge.gov.br/agencia-sala-de-imprensa/2013-agencia-de-noticias/releases/38719-censo-2022-pela-primeira-vez-desde-1991-a-maioria-da-populacao-do-brasil-se-declara-parda

@@ -1,32 +1,493 @@
-Supplementary material - The same deaths, four inequalities: how the classification of deaths and denominators changes racial inequality in infant and child mortality in Brazil, nationally and in 510 regions, 2013-2024
-
+﻿Supplementary material - The same deaths, four inequalities: how the classification of deaths and denominators changes racial inequality in infant and child mortality in Brazil, nationally and in 510 regions, 2013-2024
 Supplementary Text S1 - Estimation without individual linkage and its control
-
 Let G be a group of deaths. For a death i, let C_i be the set of live births with the birth date, sex and municipality of residence of i. If the family did not move, exactly one element of C_i is the deceased; the remaining elements, and all elements when the family moved, are births that agree by chance. Write N(j, k) for the number of deaths in G with race j on the birth record and certified race k, and t for the probability that the deceased is in C_i. The expected number of candidates with race j among deaths certified k is t N(j, k) + E(j, k), where E(j, k) is the expected number of chance candidates.
-
 E(j, k) depends on how many children were born on the birth date of the deceased in the municipality. That is not the number of an arbitrary day: a day on which more children were born contributes more people and therefore more deaths, so the birth date of a death is a size-biased draw from the days of the year, and a control drawn from other days would undercount E. The births of the other sex on the same day in the same municipality share the day, cannot contain the deceased and have the racial composition of that day's births; multiplied by the ratio of births of the two sexes in the municipality and year, their count estimates E(j, k). With this control the estimated t for infants was 89.8% overall.
-
 The estimator of t N(j, k) is the difference of the two counts. Its variance was approximated by the sum of the candidate count and the control count, which ignores the scaling factor of the control (close to 1). A proportion is a ratio of two such differences; the variance of its denominator was ignored, which understates the error of rows with few deaths. A twin of the same sex is a candidate and a twin of the other sex is in the control; both share the mother's race with the deceased. Mortality by the mother's race uses the shares of each race among the estimated deaths, so that t cancels provided it does not differ by race.
-
 Supplementary Text S2 - The census-based population account
-
 The racial composition of five-year birth cohorts at the censuses of 2000, 2010 and 2022 was read, by single year of age and race, from a cohort-component population account of every municipality built for this research programme from the censuses, the Mortality and Live Birth Information Systems and the official estimates of IBGE (population projections, 2024 revision); in a census year the account takes the census population as given, so the shares at the three dates are census shares. Between and after censuses, race shares are modelled along each birth cohort: log shares change linearly between the censuses of 2000, 2010 and 2022, a cohort born after a census takes the shares it has in the next census carried back by the state's rate of reclassification of the previous decade, and after 2022 the state's drift carries them forward. The rates over the census-based population in the main text use these modelled shares. The account is not a published product and its census-year values carry the censuses' own coverage error, which is not quantified by race. A cohort's White share can fall between censuses through reclassification, but also through higher mortality or emigration of White people, through differences in coverage between censuses and through the change of the 2022 questionnaire; the comparison between the first census of a cohort aged 0-4 and later ones also compares a race reported for small children by an adult of the household with one reported for adults. The analysis describes the cohorts and does not separate these explanations.
 
-
-
 Supplementary Figure S1 - White to Brown mortality rate ratio by region under the three classifications, ages 1-4 and 5-9, Brazil, 2013-2024
+Bars: 95% confidence intervals; n.e.: a ratio by the mother's race with a standard error above 0.35 of the estimate (the rule of Supplementary Table S2), not drawn.
 
-Bars: 95% confidence intervals; n.e.: a ratio by the mother's race with a standard error above 0.6 of the estimate, not drawn.
-
-
-
-Supplementary Table S1 - The 25 immediate regions where the certificate most raises the White to Brown infant mortality rate ratio, and the 10 where it most understates it, Brazil, 2013-2023
-
+Supplementary Table S1 - The 25 immediate regions where the certificate most raises the White to Brown infant mortality rate ratio, and the 10 where it most lowers it relative to the mother's race, Brazil, 2013-2023
+Immediate region
+State
+Share of White births
+GDP per capita (R$)
+Rate ratio, mother's race
+Rate ratio, certified race
+Certified over mother's
+Redenção-Acarape
+CE
+0.02
+9,187
+0.81
+10.28
+12.62
+Coari
+AM
+0.02
+25,987
+0.98
+10.75
+10.98
+Canindé
+CE
+0.04
+8,298
+0.82
+7.94
+9.74
+Manacapuru
+AM
+0.02
+13,691
+1.04
+9.60
+9.26
+Pirapora
+MG
+0.02
+24,721
+0.95
+8.68
+9.11
+Barreirinhas
+MA
+0.02
+6,521
+1.02
+9.09
+8.94
+Itacoatiara
+AM
+0.01
+16,393
+1.16
+10.16
+8.77
+Parintins
+AM
+0.01
+9,646
+0.98
+6.90
+7.01
+Itapagé
+CE
+0.05
+9,638
+0.87
+5.78
+6.67
+Quixadá
+CE
+0.04
+10,422
+0.87
+5.64
+6.51
+Fortaleza
+CE
+0.08
+24,626
+0.74
+4.53
+6.14
+Bragança
+PA
+0.02
+8,706
+0.98
+5.88
+5.98
+Araripina
+PE
+0.04
+9,421
+1.13
+6.70
+5.93
+Araçuaí
+MG
+0.05
+9,573
+1.02
+5.91
+5.80
+Sena Madureira
+AC
+0.05
+13,084
+1.15
+6.58
+5.71
+Brasiléia
+AC
+0.04
+18,058
+1.20
+6.82
+5.70
+Birigui - Penápolis
+SP
+0.66
+27,207
+0.88
+4.70
+5.37
+Itapipoca
+CE
+0.05
+11,373
+0.85
+4.52
+5.29
+Paulo Afonso
+BA
+0.03
+18,818
+1.14
+5.89
+5.19
+Campina Grande
+PB
+0.09
+14,980
+0.76
+3.91
+5.17
+Abaetetuba
+PA
+0.04
+10,013
+0.94
+4.81
+5.09
+Tarauacá
+AC
+0.04
+11,194
+1.00
+5.08
+5.07
+Castanhal
+PA
+0.04
+13,331
+1.10
+5.55
+5.03
+Chapadinha
+MA
+0.02
+7,483
+1.11
+5.56
+5.02
+Rio Branco
+AC
+0.09
+23,273
+1.01
+5.02
+4.97
+Limoeiro
+PE
+0.28
+10,290
+0.83
+0.84
+1.02
+Pelotas
+RS
+0.78
+31,144
+0.88
+0.86
+0.98
+Juiz de Fora
+MG
+0.47
+27,307
+0.86
+0.83
+0.96
+Teresina
+PI
+0.12
+19,973
+0.96
+0.92
+0.96
+Carangola
+MG
+0.71
+13,924
+0.82
+0.76
+0.93
+Valença
+BA
+0.06
+17,132
+0.91
+0.84
+0.92
+Nova Friburgo
+RJ
+0.59
+26,333
+0.82
+0.74
+0.91
+Bagé
+RS
+0.74
+30,712
+0.88
+0.79
+0.90
+Além Paraíba
+MG
+0.38
+27,462
+0.81
+0.72
+0.89
+Ilhéus ¿ Itabuna
+BA
+0.07
+16,283
+0.99
+0.58
+0.58
 Rate ratios: posterior means of a Poisson BYM2 model over the 510 immediate regions. All regions are in Supplementary Data 2.
 
-
-
 Supplementary Table S2 - White to Brown mortality rate ratio at 1-9 years by the mother's race and by certified race, and classification of the children of Brown and Black mothers by families and on infant death certificates, by state, Brazil
-
+State
+Deaths at 1-9 years
+Ratio, mother's race (95%CI)
+Ratio, certified race (95%CI)
+Brown mother, child White: family (ages 1-9)
+Brown mother, child White: certificate (under 1)
+Black mother, child Black: family
+Black mother, child Black: certificate
+RO
+753
+not estimable
+2.09 (95%CI 1.80; 2.44)
+0.18
+0.26
+0.38
+0.13
+AC
+663
+not estimable
+3.86 (95%CI 3.09; 4.81)
+0.15
+0.22
+0.42
+0.00
+AM
+3,295
+not estimable
+4.04 (95%CI 3.65; 4.48)
+0.12
+0.16
+0.45
+0.07
+RR
+847
+not estimable
+2.74 (95%CI 2.15; 3.51)
+0.12
+0.18
+0.42
+0.10
+PA
+5,115
+not estimable
+2.74 (95%CI 2.54; 2.96)
+0.13
+0.14
+0.46
+0.04
+AP
+663
+not estimable
+1.73 (95%CI 1.41; 2.13)
+0.16
+0.18
+0.43
+0.03
+TO
+854
+not estimable
+2.88 (95%CI 2.46; 3.38)
+0.15
+0.21
+0.44
+0.07
+MA
+3,782
+not estimable
+2.27 (95%CI 2.08; 2.48)
+0.12
+0.13
+0.51
+0.14
+PI
+1,397
+not estimable
+2.43 (95%CI 2.14; 2.77)
+0.15
+0.09
+0.49
+0.09
+CE
+3,182
+not estimable
+3.59 (95%CI 3.31; 3.88)
+0.19
+0.16
+0.40
+0.06
+RN
+1,178
+not estimable
+2.16 (95%CI 1.92; 2.44)
+0.26
+0.23
+0.40
+0.02
+PB
+1,552
+not estimable
+4.00 (95%CI 3.59; 4.46)
+0.26
+0.21
+0.42
+0.11
+PE
+3,711
+0.66 (95%CI 0.38; 1.18)
+1.95 (95%CI 1.82; 2.10)
+0.22
+0.15
+0.42
+0.10
+AL
+1,516
+not estimable
+4.13 (95%CI 3.65; 4.67)
+0.21
+0.11
+0.43
+0.08
+SE
+969
+not estimable
+3.29 (95%CI 2.86; 3.79)
+0.18
+0.12
+0.47
+0.08
+BA
+5,665
+1.10 (95%CI 0.65; 1.84)
+2.41 (95%CI 2.25; 2.59)
+0.14
+0.10
+0.61
+0.17
+MG
+6,501
+0.73 (95%CI 0.54; 0.99)
+1.58 (95%CI 1.50; 1.67)
+0.20
+0.28
+0.49
+0.19
+ES
+1,521
+0.71 (95%CI 0.40; 1.25)
+1.62 (95%CI 1.45; 1.82)
+0.20
+0.25
+0.45
+0.10
+RJ
+5,686
+not estimable
+1.38 (95%CI 1.30; 1.46)
+0.22
+0.29
+0.54
+0.22
+SP
+13,004
+0.63 (95%CI 0.35; 1.12)
+1.57 (95%CI 1.51; 1.64)
+0.27
+0.53
+0.48
+0.18
+PR
+3,577
+0.84 (95%CI 0.62; 1.12)
+1.45 (95%CI 1.32; 1.59)
+0.32
+0.71
+0.36
+0.26
+SC
+2,047
+0.83 (95%CI 0.49; 1.42)
+0.95 (95%CI 0.82; 1.10)
+0.33
+0.71
+0.51
+0.44
+RS
+2,985
+1.02 (95%CI 0.57; 1.81)
+1.06 (95%CI 0.93; 1.20)
+0.34
+0.70
+0.58
+0.37
+MS
+1,419
+not estimable
+1.84 (95%CI 1.64; 2.06)
+0.26
+0.44
+0.35
+0.06
+MT
+2,212
+0.83 (95%CI 0.49; 1.40)
+1.90 (95%CI 1.72; 2.09)
+0.18
+0.29
+0.41
+0.10
+GO
+2,704
+0.70 (95%CI 0.37; 1.31)
+2.02 (95%CI 1.87; 2.19)
+0.23
+0.34
+0.41
+0.08
+DF
+895
+not estimable
+2.06 (95%CI 1.80; 2.36)
+0.23
+0.33
+0.43
+0.13
 95%CI: 95% confidence interval. Not estimable: standard error above 0.35 of the estimate.
 

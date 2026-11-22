@@ -29,6 +29,8 @@ YOUTH_BORN = f"{Y['birth_years'][0]}-{Y['birth_years'][1]}"
 W14, W59 = C14["without_large"]["matrix"], C59["without_large"]["matrix"]
 CONV = C14["conventional_2016_2024"]
 REB = R["reboucas"]
+PNL = json.loads((HERE / "results" / "panel.json").read_text(encoding="utf-8"))
+WB = {lv: PNL["PW"][lv] for lv in ("municipality", "immediate")}
 G, MO, BY, BD_, PN, RA, MS, ML = SP["graph"], SP["moran"], SP["bym2"], SP["border"], SP["panel"], SP["ratio"], SP["misstated"], SP.get("multilevel", {})
 
 
@@ -66,6 +68,15 @@ for blk in (C14, C59):
     assert blk["rates"]["ratio_mother"]["Branca"]["est"] < 1 < blk["rates"]["ratio_certificate"]["Branca"]["est"], "the White to Brown ratios do not have opposite directions"
     assert blk["rates"]["ratio_mother"]["Branca"]["est"] < blk["ratio_household"]["Branca"] < blk["rates"]["ratio_certificate"]["Branca"]["est"], "the family counterfactual is not between"
 assert IR["ratio_mother"]["Branca"]["est"] < 1 < IR["ratio_certificate"]["Branca"]["est"], "infants: the ratios do not have opposite directions"
+for lv_ in ("municipality", "immediate"):
+    b_, w_ = WB[lv_]["all"]["lw_b"], WB[lv_]["all"]["lw_w"]
+    assert w_["est"] + 1.96 * w_["se"] < 0.5 * b_["est"], "the within-place composition slope is no longer far below the between slope"
+    assert w_["est"] - 1.96 * w_["se"] > 0, "the within-place composition slope no longer differs from zero"
+assert WB["immediate"]["lw_reliability"] > 0.9, "the regional yearly composition is now mostly sampling noise"
+assert PNL["census"]["coef"]["cw_w"]["est"] + 1.96 * PNL["census"]["coef"]["cw_w"]["se"] < PNL["census"]["coef"]["cw_b"]["est"], "census: within reaches between"
+FW = I["flow"]
+assert I["certificates"] - FW["birth_after_death"] == FW["lake_infant_deaths"], "the certificate counts no longer reconcile"
+assert 0 <= FW["candidate_deaths"] - FW["with_sex_and_municipality"] <= FW["birth_after_death"], "the candidate estimator's deaths no longer reconcile"
 assert CONV["ratio_mother"]["est"] < CONV["ratio_certificate_population"] < 1 < CONV["ratio_certificate_births"]["est"], "conventional denominator: not compressed between"
 assert abs(IR["ratio_certificate_population"] - IR["ratio_mother"]["Branca"]["est"]) < 0.05, "infants: the census denominator no longer agrees with the mother's race"
 assert fam(F14, "Preta", "Preta") > 1.5 * cell(W14, "Preta", "Preta")["est"], "Black children: the certificate is not far below the family"
@@ -98,9 +109,10 @@ para(d, f"Methods: {DESIGN[0].upper() + DESIGN[1:]}. Infant deaths of 2013-2023 
         "Besag-York-Mollié (BYM2) models, spatial structure was measured by Moran's I and a test at state borders, and composition, state, socioeconomic context, health "
         "services and recording quality were set against one another in binomial and multilevel models; change over 2013-2023 was modelled by region.")
 para(d, f"Results: Among {n0(I['linked_with_race'])} linked infant deaths, the certificate recorded the mother's race for {cbci('Branca>Branca')} of children of White mothers, "
-        f"{cbci('Parda>Parda')} of Brown and {cbci('Preta>Preta')} of Black mothers. Brown mothers' infants were certified White in {f2(DI['PW']['p5'])} to "
-        f"{f2(DI['PW']['p95'])} of deaths across municipalities, with a between-municipality variance (log-odds) {FV['PW']['M0'] / FV['famPW']['M0']:.0f} times that of the "
-        f"family's classification of Brown mothers' children aged 0-9, spatially clustered (Moran's I {f2(mP_['rate']['I'])}). Racial composition explained "
+        f"{cbci('Parda>Parda')} of Brown and {cbci('Preta>Preta')} of Black mothers. The smoothed proportion of Brown mothers' infants certified White ranged from {f2(DI['PW']['p5'])} to "
+        f"{f2(DI['PW']['p95'])} across the municipalities holding 90% of births, with a between-municipality variance (log-odds) {FV['PW']['M0'] / FV['famPW']['M0']:.0f} times that of the "
+        f"family's classification of Brown mothers' children aged 0-9, spatially clustered (Moran's I {f2(mP_['rate']['I'])}); within the same places, "
+        f"a change in composition from one year to another moved it about {WB['immediate']['all']['lw_w']['est'] / WB['immediate']['lw_reliability'] / WB['immediate']['all']['lw_b']['est'] * 100:.0f}% as far as the gradient between them. Racial composition explained "
         f"{pct(mP_['deviance_explained']['composition'], 0)} of the deviance between municipalities, the state {pct(mP_['deviance_explained']['state'], 0)}, both "
         f"{pct(mP_['deviance_explained']['composition_state'], 0)}, and socioeconomic and service context {pct(mP_['deviance_explained']['context'], 0)} alone and little in addition"
         + (f"; in multilevel models composition explained {pct(bw_['composition']['pcv'], 0)} of the municipal variance, context {pct(bw_['socioeconomic_services']['pcv'], 0)}, "
@@ -227,6 +239,16 @@ para(d, f"Multilevel models. For the linked infant deaths of each class of mothe
 para(d, "Time by place. The yearly proportions of linked infant deaths certified with the mother's race (2013-2023) in each of the 133 intermediate regions were modelled by "
         "binomial mixed models with a random intercept and a random slope for the year by region; the regional slopes give the change over the decade, and a model with the "
         "macro-region by year interaction tests where the change was faster.")
+para(d, "Change within places. A municipality-year panel (2013-2023) set the certified race of each municipality's linked infant deaths against what the "
+        f"municipality was that year: the share of White mothers among its live births, GDP per capita {cite('ibge_pib')} over the yearly population, physicians "
+        "per 1,000 inhabitants, and, from its own death certificates of that year, the proportion with no race, of natural deaths certified by a death verification "
+        "service and of external deaths certified by a medical examiner. Binomial mixed models with a random intercept for the place and year effects split each "
+        f"variable into the place's mean over the years (between) and the year's deviation from it (within) {cite('mundlak1978')}; the within coefficient is what "
+        "follows a change inside the same place, the between coefficient the cross-sectional gradient. Because a small municipality's yearly share of White births "
+        "carries sampling noise that attenuates the within coefficient, the models were fitted on municipality-years and again on immediate region-years, and the "
+        "share of the within variance that is not sampling noise is reported. As a second time point independent of the birth records, the change between 2013-2015 "
+        "and 2021-2023 in municipalities with five or more deaths in each period was set against the change in the census share of White residents, literacy "
+        f"and urbanisation between 2010 and 2022 {cite('ibge_sidra2010')}.")
 para(d, "Statistical analysis. Proportions from the one-to-one linkage carry 95% confidence intervals (95%CI) from 400 bootstrap resamples of municipalities, because pairs "
         f"cluster by place; binomial intervals, {CBRANGE} times narrower, are in the supplement. For the candidate estimator, the variance of a difference of counts was "
         "taken as the sum of the two counts (Poisson); because it lost precision in municipalities with 25,600 or more live births per year (Results), its proportions exclude "

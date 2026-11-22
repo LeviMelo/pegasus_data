@@ -270,7 +270,7 @@ for k, (col, title) in enumerate((("mother_log_rr", "A. By the mother's race"), 
     cb = choropleth(ax, GR, col, "PuOr_r", lr, title, "White to Brown infant rate ratio (BYM2)", ticks=ticks, edge="#FFFFFF")
     cb.ax.set_xticklabels(["1/4", "1/2", "1", "2", "4"])
 ax = fig.add_subplot(gs[1, 0])
-cb = choropleth(ax, GR, "misstated", "PuOr_r", TwoSlopeNorm(vmin=-1.2, vcenter=0, vmax=1.2), "C. Misstatement: B over A",
+cb = choropleth(ax, GR, "misstated", "PuOr_r", TwoSlopeNorm(vmin=-1.2, vcenter=0, vmax=1.2), "C. Certified over mother's: B over A",
                 "Ratio of the two rate ratios", ticks=[np.log(v) for v in (0.33, 0.5, 1, 2, 3)], edge="#FFFFFF")
 cb.ax.set_xticklabels(["1/3", "1/2", "1", "2", "3"])
 ax = fig.add_subplot(gs[1, 1])
@@ -319,3 +319,33 @@ axes[1].legend(handles=[Patch(fc=c, ec="#999999", lw=0.3, label=f"{lab} ({S['lis
 fig.tight_layout()
 save(fig, "map_disagree")
 print("spatial figures written")
+
+# ---------------------------------------------------------------- between and within places (results/panel.json from analysis/panel.R)
+PNL = json.loads((RES / "panel.json").read_text(encoding="utf-8"))
+SHORT = {"lw": "Composition\n(logit White births)", "lgdp": "GDP per capita\n(log)", "lphys": "Physicians\n(log)", "blank": "Race blank\n(proportion)",
+         "svo": "Natural deaths by\nverification service", "iml": "External deaths by\nmedical examiner"}
+fig, axes = plt.subplots(1, 2, figsize=(7.2, 3.4), gridspec_kw={"width_ratios": [2.3, 1]})
+ax = axes[0]
+vs = ["lw", "lgdp", "lphys", "iml"]
+for k, (lv, part, col, mk, lab) in enumerate((("municipality", "b", "#777777", "o", "between municipalities"), ("municipality", "w", "#D55E00", "o", "within municipality"),
+                                               ("immediate", "b", "#AAAAAA", "s", "between regions"), ("immediate", "w", "#0072B2", "s", "within region"))):
+    for i, v in enumerate(vs):
+        c = PNL["PW"][lv]["all"][f"{v}_{part}"]
+        ax.errorbar(c["est"], i + (k - 1.5) * 0.17, xerr=1.96 * c["se"], fmt=mk, color=col, ms=3.5, capsize=1.5, label=lab if i == 0 else None)
+ax.axvline(0, color="k", lw=0.6)
+ax.set_yticks(range(len(vs)), [SHORT[v] for v in vs])
+ax.invert_yaxis()
+ax.set_xlabel("Change in log-odds of White, per unit")
+ax.set_title("A. Brown mothers' infants certified White:\nbetween and within places, 2013-2023", fontsize=8, loc="left")
+ax.legend(fontsize=6, frameon=False, loc="lower right")
+ax = axes[1]
+cc_ = PNL["census"]["coef"]
+for i, (t, col, lab) in enumerate((("cw_b", "#777777", "between"), ("cw_w", "#D55E00", "within"))):
+    ax.errorbar(i, cc_[t]["est"], yerr=1.96 * cc_[t]["se"], fmt="o", color=col, ms=4, capsize=2)
+ax.axhline(0, color="k", lw=0.6)
+ax.set_xticks([0, 1], ["between", "within\n(2010-2022)"])
+ax.set_xlim(-0.6, 1.6)
+ax.set_ylabel("Log-odds of White per unit of\nthe logit of census White share")
+ax.set_title(f"B. Census composition,\n{PNL['census']['municipalities']:,} municipalities", fontsize=8, loc="left")
+fig.tight_layout()
+save(fig, "between_within")

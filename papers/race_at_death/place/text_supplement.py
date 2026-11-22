@@ -54,8 +54,10 @@ for k, v in CB.items():
     rows.append([f"{EN[a]} mother, certified {EN[b]}: interval, binomial", "", ci({"est": v["est"], "se": v["se_binomial"]})])
 table(s, "Supplementary Table S2 - Flow of infant death certificates, linked share and intervals of the linkage's proportions, Brazil, 2013-2023",
       ["Group", "Certificates", "Share or estimate"], rows,
-      [f"The linkage read {n0(I['certificates'])} certificates and a direct count of the files gives {n0(I['flow']['lake_infant_deaths'])}: the difference is in how "
-       "invalid dates are read. The candidate estimator holds 3 deaths more than the direct count with sex and municipality, for the same reason."])
+      [f"The linkage read {n0(I['certificates'])} certificates; {I['flow']['birth_after_death']} of them have a birth date after the date of death "
+       f"({I['flow']['birth_after_death_linked']} linked), and a count of the files by valid dates gives {n0(I['flow']['lake_infant_deaths'])}. The candidate estimator "
+       f"holds {I['flow']['candidate_deaths'] - I['flow']['with_sex_and_municipality']:.0f} of these {I['flow']['birth_after_death']} among its "
+       f"{n0(I['flow']['candidate_deaths'])} deaths with sex and municipality."])
 table(s, "Supplementary Table S3 - Variables of the municipality: definition, source and years",
       ["Variable", "Definition", "Source", "Years"],
       [["Racial composition", "share of White mothers among the live births of residents", "SINASC", "2012-2023"],
@@ -122,6 +124,21 @@ for group, blocks in (("Region", I["by_region"]), ("State", I["by_state"]), ("Ag
 table(s, "Supplementary Table S7 - Certified race of infants according to the mother's race, by region, state, age at death and year of death, one-to-one linkage, Brazil, 2013-2023",
       ["Group", "Class", "Linked pairs", "White mother, certified White", "White, certified Brown", "Brown, certified Brown", "Brown, certified White", "Black, certified Black",
        "Black, certified Brown", "Black, certified White"], rows)
+OUTC = {"PW": "Brown mother, certified White", "KK": "Black mother, certified Black"}
+rows = []
+for key, kl in OUTC.items():
+    for lv, ll in (("municipality", "municipality-years"), ("immediate", "immediate region-years")):
+        blk = PNL[key][lv]
+        for v, vl in PNL["labels"].items():
+            b_, w_ = blk["all"][f"{v}_b"], blk["all"][f"{v}_w"]
+            rows.append([kl, f"{ll} ({n0(blk['n_unit_years'])}; {n0(blk['deaths'])} deaths)", vl, f"{f2(b_['est'])} ({f2(b_['se'])})", f"{f2(w_['est'])} ({f2(w_['se'])})",
+                         f"{f2(blk['spread'][v]['sd_between'])}", f"{f2(blk['spread'][v]['sd_within'])}"])
+table(s, "Supplementary Table S8 - Between and within places: coefficients of yearly municipal variables on the certified race of linked infant deaths, Brazil, 2013-2023",
+      ["Outcome", "Units", "Variable", "Between: log-odds (SE)", "Within: log-odds (SE)", "SD between", "SD within"], rows,
+      ["Binomial mixed models with year effects and a random intercept for the place (nAGQ = 0); every variable split into the place's mean over 2013-2023 and the "
+       "year's deviation from it; all variables in one model. SD: standard deviation of the place means and of the deviations, weighted by deaths. Share of the within "
+       f"variance of composition that is not sampling noise: {f2(PNL['PW']['municipality']['lw_reliability'])} in municipalities, "
+       f"{f2(PNL['PW']['immediate']['lw_reliability'])} in immediate regions."])
 CCs = SP["candidates_context"]
 rows = []
 for k, m in CCs["children_comp_gdp"].items():
@@ -129,7 +146,7 @@ for k, m in CCs["children_comp_gdp"].items():
     rows.append(["1-9 years, mother's race", f"{c_} White births, {g_} GDP", n0(m["deaths"]), cc(cell(m, "Parda", "Branca")), cc(cell(m, "Preta", "Preta"))])
 for k, m in CCs["children_place_small"].items():
     rows.append(["1-9 years, mother's race", k, n0(m["deaths"]), cc(cell(m, "Parda", "Branca")), cc(cell(m, "Preta", "Preta"))])
-table(s, "Supplementary Table S8 - Certified race at 1-9 years by municipal composition and GDP per capita and by place, candidate estimator, Brazil",
+table(s, "Supplementary Table S9 - Certified race at 1-9 years by municipal composition and GDP per capita and by place, candidate estimator, Brazil",
       ["Age and classification", "Class of municipality", "Deaths", "Brown mother, certified White (95%CI)", "Black mother, certified Black (95%CI)",
        ], rows,
       [f"GDP thirds, weighted by linked infant deaths (cut points R$ {n0(SP['gdp_tertiles'][0])} and {n0(SP['gdp_tertiles'][1])} per person). 1-9 years: municipalities with fewer than "
@@ -143,7 +160,7 @@ for b_i, b_f in zip(GI, GC0, strict=True):
         rows.append([f"{10 * b_i['bin']}-{10 * b_i['bin'] + 10}%", f"{EN[a]} mother, child {EN[c]}", f2(fam(b_f["matrix"], a, c)) if a in b_f["matrix"] and c in b_f["matrix"][a] else "-",
                      ci(cell(b_i["matrix"], a, c)) if a in b_i["matrix"]["rows"] else "-", f2(fam(f19, a, c)) if a in f19 and c in f19[a] else "-",
                      cc(cell(cb_["matrix"], a, c)) if cb_ and a in cb_["matrix"]["rows"] else "-"])
-table(s, "Supplementary Table S9 - Classification of children according to the share of White mothers among the live births of the municipality: family's classification "
+table(s, "Supplementary Table S10 - Classification of children according to the share of White mothers among the live births of the municipality: family's classification "
          "(2010 Census) and death certificate, Brazil",
       ["Share of White mothers", "Cell", "Family, under 1 year", "Certificate, under 1 year (95%CI)", "Family, 1-9 years", "Certificate, 1-9 years (95%CI)"], rows,
       ["95%CI: 95% confidence interval. Not estimable: standard error above 0.15."])
@@ -153,7 +170,7 @@ for g, gl in (("infants", "Under 1 year"), ("children 1-9", "1-9 years")):
         for m in ("Branca", "Parda", "Preta"):
             x = MIX[g][prior][m]
             rows.append([gl, pl, EN[m], ci(x["lambda"]), str(x["cells"]), f"{x['rms_family_only']:.3f}", f"{x['rms_mixture']:.3f}"])
-table(s, "Supplementary Table S10 - Weight of the local distribution (λ) in a mixture model of the certified race of children, by mother's race, age and reference distribution, Brazil",
+table(s, "Supplementary Table S11 - Weight of the local distribution (λ) in a mixture model of the certified race of children, by mother's race, age and reference distribution, Brazil",
       ["Age at death", "Local reference distribution", "Mother's race", "λ (95%CI)", "Cells", "Root mean square difference from the family's classification", "From the model with λ"], rows,
       ["C(m -> c) = (1 - λ) F(m -> c) + λ π(c) over ten classes of municipal composition, F the family's classification in the census and π the local reference. λ = 0: the "
        "certificate records the family's classification; λ = 1: it records the local distribution whatever the mother's race. With the certified race of local deaths as the "

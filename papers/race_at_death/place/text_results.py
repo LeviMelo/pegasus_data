@@ -7,8 +7,8 @@ FL, LS = I["flow"], I["linked_share"]
 para(d, f"The one-to-one linkage found the birth record of {pct(I['linked'] / I['certificates'])} of infant deaths; the linked share was "
         f"{pct(LS['by_certified']['Branca'])}, {pct(LS['by_certified']['Parda'])} and {pct(LS['by_certified']['Preta'])} for deaths certified White, Brown and Black, "
         f"{pct(LS['by_certified']['Indigena'])} for Indigenous, and was lower after the first month ({pct(LS['by_age']['28-364 d'])}) and in the North "
-        f"({pct(LS['by_region']['North'])}) than in the South ({pct(LS['by_region']['South'])}) (Supplementary Table S2). Of the {n0(FL['lake_infant_deaths'])} infant certificates, "
-        f"{n0(FL['no_sex'])} had no sex and {n0(FL['no_municipality'])} no municipality of residence and could not enter the candidate estimator. In municipalities with fewer "
+        f"({pct(LS['by_region']['North'])}) than in the South ({pct(LS['by_region']['South'])}) (Supplementary Table S2). Of the {n0(I['certificates'])} infant certificates, "
+        f"{FL['birth_after_death']} had a birth date after the death; {n0(FL['no_sex'])} had no sex and {n0(FL['no_municipality'])} no municipality of residence and could not enter the candidate estimator. In municipalities with fewer "
         f"than 25,600 births per year, the candidate estimator reproduced the linkage's proportions; over all sizes, {f2(cell(v_all['candidates'], 'Branca', 'Branca')['est'])} "
         f"against {f2(cell(v_all['linkage'], 'Branca', 'Branca')['est'])} for White, {f2(cell(v_all['candidates'], 'Parda', 'Parda')['est'])} against "
         f"{f2(cell(v_all['linkage'], 'Parda', 'Parda')['est'])} for Brown and {f2(cell(v_all['candidates'], 'Preta', 'Preta')['est'])} against "
@@ -244,6 +244,40 @@ figure(d, "time_place", "Figure 6 - Certified race of infants by year of death (
         "probability scale between the fitted values of 2013 and 2023."])
 
 
+def bw(v, lv="municipality", key="PW", part="w", model="all"):
+    """A between (b) or within (w) coefficient of the panel, log-odds with its 95%CI."""
+    c = PNL[key][lv][model][f"{v}_{part}"]
+    return f"{f2(c['est'])} (95%CI {f2(c['est'] - 1.96 * c['se'])}; {f2(c['est'] + 1.96 * c['se'])})"
+
+
+WM, WI, CEN2 = WB["municipality"], WB["immediate"], PNL["census"]
+para(d, f"Within places, composition moved the certificate far less than it separated places. Over {n0(WM['n_unit_years'])} municipality-years of "
+        f"{n0(WM['n_units'])} municipalities ({n0(WM['deaths'])} deaths of Brown mothers' infants, 2013-2023), the log-odds of being certified White rose by "
+        f"{bw('lw', part='b')} per unit of the logit of the share of White births between municipalities, and by {bw('lw')} when a municipality's own share rose by "
+        f"the same amount from one year to another (Figure 7A, Supplementary Table S8). The within variation was small (standard deviation {f2(WM['spread']['lw']['sd_within'])} "
+        f"against {f2(WM['spread']['lw']['sd_between'])} between municipalities) and {pct(1 - WM['lw_reliability'], 0)} of it was sampling noise of the yearly share, "
+        f"which attenuates the coefficient; over {WI['n_units']} immediate regions, where {pct(WI['lw_reliability'], 0)} of the within variation was real change, the "
+        f"two coefficients were {bw('lw', 'immediate', part='b')} and {bw('lw', 'immediate')}. Corrected for its noise, the within coefficient remained about "
+        f"{WI['all']['lw_w']['est'] / WI['lw_reliability'] / WI['all']['lw_b']['est'] * 100:.0f}% of the between one in regions and "
+        f"{WM['all']['lw_w']['est'] / WM['lw_reliability'] / WM['all']['lw_b']['est'] * 100:.0f}% in municipalities. A municipality's GDP per capita ({bw('lgdp')}) "
+        f"and physicians ({bw('lphys')}) changed the certificate not at all within it; years in which more of its certificates had no race certified fewer Brown "
+        f"mothers' infants White ({bw('blank')} per unit of the proportion), and years with more natural deaths certified by a verification service more "
+        f"({bw('svo')}, against {bw('svo', part='b')} between municipalities). Between the censuses, the share of White residents fell by "
+        f"{100 * -CEN2['change_census_white']['mean']:.1f} percentage points on average; in {n0(CEN2['municipalities'])} municipalities with five or more deaths in "
+        f"2013-2015 and in 2021-2023, the certificate followed the census composition between municipalities ({f2(CEN2['coef']['cw_b']['est'])}, 95%CI "
+        f"{f2(CEN2['coef']['cw_b']['est'] - 1.96 * CEN2['coef']['cw_b']['se'])}; {f2(CEN2['coef']['cw_b']['est'] + 1.96 * CEN2['coef']['cw_b']['se'])}) and its "
+        f"change much less ({f2(CEN2['coef']['cw_w']['est'])}, 95%CI {f2(CEN2['coef']['cw_w']['est'] - 1.96 * CEN2['coef']['cw_w']['se'])}; "
+        f"{f2(CEN2['coef']['cw_w']['est'] + 1.96 * CEN2['coef']['cw_w']['se'])}), an interval too wide to tell a small effect from none (Figure 7B). For the Black "
+        f"category, the composition coefficients were {bw('lw', key='KK', part='b')} between and {bw('lw', key='KK')} within municipalities, and "
+        f"{bw('lw', 'immediate', key='KK', part='b')} and {bw('lw', 'immediate', key='KK')} in regions: there the within change did not differ from the "
+        "between gradient, on far fewer deaths.")
+figure(d, "between_within", "Figure 7 - Between and within places: change in the log-odds of being certified White for Brown mothers' infants per unit of each "
+                            "variable, between places and within the same place over the years (A), and against the census share of White residents (B), Brazil",
+       ["A: binomial mixed models of municipality-years and of immediate region-years, 2013-2023, with year effects and a random intercept for the place; all "
+        "variables in one model; composition is the logit of the share of White mothers among the year's live births. B: deaths of 2013-2015 and 2021-2023 against "
+        "the Censuses of 2010 and 2022, with literacy and urbanisation in the model. Bars: 95% confidence intervals."])
+
+
 # ----------------------------------------------------------------- after infancy, and the family
 d.add_heading("After infancy", level=2)
 CC_ = SP["candidates_context"]
@@ -251,6 +285,6 @@ cg = CC_["children_comp_gdp"]
 assert cg[">=60%|middle"]["rows"]["Parda"]["Branca"]["est"] > cg["<30%|middle"]["rows"]["Parda"]["Branca"]["est"] + 0.2, "composition no longer orders the 1-9 estimates"
 para(d, "The dependence on composition held after infancy, with the candidate estimator. At 1-9 years and middle GDP per capita, Brown mothers' children were certified "
         f"White in {cc(cg['<30%|middle']['rows']['Parda']['Branca'])} of deaths in municipalities with under 30% of White births and in "
-        f"{cc(cg['>=60%|middle']['rows']['Parda']['Branca'])} where 60% or more were White, with smaller differences by GDP within each class (Supplementary Table S8); "
-        "the gradient by tenth of composition is in Supplementary Figure S5 and Supplementary Table S9, and a model that mixes the family's classification with the local "
-        "distribution in Supplementary Figure S6 and Supplementary Table S10.")
+        f"{cc(cg['>=60%|middle']['rows']['Parda']['Branca'])} where 60% or more were White, with smaller differences by GDP within each class (Supplementary Table S9); "
+        "the gradient by tenth of composition is in Supplementary Figure S5 and Supplementary Table S10, and a model that mixes the family's classification with the local "
+        "distribution in Supplementary Figure S6 and Supplementary Table S11.")

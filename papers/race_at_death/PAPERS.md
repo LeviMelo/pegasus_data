@@ -2,16 +2,16 @@
 
 One evidence base (`analysis/`, `results/`, `figures/`, `references/`), several papers, each a folder with its own text
 files and `out/`, built by `build.py <folder>`. Each paper asks its own question on its own primary data and cites the
-others where it leans on them; none repeats another's results as its own. Built: 1 and 2. Planned: 3 to 6.
+others where it leans on them; none repeats another's results as its own. Built: 1, 2 and 6. Planned: 3 to 5.
 
 | # | folder | question | primary evidence | state |
 |---|---|---|---|---|
-| 1 | `place/` | Is the race on a child's death certificate a classification of place, and what explains where it departs from the mother and the family? | infant linkage x municipality: BYM2 maps, Moran, border test, binomial and multilevel models, region-year panel | built, four audits answered (`place/audits/`) |
-| 2 | `indicators/` | What do the classification of deaths and the choice of denominator do to racial inequality in infant and child mortality, nationally and by region? | rates under four classifications; Poisson BYM2 ratios for 510 immediate regions | built (short report) |
+| 1 | `place/` | Is the race on a child's death certificate a classification of place, and what explains where it departs from the mother and the family? | infant linkage x municipality: BYM2 maps, Moran, border test, binomial and multilevel models, region-year panel; municipality-year panel, between and within (`panel.py`, `panel.R`) | built, four audits answered (`place/audits/`) |
+| 2 | `indicators/` | What do the classification of deaths and the choice of denominator do to racial inequality in infant and child mortality, nationally and by region? | rates under four classifications; Poisson BYM2 ratios for 510 immediate regions | built (short report), audit 1 answered (`indicators/audits/`) |
 | 3 | `black_category/` | Why are Black children recorded as Brown? | infant linkage + births linked to delivery admissions; net counts, within-hospital MH, delivery-hospital practice, multilevel, BYM2, panel | built, audit 1 answered (`black_category/audits/`) |
 | 4 | `family/` | How do families classify their children, and what does mixing and schooling do across generations? | see below | planned |
 | 5 | `violence/` | Does the race at death of young people depend on how they died? | see below | planned, needs identified data |
-| 6 | `estimator/` | Can a race-by-race table between two registers be estimated without linking them? | see below | planned |
+| 6 | `estimator/` | Can a race-by-race table between two registers be estimated without linking them? | infant linkage, admissions-to-certificates linkage 2016-2022, simulation from the real births | built, audit answered (`estimator/audits/`) |
 
 ## 3. Black children become Brown on paper (`black_category/`)
 
@@ -71,11 +71,16 @@ Done when: capitals included through identified data, the labelling test run, bu
 Question: can the cross-classification of two registers (race at birth by race at death) be estimated from public
 files without identifiers, and with what bias and precision.
 
-In hand: the estimator (ADR-0229, `modelled_race.candidate_counts`), its other-sex negative control, validation
-against the one-to-one infant linkage by municipality size (valid below 25,600 births a year), found shares (0.90
-infants, 0.72 at 1-9, about half at 15-24), the sensitivity of rate ratios to unequal found shares.
+Built 2026-11-21 (`build.py estimator`; ADR-0233, evaluation 2026-11-21-candidate-estimator). Analyses:
+`analysis/pair.py` (second validation pair, `modelled_race.pair_candidate_counts` / `pair_truth`), `analysis/estimator.py`
+(`results/estimator.json`: both validations, four standard errors from `modelled_race.candidate_estimates`),
+`analysis/simulate.py` (`results/simulation.json`, five scenarios x 200 replicates, ~50 min detached),
+`figures_estimator.py`. Reading notes for its references: `estimator/reading_notes.md`.
 
-Missing: a simulation study of bias and coverage under movers, twins and unequal found shares; a second validation pair
-(admissions to deaths, `sih_deaths_to_sim`); the variance including the denominator.
+Findings: infants within 0.005-0.020 of the one-to-one link below 25,600 births a year; admissions within 0.001 of the
+certificates sharing the key, 0.006 of all linked (the 10% not sharing it classify differently); in simulation unbiased
+for the people found under twins, movers and unequal moving, model intervals 92-98%; the bias is the selection of who
+kept the key (movers +0.013, selective moving +0.038), and unequal moving moves rate ratios by the ratio of shares found.
 
-Done when: simulation and second validation done, built and audited; papers 3 to 5 cite it for the method.
+Open: papers 3 to 5 cite it for the method and report the model error (`*_se_model`, `ratio_se_poisson`); a control
+scaled within age for registers of deaths with many chance candidates.
