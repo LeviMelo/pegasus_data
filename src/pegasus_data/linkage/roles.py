@@ -345,7 +345,28 @@ def partition_files(dataset: str, year: int, settings: Any) -> tuple[Path, list[
     from ..retrieve import parse_dataset
 
     system, series = parse_dataset(dataset)
-    return published_files(settings.lake_dir, system, cast(str, series), year)
+    lake, files = published_files(settings.lake_dir, system, cast(str, series), year)
+    # only the files the catalog lists, as `query()` reads: a partition left unlisted (a superseded family's,
+    # `persist.lake._delist_superseded`) is read by nothing, and keying on it served a role table built while it was
+    # still read: SINASC 2013 twice over after the catalog was repaired (2026-11-22)
+    listed = _listed_paths(settings, year)
+    if listed is not None:
+        files = [f for f in files if f.relative_to(Path(settings.lake_dir)).as_posix() in listed]
+    return lake, files
+
+
+def _listed_paths(settings: Any, year: int) -> set[str] | None:
+    """The relative paths of the lake partitions the catalog lists for ``year``, or None without a catalog."""
+    from ..catalog.store import CatalogStore
+
+    if not Path(settings.catalog_path).exists():
+        return None
+    store = CatalogStore(settings.catalog_path, read_only=True)
+    try:
+        return {str(r["relative_path"]) for r in store.query("SELECT relative_path FROM lake_partitions WHERE year=?",
+                                                              (year,))}
+    finally:
+        store.close()
 
 
 def table_key(dataset: str, year: int, settings: Any) -> str | None:

@@ -45,3 +45,15 @@ covariates as "M"/"F", so two series stacked never met. `load_population` now re
 the whole spelling (`canonical_sex`), with the filed value as `sex_filed` where it was rewritten. projpop 2024 by sex now
 equals POPSVS's (103,662,286 and 108,921,464). The one internal reader of projpop's M/F (the population account's IBGE
 calibration, `population_tensor`) reads the new coding.
+
+**SINASC 2013 read twice (race papers).** `query('SINASC.DN', period=2013)` and `role_table` returned 5,808,054 rows for
+2,904,027 births. DNBR2013.dbc was listed in two families: `SINASC_DN_f250f23917` (built 2026-11-21, a family that now
+groups only the `NOV/` state files) and `SINASC_DN_49b98e3fbe` (built 2026-11-22 04:21, the family that now claims the
+file), with the same digest and rows, and the one-reading rule (`national_or_states`) keeps every national partition of a
+year. The only such case in the catalog. Writing a partition now removes from the catalog every other family's
+partition of the same dataset, place and year built only from its files (`persist.lake._delist_superseded`); the 2013
+row was removed by the same function (its row saved under `work/logs/`), and the unlisted file goes with the next prune. `query()` then read 2,904,027;
+`role_table` still served 5,808,054 from its cache, whose key globbed the year's folders, unlisted file included. The key
+now reads the catalog's listed files (`roles.partition_files`), as `query()` plans: SINASC 2013's key changed and the
+table holds 2,904,027; the keys of other years (SINASC 2014, SIM-DO and SIH-RD 2022) are unchanged, so no other cached
+table or stored link run went stale.

@@ -146,6 +146,27 @@ class LakePartition:
     sources: frozenset[str] = frozenset()
 
 
+def _delist_superseded(conn: Any, family_id: str, uf: str, year: int, sources: set[str]) -> int:
+    """Remove from the catalog every other family's partition of the same dataset, place and year built only from files
+    this partition was just built from: one source file is one reading, held once. A file regrouped into another schema
+    family (SINASC's DNBR2013, from `NOV/` to `1996_/` families) was built again under the new family while the old
+    partition stayed listed, and every read of 2013 returned each birth twice (5,808,054 rows, 2026-11-22). The file
+    left unlisted is read by nothing (reads plan from the catalog) and `drop_redundant_partitions` removes it once the
+    listed reading contains its rows. Returns the rows delisted."""
+    if not sources:
+        return 0
+    dataset = family_id.rsplit("_", 1)[0]
+    gone = []
+    for other, path, listed in conn.execute(
+            "SELECT family_id, relative_path, source_paths FROM lake_partitions WHERE uf=? AND year=? AND family_id<>?",
+            (uf, year, family_id)).fetchall():
+        held = set(json.loads(listed or "[]"))
+        if str(other).rsplit("_", 1)[0] == dataset and held and held <= sources:
+            gone.append((other, path))
+    conn.executemany("DELETE FROM lake_partitions WHERE family_id=? AND relative_path=?", gone)
+    return len(gone)
+
+
 def published_files(lake_dir: str | Path, system: str, series: str, year: int) -> tuple[Path, list[Path]]:
     """A dataset-year's published partition files in the lake, every family and schema of it: (the system's directory,
     the files). A write in progress stages under a hidden directory the pattern does not match. The lake's layout is
@@ -418,6 +439,7 @@ class Lake:
                         build_fingerprint, digests_json,
                     ) for rel, n, size in rows_of],
                 )
+                _delist_superseded(conn, family_id, uf, year, set(source_paths))
         return written
 
     def partition_is_current(
