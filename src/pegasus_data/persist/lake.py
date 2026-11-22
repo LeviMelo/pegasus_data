@@ -49,6 +49,21 @@ def _safe(part: str) -> str:
 RECORD_KEY = "_record_key"
 
 
+def _file_keys(path: str, fields: Sequence[str]) -> pa.Array:
+    """The record key of every row of one partition file, in its row order (`normalize.engine.record_key_sql`)."""
+    import duckdb
+
+    from ..normalize.engine import record_key_sql
+
+    con = duckdb.connect()
+    try:
+        con.execute("SET preserve_insertion_order = true")
+        return con.execute(f"SELECT {record_key_sql(fields)} AS k FROM read_parquet('{Path(path).as_posix()}', "
+                           "hive_partitioning = false)").to_arrow_table().column("k").combine_chunks()
+    finally:
+        con.close()
+
+
 def parquet_writer(path: Path, schema: pa.Schema, compression: str = "zstd") -> pq.ParquetWriter:
     """The lake's Parquet encoding, for every writer of a partition file. `_row` counts up within each file:
     delta-encoded it is a few bits a row, against 4.6% of an SIH partition dictionary-encoded (measured 2026-10-04,
@@ -573,6 +588,16 @@ class Lake:
             schema = pa.unify_schemas([dataset.schema, physical])
             keep = projection if projection is not None else [n for n in schema.names if n != RECORD_KEY]
             read = list(dict.fromkeys([*keep, *([RECORD_KEY] if stored else fields)]))
+            if expression is None and not stored and fields:
+                # the whole file: DuckDB hashes it in one parallel pass, in the file's row order, and the columns asked are
+                # read with their own types beside it (2.7 times the batch path: 857,219 SIH-RD rows in 4.4 s, not 11.7)
+                table = fragment.to_table(schema=schema, columns=keep)
+                keys = _file_keys(fragment.path, fields)
+                if len(keys) != table.num_rows:
+                    raise RuntimeError(f"{fragment.path}: {len(keys)} keys for {table.num_rows} rows")
+                if table.num_rows:
+                    pieces.append(table.append_column(RECORD_KEY, keys))
+                continue
             batches = []
             for batch in fragment.to_batches(schema=schema, columns=read, filter=expression):
                 if not batch.num_rows:
