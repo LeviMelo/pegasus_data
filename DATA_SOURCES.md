@@ -1183,6 +1183,22 @@ TabNet's state forms classify by `territorio/{UF}_macsaud.cnv` and `{UF}_regsaud
   27 philanthropic, 28/29 insurer), size class, the pre-established-value and package flags. Named by TUSS table but not listed, so left undecoded: 23, 57, 41, 39, 50, 76, 52, 24, 77, 36, 60, 79. The two
   dictionaries disagree on `LG_FATOR_MODERADOR` (0 or 1 for "present"); the first rows of PLANOS.zip file `Ausente` with 1.
 
+## 16. ANS beneficiaries by municipality, the quarterly TabNet base (measured 2026-11-22; docs/evaluation/2026-11-22-ans-beneficiaries-history.md)
+
+- **Where.** `dadosabertos.ans.gov.br/FTP/Base_de_dados/Microdados/dados_dbc/beneficiarios/municipios/tb_bb_<yyyy>-<mm>.dbc` (Apache index, plain HTTPS), quarter-end months 03, 06, 09, 12, 2000-03 to 2026-09 (107 files, 16-18 MB
+  each, DATASUS-compressed DBF; read by the package's own decoder). The base behind the TabNet "Beneficiários por Município" (`DEF/tabnet_02.def`); the code lists are the CNV files of
+  `arquivos_auxiliares_de_tab_def_e_cnv/arquivos_auxiliares_de_tabulacao.zip` (`cd_idade_faixa5`, `tp_sexo`, `cd_tp_contratacao3`, `cd_segmentacao_plano`, `tp_vigencia_plano`).
+- **Layout.** 13 text columns, one row per cell: `ID_CMPT` (YYYYMM), `SEXO`, `TP_VIGENCI` (A before / P after Law 9.656/98), `SG_UF`, `CD_MUNICIP` (6-digit IBGE), `CD_CAPITAL`, `CD_RM`, `CD_CONTR` (1-4, 0 not informed),
+  `CD_SEGMENT` (00-15, 99), `CD_FAIXA_E` (00-27, 99), `NR_BENEF_T` = `NR_BENEF_M` (medical-hospital, with or without dental) + `NR_BENEF_O` (dental only). 1.5-1.8 million rows a file.
+- **Age codes.** The CNV groups two codes into each five-year band from 15-19 to 55-59 and 26+27 into 80 and over; the RN 63 table (`cd_idade_rn63`) is consistent with the pair being the band's earlier years and its last year.
+  Code 99 is inconsistent (3,468 links in December 2012, 190 in 2021).
+- **The same count as PDA-024.** December 2021: tb_bb 49,252,210 medical-hospital links (49,209,906 in an IBGE municipality), PDA-024 (`ans_beneficiaries`) 49,252,210 and 49,209,904; one municipality (430210) differs, by 2. ANS publishes
+  one SIB count in two layouts. PDA-024 files age by finer labels (15-17, 18-19) that the 5-year bands unite.
+- **Municipality is the operator's registered residence** (SIB). Beneficiaries in a code that is no IBGE municipality (the "ignored" codes ending 0000, state-only codes) are unallocated: 801,709 of 30,966,522 in December 2000 (2.6%),
+  94,320 of 47,846,092 in 2012 (0.2%), 42,304 of 49,252,210 in 2021.
+- **Landed in the lake** by `pegasus-data fields --name ans_beneficiaries_quarterly` (declared `ans_beneficiaries_municipal`, whole records, every column; dental-only counts are `ans_dental_beneficiaries_quarterly`): 2012 7,071,709 rows, 2020-2021
+  13,944,450, all 107 quarters 176,199,297. National medical-hospital links in December: 41.0 million (2008), 47.7 (2012), 50.5 (2014), 47.0 (2019), 47.9 (2020), 52.8 (2025); municipalities placed 5,558 (2012), 5,570 (2020-2021).
+
 ## SINAN residence codes and representations (measured 2026-10-24; ADR-0207)
 
 - `ID_MN_RESI` (SINAN-DENG 2010-2026) writes Federal District residents with region codes as well as 530010: 5300xx (530020-530180, as SIH did before 2018) and SINAN's 5399xx (539901-539934), 22,958 rows, 13,585 of them in 2024; DATASUS's TabWin tables AGLBR and BR_CAPITAL map 530000-539999 to Brasília. `XX0000` is the state with its municipality unknown (BR_DIVADM: "Município ignorado - UF").

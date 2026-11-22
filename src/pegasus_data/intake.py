@@ -880,10 +880,36 @@ def _transcode_mixed(src: Any, dst: Any) -> None:
             break
 
 
+def _dbc_to_parquet(path: Path) -> Path:
+    """A DATASUS-compressed DBF (``format: dbc``) decoded by the package's own decoder (`decode.dbc`) into a Parquet of
+    strings beside it (returned, to delete): every value as the file filed it, like a CSV read with all_varchar. The rows
+    written are counted against the DBF header's record count, so a decode that lost records raises (`_LostRecords`)."""
+    from .decode.dbc import read_dbc
+
+    target = path.with_name(path.stem + ".dbc.parquet")
+    table = read_dbc(path)
+    written = 0
+    schema = pa.schema([pa.field(f.name, pa.string()) for f in table.fields])
+    try:
+        with pq.ParquetWriter(target, schema, compression="zstd") as out:
+            for batch in table.batches():
+                out.write_table(pa.Table.from_batches([batch]).cast(schema))
+                written += batch.num_rows
+    finally:
+        table.retains = None
+    if table.row_count is not None and written != table.row_count:
+        target.unlink(missing_ok=True)
+        raise _LostRecords(f"{path.name}: the DBF header declares {table.row_count} records, {written} were decoded")
+    return target
+
+
 def _file_relation(path: Path, origin: dict[str, Any], unit: dict[str, Any]) -> tuple[str, Path | None]:
     """A DuckDB relation over a downloaded file; a zip's CSV member is extracted beside it (returned, to delete)."""
     if origin.get("format", "csv") == "parquet":
         return f"read_parquet('{path.as_posix()}')", None
+    if origin.get("format") == "dbc":
+        extracted = _dbc_to_parquet(path)
+        return f"read_parquet('{extracted.as_posix()}')", extracted
     csv = origin.get("csv") or {}
     mixed = csv.get("encoding") == "mixed"
     source, extracted = path, None
@@ -1305,7 +1331,7 @@ def build_source(settings: Any, source: str, names: list[str] | None = None, yea
         report["unparsed"] = unparsed
     # Every intake field is a records cube or a view of the landed records (ADR-0217): building it is reading it once
     # through `load_field`, which keeps the cube under lake/cubes by its data's fingerprint; nothing is copied to lake/fields.
-    from .fields import declared_fields, intake_cube, load_field, margins_view, rows_view
+    from .fields import _years, declared_fields, intake_cube, load_field, margins_view, rows_view
 
     declared = declared_fields()
     for name in fields:
@@ -1317,9 +1343,31 @@ def build_source(settings: Any, source: str, names: list[str] | None = None, yea
             # every record of the years in memory (ANS's itemised lines are 5.1 million rows for two states and two years)
             report[name] = {"rows": None if register["where"] else report["rows"], "view": True}
             continue
-        table = load_field(name, years=years, settings=settings)
-        total = float(pc.sum(table.column("value")).as_py() or 0) if "value" in table.column_names else None
-        report[name] = {"rows": table.num_rows, "total": total, "cube": True}
+        # one year at a time, keeping only its row count and total: a field of 27 years of 7 million rows (ANS's quarterly
+        # beneficiaries) held whole took 10.8 GB (2026-11-22); the cube of each year stays cached by its own request
+        wanted = years or _years(str(declared[name].get("years") or ""))
+        rows, total = 0, None
+        plan = intake_cube(name, declared[name])
+        months = sorted(k for k in report["units"] if re.fullmatch(r"\d{6}", k) and int(k[:4]) in wanted)
+        if plan is not None and plan["grain"] == "month" and months:
+            # a month-grain source filed by month (ANS's quarters): the records cube of each month alone, so no more than one
+            # month's cells (about 1.7 million rows) are ever held, whatever the span
+            from .cubes import cube
+
+            for key in months:
+                part = cube(plan["source"], periods=[f"{key[:4]}-{key[4:]}"], grain="month", by=[c for c, _ in plan["strata"]],
+                            where=plan["where"], measure=plan["measure"], labels=False, settings=settings)
+                rows += part.num_rows
+                total = (total or 0.0) + float(pc.sum(part.column("value")).as_py() or 0)
+                del part
+        else:
+            for year in wanted:
+                table = load_field(name, years=[year], settings=settings)
+                rows += table.num_rows
+                if "value" in table.column_names:
+                    total = (total or 0.0) + float(pc.sum(table.column("value")).as_py() or 0)
+                del table
+        report[name] = {"rows": rows, "total": total, "cube": True}
     return report
 
 
