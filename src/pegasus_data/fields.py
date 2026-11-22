@@ -674,21 +674,41 @@ def load_field(name: str, *, years: list[int] | int | None = None, settings: Any
 
 
 def _held_years(name: str, spec: dict[str, Any], settings: Any) -> list[int]:
-    """The years `load_field` serves for ``name``: a field stored by year as its folders name them, any other as the years
-    of what it answers (read whole; this is the error path and the compendium's)."""
+    """The years `load_field` serves for ``name``, from metadata only: a SIDRA or series field is its fact store (small,
+    read), a records cube the years its landed dataset holds in the lake, a CNES field and a climate field their declared
+    years, a stored field the year folders it holds. Never by reading a field whole: the manual asked this of every field
+    and reading the climate and intake cubes whole took a build to 68 GB of committed memory (2026-11-22)."""
+    import sqlite3
+
     from .config import load_settings
 
     settings = settings or load_settings()
+    declared = declared_years(spec)
+    if cnes_cube(name, spec) is not None and declared:   # its rows are the declared years, one per municipality
+        return declared
+    if cube_of(spec) is not None:
+        try:
+            return sorted(set(_field_from_cube(name, spec, None, settings).column("year").to_pylist()))
+        except (LookupError, FileNotFoundError, KeyError, ValueError):
+            return []
+    plan = intake_cube(name, spec)
+    if plan is not None:
+        family = str(plan["dataset"]).replace("-", "_").replace(".", "_") + "_%"
+        con = sqlite3.connect(f"file:{Path(settings.catalog_path).as_posix()}?mode=ro", uri=True)
+        try:
+            years = {int(r[0]) for r in con.execute(
+                "SELECT DISTINCT year FROM lake_partitions WHERE family_id LIKE ?", (family,)).fetchall() if r[0]}
+        finally:
+            con.close()
+        return sorted(y for y in years if not declared or y in declared)
+    if spec.get("source") == "brdwgd":
+        return declared
     directory = Path(settings.lake_dir) / "fields" / name
-    kinds = (cube_of(spec), intake_cube(name, spec), cnes_cube(name, spec), spec.get("measure") if spec.get("source") == "brdwgd" else None)
-    if cnes_cube(name, spec) is not None and declared_years(spec):   # its rows are the declared years, one per municipality
-        return declared_years(spec)
-    if directory.is_dir() and not any(kinds):
-        return sorted(int(p.name.split("=", 1)[1]) for p in directory.glob("year=*") if p.name.split("=", 1)[1].isdigit())
-    try:
-        return sorted(set(_load_field(name, spec, None, settings).column("year").to_pylist()))
-    except (LookupError, FileNotFoundError, ValueError):
-        return []
+    if directory.is_dir():
+        found = sorted(int(p.name.split("=", 1)[1]) for p in directory.glob("year=*") if p.name.split("=", 1)[1].isdigit())
+        if found:
+            return found
+    return declared
 
 
 def _load_field(name: str, spec: dict[str, Any], wanted: list[int] | None, settings: Any) -> pa.Table:
