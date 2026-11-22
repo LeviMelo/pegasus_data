@@ -788,6 +788,17 @@ variables:
       ftp://ftp.datasus.gov.br/dissemin/publicos/SIHSUS/200801_/Doc/IT_SIHSUS_1603.pdf
       (local: sources/IT_SIHSUS_1603.txt), layout RD*.dbf SEQ 49 MUNIC_MOV char(6)
       ''Município do Estabelecimento'''
+    derived:
+    - name: MUNIC_MOV_municipio
+      from: [MUNIC_MOV]
+      remap: {"530020": "530010", "530030": "530010", "530040": "530010", "530050": "530010", "530060": "530010", "530070": "530010", "530080": "530010", "530090": "530010", "530100": "530010", "530110": "530010", "530120": "530010", "530130": "530010", "530135": "530010", "530140": "530010", "530150": "530010", "530160": "530010", "530170": "530010", "530180": "530010"}
+      valid: {from: 200801, to: 201712}
+      rule: Brasília is the Federal District's only municipality (530010). Its hospitals are written with their
+        administrative-region code (530020 to 530180, and 530135) as MUNIC_RES writes its residents, in the same
+        years (DF files of the lake, 2026-11-22, 111,115 to 125,592 rows a year in 2010-2017 against 58,027 to 84,919
+        written 530010; none from 2018, which writes 530010 only). The window is MUNIC_RES's, measured on its files
+        from 2008-01 (years before 2010 of MUNIC_MOV are not in the lake). This column maps those codes to 530010
+        inside the window and leaves every other code as written; MUNIC_MOV itself is never changed.
   MUNIC_RES:
     official_name: Município de Residência do Paciente
     translated_name: Municipality of residence

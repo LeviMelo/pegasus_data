@@ -1176,7 +1176,12 @@ def municipality_point(code: str, kind: str = "population") -> tuple[float, floa
     key = str(code).strip()
     row = _points().get(key)
     if not row:
-        warnings.warn(f"{key}: not a municipality of the points pack", NoPointWarning, stacklevel=2)
+        # the Federal District's administrative regions (530020-530180, 530135) and SINAN's 5399xx are written in
+        # place of Brasília (530010) by several systems; their datasets map them in derived columns (`*_municipio`)
+        hint = (" (a Federal District administrative-region code: read the dataset's `<column>_municipio`, which maps it "
+                "to Brasília 530010 in the years it is written)" if key[:2] == "53" and key not in ("530010", "5300108")
+                else "")
+        warnings.warn(f"{key}: not a municipality of the points pack{hint}", NoPointWarning, stacklevel=2)
         return None
     if row.get(f"{kind}_lon") is None:
         why = ("IBGE's 2022 municipal mesh has no polygon for it (created after the mesh), so no centroid and no people "
