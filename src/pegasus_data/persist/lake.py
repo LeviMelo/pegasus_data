@@ -941,7 +941,20 @@ def _reencode_file(path_text: str, dry_run: bool, compression: str) -> dict[str,
         if pq.ParquetFile(temporary).metadata.num_rows != pq.ParquetFile(path).metadata.num_rows:
             temporary.unlink()
             raise RuntimeError(f"{path}: the re-encoded file does not hold the original's rows")
-        os.replace(temporary, path)
+        # A reader holding the file open (another session's analysis) makes Windows refuse the rename: the rewrite of
+        # 2026-11-22 stopped on its 13,040th file. Tried again for half a minute, then left as it was and counted; the
+        # next run takes it.
+        import time
+
+        for attempt in range(15):
+            try:
+                os.replace(temporary, path)
+                break
+            except PermissionError:
+                if attempt == 14:
+                    temporary.unlink(missing_ok=True)
+                    return {"state": "locked", "before": before}
+                time.sleep(2)
         return {"state": "rewritten", "before": before, "after": path.stat().st_size}
     finally:
         con.close()
@@ -987,6 +1000,9 @@ def reencode_lake(catalog: CatalogStore, lake_dir: str | Path, *, dry_run: bool 
                 out["kept_differing"] += 1
                 continue
             out["bytes_before"] += int(done.get("before") or 0)
+            if state == "locked":
+                out["locked"] = out.get("locked", 0) + 1
+                continue
             if state != "rewritten":
                 continue
             out["bytes_after"] += int(done["after"])
