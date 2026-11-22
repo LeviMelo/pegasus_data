@@ -981,13 +981,6 @@ POINT_SOURCES = {
 
 #: IBGE's mesh levels (``intrarregiao``) by the name a caller uses
 MESH_LEVELS = {"municipality": "municipio", "state": "UF", "region": "regiao"}
-#: The world's countries, for what lies around Brazil on a map: IBGE's mesh API serves Brazil alone (``paises/AR``
-#: answers 400, 2026-11-22), so Natural Earth's admin-0 countries, the standard cartographic layer (public domain), at
-#: 1:50m for ``minima``/``intermediaria`` and 1:10m for ``maxima``
-COUNTRY_MESH_URLS = {
-    "50m": "https://naciscdn.org/naturalearth/50m/cultural/ne_50m_admin_0_countries.zip",
-    "10m": "https://naciscdn.org/naturalearth/10m/cultural/ne_10m_admin_0_countries.zip",
-}
 #: IBGE's mesh API: the one definition of its URL (``quality``: minima, intermediaria or maxima)
 MESH_URL = ("https://servicodados.ibge.gov.br/api/v3/malhas/paises/BR?formato=application/vnd.geo%2Bjson"
             "&qualidade={quality}&intrarregiao={level}")
@@ -1003,14 +996,8 @@ def mesh_file(level: str = "municipality", quality: str = "minima", root: str | 
     from .config import load_settings
     from .transport import download
 
-    if level == "countries" and quality in ("minima", "intermediaria", "maxima"):
-        scale = "10m" if quality == "maxima" else "50m"
-        target = load_settings(root=root).registry_dir("ibge_mesh") / f"countries_{scale}.zip"
-        if not target.is_file():
-            download(COUNTRY_MESH_URLS[scale], target.with_name(target.name + ".dl"), timeout=600).replace(target)
-        return target
     if level not in MESH_LEVELS or quality not in ("minima", "intermediaria", "maxima"):
-        raise ValueError(f"level in {sorted([*MESH_LEVELS, 'countries'])}, quality minima, intermediaria or maxima")
+        raise ValueError(f"level in {sorted(MESH_LEVELS)}, quality minima, intermediaria or maxima")
     target = load_settings(root=root).registry_dir("ibge_mesh") / f"{level}_{quality}.json"
     if target.is_file():
         return target
@@ -1032,19 +1019,9 @@ def mesh_file(level: str = "municipality", quality: str = "minima", root: str | 
 def mesh(level: str = "municipality", quality: str = "minima", root: str | Path | None = None):
     """IBGE's polygons of Brazil's municipalities, states or regions (`/api/v3/malhas`, today's division) as a
     GeoDataFrame (``code``: IBGE's code, 7 digits for a municipality; ``geometry`` in SIRGAS 2000, EPSG:4674), from
-    `mesh_file`. ``quality`` is IBGE's: ``minima`` (maps, a few MB) to ``maxima`` (the points pack's).
-
-    ``level="countries"``: the world's countries (Natural Earth admin-0, 1:50m, or 1:10m for ``maxima``), for the
-    neighbours and the land around Brazil on a map: ``code`` (ISO 3166-1 alpha-3), ``name``, ``continent``, ``geometry``
-    in EPSG:4674. Clip by the map's box, not by continent: French Guiana is part of France (continent Europe) in this
-    layer, so ``mesh("countries").cx[-82:-28, -38:10]`` is the frame of a Brazilian map."""
+    `mesh_file`. ``quality`` is IBGE's: ``minima`` (maps, a few MB) to ``maxima`` (the points pack's)."""
     import geopandas as gpd
 
-    if level == "countries":
-        world = gpd.read_file(mesh_file("countries", quality, root)).to_crs("EPSG:4674")
-        code = world["ISO_A3"].where(world["ISO_A3"] != "-99", world["ADM0_A3"])   # France, Norway: -99 in ISO_A3
-        return gpd.GeoDataFrame({"code": code, "name": world["NAME"], "continent": world["CONTINENT"]},
-                                geometry=world.geometry, crs="EPSG:4674")
     frame = gpd.read_file(mesh_file(level, quality, root)).set_crs("EPSG:4674", allow_override=True)
     return frame.rename(columns={"codarea": "code"})[["code", "geometry"]]
 
