@@ -44,3 +44,5 @@ the 100 entries written meanwhile were read again.
 
 **Not a defect.** The SIGTAP history's micro-guidewire and microcatheter codes (0702050369, 0702050350) are open runs
 from 2012-09 (`valid_to` null). A query of `max(valid_to)` skipped them and seemed to end them in 2012.
+
+**Readers no longer wait on the map (OQ #100 resolved).** A stale map is served as it was and rebuilt by one detached `pegasus-data compendium` (a lock file holds its process), which replaces it in one rename. The overview says a new map is being built. On the real home during the re-encode, `info()` took 1.3 s and then 0.4 s, `info CNES.HB` 1.7 s, and the rebuild replaced the map about a minute later. A missing map is still built in the call, and `current(wait=True)` rebuilds in it.

@@ -616,11 +616,15 @@ _DEFAULT_OPTIONS = {"systems": "all", "codes": "none", "max_codes": 1000, "value
                     "descriptions": True}
 
 
-def current(*, settings: Settings | None = None, root: str | Path | None = None) -> Path:
-    """The home's map, built if absent and rebuilt when anything it describes has changed (``search()`` and
-    ``info()`` read it; a rebuild takes about twenty seconds)."""
+def current(*, settings: Settings | None = None, root: str | Path | None = None, wait: bool = False) -> Path:
+    """The home's map (``search()`` and ``info()`` read it). Built here when there is none. When anything it describes
+    has changed, it is rebuilt by one detached ``pegasus-data compendium`` and served meanwhile as it was, saying so
+    (`rebuilding`): a reader is never held for the rebuild. Every write to the catalog makes the map stale, so while a
+    job wrote it (a header census, a build) every `info` and `search` call rebuilt the whole map inside itself, 52 s
+    to 11 min (OQ #100). ``wait=True`` rebuilds a stale map here."""
     cfg = settings or load_settings(root=Path(root) if root else None)
     target = default_path(cfg)
+    stored = None
     if target.is_file():
         try:
             con = sqlite3.connect(f"file:{target.as_posix()}?mode=ro", uri=True)
@@ -632,8 +636,44 @@ def current(*, settings: Settings | None = None, root: str | Path | None = None)
             stored = None
         if stored and stored[0] == fingerprint(cfg):
             return target
+    if stored and not wait:
+        _rebuild_detached(cfg)
+        return target
     compendium(target, settings=cfg)
     return target
+
+
+def _lock_path(cfg: Settings) -> Path:
+    return cfg.catalog_dir / "compendium.rebuilding"
+
+
+def rebuilding(cfg: Settings) -> int | None:
+    """The process rebuilding the home's map in the background, or None."""
+    import psutil
+
+    try:
+        pid = int(_lock_path(cfg).read_text(encoding="utf-8").strip())
+    except (OSError, ValueError):
+        return None
+    return pid if psutil.pid_exists(pid) else None
+
+
+def _rebuild_detached(cfg: Settings) -> None:
+    """Start one detached rebuild of the home's map unless one is running. It writes beside the map and replaces it in
+    one rename (`compendium`), so a reader sees the old map or the new one."""
+    import subprocess
+    import sys
+
+    if rebuilding(cfg) is not None:
+        return
+    log = cfg.work_dir / "compendium_rebuild.log"
+    log.parent.mkdir(parents=True, exist_ok=True)
+    env = {**os.environ, "PEGASUS_DATA_HOME": str(cfg.catalog_dir.parent), "PYTHONUTF8": "1"}
+    flags = (subprocess.DETACHED_PROCESS | subprocess.CREATE_NEW_PROCESS_GROUP) if os.name == "nt" else 0
+    with log.open("ab") as out:
+        child = subprocess.Popen([sys.executable, "-m", "pegasus_data.cli", "compendium"], stdout=out, stderr=out,
+                                 stdin=subprocess.DEVNULL, env=env, creationflags=flags, close_fds=True)
+    _lock_path(cfg).write_text(str(child.pid), encoding="utf-8")
 
 
 def overview(*, settings: Settings | None = None, root: str | Path | None = None) -> str:
@@ -645,7 +685,10 @@ def overview(*, settings: Settings | None = None, root: str | Path | None = None
     try:
         q = con.execute
         built = (q("SELECT value FROM meta WHERE key = 'generated_at'").fetchone() or ["?"])[0]
-        out = [f"pegasus_data: what this install holds and can do (map of {built}).",
+        cfg = settings or load_settings(root=Path(root) if root else None)
+        moving = rebuilding(cfg)
+        out = [f"pegasus_data: what this install holds and can do (map of {built})."
+               + (f" The home has changed since; a new map is being built (process {moving})." if moving else ""),
                "  search <words> finds anything below, and every column, role, SIDRA table and code;",
                "  info <dataset> / info <dataset>.<COLUMN> describes one. Rows held are in this install's lake.", ""]
 
