@@ -75,3 +75,9 @@ cohort link as `linked_deaths` reads the death links: columns named for the even
 names. A bare `linked_deaths("SIH-RD", ...)` had been refused since SIH-RD gained a second and third cohort link; it now
 picks the link whose event is a death. Paraná 2019, glioma surgery (C71) to radiotherapy: 891 persons, the pass 58 pairs
 and the control 6 (10.3% chance, above the drop threshold): not viable for one state and year.
+
+**A long `rows=` list (science-2).** `query("ANS.TISS_HOSP_CONS", rows={"ID_EVENTO_ATENCAO_SAUDE": <200,000 ids>})` killed the
+process with a Windows stack overflow: `prefix_match` chained one `starts_with` per prefix, an OR nested 200,000 deep. It
+now tests, per prefix length L, whether the first L characters are among the prefixes of that length (one `is_in` per
+length): the same rows (20,050 random values against 300 prefixes: equal but for a null value, now false rather than null,
+which every filter drops alike). The same query of 2024-01..06 returns 200,000 of 200,000 ids in 1.0 s.

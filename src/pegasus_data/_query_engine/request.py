@@ -42,9 +42,15 @@ def prefix_match(text: Any, prefixes: Sequence[str]) -> Any:
     import pyarrow.compute as pc
 
     upper = pc.utf8_upper(text)
+    # one set test per prefix length (the first L characters among the prefixes of length L), not one `starts_with` per
+    # prefix: an OR of 200,000 event ids nested 200,000 deep and overflowed the stack in the scan (2026-11-22). The
+    # same rows: a value starts with a prefix of length L exactly when its first L characters are that prefix.
+    by_length: dict[int, list[str]] = {}
+    for prefix in dict.fromkeys(prefixes):
+        by_length.setdefault(len(prefix), []).append(prefix)
     hit = None
-    for prefix in prefixes:
-        one = pc.starts_with(upper, pattern=prefix)
+    for length, group in sorted(by_length.items()):
+        one = pc.is_in(pc.utf8_slice_codeunits(upper, 0, length), value_set=pa.array(group, pa.string()))
         hit = one if hit is None else pc.or_kleene(hit, one)
     return hit
 
