@@ -719,6 +719,44 @@ links:
         sql: "substr(r.\"authorisation.tumour_topography\", 1, 3) = substr(l.\"admission.diagnosis\", 1, 3)"
       - {name: radiotherapy after the admission, sql: "r.\"authorisation.start\" >= l.\"admission.start\""}
 
+  # A radiotherapy patient's death within a year of the course's start: the APAC has no birth date (SIA-AR files the age),
+  # so a person is the patient token's first course, and the death certificate is found by sex, residence and the day of
+  # death. With match "principal" the certificate's underlying cause carries the same codes (a glioma's patient dying of a
+  # glioma), which narrows a city's deaths of the day to the cause; with "any" the death is of any cause (a brain
+  # metastasis' certificate names the primary tumour), which only a small place's deaths can single out. The age at the
+  # course against the age at death is held out. Declared to be measured (2026-11-22, the ABNc studies t05 and t09), and
+  # measured not viable: Paraná 2019, glioma (C71, match principal), 217 patients, the pass 47 pairs against 39 in the
+  # control. The age decides: of the 169 patients with a C71 death of their sex and residence within the year, 95 agree
+  # on age (0 to +1 years), 57 with one candidate, against 11 in a window moved back 180 days. Age is no key today (the
+  # APAC files an age, not a birth date, and passes take exact keys on stored roles): viable once the engine keys an
+  # age against an age at death a year later.
+  sia_radiotherapy_to_sim:
+    description: >
+      Radiotherapy patients with the caller's tumour codes (params.codes: ICD-10 prefixes on the treated topography of
+      SIA-AR) to the death certificate within a year of the first course's start. One record stands for each patient
+      token's first course. Keys: sex, municipality of residence and the day of death; with match "principal" the
+      certificate's underlying cause carries the same codes, with "any" a death of any cause is a candidate. The APAC
+      has no birth date, so the age is a held-out check, not a key.
+    same_event: false   # a course of radiotherapy and the patient's death, possibly months later
+    params:
+      codes: {side: left, roles: {principal: authorisation.tumour_topography, any: authorisation.tumour_topography},
+              partner: {principal: death.cause}}
+    outcome: {origin: authorisation.start, event: death.date}
+    left:
+      dataset: SIASUS-AR
+      group: [patient.cns]
+      earliest: authorisation.start
+      explode_days: [authorisation.start, 365, follow_up.day]
+    right: {dataset: SIM-DO, pad_years: [0, 1]}
+    passes:
+      - name: sex, residence, day of death in the year after the course's start
+        keys: [[patient.sex, deceased.sex], [patient.residence, deceased.residence], [follow_up.day, death.date]]
+    control: {role: follow_up.day, shift_days: 180}
+    validate:
+      - name: the age at death is the age at the course or one more
+        sql: "r.\"deceased.age_years\" - l.\"patient.age_years\" BETWEEN -0.5 AND 1.5"
+      - {name: death on or after the course's start, sql: "r.\"death.date\" >= l.\"authorisation.start\""}
+
   # The same mechanism on a notification system: the cases of the caller's agravo codes (TOXC's ID_AGRAVO holds P371, B58
   # and O986) to the death certificate of any cause within a year of the notification, so that a case's survival does
   # not depend on SINAN closing it as a death (EVOLUCAO is blank or ignored for 55% of the 20,968 TOXC of 2019-2023).

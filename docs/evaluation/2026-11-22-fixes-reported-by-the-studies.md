@@ -57,3 +57,11 @@ row was removed by the same function (its row saved under `work/logs/`), and the
 now reads the catalog's listed files (`roles.partition_files`), as `query()` plans: SINASC 2013's key changed and the
 table holds 2,904,027; the keys of other years (SINASC 2014, SIM-DO and SIH-RD 2022) are unchanged, so no other cached
 table or stored link run went stale.
+
+**Radiotherapy to death (science-2's request).** `sia_radiotherapy_to_sim` declared (SIA-AR first course per patient token
+to SIM-DO within a year; keys sex, residence, day of death; match "principal" filters the certificate's underlying
+cause by the same codes). Paraná 2019, C71: 217 patients, 47 pairs against 39 in the control: not viable. Measured by
+hand on the same records, the age decides: 169 patients have a C71 death of their sex and residence within the year, 95
+agree on age (0 to +1), 57 with one candidate, against 11 in a window moved back 180 days. The engine has no key of an
+age against an age at death a year later; until it has, glioma survival goes through the operated patients
+(`sih_admissions_to_radiotherapy` then `sih_admissions_to_sim`, both on birth date).
