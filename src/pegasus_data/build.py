@@ -1238,3 +1238,67 @@ def keep_downloaded_versions(pipeline: Pipeline, *, land_versioned: bool = True,
                 delta_bytes += int(record["byte_size"])
     out.update(counts, delta_bytes=delta_bytes)
     return out
+
+
+def release_other_representations(pipeline: Pipeline, *, dry_run: bool = False) -> dict[str, int]:
+    """Release the downloads of a publication's other representation when the lake holds the publication from the one
+    the build chose, and the publication is final (ADR-0234).
+
+    A publication is filed in up to four formats (DBC, and the Dados Abertos CSV, JSON, XML or Parquet); one reading
+    takes one of them (`representations.choose_representations`), so the others never land. Their records are the
+    publication's, which the lake holds. The download is released only when a refetch reproduces it: the server still
+    lists that path at the size and time it was fetched, and neither it nor the representation the lake holds is in a
+    series `curation/snapshots.yml` declares as rewritten. A logical identity also groups editions (a corrected year
+    republished in another directory); an older edition the server still lists is reproduced the same way."""
+    from datetime import UTC, datetime
+
+    from .persist.versions import current_digest
+    from .snapshot import _keeps, declared_series
+
+    catalog, blobs, root = pipeline.catalog, pipeline.blobs, Path(pipeline.settings.lake_dir)
+    base = pipeline.settings.base_path.rstrip("/")
+    today = datetime.now(UTC).date()
+    rewritten = [(f"{base}/{d.strip('/')}/", spec) for spec in declared_series().values() for d in spec["directories"]]
+
+    def rewrites(path: str) -> bool:
+        return any(path.startswith(prefix) and _keeps(spec, path.rsplit("/", 1)[1], today) for prefix, spec in rewritten)
+
+    logical = {str(r["path"]): str(r["logical_id"] or r["path"]) for r in catalog.query(
+        "SELECT path, logical_id FROM file_facts WHERE logical_id IS NOT NULL")}
+    by_logical: dict[str, list[str]] = {}
+    for path, key in logical.items():
+        by_logical.setdefault(key, []).append(path)
+    listed = {str(r["path"]): (r["size"], str(r["modified"] or "")) for r in catalog.query(
+        "SELECT path, size, modified FROM files WHERE gone_at IS NULL")}
+    out = {"released": 0, "bytes": 0, "kept_rewritten": 0, "kept_not_reproducible": 0, "locked": 0}
+    for row in catalog.query("SELECT sha256, source_path FROM fetches GROUP BY sha256, source_path"):
+        sha, path = str(row["sha256"]), str(row["source_path"])
+        blob = blobs.path_for(sha)
+        if not blob.is_file() or path not in logical or current_digest(catalog, root, path)[0] is not None:
+            continue
+        holders = [p for p in by_logical.get(logical[path], ()) if p != path and current_digest(catalog, root, p)[0]]
+        if not holders:
+            continue
+        if any(rewrites(p) for p in [path, *holders]):
+            out["kept_rewritten"] += 1
+            continue
+        from .discovery.listing import same_instant
+
+        fetched = catalog.query("SELECT remote_size, remote_modified FROM fetches WHERE source_path = ? AND sha256 = ? "
+                                "ORDER BY id DESC LIMIT 1", (path, sha))[0]
+        now = listed.get(path)
+        if now is None or (now[0] is not None and fetched["remote_size"] is not None
+                           and int(now[0]) != int(fetched["remote_size"])) or not (
+                fetched["remote_modified"] and now[1] and same_instant(str(fetched["remote_modified"]), now[1])):
+            out["kept_not_reproducible"] += 1
+            continue
+        size = blob.stat().st_size
+        if not dry_run:
+            try:
+                blob.unlink()
+            except PermissionError:
+                out["locked"] += 1
+                continue
+        out["released"] += 1
+        out["bytes"] += size
+    return out
