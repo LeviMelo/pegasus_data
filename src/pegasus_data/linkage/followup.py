@@ -233,7 +233,7 @@ def _table(spec: Any, pairs: pa.Table, report: dict[str, Any], period: object, a
     wanted = sorted(set(_roles_needed(spec, "left")) | set(extra) | {outcome.origin})
     left = _side_table(spec.left, wanted, period=period, geography=area, **query_kwargs)
     con = connect()
-    _prepare(con, "L", left, replace(spec.left, explode_days=None))
+    _prepare(con, "L", left, replace(spec.left, explode_days=None, explode_values=None))
     con.register("pairs", pairs)
     p_match = _p_match(report, outcome)
     con.register("band", p_match)

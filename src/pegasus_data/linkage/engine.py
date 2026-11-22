@@ -73,6 +73,9 @@ class Side:
     dataset: str
     where: str = ""
     explode_days: tuple[str, str | int, str] | None = None  # (start role, end role or a count of days, new role)
+    #: (a number role, offsets, new role): one row per offset, the role's whole part plus it; an age at an event against
+    #: an age at a later death (0 or 1 year more inside a year's follow-up), where a key must be equal
+    explode_values: tuple[str, tuple[int, ...], str] | None = None
     group: tuple[str, ...] = ()                       # one record per group (a delivery)
     latest: str = ""                                  # the group's record with the latest value of this role stands for it
     pad_years: tuple[int, int] = (0, 0)               # years read before and after the left period
@@ -170,12 +173,14 @@ class LinkSpec:
 
 def _side(body: dict[str, Any]) -> Side:
     explode = body.get("explode_days")
+    values = body.get("explode_values")
     if body.get("latest") and body.get("earliest"):
         raise ValueError("a link side picks its group's record by `latest` or by `earliest`, not both")
     return Side(
         dataset=str(body["dataset"]).upper(),
         where=str(body.get("where") or ""),
         explode_days=tuple(explode) if explode else None,  # type: ignore[arg-type]
+        explode_values=(str(values[0]), tuple(int(v) for v in values[1]), str(values[2])) if values else None,
         group=tuple(body.get("group") or ()),
         latest=str(body.get("latest") or ""),
         pad_years=tuple(int(x) for x in body.get("pad_years") or (0, 0)),  # type: ignore[arg-type]
@@ -364,6 +369,9 @@ def _roles_needed(spec: LinkSpec, side: str) -> list[str]:
     if s.explode_days:
         names.discard(s.explode_days[2])
         names.update(r for r in s.explode_days[:2] if isinstance(r, str))
+    if s.explode_values:
+        names.discard(s.explode_values[2])
+        names.add(s.explode_values[0])
     names.update(s.group)
     if s.latest:
         names.add(s.latest)
@@ -508,6 +516,11 @@ def _prepare(con: duckdb.DuckDBPyConnection, name: str, table: pa.Table, side: S
                      f"AND {quote(end)} - {quote(start)} <= 120")
         base = (f"SELECT *, CAST(unnest(generate_series(CAST({quote(start)} AS TIMESTAMP), {stop}, INTERVAL 1 DAY)) "
                 f"AS DATE) AS {quote(new)} FROM ({base}) WHERE {valid}")
+    if side.explode_values:
+        role, offsets, new = side.explode_values
+        shifts = ", ".join(str(int(o)) for o in offsets)
+        base = (f"SELECT *, CAST(floor(TRY_CAST({quote(role)} AS DOUBLE)) AS INTEGER) + unnest([{shifts}]) AS {quote(new)} "
+                f"FROM ({base}) WHERE TRY_CAST({quote(role)} AS DOUBLE) IS NOT NULL")
     con.execute(f"CREATE OR REPLACE TEMP {'TABLE' if materialise else 'VIEW'} {name} AS {base}")
     return con.execute(f"SELECT count(DISTINCT _id) FROM {name}").fetchone()[0]  # type: ignore[index]
 
@@ -982,7 +995,7 @@ def side_counts(name: str, *, period: object, side: str, by: str, method: str | 
     scope = period if side == "left" else (right_period or period)
     table = role_table(s.dataset, period=scope, geography="BR", roles=needed, **query_kwargs)
     con = duckdb.connect()
-    _prepare(con, "x", table, replace(s, explode_days=None, pad_years=(0, 0)))
+    _prepare(con, "x", table, replace(s, explode_days=None, explode_values=None, pad_years=(0, 0)))
     pairs = stored[0]
     p = pairs.column("p_match") if "p_match" in pairs.column_names else pa.array([1.0] * pairs.num_rows)
     con.register("pm", pa.table({"id": pairs.column("l" if side == "left" else "r"), "p": p}))

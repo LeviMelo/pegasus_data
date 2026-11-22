@@ -152,7 +152,7 @@ _SOURCE = obj(
          "fields": free(_FIELD_DECL), "place": obj("as column states type uf"),
          "period": obj("column format grain month type valid year"),
          "system_name": obj("authority official_name translated_name what_it_is")})
-_LINK_SIDE = obj("dataset where group latest earliest explode_days pad_years")
+_LINK_SIDE = obj("dataset where group latest earliest explode_days explode_values pad_years")
 _LINK = obj(
     "control description left outcome params passes person probabilistic right same_event sensitivity validate",
     sub={"control": obj("role shift_days"), "left": _LINK_SIDE, "right": _LINK_SIDE, "outcome": obj("differ event first origin"),

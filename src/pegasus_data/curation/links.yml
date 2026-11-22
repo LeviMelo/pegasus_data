@@ -747,14 +747,17 @@ links:
       group: [patient.cns]
       earliest: authorisation.start
       explode_days: [authorisation.start, 365, follow_up.day]
+      # the age at death is the age at the course or one more within the year (the APAC files no birth date)
+      explode_values: [patient.age_years, [0, 1], follow_up.age]
     right: {dataset: SIM-DO, pad_years: [0, 1]}
     passes:
-      - name: sex, residence, day of death in the year after the course's start
-        keys: [[patient.sex, deceased.sex], [patient.residence, deceased.residence], [follow_up.day, death.date]]
+      - name: sex, residence, age, day of death in the year after the course's start
+        keys: [[patient.sex, deceased.sex], [patient.residence, deceased.residence], [follow_up.age, deceased.age_years],
+               [follow_up.day, death.date]]
     control: {role: follow_up.day, shift_days: 180}
     validate:
-      - name: the age at death is the age at the course or one more
-        sql: "r.\"deceased.age_years\" - l.\"patient.age_years\" BETWEEN -0.5 AND 1.5"
+      - name: the certificate's underlying cause is in the treated topography's ICD-10 chapter block (C or D)
+        sql: "substr(r.\"death.cause\", 1, 1) = substr(l.\"authorisation.tumour_topography\", 1, 1)"
       - {name: death on or after the course's start, sql: "r.\"death.date\" >= l.\"authorisation.start\""}
 
   # The same mechanism on a notification system: the cases of the caller's agravo codes (TOXC's ID_AGRAVO holds P371, B58

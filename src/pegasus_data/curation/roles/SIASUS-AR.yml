@@ -943,6 +943,7 @@ columns:
     - 2008
     - 2026
   IDADE_anos:
+    compare: {patient.age_years: {type: number}}
     missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: patient.age_years
     kind: number

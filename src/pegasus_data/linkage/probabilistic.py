@@ -642,8 +642,8 @@ def run_probabilistic(spec: LinkSpec, prob: ProbabilisticSpec, left: pa.Table, r
                                   pc.utf8_slice_codeunits(pc.cast(left.column(setting_role), pa.string()), 0, 2))
     # An interval is compared as an interval here: the deterministic engine's
     # one-row-per-day explosion is its way of making "inside" an equality.
-    n_left = _prepare(con, "L", left, _replace(spec.left, explode_days=None), materialise=False)
-    n_right = _prepare(con, "R", right, _replace(spec.right, explode_days=None), materialise=False)
+    n_left = _prepare(con, "L", left, _replace(spec.left, explode_days=None, explode_values=None), materialise=False)
+    n_right = _prepare(con, "R", right, _replace(spec.right, explode_days=None, explode_values=None), materialise=False)
     # Each side once, as a table keyed by an integer: every later query joined
     # 32-character ids and re-deduplicated the whole view (57% of a link's
     # time was SQL, profile 2026-10-03). The record ids come back at the end.
