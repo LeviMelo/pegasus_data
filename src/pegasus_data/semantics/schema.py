@@ -205,11 +205,11 @@ KINDS: tuple[tuple[str, Any], ...] = (
                 "members": seq(obj("column dataset measured note principal rows_per_key"))})),
             "not_established": seq(obj("finding proposed_key want")),
             "relations": seq(obj("artifact dataset evidence field relation system target_name target_type"))})),
-        ("links.yml", obj("links thresholds verdict", sub={
+        ("links.yml", obj("held_out links thresholds verdict", sub={
             "links": free(_LINK),
             "thresholds": obj("discover engine placebo", sub={
                 "discover": obj("max_interval_days shift_days top_date_sets top_keys_for_attributes"),
-                "engine": obj("chance_drop_pct min_compared"),
+                "engine": obj("chance_drop_pct horizons min_compared"),
                 "placebo": obj("block_min_expected block_reach days key_reach")}),
             "verdict": obj("caution viable")})),
         ("fields.yml", obj("cnes fields", sub={

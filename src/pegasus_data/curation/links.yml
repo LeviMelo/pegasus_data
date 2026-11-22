@@ -42,6 +42,11 @@ verdict:
   viable: [5.0, 90.0]
   caution: [20.0, 75.0]
 
+# held_out: properties never offered as identity evidence. A property under study is held out of linking, so links
+# are not selected for agreeing on it (docs/plans/linkage-theory.md §5; race is measured across systems instead, the
+# race research line). The studies decide what is under study, not the engine.
+held_out: [race]
+
 # thresholds: the other analytic cuts of the linkage code, read where they are used (semantics.curation.declared).
 # Deliberate choices, not learned; each carries the reason the code gave. Where none was recorded: "not measured".
 thresholds:
@@ -51,6 +56,11 @@ thresholds:
     chance_drop_pct: 20.0
     # Pairs a held-out validation must compare to count as evidence: a proportion of fewer says nothing. Not measured.
     min_compared: 30
+    # The follow-up horizons, in days, a cohort run judges its passes and reports its false-match rate at (those inside
+    # the spec's window, and the window: engine._horizon_days): the follow-up checkpoints outcome studies report (7-day,
+    # 30-day, 90-day, 180-day and one-year mortality). A study's choice, not a property of the data; not measured. Like
+    # chance_drop_pct, not in a stored run's fingerprint: a change here bumps engine.LINKAGE_VERSION.
+    horizons: [7, 30, 90, 180, 365]
   discover:
     # The control displacement of a key search, in days (a week: the weekday does not change). Same 7 as a spec's
     # `control.shift_days`. Not measured.

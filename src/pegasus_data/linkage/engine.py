@@ -637,16 +637,13 @@ def run(spec: LinkSpec, left: pa.Table, right: pa.Table) -> LinkResult:
     return result
 
 
-#: the follow-up horizons, in days, a cohort run reports its false-match rate at (those inside the spec's window, and the window)
-HORIZONS = (7, 30, 90, 180, 365)
-
-
 def _horizon_days(spec: LinkSpec) -> list[int]:
-    """The follow-up horizons of a cohort spec (those inside its window, and the window), or [] for any other spec."""
+    """The follow-up horizons of a cohort spec (``links.yml`` ``thresholds.engine.horizons`` inside its window, and the
+    window), or [] for any other spec."""
     window = spec.left.explode_days[1] if spec.left.explode_days else None
     if spec.outcome is None or not isinstance(window, int):
         return []
-    return [h for h in HORIZONS if h < window] + [window]
+    return [h for h in (int(d) for d in raw_links()["thresholds"]["engine"]["horizons"]) if h < window] + [window]
 
 
 def _offsets(con: duckdb.DuckDBPyConnection, spec: LinkSpec, table: pa.Table) -> np.ndarray:

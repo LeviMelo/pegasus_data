@@ -19,7 +19,7 @@ nothing and is named in ``not_viable``.
 
 from __future__ import annotations
 
-from functools import lru_cache
+from functools import cache, lru_cache
 from typing import Any
 
 from ..config import load_settings
@@ -93,6 +93,32 @@ def _facility(code: object) -> dict[str, Any] | None:
     return {"code": code, "name": _names().get(str(code))}
 
 
+@cache
+def _system(dataset: str) -> str:
+    """The system that publishes a link side's dataset (SIH-RD: SIH; CIHA: CIHA), from the ontology."""
+    from ..ontology import Ontology
+
+    kind, node = Ontology.load().resolve(dataset) or (None, None)
+    return str(getattr(node, "system", None) or getattr(node, "code", None) or dataset) if kind else dataset
+
+
+@cache
+def _death_codes(dataset: str) -> frozenset[str] | None:
+    """The codes of ``admission.death`` that mean the stay ended in death, any cause: its column's declared ``fatal``
+    and ``fatal_other`` (roles file). None when the column declares none: the event then says it is unknown."""
+    from ..semantics.column_roles import declared_columns
+
+    for column in declared_columns(dataset):
+        if column.role == "admission.death" and (column.fatal or column.fatal_other):
+            return frozenset((column.fatal or ()) + (column.fatal_other or ()))
+    return None
+
+
+def _ended_in_death(dataset: str, value: object) -> bool | None:
+    codes = _death_codes(dataset)
+    return None if codes is None or value is None else str(value) in codes
+
+
 def _iso(value: object) -> str | None:
     return value.isoformat() if hasattr(value, "isoformat") else None
 
@@ -114,7 +140,8 @@ def timeline(birth_id: str, *, period: object, geography: object, method: str = 
         if r["mother.birth_date"] == birth["mother.birth_date"] and r["birth.facility"] == birth["birth.facility"]
         and r["birth.date"] == birth["birth.date"] and r["mother.birth_date"] is not None
     ) or [birth_id]
-    admissions = _records(links[DELIVERY].right.dataset, period, geography)
+    admitted = links[DELIVERY].right.dataset
+    admissions = _records(admitted, period, geography)
     deaths = _records(links[INFANT_DEATH].left.dataset, period, geography)
     events: list[dict[str, Any]] = []
     not_viable: dict[str, str] = {}
@@ -131,39 +158,43 @@ def timeline(birth_id: str, *, period: object, geography: object, method: str = 
     delivery_ids = [(r, b) for l_id, r, b in delivery_pairs if l_id == group[0]]
     for adm_id, bits in delivery_ids:
         a = admissions.get(adm_id) or {}
-        events.append({"kind": "delivery admission", "system": "SIH", "date": _iso(a.get("admission.start")),
+        events.append({"kind": "delivery admission", "system": _system(admitted), "date": _iso(a.get("admission.start")),
                        "end": _iso(a.get("admission.end")),
                        "record": adm_id, "facility": _facility(a.get("admission.facility")),
                        "link": {"spec": DELIVERY, "method": method, "bits": bits},
                        "details": {"diagnosis": a.get("admission.diagnosis"), "procedure": a.get("admission.procedure"),
-                                   "ended_in_death": a.get("admission.death") == "1"}})
+                                   "ended_in_death": _ended_in_death(admitted, a.get("admission.death"))}})
     # The private sector's twin: a delivery in a non-SUS hospital is in CIHA.
     private_pairs, verdict = _pairs(DELIVERY_PRIVATE, method, period, geography)
     if not private_pairs and verdict != "viable":
         not_viable[DELIVERY_PRIVATE] = verdict
     private = [(r, b) for l_id, r, b in private_pairs if l_id == group[0]]
     if private:
-        ciha = _records("CIHA", period, geography)
+        private_dataset = links[DELIVERY_PRIVATE].right.dataset
+        ciha = _records(private_dataset, period, geography)
         for adm_id, bits in private:
             a = ciha.get(adm_id) or {}
-            events.append({"kind": "delivery admission", "system": "CIHA", "date": _iso(a.get("admission.start")),
+            events.append({"kind": "delivery admission", "system": _system(private_dataset), "date": _iso(a.get("admission.start")),
                            "end": _iso(a.get("admission.end")), "record": adm_id,
                            "facility": _facility(a.get("admission.facility")),
                            "link": {"spec": DELIVERY_PRIVATE, "method": method, "bits": bits},
                            "details": {"diagnosis": a.get("admission.diagnosis"), "procedure": a.get("admission.procedure"),
-                                       "payer": a.get("admission.payer"), "ended_in_death": a.get("admission.death") == "1"}})
+                                       "payer": a.get("admission.payer"),
+                                       "ended_in_death": _ended_in_death(private_dataset, a.get("admission.death"))}})
 
     neonatal_pairs, verdict = _pairs(NEONATAL, method, period, geography)
     if not neonatal_pairs and verdict != "viable":
         not_viable[NEONATAL] = verdict
+    neonatal = links[NEONATAL].left.dataset
+    neonates = admissions if neonatal == admitted else _records(neonatal, period, geography)
     for adm_id, rid, bits in neonatal_pairs:
         if rid in group:
-            a = admissions.get(adm_id) or {}
+            a = neonates.get(adm_id) or {}
             events.append({"kind": "neonatal admission", "date": _iso(a.get("admission.start")), "end": _iso(a.get("admission.end")),
                            "record": adm_id, "birth": rid, "facility": _facility(a.get("admission.facility")),
                            "link": {"spec": NEONATAL, "method": method, "bits": bits},
                            "details": {"diagnosis": a.get("admission.diagnosis"), "procedure": a.get("admission.procedure"),
-                                       "ended_in_death": a.get("admission.death") == "1"}})
+                                       "ended_in_death": _ended_in_death(neonatal, a.get("admission.death"))}})
 
     infant_pairs, verdict = _pairs(INFANT_DEATH, method, period, geography)
     if not infant_pairs and verdict != "viable":

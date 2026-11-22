@@ -52,13 +52,12 @@ import pyarrow as pa
 from ..semantics.curation import declared
 from . import placebo
 from .identity import connect, quote
-from .roles import dataset_roles, role_table
+from .roles import _TYPES, dataset_roles, discovery_part, role_table
 
-COMPARABLE = ("date", "sex", "facility", "municipality", "integer", "label")
-#: Types that join a key only as one optional attribute (birth weight, weeks,
-#: the mother's age, delivery type): numerous pairings, most meaningless,
-#: which the placebo sorts out.
-ATTRIBUTE = ("integer", "label")
+#: The ``compare`` types discovery offers, by the part each plays in a key (``roles._TYPES``).
+COMPARABLE = tuple(kind for kind in _TYPES if discovery_part(kind))
+ATTRIBUTE = tuple(kind for kind in COMPARABLE if discovery_part(kind) == "attribute")
+PLACES = tuple(kind for kind in COMPARABLE if discovery_part(kind) == "place")
 
 
 def _declared(key: str) -> int:
@@ -111,18 +110,13 @@ class KeyResult:
         }
 
 
-#: Properties never offered as identity evidence: a field under study is held
-#: out of linking, so links are not selected for agreeing on it
-#: (docs/plans/linkage-theory.md §5; race is measured across systems instead).
-HELD_OUT = ("race",)
-
-
 def _comparable(dataset: str) -> dict[str, str]:
     """Role -> type for the comparable roles, one role per source column."""
+    held_out = set(declared("links.yml", "held_out"))
     seen: set[str] = set()
     out: dict[str, str] = {}
     for name, role in dataset_roles(dataset).roles.items():
-        if name.rsplit(".", 1)[-1] in HELD_OUT:
+        if name.rsplit(".", 1)[-1] in held_out:
             continue
         if role.type in COMPARABLE and role.column not in seen:
             seen.add(role.column)
@@ -141,7 +135,7 @@ def _keys(left: dict[str, str], right: dict[str, str]) -> list[tuple[tuple[str, 
     date_sets = [(d,) for d in dates] + [
         (d1, d2) for d1, d2 in itertools.combinations(dates, 2) if d1[0] != d2[0] and d1[1] != d2[1]
     ]
-    places: list[tuple[tuple[str, str], ...]] = [()] + [(p,) for p in pairs["facility"] + pairs["municipality"]]
+    places: list[tuple[tuple[str, str], ...]] = [()] + [(p,) for p in [x for t in PLACES for x in pairs[t]]]
     sexes: list[tuple[tuple[str, str], ...]] = [()] + [(s,) for s in pairs["sex"]]
     attrs: list[tuple[tuple[str, str], ...]] = [()] + [(x,) for t in ATTRIBUTE for x in pairs[t]]
     return [d + s + p + x for d in date_sets for s in sexes for p in places for x in attrs]
@@ -276,7 +270,7 @@ def discover_links(left: str, right: str, *, period: object, geography: object,
         measure(_keys(lt, rt))
     else:
         pairs = _pairings(lt, rt)
-        places = [()] + [(p,) for p in pairs["facility"] + pairs["municipality"]]
+        places = [()] + [(p,) for p in [x for t in PLACES for x in pairs[t]]]
         sexes = [()] + [(x,) for x in pairs["sex"]]
         # Every single date pairing with sex and place: a date alone can share
         # people invisibly (every 2022 birth "meets" some death) until a place

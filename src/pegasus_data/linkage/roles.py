@@ -59,8 +59,20 @@ def roles_files() -> list[Path]:
     return sorted((curation_root() / "roles").glob("*.yml"))
 
 _FORMATS = {"DDMMYYYY": "%d%m%Y", "YYYYMMDD": "%Y%m%d", "YYYY-MM-DD": "%Y-%m-%d", "YYYYMM": "%Y%m"}
-_TYPES = {"date", "month", "year", "birth_from_age", "sex", "municipality", "facility", "integer", "number", "code",
-          "codes", "label"}
+#: Every ``compare`` type, with the part it plays in a key link discovery tries (``discover._keys``): an ``anchor``
+#: (a date both records state), ``sex``, a ``place``, or an ``attribute`` (joins a key only as one optional property:
+#: birth weight, weeks, the mother's age, delivery type: numerous pairings, most meaningless, which the placebo sorts
+#: out). None: compared once a link is declared, never offered to discovery.
+_TYPES: dict[str, str | None] = {
+    "date": "anchor", "sex": "sex", "facility": "place", "municipality": "place", "integer": "attribute",
+    "label": "attribute", "month": None, "year": None, "birth_from_age": None, "number": None, "code": None,
+    "codes": None,
+}
+
+
+def discovery_part(kind: str) -> str | None:
+    """The part a ``compare`` type plays in a discovered key (``_TYPES``)."""
+    return _TYPES[kind]
 
 
 @dataclass(frozen=True, slots=True)

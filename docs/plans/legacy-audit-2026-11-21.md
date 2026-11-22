@@ -78,3 +78,6 @@ Line numbers are from the tree as read (2026-11-21).
 | 12, 21, 26, 27, 31, 32 | kept, reasons in the evaluation entry |
 | 11 | fixed: the two remaining parsers call `parse_month`/`year_bounds` |
 | 9 | fixed: a modification time is never in the future; a data year never before 1979 (measured) |
+| 13, 25 | fixed: `links.yml` `held_out:`; each compare type's discovery part in `roles._TYPES` |
+| 6 | fixed: systems from the link specs, death from the declared `fatal` codes; the five links are the product's composition |
+| 14 | horizons declared; distance and order bands kept (learned weights per level, measured re-link needed to change) |
