@@ -75,9 +75,11 @@ def adaptive_map(fn: Callable[[T], R], items: Iterable[T], *, measure: Callable[
                 elapsed = max(time.monotonic() - window_start, 1e-6)
                 rate = window_bytes / elapsed
                 short_of_memory = psutil.virtual_memory().available < free_floor_bytes()
-                if (last_rate is None or rate > last_rate * (1 + STEP)) and not short_of_memory:
+                rising = last_rate is None or rate > last_rate * (1 + STEP)
+                falling = last_rate is not None and rate < last_rate * (1 - STEP)
+                if rising and not short_of_memory:
                     limit = min(cap, limit + 1)
-                elif rate < last_rate * (1 - STEP):
+                elif falling:
                     limit = max(1, limit - 1)
                 last_rate = rate
                 pace.limits.append(limit)
