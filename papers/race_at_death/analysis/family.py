@@ -57,7 +57,7 @@ def ratio(df, y, x=None, strata="uf", psu="hh"):
 
 F = {}
 D = {y: load(y) for y in (2010, 2022)}
-for y, d in D.items():
+for d in D.values():
     d["region"] = d.uf.str[0].map(REGION)
     d["child"] = d.race.map(RACE)
     d["mother"] = d.mother_race.map(RACE)

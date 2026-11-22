@@ -14,8 +14,8 @@ para(d, f"By the mother's race in both terms, infant mortality was {f1(N2['rates
         f"{jr('certified_over_mother', 'white')}, {jr('certified_over_mother', 'black')} and {jr('certified_over_mother', 'indigenous')}. With certified deaths over "
         f"births classified as households classify infants, they were {jr('certified_over_child', 'white')}, {jr('certified_over_child', 'black')} and "
         f"{jr('certified_over_child', 'indigenous')}. Standardised to the regions, the White to Brown ratio was {f2(STD2['mother_over_mother']['white'])} by the "
-        f"mother's race, {f2(STD2['certified_over_mother']['white'])} the usual way and {f2(STD2['certified_over_child']['white'])} by the child's race; the crude "
-        "national ratios are pulled toward 1 by the concentration of White births in the regions of lower mortality. The linked cohort of 2012-2018 births "
+        f"mother's race, {f2(STD2['certified_over_mother']['white'])} the usual way and {f2(STD2['certified_over_child']['white'])} by the child's race: standardisation moved the usual ratio away from 1 and the mother's-race ratio "
+        "toward it, because White births concentrate in the regions of lower mortality. The linked cohort of 2012-2018 births "
         f"classified by the mother's race {cite('reboucas2022')} agrees: a crude White to Brown ratio of {f2(REB['under 1']['ratio'])} under one year.")
 rows = []
 for cname, lab in (("mother_over_mother", "Deaths and births by the mother's race"), ("certified_over_mother", "Certified deaths over births by the mother's race (usual)"),
@@ -29,18 +29,25 @@ table(d, "Table 1 - Infant mortality rate ratios against Brown with deaths and b
       ["95%CI: delete-one-state jackknife on the log scale. Deaths by the mother's race: linked deaths scaled to all certificates by certified race. Births by the "
        "child's race: births by the mother's race passed through the proportions in which households classify infants of mothers of each race (2010 Census). "
        "Region-standardised: Mantel-Haenszel over the five regions. Deaths above the White rate: (rate of the group minus the White rate) times the group's births, "
-       f"2013-2023; negative, a deficit. Infant mortality by the mother's race: White {f1(RML['Branca'])}, Brown {f1(RML['Parda'])} per 1,000 live births. "
+       f"2013-2023; negative, a deficit. Infant mortality by the mother's race: White {f1(RT2['white'])}, Brown {f1(RT2['brown'])} per 1,000 live births. "
        "Yellow (Asian) births and deaths are not shown."])
 para(d, f"Switching on the certificate's flows one at a time (Figure 2B), Brown mothers' infants certified White moved the White to Brown ratio from "
         f"{f2(WF[0]['ratios']['white'])} to {f2(WF[1]['ratios']['white'])}; White mothers' infants certified Brown brought it back to {f2(WF[2]['ratios']['white'])}; "
         f"the remaining flows and the deaths with no race took it to {f2(WF[-2]['ratios']['white'])}; and dividing by births classified as households classify "
-        f"infants returned it to {f2(WF[-1]['ratios']['white'])}. For Black to Brown, Black mothers' infants certified Brown took the ratio from "
-        f"{f2(WF[0]['ratios']['black'])} to {f2(WF[3]['ratios']['black'])}, and the child's denominator raised it only to {f2(WF[-1]['ratios']['black'])}: the "
+        f"infants returned it to {f2(WF[-1]['ratios']['white'])}. This single order depends on the order chosen; averaged over every order (Figure 2B), Brown "
+        f"mothers' infants certified White contributed {SH['players'][BW_]['est']:+.2f} (95%CI {SH['players'][BW_]['est'] - 1.96 * SH['players'][BW_]['se']:+.2f}; "
+        f"{SH['players'][BW_]['est'] + 1.96 * SH['players'][BW_]['se']:+.2f}) to the log ratio, White mothers' infants certified Brown "
+        f"{SH['players'][WB_]['est']:+.2f}, the deaths with no race {SH['players']['deaths with no race on the certificate']['est']:+.2f}, the other flows "
+        f"{SH['players']['the other flows']['est'] + sum(SH['players'][k]['est'] for k in SH['players'] if k not in (BW_, WB_, 'the other flows', 'deaths with no race on the certificate')):+.2f}, "
+        f"and the scaling of linked deaths {SH['residual_scaling']['est']:+.2f}, for a net change of {SH['certified'] - SH['start']:+.2f}. For Black to Brown, the step "
+        f"for Black mothers' infants certified Brown took the ratio from {f2(WF[2]['ratios']['black'])} to {f2(WF[3]['ratios']['black'])} "
+        f"(averaged over orders, {SK['players'][KB_]['est']:+.2f} in log ratio), and the child's denominator raised it only to {f2(WF[-1]['ratios']['black'])}: the "
         "certificate uses the Black category less than households do, so the Black infants' excess does not return.")
 figure(d, "indicators_decomposition", "Figure 2 - Infant mortality rate ratios with deaths and births classified four ways (A), the ratios as each flow of the certificate "
                                       "is switched on (B), and the White to Brown ratio by year (C), Brazil, 2013-2023",
-       ["A: 95% confidence intervals from a delete-one-state jackknife, log scale. B: from deaths and births by the mother's race to certified deaths over births "
-        "by the mother's race, then over births by the child's race. C: three of the four classifications of A, with yearly "
+       ["A: 95% confidence intervals from a delete-one-state jackknife, log scale. B: contribution of each flow of the certificate to the change of the log "
+        "ratio from deaths and births by the mother's race to certified deaths over births by the mother's race, averaged over every order in which the "
+        "flows can be switched on (Shapley values), with jackknife intervals; net change at the bottom. C: three of the four classifications of A, with yearly "
         "delete-one-state jackknife intervals."])
 d.add_heading("Ages, causes, years and absolute measures", level=2)
 BP, BC = D2["by_period"], D2["by_cause"]

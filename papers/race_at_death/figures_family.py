@@ -74,7 +74,7 @@ for j, (m, outc, title) in enumerate((("brown", "is_white", "A. Brown mother: ch
     ax = fig.add_axes(BOX[j])
     parts = ["white", "brown", "black"]
     for i, p in enumerate(parts):
-        for r, (rel, rl, mk) in enumerate(RELS):
+        for r, (rel, _, mk) in enumerate(RELS):
             for k, y in enumerate(("2010", "2022")):
                 v = V2.get(f"{y}|{m}|{outc}|{rel}|{p}")
                 if v:

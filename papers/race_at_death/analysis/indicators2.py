@@ -11,6 +11,7 @@
     python papers/race_at_death/analysis/indicators2.py      -> results/indicators2.json
 """
 import json
+import math
 from pathlib import Path
 
 import numpy as np
@@ -115,6 +116,74 @@ for a, b_, lab in (("brown", "white", "Brown mothers' infants certified White"),
 steps.append(("all flows and deaths with no race (certified deaths over births by the mother's race)", ratios(dc, bm)))
 steps.append(("certified deaths over births by the child's race (households' flows)", ratios(dc, bc)))
 OUT["waterfall"] = [{"step": s, "ratios": r} for s, r in steps]
+
+# the same change shared by all orders (Shapley values on the log ratio): each named flow, the other flows, and the deaths with no race on the
+# certificate are players; the rest of the gap to the certified ratio (the linked deaths' scaling) is reported as a residual. Jackknife by state.
+import itertools  # noqa: E402
+
+FLOWS = [("brown", "white", "Brown mothers' infants certified White"), ("white", "brown", "White mothers' infants certified Brown"),
+         ("black", "brown", "Black mothers' infants certified Brown"), ("brown", "black", "Brown mothers' infants certified Black"),
+         ("indigenous", "brown", "Indigenous mothers' infants certified Brown")]
+PLAYERS = [f[2] for f in FLOWS] + ["the other flows", "deaths with no race on the certificate"]
+
+
+def shapley(Lx, bx):
+    dmx, dcx, bmx, _ = counts(Lx, bx)
+    lkx = Lx[Lx.linked & Lx.dec.notna()]
+    Mx = pd.crosstab(lkx.dec, lkx.rec.fillna("none")).reindex(index=RACES, columns=RACES + ["none"], fill_value=0)
+    Px = Mx.div(Mx.sum(1), axis=0)
+    named = {(a_, b_) for a_, b_, _ in FLOWS}
+
+    def value(S):
+        cur = {r: dmx[r] for r in RACES}
+        for i, (a_, b_, _) in enumerate(FLOWS):
+            if i in S:
+                mv = dmx[a_] * Px.loc[a_, b_]
+                cur[a_] -= mv
+                cur[b_] += mv
+        if 5 in S:
+            for a_ in RACES:
+                for b_ in RACES:
+                    if a_ != b_ and (a_, b_) not in named:
+                        mv = dmx[a_] * Px.loc[a_, b_]
+                        cur[a_] -= mv
+                        cur[b_] += mv
+        if 6 in S:
+            for a_ in RACES:
+                cur[a_] -= dmx[a_] * Px.loc[a_, "none"]
+        r_ = ratios(cur, bmx)
+        return {k: np.log(v) for k, v in r_.items()}
+
+    n = len(PLAYERS)
+    vals = {S: value(set(S)) for k in range(n + 1) for S in itertools.combinations(range(n), k)}
+    out = {}
+    for t in ("white", "black"):
+        phi = []
+        for i in range(n):
+            tot = 0.0
+            for k in range(n):
+                for S in itertools.combinations([j for j in range(n) if j != i], k):
+                    w = math.factorial(k) * math.factorial(n - k - 1) / math.factorial(n)
+                    tot += w * (vals[tuple(sorted(S + (i,)))][t] - vals[S][t])
+            phi.append(tot)
+        full = vals[tuple(range(n))][t]
+        out[t] = {"players": dict(zip(PLAYERS, phi, strict=True)), "start": float(vals[()][t]), "all_players": float(full),
+                  "certified": float(np.log(ratios(dcx, bmx)[t])), "residual_scaling": float(np.log(ratios(dcx, bmx)[t]) - full)}
+    return out
+
+
+sh0 = shapley(L, births_by())
+reps = [shapley(L[L.uf != u], births_by(u)) for u in sorted(set(bstate))]
+for t in ("white", "black"):
+    for pl in PLAYERS + ["residual_scaling"]:
+        get = (lambda x, pl=pl, t=t: x[t]["players"][pl] if pl in x[t]["players"] else x[t][pl])
+        v = np.array([get(r_) for r_ in reps])
+        se = float(np.sqrt((len(v) - 1) / len(v) * ((v - v.mean()) ** 2).sum()))
+        if pl in sh0[t]["players"]:
+            sh0[t]["players"][pl] = {"est": float(sh0[t]["players"][pl]), "se": se}
+        else:
+            sh0[t][pl] = {"est": float(sh0[t][pl]), "se": se}
+OUT["shapley"] = sh0
 # region-standardised: Mantel-Haenszel rate ratios over regions, each classification
 mh = {}
 for k in ("mother_over_mother", "certified_over_mother", "certified_over_child"):

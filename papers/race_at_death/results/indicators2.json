@@ -143,6 +143,86 @@
    }
   }
  ],
+ "shapley": {
+  "white": {
+   "players": {
+    "Brown mothers' infants certified White": {
+     "est": 0.7256899606954506,
+     "se": 0.04781397326874314
+    },
+    "White mothers' infants certified Brown": {
+     "est": -0.25812459197578885,
+     "se": 0.033062685756181036
+    },
+    "Black mothers' infants certified Brown": {
+     "est": -0.07795704795515668,
+     "se": 0.014994344128104648
+    },
+    "Brown mothers' infants certified Black": {
+     "est": 0.018697115503931966,
+     "se": 0.0031640114974522938
+    },
+    "Indigenous mothers' infants certified Brown": {
+     "est": -0.003922012028002793,
+     "se": 0.0011525778135747112
+    },
+    "the other flows": {
+     "est": 0.040058482876960684,
+     "se": 0.0038345131403072796
+    },
+    "deaths with no race on the certificate": {
+     "est": 0.04832991908285997,
+     "se": 0.012183911843693898
+    }
+   },
+   "start": -0.21737614817888923,
+   "all_players": 0.27539567802136533,
+   "certified": 0.26649522411479654,
+   "residual_scaling": {
+    "est": -0.008900453906568795,
+    "se": 0.016483386956435298
+   }
+  },
+  "black": {
+   "players": {
+    "Brown mothers' infants certified White": {
+     "est": 0.28291949553967194,
+     "se": 0.05773596426456912
+    },
+    "White mothers' infants certified Brown": {
+     "est": -0.09986331230026857,
+     "se": 0.0158861084864556
+    },
+    "Black mothers' infants certified Brown": {
+     "est": -0.9752191784353854,
+     "se": 0.07975163479825637
+    },
+    "Brown mothers' infants certified Black": {
+     "est": 0.28759922576783054,
+     "se": 0.035262601469148905
+    },
+    "Indigenous mothers' infants certified Brown": {
+     "est": -0.003922012028002804,
+     "se": 0.0011525778135746928
+    },
+    "the other flows": {
+     "est": -0.28799826603454126,
+     "se": 0.07455282387729348
+    },
+    "deaths with no race on the certificate": {
+     "est": -0.06073011347406718,
+     "se": 0.03429687192285759
+    }
+   },
+   "start": 0.13670616482977854,
+   "all_players": -0.7205079961349843,
+   "certified": -0.721813702910537,
+   "residual_scaling": {
+    "est": -0.0013057067755527507,
+    "se": 0.020236226536997567
+   }
+  }
+ },
  "region_standardised": {
   "mother_over_mother": {
    "white": 0.8655462888179416,

@@ -24,21 +24,22 @@ para(d, "The three readings set out in the Introduction make different predictio
         f"the Black category less than half as often as families ({f2(il_pp)} against {f2(f0_pp)}); deaths investigated with a family interview were certified "
         "much as the others. Families themselves classify children by both parents and by schooling "
         f"{cite('schwartzman2007')}, but their classification moved with the local composition far less than the certificate did. What remains is a classification "
-        "by whoever fills the certificate, and the data say three things about it. It follows the local majority in every cell the data hold: Brown mothers' "
-        "infants become White where White births dominate, White mothers' infants Brown where they are rare, Black mothers' infants Brown where Brown births "
-        "dominate. It has a state component: at state borders it moved by about half the difference between the states' interiors, which implies a step and a "
-        "continuous gradient together. And it varies most between the individuals who certify: with composition in the model, the variance between "
+        "by whoever fills the certificate, and the data say three things about it. It moves toward the local majority, partly, in the three cells tested: Brown "
+        "mothers' infants become White more often where White births dominate, White mothers' infants Brown where they are rare, Black mothers' infants Brown "
+        "where Brown births dominate; even odds for Brown mothers' infants fall where most, not half, of the births are White. It has a state component: at state borders it moved by about half the difference between the states' interiors, which implies a step and a "
+        "continuous gradient together. And it varies between the individuals who certify: with composition in the model, the variance between "
         f"certifying physicians ({f2(PHY['PW']['all']['physician'])}) exceeded that between establishments ({f2(PHY['PW']['all']['death_estab'])}) and "
-        f"municipalities ({f2(PHY['PW']['all']['mun6'])}), and the dependence on composition held beside them. Two readings of the gradient with composition remain open. A local norm of classification is one. The other is that the Brown "
+        f"municipalities ({f2(PHY['PW']['all']['mun6'])}), though with few deaths per physician that order is not secure, and the dependence on composition held beside them. Two readings of the gradient with composition remain open. A local norm of classification is one. The other is that the Brown "
         "category is not the same population everywhere: if Brown mothers and their children look different in the South and in the North, an observer who "
-        "classifies by appearance, with no local norm at all, would produce the same gradient. Deaths certified outside the municipality of residence weigh "
-        "toward the first: the composition of the place where the death was certified predicted the certificate more than that of the place where the family "
-        "lived, for White and for Brown mothers' infants, which a trait of the family's region would not produce. Wealth and services explained less than composition and little in addition to it, though in Brazil they are collinear with composition. "
+        "classifies by appearance, with no local norm at all, would produce the same gradient. Deaths certified outside the municipality of residence do not "
+        "separate them: the composition of the place of death predicted the certificate somewhat more than that of the residence, but the difference was "
+        "not tested and the residence's composition is measured with more noise. Wealth and services explained less than composition and little in addition to it, though in Brazil they are collinear with composition. "
         "The within-place change was small and imprecise: when a region's share of White births changed, its certificate moved about "
         f"{WI['all']['lw_w']['est'] / WI['lw_reliability'] / WI['all']['lw_b']['est'] * 100:.0f}% as far as the cross-sectional gradient predicts, with an interval that "
-        "includes no change, while over the census decade the certificate's excess of White followed the change of the census composition about as far as "
-        "the gradient between places predicts. The two designs measure different things on little within-place variation, and the data do not settle "
-        "whether the gradient is fixed in each place or follows its population.")
+        "includes no change; over the census decade it moved about a third as far, with an interval that includes no change; and on the long panel the "
+        "interval included a certificate fixed in each place. Within-place variation is small in all three, and a slow adjustment cannot be excluded. Where "
+        "the share of natural deaths certified by a verification service rose, the certificate classed more Brown mothers' infants White, which fits the "
+        "certifier's and the state's practice.")
 para(d, "A classification that follows the local majority is what studies of classification by observers in Brazil describe. Agreement between interviewers and "
         f"respondents varied with the local racial composition {cite('telles2002')}, and self-declared Brown people were reclassified as White more often in cities with more "
         f"White residents {cite('muniz2017')}; classification by others also responds to social position {cite('penner2008', 'saperstein2012')}. The certificate shows the "
@@ -46,7 +47,7 @@ para(d, "A classification that follows the local majority is what studies of cla
         f"White of {len(GI)} classes of municipalities by their share of White births (the smoothed municipal values ranged from {f2(DI['PW']['p5'])} to "
         f"{f2(DI['PW']['p95'])}), a proportion that rose with composition within states and stepped at their borders. One part of the certificate does not follow "
         "the local majority as strongly: the Black category, the subject of a companion paper. Its use clustered in space, depended on the state more than on "
-        "composition, and rose over the decade, unevenly between intermediate regions; "
+        "composition, and rose over the decade; "
         f"whether this follows the growth of Black identification seen between censuses {cite('miranda2015', 'ibge_census2022')} cannot be tested here. On United States "
         f"certificates the race recorded also depended on circumstances other than the person {cite('noymer2011', 'arias2016')}, and in São Paulo correcting the certified "
         f"race of older adults changed the ranking of mortality {cite('santos2019')}.")
@@ -63,10 +64,11 @@ para(d, "Strengths and limitations. The study covers every municipality of the c
         "municipalities and through municipal random effects. A composition effect at the municipal level does not say which person, certifier or informant classifies, "
         "nor exclude that the Brown category differs between regions; the certifier and the informant cannot be separated because the certificate does not record who gave "
         "the race; proportions of municipal variance explained in a logistic model are affected by rescaling when individual variables enter; and the multilevel models were "
-        "fitted by an approximation (nAGQ = 0) that can understate variance components. (6) Municipal estimates for the Black category rest on few deaths, and the time "
+        "fitted by an approximation (nAGQ = 0), with which a Laplace refit agreed. (6) Municipal estimates for the Black category rest on few deaths, and the time "
         "analysis uses intermediate regions because municipal counts by year do not support it. (7) Standard errors of the candidate estimator treat counts as Poisson; "
         "census standard errors ignore the sample design. (8) The analyses by place and context were not pre-specified, and many contrasts are reported. (9) Deaths of 2023 "
-        "may be revised.")
+        "may be revised. (10) The family's classification is set against the mother's race only, while households report children by both parents and by who "
+        "answers (a companion paper); the family benchmark is therefore not the same child's classification by its own family.")
 para(d, "Implications. A child's race on the death certificate depends on where the child died, on the state and on the establishment, and only in part on the child's "
         "family; statistics by certified race therefore compare places as much as groups. Infant and child deaths that can be linked to their birth records can be "
         f"classified by the mother's race, as linked cohorts already do {cite('reboucas2022')}, which removes the certificate's dependence on place, though not any "
@@ -75,8 +77,8 @@ para(d, "Implications. A child's race on the death certificate depends on where 
         "nationally and region by region, is the subject of a companion analysis.")
 para(d, f"In conclusion, this study set out {OBJECTIVE}. The certificate departed from both the mother's declaration and the family's classification. It was associated with "
         "the racial composition of the municipality and with the state, with a step at state borders, more than with the wealth or the services of the place or the "
-        f"circumstances of the death; and it used the Black category for {f2(il_pp)} of the infants of Black mothers, more often each year and unevenly in space. The design "
-        "does not establish which classification is correct; it establishes that the certificate is a third one, whose relation to the other two depends on place.")
+        f"circumstances of the death; and it used the Black category for {f2(il_pp)} of the infants of Black mothers. The design does not establish which "
+        "classification is correct; it establishes that the certificate departs from both, by amounts that depend on place.")
 
 d.add_heading("References", level=1)
 for i, k in enumerate(order, 1):

@@ -18,6 +18,8 @@ R = json.loads((RES / "results.json").read_text(encoding="utf-8"))
 BK = json.loads((RES / "black.json").read_text(encoding="utf-8"))
 FA = json.loads((RES / "family.json").read_text(encoding="utf-8"))
 VI = json.loads((RES / "violence.json").read_text(encoding="utf-8"))
+MC = json.loads((RES / "mechanism.json").read_text(encoding="utf-8"))
+BK_MB = MC["black"]
 SRC = {"SINASC": "#0072B2", "SIM": "#D55E00", "SIH": "#009E73", "census": "#CC79A7", "result": "#555555"}
 plt.rcParams.update({"font.size": 7, "font.family": "DejaVu Sans"})
 MM, W = 1 / 25.4, 175.0
@@ -80,8 +82,9 @@ fig, ax = canvas(84)
 a = box(ax, 2, 82, 55, "Death certificates (SIM)", [f"infant deaths 2013-2023: {n0(I['certificates'])}", "race recorded on the certificate"], "SIM")
 b = box(ax, 118, 82, 55, "Live birth records (SINASC)", ["births 2012-2023", "the mother's race, declared"], "SINASC")
 harrow(ax, a, b, "one-to-one probabilistic linkage on birth date,\nsex, residence, birth weight and mother's age", both=True)
-c = box(ax, 50, 56, 75, "Linked infant deaths", [f"{n0(I['linked'])} ({100 * I['linked'] / I['certificates']:.1f}% of certificates)",
-                                                 f"with the mother's race: {n0(I['linked_with_race'])}", f"estimated false links {FDR} a year"], "result")
+c = box(ax, 50, 56, 75, "Linked infant deaths", [f"{n0(I['linked'])} ({100 * I['linked'] / I['certificates']:.1f}% of certificates; {n0(I['certificates'] - I['linked'])} unlinked)",
+                                                 f"with the mother's race: {n0(I['linked_with_race'])} ({n0(I['linked'] - I['linked_with_race'])} without)",
+                                                 f"estimated false links {FDR} a year"], "result")
 varrow(ax, a, c, xa=29.5, xb=70)
 varrow(ax, b, c, xa=145.5, xb=105)
 d = box(ax, 2, 25, 55, "Census 2010 sample", [f"{n0(R['census']['pairs_records'])} mother-child records", "how households report", "other, surviving children"], "census")
@@ -93,18 +96,21 @@ save(fig, "flow_infants")
 
 # ---------------------------------------------------------------- paper 3: three records of the same families
 NT, DL = BK["net"], BK["delivery_link"]
-fig, ax = canvas(47)
-a = box(ax, 2, 45, 44, "Birth record (SINASC)", ["the mother's declared race", f"deliveries of Black-declared mothers", f"with a hospital race: {n0(NT['hospital_declared_black'])}"], "SINASC")
-b = box(ax, 65.5, 45, 44, "Delivery admission (SIH)", ["the hospital's record of the mother",
+fig, ax = canvas(50)
+a = box(ax, 2, 48, 44, "Birth record (SINASC)", ["the mother's declared race", f"deliveries of Black-declared mothers", f"with a hospital race: {n0(NT['hospital_declared_black'])}"], "SINASC")
+b = box(ax, 65.5, 48, 44, "Delivery admission (SIH)", ["the hospital's record of the mother",
                                                       f"linked {min(v['linked_share'] for v in DL.values()):.2f}-{max(v['linked_share'] for v in DL.values()):.2f} of births a year",
                                                       f"false links {min(v['fdr_percent'] for v in DL.values()):.2f}-{max(v['fdr_percent'] for v in DL.values()):.2f}%"], "SIH")
-c = box(ax, 129, 45, 44, "Death certificate (SIM)", ["the infant's certified race", f"infants of Black mothers: {n0(NT['certificate_declared_black'])}",
+c = box(ax, 129, 48, 44, "Death certificate (SIM)", ["the infant's certified race", f"infants of Black mothers: {n0(NT['certificate_declared_black'])}",
                                                      f"with the delivery record: {n0(BK['individual']['with_hospital_record_black'])}"], "SIM")
 harrow(ax, a, b, "mother's\nbirth date,\nhospital,\nbirth day", both=True)
 harrow(ax, b, c, "through\nthe infant\nlinkage", both=True)
-box(ax, 2, 19, 171, "What separates the person, the chart and the hospital", [
-    "within delivery hospitals and within the establishments of death (infants who died where delivered or elsewhere); each hospital's practice",
-    "without the infant's own mother; the same mother at two births, in the same or another hospital (shifted-date control); who filled the birth record"], "result")
+R3 = MC["review3"]
+box(ax, 2, 22, 171, "What separates the person, the chart and the hospital", [
+    f"within {BK_MB['mh_delivery_hospital']['strata']} delivery hospitals ({n0(R3['n'])} infants with both records and a race on each);",
+    f"where the infant died elsewhere ({n0(R3['elsewhere_informative']['deaths'])} informative deaths); with no prenatal visit "
+    f"({n0(R3['within_hospital_by_visits']['none']['deaths'])}); at home ({n0(R3['home_deaths']['mh_over_regions']['deaths'])});",
+    f"each hospital's practice without the infant's own mother; the same mother at two births ({n0(MC['movers']['movers_practice_slope']['n'])} movers, shifted-date control)"], "result")
 save(fig, "flow_black")
 
 # ---------------------------------------------------------------- paper 4: the two censuses
@@ -132,4 +138,27 @@ box(ax, 2, 19, 171, "Estimated for the people found", [
     f"found among birth candidates: about half of deaths, alike for every cause; an earlier admission: {100 * VI['with_admission']['natural']:.0f}% of natural "
     f"and {100 * VI['with_admission']['assault by firearm']:.0f}% of firearm deaths;", "one record per person; checked by a shifted-date placebo, men only and a 180-day window"], "result")
 save(fig, "flow_violence")
+# ---------------------------------------------------------------- paper 2: the 2 x 2 of numerators and denominators
+D2 = json.loads((RES / "indicators2.json").read_text(encoding="utf-8"))
+NA = D2["national"]
+fig, ax = canvas(66)
+a = box(ax, 2, 64, 82, "Deaths by the mother's race", [f"{n0(I['linked_with_race'])} infant deaths linked to their birth records,",
+                                                       "scaled to all certificates by certified race"], "SINASC")
+b = box(ax, 91, 64, 82, "Deaths by certified race", [f"{n0(I['certificates'])} infant death certificates, 2013-2023,", "the race on the certificate"], "SIM")
+c = box(ax, 2, 40, 82, "Births by the mother's race", ["live births 2013-2023 (SINASC),", "the mother's declaration"], "SINASC")
+e = box(ax, 91, 40, 82, "Births by the child's race", ["the same births passed through the shares in which", "households classify infants of each mother's race (census 2010)"], "census")
+
+
+def cell_(k):
+    v = NA[k]["white"]
+    return f"{v['est']:.2f}"
+
+
+box(ax, 2, 17, 171, "White to Brown infant mortality rate ratio", [
+    f"mother's deaths / mother's births {cell_('mother_over_mother')};   certified deaths / mother's births (the usual way) {cell_('certified_over_mother')};",
+    f"certified deaths / child's births {cell_('certified_over_child')};   mother's deaths / child's births {cell_('mother_over_child')}"], "result")
+ax.plot([2, 173], [44.4, 44.4], ls=(0, (3, 3)), color="#999999", lw=0.7)
+ax.text(173, 45.2, "numerators", ha="right", va="bottom", fontsize=6.2, color="#555555")
+ax.text(173, 43.6, "denominators", ha="right", va="top", fontsize=6.2, color="#555555")
+save(fig, "flow_indicators")
 print("flow figures written")

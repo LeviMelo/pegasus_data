@@ -56,7 +56,7 @@ def choropleth(ax, frame, col, cmap, norm, title, label, ticks=None, edge=None):
     frame.plot(column=col, ax=ax, cmap=cmap, norm=norm, lw=0 if edge is None else 0.1, edgecolor=edge or "none", missing_kwds={"color": "#DDDDDD"})
     basemap(ax, title)
     sm = plt.cm.ScalarMappable(norm=norm, cmap=cmap)
-    cb = plt.colorbar(sm, ax=ax, orientation="horizontal", fraction=0.045, pad=0.01, shrink=0.8, ticks=ticks)
+    cb = plt.colorbar(sm, ax=ax, orientation="horizontal", fraction=0.045, pad=0.01, shrink=0.8, ticks=ticks, extend="both")
     cb.set_label(label, fontsize=7)
     cb.ax.tick_params(labelsize=6.5)
     return cb
@@ -65,9 +65,9 @@ def choropleth(ax, frame, col, cmap, norm, title, label, ticks=None, edge=None):
 # ---------------------------------------------------------------- Figure 3: the municipality (infant deaths, Brown mothers)
 fig, axes = plt.subplots(2, 2, figsize=(7.2, 7.6))
 seq = matplotlib.colors.Normalize(0, 0.9)
-choropleth(axes[0, 0], G, "PW_mean", "viridis", seq, "A. Certificate: Brown mother, infant certified White",
+choropleth(axes[0, 0], G, "PW_mean", "viridis", seq, "A. Certificate: Brown mother, infant certified White\n(Moran's I " + f"{S['moran']['PW']['rate']['I']:.2f})",
            "Proportion (BYM2 posterior mean)", ticks=[0, 0.3, 0.6, 0.9])
-choropleth(axes[0, 1], G, "famPW_mean", "viridis", seq, "B. Family (census 2010): Brown mother, child White, ages 0-9",
+choropleth(axes[0, 1], G, "famPW_mean", "viridis", seq, "B. Family (census 2010): Brown mother, child White, ages 0-9\n(variance of the logit field " + f"{S['field_var']['famPW']['M0'] / S['field_var']['PW']['M0']:.2f} of A's)",
            "Proportion (BYM2 posterior mean)", ticks=[0, 0.3, 0.6, 0.9])
 G["diff_PW"] = G.PW_mean - G.famPW_mean
 choropleth(axes[1, 0], G, "diff_PW", "PuOr_r", TwoSlopeNorm(vmin=-0.45, vcenter=0, vmax=0.45), "C. Certificate minus family (A - B)",
@@ -237,8 +237,9 @@ choropleth(ax, GI, "PW_change", "PuOr_r", TwoSlopeNorm(vmin=-0.2, vcenter=0, vma
            "Change over the decade (model; grey: no estimate)", ticks=[-0.2, -0.1, 0, 0.1, 0.2], edge="#FFFFFF")
 ax.title.set_fontsize(7.5)
 ax = fig.add_subplot(gs[1, 0])
-SHORT = {"lw": "Composition\n(logit White births)", "lgdp": "GDP per capita\n(log)", "lphys": "Physicians\n(log)", "iml": "External deaths by\nmedical examiner"}
-vs = ["lw", "lgdp", "lphys", "iml"]
+SHORT = {"lw": "Composition\n(logit White births)", "lgdp": "GDP per capita\n(log)", "lphys": "Physicians\n(log)", "blank": "Race left blank\n(share)",
+         "svo": "Natural deaths by\nverification service", "iml": "External deaths by\nmedical examiner"}
+vs = ["lw", "lgdp", "lphys", "blank", "svo", "iml"]
 for k, (lv, part, col, mk, lab) in enumerate((("municipality", "b", "#777777", "o", "between municipalities"), ("municipality", "w", "#D55E00", "o", "within municipality"),
                                                ("immediate", "b", "#AAAAAA", "s", "between regions"), ("immediate", "w", "#0072B2", "s", "within region"))):
     for i, v in enumerate(vs):
@@ -255,6 +256,10 @@ ax = fig.add_subplot(gs[1, 1])
 cc_ = PNL["census"]["coef"]
 L2 = PLG["2012-2023 (mother declared)"]
 pts = [(0, cc_["cw_b"], "#777777"), (1, cc_["cw_w"], "#D55E00"), (2.6, L2["between"]["lc"], "#777777"), (3.6, L2["within"]["lc"], "#D55E00")]
+ax.plot([2.3, 4.0], [-1, -1], ":", color="#555555", lw=0.8)
+ax.text(4.05, -1, "fixed", fontsize=6, va="center")
+ax.plot([2.3, 4.0], [0.02, 0.02], ":", color="#999999", lw=0.8)
+ax.text(4.05, 0.06, "follows", fontsize=6, va="center", color="#777777")
 for x_, c, col in pts:
     ax.errorbar(x_, c["est"], yerr=1.96 * c["se"], fmt="o", color=col, ms=3.5, capsize=1.5)
 ax.axhline(0, color="k", lw=0.6)
@@ -265,7 +270,7 @@ ax.text(3.1, -0.2, "excess White over births,\nyearly census 2012-2023", transfo
 ax.set_xlim(-0.6, 4.2)
 ax.tick_params(axis="y", labelsize=6.5)
 ax.set_ylabel("Log-odds per unit of the logit\nof the census White share", fontsize=6.5)
-ax.set_title("D. Census composition: two\ndesigns, two answers", fontsize=7.5, loc="left")
+ax.set_title("D. Census composition:\nbetween and within places", fontsize=7.5, loc="left")
 save(fig, "place_time")
 
 # Supplementary: the change by region against its level, and the agreement by state and year
