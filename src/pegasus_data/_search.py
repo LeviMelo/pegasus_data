@@ -116,41 +116,87 @@ def _rank(words: list[str], needle: str, name: str, folded_name: str, folded: st
 
 
 def _code_hits(needle: str, system: str | None, limit: int) -> list[dict[str, object]]:
-    """Labels in the shipped pack, exact before prefix before substring."""
+    """Codes whose label or whose code matches, exact before prefix before substring: the shipped pack's labels, every
+    window of them (a code that ended is still a code of its years, with its window said), and the classifications
+    whose codes carry their own validity windows (``codelists.yml`` ``code_windows``: SIGTAP's 5,785 procedures from its
+    monthly exports, the source of the manual's ``codes/SIGTAP.md``). The pack's labels were matched by their text only
+    and only while current: a SIGTAP code ended in 2019 or created since the pack's kits was not found (reported by the
+    ABNc study, 2026-11-22)."""
     from importlib.resources import files
 
     import duckdb
 
     from .labelpack import PACK_NAME
 
-    pack = Path(str(files("pegasus_data.resources") / PACK_NAME))
-    if not pack.is_file():
-        return []
+    hits: list[dict[str, object]] = []
     con = duckdb.connect()
     try:
         folded = fold_sql("label")
-        rows = con.execute(
-            f"""
-            SELECT COALESCE(system, '*') AS system, codelist, code_lo, code_hi, label,
-                   CASE WHEN {folded} = ? THEN 0 WHEN {folded} LIKE ? THEN 1 ELSE 2 END AS rank
-              FROM read_parquet(?)
-             WHERE regexp_matches({folded}, ?) AND (? IS NULL OR system = ? OR system IS NULL)
-               AND (valid_to IS NULL OR valid_to = '')
-             ORDER BY rank, length(label), codelist
-             LIMIT ?
-            """,
-            [needle, f"{needle}%", str(pack), r"(^|[^0-9A-Z])" + re.escape(needle), system, system, limit],
-        ).fetchall()
+        pattern = r"(^|[^0-9A-Z])" + re.escape(needle)
+        pack = Path(str(files("pegasus_data.resources") / PACK_NAME))
+        if pack.is_file():
+            rows = con.execute(
+                f"""
+                SELECT COALESCE(system, '*'), codelist, code_lo, code_hi, label, valid_from, valid_to,
+                       CASE WHEN upper(code_lo) = ? OR {folded} = ? THEN 0
+                            WHEN upper(code_lo) LIKE ? OR {folded} LIKE ? THEN 1 ELSE 2 END AS rank
+                  FROM read_parquet(?)
+                 WHERE (regexp_matches({folded}, ?) OR upper(code_lo) LIKE ?)
+                   AND (? IS NULL OR system = ? OR system IS NULL)
+                 ORDER BY rank, (valid_to IS NOT NULL AND valid_to <> ''), length(label), codelist
+                 LIMIT ?
+                """,
+                [needle, needle, f"{needle}%", f"{needle}%", str(pack), pattern, f"{needle}%", system, system, limit],
+            ).fetchall()
+            for sys_, codelist, lo, hi, label, vfrom, vto, rank in rows:
+                window = "" if not (vfrom or vto) else f" [{vfrom or '…'}-{vto or 'current'}]"
+                hits.append({"system": sys_, "kind": "code",
+                             "name": f"{codelist} = {lo}" + (f"..{hi}" if hi and hi != lo else ""),
+                             "context": f"{label}{window}", "how": f'load_reference("{codelist}")', "_rank": rank})
+        hits += _windowed_code_hits(con, needle, limit)
     finally:
         con.close()
-    return [
-        {
-            "system": sys_,
-            "kind": "code",
-            "name": f"{codelist} = {lo}" + (f"..{hi}" if hi and hi != lo else ""),
-            "context": label,
-            "how": f'load_reference("{codelist}")',
-            "_rank": rank,
-        }
-        for sys_, codelist, lo, hi, label, rank in rows
-    ]
+    hits.sort(key=lambda h: (h["_rank"], len(str(h["context"]))))
+    seen: set[tuple[object, object]] = set()
+    out = []
+    for h in hits:
+        key = (h["name"], h["context"])
+        if key not in seen:
+            seen.add(key)
+            out.append(h)
+    return out[:limit]
+
+
+def _windowed_code_hits(con: object, needle: str, limit: int) -> list[dict[str, object]]:
+    """Codes of the classifications that date their codes (``code_windows``), each with its latest name and its window."""
+    import pyarrow.parquet as pq
+
+    from .config import load_settings
+    from .view import _declared_code_windows
+
+    settings = load_settings()
+    out: list[dict[str, object]] = []
+    for classification, decl in _declared_code_windows().items():
+        windows = Path(settings.registry_dir(decl["registry"], decl["file"]))
+        names_file = windows.with_name(decl["names"]) if decl.get("names") else None
+        if not windows.is_file():
+            continue
+        code = decl["code"]
+        name_sql = (f"(SELECT {decl['name']} FROM read_parquet('{names_file.as_posix()}') h WHERE h.{code} = w.{code} "
+                    f"ORDER BY valid_from DESC LIMIT 1)") if names_file and names_file.is_file() else "NULL"
+        rows = con.execute(  # type: ignore[attr-defined]
+            f"""SELECT w.{code}, {name_sql} AS label, w.first, w.last,
+                       CASE WHEN w.{code} = ? THEN 0 WHEN w.{code} LIKE ? THEN 1 ELSE 2 END AS rank
+                  FROM read_parquet('{windows.as_posix()}') w
+                 WHERE w.{code} LIKE ? OR upper(coalesce({name_sql}, '')) LIKE ?
+                 ORDER BY rank LIMIT ?""",
+            [needle, f"{needle}%", f"{needle}%", f"%{needle}%", limit]).fetchall()
+        newest = pq.read_metadata(windows).num_rows and con.execute(  # type: ignore[attr-defined]
+            f"SELECT max(last) FROM read_parquet('{windows.as_posix()}')").fetchone()[0]
+        for value, label, first, last, rank in rows:
+            window = f"{first}-{'current' if last == newest else last}"
+            out.append({"system": classification, "kind": "code", "name": f"{classification} = {value}",
+                        "context": f"{label or '(no name recorded)'} [{window}]",
+                        "how": f"manual codes/{classification}.md; sources.sigtap.procedure_window('{value}')"
+                               if classification == "SIGTAP" else f"manual codes/{classification}.md", "_rank": rank})
+    return out
