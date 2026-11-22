@@ -151,8 +151,17 @@ class Info:
         if "rows_held" in self.coverage:
             held = self.coverage.get("rows_held")
             span = self.coverage.get("span_held")
-            out.append(f"  held in this install: {held:,} rows" + (f", {span}" if span else "") if held
-                       else "  held in this install: none (query() fetches what it needs)")
+            got = int(self.coverage.get("files_downloaded") or 0)
+            months = self.coverage.get("months_downloaded")
+            # downloaded but not built is held too: CNES's registers are read from the blob store and never built into the
+            # lake, and this page said "none" of twelve years of them (an agent read it so, 2026-11-22)
+            if held:
+                out.append(f"  held in this install: {held:,} rows in the lake" + (f", {span}" if span else ""))
+            if got:
+                out.append(f"  downloaded in this install: {got:,} files" + (f" (months {months})" if months else "")
+                           + (", read without the network" if not held else ""))
+            if not held and not got:
+                out.append("  held in this install: none (query() fetches what it needs)")
 
         # How the FILES are split, which is not the same as what the rows hold.
         axes = self.coverage.get("axes")
@@ -465,6 +474,13 @@ def _link(name: str, cfg: Settings) -> Info:
         rate = f", chance {r['false_match_percent']:.2f}%" if isinstance(r["false_match_percent"], (int, float)) else ""
         lines.append(f"    {r['method'] or '?':<13} {r['period'] or '':<22} {r['geography'] or '':<8} {r['verdict'] or '':<17} "
                      f"{r['pairs'] or 0:>9,} pairs of {r['left'] or 0:,} {share}{rate}")
+        # which codes the run was for, and its horizons: sixteen runs of one spec could not be told apart (2026-11-22)
+        params = r["params"] or {}
+        if params.get("codes"):
+            lines.append(f"      codes {', '.join(map(str, params['codes']))} (match {params.get('match') or 'principal'})")
+        if r["horizons"]:
+            lines.append("      within " + "; ".join(f"{d} days: {p:,} pairs ({c:,} by chance), {v}" for d, p, c, v in r["horizons"]
+                                                     if d is not None and p is not None and c is not None))
     if len(runs) > 40:
         lines.append(f"    ... and {len(runs) - 40} more")
     lines += ["", f"  call: link({name!r}, period=..., geography=...{', codes=[...]' if spec.params else ''}); "
@@ -651,7 +667,7 @@ def _dataset(store: _Store, onto: Ontology, node: DatasetNode, settings: Setting
     # columns include those only the lake or an intake declaration knows (SRAG, SISAGUA), which FTP headers miss.
     mapped = next(iter(_map_rows(
         settings, "SELECT files, year_min, year_max, columns_total, columns_described, rows_held, year_min_held,"
-                  " year_max_held FROM datasets WHERE code = ?", (node.code,))), {})
+                  " year_max_held, files_downloaded, months_downloaded FROM datasets WHERE code = ?", (node.code,))), {})
     if mapped:
         files, y0, y1 = int(mapped["files"] or 0), mapped["year_min"], mapped["year_max"]
     total_cols = int(mapped.get("columns_total") or 0)
@@ -704,6 +720,8 @@ def _dataset(store: _Store, onto: Ontology, node: DatasetNode, settings: Setting
             "schema_generations": len(schemas),
             "rows_held": mapped.get("rows_held") or 0,
             "span_held": _span(mapped.get("year_min_held"), mapped.get("year_max_held")),
+            "files_downloaded": mapped.get("files_downloaded") or 0,
+            "months_downloaded": mapped.get("months_downloaded"),
             "axes": axes.names if axes else [],
             "axes_detail": axes.as_dict() if axes else None,
         },

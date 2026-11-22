@@ -263,20 +263,38 @@ products:
     call: 'procedure_history(["0403010020"]); procedure_window("0403070171")'
     stores: [registries/sigtap/procedure_history.parquet, registries/sigtap/procedure_windows.parquet]
   tract_aggregates:
-    label: "Tract literacy, household and colour or race counts"
+    label: "Tract literacy, household, colour or race and household-head income"
     kind: population
-    source: "IBGE, Censo 2022, Agregados por Setores Censitários (alfabetização, características do domicílio 1-3, cor ou raça; dictionary of 2026-11-13)"
+    source: "IBGE, Censo 2022, Agregados por Setores Censitários (alfabetização, características do domicílio 1-3, cor ou raça; dictionary of 2026-11-13); renda do responsável (dictionary of 2026-05-08)"
     what: >
-      Five themes, 1,100 variables, one wide table per theme (a column per IBGE variable, V00001 to V01411): literacy by age and
-      sex, the household's water, sewage, waste, electricity, housing and goods with its residents, and persons by colour or race.
-      A count IBGE suppressed (X) is null, never zero. `tract_dictionary` gives each variable's IBGE description, which
-      states its universe.
+      Six themes, one wide table per theme (a column per IBGE variable): literacy by age and sex; the household's water, sewage,
+      waste, electricity, housing and goods with its residents; persons by colour or race; and the income of the household's
+      responsible person (`renda_responsavel`: V06001 responsible persons and V06002 residents of occupied permanent private
+      households, V06003 the variance of residents, V06004 the mean and V06006 the median nominal monthly income of the
+      responsible persons with income, in reais, V06005 its variance; decimals). A count IBGE
+      suppressed (X) is null, never zero. `tract_dictionary` gives each variable's IBGE description, which states its universe.
+      The sample's income by weighting area is `weighting_area_income`.
     grain: "census tract (a column per variable)"
     period: "2022"
-    call: 'tract_aggregates("cor_ou_raca", uf="AL")'
+    call: 'tract_aggregates("renda_responsavel", uf="AL")'
     stores: [registries/ibge_tracts/tract_aggregates_alfabetizacao_2022.parquet, registries/ibge_tracts/tract_aggregates_domicilio1_2022.parquet,
              registries/ibge_tracts/tract_aggregates_domicilio2_2022.parquet, registries/ibge_tracts/tract_aggregates_domicilio3_2022.parquet,
-             registries/ibge_tracts/tract_aggregates_cor_ou_raca_2022.parquet, registries/ibge_tracts/tract_dictionary_2022.parquet]
+             registries/ibge_tracts/tract_aggregates_cor_ou_raca_2022.parquet, registries/ibge_tracts/tract_aggregates_renda_responsavel_2022.parquet,
+             registries/ibge_tracts/tract_dictionary_2022.parquet]
+  weighting_area_income:
+    label: "Census 2022 sample income by weighting area, and each tract's weighting area"
+    kind: population
+    source: "IBGE, Censo 2022, Amostra: tabelas por área de ponderação (rendimento do trabalho, das pessoas, domiciliar per capita) and the composition of the weighting areas"
+    what: >
+      The sample's income estimates for each weighting area (a group of tracts of one municipality; the smallest area the sample
+      is published for): income from work, persons by income, and household income per head, a float64 column per IBGE column
+      (`tract_dictionary(<table>)` gives the headers). Estimates of the sample, not counts of the universe; an empty cell or `-`
+      is null. `tract_weighting_area` gives each tract's area, the key from a tract (and so from a CEP's or a record's tract).
+    grain: "weighting area (10 digits: the municipality's 7 and 3 of the area)"
+    period: "2022"
+    call: 'weighting_area_table("renda_domiciliar_per_capita", uf="AL"); tract_weighting_area(uf="AL")'
+    stores: [registries/ibge_tracts/weighting_area_renda_trabalho_2022.parquet, registries/ibge_tracts/weighting_area_renda_pessoas_2022.parquet,
+             registries/ibge_tracts/weighting_area_renda_domiciliar_per_capita_2022.parquet, registries/ibge_tracts/tract_weighting_area_2022.parquet]
 
   # ------------------------------------------------------------------------------------------------- climate
   climate_daily:
