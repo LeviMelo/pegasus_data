@@ -40,6 +40,12 @@ Plan `docs/plans/raw-downloads.md` (R1, R2, R5; R3 by `prune --keep-versions`).
      blob's version, or a delta keeps it. `prune --keep-versions` first decodes every kept download of a version the
      lake does not hold into a delta (`build.keep_downloaded_versions`).
 
+5. **The transport is DATASUS first** (amends ADR-0141 rule 5). A slow listing may make the snapshot observe by
+   `MDTM`/`SIZE`, but it no longer sends the transfers to the mirror. The mirror is tried only for a file DATASUS
+   would not transfer through its retries, and its copy is taken only when its size and `x-amz-meta-mtime` equal
+   DATASUS's. The run of 2026-10-05 had judged the data channel down from one slow LIST and left 92 files waiting
+   with "mirror holds another state", while DATASUS was transferring.
+
 **Rejected.**
 - **The keys (with counts) of the rows the successor added**, the first design. It reproduces the version's records
   but not their `_row` or order. `_row` with `_blob_sha256` is a record's identity in its publication (ADR-0107).

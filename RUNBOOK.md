@@ -176,8 +176,9 @@ $PD prune --keep-versions              # kept downloads of replaced versions bec
   partition built by another plan is decoded whole, which refetches its other files. One run holds one FTP connection.
 - A query that downloads files builds them into the lake after answering and releases them (`report.landed`); the
   next read of those months is the lake's. `keep_downloads` in the config keeps them.
-- While the FTP data channel is down (ADR-0122) it observes by `MDTM`/`SIZE` and takes bytes from the
-  mirror only when the mirror's size and original mtime equal DATASUS's.
+- When a directory listing does not answer in 20 s it observes by `MDTM`/`SIZE` (ADR-0122). Either way it transfers
+  from DATASUS first, and takes the mirror's copy only of a file DATASUS would not transfer through its retries, and
+  only when the mirror's size and original mtime equal DATASUS's.
 
 **Daily schedule** (not created yet: the session that built this could not register a task; run the first line once, as the user; current user, no admin rights; the task runs `scripts/snapshot_task.cmd <data home> <log>`):
 
