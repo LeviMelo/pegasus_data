@@ -26,14 +26,29 @@ holds and can do, one space × time object, and the principles audits' defects c
   lake; snapshots and queries land their downloads and release them; `prune` judges by version. Checked on a scratch
   home (evaluation 2026-11-22-versions-as-deltas). The real home's migration (`prune --keep-versions`) is pending.
 - **Storage and speed (2026-11-21/22).**
-  - The record key is computed on read, not stored (ADR-0231): the lake went from 42.9 to 27.1 GB and the role tables
-    from 13 to 2.8 GB.
-  - Row filters drop raw rows before normalising: the SIH-SP extract is download-bound, 5.6 → 2.8 s a file.
-  - Intake units land four at a time: TISS 0.33 → 0.9 units a second.
-  - Every DuckDB spill directory is per process.
-  - A cohort link's passes are judged horizon by horizon (LINKAGE_VERSION 5), so every stored run is recomputed once.
-  - ANS TISS hospital files 2015-2025 are landing nationally.
-  - The science of the ABNc 2027 studies runs in its own session (`../abnc2027_neuro`).
+  - The record key is computed on read, not stored (ADR-0231).
+  - One Parquet encoding (ADR-0232): zstd 9, 262,144-row groups. A typed intake column's text is stored only where a
+    learned render of its value does not give it back. The real home was re-encoded: the same 12,309 files went from
+    35.18 to 29.89 GB.
+  - A version DATASUS overwrote is a delta against its successor, and the lake is the only stored form of a
+    publication (ADR-0234). A query that downloads builds into the lake and releases the download; `as_of` reads
+    deltas. The migration released 1,079 downloads (2.8 GB) and wrote 225 deltas (31 MB). The 8,813 downloads still
+    held are being accounted for.
+  - The snapshot runs daily at 04:00 (`PegasusSnapshotDaily`) and transfers from DATASUS first.
+  - Speed:
+    - row filters drop raw rows before normalising (SIH-SP extract 5.6 → 2.8 s a file);
+    - transfers in flight follow the rate they give (`concurrency.adaptive_map`), with no fixed pause per host;
+    - `reencode-lake` rewrites files in parallel processes;
+    - a stale map is served while one detached process rebuilds it (a rebuild is 52 s).
+  - The manual (`<home>/manual/`) is the map as text files; `info` prints its index.
+  - A cohort link's passes are judged horizon by horizon (LINKAGE_VERSION 5).
+  - ANS TISS hospital files 2015-2025 are landed nationally (70.2 M events, 462.6 M items, 23.8 M payment rows).
+  - Fixes reported by the ABNc studies:
+    - code search finds ended and new SIGTAP codes, with their window;
+    - `MUNIC_MOV_municipio` maps the Federal District's region codes;
+    - CNES orthopaedist fields;
+    - the SIH.RD gotcha on RACA_COR 99 ending in 2023.
+  - The ABNc studies run in two science sessions (`../abnc2027_neuro`), which report pegasus_data issues here.
 - **The catalog's open questions.** None are open; the 733 were noise or answered (ADR-0216). Real ones are in
   `OPEN_QUESTIONS.md`.
 - **SI-PNI per-dose records** are declared on request (`PNI.DOSES`, 200 GiB zipped, built by naming years). June 2020 is
