@@ -34,11 +34,35 @@ def write_atomic(path: str | Path, write: Callable[[Path], object], *, require_n
         write(tmp)
 
 
+#: The one Parquet encoding of what the home writes (lake partitions, role tables, links, cubes, registries): zstd at
+#: level 9 and row groups of 262,144 rows. Measured on SIH-RD SP 2024 (2.86 M rows): 65,536-row groups at level 3 wrote
+#: 113 MB, 262,144-row groups 102.8 MB, and level 9 96.2 MB, in the same write time and with faster reads (level 15:
+#: 94.6 MB in twice the time; 2026-11-22). Written into each file's metadata as ``pegasus.encoding``, so a re-encode
+#: knows the files written before (`persist.lake.reencode_lake`).
+ZSTD_LEVEL = 9
+ROW_GROUP_ROWS = 262_144
+ENCODING = f"zstd{ZSTD_LEVEL}-rg{ROW_GROUP_ROWS}"
+
+
+def parquet_options(**options: Any) -> dict[str, Any]:
+    """``options`` for `pq.write_table`/`pq.ParquetWriter` with the home's encoding wherever the caller set none."""
+    out = {"compression": "zstd", "row_group_size": ROW_GROUP_ROWS, **options}
+    if out.get("compression") == "zstd" and "compression_level" not in options:
+        out["compression_level"] = ZSTD_LEVEL
+    return out
+
+
+def stamped(table: Any) -> Any:
+    """``table`` with ``pegasus.encoding`` in its schema metadata."""
+    return table.replace_schema_metadata({**(table.schema.metadata or {}), b"pegasus.encoding": ENCODING.encode()})
+
+
 def write_parquet_atomic(table: Any, path: str | Path, **options: Any) -> None:
-    """``pq.write_table(table, path, **options)``, whole or not at all."""
+    """``pq.write_table(table, path, **options)``, whole or not at all, in the home's encoding unless ``options`` say
+    otherwise (`parquet_options`)."""
     import pyarrow.parquet as pq
 
-    write_atomic(path, lambda tmp: pq.write_table(table, tmp, **options))
+    write_atomic(path, lambda tmp: pq.write_table(stamped(table), tmp, **parquet_options(**options)))
 
 
 def write_json_atomic(obj: Any, path: str | Path, **options: Any) -> None:

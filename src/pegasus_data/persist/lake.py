@@ -66,16 +66,42 @@ def _file_keys(path: str, fields: Sequence[str]) -> pa.Array:
 
 
 def parquet_writer(path: Path, schema: pa.Schema, compression: str = "zstd") -> pq.ParquetWriter:
-    """The lake's Parquet encoding, for every writer of a partition file. `_row` counts up within each file:
-    delta-encoded it is a few bits a row, against 4.6% of an SIH partition dictionary-encoded (measured 2026-10-04,
-    SP 2022). Delta encoding excludes the dictionary."""
+    """The lake's Parquet encoding, for every writer of a partition file (`persist.kept.parquet_options`: zstd 9, the
+    encoding stamped in the schema). `_row` counts up within each file: delta-encoded it is a few bits a row, against
+    4.6% of an SIH partition dictionary-encoded (measured 2026-10-04, SP 2022). Delta encoding excludes the dictionary.
+    The row groups are made by `RowGroups`, which gathers batches to `ROW_GROUP_ROWS`."""
+    from .kept import ENCODING, ZSTD_LEVEL
+
     sequential = [n for n in schema.names if n == "_row"]
+    schema = schema.with_metadata({**(schema.metadata or {}), b"pegasus.encoding": ENCODING.encode()})
     return pq.ParquetWriter(
-        path, schema, compression=compression,
+        path, schema, compression=compression, compression_level=ZSTD_LEVEL if compression == "zstd" else None,
         use_dictionary=[n for n in schema.names if n not in sequential],
         column_encoding=dict.fromkeys(sequential, "DELTA_BINARY_PACKED"),
         write_statistics=True, version="2.6",
     )
+
+
+class RowGroups:
+    """Batches written to ``writer`` as row groups of `ROW_GROUP_ROWS`: a batch became its own group (65,536 rows a
+    group where 262,144 were asked; 9% larger files, 2026-11-22). Call `flush` before closing."""
+
+    def __init__(self, writer: pq.ParquetWriter, rows: int | None = None) -> None:
+        from .kept import ROW_GROUP_ROWS
+
+        self.writer, self.rows, self.held, self.count = writer, rows or ROW_GROUP_ROWS, [], 0
+
+    def write(self, batch: pa.RecordBatch) -> None:
+        self.held.append(batch)
+        self.count += batch.num_rows
+        if self.count >= self.rows:
+            self.flush()
+
+    def flush(self) -> None:
+        if self.held:
+            table = pa.Table.from_batches(self.held).replace_schema_metadata(self.writer.schema.metadata)
+            self.writer.write_table(table, row_group_size=self.rows)
+            self.held, self.count = [], 0
 
 
 @dataclass(slots=True)
@@ -293,9 +319,10 @@ class Lake:
             raised. A column a month lacks stays absent in that file, never written as nulls."""
             nonlocal rows_written
             writer = open_writer(staged, first.schema)
+            groups = RowGroups(writer, self.row_group_size)
             current = first.schema
             try:
-                writer.write_batch(first, row_group_size=self.row_group_size)
+                groups.write(first)
                 rows_written += first.num_rows
                 for batch in stream:
                     if not batch.num_rows:
@@ -304,13 +331,16 @@ class Lake:
                         if not split:
                             raise ValueError(f"{family_id} {uf} {year}: a batch's schema differs from the partition's "
                                              "and this write appends to one file")
+                        groups.flush()
                         writer.close()
                         nxt = staged.with_name(f"part-{part + len(extra_files) + 1:05d}.parquet")
                         extra_files.append(nxt)
                         writer = open_writer(nxt, batch.schema)
+                        groups = RowGroups(writer, self.row_group_size)
                         current = batch.schema
-                    writer.write_batch(batch, row_group_size=self.row_group_size)
+                    groups.write(batch)
                     rows_written += batch.num_rows
+                groups.flush()
             finally:
                 writer.close()
 
@@ -810,53 +840,66 @@ def drop_redundant_partitions(catalog: CatalogStore, lake_dir: str | Path, *, dr
 
 def reencode_lake(catalog: CatalogStore, lake_dir: str | Path, *, dry_run: bool = False,
                   compression: str = "zstd") -> dict[str, int]:
-    """Rewrite the listed partition files that store what the lake now computes, value for value: the record key
-    (`Lake._read_keyed`). Row group by row group, into a temporary file beside the partition that replaces it in one
-    rename, so a reader sees the old file or the new one; the catalog's byte size follows. A file is rewritten only
-    when the key its fields hash to is the key it stores, on every row (`record_key_sql`): one that differed would
-    change the identity of its records, and is kept and counted instead."""
+    """Rewrite, value for value, the listed partition files not written as the lake writes now: those that store what
+    the lake computes (the record key, `Lake._read_keyed`) and those of another encoding than `persist.kept.ENCODING`
+    (smaller row groups, a lower zstd level; their ``pegasus.encoding`` stamp says). Batch by batch into row groups of
+    the encoding's size, into a temporary file beside the partition that replaces it in one rename, so a reader sees the
+    old file or the new one; the catalog's byte size follows. A file that stores a key is rewritten only when the key its
+    fields hash to is the key it stores, on every row (`record_key_sql`): one that differed would change the identity of
+    its records, and is kept and counted instead."""
     import os
 
     import duckdb
 
     from ..normalize.engine import key_fields, record_key_sql
+    from .kept import ENCODING
 
     root = Path(lake_dir)
     out = {"files": 0, "rewritten": 0, "kept_differing": 0, "bytes_before": 0, "bytes_after": 0}
     rows = list(catalog.query("SELECT relative_path FROM lake_partitions ORDER BY relative_path"))
     con = duckdb.connect()
-    con.execute("SET memory_limit='2GB'; SET threads=4; SET enable_progress_bar=false")
+    con.execute("SET memory_limit='2GB'; SET enable_progress_bar=false")
     for row in rows:
         path = root / str(row["relative_path"])
         if not path.is_file():
             continue
         source = pq.ParquetFile(path)
         names = source.schema_arrow.names
-        if RECORD_KEY not in names:
+        keyed = RECORD_KEY in names
+        encoded = (source.schema_arrow.metadata or {}).get(b"pegasus.encoding") == ENCODING.encode()
+        if not keyed and encoded:
+            source.close()
             continue
         out["files"] += 1
-        fields = key_fields(names)
-        differ = con.execute(
-            f"SELECT count(*) FROM read_parquet('{path.as_posix()}', hive_partitioning=false) "
-            f"WHERE _record_key IS DISTINCT FROM {record_key_sql(fields) if fields else 'NULL'}").fetchone()[0]  # type: ignore[index]
-        if differ:
-            out["kept_differing"] += 1
-            continue
+        if keyed:
+            fields = key_fields(names)
+            differ = con.execute(
+                f"SELECT count(*) FROM read_parquet('{path.as_posix()}', hive_partitioning=false) "
+                f"WHERE _record_key IS DISTINCT FROM {record_key_sql(fields) if fields else 'NULL'}").fetchone()[0]  # type: ignore[index]
+            if differ:
+                out["kept_differing"] += 1
+                source.close()
+                continue
         before = path.stat().st_size
         out["bytes_before"] += before
         if dry_run:
+            source.close()
             continue
         keep = [n for n in names if n != RECORD_KEY]
-        schema = source.schema_arrow.remove(names.index(RECORD_KEY))
+        schema = source.schema_arrow.remove(names.index(RECORD_KEY)) if keyed else source.schema_arrow
         temporary = path.with_name(f".{path.name}.reencode")
         writer = parquet_writer(temporary, schema, compression)
+        groups = RowGroups(writer)
         try:
-            for group in range(source.metadata.num_row_groups):
-                table = source.read_row_group(group, columns=keep)
-                writer.write_table(table, row_group_size=max(table.num_rows, 1))
+            for batch in source.iter_batches(batch_size=65_536, columns=keep):
+                groups.write(batch)
+            groups.flush()
         finally:
             writer.close()
-        source.close()
+            source.close()
+        if pq.ParquetFile(temporary).metadata.num_rows != pq.ParquetFile(path).metadata.num_rows:
+            temporary.unlink()
+            raise RuntimeError(f"{path}: the re-encoded file does not hold the original's rows")
         os.replace(temporary, path)
         after = path.stat().st_size
         out["bytes_after"] += after

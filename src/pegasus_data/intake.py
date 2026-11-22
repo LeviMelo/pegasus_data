@@ -460,7 +460,10 @@ def _land(settings: Any, source: str, spec: dict[str, Any], unit: dict[str, Any]
     if order:
         sql = f"SELECT * FROM ({sql}) ORDER BY {', '.join(order)}"
     try:
-        con.execute(f"COPY ({sql}) TO '{staging.as_posix()}' (FORMAT parquet, COMPRESSION zstd, PARTITION_BY (year), "
+        from .persist.kept import ZSTD_LEVEL
+
+        con.execute(f"COPY ({sql}) TO '{staging.as_posix()}' (FORMAT parquet, COMPRESSION zstd, "
+                    f"COMPRESSION_LEVEL {ZSTD_LEVEL}, PARTITION_BY (year), "
                     f"FILENAME_PATTERN 'part-{key}-{{i}}', OVERWRITE_OR_IGNORE true, ROW_GROUP_SIZE {group})")
         staged = sorted(staging.glob(f"year=*/part-{key}-*.parquet"))
         place = spec.get("place") or {}

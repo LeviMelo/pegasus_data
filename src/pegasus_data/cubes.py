@@ -275,7 +275,7 @@ def _cached(settings: Any, key: str, where: Mapping[str, Any], build: Any, stamp
 
     import pyarrow.parquet as pq
 
-    from .persist.kept import kept
+    from .persist.kept import kept, parquet_options
 
     folder = Path(settings.lake_dir) / "cubes"
     # The request (the series, its measure, its filter) names the file; the facts' fingerprint is its version.
@@ -284,7 +284,7 @@ def _cached(settings: Any, key: str, where: Mapping[str, Any], build: Any, stamp
     digest.update(_code_fingerprint())
     stamp(digest)
     return kept(folder / f"{key}-{digest.hexdigest()}.parquet", build, read=pq.read_table,
-                write=lambda table, tmp: pq.write_table(table, tmp, compression="zstd"), siblings=f"{key}-*.parquet")
+                write=lambda table, tmp: pq.write_table(table, tmp, **parquet_options()), siblings=f"{key}-*.parquet")
 
 
 # ------------------------------------------------------------------------------------------------------ records
