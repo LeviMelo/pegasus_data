@@ -620,6 +620,11 @@ OQ-64), 1990s SIH V-codes.
 
 ## Open fronts
 
+- **Intake files published per state are landed under one national partition** (ANS TISS, ICB, BB: `uf=BR`, the state only in
+  the file name, and publication rows without the state), so `query(geography=<state>)` refuses them although ANS publishes
+  one file per state. `info` now says so (2026-11-22). The fix: land each `across: uf` unit into its state's partition and
+  record the state on its publication, then move the held files (about 3,600 TISS files) when no session reads ANS.
+
 - **The project's work is ordered in `../pegasus_project/BACKLOG.md`** (2026-10-10, PegaSUS architecture revision 5). Its [data] units are pegasus_data's next work: phase 4 (concept index), phase 5 (source assessment of the DEMAS API's 113 endpoints and ANVISA's open data, the publication audit, source definitions and caveats as declarations, SISAGUA, medicines, SIASI and the DSEI support, primary care, the remaining DEMAS families), phase 6 (TOXG/TOXC → SINASC and other links, with viability).
 
 - **Undecoded because no source names them** (OQ-61; fresh-home sweep, 21

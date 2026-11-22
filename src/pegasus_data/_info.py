@@ -168,7 +168,11 @@ class Info:
         if axes is not None and self.kind == "dataset":
             shown = ", ".join(axes) if axes else "nothing \u2014 the files are not split"
             out.append(f"  filterable by: {shown}")
-            absent = [a for a in ("uf", "year", "month") if a not in axes]
+            if self.coverage.get("lake_national_only"):
+                out.append("    published one file per state, but held as one national partition: geography= takes BR "
+                           "only; filter the state column after reading")
+            absent = [a for a in ("uf", "year", "month") if a not in axes
+                      and not (a == "uf" and self.coverage.get("lake_national_only"))]
             if absent:
                 out.append(
                     f"    NOT split by {', '.join(absent)}; filtering on "
@@ -703,6 +707,16 @@ def _dataset(store: _Store, onto: Ontology, node: DatasetNode, settings: Setting
         axes = onto.axes_for(store.conn, node.code)
     except Exception:  # pragma: no cover - a locked or partial catalog
         axes = None
+    # the axes above are read from the SOURCE files' names; `query` selects by the lake's partitions and publications.
+    # A source published per state but landed under one national partition (the intake's ANS files, 2026-11-22) is
+    # filterable by state at the source and not through `geography=`: say so, rather than promise a filter that raises
+    try:
+        held_ufs = {str(r[0]) for r in store.conn.execute(
+            "SELECT DISTINCT uf FROM lake_partitions WHERE family_id LIKE ?",
+            (node.code.replace(".", "_").replace("-", "_") + "_%",)).fetchall()}
+    except Exception:  # pragma: no cover - a locked or partial catalog
+        held_ufs = set()
+    lake_national_only = bool(axes and "uf" in axes.names and held_ufs == {"BR"})
 
     notes = []
     if node.confidence != "high":
@@ -738,7 +752,8 @@ def _dataset(store: _Store, onto: Ontology, node: DatasetNode, settings: Setting
             "span_held": _span(mapped.get("year_min_held"), mapped.get("year_max_held")),
             "files_downloaded": mapped.get("files_downloaded") or 0,
             "months_downloaded": mapped.get("months_downloaded"),
-            "axes": axes.names if axes else [],
+            "axes": ([n for n in axes.names if n != "uf"] if lake_national_only else axes.names) if axes else [],
+            "lake_national_only": lake_national_only,
             "axes_detail": axes.as_dict() if axes else None,
         },
         enrichments=_enrichments(node.code),

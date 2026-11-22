@@ -115,7 +115,7 @@ def plan(
         # publication: nothing to select, and nothing to refuse.
         adaptations.append(Adaptation(
             "geography", "BR", "",
-            "DATASUS publishes this dataset nationally only; BR is the whole publication",
+            "this dataset is held as one national publication; BR is the whole of it",
         ))
     elif spec.geography and spec.geography.ufs and not has_uf_axis:
         raise ValueError(
