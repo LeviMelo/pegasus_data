@@ -1,0 +1,209 @@
+﻿Supplementary material - Black children recorded as Brown: the Black category on the death certificates of children of Black mothers, against the family, the hospital and the certificates of adults, Brazil, 2013-2023
+Supplementary Text S1 - Three readings of race for the same woman (exploratory)
+Deaths of women aged 15 to 49 years in 2015 to 2022 in municipalities with fewer than 2,000 mothers on the birth records (106,565 deaths) were related to the birth records on which they were the mother, by birth date and municipality (19,332 pairs). These deaths were then related to the hospital admission that ended in death, through a probabilistic linkage of admissions in the Hospital Information System to death certificates on birth date, sex, date of death and hospital. 5,579 women had the three races recorded; the mean estimated proportion of false pairs among them was 28.2%. False pairs were removed in expectation, taking the declared race of a false pair to follow the racial composition of mothers in the region; intervals are from 400 bootstrap resamples of the women. The certificate recorded the race the woman had declared as a mother for 0.80 (95%CI 0.77; 0.82) of White, 0.71 (95%CI 0.69; 0.73) of Brown and 0.55 (95%CI 0.48; 0.63) of Black women; the hospital record did so for 0.76 (95%CI 0.73; 0.78), 0.77 (95%CI 0.75; 0.79) and 0.37 (95%CI 0.31; 0.44) (Supplementary Table S1). For comparison, among 1,208,430 delivery admissions of 2022 related to the birth record, the hospital recorded the declared race for 0.74 of White, 0.80 of Brown and 0.37 of Black mothers.
+Supplementary Text S2 - Estimation without individual linkage and its control
+Let G be a group of deaths. For a death i, let C_i be the set of live births with the birth date, sex and municipality of residence of i. If the family did not move, exactly one element of C_i is the deceased; the remaining elements, and all elements when the family moved, are births that agree by chance. Write N(j, k) for the number of deaths in G with race j on the birth record and certified race k, and t for the probability that the deceased is in C_i. The expected number of candidates with race j among deaths certified k is t N(j, k) + E(j, k), where E(j, k) is the expected number of chance candidates.
+E(j, k) depends on how many children were born on the birth date of the deceased in the municipality. That is not the number of an arbitrary day: a day on which more children were born contributes more people and therefore more deaths, so the birth date of a death is a size-biased draw from the days of the year, and a control drawn from other days would undercount E. The births of the other sex on the same day in the same municipality share the day, cannot contain the deceased and have the racial composition of that day's births; multiplied by the ratio of births of the two sexes in the municipality and year, their count estimates E(j, k). With this control the estimated t for infants was 89.8% overall.
+The estimator of t N(j, k) is the difference of the two counts. Its variance was approximated by the sum of the candidate count and the control count, which ignores the scaling factor of the control (close to 1). A proportion is a ratio of two such differences; the variance of its denominator was ignored, which understates the error of rows with few deaths. A twin of the same sex is a candidate and a twin of the other sex is in the control; both share the mother's race with the deceased. Mortality by the mother's race uses the shares of each race among the estimated deaths, so that t cancels provided it does not differ by race.
+Supplementary Table S1 - Race recorded by the hospital and on the death certificate according to the race declared as a mother, women who died in hospital at 15-49 years, Brazil, 2015-2022 (n=5,579)
+Declared race
+Hospital records the declared race (95%CI)
+Certificate records the declared race (95%CI)
+Certified as declared when the hospital recorded White (95%CI)
+When the hospital recorded Brown (95%CI)
+When the hospital recorded Black (95%CI)
+White
+0.76 (95%CI 0.73; 0.78)
+0.80 (95%CI 0.77; 0.82)
+0.90 (95%CI 0.88; 0.91)
+0.50 (95%CI 0.44; 0.56)
+0.40 (95%CI 0.16; 0.64)
+Brown
+0.77 (95%CI 0.75; 0.79)
+0.71 (95%CI 0.69; 0.73)
+0.46 (95%CI 0.39; 0.52)
+0.77 (95%CI 0.75; 0.79)
+0.57 (95%CI 0.47; 0.67)
+Black
+0.37 (95%CI 0.31; 0.44)
+0.55 (95%CI 0.48; 0.63)
+0.51 (95%CI 0.24; 0.78)
+0.40 (95%CI 0.29; 0.50)
+0.79 (95%CI 0.70; 0.88)
+95%CI: 95% confidence interval (bootstrap), after removal of the expected false pairs.
+
+Supplementary Table S2 - Certified race of infants according to the mother's declaration and the race the hospital recorded for the same mother at delivery, Brazil, 2013-2023
+Mother's declaration
+Hospital's record of the mother
+Infant deaths
+Certified White (95%CI)
+Certified Brown (95%CI)
+Certified Black (95%CI)
+Black
+Black
+3,872
+0.20 (95%CI 0.19; 0.21)
+0.47 (95%CI 0.45; 0.48)
+0.28 (95%CI 0.27; 0.29)
+Black
+Brown
+5,616
+0.16 (95%CI 0.15; 0.17)
+0.62 (95%CI 0.61; 0.64)
+0.12 (95%CI 0.12; 0.13)
+Black
+White
+950
+0.39 (95%CI 0.36; 0.42)
+0.39 (95%CI 0.36; 0.42)
+0.17 (95%CI 0.15; 0.20)
+Brown
+Black
+3,427
+0.24 (95%CI 0.23; 0.26)
+0.62 (95%CI 0.60; 0.64)
+0.06 (95%CI 0.05; 0.07)
+Brown
+Brown
+65,721
+0.22 (95%CI 0.22; 0.23)
+0.68 (95%CI 0.67; 0.68)
+0.02 (95%CI 0.01; 0.02)
+Brown
+White
+11,113
+0.52 (95%CI 0.51; 0.53)
+0.41 (95%CI 0.40; 0.42)
+0.01 (95%CI 0.01; 0.02)
+Infant deaths linked to the birth record, the birth record linked to the delivery admission; binomial intervals.
+
+Supplementary Table S3 - Race recorded by the hospital at delivery according to the race the mother declared on the birth record, and for Black mothers by year of birth, Brazil, 2012-2023
+Mother's declaration
+Admissions
+Hospital: White (95%CI)
+Hospital: Brown (95%CI)
+Hospital: Black (95%CI)
+White
+4,222,685
+0.76 (95%CI 0.76; 0.76)
+0.22 (95%CI 0.22; 0.22)
+0.01 (95%CI 0.01; 0.01)
+Brown
+8,172,530
+0.15 (95%CI 0.15; 0.15)
+0.80 (95%CI 0.80; 0.80)
+0.04 (95%CI 0.04; 0.04)
+Black
+939,740
+0.10 (95%CI 0.10; 0.10)
+0.53 (95%CI 0.53; 0.53)
+0.36 (95%CI 0.36; 0.36)
+Black, births of 2012
+57,018
+-
+-
+0.34 (95%CI 0.34; 0.35)
+Black, births of 2013
+62,655
+-
+-
+0.34 (95%CI 0.34; 0.34)
+Black, births of 2014
+64,210
+-
+-
+0.35 (95%CI 0.35; 0.35)
+Black, births of 2015
+64,012
+-
+-
+0.36 (95%CI 0.36; 0.36)
+Black, births of 2016
+64,831
+-
+-
+0.36 (95%CI 0.36; 0.36)
+Black, births of 2017
+74,024
+-
+-
+0.37 (95%CI 0.36; 0.37)
+Black, births of 2018
+80,645
+-
+-
+0.36 (95%CI 0.35; 0.36)
+Black, births of 2019
+85,395
+-
+-
+0.36 (95%CI 0.36; 0.37)
+Black, births of 2020
+87,597
+-
+-
+0.38 (95%CI 0.38; 0.39)
+Black, births of 2021
+88,337
+-
+-
+0.38 (95%CI 0.37; 0.38)
+Black, births of 2022
+92,004
+-
+-
+0.38 (95%CI 0.37; 0.38)
+Black, births of 2023
+119,012
+-
+-
+0.36 (95%CI 0.36; 0.36)
+Delivery admissions in the public system linked to the birth record; hospitals recording over a tenth of patients as Yellow left out (490). Hospitals with 30 or more Black mothers: 1,595; share recorded Black at the 10th, 50th and 90th percentiles 0.01, 0.24, 0.64.
+
+Supplementary Table S4 - Between-municipality variance of being certified Black, infants of Black mothers, under successive fixed parts of a multilevel logistic model, Brazil, 2013-2023
+Fixed part
+Municipal variance (log-odds)
+Variance explained
+Median odds ratio
+none
+0.601
+0.0%
+2.10
+composition
+0.365
+39.4%
+1.78
+socioeconomic context and place
+0.489
+18.8%
+1.95
+services and recording
+0.468
+22.1%
+1.92
+composition + socioeconomic
+0.354
+41.1%
+1.76
+socioeconomic + services
+0.411
+31.7%
+1.84
+composition + socioeconomic + services
+0.306
+49.2%
+1.69
+all, with individual variables, region and year
+0.252
+58.1%
+1.61
+individual variables, region and year
+0.315
+47.6%
+1.71
+individual variables and year
+0.610
+-1.4%
+2.11
+Random intercept for the municipality, nAGQ = 0; 22,289 deaths in 2,766 municipalities. With a crossed random effect for the establishment of death: 0.31 between establishments, 0.10 between municipalities.
+

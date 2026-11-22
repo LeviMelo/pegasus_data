@@ -8,7 +8,7 @@ others where it leans on them; none repeats another's results as its own. Built:
 |---|---|---|---|---|
 | 1 | `place/` | Is the race on a child's death certificate a classification of place, and what explains where it departs from the mother and the family? | infant linkage x municipality: BYM2 maps, Moran, border test, binomial and multilevel models, region-year panel | built, four audits answered (`place/audits/`) |
 | 2 | `indicators/` | What do the classification of deaths and the choice of denominator do to racial inequality in infant and child mortality, nationally and by region? | rates under four classifications; Poisson BYM2 ratios for 510 immediate regions | built (short report) |
-| 3 | `black_category/` | Why are Black children recorded as Brown? | see below | planned |
+| 3 | `black_category/` | Why are Black children recorded as Brown? | infant linkage + births linked to delivery admissions; net counts, within-hospital MH, delivery-hospital practice, multilevel, BYM2, panel | built, audit 1 answered (`black_category/audits/`) |
 | 4 | `family/` | How do families classify their children, and what does mixing and schooling do across generations? | see below | planned |
 | 5 | `violence/` | Does the race at death of young people depend on how they died? | see below | planned, needs identified data |
 | 6 | `estimator/` | Can a race-by-race table between two registers be estimated without linking them? | see below | planned |
@@ -19,17 +19,15 @@ Question: when is the Black category used for the children of Black mothers, by 
 Debates: colourism; the boundary between preto and pardo; the grouping of both as negros; observer classification in
 the verification committees of affirmative action (heteroidentificação).
 
-In hand: infants of Black mothers certified Black 0.18 against 0.39 in the family's classification, 0.55 certified
-Brown; at 1-4 years 0.24; rising 0.42 log-odds a decade, unevenly, fastest in the South (`spatial.json` panel KK);
-municipal field and clusters (Moran 0.42); state explains more than composition (37% against 22% of deviance);
-verification services and medical examiners use the category less (OR 0.59, 0.65); adult Black women who declared
-themselves Black as mothers certified Black in 0.55 and recorded Black by the hospital in 0.37 (`results.json`
-triples, exploratory, 5,579 women).
+Built (`analysis/black.py` -> `results/black.json`; `figures_black.py`; `build.py black_category`). Births 2012-2023 were
+linked to delivery admissions (`counts.py delivery`). The hospital recorded self-declared Black mothers as Black in 0.36
+(bootstrap over hospitals), net 0.74. Infant certificates: net 0.34. Within the same delivery hospital, the hospital's
+record of the mother gives OR 2.04 for the infant certified Black. The delivery hospital's practice gives OR 1.20
+adjusted. The certificate rises +0.42 log-odds a decade, the hospital +0.11. Regional slopes do not differ clearly.
 
-Missing: an individual model of the use of the category with the hospital's own record of the mother (delivery
-admissions, `sinasc_births_to_delivery_admission`), to separate the certificate from the place of care; the triples
-analysis made confirmatory (bootstrap of the false-pair removal, all municipality sizes); literature on preto/pardo
-and heteroidentificação read before writing.
+Not done: the adult women's triples stay exploratory (bootstrap of the false-pair removal and all municipality sizes
+not added). Shared perception of the same person cannot be told from institutional practice without a record of
+appearance.
 
 Done when: built from `black_category/` with its own audit answered; no result of paper 1 restated except as context.
 

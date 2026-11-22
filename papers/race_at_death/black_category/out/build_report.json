@@ -1,0 +1,32 @@
+{
+ "words_introduction_to_conclusion": 3172,
+ "words_all_paragraphs": 4259,
+ "references": 21,
+ "reference_keys": [
+  "telles2002",
+  "muniz2022",
+  "bailey2006",
+  "monk2016",
+  "perreira2014",
+  "daflon2017",
+  "silva2024",
+  "freemannc2024",
+  "manual_do2022",
+  "travassos2004",
+  "caldas2022",
+  "cardoso2005",
+  "benchimol2015",
+  "datasus",
+  "ibge_microdata2010",
+  "fellegi1969",
+  "bates2015",
+  "moran1950",
+  "assuncao1999",
+  "riebler2016",
+  "rue2009"
+ ],
+ "tables": 1,
+ "figures": 4,
+ "supplementary_tables": 4,
+ "supplementary_figures": 0
+}

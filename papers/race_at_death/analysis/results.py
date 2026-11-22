@@ -393,7 +393,7 @@ ci_imp = certified("infants")[:4].copy()
 ci_imp += np.array([(blank.dec == j).sum() for j in RACES], float) / max(len(blank), 1) * float((~L.rec.isin(RACES)).sum())
 R["infant_rates"]["ratio_certificate_blank_as_mother"] = float((ci_imp[0] / bi[0]) / (ci_imp[2] / bi[2]))
 # the linkage's proportions with a bootstrap over municipalities (pairs cluster by place): 400 resamples
-cells_ = [("white", "white"), ("brown", "brown"), ("black", "black"), ("brown", "white"), ("black", "brown"), ("white", "brown")]
+cells_ = [("white", "white"), ("brown", "brown"), ("black", "black"), ("brown", "white"), ("black", "brown"), ("white", "brown"), ("black", "white")]
 mun_ids = LL.mun6.astype(str).to_numpy()
 codes, inv_ = np.unique(mun_ids, return_inverse=True)
 den = {j: np.bincount(inv_, weights=(LL.dec == j).to_numpy(float), minlength=len(codes)) for j in ("white", "brown", "black")}

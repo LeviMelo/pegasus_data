@@ -21,7 +21,7 @@ OUT.mkdir(exist_ok=True)
 R = json.loads((HERE / "results" / "results.json").read_text(encoding="utf-8"))
 SP = json.loads((HERE / "results" / "spatial.json").read_text(encoding="utf-8"))
 REFS: dict = {}
-for name in ("crossref.json", "crossref_theory.json", "crossref_more.json", "crossref_methods.json", "crossref_methods2.json"):
+for name in ("crossref.json", "crossref_theory.json", "crossref_more.json", "crossref_methods.json", "crossref_methods2.json", "crossref_black.json"):
     REFS |= json.loads((HERE / "references" / name).read_text(encoding="utf-8"))
 MANUAL = json.loads((HERE / "references" / "manual.json").read_text(encoding="utf-8"))
 

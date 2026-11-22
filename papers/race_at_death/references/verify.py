@@ -62,11 +62,24 @@ METHODS2 = {
     "lindgren2015": "Lindgren Rue Bayesian spatial modelling with R-INLA Journal of Statistical Software 2015",
     "rey2010": "Rey Anselin PySAL: a Python library of spatial analytical methods Handbook of Applied Spatial Analysis 2010",
 }
+BLACK = {
+    "bailey2006": "Bailey Telles Multiracial versus collective black categories: examining census classification debates in Brazil and the United States Ethnicities 2006",
+    "monk2016": "Monk The consequences of race and color in Brazil Social Problems 2016",
+    "perreira2014": "Perreira Telles The color of health: skin color, ethnoracial classification, and discrimination in the health of Latin Americans Social Science and Medicine 2014",
+    "caldas2022": "Caldas Santos Cardoso Iniquidades etnico-raciais na mortalidade infantil: implicacoes de mudancas do registro de cor/raca nos sistemas nacionais de informacao em saude Cadernos de Saude Publica 2022",
+    "daflon2017": "Daflon Carvalhaes Feres Junior Sentindo na pele: percepcoes de discriminacao cotidiana de pretos e pardos no Brasil Dados 2017",
+    "silva2024": "Silva Daflon Giraut Seeing race like a state: higher education affirmative action verification commissions in Brazil Latin American Politics and Society",
+    "freemannc2024": "Freeman Telles Goldberg The changing relationship between racial identity and skin color in Brazil PNAS 2024",
+    "muniz2022": "Muniz Bailey Does race response shift impact racial inequality? Demographic Research 2022",
+    "travassos2011": "Travassos Laguardia Marques Mota Szwarcwald Comparison between two race/skin color classifications in relation to health-related outcomes in Brazil International Journal for Equity in Health 2011",
+}
 TARGET = "crossref.json"
 if sys.argv[1:] == ["theory"]:
     QUERIES, TARGET = THEORY, "crossref_theory.json"
 if sys.argv[1:] == ["methods"]:
     QUERIES, TARGET = METHODS, "crossref_methods.json"
+if sys.argv[1:] == ["black"]:
+    QUERIES, TARGET = BLACK, "crossref_black.json"
 if sys.argv[1:] == ["methods2"]:
     QUERIES, TARGET = METHODS2, "crossref_methods2.json"
 out = {}

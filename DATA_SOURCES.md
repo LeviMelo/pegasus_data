@@ -389,6 +389,11 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   certified by a verification service runs from 0 to 38% (median 0.8%), of external deaths by a medical examiner from 0 to
   100% (median 85%), and of all certificates with no race from 0 to 43% (median 2.2%; infants 4.3%). The one-to-one infant
   link finds 80-81% of certificates recorded White, Brown or Black alike and 62% of those recorded Indigenous.
+- **SIH records a mother's race differently from her own declaration** (measured 2026-11-21, `sinasc_births_to_delivery_admission`
+  2012-2023, 13.45 M deliveries with both races): of mothers who declared themselves Black on SINASC, the admission
+  (`RACA_COR`) records Black for 0.36, Brown 0.53, White 0.10, and leaves 21.8% blank; White mothers White 0.76, Brown
+  mothers Brown 0.80. The share recorded Black varies between hospitals from 0.01 to 0.64 (10th to 90th percentile); net, the
+  admissions record 0.74 as many Black mothers as declared themselves Black.
 - **SINASC writes 7-digit municipality codes to 2005** (measured 2026-11-21): `CODMUNRES` and `CODMUNNASC` are 7
   digits on every birth of 2000 and 2005, 6 from 2008 (lake years 2000-2024).
 - **COVID-19 in SIM is `CAUSABAS` B34.2, not U07.1** (measured on SIM-DO 2020, all

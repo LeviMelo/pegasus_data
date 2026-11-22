@@ -5,7 +5,7 @@
 
 Labels: children, youth, infants (by state, age, sex, cause, year); children_context, youth_context (also by who certified,
 where the death occurred and the mother's schooling on the birth record); linkage; linkage_context (the linkage with columns
-of the death and of the birth record for the individual models). No label: all of them.
+of the death and of the birth record for the individual models); delivery (the hospital's record of the mother at delivery). No label: all of them.
 """
 import sys
 import warnings
@@ -111,4 +111,46 @@ if "linkage_context" in WANTED and not f.exists():
         print("infant linkage context", year, t.num_rows, "deaths annotated", sum(i in dl for i in dids), "births annotated",
               sum(b in bl for b in bids if b), flush=True)
     pq.write_table(pa.concat_tables(parts), f)
+# the hospital's record of the mother at delivery (link sinasc_births_to_delivery_admission): by facility for every year, and for the mother of
+# each linked infant death. The infant rows are those of infant_linkage_context.parquet, in its order (checked field by field).
+if "delivery" in WANTED and not (OUT / "delivery_by_facility.parquet").exists():
+    import pyarrow.compute as pc
+
+    from pegasus_data.linkage import engine
+    from pegasus_data.linkage.roles import role_table
+
+    spec = engine.load_links()["sinasc_births_to_delivery_admission"]
+    ctx = pq.read_table(OUT / "infant_linkage_context.parquet")
+    infant_parts, fac_parts, mother = [], [], {}
+    for year in range(2013, 2024):
+        t = mr.infant_deaths(settings, "sim_infant_deaths_to_sinasc", [year], [], ids=True)
+        c = ctx.filter(pc.equal(ctx["year"], year))
+        for col in ("recorded", "declared", "mun", "age_days", "linked"):
+            assert t[col].to_pylist() == c[col].to_pylist(), (year, col)
+        infant_parts.append(pa.table({"year": t["year"], "birth_id": t["birth_id"]}))
+        print("infant ids", year, t.num_rows, flush=True)
+    wanted = {b for p in infant_parts for b in p["birth_id"].to_pylist() if b}
+    for byear in range(2012, 2024):
+        pairs, _ = mr._stored_pairs(settings, "sinasc_births_to_delivery_admission", byear, [])
+        left = role_table(spec.left.dataset, period=byear, geography="BR", roles=["mother.race"], root=settings.root)
+        left = left.append_column("_id", record_ids(left)).select(["_id", "mother.race"])
+        right = role_table(spec.right.dataset, period=engine.padded_period(byear, spec.right), geography="BR", where=spec.right.where or None,
+                           roles=["patient.race", "admission.facility"], root=settings.root)
+        right = right.append_column("_id", record_ids(right)).select(["_id", "patient.race", "admission.facility"])
+        j = pa.table({"l": pairs["l"], "r": pairs["r"]}).join(left, "l", "_id").join(right, "r", "_id")
+        agg = j.group_by(["admission.facility", "mother.race", "patient.race"]).aggregate([("l", "count")])
+        agg = agg.append_column("birth_year", pa.array([byear] * agg.num_rows, pa.int64()))
+        fac_parts.append(agg)
+        keep = j.filter(pc.is_in(j["l"], pa.array(sorted(wanted), pa.string())))
+        for l_, h, f in zip(keep["l"].to_pylist(), keep["patient.race"].to_pylist(), keep["admission.facility"].to_pylist(), strict=True):
+            mother[l_] = (h, f)
+        print("delivery", byear, "pairs", pairs.num_rows, "joined", j.num_rows, "infants' mothers found", keep.num_rows, flush=True)
+        del left, right, j
+    pq.write_table(pa.concat_tables(fac_parts), OUT / "delivery_by_facility.parquet")
+    ids = pa.concat_tables(infant_parts)
+    bl = ids["birth_id"].to_pylist()
+    out = ctx.append_column("mother_hospital_race", pa.array([mother.get(b, (None, None))[0] if b else None for b in bl], pa.string()))
+    out = out.append_column("delivery_facility", pa.array([mother.get(b, (None, None))[1] if b else None for b in bl], pa.string()))
+    pq.write_table(out, OUT / "infant_linkage_delivery.parquet")
+    print("written delivery", out.num_rows, "with the hospital's record of the mother", sum(1 for b in bl if b in mother), flush=True)
 print("DONE", flush=True)

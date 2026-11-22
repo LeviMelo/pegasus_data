@@ -109,3 +109,18 @@ Exist exactly: Race Factors (D000076782), Death Certificates (D003644), Medical 
 | freeman2011 | PARTLY, reworded | Laboratory experiment: status cues (attire) shifted the race category of morphed faces, more for ambiguous faces; cited now as "in experiments, cues of status". | abstract (OpenAlex) |
 | roth2016 | PARTLY, reworded | Dimensions of race (identity, self-classification, observed and reflected race, phenotype, ancestry) are distinct though correlated and change findings; "classification by relatives" is not in the abstract and was removed. | abstract (OpenAlex) |
 | keele2015 | SUPPORTED with caveat | A boundary as a geographic regression discontinuity, valid under as-if-random assignment at the border; cited for the logic, not the pair regression. | abstract (OpenAlex) |
+
+## Task D. Read for paper 3, the Black category (2026-11-21; abstracts unless stated)
+
+| key | what it reports (own words) | source read |
+|---|---|---|
+| telles1998 | Black-brown income differences hardly change between interviewer and self classification; White-brown ones do. | abstract (Crossref) |
+| bailey2006 | Education, age, colour, sex and local composition structure the choice of popular terms (moreno, negro) over census terms. | abstract (OpenAlex) |
+| monk2016 | Interviewer-rated skin colour predicts education and occupation beyond census race categories. | abstract (publisher page) |
+| perreira2014 | Official data rest on self-identification, which can differ from ascribed classification; self-rated health follows a skin-colour gradient in Latin America. | abstract (PMC page) |
+| caldas2022 | SINASC's 2012 change of how race is recorded raised Black, Brown and Indigenous births without a matching change in deaths, artificially reducing measured inequity in infant mortality. | abstract (OpenAlex) |
+| daflon2017 | Pretos and pardos do not converge in reported discrimination; low-status pardos resemble pretos, high-status pardos resemble whites. | abstract (OpenAlex) |
+| silva2024 | Verification commissions define who can see race and how, and shift racial boundaries. | abstract (OpenAlex) |
+| freemannc2024 | LAPOP 2010-2023: racial identification darkened, medium and dark-skinned people increasingly identifying as Black. | abstract (OpenAlex) |
+| muniz2022 | 16% shifted racial response between waves, in both directions. | abstract (OpenAlex) |
+| travassos2011 | Two race/colour classifications compared against health outcomes in Brazil. | abstract (OpenAlex) |

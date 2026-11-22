@@ -509,3 +509,25 @@ without the macro-region the deaths' own variables explain none of the municipal
 the macro-region; regional ratios refitted with INLA linear combinations (credibly reversed 115, certified ratio
 credibly higher 469 of 510); log GDP per capita at equal composition (spline) changes the odds by 1.06 per doubling
 (0.97 with the state). The stored infant link: threshold 17.9-18.9 bits, estimated false links 0.57-0.75% a year.
+
+## The Black category through three records (paper 3; `papers/race_at_death/analysis/black.py`, `counts.py delivery`)
+
+Regime: `sinasc_births_to_delivery_admission` stored runs 2012-2023 joined to SINASC mother's race and SIH patient race
+and facility (13,451,215 deliveries with both races; 490 hospitals recording over a tenth as Yellow left out), and to
+the infant linkage by birth record id (132,372 of 291,812 linked infant deaths of White, Brown and Black mothers have
+the mother's delivery admission; 10,568 of Black mothers); 2026-11-21, `results/black.json`.
+
+Hospitals record self-declared Black mothers as Black at delivery in 0.36 (Brown 0.53, White 0.10; blank 21.8%), 0.34
+for births of 2013 and 0.36 of 2023; across 1,595 hospitals with 30 or more Black mothers the share runs 0.01 (10th
+percentile), 0.24 (median), 0.64 (90th). Black mothers' infants are certified Black in 0.28 when the hospital recorded
+the mother Black, 0.12 when Brown, 0.17 when White; Brown mothers' infants in 0.06 and 0.02 when the hospital recorded
+the mother Black or Brown. Within the same delivery hospital the hospital's record of the mother gives a
+Mantel-Haenszel OR of 2.04 (1.80; 2.32; 443 hospitals). The delivery hospital's practice predicts the certificate (OR
+1.36 per logit unit; 1.20 (1.14; 1.26) at equal composition, region and year; 12,988 deaths, 1,040 hospitals). An
+earlier fit joined practice to the hospital of death (1.23) and was replaced: 75% of these infants die where they were
+delivered. Net counts: the hospital records 697,191 mothers Black against 939,740 declared (0.74). Certificates record
+7,560 infants Black against 22,305 of Black mothers (0.34). Gross shares overstate the hospital's loss, because Brown
+mothers recorded Black offset half of it. The hospital's trend is +0.11 log-odds a decade, the certificate's +0.42.
+Certificate's Black for Black mothers' children: infant 0.18 (0.18 in municipalities under 25,600 births), 1-4 0.24,
+5-9 0.29, adult women 0.55 (exploratory); families 0.39, 0.47, 0.52. The delivery link 2012-2023 links 0.53-0.61 of
+births a year, with estimated false links 0.65-0.92%.
