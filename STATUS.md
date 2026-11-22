@@ -43,7 +43,7 @@ holds and can do, one space × time object, and the principles audits' defects c
     - a stale map is served while one detached process rebuilds it (a rebuild is 52 s).
   - The manual (`<home>/manual/`) is the map as text files; `info` prints its index.
   - A cohort link's passes are judged horizon by horizon (LINKAGE_VERSION 5).
-  - ANS TISS hospital files 2015-2025 are landed nationally (70.2 M events, 462.6 M items, 23.8 M payment rows).
+  - ANS TISS hospital files 2015-2025 are landed nationally (70.2 M events, 462.6 M items, 23.8 M payment rows); the hospital events are an event source (`count_events`, records cubes by residence or provider).
   - Fixes reported by the ABNc studies:
     - code search finds ended and new SIGTAP codes, with their window;
     - `MUNIC_MOV_municipio` maps the Federal District's region codes;

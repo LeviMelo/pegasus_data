@@ -15,3 +15,13 @@
 
 The 2025 counts of the token placeholder (lake, SIASUS 2025 partitions): AQ 218,633 of 4,966,559 authorisations
 (681,918 true nulls), AR 7,944 of 176,753 (32,292 nulls).
+
+**TISS hospital events as an event source** (the thrombectomy study counts private-plan admissions). `ANS.TISS_HOSP_CONS`
+now declares a `hospitalisation` event (one row per admission, key `ID_EVENTO_ATENCAO_SAUDE`, classifier CID_1) and roles
+(`roles/ANS-TISS_HOSP_CONS.yml`): residence and provider places, `admission.month`, sex, age band, stay, ICU days, values.
+On 2024-03 (all states): 702,048 rows, 702,048 distinct event ids, `count_events` 702,048 (CID_1 empty on 258,734, 37%);
+`cube('records:ANS-TISS_HOSP_CONS/hospitalisation', at='provider')` places I63 in 76 municipalities. Making it found a
+defect in `semantics_for`: a series with underscores was matched on its last word (`CONS`), so 15 datasets (ANS TISS, 10
+SISCAN, SIH.BASE_AIH1, two DADOS_ABERTOS) fell through to role-derived axes and ignored their curated ones. The series
+is now matched as the whole end of the key; the default place and time columns of all 15 are unchanged, and no other
+dataset of the 180 resolves differently (SIA.PA still to core.yml's SIASUS_PA).

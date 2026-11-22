@@ -2209,10 +2209,6 @@ sources:
       diagnoses and the days in intensive care, and (from 2023) the value billed, paid and refused.
     one_row: "one hospital event (admission) of a private-plan beneficiary, in one month, with its residence, provider, stay and diagnoses"
     unit_of_analysis: hospital event
-    use: context
-    why_no_event_type: >-
-      An admission of a private plan with the beneficiary's residence: the care of the people the plans cover, which SIH (the public
-      system's admissions) never holds. It is an event, but no event type is declared until roles type these columns as a study's event.
     known_biases: >-
       These are the events operators sent to ANS under the TISS standard, not a census of private care: an event the operator never sent
       is absent, and ANS rewrites the files (the 2023 and later files were rebuilt in 2026 with payment columns added).

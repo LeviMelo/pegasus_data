@@ -1430,11 +1430,14 @@ def semantics_for(dataset: str, root: Path | None = None) -> DatasetSemantics | 
             return value
     # `SIH-RD` is the ontology spelling; curation keys on the crawled system
     # name, so `SIHSUS_RD` and `SIH_RD` are the same dataset.
-    tail = wanted.rsplit("_", 1)[-1]
-    head = wanted.rsplit("_", 1)[0] if "_" in wanted else ""
+    # A series may hold underscores (ANS's TISS_HOSP_CONS, SISCAN's SISCAN_CITO_COLO): the series is the end of the key
+    # after an underscore, never only its last word, or those datasets fell through to their roles and lost their curated
+    # axes (2026-11-22).
     for value in table.values():
-        if str(value.series or "").upper() != tail:
+        series = str(value.series or "").upper()
+        if not series or not wanted.endswith(series) or (len(wanted) > len(series) and wanted[-len(series) - 1] != "_"):
             continue
+        head = wanted[:-len(series) - 1] if len(wanted) > len(series) else ""
         system = str(value.system or "").upper()
         if system == head or system.startswith(head) or head.startswith(system):
             return value

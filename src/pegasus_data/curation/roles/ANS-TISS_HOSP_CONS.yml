@@ -1,0 +1,239 @@
+# ANS-TISS_HOSP_CONS: the hospital events of private health-plan beneficiaries reported to ANS under TISS (intake source
+# ans_tiss_hosp_cons, 2015-2025). Meaning from the ANS dictionaries Dicionario_de_variaveis_ate_2022.ods and
+# Dicionario_de_variaveis_a_partir_de_2023.ods (https://dadosabertos.ans.gov.br/FTP/PDA/TISS/DICIONARIO/), checked against
+# the 702,048 rows of 2024-03 (all states). Codes the dictionary names by a TUSS table it does not reproduce stay undecoded.
+dataset: ANS-TISS_HOSP_CONS
+record: admission
+setting: admission.facility_municipality
+columns:
+  ID_EVENTO_ATENCAO_SAUDE:
+    role: admission.event_id
+    kind: identifier
+    model: link_only
+    name: Identificador do evento de atenção à saúde
+    note: ANS's event number, unique per row (702,048 distinct in 702,048 rows of 2024-03); the key to the DET and REM tables.
+  ID_PLANO:
+    role: plan.ans_id
+    kind: identifier
+    model: link_only
+    name: Identificador do plano
+    note: Valid only inside the ANS open data (DADOS_DE_PLANOS); identifies the plan, never the beneficiary.
+  SEXO:
+    role: patient.sex
+    kind: category
+    model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Sexo do beneficiário\" (patient.sex): attribute of the person (sex)"
+    name: Sexo do beneficiário
+    note: Filed as the words Masculino and Feminino; empty (761 of 702,048 in 2024-03) where the crossing with the SIB or CNS failed.
+  FAIXA_ETARIA:
+    role: patient.age_band
+    kind: category
+    model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Faixa etária do beneficiário\" (patient.age_band): attribute of the person (age)"
+    name: Faixa etária do beneficiário
+    note: Filed as words, spelled '30 a 39' to 2022 and '30 a 39 anos' from 2023; 'Informada Incorretamente' (and the mangled 'N¿o identificado') is not recorded. Bands <1, 1-4, 5-9, 10-14, 15-19, then decades to 80+.
+  CD_MUNICIPIO_BENEFICIARIO:
+    role: patient.residence
+    kind: place
+    model: stratum
+    place_of: subject
+    fact_domain: person
+    fact_domain_evidence: "\"Código do município do beneficiário\" (patient.residence): municipality of residence of the beneficiary: attribute of the person"
+    name: Código do município do beneficiário
+    codelists:
+    - BR_MUNICIPALFA
+    note: IBGE code, 6 digits; empty where the SIB or CNS crossing failed; a code ending 0000 is the state's ignored municipality.
+  CD_MUNICIPIO_PRESTADOR:
+    role: admission.facility_municipality
+    kind: place
+    model: where
+    place_of: event
+    fact_domain: administrative
+    fact_domain_evidence: "\"Código do município do prestador\" (admission.facility_municipality): facility or its location: the provider"
+    name: Código do município do prestador
+    codelists:
+    - BR_MUNICIPALFA
+    note: IBGE code, 6 digits; ANS omits it where one hospital provider served the municipality in the year (250 of 702,048 empty in 2024-03).
+  UF_PRESTADOR:
+    role: admission.facility_state
+    kind: place
+    model: where
+    place_of: event
+    fact_domain: administrative
+    fact_domain_evidence: "\"UF do prestador\" (admission.facility_state): facility or its location: the provider"
+    name: UF do prestador
+  ANO_MES_EVENTO:
+    role: admission.month
+    kind: date
+    model: when
+    fact_domain: process
+    fact_domain_evidence: "\"Ano e mês do evento\" (admission.month): when the stay happened"
+    name: Ano e mês do evento
+    note: The month only; the lake partitions by it.
+  TEMPO_DE_PERMANENCIA:
+    role: admission.length_of_stay
+    kind: number
+    model: mark
+    unit: days
+    unit_evidence: "ANS dictionary: days between admission and discharge, same-day stays counting 1"
+    missing: ['-1']
+    fact_domain: process
+    fact_domain_evidence: "\"Tempo de permanência\" (admission.length_of_stay): length of stay: how the stay happened"
+    name: Tempo de permanência
+    note: -1 where ANS could not compute it.
+  CD_CARATER_ATENDIMENTO:
+    role: admission.admission_character
+    kind: category
+    model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Caráter do atendimento\" (admission.admission_character): urgent or elective admission: a care-process fact"
+    name: Caráter do atendimento
+    note: TUSS 23, 1 elective, 2 urgent or emergency.
+  CD_TIPO_INTERNACAO:
+    role: admission.type
+    kind: category
+    model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Tipo de internação\" (admission.type): the kind of stay: a care-process fact"
+    name: Tipo de internação
+    note: TUSS 57, not reproduced in the dictionary; codes stay undecoded.
+  CD_REGIME_INTERNACAO:
+    role: admission.regime
+    kind: category
+    model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Regime de internação\" (admission.regime): the kind of stay: a care-process fact"
+    name: Regime de internação
+    note: TUSS 41, not reproduced in the dictionary; codes stay undecoded.
+  CD_MOTIVO_SAIDA:
+    role: admission.discharge_reason
+    kind: category
+    model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Motivo de encerramento\" (admission.discharge_reason): how the stay ended"
+    name: Motivo de encerramento do atendimento
+    note: TUSS 39, not reproduced in the dictionary; codes stay undecoded, so a death cannot be read from it here.
+  CID_1:
+    role: admission.diagnosis
+    kind: code_tree
+    model: event_type
+    fact_domain: clinical
+    fact_domain_evidence: "\"CID principal\" (admission.diagnosis): diagnosis code: the health event"
+    also:
+    - admission.diagnoses
+    name: Primeiro diagnóstico (CID-10)
+    codelists:
+    - ICD10
+    note: Sent optionally by court order; empty on 37% of the 2024-03 rows.
+  CID_2:
+    role: admission.diagnoses
+    kind: code_tree
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"CID secundário\" (admission.diagnoses): diagnosis code: the health event"
+    name: Segundo diagnóstico (CID-10)
+    codelists:
+    - ICD10
+  CID_3:
+    role: admission.diagnoses
+    kind: code_tree
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"CID secundário\" (admission.diagnoses): diagnosis code: the health event"
+    name: Terceiro diagnóstico (CID-10)
+    codelists:
+    - ICD10
+  CID_4:
+    role: admission.diagnoses
+    kind: code_tree
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"CID secundário\" (admission.diagnoses): diagnosis code: the health event"
+    name: Quarto diagnóstico (CID-10)
+    codelists:
+    - ICD10
+  QT_DIARIA_UTI:
+    role: admission.icu_days
+    kind: number
+    model: mark
+    unit: days
+    unit_evidence: "ANS dictionary: number of intensive-care daily stays (diárias)"
+    fact_domain: process
+    fact_domain_evidence: "\"Quantidade de diárias de UTI\" (admission.icu_days): ICU days: how the stay happened"
+    name: Quantidade de diárias de UTI
+  QT_DIARIA_ACOMPANHANTE:
+    role: admission.companion_days
+    kind: number
+    model: mark
+    unit: days
+    unit_evidence: "ANS dictionary: number of companion daily stays (diárias)"
+    fact_domain: process
+    fact_domain_evidence: "\"Quantidade de diárias de acompanhante\" (admission.companion_days): how the stay happened"
+    name: Quantidade de diárias de acompanhante
+  IND_ACIDENTE_DOENCA:
+    role: admission.accident_indicator
+    kind: category
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Indicador de acidente ou doença relacionada\" (admission.accident_indicator): the health event"
+    name: Indicador de acidente ou doença relacionada
+    note: TUSS 36, not reproduced in the dictionary; codes (0, 1, 2, 9) stay undecoded.
+  PORTE:
+    role: operator.size
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Porte da operadora\" (operator.size): the operator register"
+    name: Porte da operadora
+  CD_MODALIDADE:
+    role: operator.modality
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Modalidade da operadora\" (operator.modality): the operator register"
+    name: Código da modalidade da operadora
+  NM_MODALIDADE:
+    role: operator.modality_name
+    kind: text
+    model: excluded
+    name: Nome da modalidade da operadora
+  VL_EVENTO_INFORMADO:
+    role: admission.value_billed
+    kind: number
+    model: mark
+    unit: BRL
+    competence: [ANO_MES_EVENTO]
+    unit_evidence: "ANS dictionary 2023-: total assistance expense billed, nominal reais"
+    fact_domain: administrative
+    fact_domain_evidence: "\"Valor informado do evento\" (admission.value_billed): billing"
+    name: Valor informado do evento
+  VL_EVENTO_PAGO:
+    role: admission.value_paid
+    kind: number
+    model: mark
+    unit: BRL
+    competence: [ANO_MES_EVENTO]
+    unit_evidence: "ANS dictionary 2023-: total paid to the provider, nominal reais"
+    fact_domain: administrative
+    fact_domain_evidence: "\"Valor pago do evento\" (admission.value_paid): billing"
+    name: Valor pago do evento
+  VL_EVENTO_GLOSA:
+    role: admission.value_refused
+    kind: number
+    model: mark
+    unit: BRL
+    competence: [ANO_MES_EVENTO]
+    unit_evidence: "ANS dictionary 2023-: total billed whose payment was refused, nominal reais"
+    fact_domain: administrative
+    fact_domain_evidence: "\"Valor glosado do evento\" (admission.value_refused): billing"
+    name: Valor glosado do evento
+  LG_VALOR_PREESTABELECIDO:
+    role: admission.preset_value_contract
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Indicador de valor preestabelecido\" (admission.preset_value_contract): billing"
+    name: Indicador de contrato de valor preestabelecido
+    note: 1 where the contract is a pre-established value; item values are then zero or a bonus.

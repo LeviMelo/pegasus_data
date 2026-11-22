@@ -2159,6 +2159,46 @@ datasets:
             - "The monitoring period runs from 1 July to 30 June (the dictionary's footnote), the Ministry's seasonal year since 2008, not the calendar year."
             - The Ministry warns that confirmed cases can fall as well as rise between publications, as cases are reclassified (informe of 8 May 2018).
 
+  # ==================================================================== ANS TISS
+  # Private health-plan admissions reported to ANS (intake.yml describes the source); the events its rows become.
+  ANS.TISS_HOSP_CONS:
+    system: ANS
+    series: TISS_HOSP_CONS
+    semantic_axes:
+      default_geography: residence
+      geography:
+        residence: {roles: [patient.residence]}
+        provider: {roles: [admission.facility_municipality]}
+      default_time: event
+      time:
+        event: {roles: [admission.month]}
+    event_types:
+      - name: hospitalisation
+        kind: hospitalisation
+        grain: one hospital event (admission) of a private health-plan beneficiary, as the operator reported it to ANS under TISS
+        classifiers:
+          - {column: CID_1, role: primary, structure: ICD10}
+        consolidation:
+          key: [ID_EVENTO_ATENCAO_SAUDE]
+        evidence: >-
+          ANS defines a hospital event as one admission: an event exists when there is an admission-summary guide, and the fee and
+          SP/SADT guides join it by the admission request number (the D-TISS dictionaries, Dicionario_de_variaveis_ate_2022.ods and
+          _a_partir_de_2023.ods). ID_EVENTO_ATENCAO_SAUDE is ANS's event number: 702,048 distinct values in the 702,048 rows of
+          2024-03 (all states). No status column narrows the events. CID_1 is the only diagnosis classifier; it is sent optionally
+          (by court order), so it is empty on 258,734 of those rows (37%) and a count by diagnosis is a lower bound.
+        source_notes:
+          source: "ANS, Padrão TISS open data (D-TISS), Procedimentos hospitalares por UF and its dictionaries (https://dadosabertos.ans.gov.br/FTP/PDA/TISS/DICIONARIO/)"
+          definition: >-
+            The hospital events of private health-plan beneficiaries that operators sent to ANS in TISS messages, one per admission,
+            with the beneficiary's residence and sex crossed from the SIB or the CNS.
+          valid_from: 2015
+          limitations:
+            - Only events operators sent are in the files; it is not a census of private hospital care.
+            - The beneficiary is not identified, so readmissions of one person are separate events and cannot be linked.
+            - Residence and sex are empty where the crossing with the SIB or CNS failed; such events are unplaced.
+            - ANS rebuilt the 2023 and later files in 2026 (payment columns added), so a count may change between downloads.
+            - The population at risk is the plans' beneficiaries (ANS-ICB), not the residents.
+
   FA.EPIZ:
     system: FA
     series: EPIZ
