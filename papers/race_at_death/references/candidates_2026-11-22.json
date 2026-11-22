@@ -594,7 +594,7 @@
   "task": "C",
   "type": "journal",
   "summary": "EM-based maximum likelihood estimator for contingency tables and logistic regression from a probabilistically linked file. Author order differs from the request: Bycroft and Chambers are NOT authors.",
-  "verification": "partial: bibliographic data confirmed from the ANU repository record and from three independent citing papers (JOS 2015, Hu and Reiter 2025, Tsui et al. arXiv 1707.05825); full text not read (Statistics Canada site and ANU PDF refused automated access)",
+  "verification": "verified: full text read (Statistics Canada PDF, catalogue 12-001-X201100111444, saved 2026-11-22 to estimator/sources/, not committed)",
   "notes": "Statistics Canada pages return a bot-validation page (HTTP 403) to curl, WebFetch and the in-app browser; the ANU bitstream needs authentication. No DOI listed. Catalogue 12-001-X201100111444; PDF https://www150.statcan.gc.ca/n1/pub/12-001-x/2011001/article/11444-eng.pdf"
  },
  "chipperfield2015": {

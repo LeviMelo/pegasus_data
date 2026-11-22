@@ -116,7 +116,7 @@ The undercount dilutes the Black excess.
 
 ## Paper 6
 
-**6.2.** Chipperfield, Bishop and Campbell 2011 stays unread pending the author. The text says the method is described from the 2015 paper by the same first author.
+**6.2.** Done. At the user's request, the 2011 paper was opened in the user's own Chrome. Statistics Canada's check passed there without a CAPTCHA, and the PDF was saved; it sits in `estimator/sources/`, gitignored. The full text was read. The Discussion now describes the method from the paper itself: EM on formed link pairs; the probability that a link is correct, per cell, from a clerical sample; links "incorrect at random"; unlinked records treated as non-response. The 2015-only caveat is removed.
 
 ## Independent verification
 

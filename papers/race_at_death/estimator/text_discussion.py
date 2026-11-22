@@ -33,8 +33,10 @@ para(d, "Comparison with linkage methods and ecological inference. Regression on
         "times the estimator's mean difference for infants below 25,600 births a year. Its price relative to linkage is that it gives tables, not linked records: no "
         "individual covariate of one register can be related to the other's beyond the classes counted, though any class of either register can be added to the counting "
         "(the certifier, the mother's schooling). The closest published method fits a contingency table by maximum likelihood from incorrectly linked data "
-        f"{cite('chipperfield2011')}: it starts from record pairs already formed by a linkage and a model of each pair's probability of being a true match, "
-        f"estimated from a clerical sample, and corrects the table by EM {cite('chipperfield2015', 'chambers2020')}; the method is described here from the 2015 paper by the same first author, the 2011 paper not having been read. Where the key is shared by several births "
+        f"{cite('chipperfield2011')}: it starts from record pairs already formed by a linkage, estimates from a clerically reviewed sample the probability that "
+        "a link is correct in each cell, and replaces each linked pair's class with its expectation given that probability, iterating by EM; it assumes links "
+        "are incorrect at random, independent of the outcome given the other file's class, and treats unlinked records as non-response "
+        f"{cite('chipperfield2015', 'chambers2020')}. Where the key is shared by several births "
         "no pair is formed and no match probability is modelled, so it cannot be run on the same units; the estimator replaces the match model by the other "
         "sex's records of the same day as the measure of chance agreement.")
 para(d, "Variance. The earlier practice took each cell's counts as Poisson and ignored the row's sum in the denominator of a proportion; its intervals were too wide "
