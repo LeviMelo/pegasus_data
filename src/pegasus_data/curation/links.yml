@@ -727,9 +727,12 @@ links:
   # course against the age at death is held out. Declared to be measured (2026-11-22, the ABNc studies t05 and t09), and
   # measured not viable: Paraná 2019, glioma (C71, match principal), 217 patients, the pass 47 pairs against 39 in the
   # control. The age decides: of the 169 patients with a C71 death of their sex and residence within the year, 95 agree
-  # on age (0 to +1 years), 57 with one candidate, against 11 in a window moved back 180 days. Age is no key today (the
-  # APAC files an age, not a birth date, and passes take exact keys on stored roles): viable once the engine keys an
-  # age against an age at death a year later.
+  # on age (0 to +1 years), 57 with one candidate, against 11 in a window moved back 180 days. With the age as a key
+  # (`explode_values`) and the control moved back 400 days (before the course, when the patient was alive), Paraná
+  # 2017-2019, 750 patients: the pass 154 pairs, the control 67: still not viable. A city's deaths of one sex, age and
+  # cause over a year's window leave several candidates per patient; the APAC has no birth date and SIM no postcode, so
+  # no stronger key exists in the public files. Glioma survival goes through the operated patients
+  # (`sih_admissions_to_radiotherapy`, then `sih_admissions_to_sim`).
   sia_radiotherapy_to_sim:
     description: >
       Radiotherapy patients with the caller's tumour codes (params.codes: ICD-10 prefixes on the treated topography of
@@ -754,7 +757,7 @@ links:
       - name: sex, residence, age, day of death in the year after the course's start
         keys: [[patient.sex, deceased.sex], [patient.residence, deceased.residence], [follow_up.age, deceased.age_years],
                [follow_up.day, death.date]]
-    control: {role: follow_up.day, shift_days: 180}
+    control: {role: follow_up.day, shift_days: -400}   # before the course: the patient was alive, so every pair is chance
     validate:
       - name: the certificate's underlying cause is in the treated topography's ICD-10 chapter block (C or D)
         sql: "substr(r.\"death.cause\", 1, 1) = substr(l.\"authorisation.tumour_topography\", 1, 1)"

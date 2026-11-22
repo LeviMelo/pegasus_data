@@ -63,5 +63,8 @@ to SIM-DO within a year; keys sex, residence, day of death; match "principal" fi
 cause by the same codes). Paraná 2019, C71: 217 patients, 47 pairs against 39 in the control: not viable. Measured by
 hand on the same records, the age decides: 169 patients have a C71 death of their sex and residence within the year, 95
 agree on age (0 to +1), 57 with one candidate, against 11 in a window moved back 180 days. The engine has no key of an
-age against an age at death a year later; until it has, glioma survival goes through the operated patients
+age against an age at death a year later. Link sides now expand a number role by offsets (`explode_values`, the age
+at the course and one more), and the age became a key: Paraná 2017-2019, 750 patients, the pass found 154 pairs and a
+control moved back 400 days (when every patient was alive) 67. Still not viable: no stronger key exists in the public
+files (no birth date in the APAC, no postcode in SIM). Glioma survival goes through the operated patients
 (`sih_admissions_to_radiotherapy` then `sih_admissions_to_sim`, both on birth date).
