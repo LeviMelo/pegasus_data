@@ -834,9 +834,11 @@ def _stored_pairs(settings: Any, name: str, year: int, notes: list[str]) -> tupl
     return pairs, report
 
 
-def infant_deaths(settings: Any, name: str, years: list[int], notes: list[str]) -> pa.Table:
+def infant_deaths(settings: Any, name: str, years: list[int], notes: list[str], ids: bool = False) -> pa.Table:
     """Every SIM death before one year of age in ``years`` (the link's own left side): the colour code recorded, the age in
-    days, the residence, whether the stored link found its birth, and the colour that birth declares."""
+    days, the residence, whether the stored link found its birth, and the colour that birth declares. ``ids`` adds the
+    record identities of the death and of its linked birth (``death_id``, ``birth_id``), by which a caller attaches
+    further columns of either record."""
     import pyarrow.compute as pc
 
     from ..linkage import engine
@@ -865,7 +867,7 @@ def infant_deaths(settings: Any, name: str, years: list[int], notes: list[str]) 
             "mun": residence,
             "linked": pa.array([i in partner for i in lid], pa.bool_()),
             "declared": pa.array([declared.get(partner.get(i)) for i in lid], pa.string()),
-        }))
+        } | ({"death_id": pa.array(lid, pa.string()), "birth_id": pa.array([partner.get(i) for i in lid], pa.string())} if ids else {})))
     return pa.concat_tables(out)
 
 

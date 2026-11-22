@@ -25,6 +25,44 @@ QUERIES = {
     "romero2006": "Romero Cunha Avaliacao da qualidade das variaveis socio-economicas e demograficas dos obitos de criancas menores de um ano registrados no Sistema de Informacoes sobre Mortalidade do Brasil Cadernos de Saude Publica 2006",
     "loveman2012": "Loveman Muniz Bailey Brazil in black and white? Race categories, the census, and the study of inequality Ethnic and Racial Studies 2012",
 }
+THEORY = {
+    "schwartzman2007": "Schwartzman Does money whiten? Intergenerational changes in racial classification in Brazil American Sociological Review 2007",
+    "marteleto2012": "Marteleto Educational inequality by race in Brazil, 1982-2007: structural changes and shifts in racial classification Demography 2012",
+    "roth2016": "Roth The multiple dimensions of race Ethnic and Racial Studies 2016",
+    "harris2002": "Harris Sim Who is multiracial? Assessing the complexity of lived race American Sociological Review 2002",
+    "campbell2007": "Campbell Troyer The implications of racial misclassification by observers American Sociological Review 2007",
+    "saperstein2006": "Saperstein Double-checking the race box: examining inconsistency between survey measures of observed and self-reported race Social Forces 2006",
+    "telles2002": "Telles Racial ambiguity among the Brazilian population Ethnic and Racial Studies 2002",
+    "bailey2008": "Bailey Unmixing for race making in Brazil American Journal of Sociology 2008",
+    "sorlie1992": "Sorlie Rogot Johnson Validity of demographic characteristics on the death certificate Epidemiology 1992",
+    "hahn1992": "Hahn Mulinare Teutsch Inconsistencies in coding of race and ethnicity between birth and death in US infants JAMA 1992",
+    "saperstein2010": "Saperstein Penner The race of a criminal record: how incarceration colors racial perceptions Social Problems 2010",
+    "freeman2011": "Freeman Penner Saperstein Scheutz Ambady Looking the part: social status cues shape race perception PLoS ONE 2011",
+    "carvalho2004": "Carvalho Wood Andrade Estimating the stability of census-based racial/ethnic classifications: the case of Brazil Population Studies 2004",
+    "francis2013": "Francis Tannuri-Pianto Endogenous race in Brazil: affirmative action and the construction of racial identity among young adults Economic Development and Cultural Change 2013",
+    "reboucas2022": "Reboucas Goes Pescarini Ethnoracial inequalities and child mortality in Brazil: a nationwide longitudinal study of 19 million newborn babies Lancet Global Health 2022",
+    "penner2008": "Penner Saperstein How social status shapes race Proceedings of the National Academy of Sciences 2008",
+    "araujo2009": "Araujo Costa Hogan Mota Araujo Oliveira Diferenciais de raca/cor da pele em anos potenciais de vida perdidos por causas externas Revista de Saude Publica 2009",
+    "soares2011": "Soares Filho Vitimizacao por homicidios segundo caracteristicas de raca no Brasil Revista de Saude Publica 2011",
+    "harron2017": "Harron Dibben Boyd Hjern Azimaee Barreto Goldstein Challenges in administrative data linkage for research Big Data and Society 2017",
+}
+METHODS = {
+    "riebler2016": "Riebler Sorbye Simpson Rue An intuitive Bayesian spatial model for disease mapping that accounts for scaling Statistical Methods in Medical Research 2016",
+    "besag1991": "Besag York Mollie Bayesian image restoration with two applications in spatial statistics Annals of the Institute of Statistical Mathematics 1991",
+    "rue2009": "Rue Martino Chopin Approximate Bayesian inference for latent Gaussian models by using integrated nested Laplace approximations Journal of the Royal Statistical Society B 2009",
+    "moran1950": "Moran Notes on continuous stochastic phenomena Biometrika 1950",
+    "anselin1995": "Anselin Local indicators of spatial association LISA Geographical Analysis 1995",
+    "assuncao1999": "Assuncao Reis A new proposal to adjust Moran's I for population density Statistics in Medicine 1999",
+    "bates2015": "Bates Maechler Bolker Walker Fitting linear mixed-effects models using lme4 Journal of Statistical Software 2015",
+    "merlo2006": "Merlo Chaix Ohlsson A brief conceptual tutorial of multilevel analysis in social epidemiology: using measures of clustering in multilevel logistic regression Journal of Epidemiology and Community Health 2006",
+    "simpson2017": "Simpson Rue Riebler Martins Sorbye Penalising model component complexity: a principled, practical approach to constructing priors Statistical Science 2017",
+    "keele2015": "Keele Titiunik Geographic boundaries as regression discontinuities Political Analysis 2015",
+}
+TARGET = "crossref.json"
+if sys.argv[1:] == ["theory"]:
+    QUERIES, TARGET = THEORY, "crossref_theory.json"
+if sys.argv[1:] == ["methods"]:
+    QUERIES, TARGET = METHODS, "crossref_methods.json"
 out = {}
 for key, q in QUERIES.items():
     url = "https://api.crossref.org/works?rows=1&query.bibliographic=" + urllib.parse.quote(q)
@@ -37,8 +75,9 @@ for key, q in QUERIES.items():
     rec = {"doi": item.get("DOI"), "title": (item.get("title") or [""])[0], "journal": (item.get("container-title") or [""])[0],
            "short_journal": (item.get("short-container-title") or [""])[0],
            "year": (item.get("issued", {}).get("date-parts") or [[None]])[0][0], "volume": item.get("volume"), "issue": item.get("issue"),
-           "pages": item.get("page") or item.get("article-number"), "authors": [f"{a.get('family', '')} {''.join(w[0] for w in a.get('given', '').split())}".strip() for a in item.get("author", [])]}
+           "pages": item.get("page") or item.get("article-number"), "authors": [f"{a.get('family', '')} {''.join(w[0] for w in a.get('given', '').split())}".strip() for a in item.get("author", [])],
+           "abstract": item.get("abstract"), "type": item.get("type")}
     out[key] = rec
     print(key, "|", rec["year"], "|", "; ".join(rec["authors"][:4]), "|", rec["title"][:90], "|", rec["journal"][:40], rec["volume"], rec["pages"], "|", rec["doi"])
     time.sleep(1.0)
-json.dump(out, open("crossref.json", "w", encoding="utf-8"), indent=1, ensure_ascii=False)
+json.dump(out, open(TARGET, "w", encoding="utf-8"), indent=1, ensure_ascii=False)

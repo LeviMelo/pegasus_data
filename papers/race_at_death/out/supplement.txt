@@ -1,0 +1,180 @@
+Supplementary material - The race on the death certificate as a classification of place: the mother's declaration, the family's classification and the certified race of children and young people across 5,570 Brazilian municipalities, 2013-2024
+
+Supplementary Text S1 - Estimation without individual linkage and its control
+
+Let G be a group of deaths. For a death i, let C_i be the set of live births with the birth date, sex and municipality of residence of i. If the family did not move, exactly one element of C_i is the deceased; the remaining elements, and all elements when the family moved, are births that agree by chance. Write N(j, k) for the number of deaths in G with race j on the birth record and certified race k, and t for the probability that the deceased is in C_i. The expected number of candidates with race j among deaths certified k is t N(j, k) + E(j, k), where E(j, k) is the expected number of chance candidates.
+
+E(j, k) depends on how many children were born on the birth date of the deceased in the municipality. That is not the number of an arbitrary day: a day on which more children were born contributes more people and therefore more deaths, so the birth date of a death is a size-biased draw from the days of the year, and a control drawn from other days would undercount E. The births of the other sex on the same day in the same municipality share the day, cannot contain the deceased and have the racial composition of that day's births; multiplied by the ratio of births of the two sexes in the municipality and year, their count estimates E(j, k). With this control the estimated t for infants was 89.8% overall (Supplementary Table S2).
+
+The estimator of t N(j, k) is the difference of the two counts. Its variance was approximated by the sum of the candidate count and the control count, which ignores the scaling factor of the control (close to 1). A proportion is a ratio of two such differences; the variance of its denominator was ignored, which understates the error of rows with few deaths. A twin of the same sex is a candidate and a twin of the other sex is in the control; both share the mother's race with the deceased. Mortality by the mother's race uses the shares of each race among the estimated deaths, so that t cancels provided it does not differ by race.
+
+Supplementary Text S2 - Three readings of race for the same woman
+
+Deaths of women aged 15 to 49 years in 2015 to 2022 in municipalities with fewer than 2,000 mothers on the birth records (106,565 deaths) were related to the birth records on which they were the mother, by birth date and municipality (19,332 pairs). These deaths were then related to the hospital admission that ended in death, through a probabilistic linkage of admissions in the Hospital Information System to death certificates on birth date, sex, date of death and hospital. 5,579 women had the three races recorded; the mean estimated proportion of false pairs among them was 28.2%. False pairs were removed in expectation, taking the declared race of a false pair to follow the racial composition of mothers in the region; intervals are from 400 bootstrap resamples of the women. The certificate recorded the race the woman had declared as a mother for 0.80 (95%CI 0.77; 0.82) of White, 0.71 (95%CI 0.69; 0.73) of Brown and 0.55 (95%CI 0.48; 0.63) of Black women; the hospital record did so for 0.76 (95%CI 0.73; 0.78), 0.77 (95%CI 0.75; 0.79) and 0.37 (95%CI 0.30; 0.44) (Supplementary Table S8). For comparison, among 1,208,430 delivery admissions of 2022 related to the birth record, the hospital recorded the declared race for 0.74 of White, 0.80 of Brown and 0.37 of Black mothers.
+
+Supplementary Text S3 - Birth cohorts at three censuses (exploratory)
+
+The racial composition of five-year birth cohorts at the censuses of 2000, 2010 and 2022 was read, by single year of age and race, from a cohort-component population account of every municipality built for this research programme from the censuses, the Mortality and Live Birth Information Systems and the official estimates [41]; in a census year the account takes the census population as given, so the shares at the three dates are census shares. The account is not a published product and its census-year values carry the censuses' own coverage error, which is not quantified by race. A cohort's White share can fall between censuses through reclassification, but also through higher mortality or emigration of White people, through differences in coverage between censuses and through the change of the 2022 questionnaire; the comparison between the first census of a cohort aged 0-4 and later ones also compares a race reported for small children by an adult of the household with one reported for adults. The analysis describes the cohorts and does not separate these explanations.
+
+
+
+Supplementary Figure S1 - Estimates without individual linkage against the one-to-one linkage for every cell of the table of mother's race by certified race, by size of municipality (A), and proportion of infant deaths certified with the mother's race by year of death (B), Brazil, 2013-2023
+
+Bars: 95% confidence intervals.
+
+
+
+
+
+Supplementary Figure S2 - White to Brown mortality rate ratio by region under the three classifications, ages 1-4 and 5-9, Brazil, 2013-2024
+
+Bars: 95% confidence intervals; n.e.: a ratio by the mother's race with a standard error above 0.6 of the estimate, not drawn.
+
+
+
+
+
+Supplementary Figure S3 - Certified race of infants, family's classification and the mixture model of the certifier with its two reference distributions, by the share of White mothers among the live births of the municipality, Brazil
+
+
+
+
+
+Supplementary Figure S4 - Classification of children by the mother's instruction and her partner's race in the family's classification (A), and certified race by the mother's years of schooling on the birth record at 1-9 years (B) and at 15-24 years by class of municipal composition (C), Brazil
+
+Bars: 95% confidence intervals; estimates that are not estimable are not drawn.
+
+
+
+
+
+Supplementary Figure S5 - Classification of children according to the share of White mothers among the live births of the municipality: family's classification (under 1 year and 1-4 years) and death certificate (under 1 year, linkage; 1-9 years, candidate estimator), Brazil
+
+Bars: 95% confidence intervals.
+
+
+
+
+
+Supplementary Figure S6 - Proportion classified with the mother's race by the child's age in the family's classification and on the certificate (A, B), and proportion certified White among people recorded White at birth by single year of age at death, natural causes and assault (C), Brazil
+
+C: people born in 2000-2009 who died in 2015-2024, municipalities with fewer than 1,600 live births per year; age at death and birth cohort are confounded (age 24 comes only from the earliest cohorts). The family's age gradient is cross-sectional (age 0 born in 2010, age 19 born in 1991) and conditional on living with the mother.
+
+
+
+
+
+Supplementary Figure S7 - Share of White, Brown and Black people in five-year birth cohorts at the censuses of 2000, 2010 and 2022 and, for cohorts born from 2000, on the birth record, Brazil
+
+Census shares: the population account (Supplementary Text S3). Birth record: colour recorded at birth, cohorts born 2000-2009.
+
+
+
+
+
+Supplementary Figure S8 - Brown mothers' infants certified White by municipality: raw proportion, BYM2 posterior mean and width of the 95% credible interval, Brazil, 2013-2023
+
+Raw proportions are drawn for municipalities with five or more linked deaths of Brown mothers.
+
+
+
+
+
+Supplementary Figure S9 - The other cells of the table by municipality: White mothers' infants certified White (A) and Brown (B), Black mothers' infants certified Black (C) and Brown (D), BYM2 posterior means, Brazil, 2013-2023
+
+
+
+
+
+Supplementary Figure S10 - Infant deaths certified in a race other than the mother's, all linked deaths, by municipality (A) and its local clusters (B), Brazil, 2013-2023
+
+
+
+Supplementary Table S1 - Live births, proportion with the mother's race field filled and share of each race on the birth record, by year, Brazil, 2000-2024
+
+Births of 2024 are shown and not used. Before 2010 the shares are of the colour recorded for the newborn; the dedicated field for the mother's race did not exist.
+
+
+
+Supplementary Table S2 - Proportion of infant deaths certified with the mother's race: one-to-one linkage and estimate without individual linkage, by live births per year in the municipality of residence, Brazil, 2013-2023
+
+95%CI: 95% confidence interval. The estimates without individual linkage are printed even where the tables of the main text would call them not estimable, so that the comparison is complete.
+
+
+
+Supplementary Table S3 - Certified race of infants according to the mother's race, by region, state, age at death and year of death, one-to-one linkage, Brazil, 2013-2023
+
+
+
+Supplementary Table S4 - Classification of children according to the share of White mothers among the live births of the municipality: family's classification (2010 Census) and death certificate, Brazil
+
+95%CI: 95% confidence interval. Not estimable: standard error above 0.15.
+
+
+
+Supplementary Table S5 - Certified race of people who died at 15-24 years according to the colour recorded at birth, by cause of death and certifier, place of death, mother's schooling, municipal composition, region, period, sex and size of municipality, Brazil, 2015-2024
+
+95%CI: 95% confidence interval. Municipalities with fewer than 1,600 live births per year unless stated. Assault includes legal intervention in the first block. Deaths are not counted in the rows by mother's schooling, which is a property of the birth record. Not estimable: standard error above 0.15.
+
+
+
+Supplementary Table S6 - Race assigned to children according to the mother's race, by characteristics of the household (2010 Census) and of the death (2013-2024), Brazil
+
+Census: weighted proportions; records are sample records. Certificate: candidate estimator with 95% confidence intervals, municipalities with fewer than 25,600 live births per year; deaths are those of the class (all mothers' races), not counted in the rows by mother's schooling. Not estimable: standard error above 0.15.
+
+
+
+Supplementary Table S7 - Share of each race in five-year birth cohorts born from 1940 to 2009, on the birth record and at the censuses of 2000, 2010 and 2022, Brazil
+
+
+
+Supplementary Table S8 - Race recorded by the hospital and on the death certificate according to the race declared as a mother, women who died in hospital at 15-49 years, Brazil, 2015-2022 (n=5,579)
+
+95%CI: 95% confidence interval (bootstrap), after removal of the expected false pairs.
+
+
+
+Supplementary Table S9 - White to Brown mortality rate ratio at 1-9 years by the mother's race and by certified race, and classification of the children of Brown and Black mothers by families and on infant death certificates, by state, Brazil
+
+95%CI: 95% confidence interval. Not estimable: standard error above 0.35 of the estimate.
+
+
+
+Supplementary Table S10 - Variables of the municipality: definition, source and years
+
+SINASC: Live Birth Information System. SIM: Mortality Information System. CNES: National Register of Health Establishments. IBGE: Brazilian Institute of Geography and Statistics. All variables were read through the pegasus_data library from the public files.
+
+
+
+Supplementary Table S11 - Flow of infant death certificates, linked share and intervals of the linkage's proportions, Brazil, 2013-2023
+
+
+
+Supplementary Table S12 - Between-municipality variance of the certified race of linked infant deaths under successive fixed parts of a multilevel logistic model, Brazil, 2013-2023
+
+Random intercept for the municipality; fitted by penalised iteratively reweighted least squares (lme4, nAGQ = 0). Variance explained: proportional change from the model with no fixed part. AIC: Akaike information criterion.
+
+
+
+Supplementary Table S13 - Spatial models of the municipal proportions (BYM2): standard deviation of the municipal effect, share of it spatially structured (phi) and deviance information criterion, by fixed part, Brazil
+
+Binomial model with a BYM2 effect on the queen contiguity of 5,570 municipalities; composition: B-spline of the logit share of White births; context: the variables of Supplementary Table S10. DIC: deviance information criterion.
+
+
+
+Supplementary Table S14 - The 25 immediate regions where the certificate most overstates the White to Brown infant mortality rate ratio, and the 10 where it most understates it, Brazil, 2013-2023
+
+Rate ratios: posterior means of a Poisson BYM2 model over the 510 immediate regions. All regions are in Supplementary Data 2.
+
+
+
+Supplementary Table S15 - Certified race after infancy by municipal composition and GDP per capita, place and death verification service, candidate estimator, Brazil
+
+GDP tertiles of municipalities (cut points R$ 19,422 and 38,203 per person). 1-9 years: municipalities with fewer than 25,600 live births per year (state capitals cannot be estimated). 15-24 years: municipalities with fewer than 1,600. Not estimable: standard error above 0.15, or outside 0 to 1 by more than two standard errors.
+
+
+
+Supplementary Table S16 - Weight of the local distribution (λ) in a mixture model of the certified race of children, by mother's race, age and reference distribution, Brazil
+
+C(m -> c) = (1 - λ) F(m -> c) + λ π(c) over ten classes of municipal composition, F the family's classification in the census and π the local reference. λ = 0: the certificate records the family's classification; λ = 1: it records the local distribution whatever the mother's race. With the certified race of local deaths as the reference, the reference contains the certificates being modelled, which biases λ upward; the fit for Black mothers is poor under both references.
+

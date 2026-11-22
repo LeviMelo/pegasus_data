@@ -1,61 +1,46 @@
-# Race recorded on death certificates and race declared at birth in Brazil
+# The race on the death certificate as a classification of place
 
 A manuscript package generated from code. No journal is chosen yet; the text follows journal-independent
-conventions (original article, observational study of linked routinely collected records, English).
+conventions (original article, RECORD, English).
 
 ## What is here
 
 | path | what |
 |---|---|
-| `analysis/results.py` | computes every number of the paper from the study's artefacts into `results/results.json` |
-| `results/results.json` | the one source of the numbers |
-| `references/verify.py`, `crossref.json` | each reference looked up at Crossref (authors, title, year, volume, pages, DOI) |
-| `references/manual.json` | institutional references with a URL tested on the date written in them |
-| `build.py` | builds `out/manuscript.docx`, `out/supplement.docx` and the figures (PNG, PDF, SVG); a missing number or reference stops the build |
-| `out/` | the built files, their PDF renderings, page images, `audit_report.md` |
+| `analysis/counts.py` | the candidate counts and the one-to-one infant linkage, with the columns of both records (`linkage_context`), written to `data/` (hours; reads the lake) |
+| `analysis/context.py` | the municipality as a unit: SIDRA GDP, census 2010 literacy, income, urbanisation and race, CNES physicians, capitals, metropolitan and IBGE regions, how its certificates are filled (`data/municipal_context.parquet`, two minutes) |
+| `analysis/common.py` | what the analyses share: births and composition, the candidate tables, the estimator's matrices and rates, the linkage |
+| `analysis/results.py` | every non-spatial number into `results/results.json` (under two minutes) |
+| `analysis/spatial.py` + `analysis/models.R` | space, time and context: the municipal table and contiguity graph (`prep`, `individual`), the R models (BYM2 by R-INLA; lme4 panels and multilevel models; `Rscript models.R data/spatial areal` about 25 minutes, `individual` about 15, both detached), then Moran's I, local clusters, the border test, places, consequences (`post`) into `results/spatial.json`, `results/*.parquet` and `out/supplementary_data_*.csv` |
+| `figures.py` (+ `figures_space.py`) | Figures 1-9 and S1-S10 (PNG, PDF, SVG in `out/`) |
+| `build.py` + `text.py`, `text_results.py`, `text_discussion.py`, `text_supplement.py` | `out/manuscript.docx`, `out/supplement.docx`; a missing number, an unverified reference or a verbal claim the results contradict stops the build |
+| `references/` | `verify.py` and the Crossref records (`crossref*.json`; `verify.py methods` for the spatial and multilevel methods), official documents (`manual.json`), `reading_report.md` |
+| `out/` | the built files, their PDF renderings, the audits (`audit_report*.md`) and the responses |
 
-Rebuild: `python papers/race_at_death/analysis/results.py` (about ten minutes; needs the data home and the probe
-artefacts under `data/probes/race_own_birth` and `data/probes/race_chain`), then `python papers/race_at_death/build.py`.
+Rebuild, in order: `analysis/context.py`; `analysis/spatial.py prep`; `Rscript analysis/models.R data/spatial areal`;
+`analysis/spatial.py individual`; `Rscript analysis/models.R data/spatial individual`; `analysis/results.py`;
+`analysis/spatial.py post`; `figures.py`; `build.py`. The R interpreter is `C:\Program Files\R\R-4.4.1` (INLA 24.12.11,
+lme4); without PARDISO, INLA runs with the Gaussian approximation and empirical-Bayes hyperparameters (about 45 seconds a
+municipal model). `results.py` also needs `data/probes/census2010/mother_child.parquet`, `data/probes/race_own_birth`
+and `data/probes/race_chain`.
 
 ## The thesis
 
-The race on a Brazilian death certificate disagrees with the race on the birth record at every age before 25. Among
-children, the mortality rate ratio between White and Brown has opposite directions under the two classifications
-(0.66 by the mother's race, 1.43 by the certificate at ages 1-4). At 15-24, people recorded as White at birth are
-certified White less often when they die from assault (0.38) than from natural causes (0.69). The design does not say
-whether the disagreement is an error of the certificate or a difference between two valid classifications, and the
-paper says so.
+The race on a Brazilian death certificate is neither the race the mother declared for herself nor the race families
+report for children: it is a third classification, and a classification of place. It follows the racial composition
+of the municipality continuously across space and across state borders, more than the wealth or the services of the
+place, and it changes the measured mortality inequality between White and Brown children differently in each region.
 
-Evidence, in the order of the paper: (1) an estimator that needs no one-to-one match, validated on infant deaths
-against a one-to-one linkage, valid below 25,600 births a year; (2) children 1-9: the proportion certified with the
-mother's race and mortality rate ratios under both classifications, with a sensitivity analysis without the largest
-municipalities; (3) ages 15-24: certified race by cause of death; (4) birth cohorts at birth and at three censuses;
-(5) three readings of race for the same woman (supplement).
-
-The study record behind it: `docs/evaluation/2026-11-21-race-own-birth.md`, ADR-0226 and ADR-0229, `docs/plans/race.md`.
-An independent audit of the first build and what was done with it: `out/audit_report.md`, `out/audit_response.md`.
+The numbers are in `results/results.json` and `results/spatial.json` and nowhere else; the study record is
+`docs/evaluation/2026-11-21-race-own-birth.md`, with ADR-0226, ADR-0229 and `docs/plans/race.md`.
 
 ## Not done: each of these blocks submission
 
 1. **Authors, affiliations, ORCID, contributions, funding, conflicts.** The authors' decision.
-2. **Ethics statement, data and code deposit (persistent identifier), statement on the use of generative AI** (the
-   analysis code and the draft were produced with an AI system under the author's direction). Wording depends on the journal.
-3. **A target journal**, then its dossier, limits and checkers (word and reference caps, abstract structure, table and
-   figure caps, citation style). The current build is 4,400 words including tables and references, 17 references,
-   4 tables, 3 figures, 6 supplementary tables.
-4. **References read against the sentences they support.** All 16 journal references exist at Crossref with matching
-   metadata; none was re-read in full for this draft. Each must be read by an author before submission; a real paper
-   cited for a claim it does not make is still a wrong citation.
-5. **Keywords** checked against MeSH/DeCS.
-6. **IBGE as a cited source** for the census tabulations and the official population estimates: its pages refuse
-   scripted requests (HTTP 403); the reference is to be added after a check in a browser.
-7. **The audit's open points** (`out/audit_response.md`, "Not done"): a wider literature comparison, official documents for
-   facts of the data systems, extraction dates and a flow diagram, intervals for the three readings. A second audit
-   of the revised build has not been run.
-8. **Language pass** by a human reader; the conventions ask for it once the science is frozen.
-
-## Not in this paper
-
-The population account (`docs/plans/population.md`) is not written up: its results are an alignment with IBGE's
-official figures and tested interval laws, with no thesis of its own yet. It serves this paper only as the source of
-the census cohorts' racial composition.
+2. **Data and code deposit (persistent identifier), statement on the use of generative AI** (the analysis code and the
+   draft were produced with an AI system under the author's direction). Wording depends on the journal.
+3. **A target journal**, then its dossier, limits and checkers. The build is above most journals' word, table and
+   figure caps and is to be cut to the journal chosen.
+4. **References not yet read in full.** Those read are in `references/reading_report.md`; Rebouças et al. 2022 was read
+   in full (PMC9638038) and Telles 2002 in its abstract; the methods references were checked at Crossref.
+5. **Language pass** by a human reader.

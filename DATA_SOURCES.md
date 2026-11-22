@@ -381,6 +381,14 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   are filled `RACACOR` equals it (1.0000 every year, 0.9996 in 2023). Preta is 3.2% of births in 2000, 1.6% in 2010,
   4.1% in 2011, 5.5% in 2012 and 8.1% in 2024; Branca 55.8%, 46.8%, 43.5%, 39.0%, 33.6%. So the line above holds from
   2012; to 2010 `RACACOR` is the newborn's colour, another quantity, and 2011 is a mixture (ADR-0226).
+- **SIM, who certifies and where, by municipality** (measured 2026-11-21, SIM-DO 2013-2023 by residence;
+  `papers/race_at_death/analysis/context.py`). Of 383,971 infant certificates with a valid age, 2,148 have no `SEXO` and
+  317 no municipality of residence. On the 291,677 linked infant deaths of White, Brown and Black mothers, `ATESTANTE` is
+  the attending physician on 54%, a substitute on 22%, other on 10%, blank on 7%, a death verification service on 3.7%
+  and a medical examiner on 3.2%; `LOCOCOR` is hospital on 95%. Between municipalities the share of natural deaths
+  certified by a verification service runs from 0 to 38% (median 0.8%), of external deaths by a medical examiner from 0 to
+  100% (median 85%), and of all certificates with no race from 0 to 43% (median 2.2%; infants 4.3%). The one-to-one infant
+  link finds 80-81% of certificates recorded White, Brown or Black alike and 62% of those recorded Indigenous.
 - **SINASC writes 7-digit municipality codes to 2005** (measured 2026-11-21): `CODMUNRES` and `CODMUNNASC` are 7
   digits on every birth of 2000 and 2005, 6 from 2008 (lake years 2000-2024).
 - **COVID-19 in SIM is `CAUSABAS` B34.2, not U07.1** (measured on SIM-DO 2020, all

@@ -1,0 +1,176 @@
+{
+ "riebler2016": {
+  "doi": "10.1177/0962280216660421",
+  "title": "An intuitive Bayesian spatial model for disease mapping that accounts for scaling",
+  "journal": "Statistical Methods in Medical Research",
+  "short_journal": "Stat Methods Med Res",
+  "year": 2016,
+  "volume": "25",
+  "issue": "4",
+  "pages": "1145-1165",
+  "authors": [
+   "Riebler A",
+   "Sørbye SH",
+   "Simpson D",
+   "Rue H"
+  ],
+  "abstract": "<jats:p>In recent years, disease mapping studies have become a routine application within geographical epidemiology and are typically analysed within a Bayesian hierarchical model formulation. A variety of model formulations for the latent level have been proposed but all come with inherent issues. In the classical BYM (Besag, York and Mollié) model, the spatially structured component cannot be seen independently from the unstructured component. This makes prior definitions for the hyperparameters of the two random effects challenging. There are alternative model formulations that address this confounding; however, the issue on how to choose interpretable hyperpriors is still unsolved. Here, we discuss a recently proposed parameterisation of the BYM model that leads to improved parameter control as the hyperparameters can be seen independently from each other. Furthermore, the need for a scaled spatial component is addressed, which facilitates assignment of interpretable hyperpriors and make these transferable between spatial applications with different graph structures. The hyperparameters themselves are used to define flexible extensions of simple base models. Consequently, penalised complexity priors for these parameters can be derived based on the information-theoretic distance from the flexible model to the base model, giving priors with clear interpretation. We provide implementation details for the new model formulation which preserve sparsity properties, and we investigate systematically the model performance and compare it to existing parameterisations. Through a simulation study, we show that the new model performs well, both showing good learning abilities and good shrinkage behaviour. In terms of model choice criteria, the proposed model performs at least equally well as existing parameterisations, but only the new formulation offers parameters that are interpretable and hyperpriors that have a clear meaning.</jats:p>",
+  "type": "journal-article"
+ },
+ "besag1991": {
+  "doi": "10.1007/bf00116466",
+  "title": "Bayesian image restoration, with two applications in spatial statistics",
+  "journal": "Annals of the Institute of Statistical Mathematics",
+  "short_journal": "Ann Inst Stat Math",
+  "year": 1991,
+  "volume": "43",
+  "issue": "1",
+  "pages": "1-20",
+  "authors": [
+   "Besag J",
+   "York J",
+   "Mollié A"
+  ],
+  "abstract": null,
+  "type": "journal-article"
+ },
+ "rue2009": {
+  "doi": "10.1111/j.1467-9868.2008.00700.x",
+  "title": "Approximate Bayesian Inference for Latent Gaussian models by using Integrated Nested Laplace Approximations",
+  "journal": "Journal of the Royal Statistical Society Series B: Statistical Methodology",
+  "short_journal": "",
+  "year": 2009,
+  "volume": "71",
+  "issue": "2",
+  "pages": "319-392",
+  "authors": [
+   "Rue H",
+   "Martino S",
+   "Chopin N"
+  ],
+  "abstract": "<jats:title>Summary</jats:title>\n                  <jats:p>Structured additive regression models are perhaps the most commonly used class of models in statistical applications. It includes, among others, (generalized) linear models, (generalized) additive models, smoothing spline models, state space models, semiparametric regression, spatial and spatiotemporal models, log-Gaussian Cox processes and geostatistical and geoadditive models. We consider approximate Bayesian inference in a popular subset of structured additive regression models, latent Gaussian models, where the latent field is Gaussian, controlled by a few hyperparameters and with non-Gaussian response variables. The posterior marginals are not available in closed form owing to the non-Gaussian response variables. For such models, Markov chain Monte Carlo methods can be implemented, but they are not without problems, in terms of both convergence and computational time. In some practical applications, the extent of these problems is such that Markov chain Monte Carlo sampling is simply not an appropriate tool for routine analysis. We show that, by using an integrated nested Laplace approximation and its simplified version, we can directly compute very accurate approximations to the posterior marginals. The main benefit of these approximations is computational: where Markov chain Monte Carlo algorithms need hours or days to run, our approximations provide more precise estimates in seconds or minutes. Another advantage with our approach is its generality, which makes it possible to perform Bayesian analysis in an automatic, streamlined way, and to compute model comparison criteria and various predictive measures so that models can be compared and the model under study can be challenged.</jats:p>",
+  "type": "journal-article"
+ },
+ "moran1950": {
+  "doi": "10.2307/2332142",
+  "title": "Notes on Continuous Stochastic Phenomena",
+  "journal": "Biometrika",
+  "short_journal": "Biometrika",
+  "year": 1950,
+  "volume": "37",
+  "issue": "1/2",
+  "pages": "17-23",
+  "authors": [
+   "Moran PAP"
+  ],
+  "abstract": null,
+  "type": "journal-article"
+ },
+ "anselin1995": {
+  "doi": "10.1111/j.1538-4632.1995.tb00338.x",
+  "title": "Local Indicators of Spatial Association—LISA",
+  "journal": "Geographical Analysis",
+  "short_journal": "Geographical Analysis",
+  "year": 1995,
+  "volume": "27",
+  "issue": "2",
+  "pages": "93-115",
+  "authors": [
+   "Anselin L"
+  ],
+  "abstract": "<jats:p>\n                    The capabilities for visualization, rapid data retrieval, and manipulation in geographic information systems (GIS) have created the need for new techniques of exploratory data analysis that focus on the “spatial” aspects of the data. The identification of local patterns of spatial association is an important concern in this respect. In this paper, I outline a new general class of local indicators of spatial association (LISA) and show how they allow for the decomposition of global indicators, such as Moran's I, into the contribution of each observation. The LISA statistics serve two purposes. On one hand, they may be interpreted as indicators of local pockets of nonstationarity, or hot spots, similar to the G\n                    <jats:sub>i</jats:sub>\n                    and G*\n                    <jats:sub>i</jats:sub>\n                    statistics of Getis and Ord (1992). On the other hand, they may be used to assess the influence of individual locations on the magnitude of the global statistic and to identify “outliers,” as in Anselin's Moran scatterplot (1993a). An initial evaluation of the properties of a LISA statistic is carried out for the local Moran, which is applied in a study of the spatial pattern of conflict for African countries and in a number of Monte Carlo simulations.\n                  </jats:p>",
+  "type": "journal-article"
+ },
+ "assuncao1999": {
+  "doi": "10.1002/(sici)1097-0258(19990830)18:16<2147::aid-sim179>3.0.co;2-i",
+  "title": "A new proposal to adjust Moran's I for population density",
+  "journal": "Statistics in Medicine",
+  "short_journal": "Statist. Med.",
+  "year": 1999,
+  "volume": "18",
+  "issue": "16",
+  "pages": "2147-2162",
+  "authors": [
+   "Assunção RM",
+   "Reis EA"
+  ],
+  "abstract": null,
+  "type": "journal-article"
+ },
+ "bates2015": {
+  "doi": "10.18637/jss.v067.i01",
+  "title": "Fitting linear mixed-effects models using lme4",
+  "journal": "Journal of Statistical Software",
+  "short_journal": "J. Stat. Soft.",
+  "year": 2015,
+  "volume": "67",
+  "issue": "1",
+  "pages": null,
+  "authors": [
+   "Bates D",
+   "Mächler M",
+   "Bolker B",
+   "Walker S"
+  ],
+  "abstract": null,
+  "type": "journal-article"
+ },
+ "merlo2006": {
+  "doi": "10.1136/jech.2004.029454",
+  "title": "A brief conceptual tutorial of multilevel analysis in social epidemiology: using measures of clustering in multilevel logistic regression to investigate contextual phenomena",
+  "journal": "Journal of Epidemiology and Community Health",
+  "short_journal": "J Epidemiol Community Health",
+  "year": 2006,
+  "volume": "60",
+  "issue": "4",
+  "pages": "290-297",
+  "authors": [
+   "Merlo J",
+   "Chaix B",
+   "Ohlsson H",
+   "Beckman A",
+   "Johnell K",
+   "Hjerpe P",
+   "Råstam L",
+   "Larsen K"
+  ],
+  "abstract": "<jats:p>\n                    <jats:bold>Study objective:</jats:bold>\n                    In social epidemiology, it is easy to compute and interpret measures of variation in multilevel linear regression, but technical difficulties exist in the case of logistic regression. The aim of this study was to present measures of variation appropriate for the logistic case in a didactic rather than a mathematical way.\n                  </jats:p>\n                  <jats:p>\n                    <jats:bold>Design and participants:</jats:bold>\n                    Data were used from the health survey conducted in 2000 in the county of Scania, Sweden, that comprised 10 723 persons aged 18–80 years living in 60 areas. Conducting multilevel logistic regression different techniques were applied to investigate whether the individual propensity to consult private physicians was statistically dependent on the area of residence (that is, intraclass correlation (ICC), median odds ratio (MOR)), the 80% interval odds ratio (IOR-80), and the sorting out index).\n                  </jats:p>\n                  <jats:p>\n                    <jats:bold>Results:</jats:bold>\n                    The MOR provided more interpretable information than the ICC on the relevance of the residential area for understanding the individual propensity of consulting private physicians. The MOR showed that the unexplained heterogeneity between areas was of greater relevance than the individual variables considered in the analysis (age, sex, and education) for understanding the individual propensity of visiting private physicians. Residing in a high education area increased the probability of visiting a private physician. However, the IOR showed that the unexplained variability between areas did not allow to clearly distinguishing low from high propensity areas with the area educational level. The sorting out index was equal to 82%.\n                  </jats:p>\n                  <jats:p>\n                    <jats:bold>Conclusion:</jats:bold>\n                    Measures of variation in logistic regression should be promoted in social epidemiological and public health research as efficient means of quantifying the importance of the context of residence for understanding disparities in health and health related behaviour.\n                  </jats:p>",
+  "type": "journal-article"
+ },
+ "simpson2017": {
+  "doi": "10.1214/16-sts576",
+  "title": "Penalising Model Component Complexity: A Principled, Practical Approach to Constructing Priors",
+  "journal": "Statistical Science",
+  "short_journal": "Statist. Sci.",
+  "year": 2017,
+  "volume": "32",
+  "issue": "1",
+  "pages": "1-28",
+  "authors": [
+   "Simpson D",
+   "Rue H",
+   "Riebler A",
+   "Martins TG",
+   "Sørbye SH"
+  ],
+  "abstract": "<jats:p>In this paper, we introduce a new concept for constructing prior distributions. We exploit the natural nested structure inherent to many model components, which defines the model component to be a flexible extension of a base model. Proper priors are defined to penalise the complexity induced by deviating from the simpler base model and are formulated after the input of a user-defined scaling parameter for that model component, both in the univariate and the multivariate case. These priors are invariant to reparameterisations, have a natural connection to Jeffreys’ priors, are designed to support Occam’s razor and seem to have excellent robustness properties, all which are highly desirable and allow us to use this approach to define default prior distributions. Through examples and theoretical results, we demonstrate the appropriateness of this approach and how it can be applied in various situations.</jats:p>",
+  "type": "journal-article"
+ },
+ "keele2015": {
+  "doi": "10.1093/pan/mpu014",
+  "title": "Geographic Boundaries as Regression Discontinuities",
+  "journal": "Political Analysis",
+  "short_journal": "Polit. anal.",
+  "year": 2015,
+  "volume": "23",
+  "issue": "1",
+  "pages": "127-155",
+  "authors": [
+   "Keele LJ",
+   "Titiunik R"
+  ],
+  "abstract": "<jats:p>Political scientists often turn to natural experiments to draw causal inferences with observational data. Recently, the regression discontinuity design (RD) has become a popular type of natural experiment due to its relatively weak assumptions. We study a special type of regression discontinuity design where the discontinuity in treatment assignment is geographic. In this design, which we call the Geographic Regression Discontinuity (GRD) design, a geographic or administrative boundary splits units into treated and control areas, and analysts make the case that the division into treated and control areas occurs in an as-if random fashion. We show how this design is equivalent to a standard RD with two running variables, but we also clarify several methodological differences that arise in geographical contexts. We also offer a method for estimation of geographically located treatment effects that can also be used to validate the identification assumptions using observable pretreatment characteristics. We illustrate our methodological framework with a re-examination of the effects of political advertisements on voter turnout during a presidential campaign, exploiting the exogenous variation in the volume of presidential ads that is created by media market boundaries.</jats:p>",
+  "type": "journal-article"
+ },
+ "_corrections": "Crossref returned a replacement character for Mollié, HTML in the lme4 title, page 17 for Moran (17-23 in the journal) and 'Moran'sI'; corrected by hand from the publishers' pages, 2026-11-21."
+}

@@ -464,3 +464,37 @@ recorded differently cannot be told; the estimates are of children who died wher
 
 **Twins.** A twin of the same sex is a candidate and one of the other sex is in the control; both carry the same
 mother's declaration as the person, so neither moves the declared-by-recorded table.
+
+## Space, time and context of the infant linkage (the paper's spatial revision; `papers/race_at_death/analysis/spatial.py`, `models.R`)
+
+Regime: infant linkage 2013-2023 (296,372 linked with the mother's race placed in the 2022 mesh; 140 outside it), 5,570
+municipalities, queen contiguity (16,503 pairs, 2 islands joined), R-INLA 24.12.11 BYM2 (Gaussian approximation,
+empirical Bayes; no PARDISO, 45 s a municipal model, 28 min in all), lme4 panels and multilevel models; artefacts
+`papers/race_at_death/results/spatial.json` and `*.parquet`, data home `pegasus_core_data`, 2026-11-21.
+
+| Brown mother, certified White | value |
+|---|---|
+| municipal range (births-weighted p5-p95, BYM2) | 0.09-0.76; family (census, 0-9) 0.10-0.36 |
+| logit variance of the smoothed field: alone, + composition, + composition and state | 1.38, 0.41, 0.09 (family 0.28) |
+| Moran's I of the EB rate; of residuals after composition, after composition + state | 0.77; 0.29; 0.15 |
+| deviance explained: composition, state, context, composition + state, all | 71%, 75%, 42%, 81%, 82% |
+| border slope (state step given interior state effects), 1,069 pairs | 0.46 (0.32-0.59) |
+| multilevel municipal variance explained: composition, socioeconomic, services, all municipal | 87%, 55%, 43%, 89% |
+
+The certificate is whiter than the family where over about 35% of births are White and less White below (South +0.37,
+Northeast -0.05, births-weighted). Black category for Black mothers: composition explains 22% of the deviance, the state
+37%; +0.42 log-odds a decade (0.20-0.64), regional slopes sd 0.47, fastest in the South. White to Brown infant ratio by
+immediate region (Poisson BYM2): opposite in direction to the mother's-race ratio in 400 of 510 regions (82% of births),
+credibly in 114; certified over mother's ratio 3.15 where under 10% of births are White, 1.83 at 30-59%, 2.19 at 60% or
+more. Conventional denominators: certified deaths over the population account's children give 0.80 (infants) and 0.94
+(1-4 years, 2016-2024) against 1.31 and 1.43 over births. The linkage finds 80-81% of White, Brown and Black certificates
+alike (Indigenous 62%); a municipal bootstrap widens the linkage's intervals 3 to 10 times. Rebouças 2022 read in full:
+its crude rates give 0.79 (under 1) and 0.69 (1-4), against 0.79 and 0.66 here; the 1.30 cited before was adjusted.
+
+Multilevel (lme4, nAGQ = 0; a Laplace refit of the 45 fixed effects ran 13 minutes unconverged and was dropped): of the
+municipal variance in certified White for Brown mothers' infants (1.32, median odds ratio 2.99), composition explains
+87%, socioeconomic context and place 55%, services and recording 43%, all three 89%, with individual terms 91%; for Black
+mothers' infants certified Black 39%, 19%, 22%, 49%, 58%. With a crossed effect for the establishment of death, the
+residual variance is 0.29 between establishments against 0.03 between municipalities (Black: 0.31 against 0.10; AIC
+lower by about 3,400 and 270). Verification services certify Brown mothers' infants White more often (OR 1.58) and,
+with medical examiners, Black mothers' infants Black less often (0.59, 0.65).
