@@ -83,7 +83,7 @@ para(d, f"Methods: {DESIGN[0].upper() + DESIGN[1:]}, Brazil. Deaths at 15-24 yea
 para(d, f"Results: Among {n0(sum(VI['deaths_total'][k] for k in ('natural', 'transport', 'suicide', 'other external', 'undetermined intent', 'assault by firearm', 'other assault', 'legal intervention')))} "
         f"deaths, about half were found among their birth candidates. From birth to the certificate the share White changed by "
         f"{100 * BC['natural']['net_shift']['est']:+.0f} percentage points for natural deaths and by "
-        f"{100 * min(BC[k]['net_shift']['est'] for k in EXT):+.0f} to {100 * max(BC[k]['net_shift']['est'] for k in EXT):+.0f} for the external causes; the "
+        f"{100 * max(BC[k]['net_shift']['est'] for k in EXT):+.0f} to {100 * min(BC[k]['net_shift']['est'] for k in EXT):+.0f} for the external causes; the "
         f"difference was {ddc(P_ASS)} for assaults and {ddc(P_EXT)} for the other external causes. For the same deaths with an earlier admission, the share "
         f"White fell from birth to the hospital record by about {100 * -TR['natural']['birth_white->hospital_white']['est']:.0f} points whatever the cause, and "
         f"from the hospital record to the certificate it changed by {100 * TR['natural']['hospital_white->certified_white']['est']:+.0f} points for natural "
