@@ -258,6 +258,7 @@ columns:
     - 2026
     note: role from SIASUS-AN
   AP_CNSPCN:
+    missing: ['{{{{{{{{{{{{{{{']   # the pseudonymisation of a blank CNS: 218,633 AQ and 7,944 AR authorisations of 2025 share it beside the true nulls (lake, 2026-11-22; reported by the ABNc study). One value for thousands of people, never a patient
     role: patient.cns
     kind: identifier
     model: link_only

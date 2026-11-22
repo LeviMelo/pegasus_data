@@ -85,6 +85,10 @@ class Role:
     categories: tuple[tuple[str, str], ...] = ()
     #: further columns a `codes` role gathers (every diagnosis of an admission)
     also: tuple[str, ...] = ()
+    #: values the column's declaration names as not recorded (`missing:` in its roles file): null before any key is
+    #: made of them. The APAC patient token writes a blank CNS as one shared value of fifteen braces (218,633 AQ
+    #: authorisations of 2025); kept, it would have linked thousands of strangers as one person (2026-11-22)
+    missing: tuple[str, ...] = ()
 
     @property
     def entity(self) -> str:
@@ -107,7 +111,8 @@ def load_roles() -> dict[str, DatasetRoles]:
     for path in roles_files():
         doc = read_yaml(path, shared=True) or {}
         dataset = str(doc.get("dataset") or path.stem)
-        specs = {str(name): {**dict(spec), "column": str(column)}
+        specs = {str(name): {**dict(spec), "column": str(column),
+                             "_missing": tuple(str(v) for v in (body.get("missing") or []))}
                  for column, body in (doc.get("columns") or {}).items() if isinstance(body, dict)
                  for name, spec in (body.get("compare") or {}).items()}
         if not specs:
@@ -132,7 +137,7 @@ def load_roles() -> dict[str, DatasetRoles]:
                 for variant in variants
             )
             roles[name] = Role(name, str(spec["column"]), kind, fmt, categories,
-                               tuple(str(c) for c in spec.get("also") or ()))
+                               tuple(str(c) for c in spec.get("also") or ()), spec.get("_missing") or ())
         setting = body.get("setting")
         if setting is not None and (setting not in roles or roles[setting].type != "municipality"):
             raise ValueError(f"roles/{dataset}.yml: {dataset}: setting {setting!r} is not a municipality role")
@@ -186,6 +191,11 @@ _READS_LABELS = frozenset({"sex", "municipality", "facility", "label"})
 
 def _normalise(role: Role, table: pa.Table) -> pa.Array:
     source = table.column(role.column)
+    if role.missing and (pa.types.is_string(source.type) or pa.types.is_large_string(source.type)
+                         or pa.types.is_dictionary(source.type)):
+        text = pc.cast(source, pa.string())
+        source = pc.if_else(pc.fill_null(pc.is_in(text, value_set=pa.array(list(role.missing), pa.string())), False),
+                            pa.scalar(None, pa.string()), text)
     if role.type == "birth_from_age":
         return _birth_from_age(source, _as_date(table.column(role.also[0]), role.format))
     if role.type == "year":
@@ -262,7 +272,7 @@ def _normalise(role: Role, table: pa.Table) -> pa.Array:
 #: files and every partition of every year, which made any commit to them, or one new month of another year, discard
 #: all 48 cached national tables (2026-10-14), and not the shipped label pack as a whole, which made the re-windowing
 #: of CIH's labels (a dataset no link reads) discard every stored 2022 run (2026-10-23).
-ROLE_TABLE_VERSION = 2   # 2: a 7-digit municipality code is placed (was null)
+ROLE_TABLE_VERSION = 3   # 2: a 7-digit municipality code is placed (was null). 3: a column's declared not-recorded values are null (`Role.missing`)
 
 
 def _labelled_columns(wanted: Iterable[Role]) -> set[str]:
