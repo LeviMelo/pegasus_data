@@ -5,8 +5,8 @@ import json as _json
 
 VI = _json.loads((HERE / "results" / "violence.json").read_text(encoding="utf-8"))
 DESIGN = "cross-sectional study of birth, hospital and death records related without identifiers"
-OBJECTIVE = ("to measure whether the race on the death certificate of young people in Brazil depends on how they died, and whether a departure from their race "
-             "at birth was already present in an earlier hospital record or arises at death")
+OBJECTIVE = ("to measure whether the race recorded for young people in Brazil departs from their race at birth according to how they died, and whether "
+             "the departure is already present in hospital records made during life or arises on the death certificate")
 Y = R["youth"]
 YC = R["context"]["youth"]
 KINDS = ["natural", "transport", "suicide", "other external", "other assault", "assault by firearm", "legal intervention"]
@@ -18,40 +18,57 @@ def yc(kind, a="Branca", b="Branca", src=None):
     return cell((src or Y["by_kind"])[kind], a, b)
 
 
-def hv(group, j, k, order="hospital"):
-    """Earlier hospital record against the certificate: among admissions recorded j, the share certified k (order 'hospital'), or among deaths certified k,
-    the share an earlier admission recorded j (order 'certified')."""
-    key = f"hospital {j}|certified {k}" if order == "hospital" else f"certified {k}|hospital {j}"
-    return VI[group]["cells"][key]
+def hv(group, j, k, order="hospital", key="person"):
+    """Earlier hospital record against the certificate (one per person): among people recorded j, the share certified k (order 'hospital'), or among
+    deaths certified k, the share an earlier admission recorded j (order 'certified')."""
+    c = f"hospital {j}|certified {k}" if order == "hospital" else f"certified {k}|hospital {j}"
+    return VI[key][group]["cells"][c]
+
+
+def margin(kind):
+    """White at birth and on the certificate among the deaths found among their birth candidates (the same deaths)."""
+    m = Y["by_kind"][kind]
+    mix = {a: (v["est"] if isinstance(v, dict) else v) for a, v in m["declared_mix"].items()}
+    cert = sum(mix[a] * m["rows"][a]["Branca"]["est"] for a in mix if a in m["rows"] and "Branca" in m["rows"][a])
+    return mix["Branca"], cert
 
 
 nat, fire, leg = yc("natural"), yc("assault by firearm"), yc("legal intervention")
+MB_ = {k: margin(k) for k in KINDS}
+PM = {g: VI["person"][g]["margins"] for g in VI["person"]}
+TM = {g: VI["terminal"][g]["margins"] for g in VI["terminal"]}
 # the claims of the text, held by the results
-assert fire["est"] + 2 * fire["se"] < nat["est"] - 2 * nat["se"], "firearm deaths no longer certified White less often than natural deaths"
-assert YC["standardised"]["assault"]["Branca"]["Branca"]["est"] < YC["standardised"]["natural"]["Branca"]["Branca"]["est"] - 0.1, "composition now explains the gap"
+for k in ("transport", "suicide", "assault by firearm"):
+    assert MB_[k][1] - MB_[k][0] < MB_["natural"][1] - MB_["natural"][0] - 0.05, f"{k}: no longer darker from birth to certificate than natural deaths"
+assert PM["all assault"]["hospital_white"]["est"] < PM["natural"]["hospital_white"]["est"] - 0.1, "the hospital no longer records victims less often White in life"
+assert abs(PM["assault by firearm"]["net_shift"]["est"] - PM["transport"]["net_shift"]["est"]) < 0.04, "the net shift at death now differs between assault and transport"
+assert PM["natural"]["net_shift"]["est"] > 0.03 > PM["all assault"]["net_shift"]["est"], "net shifts changed"
+assert hv("assault by firearm", "white", "white")["hi"] < hv("transport", "white", "white")["lo"], "the exchange at death is no longer larger for firearm deaths"
 iml_a, iml_x = YC["by_certifier"]["assault"]["medical examiner"], YC["by_certifier"]["external, not assault"]["medical examiner"]
-assert cell(iml_a, "Branca", "Branca")["est"] + 0.1 < cell(iml_x, "Branca", "Branca")["est"], "within medical examiners the gap is gone"
+PLC = {g: VI["placebo"][g]["n_est"] / max(VI["person"][g]["n_est"], 1) for g in ("natural", "assault by firearm")}
 
 d = new_doc()
-TITLE = "Who becomes Brown when killed: the race of young people at birth, in hospital and on the death certificate by cause of death, Brazil, 2015-2024"
+TITLE = ("Recorded darker before they were killed: the race of young people at birth, in hospital during life and on the death certificate, by cause of "
+         "death, Brazil, 2015-2024")
 para(d, TITLE, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER)
 para(d, "[Authors, affiliations, ORCID, funding, conflicts of interest and contributions: to be supplied by the authors; not part of the blinded text]", italic=True)
 d.add_heading("Abstract", level=1)
 para(d, f"Objective: {OBJECTIVE[0].upper() + OBJECTIVE[1:]}.")
 para(d, f"Methods: {DESIGN[0].upper() + DESIGN[1:]}, Brazil. Deaths at 15-24 years in 2015-2024 of people born in 2000-2009 were related to the live births "
         "and to the earlier hospital admissions with the same birth date, sex and municipality of residence, with records of the other sex as a control for chance "
-        "agreement, in municipalities with fewer than 1,600 births a year. The race recorded at birth (by staff, before the 2011 form) and at an earlier admission "
-        "was cross-classified with the certified race, by cause of death.")
-hw_n, hw_f = hv("natural", "white", "white"), hv("assault by firearm", "white", "white")
-assert 0.4 < hv("assault by firearm", "white", "brown")["est"] < 0.6 and 0.12 < hv("natural", "white", "brown")["est"] < 0.21, "half and a sixth no longer hold"
-para(d, f"Results: Of young people recorded White at birth, {cc(nat)} were certified White after a natural death, {cc(fire)} after an assault by firearm and "
-        f"{cc(leg)} after a legal intervention; the gap held at equal municipal composition, in every region and within deaths certified by medical examiners. "
-        f"Of those an earlier hospital admission had recorded White, {cc(hw_n)} were certified White after a natural death and {cc(hw_f)} after a firearm "
-        f"assault. The deceased was found among the candidates in {pct(min(Y['by_kind'][k]['found'] for k in KINDS), 0)}-{pct(max(Y['by_kind'][k]['found'] for k in KINDS), 0)} "
-        "of deaths, alike for every cause.")
-para(d, "Conclusion: In the smaller Brazilian municipalities, young people killed by assault are certified darker than they were recorded at birth and in "
-        "hospital during life; the departure arises at death, and part of the racial gap in homicide rates is made by the certificate. The large cities, where "
-        "most homicides occur, require identified linkage.")
+        "agreement, in municipalities with fewer than 1,600 births a year. The race recorded at birth (by staff, before the 2011 form), at an earlier admission "
+        "(one record per person) and at the admission in which the person died was set against the certified race, by cause of death.")
+para(d, f"Results: Among deaths found among their birth candidates, the share White fell from birth to the certificate by {100 * (MB_['natural'][0] - MB_['natural'][1]):.0f} "
+        f"percentage points for natural deaths and by {100 * (MB_['transport'][0] - MB_['transport'][1]):.0f}-{100 * (MB_['assault by firearm'][0] - MB_['assault by firearm'][1]):.0f} "
+        f"for transport, suicide and firearm deaths. Young people who died by assault were already recorded White less often by an earlier admission "
+        f"({f2(PM['all assault']['hospital_white']['est'])}, against {f2(PM['natural']['hospital_white']['est'])} for natural deaths). From that record to "
+        f"the certificate the share White changed by {PM['all assault']['net_shift']['est']:+.2f} for assaults, {PM['transport']['net_shift']['est']:+.2f} for "
+        f"transport and {PM['natural']['net_shift']['est']:+.2f} for natural deaths; for assaults the certificate departed from the hospital record more often in "
+        f"both directions (recorded White and certified White: {f2(hv('assault by firearm', 'white', 'white')['est'])} for firearm deaths, "
+        f"{f2(hv('natural', 'white', 'white')['est'])} for natural deaths).")
+para(d, "Conclusion: In the smaller Brazilian municipalities, young people who die of external causes, and most of all by assault, were recorded darker than at "
+        "birth already during life; the certificate after a violent death is less consistent with earlier records but, net, about as dark as them. The large "
+        "cities, where most homicides occur, require identified linkage.")
 para(d, "Keywords: Homicide; Violence; Racial Groups; Death Certificates; Young Adult; Brazil.")
 
 d.add_heading("Introduction", level=1)

@@ -89,18 +89,31 @@ fig.tight_layout()
 save(fig, "violence_strata")
 
 # ---------------------------------------------------------------- 3. the earlier hospital record
-fig, ax = plt.subplots(figsize=(7.2, 2.6))
+fig, axes = plt.subplots(1, 2, figsize=(7.2, 2.8), gridspec_kw={"width_ratios": [1.3, 1]})
+ax = axes[0]
 G = ["natural", "transport", "suicide", "other assault", "assault by firearm", "all assault"]
+GL = ["natural", "transport", "suicide", "assault,\nother", "assault,\nfirearm", "all\nassaults"]
 for i, g in enumerate(G):
     for dx, (j, k, col, lab) in zip((-0.15, 0.15), (("white", "white", "#E69F00", "White in hospital, certified White"),
                                                     ("brown", "brown", "#0072B2", "Brown in hospital, certified Brown")), strict=True):
-        v = VI[g]["cells"][f"hospital {j}|certified {k}"]
-        if v["est"] is not None and v["se"] <= 0.15:
-            ax.errorbar(i + dx, v["est"], yerr=1.96 * v["se"], fmt="o", color=col, ms=4, capsize=1.5, label=lab if i == 0 else None)
-ax.set_xticks(range(len(G)), ["natural", "transport", "suicide", "assault,\nother", "assault,\nfirearm", "all\nassaults"])
+        v = VI["person"][g]["cells"][f"hospital {j}|certified {k}"]
+        ax.errorbar(i + dx, v["est"], yerr=[[v["est"] - v["lo"]], [v["hi"] - v["est"]]], fmt="o", color=col, ms=4, capsize=1.5, label=lab if i == 0 else None)
+ax.set_xticks(range(len(G)), GL, fontsize=7)
 ax.set_ylim(0, 1)
 ax.set_ylabel("Proportion of deaths")
-ax.legend(frameon=False, fontsize=7, loc="lower left")
+ax.set_title("A. Agreement of the two records", fontsize=8, loc="left")
+ax.legend(frameon=False, fontsize=6.5, loc="lower left")
+ax = axes[1]
+for i, g in enumerate(G):
+    mg = VI["person"][g]["margins"]
+    ax.plot([i, i], [mg["hospital_white"]["est"], mg["certified_white"]["est"]], "-", color="#999999", lw=1)
+    ax.plot(i, mg["hospital_white"]["est"], "s", color="#56B4E9", ms=5, label="hospital, in life" if i == 0 else None)
+    ax.plot(i, mg["certified_white"]["est"], "o", color="#D55E00", ms=5, label="certificate" if i == 0 else None)
+ax.set_xticks(range(len(G)), GL, fontsize=7)
+ax.set_ylim(0, 0.6)
+ax.set_ylabel("Share White")
+ax.set_title("B. The same deaths, two records", fontsize=8, loc="left")
+ax.legend(frameon=False, fontsize=6.5)
 fig.tight_layout()
 save(fig, "violence_hospital")
 print("violence figures written")

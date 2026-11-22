@@ -12,7 +12,7 @@ para(s, "For a death i, let C_i be the set of records in the other register (liv
         "The estimator reproduced one-to-one linkage of infant deaths in municipalities below 25,600 births a year; in simulation it was nearly unbiased for "
         "the people found where each row holds enough deaths, with a small-sample bias in sparse rows, and moving that depends on the class recorded biased "
         "it against all deaths (companion methods paper). Here the restriction to municipalities with fewer than 1,600 births a year keeps chance candidates "
-        "few. A young person with several admissions counts once per admission, which weights the hospital's records by admissions.")
+        "few. For the hospital records, each death contributes whether any admission with its key was recorded in each race, so that a person with several admissions counts once.")
 rows = []
 for k in ("natural", "assault", "external"):
     for r in REG[k]:
@@ -25,10 +25,10 @@ table(s, "Supplementary Table S1 - Young people certified in their race at birth
 rows = []
 for g in ("natural", "transport", "suicide", "assault by firearm", "other assault", "legal intervention", "all assault"):
     for j in ("white", "brown", "black"):
-        rows.append([g, j] + [cc(VI[g]["cells"][f"hospital {j}|certified {k}"]) if VI[g]["cells"][f"hospital {j}|certified {k}"]["est"] is not None else "-"
+        rows.append([g, j] + [cc(VI["person"][g]["cells"][f"hospital {j}|certified {k}"]) if VI["person"][g]["cells"][f"hospital {j}|certified {k}"]["est"] is not None else "-"
                               for k in ("white", "brown", "black")])
 table(s, "Supplementary Table S2 - Certified race of young people according to the race recorded at an earlier hospital admission, by cause of death, Brazil, "
          "2015-2024", ["Cause", "Hospital's race", "Certified White", "Certified Brown", "Certified Black"], rows,
-      ["Admissions of 2010-2024 ending at least 30 days before the death and not in death; candidate estimator with the other sex as control; 95% confidence "
+      ["Admissions of 2010-2024 ending at least 30 days before the death and not in death, one record per person; candidate estimator with the other sex as control; 95% confidence "
        "intervals from a bootstrap over municipalities."])
 s.save(OUT / "supplement.docx")

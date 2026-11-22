@@ -1,4 +1,4 @@
-﻿Supplementary material - The same deaths, four inequalities: how the classification of deaths and denominators changes racial inequality in infant and child mortality in Brazil, nationally and in 510 regions, 2013-2024
+﻿Supplementary material - Two races in one rate: the child's on the death certificate, the mother's on the birth record, and racial inequality in infant mortality in Brazil, 2013-2023
 Supplementary Text S1 - Estimation without individual linkage and its control
 Let G be a group of deaths. For a death i, let C_i be the set of live births with the birth date, sex and municipality of residence of i. If the family did not move, exactly one element of C_i is the deceased; the remaining elements, and all elements when the family moved, are births that agree by chance. Write N(j, k) for the number of deaths in G with race j on the birth record and certified race k, and t for the probability that the deceased is in C_i. The expected number of candidates with race j among deaths certified k is t N(j, k) + E(j, k), where E(j, k) is the expected number of chance candidates.
 E(j, k) depends on how many children were born on the birth date of the deceased in the municipality. That is not the number of an arbitrary day: a day on which more children were born contributes more people and therefore more deaths, so the birth date of a death is a size-biased draw from the days of the year, and a control drawn from other days would undercount E. The births of the other sex on the same day in the same municipality share the day, cannot contain the deceased and have the racial composition of that day's births; multiplied by the ratio of births of the two sexes in the municipality and year, their count estimates E(j, k). With this control the estimated t for infants was 89.8% overall.
@@ -7,9 +7,172 @@ Supplementary Text S2 - The census-based population account
 The racial composition of five-year birth cohorts at the censuses of 2000, 2010 and 2022 was read, by single year of age and race, from a cohort-component population account of every municipality built for this research programme from the censuses, the Mortality and Live Birth Information Systems and the official estimates of IBGE (population projections, 2024 revision); in a census year the account takes the census population as given, so the shares at the three dates are census shares. Between and after censuses, race shares are modelled along each birth cohort: log shares change linearly between the censuses of 2000, 2010 and 2022, a cohort born after a census takes the shares it has in the next census carried back by the state's rate of reclassification of the previous decade, and after 2022 the state's drift carries them forward. The rates over the census-based population in the main text use these modelled shares. The account is not a published product and its census-year values carry the censuses' own coverage error, which is not quantified by race. A cohort's White share can fall between censuses through reclassification, but also through higher mortality or emigration of White people, through differences in coverage between censuses and through the change of the 2022 questionnaire; the comparison between the first census of a cohort aged 0-4 and later ones also compares a race reported for small children by an adult of the household with one reported for adults. The analysis describes the cohorts and does not separate these explanations.
 
 Supplementary Figure S1 - White to Brown mortality rate ratio by region under the three classifications, ages 1-4 and 5-9, Brazil, 2013-2024
-Bars: 95% confidence intervals; n.e.: a ratio by the mother's race with a standard error above 0.35 of the estimate (the rule of Supplementary Table S2), not drawn.
+Bars: 95% confidence intervals; n.e.: a ratio by the mother's race with a standard error above 0.35 of the estimate (the rule of Supplementary Table S4), not drawn.
 
-Supplementary Table S1 - The 25 immediate regions where the certificate most raises the White to Brown infant mortality rate ratio, and the 10 where it most lowers it relative to the mother's race, Brazil, 2013-2023
+Supplementary Table S1 - Infant mortality rate ratios against Brown by age at death, cause and year, with deaths and births classified by the mother's race or the child's, Brazil, 2013-2023
+Group
+Class
+Mother's: White
+Mother's: Black
+Usual: White
+Usual: Black
+Child's: White
+Child's: Black
+Age at death
+neonatal
+0.81
+1.13
+1.21
+0.43
+0.73
+0.71
+Age at death
+post-neonatal
+0.77
+1.20
+1.56
+0.63
+0.94
+1.04
+Cause
+congenital
+0.98
+1.11
+1.75
+0.48
+1.06
+0.79
+Cause
+external
+0.78
+1.71
+1.57
+0.68
+0.95
+1.12
+Cause
+ill-defined
+0.59
+1.25
+1.32
+0.56
+0.80
+0.92
+Cause
+infectious or respiratory
+0.57
+1.15
+1.18
+0.62
+0.72
+1.03
+Cause
+other
+0.71
+1.13
+1.54
+0.63
+0.93
+1.04
+Cause
+perinatal
+0.78
+1.14
+1.14
+0.44
+0.69
+0.73
+Year
+2013
+0.80
+1.12
+1.32
+0.50
+0.83
+0.82
+Year
+2014
+0.85
+1.17
+1.39
+0.52
+0.86
+0.83
+Year
+2015
+0.82
+1.18
+1.34
+0.50
+0.82
+0.79
+Year
+2016
+0.79
+1.13
+1.32
+0.47
+0.80
+0.75
+Year
+2017
+0.81
+1.16
+1.28
+0.46
+0.78
+0.74
+Year
+2018
+0.79
+1.16
+1.29
+0.50
+0.77
+0.82
+Year
+2019
+0.81
+1.13
+1.32
+0.46
+0.79
+0.77
+Year
+2020
+0.78
+1.15
+1.24
+0.47
+0.73
+0.79
+Year
+2021
+0.80
+1.18
+1.29
+0.50
+0.75
+0.84
+Year
+2022
+0.76
+1.14
+1.26
+0.49
+0.75
+0.83
+Year
+2023
+0.79
+1.10
+1.28
+0.47
+0.76
+0.82
+Mother's: deaths and births by the mother's race. Usual: certified deaths over births by the mother's race. Child's: certified deaths over births classified as households classify infants.
+
+Supplementary Table S2 - The 25 immediate regions where the certificate most raises the White to Brown infant mortality rate ratio, and the 10 where it most lowers it relative to the mother's race, Brazil, 2013-2023
 Immediate region
 State
 Share of White births
@@ -264,7 +427,7 @@ BA
 0.58
 Rate ratios: posterior means of a Poisson BYM2 model over the 510 immediate regions. All regions are in Supplementary Data 2.
 
-Supplementary Table S2 - White to Brown mortality rate ratio at 1-9 years by the mother's race and by certified race, and classification of the children of Brown and Black mothers by families and on infant death certificates, by state, Brazil
+Supplementary Table S4 - White to Brown mortality rate ratio at 1-9 years by the mother's race and by certified race, and classification of the children of Brown and Black mothers by families and on infant death certificates, by state, Brazil
 State
 Deaths at 1-9 years
 Ratio, mother's race (95%CI)
@@ -490,4 +653,19 @@ not estimable
 0.43
 0.13
 95%CI: 95% confidence interval. Not estimable: standard error above 0.35 of the estimate.
+
+Supplementary Table S3 - White to Brown mortality rate ratio with certified deaths over a modelled census-based population, and with deaths and births passed through the family's classification, Brazil
+Age
+Certified over census-based population
+Family's classification
+Under 1 year
+0.80
+0.88
+1-4 years (2016-2024)
+0.94
+0.79
+5-9 years
+-
+0.78
+Census-based population: a cohort-component account (Supplementary Text S2); no interval. Family's classification: deaths and births by the mother's race passed through the households' classification of children of the same age, 2010 Census; no interval.
 

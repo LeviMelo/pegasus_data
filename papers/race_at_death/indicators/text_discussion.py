@@ -1,33 +1,31 @@
 # The Discussion and references of the indicators paper. Executed by build.py after text_results.py.
 # ruff: noqa: F821
+assert D2["absolute"]["mother"]["brown"]["excess_deaths"] > 20000, "no longer tens of thousands"
 d.add_heading("Discussion", level=1)
-para(d, "Over the same deaths, the White to Brown and Black to Brown ratios of infant mortality in Brazil depended on how the deaths were classified. With deaths and "
-        "births classified by the mother, children of White mothers died less often than children of Brown mothers, and children of Black mothers more often, as in a "
-        f"linked cohort of 19.5 million births {cite('reboucas2022')}. With certified deaths over births by the mother's race, the usual infant indicator, both directions "
-        "reversed. After infancy the White to Brown ratios behaved in the same way. Over a census-based population the infant ratio was close to the mother's-race ratio; at "
-        "1-4 years it was near 1, a value that depends on how the population account dates children's race between censuses and that this study cannot validate.")
-para(d, f"Why the certificate reverses the ratios over births. The certificate records the mother's race for most children of White mothers but classes a quarter "
-        f"({f2(CBP['Parda>Branca']['est'])}) of Brown mothers' infants as White and more than half ({f2(CBP['Preta>Parda']['est'])}) of Black mothers' infants as Brown, and "
-        f"some White mothers' infants ({f2(CBP['Branca>Parda']['est'])}) as Brown. Births stay where the mothers declared. Brown births outnumber White births, so the "
-        "deaths moved from the Brown to the White numerator are many relative to the White deaths they join, and the White rate rises; Black mothers' infants moved into "
-        "the Brown numerator lower the Black rate. Where White births are rare, the ratio of the two ratios was largest, as this arithmetic predicts; elsewhere the regional "
-        f"differences were smaller and mostly not credible. Earlier Brazilian comparisons of infant mortality by race between sources found differences in opposite "
-        f"directions {cite('cardoso2005', 'caldas2017')}; the present results show how both directions can occur from the same deaths, since the result depends on the "
-        "denominator and on the composition of the place.")
-para(d, "Strengths and limitations. The deaths of infants were linked one-to-one, with a false-link rate under 1% a year and a linked share that differed by less than "
-        "one point between White, Brown and Black certificates, so the primary contrast does not rest on the estimator used after infancy; the national and regional "
-        "ratios are computed over the same births. Limitations: the mother's race on the birth record is itself entered by staff and is the reference here, not a truth, "
-        "so a reversal means a departure from the mother's declaration; unlinked deaths were assumed to fall by the mother's race as linked ones; the estimator after "
-        "infancy finds only children who did not move and was restricted to municipalities where it reproduces the linkage; the census-based population is modelled "
-        "between and after censuses and its ratios carry no interval; the family's classification is a 2010 reference applied by mother's race and age, without an "
-        "interval; the national intervals do not include the error of the linkage; the regional mother's-race ratios rest on few White deaths and are drawn toward the "
-        "national value; and the analyses beyond the primary contrast are exploratory.")
-para(d, "Implications. An indicator of racial inequality in child mortality should classify the deaths as its denominator classifies the births. For infants, linking "
-        "deaths to their birth records, which the Ministry of Health's own systems allow, gives both by the mother's race. For older children, rates by the mother's race "
-        "need person-years from births by the mother's race, or a linked cohort. Where certified race must be used, the ratio should be reported with its denominator "
-        "named and read against the racial composition of the place.")
-para(d, f"In conclusion, this study set out {OBJECTIVE}. Brown children's excess infant mortality relative to White children, and Black children's relative to Brown, "
-        "present with deaths and births classified by the mother, were reversed by the usual infant indicator, nationally and in most regions by posterior means.")
+para(d, "The usual infant mortality rate by race in Brazil divides deaths classified by the child's race, on the certificate, by births classified by the "
+        "mother's, on the birth record. Classified consistently, by the mother in both terms or by the child in both, the children of Brown mothers died more "
+        "often than those of White mothers; the usual rate reversed this. The reversal came from one flow above all, Brown mothers' infants certified White, which "
+        "households also classify as White in similar proportion: once the births are classified as households classify infants, the certified ratio returned "
+        "to the mother's. It held in every year, before and after the first month and for every cause, so it is a property of the rate, not of a period or a "
+        f"kind of death. Earlier comparisons of infant mortality by race between sources found differences in opposite directions {cite('cardoso2005', 'caldas2017')}, "
+        f"and inconsistent classification of numerator and denominator is a known source of bias {cite('hahn1992', 'arias2016')}; the 2 x 2 shows its size and "
+        "direction for Brazil.")
+para(d, "The Black category behaves differently. By the mother's race, Black mothers' infants died more often than Brown mothers'; on the certificate they "
+        "were mostly classified Brown, and the ratio stayed below 1 even over births classified as households classify infants, because the certificate uses "
+        "the Black category less than households do (a companion paper examines who records it). For Black infants the usual indicator and the consistent one "
+        "by the child disagree for a reason other than the mismatch of terms.")
+para(d, "Strengths and limitations. Infant deaths were linked one-to-one to their births, with linkage scaled by certified race, and every term of the 2 x 2 "
+        "comes from the same deaths and births. Limitations: the mother's race is a staff-entered declaration and the reference here, not a truth; the child's "
+        "race in the denominator comes from households' classification in 2010, applied nationally and by region, without an interval of its own; the "
+        "jackknife intervals do not include the error of the linkage; unlinked deaths were assumed to fall by the mother's race as linked deaths of the same "
+        "certified race; the analysis after infancy rests on an estimator whose shares found cannot be checked by race; and the regional models were fitted "
+        "separately for each classification, so the regional contrasts between them carry no joint uncertainty.")
+para(d, "Implications. A rate of infant mortality by race should classify the deaths and the births alike. Linking deaths to their birth records, which the "
+        "Ministry of Health's own systems allow, gives both by the mother's race; reporting the child's race requires a denominator of children classified the "
+        "same way. Read as it is usually computed, the rate hides an excess of tens of thousands of deaths among the children of Brown mothers.")
+para(d, f"In conclusion, this study set out {OBJECTIVE}. The usual rate mixes the child's race and the mother's, and the mixture reverses the White to Brown "
+        "inequality in infant mortality; consistently classified, the excess of Brown mothers' children is present, and that of Black mothers' children is "
+        "present by the mother's race.")
 d.add_heading("References", level=1)
 for i, k in enumerate(order, 1):
     para(d, f"{i}. {reference_text(k)}")

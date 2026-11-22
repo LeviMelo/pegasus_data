@@ -9,6 +9,15 @@ C14, C59 = CH["1-4"], CH["5-9"]
 CONV, REB = C14["conventional_2016_2024"], R["reboucas"]
 LR = IR["ratio_mother_linkage"]
 MS, RA = SP["misstated"], SP["ratio"]
+import json as _json  # noqa: E402
+D2 = _json.loads((HERE / "results" / "indicators2.json").read_text(encoding="utf-8"))
+N2 = D2["national"]
+
+
+def jr(cellname, r):
+    """A ratio of the 2 x 2 with its delete-one-state jackknife interval (log scale)."""
+    return ci(N2[cellname][r], log=True)
+
 MSB = MS["by_composition"]
 
 
@@ -41,32 +50,35 @@ assert MS["reversed"] > 0.6 * MS["regions"] and MS["reversed_credible"] < 0.3 * 
 assert MS["certificate_above_1_credibly"] > 2 * MS["mother_below_1_credibly"], "the regional asymmetry changed"
 assert MSB["<10%"]["ratio_of_ratios"] > max(MSB["10-29%"]["ratio_of_ratios"], MSB["30-59%"]["ratio_of_ratios"], MSB[">=60%"]["ratio_of_ratios"])
 ls_ = I["linked_share"]["by_certified"]
+STRATA = list(D2["by_year"].values()) + list(D2["by_period"].values()) + [v for k, v in D2["by_cause"].items() if k != "other"]
+assert all(x["mother_over_mother"]["white"] < 1 < x["certified_over_mother"]["white"] for x in STRATA), "the reversal no longer holds in every stratum"
+assert N2["certified_over_child"]["white"]["est"] < 1 and N2["certified_over_child"]["black"]["est"] < 1 < N2["mother_over_mother"]["black"]["est"], "2 x 2 changed"
+assert D2["waterfall"][1]["ratios"]["white"] > 1.3 > D2["waterfall"][2]["ratios"]["white"] > 1, "the waterfall's first steps changed"
+assert D2["absolute"]["mother"]["brown"]["excess_deaths"] > 0 > D2["absolute"]["certified"]["brown"]["excess_deaths"], "absolute measures changed"
 assert max(ls_[k] for k in ("Branca", "Parda", "Preta")) - min(ls_[k] for k in ("Branca", "Parda", "Preta")) < 0.02, "linkage differs by certified race"
 CRED = "a 95% credible interval (posterior mean plus or minus 1.96 posterior standard deviations) that excludes 1"
 
 d = new_doc()
-TITLE = ("The same deaths, four inequalities: how the classification of deaths and denominators changes racial inequality in infant and child mortality in "
-         "Brazil, nationally and in 510 regions, 2013-2024")
+TITLE = ("Two races in one rate: the child's on the death certificate, the mother's on the birth record, and racial inequality in infant mortality in "
+         "Brazil, 2013-2023")
 para(d, TITLE, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER)
 para(d, "[Authors, affiliations, ORCID, funding, conflicts of interest and contributions: to be supplied by the authors; not part of the blinded text]", italic=True)
 d.add_heading("Abstract", level=1)
 para(d, f"Objective: {OBJECTIVE[0].upper() + OBJECTIVE[1:]}.")
-para(d, f"Methods: {DESIGN[0].upper() + DESIGN[1:]}. Infant deaths of 2013-2023 were linked one-to-one to their birth records (the mother's race); deaths at 1-9 years were "
-        "classified by the mother's race through an estimator that relates each death to the births of the same date, sex and municipality, in municipalities with fewer "
-        "than 25,600 births a year. Rate ratios were computed with deaths and births by the mother's race, with certified deaths over births by the mother's race (the "
-        "usual infant indicator), with certified deaths over a modelled census-based population, and with deaths and births reclassified as families classify children in "
-        "the 2010 Census; regional infant ratios came from Poisson models with Besag-York-Mollié effects over 510 immediate regions. The primary contrast was the infant "
-        "ratio by the mother's race against the usual indicator.")
-para(d, f"Results: The White to Brown infant mortality rate ratio was {ci(LR['Branca'], log=True)} by the mother's race and {ci(IR['ratio_certificate']['Branca'], log=True)} "
-        f"by certified race over the same births; the Black to Brown ratio was {ci(LR['Preta'], log=True)} and {ci(IR['ratio_certificate']['Preta'], log=True)}. At 1-4 years "
-        f"the White to Brown ratios were {rr(C14W)} and {rc(C14W)}. Over the census-based population the ratio depended on the modelled population: "
-        f"{f2(IR['ratio_certificate_population'])} in infancy and {f2(CONV['ratio_certificate_population'])} at 1-4 years, against {f2(C14['ratio_household']['Branca'])} with "
-        f"the census's own household classification. By posterior means the two infant ratios had opposite directions in {MS['reversed']} of {MS['regions']} immediate "
-        f"regions; credibly in {MS['reversed_credible']}, with the certified ratio credibly above 1 in {MS['certificate_above_1_credibly']} and the mother's-race ratio "
-        f"credibly below 1 in {MS['mother_below_1_credibly']}.")
-para(d, "Conclusion: Brown children's excess mortality relative to White children, and Black children's relative to Brown, present when deaths and births are classified "
-        "by the mother, are reversed by the usual infant indicator. Infant and child mortality by race should be computed from linked records or, where that is "
-        "impossible, read with its denominator named and the composition of the place in mind.")
+para(d, f"Methods: {DESIGN[0].upper() + DESIGN[1:]}. Infant deaths of 2013-2023 were linked one-to-one to their birth records. Rate ratios were computed with "
+        "the numerator classified by the mother's race (linked deaths) or by the certificate, and the denominator by the mother's race (births) or by the "
+        "child's race as households classify infants of mothers of each race (census flows), with delete-one-state jackknife intervals; the change from one to "
+        "another was decomposed flow by flow, by age at death, cause, year and region.")
+para(d, f"Results: Infant mortality was {f1(RML['Branca'])} per 1,000 live births for children of White mothers and {f1(RML['Parda'])} for children of Brown "
+        f"mothers (White to Brown {jr('mother_over_mother', 'white')}; Black to Brown {jr('mother_over_mother', 'black')}). Certified deaths over births by the "
+        f"mother's race, the usual way the rate is computed, gave {jr('certified_over_mother', 'white')} and {jr('certified_over_mother', 'black')}; certified "
+        f"deaths over births reclassified as households classify infants gave {jr('certified_over_child', 'white')} and {jr('certified_over_child', 'black')}. "
+        "The reversal came almost entirely from Brown mothers' infants certified White, partly offset by White mothers' infants certified Brown, and held in "
+        f"every year, age at death and cause. Counted by the mother's race, {n0(D2['absolute']['mother']['brown']['excess_deaths'])} infant deaths of Brown "
+        "mothers' children exceeded the White mothers' rate in 2013-2023; by the usual indicator there was a deficit.")
+para(d, "Conclusion: The usual infant mortality rate by race divides deaths classified by the child's race by births classified by the mother's, and the "
+        "mismatch reverses the White to Brown inequality; classified consistently, by the mother or by the child, the children of Brown mothers die more often. "
+        "Black infants' excess relative to Brown persisted by the mother's race and fell below parity on the certificate even over the child's births.")
 para(d, "Keywords: Infant Mortality; Child Mortality; Race Factors; Health Status Indicators; Vital Statistics; Medical Record Linkage; Brazil.")
 
 d.add_heading("Introduction", level=1)
@@ -99,21 +111,27 @@ para(d, f"The mother's race for each death. Infant deaths of 2013-2023 ({n0(I['c
 para(d, "Rates. Infant mortality: deaths of 2013-2023 over live births of the same years, per 1,000. At 1-4 and 5-9 years: deaths of 2013-2024 of children born in "
         "2012-2023 over the person-years those birth cohorts contribute at each age, per 100,000; the 5-9 year rates therefore cover the cohorts born in 2012-2019. Births "
         "with no race or of Yellow (Asian) mothers enter no race's rate.")
-para(d, "Four ways of computing a rate. (1) Mother's race: deaths and births (or person-years) by the mother's race. (2) Certified race over births: certified deaths over "
-        "births by the mother's race, the usual way infant mortality by race is computed from the two systems. (3) Certified race over a census-based population: certified "
-        "deaths over the population by race of a modelled population account in which census years are census counts and children born after 2010 take their cohort's "
-        "race shares in the 2022 Census carried back by the state's rate of reclassification (Supplementary Text S2); at 1-4 years it was computed for 2016-2024, when every "
-        "child of that age was born in 2012 or later. (4) Family's classification: deaths and births by mother's race passed through the proportions in which households "
-        "classify children by the mother's race at the same age in the 2010 Census.")
+para(d, "Two classifications in each term. The numerator was classified by the mother's race (linked deaths scaled to all certificates by certified race, "
+        "since the linked share differs by race) or by the race on the certificate, which concerns the child. The denominator was classified by the mother's "
+        "race (live births of the same years) or by the child's race, obtained by passing the births of each mother's race through the proportions in which "
+        "households classify children under one year of mothers of that race in the 2010 Census, nationally and by region. The four combinations form a 2 x 2: "
+        "consistent by the mother, consistent by the child (certified deaths over the child's births), and the two mixed ones, of which certified deaths over "
+        "births by the mother's race is the usual way infant mortality by race is computed from the two systems. A modelled census-based population and the "
+        "family's classification applied to deaths and births are reported in the supplement.")
+para(d, "Decomposition. Starting from deaths and births by the mother's race, the certificate's flows were switched on one at a time (Brown mothers' infants "
+        "certified White, White mothers' certified Brown, Black mothers' certified Brown, Brown mothers' certified Black, Indigenous mothers' certified Brown), "
+        "then the deaths with no race on the certificate, then the denominator by the child's race. The 2 x 2 was repeated by age at death (neonatal 0-27 days, "
+        "post-neonatal), cause group (perinatal, congenital, infectious or respiratory, external, ill-defined, other), year of death, region, and standardised "
+        "to the regions (Mantel-Haenszel). Absolute measures: rate differences and the deaths above the White mothers' rate.")
 para(d, f"Regions. For each of the 510 immediate regions, deaths of White and Brown mothers' infants (linked deaths scaled to all deaths of the region) and certified White "
         f"and Brown infant deaths were modelled as Poisson counts with the births by the mother's race as exposure, a fixed White term, and Besag-York-Mollié (BYM2) "
         f"effects {cite('besag1991', 'riebler2016')} for the region and for the region's White to Brown contrast, on a graph joining regions whose municipalities share a "
         "border, with penalised-complexity priors; fitted by integrated nested Laplace approximation (Gaussian approximation, empirical Bayes) "
         f"{cite('rue2009', 'lindgren2015')}. Each region's log ratio is the fixed White term plus the region's contrast effect; a ratio is called credible when it has "
         f"{CRED}. The ratio of the certified to the mother's-race rate ratio measures how much the certificate changes the inequality relative to the mother's race.")
-para(d, "Primary and secondary analyses. The primary contrast is the infant White to Brown ratio by the mother's race against the ratio by certified race over the same "
-        "births. The Black to Brown ratios, the ratios after infancy, the census-based and family's ratios and the regional ratios are secondary and exploratory.")
-para(d, "Uncertainty and sensitivity. National ratios carry the larger of the Poisson standard error and a delete-one-state jackknife; neither includes the error of the "
+para(d, "Analyses. The study is descriptive. The 2 x 2 for infants is the main result; the strata, the ratios after infancy and the regional ratios are "
+        "exploratory.")
+para(d, "Uncertainty and sensitivity. National ratios of the 2 x 2 carry delete-one-state jackknife intervals, which reflect the variation between states but not the error of the "
         "linkage or of the population account, and the census-based and family's ratios carry no interval. Sensitivity: deaths with no race on "
         "the certificate given the mother's race; municipalities of 25,600 or more births included; the share of the deceased found among the candidates differing by up to 10 "
         "points between White and Brown mothers. Ethics: public, anonymised data; under Resolution 510/2016 of the National Health Council no review was required.")

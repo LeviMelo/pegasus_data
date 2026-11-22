@@ -30,11 +30,20 @@ para(s, "The racial composition of five-year birth cohorts at the censuses of 20
         "censuses and through the change of the 2022 questionnaire; the comparison between the first census of a cohort aged 0-4 and later ones also compares a race reported "
         "for small children by an adult of the household with one reported for adults. The analysis describes the cohorts and does not separate these explanations.")
 figure(s, "regional_ratios_1to9", "Supplementary Figure S1 - White to Brown mortality rate ratio by region under the three classifications, ages 1-4 and 5-9, Brazil, 2013-2024",
-       ["Bars: 95% confidence intervals; n.e.: a ratio by the mother's race with a standard error above 0.35 of the estimate (the rule of Supplementary Table S2), not drawn."])
+       ["Bars: 95% confidence intervals; n.e.: a ratio by the mother's race with a standard error above 0.35 of the estimate (the rule of Supplementary Table S4), not drawn."])
+rows = []
+for grp, blocks in (("Age at death", D2["by_period"]), ("Cause", D2["by_cause"]), ("Year", D2["by_year"])):
+    for k, v in blocks.items():
+        rows.append([grp, str(k)] + [f2(v[c][r]) for c in ("mother_over_mother", "certified_over_mother", "certified_over_child") for r in ("white", "black")])
+table(s, "Supplementary Table S1 - Infant mortality rate ratios against Brown by age at death, cause and year, with deaths and births classified by the mother's "
+         "race or the child's, Brazil, 2013-2023",
+      ["Group", "Class", "Mother's: White", "Mother's: Black", "Usual: White", "Usual: Black", "Child's: White", "Child's: Black"], rows,
+      ["Mother's: deaths and births by the mother's race. Usual: certified deaths over births by the mother's race. Child's: certified deaths over births "
+       "classified as households classify infants."])
 RTs = MS["top"] + MS["bottom"]
 rows = [[r["name"], r["uf"], f2(r["white_share"]), n0(r["gdp_pc"]), f2(math.exp(r["mother_log_rr"])), f2(math.exp(r["certificate_log_rr"])), f2(math.exp(r["misstated"]))]
         for r in RTs]
-table(s, "Supplementary Table S1 - The 25 immediate regions where the certificate most raises the White to Brown infant mortality rate ratio, and the 10 where it most lowers it relative to the mother's race, "
+table(s, "Supplementary Table S2 - The 25 immediate regions where the certificate most raises the White to Brown infant mortality rate ratio, and the 10 where it most lowers it relative to the mother's race, "
          "Brazil, 2013-2023",
       ["Immediate region", "State", "Share of White births", "GDP per capita (R$)", "Rate ratio, mother's race", "Rate ratio, certified race", "Certified over mother's"], rows,
       ["Rate ratios: posterior means of a Poisson BYM2 model over the 510 immediate regions. All regions are in Supplementary Data 2."])
@@ -47,10 +56,17 @@ for u, x in C19["by_state"].items():
     rows.append([u, n0(x["rates"]["deaths"]), ci(rm, log=True) if ok else "not estimable", ci(rce, log=True), f2(fam(CEN["by_state"][u], "Parda", "Branca")),
                  f2(cell(iu, "Parda", "Branca")["est"]) if iu and "Parda" in iu["rows"] else "-", f2(fam(CEN["by_state"][u], "Preta", "Preta")),
                  f2(cell(iu, "Preta", "Preta")["est"]) if iu and "Preta" in iu["rows"] else "-"])
-table(s, "Supplementary Table S2 - White to Brown mortality rate ratio at 1-9 years by the mother's race and by certified race, and classification of the children of Brown and "
+table(s, "Supplementary Table S4 - White to Brown mortality rate ratio at 1-9 years by the mother's race and by certified race, and classification of the children of Brown and "
          "Black mothers by families and on infant death certificates, by state, Brazil",
       ["State", "Deaths at 1-9 years", "Ratio, mother's race (95%CI)", "Ratio, certified race (95%CI)", "Brown mother, child White: family (ages 1-9)",
        "Brown mother, child White: certificate (under 1)", "Black mother, child Black: family", "Black mother, child Black: certificate"], rows,
       ["95%CI: 95% confidence interval. Not estimable: standard error above 0.35 of the estimate."])
+rows = [["Under 1 year", f2(IR["ratio_certificate_population"]), f2(IR["ratio_household"]["Branca"])],
+        ["1-4 years (2016-2024)", f2(CONV["ratio_certificate_population"]), f2(C14["ratio_household"]["Branca"])],
+        ["5-9 years", "-", f2(C59["ratio_household"]["Branca"])]]
+table(s, "Supplementary Table S3 - White to Brown mortality rate ratio with certified deaths over a modelled census-based population, and with deaths and births "
+         "passed through the family's classification, Brazil", ["Age", "Certified over census-based population", "Family's classification"], rows,
+      ["Census-based population: a cohort-component account (Supplementary Text S2); no interval. Family's classification: deaths and births by the mother's race "
+       "passed through the households' classification of children of the same age, 2010 Census; no interval."])
 # ----------------------------------------------------------------- space, context and the linkage's reporting
 s.save(OUT / "supplement.docx")
