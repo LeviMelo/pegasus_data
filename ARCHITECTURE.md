@@ -419,7 +419,8 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
 - `_dictionary.py`: `DataDictionary`, the dictionary of a fetched table.
 - `_translate.py`: `translate()`, labels for a user's own files.
 - `_unknowns.py`: `gaps()`, `questions()`.
-- `_compendium.py`: `compendium()`, the map of everything the package holds and can do, as a SQLite file; `current()` keeps the home's copy (`_catalog/compendium.sqlite`) fresh; `entries` is the index `search()` reads (ADR-0216).
+- `_compendium.py`: `compendium()`, the map of everything the package holds and can do, as a SQLite file; `current()` keeps the home's copy (`_catalog/compendium.sqlite`) fresh, serving a stale one while one detached process rebuilds it; `entries` is the index `search()` reads (ADR-0216).
+- `_manual.py`: `write_manual()`, the map written as text files to grep (`<home>/manual/`: `INDEX.md`, a page per dataset, per dataset's columns and roles, per link, and pages for fields, products, operations and SIDRA tables); `pegasus-data info` with no target prints `INDEX.md` (docs/plans/agent-interface.md).
 - `_search.py`: `search()`, over the catalog's docs and the shipped label pack (ADR-0069).
 - `_resources.py`: resource status, validation, `ensure`, `build` (the local resources `curation/resources.yml` declares).
 - `labelpack.py`: distils the catalog's labels into `resources/labels.parquet`; `packed_fingerprint` is the digest of the rows a system reads of one codelist, in every window (ADR-0202).

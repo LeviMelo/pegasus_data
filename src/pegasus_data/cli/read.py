@@ -202,6 +202,24 @@ def compendium_cmd(
     console.print(str(report))
 
 
+@app.command(name="manual", rich_help_panel="UNDERSTAND")
+def manual_cmd(root: RootOpt = None, as_json: JsonOpt = False) -> None:
+    """Write the manual: the home's map as text files to grep and read (`<home>/manual/`, `INDEX.md` first).
+
+    One page per dataset, per dataset's columns and roles, per link, and pages for the context fields, products,
+    operations and SIDRA tables, generated from the map (rebuilt first when stale). The map's background rebuild
+    writes it too."""
+    from .._manual import manual_dir, write_manual
+    from ..config import load_settings
+
+    counts = write_manual(root=root)
+    where = manual_dir(load_settings(root=root))
+    if as_json:
+        _emit({"manual": str(where), **counts}, True)
+        return
+    console.print(f"manual written to {where}: " + ", ".join(f"{v} {k}" for k, v in counts.items()))
+
+
 @app.command(name="roles", rich_help_panel="UNDERSTAND")
 def roles_cmd(
     dataset: Annotated[str, typer.Argument(help="A dataset: SIM-DO, SINASC-DN, SIH-RD, CIHA, SINAN-DENG ...")],
@@ -505,17 +523,29 @@ def grade_cells_cmd(
 def info_cmd(
     target: Annotated[str | None, typer.Argument(help="System, dataset or variable: SIH, SIH-RD, SIH.RD")] = None,
     field: Annotated[str | None, typer.Option("--field", help="A column within the target")] = None,
+    everything: Annotated[bool, typer.Option("--all", help="With no target: the whole overview, every dataset on a line")] = False,
     root: RootOpt = None,
     as_json: JsonOpt = False,
 ) -> None:
-    """What a system, dataset or variable IS — identity, evidence and coverage; with no target, everything this
-    install holds and can do (every dataset, context field, link, aggregate and operation, with the call for each).
+    """What a system, dataset or variable IS — identity, evidence and coverage. With no target, the manual's index (a
+    page: what kinds of things this install holds and where to read on, `pegasus-data manual`); ``--all`` the whole
+    overview (every dataset, context field, link, aggregate and operation, with the call for each; about 17,000 tokens).
 
     ``explore`` says what is out there to fetch and ``dictionary`` says what a
     column means. This says what a thing *is*, at any level of the ontology.
     """
     from .._info import info as _info
 
+    if target is None and field is None and not everything and not as_json:
+        from .._manual import manual_dir, write_manual
+        from ..config import load_settings
+
+        index = manual_dir(load_settings(root=root)) / "INDEX.md"
+        if not index.is_file():
+            write_manual(root=root)
+        typer.echo(index.read_text(encoding="utf-8") + f"\n(the manual: {index.parent}; `pegasus-data info --all` "
+                   "prints the whole overview)")
+        return
     answer = _info(target, field_name=field, root=root)
     if as_json:
         _emit(answer.as_dict(), True)

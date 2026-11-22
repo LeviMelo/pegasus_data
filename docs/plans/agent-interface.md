@@ -41,3 +41,7 @@ database because the generator and `search` need one; agents get its text.
 | M4 live check: a fresh agent answers five real questions from the manual alone (thrombectomy codes by year, SIH–SIM linked mortality, tract income, CNES months held, TISS) | each answer is right and cites its page; tokens read are recorded |
 
 Map latency (OQ #100) comes first: a manual rebuilt with a 6-minute map is rebuilt rarely.
+
+## State (2026-11-22)
+
+M1 and M2 done: `pegasus-data manual` writes `<home>/manual/` (180 dataset pages, 19 links, 150 fields, 50 products, 227 operations, 9,336 SIDRA tables; 6.8 MB). `INDEX.md` is 3.3 KB, about 850 tokens. The map's background rebuild rewrites the manual, and `info` prints the index. Codes are found by `search`, not by grep. M3 (the skill) and M4 (the live check) are open.

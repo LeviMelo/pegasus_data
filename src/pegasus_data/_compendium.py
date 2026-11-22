@@ -659,8 +659,9 @@ def rebuilding(cfg: Settings) -> int | None:
 
 
 def _rebuild_detached(cfg: Settings) -> None:
-    """Start one detached rebuild of the home's map unless one is running. It writes beside the map and replaces it in
-    one rename (`compendium`), so a reader sees the old map or the new one."""
+    """Start one detached rebuild of the home's map, and of the manual written from it (`pegasus-data manual`), unless
+    one is running. Each is written beside the old one and replaces it in one rename, so a reader sees the old or the
+    new, never half."""
     import subprocess
     import sys
 
@@ -671,7 +672,7 @@ def _rebuild_detached(cfg: Settings) -> None:
     env = {**os.environ, "PEGASUS_DATA_HOME": str(cfg.catalog_dir.parent), "PYTHONUTF8": "1"}
     flags = (subprocess.DETACHED_PROCESS | subprocess.CREATE_NEW_PROCESS_GROUP) if os.name == "nt" else 0
     with log.open("ab") as out:
-        child = subprocess.Popen([sys.executable, "-m", "pegasus_data.cli", "compendium"], stdout=out, stderr=out,
+        child = subprocess.Popen([sys.executable, "-m", "pegasus_data.cli", "manual"], stdout=out, stderr=out,
                                  stdin=subprocess.DEVNULL, env=env, creationflags=flags, close_fds=True)
     _lock_path(cfg).write_text(str(child.pid), encoding="utf-8")
 
