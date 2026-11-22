@@ -164,7 +164,7 @@ def series_documentation(name: str) -> dict[str, object]:
 #: The column that carries each stratification axis in a materialised series.
 #: An axis is available when ONE of its columns is in the files.
 _AXIS_COLUMNS: dict[str, tuple[str, ...]] = {
-    "municipality": ("municipality",),
+    "municipality": ("municipality", "muncod"),   # the census covariates name it muncod (6 digits, string)
     "uf": ("uf", "ufcod"),   # projpop files built before 2026-11-21 name the state by its file column, ufcod
     "year": ("year",),
     "sex": ("sex",),

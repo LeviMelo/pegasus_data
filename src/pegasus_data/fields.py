@@ -74,6 +74,11 @@ def _years(text: str) -> list[int]:
     return out
 
 
+def declared_years(spec: dict[str, Any]) -> list[int]:
+    """The years a field declares (``years:``), or none when it declares none."""
+    return _years(spec["years"]) if str(spec.get("years") or "").strip() else []
+
+
 def _classification(spec: dict[str, Any]) -> str:
     """IBGE's ``classificacao`` parameter as the source string: ``59[1023]|2[6794]``; omitted ones are its Total."""
     chosen = spec.get("classification") or {}
@@ -636,16 +641,54 @@ def _write_by_year(table: pa.Table, name: str, settings: Any, prune: bool = Fals
 def load_field(name: str, *, years: list[int] | int | None = None, settings: Any = None) -> pa.Table:
     """One field as (municipality, year, value, status, unit), from the lake. A field declared ``grain: month`` also has a
     ``month`` (1-12) and one row per municipality and month that has records: a year is the sum of its months (``law: sum``),
-    a municipality-month without records has no row (missing, never 0)."""
+    a municipality-month without records has no row (missing, never 0).
+
+    ``years`` are integers; one the field does not hold is refused with the years it holds (an empty table must not look
+    like a field with no value that year), as `load_population` does."""
+    if name not in declared_fields():
+        raise KeyError(f"unknown field {name!r}; declared: {sorted(declared_fields())}")
+    wanted = [years] if isinstance(years, numbers.Integral) else years
+    if wanted is not None:
+        if isinstance(wanted, (str, bytes)) or not all(isinstance(y, numbers.Integral) for y in wanted):
+            raise TypeError(f"years must be integers (2019, [2018, 2019], range(2018, 2020)); got {years!r}")
+        wanted = [int(y) for y in wanted]
+    spec = declared_fields()[name]
+    declared = _years(spec["years"]) if str(spec.get("years") or "").strip() else None
+    if wanted and declared is not None and (absent := [y for y in wanted if y not in declared]):
+        raise ValueError(f"field {name!r} holds no data for {absent}; it holds {declared}")
+    table = _load_field(name, spec, wanted, settings)
+    if wanted and "year" in table.column_names:
+        got = set(table.column("year").to_pylist())
+        if absent := [y for y in wanted if y not in got]:
+            held = _held_years(name, spec, settings)
+            raise ValueError(f"field {name!r} holds no data for {absent}; it holds {held if held else 'no year'}")
+    return table
+
+
+def _held_years(name: str, spec: dict[str, Any], settings: Any) -> list[int]:
+    """The years `load_field` serves for ``name``: a field stored by year as its folders name them, any other as the years
+    of what it answers (read whole; this is the error path and the compendium's)."""
+    from .config import load_settings
+
+    settings = settings or load_settings()
+    directory = Path(settings.lake_dir) / "fields" / name
+    kinds = (cube_of(spec), intake_cube(name, spec), cnes_cube(name, spec), spec.get("measure") if spec.get("source") == "brdwgd" else None)
+    if cnes_cube(name, spec) is not None and declared_years(spec):   # its rows are the declared years, one per municipality
+        return declared_years(spec)
+    if directory.is_dir() and not any(kinds):
+        return sorted(int(p.name.split("=", 1)[1]) for p in directory.glob("year=*") if p.name.split("=", 1)[1].isdigit())
+    try:
+        return sorted(set(_load_field(name, spec, None, settings).column("year").to_pylist()))
+    except (LookupError, FileNotFoundError, ValueError):
+        return []
+
+
+def _load_field(name: str, spec: dict[str, Any], wanted: list[int] | None, settings: Any) -> pa.Table:
     import pyarrow.dataset as ds
 
     from .config import load_settings
 
-    if name not in declared_fields():
-        raise KeyError(f"unknown field {name!r}; declared: {sorted(declared_fields())}")
     settings = settings or load_settings()
-    spec = declared_fields()[name]
-    wanted = [years] if isinstance(years, numbers.Integral) else years
     if cube_of(spec) is not None:                 # a SIDRA or series field is its cube, read from the fact store
         return _field_from_cube(name, spec, wanted, settings)
     plan = intake_cube(name, spec)
@@ -658,12 +701,6 @@ def load_field(name: str, *, years: list[int] | int | None = None, settings: Any
         return _field_from_climate(name, spec, wanted, settings)
     register = rows_view(name, spec)
     if register is not None:                      # a register (S2iD's events) is its landed records, renamed
-        # only the years the field declares: a register that begins in 2023 (ANS's remuneration models) asked for 2022 holds no
-        # publication of it, and the query would raise "nothing published" instead of answering empty
-        if wanted and str(spec.get("years") or "").strip():
-            wanted = [y for y in wanted if y in _years(spec["years"])]
-            if not wanted:
-                return pa.table({**{alias: pa.array([], pa.string()) for alias in register["rows"]}, "year": pa.array([], pa.int32())})
         return _field_from_rows(register, wanted, settings)
     margins = margins_view(name, spec)
     if margins is not None:                       # margins published as columns (INEP's) are one cube per column
@@ -672,6 +709,5 @@ def load_field(name: str, *, years: list[int] | int | None = None, settings: Any
     if not directory.exists():
         raise FileNotFoundError(f"field {name!r} is not in the lake; run `pegasus-data fields --name {name}`")
     dataset = ds.dataset(directory, format="parquet", partitioning="hive")
-    wanted = [years] if isinstance(years, numbers.Integral) else years
     expression = ds.field("year").isin(wanted) if wanted else None
     return dataset.to_table(filter=expression)

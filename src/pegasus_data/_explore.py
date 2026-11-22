@@ -26,6 +26,7 @@ minute for the whole tree).
 
 from __future__ import annotations
 
+import json
 import numbers
 import textwrap as _textwrap
 from collections.abc import Sequence
@@ -466,12 +467,17 @@ def _span(years: list[Any]) -> str:
 
 
 def lake_coverage(dataset: str, *, root: str | Path | None = None,
-                  settings: Settings | None = None) -> dict[int, dict[str, int | list[str]]]:
+                  settings: Settings | None = None) -> dict[int, dict[str, Any]]:
     """What the lake already holds of ``dataset``, by year: partitions, states, rows and bytes (the catalog's
     ``lake_partitions`` whose Parquet is on disk). A caller deciding what a reading costs needs it beside ``explore``'s
     published volume: a year in the lake is read in seconds, a year outside it is a download and a decode. A partition
     the catalog records and the disk no longer holds is not the lake's: 448 of SIH-RD's 487 had been deleted and still
-    counted, so a study priced national SIH years as free and its lanes, forbidden to download, failed (2026-10-15)."""
+    counted, so a study priced national SIH years as free and its lanes, forbidden to download, failed (2026-10-15).
+
+    A year SIM and SINASC publish both nationally and per state is on disk twice; the rows, partitions and bytes are of the
+    one reading a query opens (`coverage.national_or_states`), and ``also_on_disk`` of that year names the other copy."""
+    from ._query_engine.coverage import declared_widths, national_or_states
+
     resolved = settings or load_settings(root=Path(root) if root else None)
     system, series = _resolve(dataset)
     if not system:
@@ -480,17 +486,33 @@ def lake_coverage(dataset: str, *, root: str | Path | None = None,
     store = CatalogStore(resolved.catalog_path, read_only=True)
     try:
         lake = Path(resolved.lake_dir)
-        rows = [r for r in store.query("SELECT family_id, year, uf, row_count, byte_size, relative_path FROM lake_partitions")
+        rows = [r for r in store.query("SELECT family_id, year, uf, row_count, byte_size, relative_path, source_paths "
+                                       "FROM lake_partitions")
                 if str(r["family_id"]).startswith(prefix) and (lake / str(r["relative_path"])).exists()]
+        widths = declared_widths(store)
     finally:
         store.close()
-    out: dict[int, dict[str, Any]] = {}
+    # a year DATASUS publishes both as a national file and as its state files is on disk twice (the same records); one
+    # reading is what a query opens and what this counts (`national_or_states`), the other is reported beside it
+    by_year: dict[int, list[Any]] = {}
     for r in rows:
-        y = out.setdefault(int(r["year"]), {"partitions": 0, "ufs": set(), "rows": 0, "bytes": 0})
-        y["partitions"] += 1
-        y["ufs"].add(str(r["uf"]))
-        y["rows"] += int(r["row_count"] or 0)
-        y["bytes"] += int(r["byte_size"] or 0)
+        by_year.setdefault(int(r["year"]), []).append(r)
+    out: dict[int, dict[str, Any]] = {}
+    for year, items in by_year.items():
+        reading = national_or_states(items, lambda r: r["uf"], sources_of=lambda r: json.loads(r["source_paths"] or "[]"),
+                                     widths=widths)
+        kept = {id(r) for r in reading}
+        y = out.setdefault(year, {"partitions": 0, "ufs": set(), "rows": 0, "bytes": 0})
+        for r in reading:
+            y["partitions"] += 1
+            y["ufs"].add(str(r["uf"]))
+            y["rows"] += int(r["row_count"] or 0)
+            y["bytes"] += int(r["byte_size"] or 0)
+        second = [r for r in items if id(r) not in kept]
+        if second:
+            y["also_on_disk"] = {"partitions": len(second), "rows": sum(int(r["row_count"] or 0) for r in second),
+                                 "uf_codes": sorted({str(r["uf"]) for r in second}),
+                                 "note": "the same records as the other representation, not counted"}
     # the states held by name too: a year built from a national file holds the one partition "BR" where the server
     # publishes 27 state files beside it, and is whole all the same
     return {k: {**v, "ufs": len(v["ufs"]), "uf_codes": sorted(v["ufs"])} for k, v in sorted(out.items())}

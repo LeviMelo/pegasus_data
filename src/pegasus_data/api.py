@@ -38,7 +38,7 @@ from ._query_engine.readplan import (
 from ._query_engine.request import ReadRequest, finish, public_form, rows_expression
 from .catalog.store import CatalogStore as _Store
 from .conditions import CONDITION
-from .config import Settings, load_settings
+from .config import UF_NUMERIC, UF_TO_NUMERIC, Settings, load_settings
 from .lookups import _single_lookup
 from .normalize.engine import MissingColumnError
 from .persist.duck import DuckLake
@@ -56,6 +56,7 @@ from .semantics.dictionary import (
 )
 from .semantics.label_bindings import field_decision
 from .sources.ibge import (
+    _AXIS_COLUMNS,
     KNOWN_SERIES,
     SERIES_METADATA,
     UnsupportedStratification,
@@ -1010,8 +1011,14 @@ def load_population(
     """
     if isinstance(years, numbers.Integral):
         years = [years]
+    elif years is not None:
+        years = list(years) if not isinstance(years, (str, bytes)) else years
+        if isinstance(years, (str, bytes)) or not all(isinstance(y, numbers.Integral) for y in years):
+            raise TypeError(f"years must be integers (2010, [2010, 2011], range(2010, 2013)); got {years!r}")
     if isinstance(uf, str):
         uf = [uf]
+    if uf is not None:
+        uf = _state_codes(uf)   # None: the nation (BR), no state filter
     spec = KNOWN_SERIES.get(series)
     if spec is None:
         raise KeyError(f"unknown population series {series!r}; known: {sorted(KNOWN_SERIES)}")
@@ -1032,19 +1039,28 @@ def load_population(
     dataset = pads.dataset(directory, format="parquet", partitioning="hive")
     expression = None
     if uf is not None:
-        ufs = [uf] if isinstance(uf, str) else list(uf)
-        if "uf" in dataset.schema.names:
-            expression = pads.field("uf").isin(ufs)
-        elif "municipality" in dataset.schema.names:
+        names = dataset.schema.names
+        state_column = next((c for c in _AXIS_COLUMNS["uf"] if c in names), None)
+        municipality_column = next((c for c in _AXIS_COLUMNS["municipality"] if c in names), None)
+        if state_column is not None:
+            # the state as the files file it: the two-digit IBGE code (projpop's ufcod) or, where a file names it so, the sigla
+            siglas = [UF_NUMERIC[code] for code in uf]
+            expression = pads.field(state_column).isin([*uf, *siglas])
+        elif municipality_column is not None:
             # the state is the municipality code's first two digits, whatever its width (6 as IBGE filed it before 2017, 7 now)
-            from .geography import _uf_codes
+            field_ = pads.field(municipality_column)
+            if pa.types.is_string(dataset.schema.field(municipality_column).type):
+                import pyarrow.compute as pc
 
-            field_ = pads.field("municipality")
-            for code in _uf_codes(ufs):
-                for width in held.code_widths or (7,):
-                    span = 10 ** (width - 2)
-                    clause = (field_ >= code * span) & (field_ < (code + 1) * span)
+                for code in uf:
+                    clause = pc.starts_with(field_, code)
                     expression = clause if expression is None else (expression | clause)
+            else:
+                for code in map(int, uf):
+                    for width in held.code_widths or (7,):
+                        span = 10 ** (width - 2)
+                        clause = (field_ >= code * span) & (field_ < (code + 1) * span)
+                        expression = clause if expression is None else (expression | clause)
         else:
             raise ValueError(f"population series {series!r} has neither uf nor municipality to filter by")
     if years is not None and "year" in dataset.schema.names:
@@ -1057,6 +1073,22 @@ def load_population(
                  "documentation": series_documentation(series) or "undocumented: no document has been read"}
     return table.replace_schema_metadata({**(table.schema.metadata or {}),
                                           SERIES_METADATA: json.dumps(described, ensure_ascii=False).encode("utf-8")})
+
+
+def _state_codes(values: Sequence[str]) -> list[str] | None:
+    """The two-digit IBGE codes of states given by sigla or code; ``None`` when the nation (``BR``) is among them (no
+    state filter). A value that is not a state (a municipality code, a typo) is refused: it would select nothing."""
+    codes: list[str] = []
+    for value in values:
+        text = str(value).strip().upper()
+        if text == "BR":
+            return None
+        code = UF_TO_NUMERIC.get(text, text)
+        if code not in UF_NUMERIC:
+            raise ValueError(f"{value!r} is not a state: give a sigla (\"AL\"), a two-digit IBGE state code (\"27\") or \"BR\"")
+        if code not in codes:
+            codes.append(code)
+    return codes
 
 
 def _one_sex_coding(table: pa.Table) -> pa.Table:

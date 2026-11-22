@@ -271,7 +271,15 @@ def _geography(value: object) -> Geography | None:
         return None
     def ufs(items: object) -> tuple[str, ...]:
         parts = items.replace(";", ",").split(",") if isinstance(items, str) else list(cast("Iterable[object]", items))
-        return tuple(dict.fromkeys(str(p).strip().upper() for p in parts if str(p).strip()))
+        found = tuple(dict.fromkeys(str(p).strip().upper() for p in parts if str(p).strip()))
+        if "BR" in found and len(found) > 1:
+            # the nation contains every state: reading both would read the state twice
+            import warnings
+
+            warnings.warn(f"geography {list(found)} names the nation (BR) and states it contains; "
+                          "reading the nation alone", UserWarning, stacklevel=4)
+            return ("BR",)
+        return found
 
     if isinstance(value, str):
         return Geography(ufs=ufs(value))
