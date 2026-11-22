@@ -32,14 +32,16 @@ para(s, "The racial composition of five-year birth cohorts at the censuses of 20
 figure(s, "regional_ratios_1to9", "Supplementary Figure S1 - White to Brown mortality rate ratio by region under the three classifications, ages 1-4 and 5-9, Brazil, 2013-2024",
        ["Bars: 95% confidence intervals; n.e.: a ratio by the mother's race with a standard error above 0.35 of the estimate (the rule of Supplementary Table S4), not drawn."])
 rows = []
-for grp, blocks in (("Age at death", D2["by_period"]), ("Cause", D2["by_cause"]), ("Year", D2["by_year"])):
+for grp, blocks in (("Age at death", D2["by_period_jack"]), ("Cause", D2["by_cause_jack"]), ("Year", D2["by_year_jack"])):
     for k, v in blocks.items():
-        rows.append([grp, str(k)] + [f2(v[c][r]) for c in ("mother_over_mother", "certified_over_mother", "certified_over_child") for r in ("white", "black")])
+        rows.append([grp, str(k)] + [f"{v[c][r]['est']:.2f} ({v[c][r]['est'] * math.exp(-1.96 * v[c][r]['se'] / v[c][r]['est']):.2f}; "
+                                     f"{v[c][r]['est'] * math.exp(1.96 * v[c][r]['se'] / v[c][r]['est']):.2f})"
+                                     for c in ("mother_over_mother", "certified_over_mother", "certified_over_child") for r in ("white", "black")])
 table(s, "Supplementary Table S1 - Infant mortality rate ratios against Brown by age at death, cause and year, with deaths and births classified by the mother's "
          "race or the child's, Brazil, 2013-2023",
       ["Group", "Class", "Mother's: White", "Mother's: Black", "Usual: White", "Usual: Black", "Child's: White", "Child's: Black"], rows,
       ["Mother's: deaths and births by the mother's race. Usual: certified deaths over births by the mother's race. Child's: certified deaths over births "
-       "classified as households classify infants."])
+       "classified as households classify infants. In parentheses, 95% confidence intervals from a delete-one-state jackknife on the log scale."])
 RTs = MS["top"] + MS["bottom"]
 rows = [[r["name"], r["uf"], f2(r["white_share"]), n0(r["gdp_pc"]), f2(math.exp(r["mother_log_rr"])), f2(math.exp(r["certificate_log_rr"])), f2(math.exp(r["misstated"]))]
         for r in RTs]

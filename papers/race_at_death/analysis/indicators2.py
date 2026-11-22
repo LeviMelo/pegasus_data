@@ -136,6 +136,13 @@ OUT["by_region"] = {rg: four(L[L.region == rg], births_by(region=c), rg) for c, 
 OUT["by_period"] = {p: four(L[L.period == p], births_by()) for p in ("neonatal", "post-neonatal")}
 OUT["by_cause"] = {c: four(L[L.cause_group == c], births_by()) for c in sorted(L.cause_group.unique())}
 OUT["by_year"] = {int(y): four(L[L.year == y], births_by(years=[y])) for y in range(2013, 2024)}
+# the same strata with delete-one-state jackknife errors (the point estimates above are unchanged)
+OUT["by_year_jack"] = {int(y): jack(lambda u, y=y: four(L[L.year == y] if u is None else L[(L.year == y) & (L.uf != u)], births_by(u, years=[y])))
+                       for y in range(2013, 2024)}
+OUT["by_period_jack"] = {p_: jack(lambda u, p_=p_: four(L[L.period == p_] if u is None else L[(L.period == p_) & (L.uf != u)], births_by(u)))
+                         for p_ in ("neonatal", "post-neonatal")}
+OUT["by_cause_jack"] = {c: jack(lambda u, c=c: four(L[L.cause_group == c] if u is None else L[(L.cause_group == c) & (L.uf != u)], births_by(u)))
+                        for c in sorted(L.cause_group.unique())}
 # absolute measures, by the mother's race and certified
 ab = {}
 for k, d_ in (("mother", dm), ("certified", dc)):

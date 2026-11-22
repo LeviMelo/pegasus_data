@@ -40,8 +40,8 @@ para(d, f"Switching on the certificate's flows one at a time (Figure 2B), Brown 
 figure(d, "indicators_decomposition", "Figure 2 - Infant mortality rate ratios with deaths and births classified four ways (A), the ratios as each flow of the certificate "
                                       "is switched on (B), and the White to Brown ratio by year (C), Brazil, 2013-2023",
        ["A: 95% confidence intervals from a delete-one-state jackknife, log scale. B: from deaths and births by the mother's race to certified deaths over births "
-        "by the mother's race, then over births by the child's race. C: three of the four classifications of A, point estimates (the national "
-        "intervals of A are the scale of their uncertainty; yearly intervals were not computed)."])
+        "by the mother's race, then over births by the child's race. C: three of the four classifications of A, with yearly "
+        "delete-one-state jackknife intervals."])
 d.add_heading("Ages, causes, years and absolute measures", level=2)
 BP, BC = D2["by_period"], D2["by_cause"]
 para(d, f"The reversal held in every year of 2013-2023 (White to Brown by the mother's race {min(v['mother_over_mother']['white'] for v in D2['by_year'].values()):.2f}-"

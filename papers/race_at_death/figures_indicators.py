@@ -10,6 +10,7 @@ import matplotlib
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
+import numpy as np  # noqa: E402
 
 HERE = Path(__file__).parent
 O = json.loads((HERE / "results" / "indicators2.json").read_text(encoding="utf-8"))
@@ -42,8 +43,13 @@ ax.set_title("B. Each flow of the certificate in turn", fontsize=8, loc="left")
 ax.legend(fontsize=6.3, frameon=False)
 ax = axes[2]
 yrs = sorted(O["by_year"], key=int)
-for k, lab, col in CELLS[:3]:
-    ax.plot([int(y) for y in yrs], [O["by_year"][y][k]["white"] for y in yrs], "-o", color=col, ms=2.5)
+YJ = O["by_year_jack"]
+for j, (k, lab, col) in enumerate(CELLS[:3]):
+    xs = [int(y) + (j - 1) * 0.15 for y in yrs]
+    est = [YJ[y][k]["white"]["est"] for y in yrs]
+    lo = [e * np.exp(-1.96 * YJ[y][k]["white"]["se"] / e) for e, y in zip(est, yrs, strict=True)]
+    hi = [e * np.exp(1.96 * YJ[y][k]["white"]["se"] / e) for e, y in zip(est, yrs, strict=True)]
+    ax.errorbar(xs, est, yerr=[np.subtract(est, lo), np.subtract(hi, est)], fmt="-o", color=col, ms=2.2, lw=0.9, capsize=0.8, elinewidth=0.6)
 ax.axhline(1, color="#999999", lw=0.7)
 ax.set_xticks([2013, 2018, 2023])
 ax.set_ylabel("White to Brown")

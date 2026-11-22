@@ -91,7 +91,8 @@ para(d, f"Design and data. This is a {DESIGN}, reported according to the RECORD 
 para(d, "Population. Deaths at 15-24 years in 2015-2024 of people born in 2000-2009, residents of municipalities with fewer than 1,600 live births a year on "
         "average in 2000-2009, where a birth date, sex and municipality are shared by few other people. Causes (underlying cause, ICD-10): natural (A00-R99); "
         "transport accidents (V01-V99); suicide (X60-X84); assault by firearm (X93-X95); assault by other means (X85-Y09 otherwise); legal intervention "
-        "(Y35-Y36); other external causes.")
+        "(Y35-Y36); other external causes. The comparisons with birth (Table 1, Figures 2-3) class municipalities by their mean live births of 2012-2023, "
+        "those with the hospital (Figure 4) by their births of 2000-2009; the two sets are not identical.")
 para(d, "Race at birth and certified race. For each death, the live births of 2000-2009 with the same birth date, sex and municipality of residence are its "
         "candidates; the deceased is among them unless the family moved. The births of the other sex on the same day and in the same municipality cannot "
         "contain the deceased and estimate the chance candidates; their count, scaled by the ratio of births of the two sexes, was subtracted from the candidates "
