@@ -75,6 +75,12 @@ DATASUS's republications were replayed by setting each path's listing and latest
 | SIA APAC archives with a member not held (corrupt members above, or members of families not built) | 0.28 GB | 53 |
 | no family reads it: kits and documentation (CNES 0.13, IBGE 0.08, SIA 0.07) | 0.28 GB | 29 |
 | Dados Abertos copies of current-year publications, which DATASUS rewrites (released when the year is final) | 0.07 GB | 33 |
-| SIM preliminary files the lake holds that prune kept (to examine) | 0.02 GB | 4 |
 | other (a representation or national reading the build does not choose, no fetch row) | <0.01 GB | 17 |
+
+  - The 4 SIM files `prune` had kept (0.02 GB) were a rule gap. DATASUS lists SIM's 2025 DOEXT, DOMAT, DOFET and
+    DOINF byte-identical in `PRELIM/DOFET` and `CID10/DOFET`. The lake held the CID10 copy at the same digest, and
+    `prune` required every path a blob was fetched for. A blob is now held when any plain path holds its bytes, and
+    `read_version` reads the other path from that copy (`persist.versions.same_bytes`). Read so, all four equalled a
+    decode of their own blob in every column (156,883, 1,238, 25,073 and 29,904 rows), and were released: 132 blobs,
+    0.64 GB left.
 

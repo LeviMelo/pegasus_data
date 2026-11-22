@@ -296,6 +296,8 @@ def read_version(catalog: CatalogStore, lake_root: str | Path, source_id: str, s
     applied. Raises :class:`VersionUnavailable` when no chain of kept deltas leads there."""
     root = Path(lake_root)
     held, files = current_digest(catalog, root, source_id)
+    if held != sha and (copy := same_bytes(catalog, root, sha, source_id)) is not None:
+        return copy
     if held is None:
         raise VersionUnavailable(f"{source_id}: the lake holds no version of it")
     rows = {str(r["sha256"]): dict(r) for r in catalog.query(
@@ -332,6 +334,27 @@ def record_partition_digests(catalog: CatalogStore, lake_root: str | Path) -> in
                         "AND uf = ? AND year = ?", (digests, *key))
         done += 1
     return done
+
+
+def same_bytes(catalog: CatalogStore, lake_root: str | Path, sha: str, source_id: str) -> pa.Table | None:
+    """The rows of ``source_id`` at ``sha`` read from another source the lake holds at the same digest: DATASUS lists a
+    file in two directories (SIM's 2025 fetal, infant, maternal and external-cause files in both `PRELIM/DOFET` and
+    `CID10/DOFET`), one reading takes one, and the same bytes decode to the same records. Named as ``source_id``.
+    None when no source of a plain path holds those bytes."""
+    root = Path(lake_root)
+    for row in catalog.query("SELECT relative_path, source_digests FROM lake_partitions WHERE instr(source_digests, ?) > 0",
+                             (sha,)):
+        for other, digest in json.loads(row["source_digests"] or "{}").items():
+            if digest != sha or other == source_id or "!" in other or "!" in source_id:
+                continue
+            files = [root / str(r["relative_path"]) for r in partitions_holding(catalog, other)]
+            table = source_rows(files, other, sha)
+            if not table.num_rows:
+                continue
+            field = table.schema.field("_source_path")
+            name = pa.DictionaryArray.from_arrays(pa.array([0] * table.num_rows, pa.int32()), pa.array([source_id]))
+            return table.set_column(table.schema.get_field_index("_source_path"), field, name.cast(field.type))
+    return None
 
 
 def held_versions(catalog: CatalogStore) -> set[tuple[str, str]]:

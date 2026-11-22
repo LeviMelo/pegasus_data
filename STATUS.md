@@ -25,7 +25,7 @@ holds and can do, one space × time object, and the principles audits' defects c
   against its successor in the lake; a partition takes one month's new version carrying the others; `as_of` reads the
   lake; snapshots and queries land their downloads and release them; `prune` judges by version. Checked on a scratch
   home, then the real home migrated (evaluation 2026-11-22-versions-as-deltas): every download landed
-  or released, blobs 21.95 → 0.66 GB (kits and documentation, corrupt archive members, current-year copies), 258
+  or released, blobs 21.95 → 0.64 GB (kits and documentation, corrupt archive members, current-year copies), 258
   versions kept as deltas (46 MB), listed lake 29.9 → 39.5 GB.
 - **Storage and speed (2026-11-21/22).**
   - The record key is computed on read, not stored (ADR-0231).

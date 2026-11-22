@@ -297,8 +297,11 @@ class BlobStore:
             path = self.path_for(digest)
             if not path.is_file():
                 continue
-            if all(source in holders or source in by_path or (source, digest) in covered
-                   or held_archive(source, digest) for source in sources):
+            # the same bytes held under one plain path are held under every path they were fetched for: DATASUS lists a
+            # file in two directories, one reading takes one (`persist.versions.same_bytes` reads the other from it)
+            copy = any((source, digest) in covered for source in sources if "!" not in source)
+            if copy or all(source in holders or source in by_path or (source, digest) in covered
+                           or held_archive(source, digest) for source in sources):
                 size = path.stat().st_size
                 if not dry_run:
                     try:
