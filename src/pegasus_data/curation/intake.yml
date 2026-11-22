@@ -2197,6 +2197,80 @@ sources:
           where: {coverage: Médico-hospitalar}
           verified: {year: 2022, month: 12, medical_hospital: 50530569, equals: "ANS TabNet tabnet_02 Assistência Médica, 28 of 28 UF files", measured: 2026-10-04}
 
+  ans_beneficiaries_municipal:
+    system: ANS
+    series: BB
+    official_name: Beneficiários por município (ANS TabNet, base tb_bb)
+    translated_name: Beneficiaries of private health plans by municipality (ANS TabNet)
+    what: >
+      ANS's beneficiaries by municipality (the TabNet base behind "Beneficiários por Município"), the quarter-end stock of
+      private-plan beneficiaries from March 2000 to now: one row per month, state, municipality, sex, age band, contract type,
+      segmentation and plan period, with the count of beneficiaries of medical-hospital plans, of dental-only plans and their total.
+    one_row: the beneficiaries of one cell (month, municipality, sex, age band, contract type, segmentation, plan period)
+    unit_of_analysis: month x municipality x sex x age band x contract type x segmentation x plan period
+    use: denominator
+    why_no_event_type: >-
+      A stock of private-plan beneficiary links at the end of a quarter, by the cell's strata: not persons (someone with two plans
+      counts twice) and not events. It is the covered population that sus_dependent.py subtracts from the resident population.
+    known_biases: >-
+      The municipality is the beneficiary's residence as the operator registered it in the SIB, so a small place can hold more
+      beneficiaries than residents. A beneficiary is a link to a plan, not a person. Beneficiaries in a non-municipal code or in the
+      age code 99 (inconsistent) cannot be placed in a place or band. The columns T (total), M (medical-hospital) and O (dental only)
+      relate as T = M + O.
+    gotchas:
+      - "NR_BENEF_M is the beneficiaries of plans with medical-hospital care (with or without dental); NR_BENEF_O only of dental-only plans; NR_BENEF_T = M + O. Read M for the population a plan insures against hospital care."
+      - "One row is a stratum cell, not a person: sum the counts, never count the rows."
+      - "CD_FAIXA_E is finer than the TabNet bands: two codes make one five-year band from 15-19 to 55-59 (04+05 = 15-19, 06+07 = 20-24 ... 20+21 = 55-59), 26+27 are 80 and over (CNV cd_idade_faixa5, the Caderno do Gestor's grouping). The RN 63 bands (cd_idade_rn63: 19-23 = 05+06, 24-28 = 07+08 ...) are consistent with it, so the first code of a pair is its band's younger years and the second its last year."
+      - "Only the quarter-end months (03, 06, 09, 12) are published as a position; a quarter's file is the stock on that month's last day."
+    citation: ANS TabNet, Beneficiários por município (tb_bb), Microdados dados_dbc (dadosabertos.ans.gov.br)
+    dictionary: https://dadosabertos.ans.gov.br/FTP/Base_de_dados/Microdados/arquivos_auxiliares_de_tab_def_e_cnv/arquivos_auxiliares_de_tabulacao.zip (DEF/tabnet_02.def and the CNV files it names)
+    origin:
+      kind: files
+      format: dbc
+      pattern: https://dadosabertos.ans.gov.br/FTP/Base_de_dados/Microdados/dados_dbc/beneficiarios/municipios/tb_bb_{year}-{month}.dbc
+      months: 200003,200006,200009,200012,200103,200106,200109,200112,200203,200206,200209,200212,200303,200306,200309,200312,200403,200406,200409,200412,200503,200506,200509,200512,200603,200606,200609,200612,200703,200706,200709,200712,200803,200806,200809,200812,200903,200906,200909,200912,201003,201006,201009,201012,201103,201106,201109,201112,201203,201206,201209,201212,201303,201306,201309,201312,201403,201406,201409,201412,201503,201506,201509,201512,201603,201606,201609,201612,201703,201706,201709,201712,201803,201806,201809,201812,201903,201906,201909,201912,202003,202006,202009,202012,202103,202106,202109,202112,202203,202206,202209,202212,202303,202306,202309,202312,202403,202406,202409,202412,202503,202506,202509,202512,202603,202606,202609
+    columns:
+      ID_CMPT: {description: the quarter-end month of the position (YYYYMM), type: code}
+      SEXO: {description: "sex of the beneficiary (CNV tp_sexo; the CNV reads N as female)", type: code, codes: {"M": Masculino, "F": Feminino, "N": "Feminino (CNV tp_sexo groups N with F)"}}
+      TP_VIGENCI: {description: "period of the plan's contract (CNV tp_vigencia_plano)", type: code, codes: {"A": "Anterior à Lei 9.656/98", "P": "Posterior à Lei 9.656/98"}}
+      SG_UF: {description: state of the beneficiary's municipality, type: code}
+      CD_MUNICIP: {description: "IBGE code of the beneficiary's municipality as the operator registered it (6 digits)", type: municipality}
+      CD_CAPITAL: {description: "code of the capital when the municipality is one (000000 when not)", type: code}
+      CD_RM: {description: code of the metropolitan region (0000 when none), type: code}
+      CD_CONTR: {description: "type of contract (CNV cd_tp_contratacao3)", type: code, codes: {"1": "Individual ou Familiar", "2": "Coletivo Empresarial", "3": "Coletivo por adesão", "4": "Coletivo não identificado", "0": "Não Informado"}}
+      CD_SEGMENT: {description: "segmentation of the plan (CNV cd_segmentacao_plano)", type: code, codes: {"05": "Referência", "13": "Hosp. c/ Obstetrícia + Ambulatorial + Odonto", "06": "Hosp. c/ Obstetrícia + Ambulatorial", "10": "Hosp. c/ Obstetrícia + Odonto", "02": "Hosp. c/ Obstetrícia", "12": "Hosp. c/s Obstetrícia + Ambulatorial", "15": "Hosp. c/s Obstetrícia + Odonto", "09": "Hosp. c/s Obstetrícia", "14": "Hosp. s/ Obstetrícia + Ambulatorial + Odonto", "07": "Hosp. s/ Obstetrícia + Ambulatorial", "11": "Hosp. s/ Obstetrícia + Odonto", "03": "Hosp. s/ Obstetrícia", "08": "Ambulatorial + Odonto", "01": "Ambulatorial", "04": "Odontológico", "99": "Informado incorretamente", "00": "Não Informado"}}
+      CD_FAIXA_E: {description: "age band of the beneficiary (CNV cd_idade_faixa5: each code is read as the TabNet band that groups it)", type: code, codes: {"00": "Até 1 ano", "01": "1 a 4 anos", "02": "5 a 9 anos", "03": "10 a 14 anos", "04": "15 a 19 anos", "05": "15 a 19 anos", "06": "20 a 24 anos", "07": "20 a 24 anos", "08": "25 a 29 anos", "09": "25 a 29 anos", "10": "30 a 34 anos", "11": "30 a 34 anos", "12": "35 a 39 anos", "13": "35 a 39 anos", "14": "40 a 44 anos", "15": "40 a 44 anos", "16": "45 a 49 anos", "17": "45 a 49 anos", "18": "50 a 54 anos", "19": "50 a 54 anos", "20": "55 a 59 anos", "21": "55 a 59 anos", "22": "60 a 64 anos", "23": "65 a 69 anos", "24": "70 a 74 anos", "25": "75 a 79 anos", "26": "80 anos ou mais", "27": "80 anos ou mais", "99": "Inconsistente"}}
+      NR_BENEF_T: {description: "beneficiaries of the cell, medical-hospital and dental-only together (T = M + O)", type: integer}
+      NR_BENEF_M: {description: "beneficiaries of plans with medical-hospital care (with or without dental)", type: integer}
+      NR_BENEF_O: {description: beneficiaries of dental-only plans, type: integer}
+    place: {column: CD_MUNICIP, type: municipality}
+    period: {type: month, column: ID_CMPT, grain: month, valid: 2000-2026}
+    fields:
+      ans_beneficiaries_quarterly:
+        label: "Medical-hospital plan beneficiaries by quarter"
+        measure: {sum: NR_BENEF_M}
+        by: [{SEXO: sex}, {CD_FAIXA_E: age_band}, {CD_CONTR: contract}, {CD_SEGMENT: segmentation}, {TP_VIGENCI: plan_period}]
+        over: population
+        unit: beneficiary links of medical-hospital plans at the quarter's end, not persons
+        what: >
+          ANS's beneficiaries of plans with medical-hospital care (with or without dental) by municipality of registered residence, sex,
+          age band, contract type, segmentation and plan period, at the end of each quarter from 2000 (TabNet tb_bb, NR_BENEF_M).
+          Someone with two plans counts twice.
+        years: 2000-2026
+        declares: {law: stock}      # a quarter-end position: a year is its December, never the sum of its quarters
+      ans_dental_beneficiaries_quarterly:
+        label: "Dental-only plan beneficiaries by quarter"
+        measure: {sum: NR_BENEF_O}
+        by: [{SEXO: sex}, {CD_FAIXA_E: age_band}, {CD_CONTR: contract}, {TP_VIGENCI: plan_period}]
+        over: population
+        unit: beneficiary links of dental-only plans at the quarter's end, not persons
+        what: >
+          ANS's beneficiaries of dental-only plans by municipality of registered residence, sex, age band, contract type and plan
+          period, at the end of each quarter from 2000 (TabNet tb_bb, NR_BENEF_O).
+        years: 2000-2026
+        declares: {law: stock}
+        declares: {law: stock}
+
   ans_tiss_hosp_cons:
     system: ANS
     series: TISS_HOSP_CONS

@@ -602,23 +602,23 @@ products:
   population_without_private_coverage:
     label: "Population without a private health plan"
     kind: modelled
-    source: "Population account minus ANS medical-hospital plan links (December)"
+    source: "Population account minus ANS medical-hospital plan links (December, ANS TabNet tb_bb)"
     what: >
       Residents not insured by a private medical-hospital plan, by place, sex and age band, with intervals. Not SUS users:
       plan holders use the SUS in part and a person without a plan may use private care. A lower bound on the uninsured, since
       links are counted, not persons.
-    grain: "place × year × sex × five-year age band"
-    period: "2021-2023"
+    grain: "place × year × sex × five-year age band (comparable areas before 2010, municipalities from 2010)"
+    period: "2000-2025"
     call: 'pegasus_data.modelled.read_modelled("population_without_private_coverage")'
     stores: [lake/modelled/population_without_private_coverage]
     build: pegasus_data.studies.sus_dependent.build_sus_dependent
     # what it subtracts (`sus_dependent.build_sus_dependent`): the population account's own band estimate, with a 10-90%
     # interval per five-year band (ADR-0145; the account's build writes it beside the single-age product), and the field of
-    # plan links, whose declared `where` is the plan coverage that insures hospital care and whose declared years are the
-    # years it can be built for
+    # plan links (the medical-hospital beneficiaries of ANS's quarterly municipal base, one source throughout, ADR-0235), of
+    # which the Decembers the lake holds within the field's declared years are built
     inputs:
       population_account_bands: {version: population-account-bands-7}
-      links: {field: ans_beneficiaries}
+      links: {field: ans_beneficiaries_quarterly}
 
   race_confusion_infant:
     label: "Race recording confusion, infant deaths"
