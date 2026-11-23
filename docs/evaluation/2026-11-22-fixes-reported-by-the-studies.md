@@ -296,3 +296,10 @@ PeNSE group with N6 tables reads `capitals` (4 PNS groups are state-only). 168 t
 partial; 34 of them read `partial (5570 of 5571)`, 32 missing 510183 (Boa Esperança do Norte, MT: in the DTB, not in SIDRA's N6
 lists) and 2 missing 354880: measured, not relabelled. Checks against the IBGE API: table 9418 lists 5,570 N6 localities, table
 5133 (PNS) 27, the capitals from Porto Velho.
+
+**Declared fields as context candidates** (the reviewer, auditing t05). `context_candidates` listed SIDRA groups and intake
+sources only, so the declared fields of other sources were never offered to a study: no paper had decided MRI or CT
+scanners, neurosurgeons or neurology accreditations. Each source and family of declared fields that no SIDRA group or
+intake source lists is now one candidate (`kind: field`, id `field:<source>:<family>`): 18 families, 104 fields (CNES
+equipment 13, professionals 31, beds 10, facilities 8, accreditations 7, radiotherapy machines 3, teams 2, specialised
+services 1; SIM-DO records 3; climate 8; four ANS TISS intake fields); 309 entries to 327.

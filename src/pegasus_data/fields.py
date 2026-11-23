@@ -903,7 +903,9 @@ def context_candidates(years: tuple[int, int] | None = None, levels: tuple[str, 
       municipality) in ``years``: the tables (id, name, periods), and which a declared field already reads (``table:``,
       or a census series' sources);
     * one entry per intake source placed by a municipality or a state: its declared columns, and the fields that
-      read it.
+      read it;
+    * one entry per source and family of the declared fields neither lists (CNES supply, records-derived counts,
+      climate): its fields.
 
     Every entry has a ``grain``, a measured fact. IBGE's level N6 means "municipality" but also "some municipalities"
     (PNS publishes the 27 capitals as N6), so each N6 table carries the count of localities IBGE lists for it
@@ -989,4 +991,21 @@ def context_candidates(years: tuple[int, int] | None = None, levels: tuple[str, 
                     "subject": name, "grain": "state" if place.get("type") not in ("municipality", "municipality_name") else "municipal",
                     "columns": sorted(str(c).upper() for c in (src.get("columns") or {})),
                     "fields": reading})
+    # the declared fields neither a SIDRA group nor an intake source lists (CNES supply, records fields, climate): one
+    # entry per source and family, so a study decides them too. They had never been offered, and no paper had decided
+    # MRI or CT scanners, neurosurgeons or neurology accreditations (the reviewer, t05, 2026-11-23)
+    listed = {f for g in out for f in g.get("fields") or []}
+    families: dict[tuple[str, str], dict[str, Any]] = {}
+    for name, spec in sorted(fields.items()):
+        if name in listed:
+            continue
+        source = str(spec.get("source") or ("sidra" if spec.get("table") or spec.get("series") else "declared"))
+        family = str(spec.get("family") or spec.get("dataset") or name)
+        g = families.setdefault((source, family), {
+            "kind": "field", "id": f"field:{source}:{family}", "research": f"pegasus_data declared fields ({source})",
+            "subject": family, "grain": "state" if str(spec.get("level") or "").upper() == STATE_GRAIN else "municipal",
+            "columns": [], "fields": []})
+        g["columns"].append(name)
+        g["fields"].append(name)
+    out += list(families.values())
     return out
