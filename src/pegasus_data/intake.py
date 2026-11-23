@@ -9,7 +9,10 @@ does everything else, so a source adds no code:
   under the source's name (upper-cased, as the FTP datasets) and, where the declaration types the column (date, number,
   integer, year), the typed value under that name and the raw one beside it as ``<NAME>__RAW``. The conversion is streamed
   by DuckDB (``read_csv(..., all_varchar=true)`` into zstd Parquet; a zip member is extracted to a temporary file, never
-  held in memory) and the file is deleted after it. The dataset is registered in the catalog as a family with one
+  held in memory) and the file is deleted after it. A **fixed-width** source (``format: fixed``: the Census 2010 sample's record
+  files) is read one line per row and each column cut at its declared ``positions``, every one compared at each landing with the
+  documentation's layout (`_fixed_relation`); a digit string with an implied decimal point (``implied_decimals``) is typed with
+  the point put in and keeps its digits in ``__RAW``. The dataset is registered in the catalog as a family with one
   publication per file and year (a file filed by month, a ``months:`` pattern, is the publication of its month), the
   ontology folds in its system and series, and the curation loader folds in its column
   documentation (``semantics.curation``), so ``query("FA-HUM")`` and ``info()`` serve it like any FTP dataset. Where a source
@@ -36,6 +39,7 @@ written after the registration, so a missing sidecar means "land again". An API 
 
 from __future__ import annotations
 
+import functools
 import hashlib
 import itertools
 import json
@@ -48,6 +52,7 @@ from pathlib import Path
 from typing import Any, cast
 from urllib.parse import urlsplit
 
+import numpy as np
 import pyarrow as pa
 import pyarrow.compute as pc
 import pyarrow.parquet as pq
@@ -322,6 +327,11 @@ def _typed(expr: str, decl: dict[str, Any]) -> str | None:
         tried = ", ".join(f"try_strptime({value}, '{f}')" for f in formats)
         return f"CAST(coalesce({tried}) AS DATE)" if len(formats) > 1 else f"CAST(try_strptime({value}, '{formats[0]}') AS DATE)"
     if kind == "number":
+        if decl.get("implied_decimals"):
+            # a fixed-width number whose decimal point is not written (the census's weight: 16 digits, 13 after the point):
+            # the digits as filed, the point put where the layout says; `__RAW` keeps the digits
+            d = int(decl["implied_decimals"])
+            return f"try_cast(left({expr}, length({expr}) - {d}) || '.' || right({expr}, {d}) AS DOUBLE)"
         return f"try_cast(replace({expr}, ',', '.') AS DOUBLE)" if decl.get("decimal") == "," else f"try_cast({expr} AS DOUBLE)"
     if kind in ("integer", "year"):
         return f"CAST(try_cast({expr} AS DOUBLE) AS BIGINT)"
@@ -816,7 +826,7 @@ PERIOD_DERIVATION = {"parts": 2}
 #: `_flag`), the spellings its header is found by, whether it may be absent. Its description and its code table are read
 #: with the lake, so editing them lands nothing again (until 2026-10-19 the whole declaration was digested, and any
 #: curation edit to a source's columns downloaded the source again: SNGPC-IND's 94 months for a code table, OQ-90).
-LANDED_KEYS = ("type", "take", "format", "formats", "decimal", "tokens", "aliases", "optional")
+LANDED_KEYS = ("type", "take", "format", "formats", "decimal", "implied_decimals", "positions", "tokens", "aliases", "optional")
 
 
 def _fingerprint(spec: dict[str, Any], unit: dict[str, Any]) -> str:
@@ -903,8 +913,85 @@ def _dbc_to_parquet(path: Path) -> Path:
     return target
 
 
-def _file_relation(path: Path, origin: dict[str, Any], unit: dict[str, Any]) -> tuple[str, Path | None]:
+@functools.lru_cache(maxsize=16)
+def _layout(layout: str, record: str) -> dict[str, Any]:
+    import importlib
+
+    module, _, function = layout.partition(":")
+    return getattr(importlib.import_module(module), function)()[record]
+
+
+def _layout_of(fixed: dict[str, Any]) -> dict[str, Any]:
+    """The documented layout a fixed-width declaration names: ``layout: "module:function"`` is called with no arguments (the
+    data home's own documentation) and returns ``{record: {"width": n, "variables": {name: (first, last, description)}}}``;
+    ``record`` picks one. Read once per process."""
+    return _layout(str(fixed["layout"]), str(fixed["record"]))
+
+
+def _fixed_relation(path: Path, origin: dict[str, Any], spec: dict[str, Any]) -> tuple[str, Path | None]:
+    """A fixed-width source (``format: fixed``): the record file (the zip's ``fixed.member``, a regular expression) is
+    extracted beside the zip and read one line per row, each declared column cut at its ``positions`` ([first, last], 1-based
+    inclusive) as text, so the values are as filed (the raw columns of a CSV read with all_varchar).
+
+    Nothing is guessed: before reading, every declared position is compared with the documentation's layout (``fixed.layout``),
+    every variable of the layout must be declared (a column that is a span of contiguous variables, such as a code made of two
+    of them, says so in ``from``), and the file must be whole lines of the layout's width."""
+    fixed = origin["fixed"]
+    layout = _layout_of(fixed)
+    variables = layout["variables"]
+    columns = {c.upper(): d or {} for c, d in (spec.get("columns") or {}).items()}
+    problems = []
+    for name, decl in columns.items():
+        first, last = decl["positions"]
+        if decl.get("from"):
+            parts = [variables[v] for v in decl["from"]]
+            if (first, last) != (parts[0][0], parts[-1][1]) or any(a[1] + 1 != b[0] for a, b in itertools.pairwise(parts)):
+                problems.append(f"{name} {first}-{last} is not the contiguous span of {decl['from']}")
+        elif variables.get(name, (None, None))[:2] != (first, last):
+            problems.append(f"{name} is {variables.get(name, ('absent',))[:2]} in the layout, {first}-{last} declared")
+    problems += [f"{v} is in the layout and not declared" for v in variables if v not in columns]
+    if problems:
+        raise ValueError(f"{fixed['record']}: the declaration disagrees with the documentation's layout: {problems[:8]}")
+    width = layout["width"]
+    with zipfile.ZipFile(path) as archive:
+        members = [m for m in archive.namelist() if re.search(str(fixed["member"]), m, re.I)]
+        if len(members) != 1:
+            raise ValueError(f"{path.name}: expected one member matching {fixed['member']!r}, found {members}")
+        extracted = path.with_name(Path(members[0]).name)
+        with archive.open(members[0]) as src, extracted.open("wb") as dst:
+            while chunk := src.read(1 << 24):
+                dst.write(chunk)
+    size = extracted.stat().st_size
+    eol = np.frombuffer(str(fixed.get("eol", "\n")).encode(), dtype=np.uint8)
+    step = width + len(eol)
+    ragged = size % step
+    with extracted.open("rb") as handle:
+        while ragged == 0 and (block := handle.read(step * 65536)):
+            lines = np.frombuffer(block, dtype=np.uint8).reshape(-1, step)
+            if (lines[:, width:] != eol).any() or np.isin(lines[:, :width], (10, 13)).any():
+                ragged = -1
+    if ragged:
+        extracted.unlink()
+        raise ValueError(f"{path.name}: {extracted.name} is not whole lines of {width} characters and a {eol.tobytes()!r} "
+                         "(the layout's width and the declared line end)")
+    cuts = ", ".join(f"substr(line, {d['positions'][0]}, {d['positions'][1] - d['positions'][0] + 1}) AS {_ident(c)}" for c, d in columns.items())
+    encoding = {"latin1": "latin-1", "utf8": "utf-8"}.get(str(fixed.get("encoding", "latin1")), fixed.get("encoding"))
+    return (f"(SELECT {cuts} FROM read_csv('{extracted.as_posix()}', columns={{'line': 'VARCHAR'}}, header=false, delim='\\x01', "
+            f"quote='', escape='', all_varchar=true, encoding='{encoding}'))"), extracted
+
+
+def _raw_path(source: str, root: Path | str | None, origin: dict[str, Any], unit: dict[str, Any]) -> Path:
+    """Where a unit's file is kept: the source's own ``raw/``, or, for files several sources read (one zip holding the census's
+    four record types), the shared registry folder the declaration names (``store``) under the file's own name."""
+    if origin.get("store"):
+        return _cache(origin["store"], root, Path(urlsplit(unit["url"]).path).name)
+    return _cache(source, root, "raw", _safe(unit["key"]) + "." + unit["extension"])
+
+
+def _file_relation(path: Path, origin: dict[str, Any], unit: dict[str, Any], spec: dict[str, Any] | None = None) -> tuple[str, Path | None]:
     """A DuckDB relation over a downloaded file; a zip's CSV member is extracted beside it (returned, to delete)."""
+    if origin.get("format") == "fixed":
+        return _fixed_relation(path, origin, spec or {})
     if origin.get("format", "csv") == "parquet":
         return f"read_parquet('{path.as_posix()}')", None
     if origin.get("format") == "dbc":
@@ -961,7 +1048,7 @@ def _land_unit(settings: Any, source: str, spec: dict[str, Any], unit: dict[str,
     if not fetch:
         return {"not_held": True, "url": unit["url"]}
     origin = _origin(spec)
-    raw = download(unit["url"], _cache(source, root, "raw", _safe(unit["key"]) + "." + unit["extension"]))
+    raw = download(unit["url"], _raw_path(source, root, _origin(spec), unit))
     extracted = None
     counted = origin.get("format", "csv") == "csv"
     if counted and raw.suffix.lower() != ".zip":
@@ -980,7 +1067,11 @@ def _land_unit(settings: Any, source: str, spec: dict[str, Any], unit: dict[str,
         csv = origin.get("csv") or {}
         expected: int | None = None
         found: dict[str, Any] = {}
-        if counted and csv.get("multiline"):
+        if origin.get("format") == "fixed":
+            # the records are the lines of the declared width (`_fixed_relation` checked it): the file's own count is the figure
+            lines = _lines(path)
+            expected, found = lines, {"file_lines": lines, "rows_equal_lines": True}
+        elif counted and csv.get("multiline"):
             # a field holds line breaks (free text in quotes): the lines are not the records, a second parser counts them
             expected = _records(path, csv, transcoded=path.name.endswith(".utf8.csv"))
             found = {"file_records": expected, "rows_equal_lines": True}
@@ -990,7 +1081,7 @@ def _land_unit(settings: Any, source: str, spec: dict[str, Any], unit: dict[str,
         return {**_land(settings, source, spec, unit, con, relation, datetime.now(UTC).date().isoformat(), sidecar=side, expect_rows=expected), **found}
 
     try:
-        relation, extracted = _file_relation(raw, origin, unit)
+        relation, extracted = _file_relation(raw, origin, unit, spec)
         unit["size"] = raw.stat().st_size
         try:
             stats = land(relation, extracted)
@@ -1002,7 +1093,7 @@ def _land_unit(settings: Any, source: str, spec: dict[str, Any], unit: dict[str,
                 raise
             if extracted is not None and extracted.is_file():
                 extracted.unlink()
-            relation, extracted = _file_relation(raw, {**origin, "csv": {**csv, "encoding": "mixed"}}, unit)
+            relation, extracted = _file_relation(raw, {**origin, "csv": {**csv, "encoding": "mixed"}}, unit, spec)
             stats = land(relation, extracted)
             stats["encoding"] = f"mixed (the declared {csv.get('encoding')} failed: {str(exc).splitlines()[0][:120]})"
     finally:
@@ -1280,11 +1371,12 @@ INTAKE_WORKERS = 4
 
 
 def build_source(settings: Any, source: str, names: list[str] | None = None, years: list[int] | None = None, refresh: bool = False,
-                 fetch: bool = True) -> dict[str, Any]:
+                 fetch: bool = True, units: list[str] | None = None) -> dict[str, Any]:
     """Land a declared source's records in the lake and read its fields from them. Returns, per field, its rows, total and
     totals by year, and under ``units`` what each file or API unit held and what was left out of the fields and why.
     ``fetch=False`` downloads nothing: units whose records the lake holds are read again where the declaration changed,
-    the others are reported ``not_held``."""
+    the others are reported ``not_held``. ``units`` names the files to land (a unit's key, or its last part: ``AC`` for
+    ``2010-AC``), for a source too large to land whole at once."""
     spec = declared_sources()[source]
     _sweep_leftovers(settings, source, spec)
     if _origin(spec).get("on_request") and not years:
@@ -1309,7 +1401,10 @@ def build_source(settings: Any, source: str, names: list[str] | None = None, yea
         # (2026-11-21). A server that wants fewer says so and is answered by its own signals (`transport._backoff`).
         pace = Pace()
         # units completed a second: a source's files are of one kind, and their sizes are not listed before the download
-        for key, outcome in adaptive_map(land, list(_units(spec, years)), start=INTAKE_WORKERS, measure=lambda _out: 1,
+        chosen = [u for u in _units(spec, years) if not units or u["key"] in units or u["key"].rsplit("-", 1)[-1] in units]
+        if units and not chosen:
+            raise ValueError(f"{source}: no unit named {units}; its units are {[u['key'] for u in _units(spec, years)][:40]}")
+        for key, outcome in adaptive_map(land, chosen, start=INTAKE_WORKERS, measure=lambda _out: 1,
                                          pace=pace):
             if isinstance(outcome, SourceAbsent):
                 absent[key] = outcome

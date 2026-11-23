@@ -2,11 +2,12 @@
 
 **The source** (IBGE, Censo Demográfico 2010, Resultados Gerais da Amostra, ``SOURCE``): one zip per state holding the
 fixed-width person file ``Amostra_Pessoas_*.txt`` (the sample households), and ``Documentacao.zip``, whose
-``Layout/Layout_microdados_Amostra.xls`` (sheet ``PESS``) gives the columns. The positions in `COLUMNS` are compared with
-that sheet at build time, or the build raises: nothing is guessed. The variables, as documented:
+``Layout/Layout_microdados_Amostra.xls`` gives the columns. The person file is the intake source ``census2010_pessoas``
+(every variable of the layout landed in the lake, positions checked against that layout at each landing, ``intake.py``);
+this module reads six of its columns from the lake and lands the states it lacks. The variables, as documented:
 
-* ``V0001`` (positions 1-2) UF and ``V0002`` (3-7) municipality code, joined into the 7-digit IBGE code of **residence**;
-  ``V0010`` (29-44, 3 integer and 13 decimal digits, the decimal point implied) the sample weight.
+* ``V0001`` (positions 1-2) UF and ``V0002`` (3-7) municipality code, joined into the 7-digit IBGE code of **residence**
+  (``CODMUN``); ``V0010`` (29-44, 3 integer and 13 decimal digits, the decimal point implied) the sample weight.
 * **Work.** ``V0660`` (328) "em que município ou país estrangeiro trabalha": 1 own home, 2 only this municipality but not
   at home, 3 another municipality, 4 a foreign country, 5 more than one municipality or country, blank (not employed);
   ``V6604`` (336-342) the 7-digit municipality of work, filled when ``V0660`` is 3. Its code list is
@@ -31,6 +32,7 @@ from __future__ import annotations
 import io
 import re
 import zipfile
+from collections.abc import Iterator, Sequence
 from pathlib import Path
 from typing import Any
 
@@ -41,9 +43,6 @@ SOURCE = "https://ftp.ibge.gov.br/Censos/Censo_Demografico_2010/Resultados_Gerai
 #: SP is published as two files (the metropolitan region apart).
 STATES = [x for uf in UF_ABBREVIATIONS for x in (("SP1", "SP2_RM") if uf == "SP" else (uf,))]
 VINTAGE = 2010
-#: Variable -> (first, last) position, 1-based inclusive: Layout_microdados_Amostra.xls, sheet PESS (checked at build)
-COLUMNS = {"V0001": (1, 2), "V0002": (3, 7), "V0010": (29, 44), "V0636": (168, 168), "V6364": (176, 182),
-           "V0660": (328, 328), "V6604": (336, 342)}
 #: The IBGE "ignorado" municipality code of the code list
 IGNORED = 8888888
 #: layer -> (kind, question variable, code variable, answer "another municipality", "foreign country", "several places"):
@@ -54,6 +53,9 @@ LAYERS = {layer: (b["kind"], b["question"], b["code_variable"], b["other_municip
 SIDRA = {layer: (b["table"], b["variable"], b["classification"], b["category"])
          for layer, b in declared("published_tables.yml", "census_commuting", "sidra").items()}
 BLOCK = 100_000
+#: The intake source the persons are read from (``curation/intake.yml``) and its person columns this module reads
+PERSONS = "census2010_pessoas"
+COLUMNS = ("CODMUN", "V0010", "V0636", "V6364", "V0660", "V6604")
 KEYS = ("other_country", "multiple_places", "no_code", "ignored", "unlisted", "same_as_residence")
 
 __all__ = ["RECORD_SHEETS", "build", "record_layouts", "validate"]
@@ -71,16 +73,6 @@ def _sheet(documentation: Path, pattern: str, **options: Any) -> Any:
         return pd.read_excel(io.BytesIO(z.read(name)), header=None, engine="xlrd", **options)
 
 
-def _layout_check(documentation: Path) -> None:
-    """The positions in `COLUMNS` are those of the documentation's layout sheet, or the build stops."""
-    sheet = _sheet(documentation, r"layout_microdados_amostra\.xls$", sheet_name="PESS")
-    found = {str(r[0]): (int(r[7]), int(r[8])) for r in sheet.itertuples(index=False)
-             if str(r[0]) in COLUMNS and str(r[7]).strip().isdigit()}
-    for variable, span in COLUMNS.items():
-        if found.get(variable) != span:
-            raise ValueError(f"layout: {variable} is {found.get(variable)} in the documentation, {span} in COLUMNS")
-
-
 #: The sample's record files and the layout sheet each is written by (Layout_microdados_Amostra.xls)
 RECORD_SHEETS = {"Amostra_Domicilios": "DOMI", "Amostra_Pessoas": "PESS", "Amostra_Emigracao": "EMIG", "Amostra_Mortalidade": "MORT"}
 
@@ -88,14 +80,18 @@ RECORD_SHEETS = {"Amostra_Domicilios": "DOMI", "Amostra_Pessoas": "PESS", "Amost
 def record_layouts(root: str | Path | None = None) -> dict[str, dict[str, Any]]:
     """The documentation's own layout of each record file of the sample (``Layout/Layout_microdados_Amostra.xls`` in
     ``Documentacao.zip``, one sheet per record type): ``{file stem: {"width": the last position, "variables": {name: (first, last,
-    description)}}}``. A record line is ``width`` characters and a line break. Reads the held documentation only."""
+    description)}, "fields": {name: {"integer": digits before the implied decimal point, "decimals": digits after it, "type":
+    the sheet's TIPO (A alphanumeric, C categorical, N numeric), "text": the NOME cell as written, line breaks and code list
+    included}}}}``. A record line is ``width`` characters and a line break. Reads the held documentation only."""
     documentation = _directory(root, "census2010_microdata") / "Documentacao.zip"
     out: dict[str, dict[str, Any]] = {}
     for stem, sheet_name in RECORD_SHEETS.items():
         sheet = _sheet(documentation, r"layout_microdados_amostra\.xls$", sheet_name=sheet_name)
-        variables = {str(r[0]).strip(): (int(float(r[7])), int(float(r[8])), " ".join(str(r[1]).split()))
-                     for r in sheet.itertuples(index=False) if str(r[0]).strip() and str(r[8]).strip().replace(".", "").isnumeric()}
-        out[stem] = {"width": max(v[1] for v in variables.values()), "variables": variables}
+        rows = [r for r in sheet.itertuples(index=False) if str(r[0]).strip() and str(r[8]).strip().replace(".", "").isnumeric()]
+        variables = {str(r[0]).strip(): (int(float(r[7])), int(float(r[8])), " ".join(str(r[1]).split())) for r in rows}
+        fields = {str(r[0]).strip(): {"integer": int(float(r[9])), "decimals": int(float(r[10])) if str(r[10]) != "nan" else 0,
+                                      "type": str(r[11]).strip(), "text": str(r[1]).strip()} for r in rows}
+        out[stem] = {"width": max(v[1] for v in variables.values()), "variables": variables, "fields": fields}
     return out
 
 
@@ -108,71 +104,63 @@ def _municipality_codes(documentation: Path) -> set[int]:
     return {int(c) for c in numbers if c != IGNORED}
 
 
-def _numbers(digits: Any) -> tuple[Any, Any]:
-    """(value, filled) of a block of ASCII digits (n, width): all blanks is not filled; anything else must be digits."""
+def _persons(settings: Any, state: str) -> Iterator[Any]:
+    """The columns this module reads of one state's landed person records, as Arrow batches of `BLOCK` rows (never the whole state)."""
+    import duckdb
+
+    from ..intake import _safe
+    from ..persist.lake import unit_parts
+
+    parts = unit_parts(settings.lake_dir, "CENSO2010_PESSOAS_*", _safe(f"{VINTAGE}-{state}"))
+    if not parts:
+        raise FileNotFoundError(f"the person records of {state} are not in the lake (intake source {PERSONS})")
+    con = duckdb.connect(":memory:")
+    try:
+        con.execute(f"SELECT {', '.join(COLUMNS)} FROM read_parquet({sorted(p.as_posix() for p in parts)!r}, hive_partitioning=false)")
+        reader = con.fetch_record_batch(BLOCK)
+        yield from reader
+    finally:
+        con.close()
+
+
+def _integers(column: Any) -> tuple[Any, Any]:
+    """(value, filled) of a column of digits as text (null when blank): anything else raises, never read as a number."""
     import numpy as np
+    import pyarrow as pa
+    import pyarrow.compute as pc
 
-    blank = (digits == 32).all(axis=1)
-    values = digits.astype(np.int64) - 48
-    if ((values < 0) | (values > 9))[~blank].any():
-        raise ValueError("a numeric field holds something other than digits or blanks")
-    out = np.zeros(len(digits), dtype=np.int64)
-    for column in range(digits.shape[1]):
-        out = out * 10 + np.where(blank, 0, values[:, column])
-    return out, ~blank
+    filled = pc.is_valid(column).to_numpy(zero_copy_only=False)
+    return pc.fill_null(pc.cast(column, pa.int64()), 0).to_numpy(zero_copy_only=False).astype(np.int64), filled
 
 
-def _span(block: Any, variable: str) -> Any:
-    first, last = COLUMNS[variable]
-    return block[:, first - 1:last]
-
-
-def _records(zip_path: Path) -> Any:
-    """The person file's records as blocks of bytes (n, record width), one state at a time, never all in memory."""
-    import numpy as np
-
-    with zipfile.ZipFile(zip_path) as z:
-        members = [n for n in z.namelist() if re.search(r"Amostra_Pessoas.*\.txt$", n, re.I)]
-        if len(members) != 1:
-            raise ValueError(f"{zip_path.name}: expected one person file, found {members}")
-        with z.open(members[0]) as f:
-            width = len(f.readline())
-        with z.open(members[0]) as f:
-            while data := f.read(width * BLOCK):
-                while len(data) % width:
-                    more = f.read(width - len(data) % width)
-                    if not more:
-                        raise ValueError(f"{zip_path.name}: the file ends inside a record")
-                    data += more
-                block = np.frombuffer(data, dtype=np.uint8).reshape(-1, width)
-                if not (block[:, -1] == 10).all():
-                    raise ValueError(f"{zip_path.name}: records are not {width} bytes wide")
-                yield block
-
-
-def _add(zip_path: Path, tally: dict[str, Any]) -> None:
-    """Add one state zip's persons to the running aggregates."""
+def _add(batches: Any, tally: dict[str, Any]) -> None:
+    """Add one state's persons (Arrow batches of `_persons`) to the running aggregates."""
     import numpy as np
     import pandas as pd
+    import pyarrow.compute as pc
 
-    for block in _records(zip_path):
-        origin = _numbers(block[:, 0:7])[0]
-        weight = _numbers(_span(block, "V0010"))[0] / 1e13
+    for block in batches:
+        origin = _integers(block.column("CODMUN"))[0]
+        weight = block.column("V0010").to_numpy(zero_copy_only=False)
         tally["residences"].update(np.unique(origin).tolist())
-        tally["persons"] += len(block)
+        tally["persons"] += block.num_rows
         tally["weight"] += float(weight.sum())
         for layer, (_, question, code_variable, other, foreign, several) in LAYERS.items():
-            answer = _span(block, question)[:, 0]
-            code, filled = _numbers(_span(block, code_variable))
+            answer = block.column(question)
+            code, filled = _integers(block.column(code_variable))
             state = tally[layer]
-            asked = answer != 32
-            is_other = answer == other
-            masks = {"other_country": answer == foreign,
+            asked = pc.is_valid(answer).to_numpy(zero_copy_only=False)
+
+            def is_answer(value: str, answer: Any = answer) -> Any:
+                return pc.fill_null(pc.equal(answer, value), False).to_numpy(zero_copy_only=False)
+
+            is_other = is_answer(other)
+            masks = {"other_country": is_answer(foreign),
                      "no_code": is_other & ~filled,
                      "ignored": is_other & filled & (code == IGNORED),
                      "same_as_residence": is_other & filled & (code == origin)}
             if several:
-                masks["multiple_places"] = answer == several
+                masks["multiple_places"] = is_answer(several)
             for key, mask in masks.items():
                 state["apart"][key][0] += int(mask.sum())
                 state["apart"][key][1] += float(weight[mask].sum())
@@ -198,8 +186,10 @@ def _codes(values: Any) -> Any:
     return text
 
 
-def build(root: str | Path | None = None, log: Any = None) -> dict[str, Any]:
-    """Download the 27 state zips and the documentation (once), and write the two commuting graphs.
+def build(root: str | Path | None = None, log: Any = None, states: Sequence[str] | None = None) -> dict[str, Any]:
+    """Land the person records of the states the lake lacks (the intake source ``census2010_pessoas``: the 27 zips and the
+    documentation are downloaded once), and write the two commuting graphs from them. ``states`` (a subset of `STATES`) is for
+    a development run on a few files: the graphs then cover those states only.
 
     Returns the persons and weight of the whole sample and, per layer (``work``, ``study``): the edges' rows, weighted
     total and unweighted persons; the persons asked and those answering "another municipality"; and, apart, the persons
@@ -214,14 +204,20 @@ def build(root: str | Path | None = None, log: Any = None) -> dict[str, Any]:
     out = _directory(root, "mobility")
     out.mkdir(parents=True, exist_ok=True)
     documentation = download(SOURCE + "Documentacao.zip", micro / "Documentacao.zip", timeout=3600)
-    _layout_check(documentation)
     documented = _municipality_codes(documentation)
+    chosen = list(states or STATES)
+    from ..intake import build_source
+
+    settings = load_settings(root=root)
+    landed = build_source(settings, PERSONS, [], [VINTAGE], units=chosen)
+    if log:
+        log(f"person records: {landed['rows']} rows in the lake for {len(chosen)} files")
     tally: dict[str, Any] = {"persons": 0, "weight": 0.0, "residences": set()}
     for layer in LAYERS:
         tally[layer] = {"asked": [0, 0.0], "other": [0, 0.0], "code_without_answer": 0,
                         "apart": {k: [0, 0.0] for k in KEYS}, "answered_other": [], "edges": []}
-    for state in STATES:
-        _add(download(SOURCE + state + ".zip", micro / f"{state}.zip", timeout=3600), tally)
+    for state in chosen:
+        _add(_persons(settings, state), tally)
         if log:
             log(f"{state}: {tally['persons']} persons so far")
     schema = pa.schema([("from", pa.string()), ("to", pa.string()), ("weight", pa.float64()), ("kind", pa.string()),

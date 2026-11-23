@@ -1,0 +1,236 @@
+# CENSO2010-EMIGRACAO: one person who had lived in a sampled household and was living in another country on 31 July 2010 (intake source census2010_emigracao).
+# Meaning from IBGE's own layout, Layout_microdados_Amostra.xls sheet EMIG (Documentacao.zip of the microdata): each variable's name, positions, digits and code list; the title is IBGE's words.
+# A property is named in English where it is a stratum or a key; every other variable is `<entity>.<IBGE variable>`, because translating 300 questionnaire items would add claims the layout does not make.
+dataset: CENSO2010-EMIGRACAO
+record: emigrant
+columns:
+  CODMUN:
+    role: emigrant.residence
+    kind: place
+    model: stratum
+    place_of: subject
+    fact_domain: person
+    fact_domain_evidence: '"CÓDIGO DO MUNICÍPIO" with the state (V0001, V0002) (emigrant.residence): attribute of the person, the municipality
+      of the household'
+    name: Município de residência (UF + código do município)
+    years:
+    - 2010
+    - 2010
+    note: 7-digit IBGE code made of V0001 and V0002 (positions 1-7); 6-digit places of the lake come from it
+  V0001:
+    role: emigrant.state_code
+    kind: place
+    model: mark
+    place_of: subject
+    fact_domain: administrative
+    fact_domain_evidence: '"UNIDADE DA FEDERAÇÃO" (emigrant.state_code): geography, sampling or processing key of the survey'
+    name: UNIDADE DA FEDERAÇÃO
+    years:
+    - 2010
+    - 2010
+  V0002:
+    role: emigrant.municipality_code_in_state
+    kind: category
+    model: excluded
+    name: CÓDIGO DO MUNICÍPIO
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V0011:
+    role: emigrant.weighting_area
+    kind: identifier
+    model: link_only
+    name: ÁREA DE PONDERAÇÃO
+    years:
+    - 2010
+    - 2010
+  V0300:
+    role: emigrant.household_control
+    kind: identifier
+    model: link_only
+    name: CONTROLE
+    years:
+    - 2010
+    - 2010
+  V0010:
+    role: emigrant.sample_weight
+    kind: number
+    model: mark
+    measure: false
+    fact_domain: administrative
+    fact_domain_evidence: '"PESO AMOSTRAL" (emigrant.sample_weight): geography, sampling or processing key of the survey'
+    name: PESO AMOSTRAL
+    note: 3 digits then 13 after an implied decimal point; the digits as filed are V0010__RAW.
+    years:
+    - 2010
+    - 2010
+  V1001:
+    role: emigrant.region
+    kind: category
+    model: dimension
+    fact_domain: administrative
+    fact_domain_evidence: '"REGIÃO GEOGRÁFICA" (emigrant.region): geography, sampling or processing key of the survey'
+    name: REGIÃO GEOGRÁFICA
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V1002:
+    role: emigrant.mesoregion
+    kind: category
+    model: dimension
+    fact_domain: administrative
+    fact_domain_evidence: '"CÓDIGO DA MESORREGIÃO" (emigrant.mesoregion): geography, sampling or processing key of the survey'
+    name: CÓDIGO DA MESORREGIÃO
+    note: The codes are listed in a workbook of Documentacao.zip, not decoded here.
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V1003:
+    role: emigrant.microregion
+    kind: category
+    model: dimension
+    fact_domain: administrative
+    fact_domain_evidence: '"CÓDIGO DA MICRORREGIÃO" (emigrant.microregion): geography, sampling or processing key of the survey'
+    name: CÓDIGO DA MICRORREGIÃO
+    note: The codes are listed in a workbook of Documentacao.zip, not decoded here.
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V1004:
+    role: emigrant.metropolitan_region
+    kind: category
+    model: dimension
+    fact_domain: administrative
+    fact_domain_evidence: '"CÓDIGO DA REGIÃO METROPOLITANA" (emigrant.metropolitan_region): geography, sampling or processing key of the survey'
+    name: CÓDIGO DA REGIÃO METROPOLITANA
+    note: The codes are listed in a workbook of Documentacao.zip, not decoded here.
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V1006:
+    role: emigrant.situation
+    kind: category
+    model: dimension
+    fact_domain: administrative
+    fact_domain_evidence: '"SITUAÇÃO DO DOMICÍLIO" (emigrant.situation): geography, sampling or processing key of the survey'
+    name: SITUAÇÃO DO DOMICÍLIO
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V0303:
+    role: emigrant.sex
+    kind: category
+    model: stratum
+    fact_domain: person
+    fact_domain_evidence: '"SEXO DO EMIGRANTE" (emigrant.sex): attribute of the person or of the household they live in'
+    name: SEXO DO EMIGRANTE
+    years:
+    - 2010
+    - 2010
+    missing:
+    - '9'
+  V0304:
+    role: emigrant.birth_year
+    kind: number
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: '"ANO DE NASCIMENTO DO EMIGRANTE" (emigrant.birth_year): attribute of the person or of the household they live in'
+    name: ANO DE NASCIMENTO DO EMIGRANTE
+    years:
+    - 2010
+    - 2010
+    domain:
+    - 1869
+    - 2010
+    missing:
+    - '9999'
+  V0305:
+    role: emigrant.departure_year
+    kind: number
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: '"ANO DA ÚLTIMA PARTIDA DO EMIGRANTE" (emigrant.departure_year): attribute of the person or of the household they live
+      in'
+    name: ANO DA ÚLTIMA PARTIDA DO EMIGRANTE
+    years:
+    - 2010
+    - 2010
+    domain:
+    - 1869
+    - 2010
+    missing:
+    - '9999'
+  V3061:
+    role: emigrant.country_of_residence
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"PAÍS DE RESIDÊNCIA EM 31 DE JULHO DE 2010 – CÓDIGO" (emigrant.country_of_residence): attribute of the person or of
+      the household they live in'
+    name: PAÍS DE RESIDÊNCIA EM 31 DE JULHO DE 2010 – CÓDIGO
+    note: The codes are listed in a workbook of Documentacao.zip, not decoded here.
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M0303:
+    role: emigrant.imputed_v0303
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V0303" (emigrant.imputed_v0303): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V0303
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M0304:
+    role: emigrant.imputed_v0304
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V0304" (emigrant.imputed_v0304): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V0304
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M0305:
+    role: emigrant.imputed_v0305
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V0305" (emigrant.imputed_v0305): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V0305
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M3061:
+    role: emigrant.imputed_v3061
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V3061" (emigrant.imputed_v3061): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V3061
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V1005:
+    role: emigrant.sector_situation
+    kind: category
+    model: dimension
+    fact_domain: administrative
+    fact_domain_evidence: '"Situação do setor" (emigrant.sector_situation): geography, sampling or processing key of the survey'
+    name: Situação do setor
+    years:
+    - 2010
+    - 2010
+    missing: []

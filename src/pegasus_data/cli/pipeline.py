@@ -154,6 +154,24 @@ records, the climate base); a field is a cube or a view of one, served by `load_
     _emit(result, as_json, "fields")
 
 
+@app.command(rich_help_panel="PIPELINE")
+def intake(
+    source: Annotated[str, typer.Argument(help="A declared source (curation/intake.yml), e.g. census2010_pessoas")],
+    unit: Annotated[list[str] | None, typer.Option("--unit", help="A file of the source to land (AC; repeat); default every file")] = None,
+    years: Annotated[str | None, typer.Option("--years", help="e.g. 2010 (required of a source declared on request)")] = None,
+    refresh: Annotated[bool, typer.Option("--refresh", help="Land the units again even where they are current")] = False,
+    root: RootOpt = None,
+    as_json: JsonOpt = False,
+) -> None:
+    """Land a declared intake source's records in the lake, every column kept, with no field built: for a source that is
+    records first (the Census 2010 sample's four record types, `census2010_*`). Units already landed as declared are skipped."""
+    from ..intake import build_source
+
+    with console.status(f"landing {source}…"):
+        result = build_source(_writer(root), source, [], _parse_years(years), refresh=refresh, units=unit or None)
+    _emit(result, as_json, "intake")
+
+
 @app.command(name="intake-periods", rich_help_panel="MAINTENANCE")
 def intake_periods(
     source: Annotated[str | None, typer.Option("--source", help="One declared source (curation/intake.yml); default every file source")] = None,

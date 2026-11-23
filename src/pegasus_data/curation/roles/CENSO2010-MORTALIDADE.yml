@@ -1,0 +1,238 @@
+# CENSO2010-MORTALIDADE: one death in a sampled household between August 2009 and July 2010, as the household reported it (intake source census2010_mortalidade).
+# Meaning from IBGE's own layout, Layout_microdados_Amostra.xls sheet MORT (Documentacao.zip of the microdata): each variable's name, positions, digits and code list; the title is IBGE's words.
+# A property is named in English where it is a stratum or a key; every other variable is `<entity>.<IBGE variable>`, because translating 300 questionnaire items would add claims the layout does not make.
+dataset: CENSO2010-MORTALIDADE
+record: death
+columns:
+  CODMUN:
+    role: deceased.residence
+    kind: place
+    model: stratum
+    place_of: subject
+    fact_domain: person
+    fact_domain_evidence: '"CÓDIGO DO MUNICÍPIO" with the state (V0001, V0002) (deceased.residence): attribute of the person, the municipality
+      of the household'
+    name: Município de residência (UF + código do município)
+    years:
+    - 2010
+    - 2010
+    note: 7-digit IBGE code made of V0001 and V0002 (positions 1-7); 6-digit places of the lake come from it
+  V0001:
+    role: deceased.state_code
+    kind: place
+    model: mark
+    place_of: subject
+    fact_domain: administrative
+    fact_domain_evidence: '"UNIDADE DA FEDERAÇÃO" (deceased.state_code): geography, sampling or processing key of the survey'
+    name: UNIDADE DA FEDERAÇÃO
+    years:
+    - 2010
+    - 2010
+  V0002:
+    role: deceased.municipality_code_in_state
+    kind: category
+    model: excluded
+    name: CÓDIGO DO MUNICÍPIO
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V0011:
+    role: deceased.weighting_area
+    kind: identifier
+    model: link_only
+    name: ÁREA DE PONDERAÇÃO
+    years:
+    - 2010
+    - 2010
+  V0300:
+    role: deceased.household_control
+    kind: identifier
+    model: link_only
+    name: CONTROLE
+    years:
+    - 2010
+    - 2010
+  V0010:
+    role: deceased.sample_weight
+    kind: number
+    model: mark
+    measure: false
+    fact_domain: administrative
+    fact_domain_evidence: '"PESO AMOSTRAL" (deceased.sample_weight): geography, sampling or processing key of the survey'
+    name: PESO AMOSTRAL
+    note: 3 digits then 13 after an implied decimal point; the digits as filed are V0010__RAW.
+    years:
+    - 2010
+    - 2010
+  V1001:
+    role: deceased.region
+    kind: category
+    model: dimension
+    fact_domain: administrative
+    fact_domain_evidence: '"REGIÃO GEOGRÁFICA" (deceased.region): geography, sampling or processing key of the survey'
+    name: REGIÃO GEOGRÁFICA
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V1002:
+    role: deceased.mesoregion
+    kind: category
+    model: dimension
+    fact_domain: administrative
+    fact_domain_evidence: '"CÓDIGO DA MESORREGIÃO" (deceased.mesoregion): geography, sampling or processing key of the survey'
+    name: CÓDIGO DA MESORREGIÃO
+    note: The codes are listed in a workbook of Documentacao.zip, not decoded here.
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V1003:
+    role: deceased.microregion
+    kind: category
+    model: dimension
+    fact_domain: administrative
+    fact_domain_evidence: '"CÓDIGO DA MICRORREGIÃO" (deceased.microregion): geography, sampling or processing key of the survey'
+    name: CÓDIGO DA MICRORREGIÃO
+    note: The codes are listed in a workbook of Documentacao.zip, not decoded here.
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V1004:
+    role: deceased.metropolitan_region
+    kind: category
+    model: dimension
+    fact_domain: administrative
+    fact_domain_evidence: '"CÓDIGO DA REGIÃO METROPOLITANA" (deceased.metropolitan_region): geography, sampling or processing key of the survey'
+    name: CÓDIGO DA REGIÃO METROPOLITANA
+    note: The codes are listed in a workbook of Documentacao.zip, not decoded here.
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V1006:
+    role: deceased.situation
+    kind: category
+    model: dimension
+    fact_domain: administrative
+    fact_domain_evidence: '"SITUAÇÃO DO DOMICÍLIO" (deceased.situation): geography, sampling or processing key of the survey'
+    name: SITUAÇÃO DO DOMICÍLIO
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V0703:
+    role: deceased.death_month
+    kind: category
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: '"MÊS E ANO DE FALECIMENTO" (deceased.death_month): attribute of the person or of the household they live in'
+    name: MÊS E ANO DE FALECIMENTO
+    years:
+    - 2010
+    - 2010
+    missing:
+    - '99'
+  V0704:
+    role: deceased.sex
+    kind: category
+    model: stratum
+    fact_domain: person
+    fact_domain_evidence: '"SEXO DA PESSOA FALECIDA" (deceased.sex): attribute of the person or of the household they live in'
+    name: SEXO DA PESSOA FALECIDA
+    years:
+    - 2010
+    - 2010
+    missing:
+    - '9'
+  V7051:
+    role: deceased.age_years
+    kind: number
+    model: stratum
+    unit: years
+    unit_evidence: '"IDADE AO FALECER, EM ANOS" (layout, sheet MORT)'
+    fact_domain: person
+    fact_domain_evidence: '"IDADE AO FALECER, EM ANOS" (deceased.age_years): attribute of the person or of the household they live in'
+    name: IDADE AO FALECER, EM ANOS
+    years:
+    - 2010
+    - 2010
+    domain:
+    - 1
+    - 140
+    missing:
+    - '999'
+  V7052:
+    role: deceased.age_months
+    kind: number
+    model: mark
+    unit: months
+    unit_evidence: '"IDADE AO FALECER, EM MESES" (layout, sheet MORT)'
+    fact_domain: person
+    fact_domain_evidence: '"IDADE AO FALECER, EM MESES" (deceased.age_months): attribute of the person or of the household they live in'
+    name: IDADE AO FALECER, EM MESES
+    years:
+    - 2010
+    - 2010
+    domain:
+    - 0
+    - 11
+    missing:
+    - '99'
+  M0703:
+    role: deceased.imputed_v0703
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V0703" (deceased.imputed_v0703): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V0703
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M0704:
+    role: deceased.imputed_v0704
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V0704" (deceased.imputed_v0704): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V0704
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M7051:
+    role: deceased.imputed_v7051
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V7051" (deceased.imputed_v7051): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V7051
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M7052:
+    role: deceased.imputed_v7052
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V7052" (deceased.imputed_v7052): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V7052
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V1005:
+    role: deceased.sector_situation
+    kind: category
+    model: dimension
+    fact_domain: administrative
+    fact_domain_evidence: '"Situação do setor" (deceased.sector_situation): geography, sampling or processing key of the survey'
+    name: Situação do setor
+    years:
+    - 2010
+    - 2010
+    missing: []
