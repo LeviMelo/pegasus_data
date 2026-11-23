@@ -263,8 +263,15 @@ def events_cmd(
         console.print(f"  classifiers: {classifiers}")
         if status:
             console.print(f"  counts rows with {status['column']} in {status['values']}")
-        if row["consolidation"]:
-            console.print(f"  one event per distinct {row['consolidation']['key']}")
+        cons = row["consolidation"] or {}
+        if cons.get("key"):
+            console.print(f"  one event per distinct {cons['key']}")
+        if cons.get("chain"):
+            # a stay chains its AIHs (continuations, transfers) per person; there is no single key to name
+            chain = cons["chain"]
+            console.print(f"  one event per chain of rows of one person {chain.get('person')}, from {chain.get('start')} "
+                          f"to {chain.get('end')}, continued by {chain.get('reason')} in {chain.get('continues')} "
+                          f"(transfer {chain.get('transfer')}) within {chain.get('gap_days')} day(s)")
         if row["evidence"]:
             console.print(f"  evidence: {row['evidence']}")
 
