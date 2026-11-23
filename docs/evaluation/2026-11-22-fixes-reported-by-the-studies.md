@@ -244,3 +244,17 @@ MissingColumnError for every column of the dataset: the intake registered its fa
 families on the home (ANS TISS and ICB, SISAGUA, SNGPC, PNI-DOSES, S2iD, INEP, SIES, FA, SRAG, the census 2010 sample,
 SIOPS). `intake._register` now records them as a header census does, and the 35 were backfilled from each family's own
 parts (35 of 35); `describe('ANS', 'TISS_HOSP_CONS', field='CID_2')` and PegaSUS's `token_rule` answer.
+**PNS declared at state level (2026-11-23, working branch, N3 facts fetched into the one home).** A field takes `level: N3`
+(`load_field` then reads `cube(place="uf")` and returns `uf`, `uf_abbr` and no municipality, never a state value copied onto its
+municipalities) and `interval: {lower, upper, cv}` (the table's own variables, columns `lower`, `upper`, `cv` beside `value`, a
+marker staying null). Six fields: `pns_chronic_spine_problem` (4638), `pns_hypertension` (4418), `pns_helmet_motorcycle_driver`
+(5267), `pns_seat_belt_front` (8082, 2019), `pns_alcohol_abusive_use` (7726, 2019) and `pns_violence_by_stranger` (5351, 2013); each
+27 states and every year it publishes, status `value`. Against the SIDRA API: MG 2019 spine 3,646.543 [3,347.879; 3,945.207], CV 4.2;
+SP 2019 hypertension 8,678.935 (API 8,678.935); MG 2013 helmet 3,243.784 [2,859.408; 3,628.159], CV 6.0 (API identical). A municipal
+field is unchanged (`gdp` 2021 and `households_sewer_network` 2022: 5,570 rows, same hash on master and the branch). Denominator: IBGE
+publishes no count of any universe; count over its own percentage gives 159.0 million adults in 2019 (145.4 to 146.3 million in 2013),
+34.8 and 36.7 million motorcycle drivers (2013, 2019) and 154.6 million car users (2019), stated in each field's `what` and `over` left out.
+`context_candidates` gains `grain`: the 156 municipal SIDRA groups (4,448 tables) are unchanged (same content apart from the `fields`
+that read them), 125 state-only groups (869 tables, N3 and not N6) are added with grain `state`; of the 28 intake entries one (`sies`,
+placed by state) is now grain `state`, 27 `municipality` (184 entries before, 309 after). A PNS group with any N6 table (the capitals)
+stays a municipal group.
