@@ -1410,6 +1410,12 @@ datasets:
       - Dates are C(10) with separators here, unlike the bare AAAAMMDD used in SIH and SIM.
       - The interval is diagnosis to FIRST treatment; later lines of treatment are not in it.
       - A patient with two primary tumours appears twice.
+      - >-
+        Built from the other systems, not beside them: the Painel computes the interval from the diagnosis and
+        treatment dates recorded in SIA (APAC-oncologia and BPA-I), SIH and SISCAN, the diagnosis taken from the
+        anatomopathology record (INCA, relatório do Painel-Oncologia, maio 2020; Ministério da Saúde, SAES/CGCAN). For a
+        case treated first with radiotherapy or chemotherapy its treatment date is the same APAC that SIA-AR or SIA-AQ
+        carries: agreement between the Painel and those files is consistency, not independent validation.
 
   RESP.RESP:
     event_types:

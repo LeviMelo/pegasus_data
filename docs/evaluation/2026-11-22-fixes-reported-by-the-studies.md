@@ -327,3 +327,9 @@ VAL_TOT; SIH-RD AL 2024 (13,772 AIHs with ICU value) has VAL_SH below VAL_UTI in
 equals VAL_TOT in 13,762: the ICU value is split between the hospital and the professional components (the physicians'
 daily fees are SP). The text now says so. The manual's SIH.SP page still showed IN_TP_VAL reversed (written 2026-11-22,
 before 4d69bfa8): the catalog was curated and the manual regenerated.
+
+**Painel Oncologia's sources stated** (the reviewer, t05). The dataset's text did not say what the Painel is built from,
+and t05 read it as an "independent clock" for the radiotherapy interval. INCA's 2020 Painel report and SAES/CGCAN state
+that it takes the diagnosis and treatment dates from SIA (APAC, BPA-I), SIH and SISCAN, the diagnosis from the
+anatomopathology record: for a radiotherapy-first case its treatment date is SIA-AR's own APAC. A gotcha of
+PAINEL_ONCOLOGIA.PO now says so.
