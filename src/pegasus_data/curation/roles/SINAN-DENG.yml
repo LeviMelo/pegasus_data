@@ -1286,6 +1286,9 @@ columns:
     - 2026
   HEMA_MAIOR:
     missing: []
+    domain: [1, 100]
+    # a haematocrit is a percentage of blood volume: 0 (81% of HEMA_MAIOR's filled 2006 records) and values above 100
+    # (HEMA_MAIOR reaches 392) are no measurement; the domain keeps them out, as birth weight's does (2026-11-23)
     # measured 2000 (172855 rows, 153489 filled): range [0, 392], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded
     role: case.hematocrit_max
     kind: number
@@ -1299,6 +1302,9 @@ columns:
     - 2006
   HEMA_MENOR:
     missing: []
+    domain: [1, 100]
+    # a haematocrit is a percentage of blood volume: 0 (81% of HEMA_MAIOR's filled 2006 records) and values above 100
+    # (HEMA_MAIOR reaches 392) are no measurement; the domain keeps them out, as birth weight's does (2026-11-23)
     # measured 2000 (172855 rows, 153464 filled): range [0, 100], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded
     role: case.hematocrit_min
     kind: number
