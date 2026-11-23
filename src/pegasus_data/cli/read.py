@@ -276,6 +276,32 @@ def events_cmd(
             console.print(f"  evidence: {row['evidence']}")
 
 
+@app.command(name="holdings", rich_help_panel="UNDERSTAND")
+def holdings_cmd(
+    check: Annotated[bool, typer.Option("--check", help="Exit 1 when any store holds variables nothing describes")] = False,
+    show: Annotated[int, typer.Option("--show", help="Undescribed variables listed per store")] = 8,
+    as_json: JsonOpt = False,
+) -> None:
+    """Every store of the home against what describes it, variable by variable: what is held and nothing describes."""
+    from ..holdings import holdings
+
+    rows = [h.as_dict() for h in holdings()]
+    bad = [r for r in rows if r["defect"]]
+    if as_json:
+        _emit(bad if check else rows, True)
+    else:
+        console.print(f"{len(rows)} stores; {len(bad)} with defects; "
+                      f"{sum(len(r['undescribed']) for r in bad)} variables held and undescribed")
+        for r in sorted(bad, key=lambda r: -len(r["undescribed"])):
+            opaque = f", {len(r['opaque_files'])} opaque files" if r["opaque_files"] else ""
+            console.print(f"[bold]{r['store']}[/bold] ({r['describer'] or 'no describer'}): "
+                          f"{len(r['undescribed'])} of {r['held'] or 0} undescribed{opaque}")
+            if r["undescribed"][:show]:
+                console.print("  " + ", ".join(r["undescribed"][:show]) + (" ..." if len(r["undescribed"]) > show else ""))
+    if check and bad:
+        raise typer.Exit(1)
+
+
 @app.command(name="structure", rich_help_panel="UNDERSTAND")
 def structure_cmd(
     name: Annotated[str | None, typer.Argument(help="ICD10, SIGTAP, CBO2002, CNAE20, CID-BR-10, ICSAP-GROUPS ...; none lists them")] = None,

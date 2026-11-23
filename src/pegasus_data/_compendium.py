@@ -367,10 +367,17 @@ CREATE TABLE product_members (
   detail  TEXT,
   call    TEXT
 );
--- Store folders of the home that no dataset, field, link, intake source or product describes.
-CREATE TABLE unclaimed_stores (
-  path  TEXT PRIMARY KEY,
-  bytes INTEGER
+-- Every store of the home against what describes it, variable by variable (`holdings`): a variable held and
+-- undescribed, a file whose variables nothing can list, a store no describer claims, each a defect.
+CREATE TABLE holdings (
+  store        TEXT PRIMARY KEY,
+  kind         TEXT,
+  describer    TEXT,
+  held         INTEGER,
+  described    INTEGER,
+  undescribed  TEXT,
+  opaque_files TEXT,
+  defect       INTEGER
 );
 
 -- What pegasus_data can DO: every public function and command.
@@ -598,8 +605,13 @@ def fingerprint(settings: Settings, options: dict[str, Any] | None = None) -> st
         digest.update(f"{path.as_posix()}:{st.st_size}:{st.st_mtime_ns}".encode())
 
     for path in (settings.catalog_path, Path(f"{settings.catalog_path}-wal"),
-                 settings.registry_dir("sidra", "registry.sqlite"), Path(__file__)):
+                 settings.registry_dir("sidra", "registry.sqlite"), Path(__file__),
+                 Path(__file__).with_name("holdings.py")):
         stamp(path)
+    # what the home holds outside the lake: a store landed or changed makes the holdings stale
+    if settings.registries_dir.is_dir():
+        for folder in sorted(settings.registries_dir.iterdir()):
+            stamp(folder)
     digest.update(curation_epoch()[1].encode())
     lake = settings.lake_dir
     if lake.is_dir():
@@ -721,10 +733,15 @@ def overview(*, settings: Settings | None = None, root: str | Path | None = None
                        f"  {kept}  ({str(source or '')[:60]})")
         for product, names in q("SELECT product, GROUP_CONCAT(name, ', ') FROM product_members GROUP BY product").fetchall():
             out.append(f"  {product} members: {names}")
-        unclaimed = q("SELECT path, bytes FROM unclaimed_stores ORDER BY bytes DESC").fetchall()
-        if unclaimed:
-            out += ["", f"UNDESCRIBED STORES ({len(unclaimed)}): data in the home that nothing above describes (a defect)"]
-            out += [f"  {path}  {bytes_ / 2**20:,.0f} MB" for path, bytes_ in unclaimed]
+        gaps = q("SELECT store, describer, held, undescribed, opaque_files FROM holdings WHERE defect "
+                 "ORDER BY json_array_length(undescribed) DESC").fetchall()
+        if gaps:
+            out += ["", f"UNDESCRIBED HOLDINGS ({len(gaps)}): data in the home that nothing describes, variable by variable "
+                        "(a defect; `pegasus-data holdings`)"]
+            for store, describer, held, undescribed, opaque in gaps:
+                n, k = len(json.loads(undescribed or "[]")), len(json.loads(opaque or "[]"))
+                out.append(f"  {store}  {n} of {held or 0} variables undescribed" + (f", {k} opaque files" if k else "")
+                           + f"  ({describer or 'no describer'})")
 
         links = q("SELECT name, left_dataset, right_dataset, runs_held, description FROM links ORDER BY name").fetchall()
         out += ["", f"RECORD LINKS ({len(links)}): info <name> describes one and its runs; link(<name>, ...) runs it"]
@@ -1509,10 +1526,8 @@ def _write_products(db: sqlite3.Connection, cfg: Settings, report: CompendiumRep
     base = curation_root()
     declared = dict(products(base))
     rows = []
-    claimed: set[str] = set()
     for pid, spec in sorted(declared.items()):
         stores = [str(s).strip("/") for s in (spec.get("stores") or [])]
-        claimed.update(stores)
         held = [s for s in stores if (cfg.root / s).exists() or (Path(__file__).parent / s).exists()]
         rows.append((pid, spec.get("label"), spec.get("kind"), spec.get("source"),
                      str(spec.get("what") or "").strip() or None, spec.get("grain"),
@@ -1535,34 +1550,15 @@ def _write_products(db: sqlite3.Connection, cfg: Settings, report: CompendiumRep
     db.executemany("INSERT INTO product_members VALUES (?,?,?,?,?)", members)
     report.rows["product_members"] = len(members)
 
-    # Every store of the home is claimed by something that describes it; what is not is listed, a visible defect.
-    from .semantics.intake_declarations import declared_sources
+    # Every store of the home against what describes it, variable by variable (`holdings`): a store claimed by a product
+    # that reads two of its variables (the Census 2010 microdata, for commuting) hid the rest from every scope.
+    from .holdings import holdings
 
-    sources = declared_sources()
-    claimed |= {f"registries/{name}" for name in sources}
-    # A family of intake sources (sisagua_*) keeps its shared documents under the family's name.
-    claimed |= {f"registries/{name.split('_', 1)[0]}" for name in sources if "_" in name}
-    claimed |= {"lake/fields", "lake/links", "lake/sidra", "lake/cubes", "registries/sidra"}
-    # A context field built from a source's raw files describes them (BR-DWGD, INMET, CNES under registries/<source>).
-    claimed |= {f"registries/{src}" for (src,) in db.execute("SELECT DISTINCT source FROM fields WHERE source IS NOT NULL")}
-    claimed = {c.lower() for c in claimed}  # a folder's case varies (registries/CNES, lake/sngpc)
-    unclaimed = []
-    for top, folder in (("registries", cfg.registries_dir), ("lake", cfg.lake_dir)):
-        for path in sorted(folder.iterdir()) if folder.is_dir() else ():
-            rel = f"{top}/{path.name}"
-            if path.name.startswith("."):
-                continue  # the home's own working folders (.staging)
-            if top == "lake" and path.is_dir() and any(
-                    f.is_dir() and f.name.rpartition("_")[2].isalnum() and len(f.name.rpartition("_")[2]) == 10
-                    for f in path.iterdir()):
-                continue  # a system folder of record datasets, described by the ontology
-            low = rel.lower()
-            if any(c == low or c.startswith(low + "/") or low.startswith(c + "/") for c in claimed):
-                continue
-            size = sum(f.stat().st_size for f in path.rglob("*") if f.is_file()) if path.is_dir() else path.stat().st_size
-            unclaimed.append((rel, size))
-    db.executemany("INSERT INTO unclaimed_stores VALUES (?,?)", unclaimed)
-    report.rows["unclaimed_stores"] = len(unclaimed)
+    rows_h = [h.as_dict() for h in holdings(cfg)]
+    db.executemany("INSERT INTO holdings VALUES (?,?,?,?,?,?,?,?)",
+                   [(r["store"], r["kind"], r["describer"], r["held"], r["described"], json.dumps(r["undescribed"]),
+                     json.dumps(r["opaque_files"]), int(r["defect"])) for r in rows_h])
+    report.rows["holdings"] = len(rows_h)
 
 
 def _write_fields(db: sqlite3.Connection, cfg: Settings, report: CompendiumReport) -> None:

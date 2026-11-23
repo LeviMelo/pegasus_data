@@ -89,6 +89,7 @@ search("raça")            # columns about race: RACACOR, CS_RACA, RACA_COR …,
 search("link deaths")     # anything: datasets, columns, fields, roles, events, links, aggregates, operations, SIDRA tables
 cube("sidra:5938/37", place="uf")   # any IBGE SIDRA table as place x period (x strata): GDP by state, IBGE's statuses kept
 search("Parda", kind="code")            # which codes mean "Parda", in which tables
+holdings()                # every store against what describes it: variables held and undescribed
 ```
 
 Dataset names are the ontology's codes: `SIH.RD`, `SIM.DO`, `SINASC.DN`,

@@ -161,19 +161,30 @@ def condition_codes(root: str | Path | None = None, refresh: bool = False, downl
         if not years:
             missing.append(name)
             continue
-        plan.append((name, cols, years[-1]))
+        plan.append((name, cols, years))
     tag = hashlib.sha1(json.dumps([plan, missing, bool(download)]).encode()).hexdigest()[:12]
     target = _cache(root) / f"condition_codes_{tag}.parquet"
     if target.is_file() and not refresh:
         return pq.read_table(target)
+    from ._request import DownloadBudgetExceeded
+
     rows = []
-    for name, cols, year in plan:
+    for name, cols, years in plan:
         event = event_types(name)[0]["name"]
-        for col in cols:
-            t = count_events(name, event, period=year, geography="BR", by=[col], root=root,
-                             **({} if download else {"max_download": 0}))
+        # the latest year the lake holds WHOLE: `lake_coverage` lists a year some states of which are held, and counting
+        # it nationally without downloading refused, which took the whole index down with it (SINAN, 2026-11-23: a
+        # study's scope could not be priced). A dataset with no whole year is recorded as not in the lake.
+        for year in reversed(years if not download else years[-1:]):
+            try:
+                counted = [(col, count_events(name, event, period=year, geography="BR", by=[col], root=root,
+                                              **({} if download else {"max_download": 0}))) for col in cols]
+            except DownloadBudgetExceeded:
+                continue
             rows += [{"dataset": name, "column": col, "year": year, "code": _norm(r[col]), "events": int(r["events"])}
-                     for r in t.to_pylist() if r.get(col)]
+                     for col, t in counted for r in t.to_pylist() if r.get(col)]
+            break
+        else:
+            missing.append(name)
     table = pa.Table.from_pylist(rows, schema=pa.schema([("dataset", pa.string()), ("column", pa.string()),
                                                          ("year", pa.int16()), ("code", pa.string()),
                                                          ("events", pa.int64())]))
@@ -332,20 +343,33 @@ def dispensed(codes: list[str], years: list[int] | None = None, root: str | Path
     APACs and diagnoses), so ``medicines == []`` with ``scanned.apacs > 0`` says the source holds no APAC under the
     codes."""
     from ._explore import explore, lake_coverage
+    from ._request import DownloadBudgetExceeded
 
     prefixes = [_norm(c) for c in codes]
+    read: dict[int, pa.Table] = {}
     if not years:
         held = sorted(lake_coverage(dataset, root=root))
         if not held and download:
             held = sorted(int(r["year"]) for r in explore(dataset, root=root).rows if int(r["months"]) == 12)
         if not held:
             raise LookupError(f"{dataset}: no year in the lake; pass years= with download=True")
-        years = held[-1:]
+        # the latest year the lake holds WHOLE: a year some states or months of which are held is listed by
+        # `lake_coverage` and refused nationally without a download (as `condition_codes`, 2026-11-23)
+        for y in reversed(held if not download else held[-1:]):
+            try:
+                read[y] = authorisations(y, root, download=download, dataset=dataset)
+                break
+            except DownloadBudgetExceeded:
+                continue
+        if not read:
+            raise LookupError(f"{dataset}: no year held whole in the lake ({held}); pass years= with download=True")
+        years = list(read)
     names = procedure_names(root)
     meds: dict[str, dict] = {}
     scanned: dict[str, Any] = {"apacs": 0, "cids": set()}
     for y in years:
-        for r in authorisations(y, root, download=download, dataset=dataset).to_pylist():
+        table = read[y] if y in read else authorisations(y, root, download=download, dataset=dataset)
+        for r in table.to_pylist():
             scanned["apacs"] += r["apacs"]
             scanned["cids"].add(r["cid"])
             if not (r["procedure"].startswith("06") and any(r["cid"].startswith(p) for p in prefixes)):
