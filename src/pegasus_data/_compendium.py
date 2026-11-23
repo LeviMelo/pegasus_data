@@ -1461,12 +1461,12 @@ def _declared_columns(onto: Ontology, wanted: set[str]) -> dict[str, set[str]]:
 
 def _declared_publications(onto: Ontology, wanted: set[str]) -> dict[str, tuple[int, int, int]]:
     """Per intake dataset with a files origin, the publications its declaration lists: (files, first year, last year)."""
-    from .intake import _units
+    from .intake import UNIT_KINDS, _units
     from .semantics.intake_declarations import declared_sources
 
     out: dict[str, tuple[int, int, int]] = {}
     for spec in declared_sources().values():
-        if not spec.get("system") or (spec.get("origin") or {}).get("kind") != "files":
+        if not spec.get("system") or (spec.get("origin") or {}).get("kind") not in UNIT_KINDS:
             continue
         code = onto.bind(str(spec["system"]), str(spec["series"])).dataset
         years = [int(u["year"]) for u in _units(spec, None) if u.get("year")]

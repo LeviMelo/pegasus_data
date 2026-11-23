@@ -1,7 +1,7 @@
 """Intake of the sources that are not on the DATASUS FTP: one mechanism, declared (ADR-0162).
 
-A source is an entry of ``curation/intake.yml``: where it lives (the DEMAS open-data API, or files of the Portal de Dados
-Abertos), the columns with their roles and code lists as the source's own dictionary gives them, the keys a context is served
+A source is an entry of ``curation/intake.yml``: where it lives (the DEMAS open-data API, files of the Portal de Dados
+Abertos, or a TabNet base read one table at a time: SIOPS), the columns with their roles and code lists as the source's own dictionary gives them, the keys a context is served
 by (a place and a period) and its measures, which are sums and counts and never means. This module reads a declaration and
 does everything else, so a source adds no code:
 
@@ -73,6 +73,8 @@ __all__ = ["api_rows", "build_source", "check_source", "declared_sources", "land
 PIECE_PAGES = 50
 #: Columns above which a landing writes smaller row groups (see `_land`).
 WIDE = 100
+#: The origins that are read as units, one landing each (a file, a TabNet table), as against an API read by pieces.
+UNIT_KINDS = ("files", "tabnet")
 def _cache(source: str, root: str | Path | None, *parts: str) -> Path:
     from .config import load_settings
 
@@ -587,7 +589,7 @@ def register_periods(settings: Any, source: str | None = None, *, dry_run: bool 
     try:
         with store.write() as conn:
             for name, spec in declared_sources().items():
-                if (source and name != source) or _origin(spec)["kind"] != "files":
+                if (source and name != source) or _origin(spec)["kind"] not in UNIT_KINDS:
                     continue
                 read, changed = 0, 0
                 for unit in _units(spec, None):
@@ -702,7 +704,7 @@ def register_held(settings: Any, source: str | None = None) -> dict[str, Any]:
     for name, spec in declared_sources().items():
         if (source and name != source) or not spec.get("system"):
             continue
-        if _origin(spec).get("kind") != "files":
+        if _origin(spec).get("kind") not in UNIT_KINDS:
             result = _register_held_pieces(settings, name, spec, lake_root)
             if result["registered"] or result["missing"]:
                 out[name] = result
@@ -793,6 +795,16 @@ def _units(spec: dict[str, Any], years: list[int] | None) -> list[dict[str, Any]
     """
     origin = _origin(spec)
     out: list[dict[str, Any]] = []
+    if origin.get("kind") == "tabnet":
+        # a TabNet base: one table per period file and per value of each `across` axis (SIOPS: a state and a year)
+        across = origin.get("across") or {}
+        for year in _span(origin["years"]):
+            for combination in itertools.product(*across.values()):
+                axes = dict(zip(across, map(str, combination), strict=True))
+                table = origin["file"].format(year=year, yy=f"{year % 100:02d}")
+                definition = origin["definition"].format(**axes)
+                out.append({"key": "-".join([str(year), *axes.values()]), "url": f"{origin['base']}/tabcgi.exe?{definition}&Arquivos={table}",
+                            "year": year, "month": None, "extension": "csv", "definition": definition, "table": table, "axes": axes})
     for entry in origin.get("files") or []:
         out.append({"key": entry.get("key") or Path(urlsplit(entry["url"]).path).name, "url": entry["url"], "year": entry.get("year"),
                     "extension": entry.get("extension")})
@@ -1031,6 +1043,65 @@ def _file_relation(path: Path, origin: dict[str, Any], unit: dict[str, Any], spe
             f"encoding='{encoding}', null_padding=true{', parallel=false' if csv.get('multiline') else ''})"), extracted
 
 
+def _tabnet_csv(origin: dict[str, Any], unit: dict[str, Any], destination: Path) -> Path:
+    """One TabNet table, written as the CSV a unit lands from (a ``tabnet`` origin: ``contents`` {option value: column}, the
+    ``row`` classification, optionally ``row_label`` {code, name} naming the two columns a row label such as "120001 Acrelândia"
+    is cut into).
+
+    The header TabNet answers is compared with the contents asked for, in order: a base that renames a content or answers in
+    another order must not shift the values into the wrong columns. The ``total_row`` is not a record and is dropped, but it
+    is the independent count: each of ``check_total`` (the additive contents) must sum over the rows to its value, or no
+    unit is written (a record lost between the table and the file). A table with no rows (a state-year that holds none) is
+    a recorded gap (`SourceAbsent`), not an empty unit. Rows are those TabNet lists: a place that did not report is absent
+    (the form's "show zero rows" option is left off), never a zero."""
+    import csv
+
+    from .sources.tabnet import prn
+
+    contents = origin["contents"]
+    fields = [("Linha", origin["row"]), ("Coluna", origin.get("column", "--Não-Ativa--")),
+              *(("Incremento", c) for c in contents), ("Arquivos", unit["table"])]
+    try:
+        table = prn(unit["definition"], fields, base=origin["base"])
+    except RuntimeError as exc:
+        raise SourceAbsent(unit["url"], 204, str(exc)) from exc
+
+    def clean(text: str) -> str:
+        return re.sub(r"[\s_]+", " ", text).strip()
+
+    header, body = table[0], table[1:]
+    if [clean(h) for h in header] != [clean(origin["row"]), *(clean(c) for c in contents)]:
+        raise ValueError(f"{unit['key']}: TabNet answered the columns {header}, not those asked for ({list(contents)})")
+    total_label = origin.get("total_row", "Total")
+    total = next((r for r in body if r[0] == total_label), None)
+    records = [r for r in body if r[0] != total_label]
+    if not records:
+        raise SourceAbsent(unit["url"], 204, "TabNet answered a table of no rows")
+    if {len(r) for r in records} != {len(header)}:
+        raise ValueError(f"{unit['key']}: TabNet rows of unequal width: {sorted({len(r) for r in records})} for {len(header)} columns")
+    names = list(contents.values())
+
+    def figure(cell: str) -> float:
+        return float(cell.replace(",", ".")) if re.fullmatch(r"-?[0-9]+(,[0-9]+)?", cell) else 0.0
+
+    for name in origin.get("check_total") or []:
+        at = names.index(name) + 1
+        got = sum(figure(r[at]) for r in records)
+        if total is None or abs(got - figure(total[at])) > 0.01 * len(records):
+            raise ValueError(f"{unit['key']}: the rows' {name} sum to {got:,.2f}, TabNet's {total_label} row says "
+                             f"{total[at] if total else 'nothing'}: records were lost")
+    label = origin.get("row_label") or {}
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    with destination.open("w", encoding="utf8", newline="") as handle:
+        out = csv.writer(handle, delimiter=";", lineterminator="\n")
+        axes = unit.get("axes") or {}
+        out.writerow([*(a.upper() for a in axes), *([label["code"], label["name"]] if label else [origin["row"]]), *names])
+        for r in records:
+            code, _, name = r[0].partition(" ")
+            out.writerow([*axes.values(), *([code, name] if label else [r[0]]), *r[1:]])
+    return destination
+
+
 def _land_unit(settings: Any, source: str, spec: dict[str, Any], unit: dict[str, Any], refresh: bool,
                fetch: bool = True) -> dict[str, Any]:
     root = settings.root
@@ -1048,7 +1119,8 @@ def _land_unit(settings: Any, source: str, spec: dict[str, Any], unit: dict[str,
     if not fetch:
         return {"not_held": True, "url": unit["url"]}
     origin = _origin(spec)
-    raw = download(unit["url"], _raw_path(source, root, _origin(spec), unit))
+    target = _raw_path(source, root, origin, unit)
+    raw = _tabnet_csv(origin, unit, target) if origin.get("kind") == "tabnet" else download(unit["url"], target)
     extracted = None
     counted = origin.get("format", "csv") == "csv"
     if counted and raw.suffix.lower() != ".zip":
@@ -1404,7 +1476,9 @@ def build_source(settings: Any, source: str, names: list[str] | None = None, yea
         chosen = [u for u in _units(spec, years) if not units or u["key"] in units or u["key"].rsplit("-", 1)[-1] in units]
         if units and not chosen:
             raise ValueError(f"{source}: no unit named {units}; its units are {[u['key'] for u in _units(spec, years)][:40]}")
-        for key, outcome in adaptive_map(land, chosen, start=INTAKE_WORKERS, measure=lambda _out: 1,
+        # a source declares the most requests it takes at once (`origin.workers`: TabNet's CGI is one process per request)
+        workers = int(_origin(spec).get("workers") or 24)
+        for key, outcome in adaptive_map(land, chosen, start=min(INTAKE_WORKERS, workers), cap=workers, measure=lambda _out: 1,
                                          pace=pace):
             if isinstance(outcome, SourceAbsent):
                 absent[key] = outcome
