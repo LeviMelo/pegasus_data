@@ -357,3 +357,32 @@ legacy_places:
 state_only_codes:
   suffix_digit: '0'
   evidence: MUNICBR (SIHSUS kit) labels each <UF>0000 'Município ignorado - <UF>'
+
+# Municipalities IBGE's yearly territorial division (DTB, geoftp.ibge.gov.br) lists per year, measured by
+# scripts/ibge_dtb_vintages.py (2026-10-03; no year's municipality left, only new ones appeared). A year IBGE does not
+# publish (1995-1999, 2001-2004) takes the latest published year before it. `fields.context_candidates` compares each
+# SIDRA table's N6 locality count with the entry of the table's last year: a table that lists fewer is partial.
+municipalities_by_year:
+  1994: 4974
+  2000: 5507
+  2005: 5564
+  2006: 5564
+  2007: 5564
+  2008: 5564
+  2009: 5565
+  2010: 5565
+  2011: 5565
+  2012: 5565
+  2013: 5570
+  2014: 5570
+  2015: 5570
+  2016: 5570
+  2017: 5570
+  2018: 5570
+  2019: 5570
+  2020: 5570
+  2021: 5570
+  2022: 5570
+  2023: 5570
+  2024: 5571
+  2025: 5571
