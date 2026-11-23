@@ -40,6 +40,6 @@ to ADD what declarations do not reach, and every such addition or exclusion is r
    with a recorded decision. **Done** (65846705; PegaSUS cc6795a: `contexts_considered`, `study.body` part).
 4. **Procedure seeds:** SIGTAP codes as a topic seed. **Done** (PegaSUS cc6795a, `--sigtap`).
 5. **Undeclared missing codes and draft roles** that keep columns out of every scope (`fields.declared` reasons),
-   swept per column.
+   swept per column. Fillers **done** (720887f3: 127 columns of 5,801 measured); the `fields.declared` reasons in progress.
 6. **Studies go through it:** the skills make a PegaSUS scope the first step of any study; its `scope.yml` is the data
    extent the paper and the reviewer check. Then the ten ABNc papers.
