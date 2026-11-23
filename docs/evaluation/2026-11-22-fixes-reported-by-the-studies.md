@@ -303,3 +303,9 @@ scanners, neurosurgeons or neurology accreditations. Each source and family of d
 intake source lists is now one candidate (`kind: field`, id `field:<source>:<family>`): 18 families, 104 fields (CNES
 equipment 13, professionals 31, beds 10, facilities 8, accreditations 7, radiotherapy machines 3, teams 2, specialised
 services 1; SIM-DO records 3; climate 8; four ANS TISS intake fields); 309 entries to 327.
+
+**SIA-AR treatment dates described** (t05's final review). The study read AP_DTINIC (the APAC's validity start, as its
+roles note says) as the start of radiotherapy; it equals the request date in 76% of courses. The radiotherapy part of
+the APAC carries the dates of care: APA_INIAR1-3 and APA_FIMAR1-3, the start and end of irradiation of each treated area
+beside its topographic ICD (sources/apac_layout.txt, p. 10). Their roles carried only the layout's bare names; each now
+has a note saying what it records.

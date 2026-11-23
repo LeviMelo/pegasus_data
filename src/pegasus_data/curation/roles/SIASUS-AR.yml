@@ -786,6 +786,7 @@ columns:
     - 2008
     - 2026
   AR_FIMAR1:
+    note: "The end of irradiation of the 1st treated area (the radiotherapy part of the APAC, APA_INIAR/FIMAR 1 beside its topographic ICD APA_CIDTR1; sources/apac_layout.txt, p. 10): the dates of care delivered, not of the authorisation (AP_DTINIC is the APAC's validity start)."
     role: authorisation.fimar1
     kind: date
     model: when
@@ -796,6 +797,7 @@ columns:
     - 2008
     - 2026
   AR_FIMAR2:
+    note: "The end of irradiation of the 2nd treated area (the radiotherapy part of the APAC, APA_INIAR/FIMAR 2 beside its topographic ICD APA_CIDTR2; sources/apac_layout.txt, p. 10): the dates of care delivered, not of the authorisation (AP_DTINIC is the APAC's validity start)."
     role: authorisation.fimar2
     kind: date
     model: when
@@ -806,6 +808,7 @@ columns:
     - 2008
     - 2026
   AR_FIMAR3:
+    note: "The end of irradiation of the 3rd treated area (the radiotherapy part of the APAC, APA_INIAR/FIMAR 3 beside its topographic ICD APA_CIDTR3; sources/apac_layout.txt, p. 10): the dates of care delivered, not of the authorisation (AP_DTINIC is the APAC's validity start)."
     role: authorisation.fimar3
     kind: date
     model: when
@@ -842,6 +845,7 @@ columns:
     - 2008
     - 2026
   AR_INIAR1:
+    note: "The start of irradiation of the 1st treated area (the radiotherapy part of the APAC, APA_INIAR/FIMAR 1 beside its topographic ICD APA_CIDTR1; sources/apac_layout.txt, p. 10): the dates of care delivered, not of the authorisation (AP_DTINIC is the APAC's validity start)."
     role: authorisation.iniar1
     kind: date
     model: when
@@ -852,6 +856,7 @@ columns:
     - 2008
     - 2026
   AR_INIAR2:
+    note: "The start of irradiation of the 2nd treated area (the radiotherapy part of the APAC, APA_INIAR/FIMAR 2 beside its topographic ICD APA_CIDTR2; sources/apac_layout.txt, p. 10): the dates of care delivered, not of the authorisation (AP_DTINIC is the APAC's validity start)."
     role: authorisation.iniar2
     kind: date
     model: when
@@ -862,6 +867,7 @@ columns:
     - 2008
     - 2026
   AR_INIAR3:
+    note: "The start of irradiation of the 3rd treated area (the radiotherapy part of the APAC, APA_INIAR/FIMAR 3 beside its topographic ICD APA_CIDTR3; sources/apac_layout.txt, p. 10): the dates of care delivered, not of the authorisation (AP_DTINIC is the APAC's validity start)."
     role: authorisation.iniar3
     kind: date
     model: when
