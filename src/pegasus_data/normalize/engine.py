@@ -499,8 +499,12 @@ class MissingColumnError(KeyError):
         available: Sequence[str],
         *,
         also_absent: Sequence[str] = (),
+        carried_in: str = "",
     ) -> None:
         self.field_name = field_name
+        #: The years the dataset's decoded schemas carry the column (`FieldWindow.span`): a family id names a generation
+        #: by its hash, and a reader choosing a period needs the years.
+        self.carried_in = carried_in
         self.family_id = family_id
         self.available = list(available)
         #: Every requested column absent from this generation, `field_name`
@@ -515,5 +519,5 @@ class MissingColumnError(KeyError):
         )
         super().__init__(
             f"column {field_name!r} is not present in family {family_id}{rest}; "
-            f"generations that do carry it: {hint}"
+            f"generations that do carry it: {hint}" + (f" (years: {carried_in})" if carried_in else "")
         )

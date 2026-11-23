@@ -420,8 +420,10 @@ def read_source(
                 # variable. STRUCTURAL absence, and every one of them at once: the concat null-fills any column
                 # that at least one generation has, so a column missing HERE is missing from every generation
                 # that answered.
+                carriers, years = _carriers(pipeline, families, system, series_name, missing)
                 raise MissingColumnError(
-                    missing[0], fetch_report.families[0], [], also_absent=missing[1:]
+                    missing[0], ", ".join(fetch_report.families) or fetch_report.families[0], carriers,
+                    also_absent=missing[1:], carried_in=years,
                 )
             requested = set(columns)
             # `_source_path` is a hidden semantic dependency: rendering needs it to recover each row's family and
@@ -968,6 +970,25 @@ def _structurally_absent(
             if absent:
                 absent_by_family[family_id] = absent
     return absent_by_family
+
+
+def _carriers(pipeline: Pipeline, families: Sequence[Mapping[str, Any]], system: str, series: str | None,
+              missing: Sequence[str]) -> tuple[list[str], str]:
+    """``(families of the dataset carrying every one of ``missing``, the years the first is carried)``: what a
+    MissingColumnError names. It named none (an empty list, read as "no other generation carries it") when SINASC's
+    ESCMAE2010 asked of 2010 is carried 2012-2024 (2026-11-22)."""
+    from ._availability import availability
+    from ._query_engine.readplan import schema_presence
+
+    presence = schema_presence(pipeline.catalog, families)
+    carriers = [str(f["family_id"]) for f in families
+                if all(c in presence.get(str(f["schema_signature"]), frozenset()) for c in missing)]
+    try:
+        window = availability(f"{system}-{series}" if series else system, settings=pipeline.settings).fields.get(
+            str(missing[0]).upper())
+    except Exception:  # noqa: BLE001 - the years only enrich the message; the error is raised regardless
+        window = None
+    return carriers, (window.span() if window is not None and window.intervals else "")
 
 
 def _apply_missing_column_policy(
