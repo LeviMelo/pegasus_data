@@ -308,4 +308,6 @@ services 1; SIM-DO records 3; climate 8; four ANS TISS intake fields); 309 entri
 roles note says) as the start of radiotherapy; it equals the request date in 76% of courses. The radiotherapy part of
 the APAC carries the dates of care: APA_INIAR1-3 and APA_FIMAR1-3, the start and end of irradiation of each treated area
 beside its topographic ICD (sources/apac_layout.txt, p. 10). Their roles carried only the layout's bare names; each now
-has a note saying what it records.
+has a note saying what it records. **Corrected the same day** (the reviewer, t05): the first note called them the
+start and end of irradiation; the SIA oncology manual (2008, 6.2.3.1) defines them as the *planned* dates informed on
+the APAC/RT request, kept to check the billing. The notes now say planned, not delivered.
