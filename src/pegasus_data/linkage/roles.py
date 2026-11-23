@@ -349,27 +349,33 @@ def partition_files(dataset: str, year: int, settings: Any) -> tuple[Path, list[
 
     system, series = parse_dataset(dataset)
     lake, files = published_files(settings.lake_dir, system, cast(str, series), year)
-    # only the files the catalog lists, as `query()` reads: a partition left unlisted (a superseded family's,
-    # `persist.lake._delist_superseded`) is read by nothing, and keying on it served a role table built while it was
-    # still read: SINASC 2013 twice over after the catalog was repaired (2026-11-22)
-    listed = _listed_paths(settings, year)
-    if listed is not None:
-        files = [f for f in files if f.relative_to(Path(settings.lake_dir)).as_posix() in listed]
+    # only the files a national `query()` of the year opens (`plan_lake_read`: the catalog's partitions, one reading of
+    # the year): a partition left unlisted (a superseded family's, `persist.lake._delist_superseded`) is read by nothing,
+    # and keying on it served a role table built while it was still read: SINASC 2013 twice over after the catalog was
+    # repaired (2026-11-22). Nor a state's partition of a year filed nationally: a query of SIM-DO AC 2020 landed
+    # DOAC2020 beside DOBR2020, the national table never reads it, and its key made every stored 2020 death-link run
+    # stale (t07, 2026-11-23)
+    read = _read_paths(settings, system, cast(str, series), year)
+    if read is not None:
+        files = [f for f in files if f.relative_to(Path(settings.lake_dir)).as_posix() in read]
     return lake, files
 
 
-def _listed_paths(settings: Any, year: int) -> set[str] | None:
-    """The relative paths of the lake partitions the catalog lists for ``year``, or None without a catalog."""
+def _read_paths(settings: Any, system: str, series: str, year: int) -> set[str] | None:
+    """The relative paths of the lake partitions a national read of ``year`` opens, or None without a catalog."""
+    from .._query_engine.readplan import plan_lake_read
     from ..catalog.store import CatalogStore
 
     if not Path(settings.catalog_path).exists():
         return None
     store = CatalogStore.shared(settings.catalog_path)
     try:
-        return {str(r["relative_path"]) for r in store.query("SELECT relative_path FROM lake_partitions WHERE year=?",
-                                                              (year,))}
+        plan = plan_lake_read(store, system, series, family_id=None, uf=None, years=[year])
+    except Exception:  # noqa: BLE001 - a dataset the catalog cannot resolve: no partition is read
+        return set()
     finally:
         store.close()
+    return {p.relative_path for parts in plan.partitions.values() for p in parts}
 
 
 def table_key(dataset: str, year: int, settings: Any) -> str | None:

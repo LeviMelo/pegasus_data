@@ -371,6 +371,7 @@ def extract_table(dataset: str, column: str, codes: Sequence[str], years: Sequen
     column = column.upper()
     system, series = parse_dataset(dataset)
     base = Path(settings.lake_dir) / "extracts" / f"{system}-{series or system}"
+    short: list[str] = []
     for d in sorted(base.iterdir()) if base.exists() else []:
         m = _read_manifest(d / "manifest.json")
         held = ((m or {}).get("filters") or {}).get(column)
@@ -385,12 +386,17 @@ def extract_table(dataset: str, column: str, codes: Sequence[str], years: Sequen
         # every year of SIA-PA's extract unheld (2026-10-12)
         failed = [p for p in m["failed"] if p in listed and p not in m["files"]]
         if unread or failed:
-            raise LookupError(f"{dataset} {column} {asked}: the extract does not hold {want} whole "
-                              f"({len(unread)} files unread, {len(failed)} failed)")
+            # another extract may hold the years whole: a newer one still being written shadowed a complete one
+            # (SIH-SP 0403 2024, science-1, 2026-11-23)
+            short.append(f"{d.name}: {len(unread)} files unread, {len(failed)} failed")
+            continue
         parts = [p for y in want for p in _year_parts(d, y)]
         table = pa.concat_tables([pq.read_table(p) for p in parts], promote_options="default") if parts else pa.table({})
         if table.num_rows:
             mask = _match(table, column, asked)
             table = table.filter(mask) if mask is not None else table.slice(0, 0)
         return table, m
+    if short:
+        raise LookupError(f"{dataset} {column} {asked}: no extract holds {list(years) if years else 'its years'} whole ("
+                          + "; ".join(short) + ")")
     raise LookupError(f"{dataset}: no extract with a filter on {column} covers {asked}")

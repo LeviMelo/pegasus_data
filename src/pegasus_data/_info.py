@@ -376,10 +376,12 @@ def info(
     try:
         text = str(target or "").strip()
 
-        # "SIH.RD.DIAG_PRINC" — a field qualified by its dataset.
-        if text and field_name is None and text.count(".") >= 2:
+        # "SIH.RD.DIAG_PRINC" or "SIHSUS-SP.IN_TP_VAL": a field qualified by its dataset, in any spelling the dataset
+        # resolves under (the hyphenated form had one dot and was read as a node name: "does not resolve", 2026-11-23)
+        if text and field_name is None and "." in text and onto.resolve(text) is None:
             head, tail = text.rsplit(".", 1)
-            if onto.resolve(head) and tail.isupper():
+            node = onto.resolve(head)
+            if node and node[0] == "dataset" and tail.isupper():
                 text, field_name = head, tail
 
         if field_name:

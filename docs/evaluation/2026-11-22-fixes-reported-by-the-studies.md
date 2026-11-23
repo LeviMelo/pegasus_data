@@ -174,3 +174,18 @@ such files are reported in `FetchReport.from_extract`, never landed. SP 2019-06:
 part, 3.6 s, nothing downloaded; all states 2019 with labels: 359,898 rows in 11.3 s, equal to the year's parts. The
 `open_lake()` view `sihsus_sp` stays the dataset's partitions: an extract is a filtered table and is read only through
 a filter it covers.
+
+**Third round (2026-11-23).** *Stored link runs went stale for a file no read opens* (science-1, t07): the death-link run
+of chronic subdural surgery, BR 2020, was on disk but `linked_outcomes(compute=False)` raised RunNotStored. A query of
+SIM-DO AC 2020 had landed DOAC2020 beside DOBR2020; the national read opens only DOBR2020 (`query()` 1,556,824 rows
+before and after), but `roles.partition_files` keyed role tables on every partition the catalog lists, so every stored
+run reading SIM 2020 changed fingerprint. The key now lists the files a national read opens (`plan_lake_read`): SIM-DO
+2019 and 2020 one file each (28 and 2 before). The new key changes every stored fingerprint once; `scripts/
+restamp_link_runs.py` re-stamps a run only when the old definition, over the partitions written before the run, still
+gives its stored fingerprint (roles, labels, files and engine unchanged): 87 re-stamped, 32 already current, 124 left
+stale (their inputs did change). *`extract_table` stopped at the first covering extract*: a newer SIH-SP extract still
+being written (0403, 2024) shadowed the complete one (0403/040803, 2010-2025); it now tries each and raises only when
+none holds the years whole (2024: 2,119,682 rows). *`info SIHSUS-SP.IN_TP_VAL` did not resolve*: a dataset-qualified
+field is now split on its last dot whenever the dataset resolves, in any spelling. Not a defect: SIH-RD's CBOR reads
+0.0% filled while 225265 is its most common real value; nationally 2024 holds about 1,600 real CBOs among 14.2 M AIHs
+('000000'), under 0.1%.
