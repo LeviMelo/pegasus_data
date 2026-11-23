@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "pegasus_data: a queryable, self-describing data lake over Brazilian public health data"
+authors:
+  - family-names: "Amorim"
+    given-names: "Levi de Melo"
+    email: "levi.amorim@nees.ufal.br"
+    affiliation: "Núcleo de Excelência em Tecnologias Educacionais (NEES), Universidade Federal de Alagoas (UFAL); Faculdade de Medicina (FAMED), Universidade Federal de Alagoas (UFAL), Maceió, AL, Brazil"
+repository-code: "https://github.com/LeviMelo/pegasus_data"
+license: "MIT"

@@ -10,7 +10,7 @@ readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"
 license-files = ["LICENSE"]
-authors = [{ name = "PegaSUS" }]
+authors = [{ name = "Levi de Melo Amorim", email = "levi.amorim@nees.ufal.br" }]
 keywords = ["datasus", "sus", "brazil", "health", "epidemiology", "parquet", "ftp"]
 classifiers = [
   "Development Status :: 3 - Alpha",
