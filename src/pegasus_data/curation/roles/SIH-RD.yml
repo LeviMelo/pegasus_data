@@ -34,6 +34,8 @@ columns:
     - 1998
     - 2026
   CBOR:
+    missing: ['000000']
+    # every AIH 2010-2024 holds '000000', no CBO code (measured SE 2010, 2015, 2024; 2026-11-22)
     role: patient.occupation
     kind: code_tree
     model: dimension
@@ -69,6 +71,8 @@ columns:
     - 1992
     - 2026
   CID_ASSO:
+    missing: ['0000']
+    # every record from 2015 holds '0000', no ICD code (measured SE 2015, 2024; 2026-11-22)
     role: admission.associated_cause
     kind: code_tree
     model: mark
@@ -83,6 +87,8 @@ columns:
     - 2014
     # filled through 2014; every record from 2015 holds '0000' (measured 2026-10-08, DATA_SOURCES §1.9)
   CID_MORTE:
+    missing: ['0000']
+    # every record from 2015 holds '0000', no ICD code (measured SE 2015, 2024; 2026-11-22)
     role: admission.death_cause
     kind: code_tree
     model: mark
@@ -425,6 +431,8 @@ columns:
     - 1997
     - 1997
   DIAG_SECUN:
+    missing: ['0000']
+    # every record from 2015 holds '0000', no ICD code (measured SE 2015, 2024; 2026-11-22)
     role: admission.secondary_diagnosis
     kind: code_tree
     model: mark

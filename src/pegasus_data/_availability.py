@@ -434,7 +434,8 @@ def field_coverage(
 
 def field_fill(dataset: str, fields: list[str] | str, years: list[int] | range, **query_kwargs: Any):
     """How much of each year a column FILLS (OPEN_QUESTIONS 71): per (year, field) the records, those holding a value
-    (not empty, not one of the column's declared missing codes in its roles), and their share. Presence is not fill:
+    (not empty, not one of the column's declared missing codes in its roles), their share, and the most common filled
+    value with its share of the filled (``modal``, ``modal_share``): a column one value fills is filled and uninformative. Presence is not fill:
     SIH-RD's CID_MORTE and CID_ASSO are present every year and hold 0000 in every record from 2015, and SIM-DO's CB_PRE
     is present from 2014 and empty (DATA_SOURCES §1.9); `field_available` says "present" for all of them. A field the
     year's files lack has records but no filled ones, and a year with no publication is left out. A year whose files
@@ -445,6 +446,7 @@ def field_fill(dataset: str, fields: list[str] | str, years: list[int] | range, 
 
     from ._query_engine.executor import query
     from ._request import NothingPublished, PublishedEmpty
+    from .normalize.engine import MissingColumnError
     from .semantics import column_roles
 
     wanted = [fields] if isinstance(fields, str) else list(fields)
@@ -453,7 +455,10 @@ def field_fill(dataset: str, fields: list[str] | str, years: list[int] | range, 
         roles = {r.column: r for r in column_roles.load_column_roles().get(dataset_key(dataset), ())}
     except Exception:  # noqa: BLE001 - a dataset without roles has no declared missing codes
         roles = {}
-    out: dict[str, list[Any]] = {"year": [], "field": [], "records": [], "filled": [], "share": []}
+    out: dict[str, list[Any]] = {"year": [], "field": [], "records": [], "filled": [], "share": [], "modal": [],
+                                 "modal_share": []}
+    seen: set[str] = set()
+    read_any = False
     for year in years:
         cols = list(wanted)
         table, unread = None, False
@@ -464,21 +469,22 @@ def field_fill(dataset: str, fields: list[str] | str, years: list[int] | range, 
             except (NothingPublished, PublishedEmpty) as exc:
                 table, unread = None, "could not be fetched or decoded" in str(exc)
                 break
-            except Exception as exc:  # noqa: BLE001 - a column absent this year: read the others
-                import re
-
-                gone = set(re.findall(r"'([A-Z0-9_]+)' is not present", str(exc)))
+            except MissingColumnError as exc:  # a column absent this year: read the others
+                gone = set(exc.columns_absent)
                 if not gone & set(cols):
                     raise
                 cols = [c for c in cols if c not in gone]
         if table is None:
             for f in wanted if unread else ():
-                for k, v in (("year", int(year)), ("field", f), ("records", None), ("filled", None), ("share", None)):
+                for k, v in (("year", int(year)), ("field", f), ("records", None), ("filled", None), ("share", None),
+                             ("modal", None), ("modal_share", None)):
                     out[k].append(v)
             continue
         n = table.num_rows
+        read_any = True
+        seen |= set(table.column_names)
         for f in wanted:
-            filled = 0
+            filled, modal, modal_n = 0, None, 0
             if f in table.column_names:
                 v = pc.utf8_trim_whitespace(pc.cast(table.column(f), pa.string()))
                 ok = pc.and_(pc.is_valid(v), pc.not_equal(v, ""))
@@ -486,11 +492,27 @@ def field_fill(dataset: str, fields: list[str] | str, years: list[int] | range, 
                 if miss:
                     ok = pc.and_(ok, pc.invert(pc.is_in(v, value_set=pa.array(miss, pa.string()))))
                 filled = int(pc.sum(pc.fill_null(ok, False).cast(pa.int64())).as_py() or 0)
+                # the most common value among the filled ones: a field one value fills (a 0.00 every record, a sentinel
+                # no curation declared yet) is filled and says nothing, which the share alone cannot show
+                counts = pc.value_counts(pc.filter(v, pc.fill_null(ok, False))).to_pylist()
+                if counts:
+                    top = max(counts, key=lambda d: d["counts"])
+                    modal, modal_n = top["values"], int(top["counts"])
             out["year"].append(int(year))
             out["field"].append(f)
             out["records"].append(n)
             out["filled"].append(filled)
             out["share"].append(round(filled / n, 6) if n else None)
+            out["modal"].append(modal)
+            out["modal_share"].append(round(modal_n / filled, 6) if filled else None)
+    never = [f for f in wanted if f not in seen]
+    if read_any and never:
+        # a column no year of the dataset carries is a typo or a renamed field: a share of 0 would look like a measured
+        # absence. One that other years carry is a structural absence here, and its zero share is the answer.
+        known = set(availability(dataset).fields)
+        never = [f for f in never if f not in known]
+        if never:
+            raise MissingColumnError(never[0], f"{dataset}, in any year", [], also_absent=never[1:])
     return pa.table(out)
 
 

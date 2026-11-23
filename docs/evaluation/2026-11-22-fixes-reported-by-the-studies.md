@@ -128,3 +128,10 @@ admission's stay holding a birth's date): two mechanisms for one job. Every wind
 only the control's range and reach diagnostics). Ten slices, identical outputs: the eight above plus
 sinasc_births_to_delivery_admission AL 2019 (30,620 pairs, 68.7 s to 39.0 s) and sinasc_births_to_ciha_delivery SE 2019
 (633 pairs, 112.3 s to 19.2 s).
+
+**field_fill counted sentinels as filled** (science-1). SIH-RD's CID_ASSO, CID_MORTE, DIAG_SECUN (every record '0000'
+from 2015) and CBOR (every record '000000') declared no missing code, so `field_fill` gave share 1.0. Measured on SE
+2010, 2015, 2024: those codes now declared per field (curation/roles/SIH-RD.yml), and the four read 0.0 from 2015 (2010:
+3.9%, 3.2%, 16.1% real codes; CBOR 0.0). Recorded zeros stay values (VAL_ORTP, VAL_SADT 0.00 in every record; MARCA_UTI
+'00' no ICU in 93-96%): `field_fill` now adds `modal` and `modal_share`, so a column one value fills shows as filled and
+uninformative without a global zero rule. A column no year of the dataset carries now raises instead of reading 0.
