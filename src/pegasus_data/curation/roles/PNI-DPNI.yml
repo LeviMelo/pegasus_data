@@ -130,6 +130,7 @@ columns:
   QT_DOSE:
     missing: []
     # measured 2019 (11412 rows, 11412 filled): range [1, 6300], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (no zero in the 3,068 values of 2019; 2026-11-23)
     role: vaccination.doses
     kind: number
     model: mark

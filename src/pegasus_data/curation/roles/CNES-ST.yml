@@ -1455,6 +1455,7 @@ columns:
   QTINST01:
     missing: []
     # measured 2026 (3867011 rows, 3867011 filled): range [0, 14], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 98.8% of the 9,237 values of 2026; 2026-11-23)
     role: establishment.pediatric_emergency_treatment_rooms_count_installations_grid
     kind: number
     model: mark
@@ -1467,6 +1468,7 @@ columns:
   QTINST02:
     missing: []
     # measured 2026 (3867011 rows, 3867011 filled): range [0, 18], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 99.5% of the 9,237 values of 2026; 2026-11-23)
     role: establishment.female_emergency_treatment_rooms_count_installations_grid_po
     kind: number
     model: mark
@@ -1479,6 +1481,7 @@ columns:
   QTINST03:
     missing: []
     # measured 2026 (3867011 rows, 3867011 filled): range [0, 80], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 99.6% of the 9,237 values of 2026; 2026-11-23)
     role: establishment.male_emergency_treatment_rooms_count_installations_grid_posi
     kind: number
     model: mark
@@ -1491,6 +1494,7 @@ columns:
   QTINST04:
     missing: []
     # measured 2026 (3867011 rows, 3867011 filled): range [0, 100], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 96.8% of the 9,237 values of 2026; 2026-11-23)
     role: establishment.unsegregated_emergency_treatment_rooms_count_installations_g
     kind: number
     model: mark
@@ -1503,6 +1507,7 @@ columns:
   QTINST05:
     missing: []
     # measured 2026 (3867011 rows, 3867011 filled): range [0, 20], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 99.1% of the 9,237 values of 2026; 2026-11-23)
     role: establishment.pediatric_rest_observation_rooms_count_installations_grid_po
     kind: number
     model: mark
@@ -1515,6 +1520,7 @@ columns:
   QTINST06:
     missing: []
     # measured 2026 (3867011 rows, 3867011 filled): range [0, 22], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 99.7% of the 9,237 values of 2026; 2026-11-23)
     role: establishment.female_rest_observation_rooms_count_installations_grid_posit
     kind: number
     model: mark
@@ -1527,6 +1533,7 @@ columns:
   QTINST07:
     missing: []
     # measured 2026 (3867011 rows, 3867011 filled): range [0, 46], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 99.7% of the 9,237 values of 2026; 2026-11-23)
     role: establishment.male_rest_observation_rooms_count_installations_grid_positio
     kind: number
     model: mark
@@ -1539,6 +1546,7 @@ columns:
   QTINST08:
     missing: []
     # measured 2026 (3867011 rows, 3867011 filled): range [0, 46], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 97.9% of the 9,237 values of 2026; 2026-11-23)
     role: establishment.unsegregated_rest_observation_rooms_count_installations_grid
     kind: number
     model: mark
@@ -1551,6 +1559,7 @@ columns:
   QTINST09:
     missing: []
     # measured 2026 (3867011 rows, 3867011 filled): range [0, 90], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 97.0% of the 9,237 values of 2026; 2026-11-23)
     role: establishment.dental_consulting_rooms_count_installations_grid_position_9
     kind: number
     model: mark
@@ -1563,6 +1572,7 @@ columns:
   QTINST10:
     missing: []
     # measured 2026 (3867011 rows, 3867011 filled): range [0, 18], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 98.2% of the 9,237 values of 2026; 2026-11-23)
     role: establishment.hygiene_cleaning_rooms_count_installations_grid_position_10
     kind: number
     model: mark
@@ -1575,6 +1585,7 @@ columns:
   QTINST11:
     missing: []
     # measured 2026 (3867011 rows, 3867011 filled): range [0, 10], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 99.1% of the 9,237 values of 2026; 2026-11-23)
     role: establishment.orthopedic_cast_rooms_count_installations_grid_position_11
     kind: number
     model: mark
@@ -1587,6 +1598,7 @@ columns:
   QTINST12:
     missing: []
     # measured 2026 (3867011 rows, 3867011 filled): range [0, 22], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 97.6% of the 9,237 values of 2026; 2026-11-23)
     role: establishment.dressing_wound_care_rooms_count_installations_grid_position_
     kind: number
     model: mark
@@ -1599,6 +1611,7 @@ columns:
   QTINST13:
     missing: []
     # measured 2026 (3867011 rows, 3867011 filled): range [0, 17], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 98.5% of the 9,237 values of 2026; 2026-11-23)
     role: establishment.minor_surgery_rooms_count_installations_grid_position_13
     kind: number
     model: mark
@@ -1611,6 +1624,7 @@ columns:
   QTINST14:
     missing: []
     # measured 2026 (3867011 rows, 3867011 filled): range [0, 84], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 93.9% of the 9,237 values of 2026; 2026-11-23)
     role: establishment.general_physician_consulting_rooms_count_installations_grid_
     kind: number
     model: mark
@@ -1623,6 +1637,7 @@ columns:
   QTINST15:
     missing: []
     # measured 2026 (3867011 rows, 3867011 filled): range [0, 162], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 69.3% of the 9,237 values of 2026; 2026-11-23)
     role: establishment.primary_care_consulting_rooms_count_installations_grid_posit
     kind: number
     model: mark
@@ -1646,6 +1661,7 @@ columns:
   QTINST17:
     missing: []
     # measured 2026 (3867011 rows, 3867011 filled): range [0, 209], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 92.3% of the 9,237 values of 2026; 2026-11-23)
     role: establishment.unsegregated_clinic_consulting_rooms_count_installations_gri
     kind: number
     model: mark
@@ -1658,6 +1674,7 @@ columns:
   QTINST18:
     missing: []
     # measured 2026 (3867011 rows, 3867011 filled): range [0, 138], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 71.8% of the 9,237 values of 2026; 2026-11-23)
     role: establishment.non_physician_consulting_rooms_count_installations_grid_posi
     kind: number
     model: mark
@@ -1670,6 +1687,7 @@ columns:
   QTINST19:
     missing: []
     # measured 2026 (3867011 rows, 3867011 filled): range [0, 319], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 98.8% of the 9,237 values of 2026; 2026-11-23)
     role: establishment.female_rest_observation_rooms_count_installations_grid_posit
     kind: number
     model: mark
@@ -1682,6 +1700,7 @@ columns:
   QTINST20:
     missing: []
     # measured 2026 (3867011 rows, 3867011 filled): range [0, 316], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 99.1% of the 9,237 values of 2026; 2026-11-23)
     role: establishment.male_rest_observation_rooms_count_installations_grid_positio
     kind: number
     model: mark
@@ -1694,6 +1713,7 @@ columns:
   QTINST21:
     missing: []
     # measured 2026 (3867011 rows, 3867011 filled): range [0, 418], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 98.8% of the 9,237 values of 2026; 2026-11-23)
     role: establishment.pediatric_rest_observation_rooms_count_installations_grid_po
     kind: number
     model: mark
@@ -1706,6 +1726,7 @@ columns:
   QTINST22:
     missing: []
     # measured 2026 (3867011 rows, 3867011 filled): range [0, 418], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 92.8% of the 9,237 values of 2026; 2026-11-23)
     role: establishment.unsegregated_rest_observation_rooms_count_installations_grid
     kind: number
     model: mark
@@ -1718,6 +1739,7 @@ columns:
   QTINST23:
     missing: []
     # measured 2026 (3867011 rows, 3867011 filled): range [0, 358], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 68.9% of the 9,237 values of 2026; 2026-11-23)
     role: establishment.dental_consulting_rooms_count_installations_grid_position_23
     kind: number
     model: mark
@@ -1730,6 +1752,7 @@ columns:
   QTINST24:
     missing: []
     # measured 2026 (3867011 rows, 3867011 filled): range [0, 25], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 97.1% of the 9,237 values of 2026; 2026-11-23)
     role: establishment.minor_surgery_rooms_count_installations_grid_position_24
     kind: number
     model: mark
@@ -1742,6 +1765,7 @@ columns:
   QTINST25:
     missing: []
     # measured 2026 (3867011 rows, 3867011 filled): range [0, 37], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 80.5% of the 9,237 values of 2026; 2026-11-23)
     role: establishment.nursing_rooms_count_installations_grid_position_25
     kind: number
     model: mark
@@ -1754,6 +1778,7 @@ columns:
   QTINST26:
     missing: []
     # measured 2026 (3867011 rows, 3867011 filled): range [0, 50], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 86.8% of the 9,237 values of 2026; 2026-11-23)
     role: establishment.immunization_rooms_count_installations_grid_position_26
     kind: number
     model: mark
@@ -1766,6 +1791,7 @@ columns:
   QTINST27:
     missing: []
     # measured 2026 (3867011 rows, 3867011 filled): range [0, 38], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 93.4% of the 9,237 values of 2026; 2026-11-23)
     role: establishment.nebulization_inhalation_therapy_rooms_count_installations_gr
     kind: number
     model: mark
@@ -1778,6 +1804,7 @@ columns:
   QTINST28:
     missing: []
     # measured 2026 (3867011 rows, 3867011 filled): range [0, 22], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 99.3% of the 9,237 values of 2026; 2026-11-23)
     role: establishment.orthopedic_cast_rooms_count_installations_grid_position_28
     kind: number
     model: mark
@@ -1790,6 +1817,7 @@ columns:
   QTINST29:
     missing: []
     # measured 2026 (3867011 rows, 3867011 filled): range [0, 25], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 78.8% of the 9,237 values of 2026; 2026-11-23)
     role: establishment.dressing_wound_care_rooms_count_installations_grid_position_
     kind: number
     model: mark
@@ -1802,6 +1830,7 @@ columns:
   QTINST30:
     missing: []
     # measured 2026 (3867011 rows, 3867011 filled): range [0, 25], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 98.0% of the 9,237 values of 2026; 2026-11-23)
     role: establishment.outpatient_ambulatory_surgery_rooms_count_installations_grid
     kind: number
     model: mark
@@ -1814,6 +1843,7 @@ columns:
   QTINST31:
     missing: []
     # measured 2026 (3867011 rows, 3867011 filled): range [0, 200], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 98.4% of the 9,237 values of 2026; 2026-11-23)
     role: establishment.surgical_operating_rooms_count_installations_grid_position_3
     kind: number
     model: mark
@@ -1826,6 +1856,7 @@ columns:
   QTINST32:
     missing: []
     # measured 2026 (3867011 rows, 3867011 filled): range [0, 56], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 99.0% of the 9,237 values of 2026; 2026-11-23)
     role: establishment.recovery_rooms_surgical_centre
     kind: number
     model: mark
@@ -1838,6 +1869,7 @@ columns:
   QTINST33:
     missing: []
     # measured 2026 (3867011 rows, 3867011 filled): range [0, 31], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 99.9% of the 9,237 values of 2026; 2026-11-23)
     role: establishment.outpatient_surgery_rooms_surgical_centre
     kind: number
     model: mark
@@ -1850,6 +1882,7 @@ columns:
   QTINST34:
     missing: []
     # measured 2026 (3867011 rows, 3867011 filled): range [0, 15], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 98.9% of the 9,237 values of 2026; 2026-11-23)
     role: establishment.pre_delivery_rooms_obstetric_centre
     kind: number
     model: mark
@@ -1862,6 +1895,7 @@ columns:
   QTINST35:
     missing: []
     # measured 2026 (3867011 rows, 3867011 filled): range [0, 25], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 98.7% of the 9,237 values of 2026; 2026-11-23)
     role: establishment.normal_delivery_rooms_obstetric_centre
     kind: number
     model: mark
@@ -1874,6 +1908,7 @@ columns:
   QTINST36:
     missing: []
     # measured 2026 (3867011 rows, 3867011 filled): range [0, 7], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 99.7% of the 9,237 values of 2026; 2026-11-23)
     role: establishment.curettage_rooms_obstetric_centre
     kind: number
     model: mark
@@ -1886,6 +1921,7 @@ columns:
   QTINST37:
     missing: []
     # measured 2026 (3867011 rows, 3867011 filled): range [0, 13], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 99.4% of the 9,237 values of 2026; 2026-11-23)
     role: establishment.surgery_rooms_obstetric_centre
     kind: number
     model: mark
@@ -1898,6 +1934,7 @@ columns:
   QTLEIT05:
     missing: []
     # measured 2026 (3867011 rows, 3867011 filled): range [0, 200], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 99.1% of the 9,237 values of 2026; 2026-11-23)
     role: establishment.paediatric_rest_observation_beds_emergency
     kind: number
     model: mark
@@ -1910,6 +1947,7 @@ columns:
   QTLEIT06:
     missing: []
     # measured 2026 (3867011 rows, 3867011 filled): range [0, 42], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 99.7% of the 9,237 values of 2026; 2026-11-23)
     role: establishment.female_rest_observation_beds_emergency
     kind: number
     model: mark
@@ -1922,6 +1960,7 @@ columns:
   QTLEIT07:
     missing: []
     # measured 2026 (3867011 rows, 3867011 filled): range [0, 120], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 99.7% of the 9,237 values of 2026; 2026-11-23)
     role: establishment.male_rest_observation_beds_emergency
     kind: number
     model: mark
@@ -1934,6 +1973,7 @@ columns:
   QTLEIT08:
     missing: []
     # measured 2026 (3867011 rows, 3867011 filled): range [0, 125], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 98.1% of the 9,237 values of 2026; 2026-11-23)
     role: establishment.undifferentiated_rest_observation_beds_emergency
     kind: number
     model: mark
@@ -1946,6 +1986,7 @@ columns:
   QTLEIT09:
     missing: []
     # measured 2026 (3867011 rows, 3867011 filled): range [0, 72], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 99.6% of the 9,237 values of 2026; 2026-11-23)
     role: establishment.dental_units_emergency
     kind: number
     model: mark
@@ -1958,6 +1999,7 @@ columns:
   QTLEIT19:
     missing: []
     # measured 2026 (3867011 rows, 3867011 filled): range [0, 86], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 99.2% of the 9,237 values of 2026; 2026-11-23)
     role: establishment.female_rest_observation_beds_outpatient
     kind: number
     model: mark
@@ -1970,6 +2012,7 @@ columns:
   QTLEIT20:
     missing: []
     # measured 2026 (3867011 rows, 3867011 filled): range [0, 90], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 99.4% of the 9,237 values of 2026; 2026-11-23)
     role: establishment.male_rest_observation_beds_outpatient
     kind: number
     model: mark
@@ -1982,6 +2025,7 @@ columns:
   QTLEIT21:
     missing: []
     # measured 2026 (3867011 rows, 3867011 filled): range [0, 62], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 99.0% of the 9,237 values of 2026; 2026-11-23)
     role: establishment.paediatric_rest_observation_beds_outpatient
     kind: number
     model: mark
@@ -1994,6 +2038,7 @@ columns:
   QTLEIT22:
     missing: []
     # measured 2026 (3867011 rows, 3867011 filled): range [0, 130], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 94.6% of the 9,237 values of 2026; 2026-11-23)
     role: establishment.undifferentiated_rest_observation_beds_outpatient
     kind: number
     model: mark
@@ -2006,6 +2051,7 @@ columns:
   QTLEIT23:
     missing: []
     # measured 2026 (3867011 rows, 3867011 filled): range [0, 236], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 99.7% of the 9,237 values of 2026; 2026-11-23)
     role: establishment.dental_units_outpatient
     kind: number
     model: mark
@@ -2018,6 +2064,7 @@ columns:
   QTLEIT32:
     missing: []
     # measured 2026 (3867011 rows, 3867011 filled): range [0, 131], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 99.0% of the 9,237 values of 2026; 2026-11-23)
     role: establishment.recovery_beds_surgical_centre
     kind: number
     model: mark
@@ -2030,6 +2077,7 @@ columns:
   QTLEIT34:
     missing: []
     # measured 2026 (3867011 rows, 3867011 filled): range [0, 34], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 98.9% of the 9,237 values of 2026; 2026-11-23)
     role: establishment.pre_delivery_beds_obstetric_centre
     kind: number
     model: mark
@@ -2042,6 +2090,7 @@ columns:
   QTLEIT38:
     missing: []
     # measured 2026 (3867011 rows, 3867011 filled): range [0, 64], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 99.9% of the 904,245 values of 2026; 2026-11-23)
     role: establishment.normal_newborn_cots_neonatal_unit
     kind: number
     model: mark
@@ -2054,6 +2103,7 @@ columns:
   QTLEIT39:
     missing: []
     # measured 2026 (3867011 rows, 3867011 filled): range [0, 74], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 99.9% of the 9,237 values of 2026; 2026-11-23)
     role: establishment.sick_newborn_cots_neonatal_unit
     kind: number
     model: mark
@@ -2066,6 +2116,7 @@ columns:
   QTLEIT40:
     missing: []
     # measured 2026 (3867011 rows, 3867011 filled): range [0, 94], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 99.1% of the 9,237 values of 2026; 2026-11-23)
     role: establishment.rooming_in_beds_neonatal_unit
     kind: number
     model: mark
@@ -2078,6 +2129,7 @@ columns:
   QTLEITP1:
     missing: []
     # measured 2026 (3867011 rows, 3867011 filled): range [0, 542], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 98.9% of the 9,237 values of 2026; 2026-11-23)
     role: establishment.existing_surgical_beds_legacy_rollup
     kind: number
     model: mark
@@ -2090,6 +2142,7 @@ columns:
   QTLEITP2:
     missing: []
     # measured 2026 (3867011 rows, 3867011 filled): range [0, 502], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 98.0% of the 9,237 values of 2026; 2026-11-23)
     role: establishment.existing_clinical_beds_legacy_rollup
     kind: number
     model: mark
@@ -2102,6 +2155,7 @@ columns:
   QTLEITP3:
     missing: []
     # measured 2026 (3867011 rows, 3867011 filled): range [0, 394], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 98.8% of the 9,237 values of 2026; 2026-11-23)
     role: establishment.existing_complementary_beds_legacy_rollup
     kind: number
     model: mark

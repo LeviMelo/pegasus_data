@@ -401,6 +401,7 @@ columns:
   SP_PTSP:
     missing: []
     # measured 2026 (38820 rows, 38820 filled): range [0, 1680], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 76.6% of the 38,820 values of 2026; 2026-11-23)
     role: act.points
     kind: number
     model: mark
@@ -413,6 +414,7 @@ columns:
   SP_PTSP_NF:
     missing: []
     # measured 2001 (65 rows, 65 filled): range [30008, 70378], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (no zero in the 65 values of 2001; 2026-11-23)
     role: act.points_legacy
     kind: number
     model: mark
@@ -425,6 +427,7 @@ columns:
   SP_QTD_ATO:
     missing: []
     # measured 2001 (65 rows, 65 filled): range [1, 21], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (no zero in the 38,820 values of 2026; 2026-11-23)
     role: act.quantity
     kind: number
     model: mark
@@ -437,6 +440,7 @@ columns:
   SP_QT_PROC:
     missing: []
     # measured 2026 (38820 rows, 38820 filled): range [0, 700], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 17.7% of the 38,820 values of 2026; 2026-11-23)
     role: act.procedures_performed
     kind: number
     model: mark
@@ -497,6 +501,7 @@ columns:
   SP_VALATO:
     missing: []
     # measured 2001 (65 rows, 65 filled): range [0.26, 106.63], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 34.9% of the 38,820 values of 2026; 2026-11-23)
     role: act.value
     kind: number
     model: mark

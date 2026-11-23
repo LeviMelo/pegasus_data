@@ -644,6 +644,7 @@ columns:
   QTDPARTCES:
     missing: []
     # measured 2026 (300 rows, 298 filled): range [0, 3], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 73.8% of the 298 values of 2026; 2026-11-23)
     role: pregnancy.previous_cesareans
     kind: number
     model: mark

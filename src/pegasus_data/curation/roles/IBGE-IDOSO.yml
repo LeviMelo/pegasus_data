@@ -49,6 +49,7 @@ columns:
   POPDEPEND:
     missing: []
     # measured 2010 (33382 rows, 33382 filled): range [0, 55595], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 4.3% of the 33,382 values of 2010; 2026-11-23)
     role: population.dependent_age
     kind: number
     model: mark
@@ -61,6 +62,7 @@ columns:
   POPTOT:
     missing: []
     # measured 2010 (33382 rows, 33382 filled): range [1, 416379], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (no zero in the 33,382 values of 2010; 2026-11-23)
     role: population.total
     kind: number
     model: mark

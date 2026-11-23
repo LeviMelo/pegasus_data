@@ -74,6 +74,7 @@ columns:
   CONTEXAM:
     missing: []
     # measured 2026 (18840 rows, 9781 filled): range [0, 33], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 27.7% of the 9,781 values of 2026; 2026-11-23)
     role: case.contacts_examined
     kind: number
     model: mark
@@ -86,6 +87,7 @@ columns:
   CONTREG:
     missing: []
     # measured 2026 (18840 rows, 18840 filled): range [0, 56], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 19.9% of the 18,840 values of 2026; 2026-11-23)
     role: case.contacts_registered
     kind: number
     model: mark

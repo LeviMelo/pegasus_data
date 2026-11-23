@@ -152,6 +152,7 @@ columns:
   NU_AC_ANORMAL_C_ALT_MAIOR:
     missing: []
     # measured 2025 (47367 rows, 47367 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 98.5% of the 47,367 values of 2025; 2026-11-23)
     role: exam.colposcopy_abnormal_major_changes_count
     kind: number
     model: mark
@@ -163,6 +164,7 @@ columns:
   NU_AC_ANORMAL_C_ALT_MENOR:
     missing: []
     # measured 2025 (47367 rows, 47367 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 79.6% of the 47,367 values of 2025; 2026-11-23)
     role: exam.colposcopy_abnormal_minor_changes_count
     kind: number
     model: mark
@@ -174,6 +176,7 @@ columns:
   NU_AC_ANORMAL_C_MISCELANIA:
     missing: []
     # measured 2025 (47367 rows, 47367 filled): range [0, 0], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 100.0% of the 47,367 values of 2025; 2026-11-23)
     role: exam.colposcopy_miscellaneous_findings_count
     kind: number
     model: mark
@@ -185,6 +188,7 @@ columns:
   NU_AC_ANORMAL_C_SUGEST_CANCER:
     missing: []
     # measured 2025 (47367 rows, 47367 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 99.4% of the 47,367 values of 2025; 2026-11-23)
     role: exam.colposcopy_suggestive_of_cancer_count
     kind: number
     model: mark
@@ -196,6 +200,7 @@ columns:
   NU_LES_BEN_ALTO_CITO_COMPA:
     missing: []
     # measured 2025 (47367 rows, 28742 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 79.8% of the 28,742 values of 2025; 2026-11-23)
     role: exam.count_of_hpv_compatible_cytopathic_changes_benign
     kind: number
     model: mark
@@ -208,6 +213,7 @@ columns:
   NU_LES_BEN_CERVICITE_CRON:
     missing: []
     # measured 2025 (47367 rows, 28742 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 36.3% of the 28,742 values of 2025; 2026-11-23)
     role: exam.count_of_chronic_cervicitis_diagnoses_benign
     kind: number
     model: mark
@@ -220,6 +226,7 @@ columns:
   NU_LES_BEN_METAPLASIA_ESC:
     missing: []
     # measured 2025 (47367 rows, 28742 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 65.9% of the 28,742 values of 2025; 2026-11-23)
     role: exam.count_of_squamous_metaplasia_diagnoses_benign
     kind: number
     model: mark
@@ -232,6 +239,7 @@ columns:
   NU_LES_BEN_POLIPO_ENDOCERVICAL:
     missing: []
     # measured 2025 (47367 rows, 28742 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 82.1% of the 28,742 values of 2025; 2026-11-23)
     role: exam.count_of_endocervical_polyp_diagnoses_benign
     kind: number
     model: mark
@@ -244,6 +252,7 @@ columns:
   NU_NEOPLASICO_NIC_I:
     missing: []
     # measured 2025 (47367 rows, 47367 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 82.8% of the 47,367 values of 2025; 2026-11-23)
     role: exam.count_of_cin_1_mild_dysplasia_diagnoses
     kind: number
     model: mark
@@ -256,6 +265,7 @@ columns:
   NU_NEOPLASICO_NIC_II:
     missing: []
     # measured 2025 (47367 rows, 47367 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 89.4% of the 47,367 values of 2025; 2026-11-23)
     role: exam.count_of_cin_2_moderate_dysplasia_diagnoses
     kind: number
     model: mark
@@ -268,6 +278,7 @@ columns:
   NU_NEOPLASICO_NIC_III:
     missing: []
     # measured 2025 (47367 rows, 47367 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 83.0% of the 47,367 values of 2025; 2026-11-23)
     role: exam.count_of_cin_3_severe_dysplasia_carcinoma_in_situ_diagnoses
     kind: number
     model: mark
@@ -280,6 +291,7 @@ columns:
   NU_NEO_ADENO_INVASOR:
     missing: []
     # measured 2025 (47367 rows, 47367 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 99.4% of the 47,367 values of 2025; 2026-11-23)
     role: exam.count_of_invasive_adenocarcinoma_diagnoses
     kind: number
     model: mark
@@ -292,6 +304,7 @@ columns:
   NU_NEO_ADENO_IN_SITU:
     missing: []
     # measured 2025 (47367 rows, 47367 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 99.6% of the 47,367 values of 2025; 2026-11-23)
     role: exam.count_of_adenocarcinoma_in_situ_diagnoses
     kind: number
     model: mark
@@ -304,6 +317,7 @@ columns:
   NU_NEO_CARC_EPID_IMPOSSIVEL:
     missing: []
     # measured 2025 (47367 rows, 47367 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 99.7% of the 47,367 values of 2025; 2026-11-23)
     role: exam.count_of_squamous_cell_carcinoma_with_invasion_not_assessabl
     kind: number
     model: mark
@@ -316,6 +330,7 @@ columns:
   NU_NEO_CARC_EPID_INVASIVO:
     missing: []
     # measured 2025 (47367 rows, 47367 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 97.9% of the 47,367 values of 2025; 2026-11-23)
     role: exam.count_of_invasive_squamous_cell_carcinoma_diagnoses
     kind: number
     model: mark
@@ -328,6 +343,7 @@ columns:
   NU_NEO_CARC_EPID_MICRO_INVASIV:
     missing: []
     # measured 2025 (47367 rows, 47367 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 99.6% of the 47,367 values of 2025; 2026-11-23)
     role: exam.count_of_microinvasive_squamous_cell_carcinoma_diagnoses
     kind: number
     model: mark
@@ -340,6 +356,7 @@ columns:
   NU_OUTRAS_NEOPL_MALIG:
     missing: []
     # measured 2025 (47367 rows, 47367 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 94.7% of the 47,367 values of 2025; 2026-11-23)
     role: exam.count_of_other_malignant_neoplasm_diagnoses
     kind: number
     model: mark
@@ -352,6 +369,7 @@ columns:
   NU_PROC_BIOPSIA:
     missing: []
     # measured 2025 (47367 rows, 47367 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 21.1% of the 47,367 values of 2025; 2026-11-23)
     role: exam.count_of_biopsy_procedures
     kind: number
     model: mark
@@ -364,6 +382,7 @@ columns:
   NU_PROC_EXERESE_CONIZACAO:
     missing: []
     # measured 2025 (47367 rows, 47367 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 91.2% of the 47,367 values of 2025; 2026-11-23)
     role: exam.count_of_conization_excision_procedures
     kind: number
     model: mark
@@ -376,6 +395,7 @@ columns:
   NU_PROC_EXERESE_OUTROS:
     missing: []
     # measured 2025 (47367 rows, 47367 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 97.7% of the 47,367 values of 2025; 2026-11-23)
     role: exam.count_of_other_procedures
     kind: number
     model: mark
@@ -388,6 +408,7 @@ columns:
   NU_PROC_EXERESE_POS_BIOPSIA:
     missing: []
     # measured 2025 (47367 rows, 47367 filled): range [0, 0], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 100.0% of the 47,367 values of 2025; 2026-11-23)
     role: exam.count_of_excisions_performed_after_a_prior_biopsy
     kind: number
     model: mark
@@ -400,6 +421,7 @@ columns:
   NU_PROC_EXERESE_VER_E_TRATAR:
     missing: []
     # measured 2025 (47367 rows, 47367 filled): range [0, 0], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 100.0% of the 47,367 values of 2025; 2026-11-23)
     role: exam.count_of_see_and_treat_excision_procedures
     kind: number
     model: mark
@@ -412,6 +434,7 @@ columns:
   NU_RES_EXAMES_NEO_PRENEO:
     missing: []
     # measured 2025 (47367 rows, 47367 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 46.7% of the 47,367 values of 2025; 2026-11-23)
     role: exam.count_of_neoplastic_pre_neoplastic_results
     kind: number
     model: mark
@@ -423,6 +446,7 @@ columns:
   NU_ZT_SATIF_IND:
     missing: []
     # measured 2025 (47367 rows, 47367 filled): range [0, 0], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 100.0% of the 47,367 values of 2025; 2026-11-23)
     role: exam.count_of_satisfactory_transformation_zones_indeterminate_typ
     kind: number
     model: mark
@@ -435,6 +459,7 @@ columns:
   NU_ZT_SATIF_TP_I:
     missing: []
     # measured 2025 (47367 rows, 47367 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 91.9% of the 47,367 values of 2025; 2026-11-23)
     role: exam.count_of_satisfactory_transformation_zones_type_i
     kind: number
     model: mark
@@ -447,6 +472,7 @@ columns:
   NU_ZT_SATIF_TP_II:
     missing: []
     # measured 2025 (47367 rows, 47367 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 78.1% of the 47,367 values of 2025; 2026-11-23)
     role: exam.count_of_satisfactory_transformation_zones_type_ii
     kind: number
     model: mark
@@ -459,6 +485,7 @@ columns:
   NU_ZT_SATIF_TP_III:
     missing: []
     # measured 2025 (47367 rows, 47367 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 99.4% of the 47,367 values of 2025; 2026-11-23)
     role: exam.count_of_satisfactory_transformation_zones_type_iii
     kind: number
     model: mark

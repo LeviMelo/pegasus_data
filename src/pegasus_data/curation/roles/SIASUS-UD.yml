@@ -504,6 +504,7 @@ columns:
   UDI_QTDMQD:
     missing: []
     # measured 2003 (84 rows, 84 filled): range [0, 3], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 90.0% of the 30 values of 2003; 2026-11-23)
     role: authorisation.dialysis_machine_count_category_d
     kind: number
     model: mark
@@ -515,6 +516,7 @@ columns:
   UDI_QTDMQO:
     missing: []
     # measured 2003 (84 rows, 84 filled): range [0, 31], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 33.3% of the 30 values of 2003; 2026-11-23)
     role: authorisation.dialysis_machine_count_category_o
     kind: number
     model: mark
@@ -526,6 +528,7 @@ columns:
   UDI_QTDMQP:
     missing: []
     # measured 2003 (84 rows, 84 filled): range [0, 57], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 46.7% of the 30 values of 2003; 2026-11-23)
     role: authorisation.dialysis_machine_count_category_p
     kind: number
     model: mark

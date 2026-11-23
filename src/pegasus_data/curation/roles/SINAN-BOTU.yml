@@ -724,6 +724,7 @@ columns:
   NUATEND:
     missing: []
     # measured 2026 (34 rows, 32 filled): range [0, 5], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 15.6% of the 32 values of 2026; 2026-11-23)
     role: case.visits_until_suspicion
     kind: number
     model: mark
@@ -736,6 +737,7 @@ columns:
   NUCONSOME:
     missing: []
     # measured 2026 (34 rows, 30 filled): range [0, 5], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 70.0% of the 30 values of 2026; 2026-11-23)
     role: case.people_who_ate_suspect_food
     kind: number
     model: mark
@@ -759,6 +761,7 @@ columns:
   NU_CELULA:
     missing: []
     # measured 2026 (34 rows, 12 filled): range [0, 66], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 33.3% of the 12 values of 2026; 2026-11-23)
     role: case.csf_cells_mm3
     kind: number
     model: mark

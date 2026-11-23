@@ -324,6 +324,7 @@ columns:
   DOSES_A:
     missing: []
     # measured 2026 (5 rows, 2 filled): range [2, 4], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (no zero in the 2 values of 2026; 2026-11-23)
     role: treatment.vaccine_doses_current
     kind: number
     model: mark
@@ -881,6 +882,7 @@ columns:
   NUM_DOSES:
     missing: []
     # measured 2026 (5 rows, 1 filled): range [2, 2], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (no zero in the 1 values of 2026; 2026-11-23)
     role: treatment.vaccine_doses_previous
     kind: number
     model: mark
@@ -995,6 +997,7 @@ columns:
   QUANTID:
     missing: []
     # measured 2026 (5 rows, 1 filled): range [10, 10], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (no zero in the 1 values of 2026; 2026-11-23)
     role: treatment.serum_ml
     kind: number
     model: mark

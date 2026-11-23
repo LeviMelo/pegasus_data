@@ -88,6 +88,7 @@ columns:
   ANT_DOSES_:
     missing: []
     # measured 2026 (22929 rows, 187 filled): range [0, 8], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 4.8% of the 187 values of 2026; 2026-11-23)
     role: patient.vaccine_meningococcal_bc_doses
     kind: number
     model: mark
@@ -100,6 +101,7 @@ columns:
   ANT_DOSE_3:
     missing: []
     # measured 2026 (22929 rows, 295 filled): range [0, 5], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 3.1% of the 295 values of 2026; 2026-11-23)
     role: patient.vaccine_meningococcal_ac_doses
     kind: number
     model: mark
@@ -145,6 +147,7 @@ columns:
   ANT_DOSE_C:
     missing: []
     # measured 2026 (22929 rows, 3187 filled): range [0, 13], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 0.3% of the 3,187 values of 2026; 2026-11-23)
     role: patient.vaccine_meningococcal_c_conjugate_doses
     kind: number
     model: mark
@@ -157,6 +160,7 @@ columns:
   ANT_DOSE_T:
     missing: []
     # measured 2026 (22929 rows, 2371 filled): range [0, 18], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 0.4% of the 2,371 values of 2026; 2026-11-23)
     role: patient.vaccine_hib_doses
     kind: number
     model: mark
@@ -1157,6 +1161,8 @@ columns:
     - 2026
   LAB_CLOR:
     missing: []
+    domain: [1, 1.0e+9]
+    # a CSF chloride concentration cannot be 0: 0 on 7% to 22% of the filled values of every year 2010-2026 (22% in 2026); the unit is not documented and values to 70,785 occur, so no upper bound is given (1.0e+9 only closes the interval) (OQ 99, 2026-11-23)
     # measured 2026 (22929 rows, 6722 filled): range [0, 12600], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: case.lab_csf_chloride
     kind: number
@@ -1228,6 +1234,7 @@ columns:
   LAB_EOSI:
     missing: []
     # measured 2026 (22929 rows, 7627 filled): range [0, 993], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 83.7% of the 7,627 values of 2026; 2026-11-23)
     role: case.lab_csf_eosinophils
     kind: number
     model: mark
@@ -1239,6 +1246,8 @@ columns:
     - 2026
   LAB_GLICO:
     missing: []
+    domain: [1, 1.0e+9]
+    # a CSF glucose concentration is not measured as exactly 0: 0 on 0.7% to 1.1% of the filled values of every year 2010-2026 (0.8% in 2026), a constant share like the form default; no documented unit or upper bound (1.0e+9 only closes the interval) (OQ 99, 2026-11-23)
     # measured 2026 (22929 rows, 16544 filled): range [0, 32000], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: case.lab_csf_glucose
     kind: number
@@ -1287,6 +1296,7 @@ columns:
   LAB_LEUCO:
     missing: []
     # measured 2026 (22929 rows, 15854 filled): range [0, 95427], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 5.3% of the 15,854 values of 2026; 2026-11-23)
     role: case.lab_csf_leukocytes
     kind: number
     model: mark
@@ -1299,6 +1309,7 @@ columns:
   LAB_LINFO:
     missing: []
     # measured 2026 (22929 rows, 11895 filled): range [0, 30109], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 21.6% of the 11,895 values of 2026; 2026-11-23)
     role: case.lab_csf_lymphocytes
     kind: number
     model: mark
@@ -1311,6 +1322,7 @@ columns:
   LAB_MONO:
     missing: []
     # measured 2026 (22929 rows, 10182 filled): range [0, 994], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 32.2% of the 10,182 values of 2026; 2026-11-23)
     role: case.lab_csf_monocytes
     kind: number
     model: mark
@@ -1323,6 +1335,7 @@ columns:
   LAB_NEUTRO:
     missing: []
     # measured 2026 (22929 rows, 11961 filled): range [0, 964], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 24.9% of the 11,961 values of 2026; 2026-11-23)
     role: case.lab_csf_neutrophils
     kind: number
     model: mark
@@ -1381,6 +1394,8 @@ columns:
     - 2026
   LAB_PROT:
     missing: []
+    domain: [1, 1.0e+9]
+    # a CSF protein concentration cannot be 0: 0 on 0.3% to 0.7% of the filled values of every year 2010-2026; no documented unit or upper bound (1.0e+9 only closes the interval) (OQ 99, 2026-11-23)
     # measured 2026 (22929 rows, 16311 filled): range [0, 76600], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: case.lab_csf_protein
     kind: number

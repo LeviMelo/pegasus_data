@@ -706,6 +706,7 @@ columns:
   NU_A_NUM_1:
     missing: []
     # measured 2024 (1331 rows, 1331 filled): range [0, 17], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no form dictionary is harvested for it, and DATASUS's tabulation alone does not declare (no value labelled as not recorded; 2023))
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 86.9% of the 1,331 values of 2024; 2026-11-23)
     role: outbreak.positive_food_samples_result_1
     kind: number
     unit: count
@@ -735,6 +736,7 @@ columns:
   NU_A_NUM_3:
     missing: []
     # measured 2024 (1331 rows, 1331 filled): range [0, 6], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no form dictionary is harvested for it, and DATASUS's tabulation alone does not declare (no value labelled as not recorded; 2023))
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 97.7% of the 1,331 values of 2024; 2026-11-23)
     role: outbreak.positive_food_samples_result_3
     kind: number
     unit: count
@@ -763,6 +765,7 @@ columns:
   NU_CLI_NUM:
     missing: []
     # measured 2024 (1331 rows, 1331 filled): range [0, 33], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no form dictionary is harvested for it, and DATASUS's tabulation alone does not declare (no value labelled as not recorded; 2023))
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 77.2% of the 1,331 values of 2024; 2026-11-23)
     role: outbreak.positive_clinical_samples_result_1
     kind: number
     unit: count
@@ -958,6 +961,7 @@ columns:
   NU_NUM_2:
     missing: []
     # measured 2024 (1331 rows, 1331 filled): range [0, 20], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no form dictionary is harvested for it, and DATASUS's tabulation alone does not declare (no value labelled as not recorded; 2023))
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 89.9% of the 1,331 values of 2024; 2026-11-23)
     role: outbreak.positive_clinical_samples_result_2
     kind: number
     unit: count
@@ -973,6 +977,7 @@ columns:
   NU_NUM_3:
     missing: []
     # measured 2024 (1331 rows, 1331 filled): range [0, 20], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no form dictionary is harvested for it, and DATASUS's tabulation alone does not declare (no value labelled as not recorded; 2023))
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 96.2% of the 1,331 values of 2024; 2026-11-23)
     role: outbreak.positive_clinical_samples_result_3
     kind: number
     unit: count

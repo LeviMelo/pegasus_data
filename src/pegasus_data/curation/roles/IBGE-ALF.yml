@@ -49,6 +49,7 @@ columns:
   POPALFAB:
     missing: []
     # measured 2010 (233414 rows, 233414 filled): range [0, 1.83563e+06], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 4.7% of the 233,414 values of 2010; 2026-11-23)
     role: population.literate
     kind: number
     model: mark
@@ -61,6 +62,7 @@ columns:
   POPNALFAB:
     missing: []
     # measured 2010 (233414 rows, 233414 filled): range [0, 40705], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 32.0% of the 233,414 values of 2010; 2026-11-23)
     role: population.illiterate
     kind: number
     model: mark
@@ -73,6 +75,7 @@ columns:
   POPTOT:
     missing: []
     # measured 2010 (233414 rows, 233414 filled): range [1, 1.86271e+06], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (no zero in the 233,414 values of 2010; 2026-11-23)
     role: population.total
     kind: number
     model: mark

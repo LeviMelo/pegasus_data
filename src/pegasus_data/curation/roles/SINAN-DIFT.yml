@@ -943,6 +943,7 @@ columns:
   MED_QUAN_M:
     missing: []
     # measured 2026 (27 rows, 2 filled): range [7, 11], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (no zero in the 2 values of 2026; 2026-11-23)
     role: case.contacts_sampled_count
     kind: number
     model: mark
@@ -955,6 +956,7 @@ columns:
   MED_QUAN_P:
     missing: []
     # measured 2026 (27 rows, 2 filled): range [0, 0], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 100.0% of the 2 values of 2026; 2026-11-23)
     role: case.contacts_carriers_count
     kind: number
     model: mark

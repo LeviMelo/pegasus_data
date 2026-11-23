@@ -188,6 +188,7 @@ columns:
   PAC_SITTRA:
     missing: []
     # measured 2007 (99 rows, 99 filled): range [0, 0], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 100.0% of the 99 values of 2007; 2026-11-23)
     role: authorisation.number_of_transplants_performed
     kind: number
     model: mark

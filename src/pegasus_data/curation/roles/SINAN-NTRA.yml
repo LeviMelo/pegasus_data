@@ -176,6 +176,7 @@ columns:
   NU_CASOEXA:
     missing: []
     # measured 2026 (178 rows, 178 filled): range [1, 831], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (no zero in the 178 values of 2026; 2026-11-23)
     role: survey.cases_examined
     kind: number
     model: mark
@@ -188,6 +189,7 @@ columns:
   NU_CASOPOS:
     missing: []
     # measured 2026 (178 rows, 178 filled): range [0, 29], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 82.0% of the 178 values of 2026; 2026-11-23)
     role: survey.cases_positive
     kind: number
     model: mark

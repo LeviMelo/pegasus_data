@@ -105,6 +105,7 @@ columns:
   COB_QTAP:
     missing: []
     # measured 2006 (2731 rows, 2731 filled): range [0, 3900], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 4.2% of the 2,731 values of 2006; 2026-11-23)
     role: authorisation.quantity_presented
     kind: number
     model: mark
@@ -116,6 +117,7 @@ columns:
   COB_QTPR:
     missing: []
     # measured 2006 (2731 rows, 2731 filled): range [0, 3900], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 3.7% of the 2,731 values of 2006; 2026-11-23)
     role: authorisation.quantity_approved_produced
     kind: number
     model: mark
@@ -145,6 +147,7 @@ columns:
   COB_VALAP:
     missing: []
     # measured 2006 (2731 rows, 2731 filled): range [0, 2780], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 4.2% of the 2,731 values of 2006; 2026-11-23)
     role: authorisation.approved_value
     kind: number
     model: mark
@@ -156,6 +159,7 @@ columns:
   COB_VALPR:
     missing: []
     # measured 2006 (2731 rows, 2731 filled): range [0, 2780], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 3.7% of the 2,731 values of 2006; 2026-11-23)
     role: authorisation.presented_value
     kind: number
     model: mark

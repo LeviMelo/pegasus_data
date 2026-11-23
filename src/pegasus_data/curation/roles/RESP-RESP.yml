@@ -452,6 +452,7 @@ columns:
   FREQUENCIA:
     missing: []
     # measured 2024 (539 rows, 539 filled): range [1, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (no zero in the 539 values of 2024; 2026-11-23)
     role: notification.frequency
     kind: number
     model: mark
