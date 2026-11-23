@@ -320,8 +320,10 @@ columns:
     - 2008
     - 2011
   UTI_MES_TO:
-    missing: []
+    missing: ['0']
     # measured 2011 (469749 rows, 469749 filled): range [0, 0], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # 0 on every row of every held year (5,578,205 rows, 2009-2011) while UTI_INT_TO, filled in the same records, is positive on 5% and DIAS_PERM on 83%: a column
+    # the files carry but do not fill, not zero ICU days (2026-11-23)
     role: admission.icu_days_month
     kind: number
     model: mark

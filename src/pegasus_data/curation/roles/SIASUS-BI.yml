@@ -2,13 +2,12 @@ dataset: SIASUS-BI
 record: procedure
 columns:
   AUTORIZ:
-    missing: []
-    # measured 2026 (19376 rows, 19376 filled): range [0, 186], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # an identifier, not a measure (2026-11-23): "Número da APAC ou número de autorização do BPA-I" is a number that names an
+    # authorisation (6,034,483 distinct values in 73.9M rows of 2023, 84% of them 0, the BPA-I line with none); it is never summed
+    # or averaged, as SIASUS-PA's PA_AUTORIZ, the same field, is declared
     role: procedure.authorization_number
-    kind: number
-    model: mark
-    fact_domain: administrative
-    fact_domain_evidence: "\"Número da APAC ou número de autorização do BPA-I\" (procedure.authorization_number): approved, presented or billed quantity or value, unit price, competence or exit date of the outpatient record: billing"
+    kind: identifier
+    model: link_only
     name: Número da APAC ou número de autorização do BPA-I
     years:
     - 2008

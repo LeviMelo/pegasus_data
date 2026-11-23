@@ -512,8 +512,10 @@ columns:
     - 2026
     note: role from the notification block
   NU_TRAB:
-    missing: []
+    missing: ['0']
     # measured 2026 (486782 rows, 475667 filled): range [0, 300], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # 'Se sim, quantos' of MAIS_TRAB: it counts only when MAIS_TRAB is 1. With 1 (Sim) it is 0 on 35% (59,143 of 169,037), a yes without a number; with 2 (Não) it is 0
+    # on >99.99% of 3,029,694 (not applicable, derivable from MAIS_TRAB), so 0 is never a number of other workers recorded (2026-11-23)
     role: case.other_workers_count
     kind: number
     model: mark

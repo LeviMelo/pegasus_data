@@ -1130,8 +1130,10 @@ columns:
     - 2026
     note: role from the notification block
   TIT_IGG_S1:
-    missing: []
+    missing: ['0']
     # measured 2026 (3131 rows, 2024 filled): range [0, 1256], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a titre is a reciprocal dilution (1:16 is 16), never 0: the form types it number(5), 'Campo Essencial' only if the result column is not 4 (not performed); 0 stands where the result column says 4 (not performed) on every filled titre (3,035 of 3,035, IgG S1) and 99.4% of those of rows with no result, against 5.5% (37 of 667) where IgG S1 is positive, so it is no titre, and the
+    # reading of the test is the result column's, not this one's (2026-11-23; docs/evaluation/2026-11-23-measure-zeros.md)
     role: case.igg_titre_1
     kind: number
     model: mark
@@ -1144,8 +1146,10 @@ columns:
     note: 'Titres with 0 (most records) and entry errors (-64, 164) beside true dilutions: a measurement whose missing
       codes are not yet declared.'
   TIT_IGG_S2:
-    missing: []
+    missing: ['0']
     # measured 2026 (3131 rows, 2024 filled): range [0, 1512], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a titre is a reciprocal dilution (1:16 is 16), never 0: the form types it number(5), 'Campo Essencial' only if the result column is not 4 (not performed); 0 stands where the result column says 4 (not performed) on every filled titre (3,035 of 3,035, IgG S1) and 99.4% of those of rows with no result, against 5.5% (37 of 667) where IgG S1 is positive, so it is no titre, and the
+    # reading of the test is the result column's, not this one's (2026-11-23; docs/evaluation/2026-11-23-measure-zeros.md)
     role: case.igg_titre_2
     kind: number
     model: mark
@@ -1156,8 +1160,10 @@ columns:
     - 2007
     - 2026
   TIT_IGM_S1:
-    missing: []
+    missing: ['0']
     # measured 2026 (3131 rows, 2125 filled): range [0, 164], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a titre is a reciprocal dilution (1:16 is 16), never 0: the form types it number(5), 'Campo Essencial' only if the result column is not 4 (not performed); 0 stands where the result column says 4 (not performed) on every filled titre (3,035 of 3,035, IgG S1) and 99.4% of those of rows with no result, against 5.5% (37 of 667) where IgG S1 is positive, so it is no titre, and the
+    # reading of the test is the result column's, not this one's (2026-11-23; docs/evaluation/2026-11-23-measure-zeros.md)
     role: case.igm_titre_1
     kind: number
     model: mark
@@ -1169,8 +1175,10 @@ columns:
     - 2026
     note: The form types it text(5); the values are titres like its three siblings.
   TIT_IGM_S2:
-    missing: []
+    missing: ['0']
     # measured 2026 (3131 rows, 2126 filled): range [0, 512], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a titre is a reciprocal dilution (1:16 is 16), never 0: the form types it number(5), 'Campo Essencial' only if the result column is not 4 (not performed); 0 stands where the result column says 4 (not performed) on every filled titre (3,035 of 3,035, IgG S1) and 99.4% of those of rows with no result, against 5.5% (37 of 667) where IgG S1 is positive, so it is no titre, and the
+    # reading of the test is the result column's, not this one's (2026-11-23; docs/evaluation/2026-11-23-measure-zeros.md)
     role: case.igm_titre_2
     kind: number
     model: mark

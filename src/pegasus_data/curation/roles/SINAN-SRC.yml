@@ -710,6 +710,10 @@ columns:
   PESO:
     missing: []
     # measured 2026 (44 rows, 40 filled): range [870, 4550], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # zero never occurs: 0 of 1,855 filled values in 2007-2026, so there is no zero to decide (2026-11-23)
+    # the unit is NOT one: kilograms with a decimal point (1.765 to 3.945, 27 values) and grams (610 to 5,200) share the column, plus 9-41.25 and
+    # 7,300-41,750 that are neither; the median is 2,600-3,100 each year. No conversion is guessed: a unit per record (a form
+    # that fixes kg or g, or a column naming it) would decide
     role: case.birth_weight_g
     kind: number
     model: mark
@@ -719,7 +723,8 @@ columns:
     years:
     - 2007
     - 2026
-    note: The form types it text(5); the values are grams.
+    unit_unknown: "kilograms (1.765 to 3.945) and grams (610 to 5,200) are mixed in the column and no document or companion field gives the unit of a record"
+    note: The form types it text(5); most values are grams, some kilograms (see the comment above).
   PURPURA:
     missing: ['0', '3', '4', '5', '6', '7', '8', '9']
     # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'

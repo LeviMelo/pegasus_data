@@ -2166,7 +2166,7 @@ columns:
     - 2000
     - 2006
   S1_TIT1:
-    missing: []
+    missing_unknown: "legacy 2000-2006 field in no harvested SINAN dictionary: 14 zeros in 1,567 filled records of 583,877, in no pattern with the IgM or IgG result codes, and values 1-4 dominate (not dilutions); a dictionary line for DENG's 2000-2006 layout would decide (2026-11-23)"
     # measured 2000 (172855 rows, 5 filled): range [0, 4], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded
     role: case.serology1_titer
     kind: number
@@ -2201,7 +2201,7 @@ columns:
     - 2000
     - 2006
   S2_TIT1:
-    missing: []
+    missing_unknown: "legacy 2000-2006 field in no harvested SINAN dictionary: filled on 348 of 583,877 records, no pattern with the serology result codes; a dictionary line for DENG's 2000-2006 layout would decide (2026-11-23)"
     # measured 2000 (172855 rows, 3 filled): range [2, 4], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded
     role: case.serology2_titer
     kind: number
