@@ -677,6 +677,15 @@ def _register(settings: Any, source: str, spec: dict[str, Any], unit: dict[str, 
                                  "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)",
                                  (fam, system, series, signature, len(names), min(years) if years else None, max(years) if years else None,
                                   '["BR"]', files_n, 0, "intake", None, f"intake: {source}"))
+                    # the family's columns, as a header census records a file's (`inventory.schemas.persist_header`):
+                    # without them `describe` and the read planner knew no column of any intake dataset, and every
+                    # PegaSUS scope reaching ANS TISS's CID_2 failed in pricing (2026-11-23)
+                    conn.execute("INSERT INTO schemas (schema_signature, field_count, fields_json, first_seen) "
+                                 "VALUES (?,?,?, datetime('now')) ON CONFLICT(schema_signature) DO NOTHING",
+                                 (signature, len(names), json.dumps(list(names))))
+                    conn.executemany("INSERT INTO schema_presence (schema_signature, field_name, field_order) VALUES (?,?,?) "
+                                     "ON CONFLICT(schema_signature, field_name) DO UPDATE SET field_order=excluded.field_order",
+                                     [(signature, n, i) for i, n in enumerate(names)])
                 else:
                     conn.execute("UPDATE families SET time_min=?, time_max=?, file_count=? WHERE family_id=?",
                                  (min(years) if years else None, max(years) if years else None, files_n, fam))

@@ -236,3 +236,11 @@ keeps the first six characters of the place as `municipality`); only intake sour
 with its 95% interval limits and coefficient of variation (table 4638, variables 4615 count, 4616/4617 limits, 4618 percent, 4934
 CV; MG 2019: 3,646.543 [3,347.879; 3,945.207] thousand, 22.0%, CV 4.2%). No registry table was found for AVC; hypertension
 (4416-4419), helmet (5267-5278), alcohol (7726-7731), violence (5351-5422, 2013) and seat belt (5133-5138, 8082-8093) exist.
+
+**Every ICD-seeded PegaSUS scope failed in pricing** (science-1 t01/t04/t07, science-2 t05/t06): "ANS-TISS_HOSP_CONS.CID_2:
+pegasus_data describes no such field". The scope reaches TISS's secondary diagnoses by role, and `describe` raised
+MissingColumnError for every column of the dataset: the intake registered its families without their columns (no
+`schemas` row, no `schema_presence`), so neither `describe` nor the read planner's census knew any column of the 35 intake
+families on the home (ANS TISS and ICB, SISAGUA, SNGPC, PNI-DOSES, S2iD, INEP, SIES, FA, SRAG, the census 2010 sample,
+SIOPS). `intake._register` now records them as a header census does, and the 35 were backfilled from each family's own
+parts (35 of 35); `describe('ANS', 'TISS_HOSP_CONS', field='CID_2')` and PegaSUS's `token_rule` answer.
