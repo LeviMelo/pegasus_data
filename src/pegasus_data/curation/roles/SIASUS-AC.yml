@@ -228,3 +228,15 @@ columns:
     years:
     - 2001
     - 2007
+  APA_CNSPAC:
+    review: draft
+    role: patient.cns_apa_cnspac
+    kind: identifier
+    model: excluded
+    name: APA_CNSPAC (name read from the column; no layout found)
+    years:
+    - 2002
+    - 2002
+    note: Beside APA_CNSPCN (CNS paciente) in the APAC authorisation file; not in the APAC manuals, apac_layout or the SIA layouts
+      read. In the RS 2002 file 59,338 of 76,197 values are empty and the rest 000000000000000, so it identifies nobody there.
+      A card number of the patient or of another person is not documented.

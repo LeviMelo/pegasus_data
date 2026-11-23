@@ -137,3 +137,17 @@ columns:
     years:
     - 1994
     - 2019
+  ABAND:
+    role: vaccination.dropout_rate
+    kind: number
+    model: mark
+    fact_domain: process
+    fact_domain_evidence: '"ABAND" (vaccination.dropout_rate): doses applied and coverage: care delivered'
+    years:
+    - 2009
+    - 2009
+    measure: false
+    name: Taxa de abandono
+    note: 'The published dropout rate (abandono), a finished rate: (D1 minus the dose that finishes the schedule) over D1, times
+      100 (PNI nota técnica Taxas de abandono, DATASUS, sources/notatecnicaTx.pdf; the column name is matched to it by name).
+      Declared as in PNI-DPNIUF. Held empty in the 2009 files read (19,268 rows, none filled).'

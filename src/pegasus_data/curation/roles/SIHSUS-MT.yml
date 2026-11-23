@@ -188,3 +188,69 @@ columns:
     years:
     - 1995
     - 1997
+  ESTADO:
+    review: draft
+    role: act.state_sinpas
+    kind: place
+    model: mark
+    place_of: record
+    name: Estado (name read from the column; no layout found)
+    years:
+    - 1995
+    - 1995
+    note: 'Held in the 1995 files only; no layout of the MT (professional acts) file names it (IT_SIHSUS_1603 and GEOCOD_AIH
+      document the RD file). The values are UF codes: the national total of the 1995 file is 4,987,902 rows over 27 codes. Coded
+      as UFD_SINPAS and UFS_SINPAS are (21 is the commonest value, 1,256,358 rows: São Paulo in the SINPAS code); whose state
+      it is, the layout does not say.'
+  UFD_IBGE:
+    review: draft
+    role: act.domicile_state_ibge
+    kind: place
+    model: mark
+    place_of: record
+    name: UF D (IBGE code; name read from the column)
+    years:
+    - 1995
+    - 1995
+    note: 'Held in the 1995 files only; no layout of the MT (professional acts) file names it (IT_SIHSUS_1603 and GEOCOD_AIH
+      document the RD file). The values are UF codes: the national total of the 1995 file is 4,987,902 rows over 27 codes. The
+      IBGE UF code (35, São Paulo, is the commonest value); D is read as domicile, as in UF_DOM, which is not confirmed.'
+  UFD_SINPAS:
+    review: draft
+    role: act.domicile_state_sinpas
+    kind: place
+    model: mark
+    place_of: record
+    name: UF D (SINPAS code; name read from the column)
+    years:
+    - 1995
+    - 1995
+    note: 'Held in the 1995 files only; no layout of the MT (professional acts) file names it (IT_SIHSUS_1603 and GEOCOD_AIH
+      document the RD file). The values are UF codes: the national total of the 1995 file is 4,987,902 rows over 27 codes. The
+      same state as UFD_IBGE in the SINPAS code (21 where UFD_IBGE is 35: 1,256,128 rows each).'
+  UFS_IBGE:
+    review: draft
+    role: act.service_state_ibge
+    kind: place
+    model: mark
+    place_of: record
+    name: UF S (IBGE code; name read from the column)
+    years:
+    - 1995
+    - 1995
+    note: 'Held in the 1995 files only; no layout of the MT (professional acts) file names it (IT_SIHSUS_1603 and GEOCOD_AIH
+      document the RD file). The values are UF codes: the national total of the 1995 file is 4,987,902 rows over 27 codes. The
+      IBGE UF code; what S stands for (service, saída) is not documented.'
+  UFS_SINPAS:
+    review: draft
+    role: act.service_state_sinpas
+    kind: place
+    model: mark
+    place_of: record
+    name: UF S (SINPAS code; name read from the column)
+    years:
+    - 1995
+    - 1995
+    note: 'Held in the 1995 files only; no layout of the MT (professional acts) file names it (IT_SIHSUS_1603 and GEOCOD_AIH
+      document the RD file). The values are UF codes: the national total of the 1995 file is 4,987,902 rows over 27 codes. The
+      same state as UFS_IBGE in the SINPAS code.'

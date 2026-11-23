@@ -64,7 +64,7 @@ IDENTITY = ("CD_SETOR", "SITUACAO", "CD_SIT", "CD_TIPO", "AREA_KM2", "CD_MUN", "
             "NM_SUBDIST", "CD_BAIRRO", "NM_BAIRRO", "CD_NU", "NM_NU", "CD_FCU", "NM_FCU", "CD_AGLOM", "NM_AGLOM", "CD_RGINT", "NM_RGINT",
             "CD_RGI", "NM_RGI", "CD_CONCURB", "NM_CONCURB")
 
-__all__ = ["BANDS", "build", "build_aggregates", "tract_aggregates", "tract_dictionary", "tract_mesh", "tract_population", "tract_weighting_area", "tracts", "weighting_area_table"]
+__all__ = ["BANDS", "build", "build_aggregates", "described_columns", "tract_aggregates", "tract_dictionary", "tract_mesh", "tract_population", "tract_weighting_area", "tracts", "weighting_area_table"]
 
 
 def _directory(root: str | Path | None) -> Path:
@@ -428,6 +428,28 @@ def tract_aggregates(topic: str, variables: Any = None, *, municipality: Any = N
     if not path.is_file():
         raise FileNotFoundError(f"the tract aggregates are not built in {path.parent}; run `pegasus-data tracts`")
     return duckdb.connect().execute(f"SELECT {select} FROM read_parquet('{path.as_posix()}') {_where(municipality, uf)}").to_arrow_table()
+
+
+def described_columns(root: str | Path | None = None) -> set[str]:
+    """The names of the variables IBGE's own documentation describes for the files this store holds (upper case): every variable of
+    every sheet of the dictionaries held here (the demography theme and the household, literacy, race, parentage and death themes of
+    the tracts' CSVs), and the columns ``curation/published_tables.yml`` (`registry_columns.ibge_tracts`) lists from the mesh
+    dictionary and the built tables' own keys. Reads the held workbooks only: nothing is downloaded."""
+    import openpyxl
+
+    names = {str(k).upper() for k in declared("published_tables.yml", "registry_columns", "ibge_tracts")["columns"]}
+    directory = _directory(root)
+    for book in {Path(d["file"]).name for d in DICTIONARIES.values()}:
+        if not (directory / book).is_file():
+            continue
+        workbook = openpyxl.load_workbook(directory / book, read_only=True)
+        for sheet in workbook:
+            rows = sheet.iter_rows(values_only=True)
+            header = next(rows, None) or ()
+            where = [i for i, h in enumerate(header) if str(h or "").strip().lower() in ("variável", "variavel")]
+            if where:
+                names |= {str(r[where[0]]).strip().upper() for r in rows if len(r) > where[0] and r[where[0]]}
+    return names
 
 
 def tract_dictionary(topic: str | None = None, *, root: str | Path | None = None) -> Any:

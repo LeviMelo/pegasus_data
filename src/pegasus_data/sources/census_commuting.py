@@ -56,7 +56,7 @@ SIDRA = {layer: (b["table"], b["variable"], b["classification"], b["category"])
 BLOCK = 100_000
 KEYS = ("other_country", "multiple_places", "no_code", "ignored", "unlisted", "same_as_residence")
 
-__all__ = ["build", "validate"]
+__all__ = ["RECORD_SHEETS", "build", "record_layouts", "validate"]
 
 
 def _directory(root: str | Path | None, name: str) -> Path:
@@ -79,6 +79,24 @@ def _layout_check(documentation: Path) -> None:
     for variable, span in COLUMNS.items():
         if found.get(variable) != span:
             raise ValueError(f"layout: {variable} is {found.get(variable)} in the documentation, {span} in COLUMNS")
+
+
+#: The sample's record files and the layout sheet each is written by (Layout_microdados_Amostra.xls)
+RECORD_SHEETS = {"Amostra_Domicilios": "DOMI", "Amostra_Pessoas": "PESS", "Amostra_Emigracao": "EMIG", "Amostra_Mortalidade": "MORT"}
+
+
+def record_layouts(root: str | Path | None = None) -> dict[str, dict[str, Any]]:
+    """The documentation's own layout of each record file of the sample (``Layout/Layout_microdados_Amostra.xls`` in
+    ``Documentacao.zip``, one sheet per record type): ``{file stem: {"width": the last position, "variables": {name: (first, last,
+    description)}}}``. A record line is ``width`` characters and a line break. Reads the held documentation only."""
+    documentation = _directory(root, "census2010_microdata") / "Documentacao.zip"
+    out: dict[str, dict[str, Any]] = {}
+    for stem, sheet_name in RECORD_SHEETS.items():
+        sheet = _sheet(documentation, r"layout_microdados_amostra\.xls$", sheet_name=sheet_name)
+        variables = {str(r[0]).strip(): (int(float(r[7])), int(float(r[8])), " ".join(str(r[1]).split()))
+                     for r in sheet.itertuples(index=False) if str(r[0]).strip() and str(r[8]).strip().replace(".", "").isnumeric()}
+        out[stem] = {"width": max(v[1] for v in variables.values()), "variables": variables}
+    return out
 
 
 def _municipality_codes(documentation: Path) -> set[int]:
