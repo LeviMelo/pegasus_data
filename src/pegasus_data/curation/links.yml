@@ -682,6 +682,41 @@ links:
         right: patient.race
       - {name: readmission after the discharge, sql: "r.\"admission.start\" >= l.\"admission.end\""}
 
+  # An SUS admission to the same person's later non-SUS admission (CIHA, modality 02): a private reoperation or
+  # readmission after an SUS operation. CIHA carries no CEP, so the person is the birth date, sex and municipality of
+  # residence only: a weaker key than sih_readmissions', and a large city's namesakes by birth date are many. The
+  # chance control and the verdict decide whether a state-year is viable; nothing is tuned here.
+  sih_admissions_to_ciha:
+    description: >
+      Admissions with the caller's codes (params.codes: ICD-10 prefixes on the principal diagnosis or on every diagnosis,
+      or SIGTAP prefixes on the procedure performed) to the same person's next non-SUS hospital admission (CIHA) that
+      starts within a year of the discharge: a private reoperation (shunt revision, cranioplasty) or readmission after an
+      SUS operation. One record stands for each person (birth date, sex, residence), the first admission of the period.
+    same_event: false   # two admissions of one person, in two payers
+    params:
+      codes: {side: left, roles: {principal: admission.diagnosis, any: admission.diagnoses, procedure: admission.procedure}}
+    outcome: {origin: admission.end, event: admission.start, first: true}
+    left:
+      dataset: SIH-RD
+      where: "\"admission.aih_type\" IS DISTINCT FROM '5'"
+      group: [patient.birth_date, patient.sex, patient.residence]
+      earliest: admission.start
+      explode_days: [admission.end, 365, follow_up.day]
+    right: {dataset: CIHA, pad_years: [0, 1], where: "\"admission.modality\" = '02'"}
+    passes:
+      - name: birth date, sex, municipality of residence, admission in the year after the discharge
+        keys: [[patient.birth_date, patient.birth_date], [patient.sex, patient.sex],
+               [patient.residence, patient.residence], [follow_up.day, admission.start]]
+    control: {role: patient.birth_date, shift_days: 7}
+    validate:
+      # held out, neither is a key: a person treated privately after an SUS operation mostly stays in the state of the
+      # first hospital; CIHA states an age of its own (IDADE) besides the birth date used as key
+      - name: the non-SUS hospital lies in the state of the SUS hospital
+        sql: "substr(r.\"admission.facility_municipality\", 1, 2) = substr(l.\"admission.facility_municipality\", 1, 2)"
+      - name: CIHA's reported age agrees with the birth date within a year
+        sql: "abs(try_cast(r.\"patient.age_years\" AS INTEGER) - date_diff('year', l.\"patient.birth_date\", r.\"admission.start\")) <= 1"
+      - {name: admission after the discharge, sql: "r.\"admission.start\" >= l.\"admission.end\""}
+
   # A tumour's surgery to the patient's first radiotherapy: the SIH admission (by the caller's diagnosis or procedure,
   # a glioma's microsurgery) to the radiotherapy APAC whose pathology date (AR_DTIDEN, the histological identification)
   # falls in the 60 days from the admission, with the same sex and residence CEP. The APAC has the patient's age, not a

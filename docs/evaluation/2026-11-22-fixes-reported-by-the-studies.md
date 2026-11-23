@@ -189,3 +189,17 @@ none holds the years whole (2024: 2,119,682 rows). *`info SIHSUS-SP.IN_TP_VAL` d
 field is now split on its last dot whenever the dataset resolves, in any spelling. Not a defect: SIH-RD's CBOR reads
 0.0% filled while 225265 is its most common real value; nationally 2024 holds about 1,600 real CBOs among 14.2 M AIHs
 ('000000'), under 0.1%.
+
+**SUS to private follow-up: `sih_admissions_to_ciha`** (the reviewer's request for t07/t03/t04; 2026-11-23). Declared in
+`links.yml`: an SIH-RD admission with the caller's codes (SIGTAP procedure prefixes or ICD-10) to the same person's first
+CIHA admission (modality 02) starting within a year of the discharge, to reach private reoperations after an SUS
+operation. CIHA has no CEP, so the person is birth date, sex and municipality of residence (already comparable roles); the
+control shifts the birth date by 7 days as `sih_readmissions` does. Held out: the CIHA hospital lies in the SUS hospital's
+state, and CIHA's `IDADE_anos` (now a comparable role) agrees with the birth date within a year. Measured, 0403
+(neurosurgery) 2019, partners to 2020: **Alagoas** cohort 763 persons, 51 pairs, 40 control pairs, chance 78.4%;
+**São Paulo** cohort 19,979, 5,967 pairs, 5,926 control pairs, chance 99.3%. Verdict **not viable** in both: the pass is
+not kept, so no pair is linked, none can be read, and no held-out check compares 30 pairs. The key is too weak: birth date
+and sex within one municipality recur across a year of the other payer's admissions even in a state of 3 million, and the
+control finds nearly as many pairs as the real data. No threshold was tuned. The link stays declared for a stronger key
+(a patient token in CIHA, or a pass anchored on one named hospital); until then a private reoperation after an SUS
+operation cannot be recovered from the lake.

@@ -391,6 +391,7 @@ columns:
     - 2011
     - 2026
   IDADE_anos:
+    compare: {patient.age_years: {type: number}}
     role: patient.age_years
     kind: number
     model: stratum
