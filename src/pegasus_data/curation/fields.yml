@@ -20,6 +20,12 @@
 # Every field has a `label`, its short name in a list (sentence case, about six words) beside `what`, its sentence; labels are
 # unique, and two fields that differ (SUS or all, jobs or persons) say how (`unlabelled_fields`, `shared_labels`).
 #
+# A field with `level: N3` is published by state (the PNS, a sample survey designed for the state): its rows are keyed by
+# `uf` (IBGE's state code) and `uf_abbr`, with no municipality, and a state's value is never copied onto its municipalities.
+# It is a cross-level covariate of 27 units: a model carries a state effect on it and inference counts states, not the
+# municipalities inside them. `interval: {lower, upper, cv}` names IBGE's own variables of the same table (95% limits,
+# coefficient of variation), returned as columns beside `value`: the survey's uncertainty travels with the value.
+#
 # IBGE's markers are kept as a status beside the value: "-" is a true zero;
 # ".." not applicable, "..." not available and "X" suppressed for disclosure
 # are null with their reason, never zero.
@@ -748,3 +754,93 @@ fields:
       The list holds codes by prefix (a three-character category covers its subcategories). GBD2017, the list Brazilian
       studies cite, classifies COVID-19 (B34.2) as garbage and GBD2019 does not, which is why GBD2019 is used for the
       pandemic years.
+
+  # Pesquisa Nacional de Saúde (PNS 2013 and 2019), by state. The PNS is a household sample survey designed for the
+  # state, and only the capitals of the municipalities are published, so these fields are `level: N3`: one row per state
+  # (`uf`, `uf_abbr`) and year, never a value copied onto a state's municipalities. Each carries the survey's own 95%
+  # confidence limits and coefficient of variation (`interval`), IBGE's variables of the same table, as `lower`, `upper`
+  # and `cv` (thousand persons, thousand persons, per cent). A count, not IBGE's percentage: the percentage of the same
+  # table is this count over the question's universe (named in each `what`; IBGE publishes no count of any universe),
+  # and is not stored. Where the universe is all adults the percentage and the count give 159.0 million adults in
+  # Brazil in 2019 and 145.4 to 146.3 million in 2013.
+
+  pns_chronic_spine_problem:
+    label: "Adults reporting chronic spine problem (PNS, by state)"
+    level: N3
+    table: 4638
+    variable: 4615
+    interval: {lower: 4616, upper: 4617, cv: 4934}
+    unit: thousand persons
+    what: >
+      Persons aged 18 or more who report a chronic spine problem (problema crônico de coluna), by state, both sexes and
+      all households (IBGE, Pesquisa Nacional de Saúde 2013 and 2019, table 4638, variable 4615; limits 4616 and 4617, CV
+      4934). The percentage IBGE publishes (variable 4618) is this count over all residents aged 18 or more.
+    years: 2013, 2019
+
+  pns_hypertension:
+    label: "Adults reporting hypertension diagnosis (PNS, by state)"
+    level: N3
+    table: 4418
+    variable: 4396
+    interval: {lower: 4397, upper: 4398, cv: 4861}
+    unit: thousand persons
+    what: >
+      Persons aged 18 or more who report a medical diagnosis of arterial hypertension, by state, both sexes and all
+      households (IBGE, PNS 2013 and 2019, table 4418, variable 4396; limits 4397 and 4398, CV 4861). The percentage IBGE
+      publishes (variable 4399) is this count over all residents aged 18 or more.
+    years: 2013, 2019
+
+  pns_helmet_motorcycle_driver:
+    label: "Motorcycle drivers always using helmet (PNS, by state)"
+    level: N3
+    table: 5267
+    variable: 5712
+    interval: {lower: 5713, upper: 5714, cv: 5715}
+    unit: thousand persons
+    what: >
+      Persons aged 18 or more who always wear a helmet when driving a motorcycle, by state, both sexes and all
+      households (IBGE, PNS 2013 and 2019, table 5267, variable 5712; limits 5713 and 5714, CV 5715). The universe of
+      IBGE's percentage (variable 5716) is the adults who drive a motorcycle, a population IBGE publishes in no table of
+      the PNS as a count (it is count over percentage: 34.8 million in Brazil in 2013, 36.7 million in 2019); it is not
+      all adults and not the state's population, so `over` is left out.
+    years: 2013, 2019
+
+  pns_seat_belt_front:
+    label: "Adults always using front seat belt (PNS, by state)"
+    level: N3
+    table: 8082
+    variable: 11688
+    interval: {lower: 11689, upper: 11690, cv: 11691}
+    unit: thousand persons
+    what: >
+      Persons aged 18 or more who always wear the seat belt in the front seat when driving or riding a car, by state,
+      both sexes and all households (IBGE, PNS 2019, table 8082, variable 11688; limits 11689 and 11690, CV 11691). The
+      universe of IBGE's percentage (variable 11692) is the adults who drive or ride a car, published as no count (count
+      over percentage: 154.6 million in Brazil in 2019, against 159.0 million adults), so `over` is left out.
+    years: 2019
+
+  pns_alcohol_abusive_use:
+    label: "Adults with abusive alcohol use (PNS 2019, by state)"
+    level: N3
+    table: 7726
+    variable: 4298
+    interval: {lower: 4299, upper: 4300, cv: 4829}
+    unit: thousand persons
+    what: >
+      Persons aged 18 or more with abusive alcohol consumption in the 30 days before the interview, by state, both sexes
+      and all households (IBGE, PNS 2019, table 7726, variable 4298; limits 4299 and 4300, CV 4829). The percentage IBGE
+      publishes (variable 4301) is this count over all residents aged 18 or more.
+    years: 2019
+
+  pns_violence_by_stranger:
+    label: "Adults assaulted by a stranger (PNS 2013, by state)"
+    level: N3
+    table: 5351
+    variable: 5824
+    interval: {lower: 5825, upper: 5826, cv: 5827}
+    unit: thousand persons
+    what: >
+      Persons aged 18 or more who suffered any violence or aggression from a stranger in the 12 months before the
+      interview, by state, both sexes and all households (IBGE, PNS 2013, table 5351, variable 5824; limits 5825 and
+      5826, CV 5827). The percentage IBGE publishes (variable 5828) is this count over all residents aged 18 or more.
+    years: 2013

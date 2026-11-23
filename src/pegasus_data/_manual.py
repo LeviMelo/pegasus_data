@@ -152,7 +152,7 @@ def write_manual(*, settings: Settings | None = None, root: str | Path | None = 
         counts["links"] = len(links)
         fields = q("SELECT name, label, what, unit, source, years, years_held FROM fields ORDER BY name").fetchall()
         (staged / "fields.md").write_text("\n".join(
-            ["# Context fields: `load_field(<name>, years=...)`, one value per municipality and year", "",
+            ["# Context fields: `load_field(<name>, years=...)`, one value per municipality and year (a field the table says is by state: per state, keyed by `uf`)", "",
              *_table(["field", "label", "what", "unit", "source", "years declared", "years held"],
                      [[f["name"], f["label"], f["what"], f["unit"], f["source"], f["years"], f["years_held"]] for f in fields])]
         ) + "\n", encoding="utf-8")

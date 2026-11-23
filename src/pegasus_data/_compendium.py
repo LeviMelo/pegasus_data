@@ -718,7 +718,7 @@ def overview(*, settings: Settings | None = None, root: str | Path | None = None
             out.append(f"  {code:<30} {str(name or '')[:46]:<46} {cols or 0:>4} cols  server {server:<9}  {kept}")
 
         fields = q("SELECT name, label, source, years, years_held FROM fields ORDER BY source, name").fetchall()
-        out += ["", f"CONTEXT FIELDS ({len(fields)}), per municipality and year: load_field(\"<name>\")"]
+        out += ["", f"CONTEXT FIELDS ({len(fields)}), per municipality and year (a PNS field, per state and year): load_field(\"<name>\")"]
         for name, label, source, years, held in fields:
             got = json.loads(held or "[]")
             kept = f"held {got[0]}-{got[-1]}" if got else "none held"

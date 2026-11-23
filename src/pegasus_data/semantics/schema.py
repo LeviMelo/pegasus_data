@@ -233,7 +233,7 @@ KINDS: tuple[tuple[str, Any], ...] = (
             "cnes": obj("accreditation_groups equipment facility_groups families icu_bed_codes neonatal_icu_bed_codes neurology_bed_codes neurosurgery_bed_codes professional_groups specialised_service_groups "
                         "register_month support team_groups team_not_deactivated", sub={
                 "families": free(obj("dataset fixed group measure measure_by sector"))}),
-            "fields": free(obj("classification dataset equipment event family gaps group kind label law measure over sector series "
+            "fields": free(obj("classification dataset equipment event family gaps group interval kind label law level measure over sector series "
                                "source table unit variable verified what where years", required="label unit what"))})),
         ("intake.yml", obj("dictionaries sources", sub={
             "dictionaries": free(free(obj("aliases decimal description format formats take tokens type"))),

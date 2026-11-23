@@ -148,8 +148,10 @@ def _build_sidra(settings: Any, sidra: Any, name: str, spec: dict[str, Any], yea
     """Fetch an IBGE aggregate (table, variable, the categories named) into SIDRA's fact store; the field is the cube
     ``sidra:<table>/<variable>`` and is served from the store by `load_field` (ADR-0217), never copied."""
     wanted = [y for y in _years(spec["years"]) if not years or y in years]
+    variables = [int(spec["variable"]), *(int(v) for v in (spec.get("interval") or {}).values())]
     selection = sidra.selection(
-        int(spec["table"]), variables=[int(spec["variable"])], periods=[str(y) for y in wanted],
+        int(spec["table"]), variables=variables, periods=[str(y) for y in wanted],
+        level=STATE_GRAIN if is_state_field(spec) else "N6",
         classifications={int(k): [int(v)] for k, v in (spec.get("classification") or {}).items()})
     report = sidra.fetch(selection, log=lambda _m: None)
     if report["shortfalls"]:                      # a request that returned fewer cells than it asked for: never a quiet gap
@@ -167,31 +169,66 @@ def cube_of(spec: dict[str, Any]) -> tuple[str, dict[str, list[Any]]] | None:
     return None
 
 
+STATE_GRAIN = "N3"
+
+
+def is_state_field(spec: dict[str, Any]) -> bool:
+    """A field read at the state level (``level: N3``): its rows are keyed by ``uf``, not by a municipality. A state
+    value is never copied onto the municipalities: it is a cross-level covariate of 27 units, joined on ``uf``."""
+    return str(spec.get("level") or "").upper() == STATE_GRAIN
+
+
 def _field_from_cube(name: str, spec: dict[str, Any], years: list[int] | None, settings: Any) -> pa.Table:
     """A SIDRA or series field read from its cube, in the field's columns (municipality, municipality7, value, status,
     unit, source, year): what `load_field` returned when the field was a stored copy, value for value (evaluation
-    2026-11-08-the-one-map: 26 fields, 0 differences)."""
+    2026-11-08-the-one-map: 26 fields, 0 differences). A field declared ``level: N3`` is read at the state place and has
+    ``uf`` (the IBGE state code, two characters) and ``uf_abbr`` in place of the municipality columns; one declared
+    ``interval: {lower, upper, cv}`` also has ``lower``, ``upper`` and ``cv``, IBGE's own variables of the same table, read
+    like the value (a marker stays null)."""
     import pyarrow.compute as pc
 
     from .cubes import cube
 
     source, where = cube_of(spec) or ("", {})
+    state = is_state_field(spec)
+    interval = spec.get("interval") or {}
     declared = [str(y) for y in _years(spec["years"])]
     # Only the declared years are asked of the cube; a year the field does not have is no row, as the stored copy gave.
     periods = [str(y) for y in years if str(y) in declared] if years else declared
+    place_columns = ({"uf": pa.array([], pa.string()), "uf_abbr": pa.array([], pa.string())} if state else
+                     {"municipality": pa.array([], pa.string()), "municipality7": pa.array([], pa.string())})
     if not periods:
-        return pa.table({"municipality": pa.array([], pa.string()), "municipality7": pa.array([], pa.string()),
-                         "value": pa.array([], pa.float64()), "status": pa.array([], pa.string()),
-                         "unit": pa.array([], pa.string()), "source": pa.array([], pa.string()),
-                         "year": pa.array([], pa.int32())})
-    table = cube(source, where=where, periods=periods, labels=False, settings=settings)
+        return pa.table({**place_columns, "value": pa.array([], pa.float64()),
+                         **{k: pa.array([], pa.float64()) for k in interval},
+                         "status": pa.array([], pa.string()), "unit": pa.array([], pa.string()),
+                         "source": pa.array([], pa.string()), "year": pa.array([], pa.int32())})
+    place = "uf" if state else "municipality"
+    table = cube(source, where=where, periods=periods, labels=False, place=place, settings=settings)
     table = table.filter(pc.is_in(table.column("period"), pa.array(declared)))
     code7 = pc.cast(table.column("place"), pa.string())
     unit = str(spec["unit"])
+    extra: dict[str, Any] = {}
+    if interval:
+        table_id = source.partition(":")[2].partition("/")[0]
+        keys = list(zip(table.column("place").to_pylist(), table.column("period").to_pylist(), strict=True))
+        for part, variable in interval.items():
+            companion = cube(f"sidra:{table_id}/{variable}", where=where, periods=periods, labels=False, place=place,
+                             settings=settings)
+            found = {(p, t): v for p, t, v in zip(companion.column("place").to_pylist(), companion.column("period").to_pylist(),
+                                                   companion.column("value").to_pylist(), strict=True)}
+            extra[part] = pa.array([found.get(k) for k in keys], pa.float64())
+    if state:
+        from .config import UF_NUMERIC
+
+        codes = [str(c).zfill(2) for c in table.column("place").to_pylist()]
+        located = {"uf": pa.array(codes, pa.string()),
+                   "uf_abbr": pa.array([UF_NUMERIC.get(c) for c in codes], pa.string())}
+    else:
+        located = {"municipality": pc.utf8_slice_codeunits(code7, 0, 6), "municipality7": code7}
     return pa.table({
-        "municipality": pc.utf8_slice_codeunits(code7, 0, 6),
-        "municipality7": code7,
+        **located,
         "value": table.column("value"),
+        **extra,
         "status": table.column("status"),
         "unit": pa.array([unit] * table.num_rows, pa.string()),
         "source": table.column("source") if spec.get("series") else pa.array(
@@ -662,7 +699,9 @@ def _write_by_year(table: pa.Table, name: str, settings: Any, prune: bool = Fals
 
 
 def load_field(name: str, *, years: list[int] | int | None = None, settings: Any = None) -> pa.Table:
-    """One field as (municipality, year, value, status, unit), from the lake. A field declared ``grain: month`` also has a
+    """One field as (municipality, year, value, status, unit), from the lake. A field declared ``level: N3`` (the PNS's) is
+    published by state: its rows are (uf, uf_abbr, year, value, status, unit), with ``lower``, ``upper`` and ``cv`` where it
+    declares an ``interval``, and carries no municipality; join it on ``uf``, never onto municipalities. A field declared ``grain: month`` also has a
     ``month`` (1-12) and one row per municipality and month that has records: a year is the sum of its months (``law: sum``),
     a municipality-month without records has no row (missing, never 0).
 
@@ -765,7 +804,7 @@ def _load_field(name: str, spec: dict[str, Any], wanted: list[int] | None, setti
 
 
 def context_candidates(years: tuple[int, int] | None = None, levels: tuple[str, ...] = ("N6",), *,
-                       root: str | Path | None = None) -> list[dict[str, Any]]:
+                       state_groups: bool = True, root: str | Path | None = None) -> list[dict[str, Any]]:
     """What could be a context of a study of places and years and is not yet a declared field, or is one: each group with
     its tables or columns, so that a study decides on each knowing what it is (docs/plans/recon.md, gap 3).
 
@@ -774,6 +813,10 @@ def context_candidates(years: tuple[int, int] | None = None, levels: tuple[str, 
       or a census series' sources);
     * one entry per intake source placed by a municipality or a state: its declared columns, and the fields that
       read it.
+
+    Every entry has a ``grain``: ``municipality`` or ``state``. A research and subject none of whose tables is published at
+    ``levels`` but some at the state level (N3) is listed with grain ``state`` and those tables (``state_groups=False``
+    leaves them out): a covariate of 27 units, to be modelled with a state effect and never copied onto municipalities.
 
     A group a declared field covers is still listed: covered is a fact about it, not a reason to stop considering it.
     Read from the SIDRA registry and the declarations only."""
@@ -804,19 +847,26 @@ def context_candidates(years: tuple[int, int] | None = None, levels: tuple[str, 
         finally:
             con.close()
         groups: dict[tuple[str, str], dict[str, Any]] = {}
+        state_only: dict[tuple[str, str], dict[str, Any]] = {}
         for tid, name, rid, research, subject, lv, first, last in rows:
             held = set(json.loads(lv or "[]"))
-            if not held & set(levels):
-                continue
             lo, hi = int(str(first or "0")[:4] or 0), int(str(last or "9999")[:4] or 9999)
             if years and (hi < years[0] or lo > years[1]):
                 continue
-            g = groups.setdefault((str(research), str(subject)), {
+            if held & set(levels):
+                chosen, into, grain = held & set(levels), groups, "municipality"
+            elif state_groups and STATE_GRAIN in held:
+                chosen, into, grain = {STATE_GRAIN}, state_only, "state"
+            else:
+                continue
+            g = into.setdefault((str(research), str(subject)), {
                 "kind": "sidra", "id": f"sidra:{rid}:{subject}", "research": research, "subject": subject,
-                "tables": [], "fields": set()})
+                "grain": grain, "tables": [], "fields": set()})
             g["tables"].append({"table": int(tid), "name": name, "first": lo, "last": hi,
-                                "levels": sorted(held & set(levels)), "fields": read_tables.get(int(tid), [])})
+                                "levels": sorted(chosen), "fields": read_tables.get(int(tid), [])})
             g["fields"] |= set(read_tables.get(int(tid), []))
+        # a research and subject with a table at `levels` is a municipal group; its state-only tables are not listed apart
+        groups.update({k: v for k, v in state_only.items() if k not in groups})
         for g in groups.values():
             g["fields"] = sorted(g["fields"])
             g["covered_tables"] = sum(1 for t in g["tables"] if t["fields"])
@@ -827,6 +877,7 @@ def context_candidates(years: tuple[int, int] | None = None, levels: tuple[str, 
             continue
         reading = sorted(f for f, spec in fields.items() if spec.get("source") == "intake" and spec.get("intake") == name)
         out.append({"kind": "intake", "id": f"intake:{name}", "research": str(src.get("citation") or src.get("what") or name)[:200],
-                    "subject": name, "columns": sorted(str(c).upper() for c in (src.get("columns") or {})),
+                    "subject": name, "grain": "state" if place.get("type") not in ("municipality", "municipality_name") else "municipality",
+                    "columns": sorted(str(c).upper() for c in (src.get("columns") or {})),
                     "fields": reading})
     return out
