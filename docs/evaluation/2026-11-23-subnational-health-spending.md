@@ -38,3 +38,5 @@ state base. A municipality that did not declare is absent (TabNet shows it as Fr
 (every municipality of AC, SE and SP read as Frequência 0), which is why they are not asked for.
 
 **Read as `query`.** `query("SIOPS-MUNICIPAL", period="2023")` gives 49 columns for the 97 municipalities (typed value, `__RAW` as TabNet wrote it, UF, code, name).
+
+**National landing (2026-11-23, the real home).** 2002-2025, 26 states a year, 5,409-5,568 municipalities a year, 132,911 municipality-years in every field. TabNet holds no municipal table for 2000-2001: asking those years made the field build refuse ("publishes none of the years"), so the declared range is 2002-2025.
