@@ -592,7 +592,8 @@ columns:
     - 2014
     - 2026
   AP_VL_AP:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: []
+    # measured 2026 (386 rows, 386 filled): range [0, 5461.29], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: authorisation.approved_value
     kind: number
     model: mark

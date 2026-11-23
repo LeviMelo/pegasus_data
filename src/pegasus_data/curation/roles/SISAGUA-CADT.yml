@@ -21,6 +21,8 @@ columns:
     - 2026
     note: IBGE code of the municipality supplied by the truck, 6 digits (dictionary).
   DS_TIPO_FINALIDADE:
+    missing: []
+    # declared from DATASUS's own sources (2026): no code table: the records hold the labels themselves ('Operação carro-pipa', 'Outro', 'Particular', 'Prestador serviço')
     role: tanker.purpose
     kind: category
     model: dimension
@@ -201,6 +203,8 @@ columns:
     note: Only when a legal entity is responsible; the head office for Regional institutions (dictionary). Text with a trailing
       ".0".
   NU_PESSOAS_ABASTECIDAS:
+    missing: []
+    # measured 2026 (357 rows, 249 filled): range [0, 10550], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: tanker.population
     kind: number
     model: mark
@@ -247,6 +251,8 @@ columns:
     - 2026
     note: State of the municipality supplied (dictionary).
   TP_ABRANGENCIA:
+    missing: []
+    # declared from DATASUS's own sources (2026): no code table: the records hold the labels themselves ('Local', 'Regional')
     role: institution.scope
     kind: category
     model: dimension
@@ -259,6 +265,7 @@ columns:
     - 2026
     note: Local (one municipality) or Regional (more than one) (dictionary).
   TP_PESSOA:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2026)'
     role: tanker.responsible_type
     kind: category
     model: dimension

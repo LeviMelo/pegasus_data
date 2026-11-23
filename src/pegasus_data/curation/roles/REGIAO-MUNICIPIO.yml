@@ -4,6 +4,7 @@ dataset: REGIAO-MUNICIPIO
 record: municipality
 columns:
   codigo_macrorregiao_saude:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2026)'
     role: municipality.health_macro_region_code
     kind: category
     model: dimension
@@ -20,6 +21,7 @@ columns:
     note: 'IBGE code, 6 digits: the key other datasets join to this table by. The table is a current state with no period,
       kept as read and stamped with the year of the read.'
   codigo_regiao_pais:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2026)'
     role: municipality.country_region_code
     kind: category
     model: dimension
@@ -28,6 +30,7 @@ columns:
       ... 5 Centro-Oeste): the geographic hierarchy of the municipality'
     name: Código da região do país
   codigo_regiao_saude:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2026)'
     role: municipality.health_region_code
     kind: category
     model: dimension
@@ -36,6 +39,7 @@ columns:
       into health regions and macro-regions, as it publishes it now'
     name: Código da região de saúde
   codigo_uf:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2026)'
     role: municipality.state_code
     kind: category
     model: dimension

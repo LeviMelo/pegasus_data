@@ -2,7 +2,8 @@ dataset: SIASUS-BI
 record: procedure
 columns:
   AUTORIZ:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: []
+    # measured 2026 (19376 rows, 19376 filled): range [0, 186], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: procedure.authorization_number
     kind: number
     model: mark
@@ -210,7 +211,8 @@ columns:
     name: Idade em anos (derivada de IDADEPAC e TPIDADEPAC)
     note: Fractional years from the curated recipe (ADR-0070), the subject's age stratum.
   IDADEPAC:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: []
+    # measured 2026 (19376 rows, 19376 filled): range [0, 98], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: patient.age
     kind: number
     model: mark
@@ -292,7 +294,8 @@ columns:
     - 2008
     - 2026
   QT_APRES:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: []
+    # measured 2026 (19376 rows, 19376 filled): range [1, 301], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: procedure.quantity_presented_produced
     kind: number
     model: mark
@@ -303,7 +306,8 @@ columns:
     - 2008
     - 2026
   QT_APROV:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: []
+    # measured 2026 (19376 rows, 19376 filled): range [1, 301], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: procedure.quantity_approved
     kind: number
     model: mark
@@ -429,7 +433,8 @@ columns:
     - 2008
     - 2026
   VL_APRES:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: []
+    # measured 2026 (19376 rows, 19376 filled): range [0, 7449.75], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: procedure.value_presented_produced
     kind: number
     model: mark
@@ -440,7 +445,8 @@ columns:
     - 2008
     - 2026
   VL_APROV:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: []
+    # measured 2026 (19376 rows, 19376 filled): range [0, 7449.75], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: procedure.value_approved
     kind: number
     model: mark

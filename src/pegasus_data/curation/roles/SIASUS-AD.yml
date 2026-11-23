@@ -172,6 +172,7 @@ columns:
     - 2026
     note: role from SIASUS-AN
   AP_COIDADE:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2026)'
     role: patient.age_unit
     kind: category
     model: mark
@@ -611,6 +612,8 @@ columns:
     - 2026
     note: role from SIASUS-AN
   AP_VL_AP:
+    missing: []
+    # measured 2026 (1 rows, 1 filled): range [682.34, 682.34], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: authorisation.approved_value
     kind: number
     model: mark

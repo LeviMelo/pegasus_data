@@ -22,6 +22,8 @@ columns:
     - 2004
     - 2019
   DIFER:
+    missing: []
+    # measured 2019 (11412 rows, 11412 filled): range [0, 0], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: vaccination.dropout_difference
     kind: number
     model: mark
@@ -33,6 +35,8 @@ columns:
     - 2019
     note: First dose minus the closing dose, for the dropout rate.
   DOSE:
+    missing: []
+    # declared 2026-11-23: DATASUS's tabulation labels no code of the column as not recorded (the earlier sweep's reading), and every value the lake holds in 2019 is a code of its codelist (sentinel sweep, 0 values outside it): no value stands for not recorded
     role: vaccination.dose
     kind: category
     model: dimension
@@ -45,6 +49,8 @@ columns:
     codelists:
     - DOSE
   DOSE1:
+    missing: []
+    # measured 2019 (11412 rows, 11412 filled): range [0, 0], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: vaccination.first_doses
     kind: number
     model: mark
@@ -55,6 +61,8 @@ columns:
     - 2004
     - 2019
   DOSEN:
+    missing: []
+    # measured 2019 (11412 rows, 11412 filled): range [0, 0], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: vaccination.closing_doses
     kind: number
     model: mark
@@ -65,6 +73,7 @@ columns:
     - 2004
     - 2019
   FX_ETARIA:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2019)'
     role: vaccination.age_band
     kind: category
     model: dimension
@@ -77,6 +86,8 @@ columns:
     codelists:
     - FXET
   IMUNO:
+    missing: []
+    # declared 2026-11-23: DATASUS's tabulation labels no code of the column as not recorded (the earlier sweep's reading), and every value the lake holds in 2019 is a code of its codelist (sentinel sweep, 0 values outside it): no value stands for not recorded
     role: vaccination.vaccine
     kind: category
     model: dimension
@@ -117,6 +128,8 @@ columns:
     note: The variable note says the municipality of application; the open-data republication names the same 
       file ..._RESIDENCIA (residence). Both claims recorded; not resolved.
   QT_DOSE:
+    missing: []
+    # measured 2019 (11412 rows, 11412 filled): range [1, 6300], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: vaccination.doses
     kind: number
     model: mark

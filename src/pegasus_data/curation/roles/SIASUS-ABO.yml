@@ -32,6 +32,7 @@ columns:
     - 2014
     - 2026
   AB_IMC:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: authorisation.body_mass_index
     kind: number
     model: mark
@@ -43,6 +44,8 @@ columns:
     - 2014
     - 2026
   AB_MESACOM:
+    missing: []
+    # measured 2026 (18 rows, 18 filled): range [1, 2], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: authorisation.months_of_follow_up
     kind: number
     model: mark
@@ -71,6 +74,7 @@ columns:
     - 2014
     - 2026
   AB_PONTBAR:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: authorisation.barros_score
     kind: number
     model: mark
@@ -165,6 +169,7 @@ columns:
     - 2014
     - 2026
   AB_T_PRC2:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: authorisation.post_bariatric_follow_up_field_2_probably_months_since_surge
     kind: number
     model: mark
@@ -176,6 +181,7 @@ columns:
     - 2014
     - 2026
   AB_T_PRC3:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: authorisation.post_bariatric_follow_up_field_3_probably_months_since_surge
     kind: number
     model: mark
@@ -187,6 +193,7 @@ columns:
     - 2014
     - 2026
   AB_T_PRC4:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: authorisation.post_bariatric_follow_up_field_4_probably_months_since_surge
     kind: number
     model: mark
@@ -198,6 +205,7 @@ columns:
     - 2014
     - 2026
   AB_T_PRC5:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: authorisation.post_bariatric_follow_up_field_5_probably_months_since_surge
     kind: number
     model: mark
@@ -209,6 +217,7 @@ columns:
     - 2014
     - 2026
   AB_T_PRC6:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: authorisation.post_bariatric_follow_up_field_6_probably_months_since_surge
     kind: number
     model: mark
@@ -255,6 +264,7 @@ columns:
     - 2014
     - 2026
   AP_ATV_FIS:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2026)'
     role: authorisation.physical_activity
     kind: category
     model: mark
@@ -455,6 +465,7 @@ columns:
     - 2026
     note: role from SIASUS-AN
   AP_COIDADE:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2026)'
     role: patient.age_unit
     kind: category
     model: mark
@@ -593,6 +604,7 @@ columns:
     - 2026
     note: role from SIASUS-AN
   AP_MEDICAM:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2026)'
     role: authorisation.taking_medication
     kind: category
     model: mark
@@ -732,6 +744,7 @@ columns:
     - 2026
     note: role from SIASUS-AN
   AP_POLIVIT:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2026)'
     role: authorisation.taking_multivitamins
     kind: category
     model: mark
@@ -776,6 +789,7 @@ columns:
     - 2026
     note: role from SIASUS-AN
   AP_REG_PES:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2026)'
     role: authorisation.weight_regain
     kind: category
     model: mark
@@ -824,6 +838,7 @@ columns:
     - 2014
     - 2026
   AP_TPPRE:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2026)'
     role: authorisation.provider_type
     kind: category
     model: mark
@@ -923,6 +938,8 @@ columns:
     - 2026
     note: role from SIASUS-AN
   AP_VL_AP:
+    missing: []
+    # measured 2026 (18 rows, 18 filled): range [40, 40], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: authorisation.approved_value
     kind: number
     model: mark

@@ -2,6 +2,8 @@ dataset: CNES-DC
 record: establishment
 columns:
   ABRANDAD:
+    missing: []
+    # declared from DATASUS's own sources (2026): no form dictionary; the table names every code the records use, each with its own label (0='não', 1='sim'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.water_treatment_with_water_softener
     kind: category
     model: mark
@@ -88,6 +90,8 @@ columns:
     - 2005
     - 2026
   AP01CV07:
+    missing: []
+    # declared from DATASUS's own sources (2026): no form dictionary; the table names every code the records use, each with its own label (0='não'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.inpatient_interna_o_care_given_free_of_charge_gratuidade
     kind: category
     model: mark
@@ -174,6 +178,8 @@ columns:
     - 2005
     - 2026
   AP02CV07:
+    missing: []
+    # declared from DATASUS's own sources (2026): no form dictionary; the table names every code the records use, each with its own label (0='não'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.outpatient_ambulatorial_care_given_free_of_charge_gratuidade
     kind: category
     model: mark
@@ -260,6 +266,8 @@ columns:
     - 2005
     - 2026
   AP03CV07:
+    missing: []
+    # declared from DATASUS's own sources (2026): no form dictionary; the table names every code the records use, each with its own label (0='não'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.sadt_care_given_free_of_charge_gratuidade
     kind: category
     model: mark
@@ -346,6 +354,8 @@ columns:
     - 2005
     - 2026
   AP04CV07:
+    missing: []
+    # declared from DATASUS's own sources (2026): no form dictionary; the table names every code the records use, each with its own label (0='não'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.emergency_urg_ncia_care_given_free_of_charge_gratuidade
     kind: category
     model: mark
@@ -432,6 +442,8 @@ columns:
     - 2005
     - 2026
   AP05CV07:
+    missing: []
+    # declared from DATASUS's own sources (2026): no form dictionary; the table names every code the records use, each with its own label (0='não'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.outros_care_given_free_of_charge_gratuidade
     kind: category
     model: mark
@@ -518,6 +530,8 @@ columns:
     - 2005
     - 2026
   AP06CV07:
+    missing: []
+    # declared from DATASUS's own sources (2026): no form dictionary; the table names every code the records use, each with its own label (0='não'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.health_surveillance_care_given_free_of_charge_gratuidade
     kind: category
     model: mark
@@ -604,6 +618,8 @@ columns:
     - 2005
     - 2026
   AP07CV07:
+    missing: []
+    # declared from DATASUS's own sources (2026): no form dictionary; the table names every code the records use, each with its own label (0='não'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.bed_vacancy_regulation_function_given_free_of_charge_gratuid
     kind: category
     model: mark
@@ -614,6 +630,8 @@ columns:
     - 2019
     - 2026
   ARMAZ_FT:
+    missing: []
+    # measured 2026 (19 rows, 19 filled): range [0, 0], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: establishment.radiotherapy_sealed_source_storage_rooms
     kind: number
     unit: "count"
@@ -653,6 +671,8 @@ columns:
     codelists:
     - ATIV_ENS
   BLOCOPER:
+    missing: []
+    # measured 2026 (19 rows, 19 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: establishment.radiotherapy_custom_block_fabrication_rooms
     kind: number
     unit: "count"
@@ -837,6 +857,8 @@ columns:
     - 2026
     note: YYYYMM of the monthly CNES snapshot.
   CONF_MAS:
+    missing: []
+    # measured 2026 (19 rows, 19 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: establishment.radiotherapy_mask_fabrication_rooms
     kind: number
     unit: "count"
@@ -860,6 +882,8 @@ columns:
     note: 'A CPF where the establishment is an individual (PF_PJ): then a direct personal identifier, passed through
       unchanged.'
   DEIONIZA:
+    missing: []
+    # declared from DATASUS's own sources (2026): no form dictionary; the table names every code the records use, each with its own label (0='não', 1='sim'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.water_treatment_with_deionizer
     kind: category
     model: mark
@@ -870,6 +894,8 @@ columns:
     - 2005
     - 2026
   DIALISE:
+    missing: []
+    # declared from DATASUS's own sources (2026): no form dictionary; the table names every code the records use, each with its own label (0='não', 1='sim'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.dialysis_service_requirements_met
     kind: category
     model: mark
@@ -900,6 +926,8 @@ columns:
     - 2005
     - 2026
   EQBRALTA:
+    missing: []
+    # measured 2026 (19 rows, 19 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: establishment.radiotherapy_high_dose_rate_brachytherapy_units
     kind: number
     model: mark
@@ -910,6 +938,8 @@ columns:
     - 2005
     - 2026
   EQBRBAIX:
+    missing: []
+    # measured 2026 (19 rows, 19 filled): range [0, 0], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: establishment.radiotherapy_low_dose_rate_brachytherapy_units
     kind: number
     model: mark
@@ -920,6 +950,8 @@ columns:
     - 2005
     - 2026
   EQBRMEDI:
+    missing: []
+    # measured 2026 (19 rows, 19 filled): range [0, 0], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: establishment.radiotherapy_medium_dose_rate_brachytherapy_units
     kind: number
     model: mark
@@ -930,6 +962,8 @@ columns:
     - 2005
     - 2026
   EQDOSCLI:
+    missing: []
+    # measured 2026 (19 rows, 19 filled): range [0, 2], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: establishment.radiotherapy_clinical_dosimeters
     kind: number
     unit: "count"
@@ -943,6 +977,8 @@ columns:
     - 2005
     - 2026
   EQFONSEL:
+    missing: []
+    # measured 2026 (19 rows, 19 filled): range [0, 0], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: establishment.radiotherapy_sealed_radioactive_sources
     kind: number
     unit: "count"
@@ -956,6 +992,8 @@ columns:
     - 2005
     - 2026
   EQSISPLN:
+    missing: []
+    # measured 2026 (19 rows, 19 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: establishment.radiotherapy_treatment_planning_computer_systems
     kind: number
     unit: "count"
@@ -969,6 +1007,8 @@ columns:
     - 2005
     - 2026
   EQ_MAREA:
+    missing: []
+    # measured 2026 (19 rows, 19 filled): range [0, 2], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: establishment.radiotherapy_area_radiation_monitors
     kind: number
     unit: "count"
@@ -982,6 +1022,8 @@ columns:
     - 2005
     - 2026
   EQ_MINDI:
+    missing: []
+    # measured 2026 (19 rows, 19 filled): range [0, 4], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: establishment.radiotherapy_personal_individual_dosimetry_monitors
     kind: number
     unit: "count"
@@ -995,6 +1037,7 @@ columns:
     - 2005
     - 2026
   ESFERA_A:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2026)'
     role: establishment.administrative_sphere
     kind: category
     model: mark
@@ -1007,6 +1050,8 @@ columns:
     codelists:
     - ESFERADM
   F_AREIA:
+    missing: []
+    # declared from DATASUS's own sources (2026): no form dictionary; the table names every code the records use, each with its own label (0='não', 1='sim'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.water_treatment_with_sand_filter
     kind: category
     model: mark
@@ -1017,6 +1062,8 @@ columns:
     - 2005
     - 2026
   F_CARVAO:
+    missing: []
+    # declared from DATASUS's own sources (2026): no form dictionary; the table names every code the records use, each with its own label (0='não', 1='sim'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.water_treatment_with_carbon_filter
     kind: category
     model: mark
@@ -1099,6 +1146,8 @@ columns:
     - 2005
     - 2026
   HEMOTERA:
+    missing: []
+    # declared from DATASUS's own sources (2026): no form dictionary; the table names every code the records use, each with its own label (0='não', 1='sim'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.hemotherapy_requirements_met
     kind: category
     model: mark
@@ -1109,6 +1158,8 @@ columns:
     - 2005
     - 2026
   MAQ_OUTR:
+    missing: []
+    # measured 2026 (19 rows, 19 filled): range [0, 26], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: establishment.other_dialysis_machines
     kind: number
     unit: "count"
@@ -1122,6 +1173,8 @@ columns:
     - 2005
     - 2026
   MAQ_PROP:
+    missing: []
+    # measured 2026 (19 rows, 19 filled): range [0, 50], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: establishment.proportioning_dialysis_machines
     kind: number
     unit: "count"
@@ -1220,6 +1273,8 @@ columns:
     codelists:
     - NIV_HIER
   ORTV1050:
+    missing: []
+    # measured 2026 (19 rows, 19 filled): range [0, 0], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: establishment.radiotherapy_orthovoltage_units_10_50_kv
     kind: number
     unit: "count"
@@ -1233,6 +1288,8 @@ columns:
     - 2005
     - 2026
   ORV50150:
+    missing: []
+    # measured 2026 (19 rows, 19 filled): range [0, 0], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: establishment.radiotherapy_orthovoltage_units_50_150_kv
     kind: number
     unit: "count"
@@ -1246,6 +1303,8 @@ columns:
     - 2005
     - 2026
   OSMOSE_R:
+    missing: []
+    # declared from DATASUS's own sources (2026): no form dictionary; the table names every code the records use, each with its own label (0='não'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.water_treatment_with_reverse_osmosis_unit
     kind: category
     model: mark
@@ -1256,6 +1315,8 @@ columns:
     - 2005
     - 2026
   OUT_TRAT:
+    missing: []
+    # declared from DATASUS's own sources (2026): no form dictionary; the table names every code the records use, each with its own label (0='não', 1='sim'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.water_treatment_with_other_water_treatment_equipment
     kind: category
     model: mark
@@ -1266,6 +1327,8 @@ columns:
     - 2005
     - 2026
   OV150500:
+    missing: []
+    # measured 2026 (19 rows, 19 filled): range [0, 0], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: establishment.radiotherapy_orthovoltage_units_150_500_kv
     kind: number
     unit: "count"
@@ -1293,6 +1356,8 @@ columns:
     codelists:
     - TP_PFPJ
   PLANJ_RD:
+    missing: []
+    # measured 2026 (19 rows, 19 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: establishment.radiotherapy_treatment_planning_rooms
     kind: number
     unit: "count"
@@ -1306,6 +1371,8 @@ columns:
     - 2005
     - 2026
   QT_AGIPL:
+    missing: []
+    # measured 2026 (19 rows, 19 filled): range [0, 4], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: establishment.hemotherapy_platelet_agitators
     kind: number
     model: mark
@@ -1316,6 +1383,8 @@ columns:
     - 2005
     - 2026
   QT_AGLTN:
+    missing: []
+    # measured 2026 (19 rows, 19 filled): range [0, 4], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: establishment.hemotherapy_agglutinoscopes
     kind: number
     model: mark
@@ -1326,6 +1395,8 @@ columns:
     - 2005
     - 2026
   QT_CADRE:
+    missing: []
+    # measured 2026 (19 rows, 19 filled): range [0, 10], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: establishment.hemotherapy_reclining_donor_chairs
     kind: number
     model: mark
@@ -1336,6 +1407,8 @@ columns:
     - 2005
     - 2026
   QT_CAPFL:
+    missing: []
+    # measured 2026 (19 rows, 19 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: establishment.hemotherapy_laminar_flow_cabinets
     kind: number
     model: mark
@@ -1346,6 +1419,8 @@ columns:
     - 2005
     - 2026
   QT_CENRE:
+    missing: []
+    # measured 2026 (19 rows, 19 filled): range [0, 3], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: establishment.hemotherapy_refrigerated_centrifuges
     kind: number
     model: mark
@@ -1356,6 +1431,8 @@ columns:
     - 2005
     - 2026
   QT_CONRA:
+    missing: []
+    # measured 2026 (19 rows, 19 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: establishment.hemotherapy_rapid_blast_freezers
     kind: number
     model: mark
@@ -1366,6 +1443,8 @@ columns:
     - 2005
     - 2026
   QT_EXTPL:
+    missing: []
+    # measured 2026 (19 rows, 19 filled): range [0, 2], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: establishment.hemotherapy_automatic_plasma_extractors
     kind: number
     model: mark
@@ -1376,6 +1455,8 @@ columns:
     - 2005
     - 2026
   QT_FRE18:
+    missing: []
+    # measured 2026 (19 rows, 19 filled): range [0, 16], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: establishment.hemotherapy_18c_freezers
     kind: number
     model: mark
@@ -1386,6 +1467,8 @@ columns:
     - 2005
     - 2026
   QT_FRE30:
+    missing: []
+    # measured 2026 (19 rows, 19 filled): range [0, 2], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: establishment.hemotherapy_30c_freezers
     kind: number
     model: mark
@@ -1396,6 +1479,8 @@ columns:
     - 2005
     - 2026
   QT_IRRHE:
+    missing: []
+    # measured 2026 (19 rows, 19 filled): range [0, 0], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: establishment.hemotherapy_blood_component_irradiators
     kind: number
     model: mark
@@ -1406,6 +1491,8 @@ columns:
     - 2005
     - 2026
   QT_MAQAF:
+    missing: []
+    # measured 2026 (19 rows, 19 filled): range [0, 2], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: establishment.hemotherapy_apheresis_machines
     kind: number
     model: mark
@@ -1416,6 +1503,8 @@ columns:
     - 2005
     - 2026
   QT_REFAS:
+    missing: []
+    # measured 2026 (19 rows, 19 filled): range [0, 16], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: establishment.hemotherapy_blood_sample_storage_refrigerators
     kind: number
     model: mark
@@ -1426,6 +1515,7 @@ columns:
     - 2005
     - 2026
   QT_REFRE:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: establishment.hemotherapy_reagent_storage_refrigerators
     kind: number
     model: mark
@@ -1436,6 +1526,7 @@ columns:
     - 2005
     - 2026
   QT_REFSA:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: establishment.hemotherapy_blood_storage_refrigerators
     kind: number
     model: mark
@@ -1446,6 +1537,8 @@ columns:
     - 2005
     - 2026
   QT_SELAD:
+    missing: []
+    # measured 2026 (19 rows, 19 filled): range [0, 4], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: establishment.hemotherapy_tube_bag_sealers
     kind: number
     model: mark
@@ -1456,6 +1549,8 @@ columns:
     - 2005
     - 2026
   QUIMRADI:
+    missing: []
+    # declared from DATASUS's own sources (2026): no form dictionary; the table names every code the records use, each with its own label (0='não', 1='sim'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.chemo_radiotherapy_requirements_met
     kind: category
     model: mark
@@ -1466,6 +1561,7 @@ columns:
     - 2005
     - 2026
   REGSAUDE:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2026)'
     role: establishment.health_region_local
     kind: category
     model: mark
@@ -1488,6 +1584,8 @@ columns:
     codelists:
     - RETENCAO
   SALA_MOL:
+    missing: []
+    # measured 2026 (19 rows, 19 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: establishment.radiotherapy_mould_room_facilities
     kind: number
     unit: "count"
@@ -1501,6 +1599,8 @@ columns:
     - 2005
     - 2026
   SIMUL_RD:
+    missing: []
+    # measured 2026 (19 rows, 19 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: establishment.radiotherapy_simulation_rooms
     kind: number
     unit: "count"
@@ -1514,6 +1614,8 @@ columns:
     - 2005
     - 2026
   S_ACELL6:
+    missing: []
+    # measured 2026 (19 rows, 19 filled): range [0, 0], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: establishment.radiotherapy_linear_accelerators_up_to_6_mev
     kind: number
     unit: "count"
@@ -1527,6 +1629,8 @@ columns:
     - 2005
     - 2026
   S_AFERES:
+    missing: []
+    # measured 2026 (19 rows, 19 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: establishment.apheresis_rooms
     kind: number
     unit: "count"
@@ -1540,6 +1644,8 @@ columns:
     - 2005
     - 2026
   S_ALCOME:
+    missing: []
+    # measured 2026 (19 rows, 19 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: establishment.linear_accelerators_above_6_mev_with_electrons
     kind: number
     unit: "count"
@@ -1553,6 +1659,8 @@ columns:
     - 2005
     - 2026
   S_ALSEME:
+    missing: []
+    # measured 2026 (19 rows, 19 filled): range [0, 0], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: establishment.linear_accelerators_above_6_mev_without_electrons
     kind: number
     unit: "count"
@@ -1566,6 +1674,8 @@ columns:
     - 2005
     - 2026
   S_ARMAZE:
+    missing: []
+    # measured 2026 (19 rows, 19 filled): range [0, 2], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: establishment.storage_rooms
     kind: number
     unit: "count"
@@ -1579,6 +1689,8 @@ columns:
     - 2005
     - 2026
   S_BIOMOL:
+    missing: []
+    # measured 2026 (19 rows, 19 filled): range [0, 0], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: establishment.molecular_biology_rooms
     kind: number
     unit: "count"
@@ -1592,6 +1704,8 @@ columns:
     - 2005
     - 2026
   S_COLETA:
+    missing: []
+    # measured 2026 (19 rows, 19 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: establishment.collection_rooms
     kind: number
     unit: "count"
@@ -1605,6 +1719,8 @@ columns:
     - 2005
     - 2026
   S_CONTRQ:
+    missing: []
+    # measured 2026 (19 rows, 19 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: establishment.quality_control_rooms
     kind: number
     unit: "count"
@@ -1618,6 +1734,8 @@ columns:
     - 2005
     - 2026
   S_CPFLUX:
+    missing: []
+    # measured 2026 (19 rows, 19 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: establishment.laminar_flow_hoods
     kind: number
     unit: "count"
@@ -1631,6 +1749,8 @@ columns:
     - 2005
     - 2026
   S_DISTRI:
+    missing: []
+    # measured 2026 (19 rows, 19 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: establishment.distribution_rooms
     kind: number
     unit: "count"
@@ -1644,6 +1764,8 @@ columns:
     - 2005
     - 2026
   S_DPAC:
+    missing: []
+    # measured 2026 (19 rows, 19 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: establishment.capd_rooms
     kind: number
     unit: "count"
@@ -1657,6 +1779,8 @@ columns:
     - 2005
     - 2026
   S_DPI:
+    missing: []
+    # measured 2026 (19 rows, 19 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: establishment.intermittent_peritoneal_dialysis_rooms
     kind: number
     unit: "count"
@@ -1670,6 +1794,8 @@ columns:
     - 2005
     - 2026
   S_ESTOQU:
+    missing: []
+    # measured 2026 (19 rows, 19 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: establishment.stock_rooms
     kind: number
     unit: "count"
@@ -1683,6 +1809,8 @@ columns:
     - 2005
     - 2026
   S_HBSAGN:
+    missing: []
+    # measured 2026 (19 rows, 19 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: establishment.dialysis_rooms_for_hbsag_negative_patients
     kind: number
     unit: "count"
@@ -1696,6 +1824,8 @@ columns:
     - 2005
     - 2026
   S_HBSAGP:
+    missing: []
+    # measured 2026 (19 rows, 19 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: establishment.dialysis_rooms_for_hbsag_positive_patients
     kind: number
     unit: "count"
@@ -1709,6 +1839,8 @@ columns:
     - 2005
     - 2026
   S_HEMOST:
+    missing: []
+    # measured 2026 (19 rows, 19 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: establishment.haemostasis_rooms
     kind: number
     unit: "count"
@@ -1722,6 +1854,8 @@ columns:
     - 2005
     - 2026
   S_IMUNFE:
+    missing: []
+    # measured 2026 (19 rows, 19 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: establishment.immunophenotyping_rooms
     kind: number
     unit: "count"
@@ -1735,6 +1869,8 @@ columns:
     - 2005
     - 2026
   S_IMUNOH:
+    missing: []
+    # measured 2026 (19 rows, 19 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: establishment.immunohaematology_rooms
     kind: number
     unit: "count"
@@ -1748,6 +1884,8 @@ columns:
     - 2005
     - 2026
   S_PREEST:
+    missing: []
+    # measured 2026 (19 rows, 19 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: establishment.pre_stock_rooms
     kind: number
     unit: "count"
@@ -1761,6 +1899,8 @@ columns:
     - 2005
     - 2026
   S_PREPAR:
+    missing: []
+    # measured 2026 (19 rows, 19 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: establishment.preparation_rooms
     kind: number
     unit: "count"
@@ -1774,6 +1914,8 @@ columns:
     - 2005
     - 2026
   S_PRETRA:
+    missing: []
+    # measured 2026 (19 rows, 19 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: establishment.pre_transfusion_testing_rooms
     kind: number
     unit: "count"
@@ -1787,6 +1929,8 @@ columns:
     - 2005
     - 2026
   S_PROCES:
+    missing: []
+    # measured 2026 (19 rows, 19 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: establishment.processing_rooms
     kind: number
     unit: "count"
@@ -1800,6 +1944,8 @@ columns:
     - 2005
     - 2026
   S_QCDURA:
+    missing: []
+    # measured 2026 (19 rows, 19 filled): range [0, 2], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: establishment.short_duration_chemotherapy_rooms_equipment
     kind: number
     unit: "count"
@@ -1813,6 +1959,8 @@ columns:
     - 2005
     - 2026
   S_QLDURA:
+    missing: []
+    # measured 2026 (19 rows, 19 filled): range [0, 2], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: establishment.long_duration_chemotherapy_rooms_equipment
     kind: number
     unit: "count"
@@ -1826,6 +1974,8 @@ columns:
     - 2005
     - 2026
   S_REAGN:
+    missing: []
+    # measured 2026 (19 rows, 19 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: establishment.dialyser_reuse_rooms_hbsag_negative
     kind: number
     unit: "count"
@@ -1839,6 +1989,8 @@ columns:
     - 2005
     - 2026
   S_REAGP:
+    missing: []
+    # measured 2026 (19 rows, 19 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: establishment.dialyser_reuse_rooms_hbsag_positive
     kind: number
     unit: "count"
@@ -1852,6 +2004,8 @@ columns:
     - 2005
     - 2026
   S_RECEPC:
+    missing: []
+    # measured 2026 (19 rows, 19 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: establishment.reception_rooms
     kind: number
     unit: "count"
@@ -1865,6 +2019,8 @@ columns:
     - 2005
     - 2026
   S_REHCV:
+    missing: []
+    # measured 2026 (19 rows, 19 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: establishment.dialyser_reuse_rooms_hcv_positive
     kind: number
     unit: "count"
@@ -1878,6 +2034,8 @@ columns:
     - 2005
     - 2026
   S_SGDOAD:
+    missing: []
+    # measured 2026 (19 rows, 19 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: establishment.donor_follow_up_rooms
     kind: number
     unit: "count"
@@ -1891,6 +2049,8 @@ columns:
     - 2005
     - 2026
   S_SIMULA:
+    missing: []
+    # measured 2026 (19 rows, 19 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: establishment.radiotherapy_simulators
     kind: number
     unit: "count"
@@ -1904,6 +2064,8 @@ columns:
     - 2005
     - 2026
   S_SOROLO:
+    missing: []
+    # measured 2026 (19 rows, 19 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: establishment.serology_rooms
     kind: number
     unit: "count"
@@ -1917,6 +2079,8 @@ columns:
     - 2005
     - 2026
   S_TRANSF:
+    missing: []
+    # measured 2026 (19 rows, 19 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: establishment.transfusion_rooms
     kind: number
     unit: "count"
@@ -1930,6 +2094,8 @@ columns:
     - 2005
     - 2026
   S_TRICLI:
+    missing: []
+    # measured 2026 (19 rows, 19 filled): range [0, 3], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: establishment.clinical_screening_rooms
     kind: number
     unit: "count"
@@ -1943,6 +2109,8 @@ columns:
     - 2005
     - 2026
   S_TRIHMT:
+    missing: []
+    # measured 2026 (19 rows, 19 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: establishment.haematological_screening_rooms
     kind: number
     unit: "count"
@@ -2013,6 +2181,8 @@ columns:
     codelists:
     - TURNOSAT
   UN_COBAL:
+    missing: []
+    # measured 2026 (19 rows, 19 filled): range [0, 0], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: establishment.cobalt_units
     kind: number
     unit: "count"

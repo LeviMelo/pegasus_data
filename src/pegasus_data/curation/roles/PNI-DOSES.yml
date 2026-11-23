@@ -11,6 +11,7 @@ dataset: PNI-DOSES
 record: vaccination
 columns:
   CO_CATEGORIA:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2020)'
     role: dose.priority_category_code
     kind: category
     model: dimension
@@ -36,6 +37,7 @@ columns:
     note: CNES code of the vaccinating establishment. The dictionary has no row for the code by itself (it lists name, municipality
       and state); the descriptions of the other establishment columns say CNES.
   CO_CONDICAO_MATERNAL:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2020)'
     role: patient.maternal_condition_code
     kind: category
     model: mark
@@ -59,6 +61,7 @@ columns:
     note: 'Code of the FHIR document in the RNDS (dictionary): one dose, with a suffix such as -i0b0. A document can be replaced
       (CO_TROCA_DOCUMENTO, ST_DOCUMENTO).'
   CO_DOSE_VACINA:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2020)'
     role: dose.dose_code
     kind: category
     model: dimension
@@ -70,6 +73,7 @@ columns:
     - 2026
     note: Code of the dose (dictionary). Its label is the descriptor column DS_TIPO_DOSE of the same file (label_from).
   CO_ESTRATEGIA_VACINACAO:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2020)'
     role: dose.strategy_code
     kind: category
     model: dimension
@@ -81,6 +85,7 @@ columns:
     - 2026
     note: Vaccination strategy code (dictionary); its label is NO_ESTRATEGIA.
   CO_ETNIA_INDIGENA_PACIENTE:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2020)'
     role: patient.indigenous_ethnicity_code
     kind: category
     model: mark
@@ -93,6 +98,7 @@ columns:
     - 2026
     note: Indigenous ethnicity code (dictionary); mostly empty.
   CO_LOCAL_APLICACAO:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2020)'
     role: dose.site_code
     kind: category
     model: dimension
@@ -142,6 +148,7 @@ columns:
     - 2026
     note: 'IBGE code of the patient''s municipality of residence, 6 digits (dictionary): the person''s own place.'
   CO_NATUREZA_ESTABELECIMENTO:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2020)'
     role: dose.facility_nature_code
     kind: category
     model: dimension
@@ -154,6 +161,7 @@ columns:
     - 2026
     note: CNES establishment nature code (dictionary); its label is DS_NATUREZA_ESTABELECIMENTO.
   CO_ORIGEM_REGISTRO:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2020)'
     role: dose.record_origin_code
     kind: category
     model: dimension
@@ -176,6 +184,7 @@ columns:
     note: 'Patient code assigned by the RNDS (dictionary); in the file a 64-hex-character pseudonymous hash. A personal identifier:
       passes through unmodified and flagged; it links doses of one person within these files, never to another system.'
   CO_PAIS_PACIENTE:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2020)'
     role: patient.country_code
     kind: category
     model: mark
@@ -200,6 +209,7 @@ columns:
     - 2026
     note: Race/colour code (dictionary); its label is the descriptor column NO_RACA_COR_PACIENTE in the same file.
   CO_SISTEMA_ORIGEM:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2020)'
     role: dose.source_system_code
     kind: category
     model: dimension
@@ -212,6 +222,7 @@ columns:
     - 2026
     note: Code of the system that sent the record (dictionary).
   CO_TIPO_ESTABELECIMENTO:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2020)'
     role: dose.facility_type_code
     kind: category
     model: dimension
@@ -233,6 +244,7 @@ columns:
     - 2026
     note: Code of the document this one replaced or altered (dictionary); empty for originals.
   CO_VACINA:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2020)'
     role: dose.vaccine_code
     kind: category
     model: dimension
@@ -245,6 +257,7 @@ columns:
     note: Code of the vaccine applied (dictionary). Its label is the descriptor column SG_IMUNOBIOLOGICO of the same file
       (label_from), never a separate table.
   CO_VACINA_FABRICANTE:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2020)'
     role: dose.manufacturer_code
     kind: category
     model: mark
@@ -257,6 +270,7 @@ columns:
     - 2026
     note: Manufacturer code (dictionary row 48); mostly empty (intake.yml).
   CO_VACINA_GRUPO_ATENDIMENTO:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2020)'
     role: dose.priority_group_code
     kind: category
     model: dimension
@@ -269,6 +283,7 @@ columns:
     - 2026
     note: Code of the attendance group of the vaccination (dictionary); its label is NO_GRUPO_ATENDIMENTO.
   CO_VIA_ADMINISTRACAO:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2020)'
     role: dose.route_code
     kind: category
     model: dimension
@@ -281,6 +296,8 @@ columns:
     - 2026
     note: Administration route code (dictionary); its label is DS_VIA_ADMINISTRACAO.
   DS_CATEGORIA:
+    missing: []
+    # declared from DATASUS's own sources (2020): no code table: the records hold the labels themselves ('Comorbidades', 'Faixa Etária', 'Forças Armadas (membros ativos)', 'Forças de Segurança e Salvamento', 'Funcionário do Sistema de Privação de Liberdade', 'Gestantes', 'Outros', 'População Privada de Liberdade', 'População Rural', 'Povos Indígenas', 'Povos e Comunidades Tradicionais', 'Puérperas' …)
     role: dose.priority_category_label
     kind: category
     model: mark
@@ -293,6 +310,8 @@ columns:
     - 2026
     note: The file's own label for CO_CATEGORIA (dictionary).
   DS_CONDICAO_MATERNAL:
+    missing: []
+    # declared from DATASUS's own sources (2020): no code table: the records hold the labels themselves ('Gestante', 'Nenhuma', 'Puérpera')
     role: patient.maternal_condition_label
     kind: category
     model: mark
@@ -305,6 +324,8 @@ columns:
     - 2026
     note: The file's own label for CO_CONDICAO_MATERNAL (dictionary).
   DS_LOCAL_APLICACAO:
+    missing: []
+    # declared from DATASUS's own sources (2020): no code table: the records hold the labels themselves ('Boca', 'Deltóide Direito', 'Deltóide Esquerdo', 'Dorso Glúteo Direito', 'Dorso Glúteo Esquerdo', 'Face Anterolateral Externa da Coxa Direita', 'Face Anterolateral Externa da Coxa Esquerda', 'Face Anterolateral Externa do Antebraço Direito', 'Face Anterolateral Externa do Antebraço Esquerdo', 'Face Anterolateral Externa do Braço Direito', 'Face Anterolateral Externa do Braço Esquerdo', 'Face Externa Inferior do Braço Direito' …)
     role: dose.site_label
     kind: category
     model: mark
@@ -317,6 +338,7 @@ columns:
     - 2026
     note: The file's own label for CO_LOCAL_APLICACAO (dictionary).
   DS_NACIONALIDADE_PACIENTE:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2020)'
     role: patient.nationality
     kind: category
     model: mark
@@ -329,6 +351,7 @@ columns:
     - 2026
     note: Nationality (dictionary). The file holds a letter code (B in the first rows); the dictionary lists no values.
   DS_NATUREZA_ESTABELECIMENTO:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2020)'
     role: dose.facility_nature_label
     kind: category
     model: mark
@@ -351,6 +374,8 @@ columns:
     note: Full vaccine description in the file (e.g. vacina meningocócica C (conjugada)). Dictionary row 49 is empty, so this
       meaning is read from the content of the column, not from the dictionary; intake.yml notes it does not pair with CO_VACINA_FABRICANTE.
   DS_ORIGEM_REGISTRO:
+    missing: []
+    # declared from DATASUS's own sources (2020): no code table: the records hold the labels themselves ('Registro anterior/Transcrição de caderneta')
     role: dose.record_origin_label
     kind: category
     model: mark
@@ -363,6 +388,7 @@ columns:
     - 2026
     note: The file's own label for CO_ORIGEM_REGISTRO (dictionary).
   DS_SISTEMA_ORIGEM:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2020)'
     role: dose.source_system
     kind: category
     model: mark
@@ -375,6 +401,8 @@ columns:
     - 2026
     note: The file's own label for CO_SISTEMA_ORIGEM, e.g. SIPNI LEGADO, ESUS APS (dictionary).
   DS_TIPO_DOSE:
+    missing: []
+    # declared from DATASUS's own sources (2020): no code table: the records hold the labels themselves ('1ª Dose', '1ª Dose Dobrada', '1ª Dose Fracionada', '1ª Dose Revacinação', '1ª Dose Revacinação Dobrada', '1º Reforço', '2ª Dose', '2ª Dose Dobrada', '2ª Dose Fracionada', '2ª Dose Revacinação', '2º Reforço', '3ª Dose' …)
     role: dose.dose_label
     kind: category
     model: mark
@@ -388,6 +416,7 @@ columns:
     note: 'Description of the dose, e.g. 1ª Dose, 1º Reforço (dictionary field ds_dose_vacina; landed as DS_TIPO_DOSE): the
       file''s own label for CO_DOSE_VACINA.'
   DS_TIPO_ESTABELECIMENTO:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2020)'
     role: dose.facility_type_label
     kind: category
     model: mark
@@ -400,6 +429,7 @@ columns:
     - 2026
     note: The file's own label for CO_TIPO_ESTABELECIMENTO, e.g. HOSPITAL GERAL (dictionary).
   DS_VACINA_FABRICANTE:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2020)'
     role: dose.manufacturer
     kind: category
     model: dimension
@@ -412,6 +442,8 @@ columns:
     - 2026
     note: Manufacturer of the vaccine applied (dictionary).
   DS_VIA_ADMINISTRACAO:
+    missing: []
+    # declared from DATASUS's own sources (2020): no code table: the records hold the labels themselves ('Bucal', 'Intradérmica', 'Intralesional', 'Intramuscular', 'Intravenosa', 'Não disponível', 'Oral', 'Sem registro no sistema de informação de origem', 'Subcutânea')
     role: dose.route_label
     kind: category
     model: mark
@@ -460,6 +492,8 @@ columns:
     - 2026
     note: Date the dose was applied (dictionary). The time binding.
   NO_ESTRATEGIA:
+    missing: []
+    # declared from DATASUS's own sources (2020): no code table: the records hold the labels themselves ('Bloqueio', 'Campanha Indiscriminada', 'Campanha Seletiva', 'Especial', 'Intensificação', 'Monitoramento das Estratégias de Vacinação', 'Pesquisa', 'Pós-exposição', 'Rotina', 'Serviço Privado', 'Soroterapia', 'Vacinação Escolar')
     role: dose.strategy_label
     kind: category
     model: mark
@@ -472,6 +506,7 @@ columns:
     - 2026
     note: The file's own label for CO_ESTRATEGIA_VACINACAO, e.g. Rotina (dictionary).
   NO_ETNIA_INDIGENA_PACIENTE:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2020)'
     role: patient.indigenous_ethnicity_label
     kind: category
     model: mark
@@ -493,6 +528,8 @@ columns:
     - 2026
     note: Trade name of the establishment (dictionary). The misspelling ESTALECIMENTO is the file's own.
   NO_GRUPO_ATENDIMENTO:
+    missing: []
+    # declared from DATASUS's own sources (2020): no code table: the records hold the labels themselves ('Acadêmicos/estudantes em estágio em estabelecimentos de saúde', 'Agente de Combate a Endemias - ACE', 'Caminhoneiro', 'Diabetes Mellitus', 'Doença neurológica crônica', 'Doença renal crônica', 'Enfermeiro(a)', 'Ensino Básico', 'Exército Brasileiro - EB', 'Faixa Etária', 'Farmacêutico', 'Funcionário do Sistema de Privação de Liberdade' …)
     role: dose.priority_group_label
     kind: category
     model: mark
@@ -531,6 +568,7 @@ columns:
     - 2026
     note: Name of the municipality of residence (dictionary); the code is CO_MUNICIPIO_PACIENTE.
   NO_PAIS_PACIENTE:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2020)'
     role: patient.country_label
     kind: category
     model: mark
@@ -543,6 +581,7 @@ columns:
     - 2026
     note: Country-of-residence name (dictionary).
   NO_RACA_COR_PACIENTE:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2020)'
     role: patient.race_color_label
     kind: category
     model: mark
@@ -600,6 +639,7 @@ columns:
     note: 'The dictionary row 11 describes this field as "Nome da Unidade Federativa (UF) do paciente", a copy error: the
       file holds a 5-digit postal-code prefix (76954) and the field name says CEP. Kept as a quasi-identifier, never a dimension.'
   NU_IDADE_PACIENTE:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: patient.age
     kind: number
     model: stratum
@@ -614,6 +654,7 @@ columns:
     note: 'Age of the patient (dictionary row 55, which gives no unit); the first rows hold small integers consistent with
       years. Holds -1, 120 and 220 (intake.yml, DATA_SOURCES): sentinels not declared here.'
   SG_IMUNOBIOLOGICO:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2020)'
     role: dose.vaccine_label
     kind: category
     model: mark
@@ -652,6 +693,8 @@ columns:
     - 2026
     note: State abbreviation of the patient (dictionary).
   ST_DOCUMENTO:
+    missing: []
+    # declared from DATASUS's own sources (2020): no code table: the records hold the labels themselves ('final')
     role: dose.document_status
     kind: category
     model: dimension

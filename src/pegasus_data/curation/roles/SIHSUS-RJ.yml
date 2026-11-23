@@ -160,6 +160,7 @@ columns:
     - 2026
     note: role from SIH-RD
   COD_IDADE:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2026)'
     role: patient.age_unit
     kind: category
     model: mark
@@ -390,6 +391,7 @@ columns:
     - 2026
     note: role from SIH-RD
   FONTE_ORC:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2026)'
     role: admission.budget_source
     kind: category
     model: mark
@@ -848,6 +850,8 @@ columns:
     codelists:
     - SITBLOQUEIO
   ST_MOT_BLO:
+    missing: []
+    # declared from DATASUS's own sources (2026): no form dictionary; the table names every code the records use, each with its own label (00='não especificado', 62='permanência a menor injustificada'): a code table, not a catch-all; no value labelled as not recorded
     role: admission.block_reason
     kind: category
     model: mark

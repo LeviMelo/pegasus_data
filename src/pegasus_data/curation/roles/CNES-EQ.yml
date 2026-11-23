@@ -54,6 +54,7 @@ columns:
     - 2005
     - 2026
   CODEQUIP:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2026)'
     role: equipment.code
     kind: category
     model: dimension
@@ -120,6 +121,7 @@ columns:
     - 2005
     - 2026
   ESFERA_A:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2026)'
     role: establishment.administrative_sphere
     kind: category
     model: mark
@@ -132,6 +134,8 @@ columns:
     codelists:
     - ESFERADM
   IND_NSUS:
+    missing: []
+    # declared from DATASUS's own sources (2026): no form dictionary; the table names every code the records use, each with its own label (0='não', 1='sim'): a code table, not a catch-all; no value labelled as not recorded
     role: equipment.equipment_not_available_to_sus
     kind: category
     model: mark
@@ -229,6 +233,8 @@ columns:
     codelists:
     - TP_PFPJ
   QT_EXIST:
+    missing: []
+    # measured 2026 (3586 rows, 3586 filled): range [0, 224], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: equipment.existing
     kind: number
     model: mark
@@ -239,6 +245,8 @@ columns:
     - 2005
     - 2026
   QT_USO:
+    missing: []
+    # measured 2026 (3586 rows, 3586 filled): range [0, 163], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: equipment.in_use
     kind: number
     model: mark
@@ -249,6 +257,7 @@ columns:
     - 2005
     - 2026
   REGSAUDE:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2026)'
     role: establishment.health_region_local
     kind: category
     model: mark
@@ -310,6 +319,8 @@ columns:
     - NIVELDEP
     - TPGESTAO
   TP_UNID:
+    missing: []
+    # declared from DATASUS's own sources (2026): no form dictionary; the table names every code the records use, each with its own label (01='posto de saude', 02='centro de saude/unidade basica de saude', 04='policlinica', 05='hospital geral', 07='hospital especializado', 22='consultorio', 32='unidade movel fluvial', 36='clinica especializada/ambulatorio especializado', 39='unidade de servico de apoio de diagnose e terapia', 40='unidade movel terrestre', 42='unidade movel de nivel pre-hosp-urgencia/emergencia', 43='farmacia', 50='unidade de vigilancia em saude', 60='cooperativa', 62='hospital dia', 68='secretaria de saude', 69='centro de atenção hemoterápica e/ou hematológica', 70='centro de atenção psicossocial-caps', 73='pronto antedimento', 74='academia da saúde', 75='telesaúde', 80='laboratorio de saude publica', 81='central de regulação', 84='central de abastecimento'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.type
     kind: category
     model: mark

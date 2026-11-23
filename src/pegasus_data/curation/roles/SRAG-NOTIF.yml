@@ -105,6 +105,8 @@ columns:
     measure: false
     note: "-9 and other negative values occur (the dictionary says at most 150); the age stratum is the derived IDADE_anos."
   TP_IDADE:
+    missing: []
+    # declared from DATASUS's own sources (2026): no form dictionary; the table names every code the records use, each with its own label (1='dia', 2='mês', 3='ano'): a code table, not a catch-all; no value labelled as not recorded
     role: patient.age_unit
     kind: category
     model: mark
@@ -141,6 +143,7 @@ columns:
     fact_domain_evidence: "\"Raça/Cor\" (patient.race): attribute of the patient (age, birth, residence, occupation, employer)"
     name: "Raça/Cor"
   CS_ETINIA:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2026)'
     role: patient.indigenous_ethnicity
     kind: category
     model: dimension
@@ -442,6 +445,8 @@ columns:
     fact_domain_evidence: "\"Fatores de risco/Obesidade\" (patient.obesity): fact about the health event or the person's health"
     name: "Fatores de risco/Obesidade"
   OBES_IMC:
+    missing: []
+    # measured 2026 (222592 rows, 479 filled): range [0, 87.8], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: patient.bmi
     kind: number
     model: mark
@@ -546,6 +551,8 @@ columns:
     fact_domain_evidence: "\"Usou antiviral para gripe?\" (treatment.antiviral_used): treatment given: serum, drug, doses, dates or transfer"
     name: "Usou antiviral para gripe?"
   TP_ANTIVIR:
+    missing: []
+    # declared from DATASUS's own sources (2026): no form dictionary; the table names every code the records use, each with its own label (1='oseltamivir', 2='zanamivir', 3='outro, especifique'): a code table, not a catch-all; no value labelled as not recorded
     role: treatment.antiviral_type
     kind: category
     model: mark
@@ -734,6 +741,8 @@ columns:
     fact_domain_evidence: "\"Agente etiológico RT-PCR: Positivo para Influenza?\" (case.pcr_influenza_positive): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
     name: "Agente etiológico RT-PCR: Positivo para Influenza?"
   TP_FLU_PCR:
+    missing: []
+    # declared from DATASUS's own sources (2026): no form dictionary; the table names every code the records use, each with its own label (1='influenza a', 2='influenza b'): a code table, not a catch-all; no value labelled as not recorded
     role: case.pcr_influenza_type
     kind: category
     model: mark
@@ -741,6 +750,8 @@ columns:
     fact_domain_evidence: "\"Agente etiológico RT-PCR: Se sim, qual Influenza?\" (case.pcr_influenza_type): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
     name: "Agente etiológico RT-PCR: Se sim, qual Influenza?"
   PCR_FLUASU:
+    missing: []
+    # declared from DATASUS's own sources (2026): no form dictionary; the table names every code the records use, each with its own label (1='influenza a(h1n1)pdm09', 2='influenza a (h3n2)', 3='influenza a não subtipado', 4='influenza a não subtipável', 5='inconclusivo', 6='outro, especifique'): a code table, not a catch-all; no value labelled as not recorded
     role: case.pcr_influenza_a_subtype
     kind: category
     model: mark
@@ -753,6 +764,8 @@ columns:
     model: excluded
     name: "Se Influenza A, qual subtipo? Outro, especifique"
   PCR_FLUBLI:
+    missing: []
+    # declared from DATASUS's own sources (2026): no form dictionary; the table names every code the records use, each with its own label (1='victoria', 2='yamagatha', 3='não realizado', 4='inconclusivo', 5='outro, especifique'): a code table, not a catch-all; no value labelled as not recorded
     role: case.pcr_influenza_b_lineage
     kind: category
     model: mark
@@ -774,6 +787,8 @@ columns:
     fact_domain_evidence: "\"Agente etiológico RT-PCR: Positivo para outros vírus?\" (case.pcr_other_virus_positive): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
     name: "Agente etiológico RT-PCR: Positivo para outros vírus?"
   PCR_VSR:
+    missing: []
+    # declared from DATASUS's own sources (2026): no form dictionary; the table names every code the records use, each with its own label (1='marcado pelo usuário'): a code table, not a catch-all; no value labelled as not recorded
     role: case.pcr_rsv
     kind: category
     model: mark
@@ -782,6 +797,8 @@ columns:
     name: "Agente etiológico RT-PCR: VSR"
     note: "Marked 1 by the user, blank when not marked."
   PCR_PARA1:
+    missing: []
+    # declared from DATASUS's own sources (2026): no form dictionary; the table names every code the records use, each with its own label (1='marcado pelo usuário'): a code table, not a catch-all; no value labelled as not recorded
     role: case.pcr_parainfluenza_1
     kind: category
     model: mark
@@ -789,6 +806,8 @@ columns:
     fact_domain_evidence: "\"Agente etiológico RT-PCR: Parainfluenza 1\" (case.pcr_parainfluenza_1): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
     name: "Agente etiológico RT-PCR: Parainfluenza 1"
   PCR_PARA2:
+    missing: []
+    # declared from DATASUS's own sources (2026): no form dictionary; the table names every code the records use, each with its own label (1='marcado pelo usuário'): a code table, not a catch-all; no value labelled as not recorded
     role: case.pcr_parainfluenza_2
     kind: category
     model: mark
@@ -796,6 +815,8 @@ columns:
     fact_domain_evidence: "\"Agente etiológico RT-PCR: Parainfluenza 2\" (case.pcr_parainfluenza_2): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
     name: "Agente etiológico RT-PCR: Parainfluenza 2"
   PCR_PARA3:
+    missing: []
+    # declared from DATASUS's own sources (2026): no form dictionary; the table names every code the records use, each with its own label (1='marcado pelo usuário'): a code table, not a catch-all; no value labelled as not recorded
     role: case.pcr_parainfluenza_3
     kind: category
     model: mark
@@ -803,6 +824,8 @@ columns:
     fact_domain_evidence: "\"Agente etiológico RT-PCR: Parainfluenza 3\" (case.pcr_parainfluenza_3): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
     name: "Agente etiológico RT-PCR: Parainfluenza 3"
   PCR_PARA4:
+    missing: []
+    # declared from DATASUS's own sources (2026): no form dictionary; the table names every code the records use, each with its own label (1='marcado pelo usuário'): a code table, not a catch-all; no value labelled as not recorded
     role: case.pcr_parainfluenza_4
     kind: category
     model: mark
@@ -810,6 +833,8 @@ columns:
     fact_domain_evidence: "\"Agente etiológico RT-PCR: Parainfluenza 4\" (case.pcr_parainfluenza_4): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
     name: "Agente etiológico RT-PCR: Parainfluenza 4"
   PCR_ADENO:
+    missing: []
+    # declared from DATASUS's own sources (2026): no form dictionary; the table names every code the records use, each with its own label (1='marcado pelo usuário'): a code table, not a catch-all; no value labelled as not recorded
     role: case.pcr_adenovirus
     kind: category
     model: mark
@@ -817,6 +842,8 @@ columns:
     fact_domain_evidence: "\"Agente etiológico RT-PCR: Adenovírus\" (case.pcr_adenovirus): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
     name: "Agente etiológico RT-PCR: Adenovírus"
   PCR_METAP:
+    missing: []
+    # declared from DATASUS's own sources (2026): no form dictionary; the table names every code the records use, each with its own label (1='marcado pelo usuário'): a code table, not a catch-all; no value labelled as not recorded
     role: case.pcr_metapneumovirus
     kind: category
     model: mark
@@ -824,6 +851,8 @@ columns:
     fact_domain_evidence: "\"Agente etiológico RT-PCR: Metapneumovírus\" (case.pcr_metapneumovirus): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
     name: "Agente etiológico RT-PCR: Metapneumovírus"
   PCR_BOCA:
+    missing: []
+    # declared from DATASUS's own sources (2026): no form dictionary; the table names every code the records use, each with its own label (1='marcado pelo usuário'): a code table, not a catch-all; no value labelled as not recorded
     role: case.pcr_bocavirus
     kind: category
     model: mark
@@ -831,6 +860,8 @@ columns:
     fact_domain_evidence: "\"Agente etiológico RT-PCR: Bocavírus\" (case.pcr_bocavirus): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
     name: "Agente etiológico RT-PCR: Bocavírus"
   PCR_RINO:
+    missing: []
+    # declared from DATASUS's own sources (2026): no form dictionary; the table names every code the records use, each with its own label (1='marcado pelo usuário'): a code table, not a catch-all; no value labelled as not recorded
     role: case.pcr_rhinovirus
     kind: category
     model: mark
@@ -838,6 +869,8 @@ columns:
     fact_domain_evidence: "\"Agente etiológico RT-PCR: Rinovírus\" (case.pcr_rhinovirus): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
     name: "Agente etiológico RT-PCR: Rinovírus"
   PCR_OUTRO:
+    missing: []
+    # declared from DATASUS's own sources (2026): no form dictionary; the table names every code the records use, each with its own label (1='marcado pelo usuário'): a code table, not a catch-all; no value labelled as not recorded
     role: case.pcr_other_virus
     kind: category
     model: mark
@@ -863,6 +896,8 @@ columns:
     model: excluded
     name: "Classificação final do caso/SRAG por outro agente etiológico, qual"
   CRITERIO:
+    missing: []
+    # declared from DATASUS's own sources (2026): no form dictionary; the table names every code the records use, each with its own label (1='laboratorial', 2='clínico epidemiológico', 3='clínico', 4='clínico imagem'): a code table, not a catch-all; no value labelled as not recorded
     role: case.confirmation_criterion
     kind: category
     model: mark
@@ -951,6 +986,8 @@ columns:
     name: "(histórico de viagem) data de retorno"
     review: draft
   PCR_SARS2:
+    missing: []
+    # declared from DATASUS's own sources (2026): no form dictionary; the table names every code the records use, each with its own label (1='marcado pelo usuário'): a code table, not a catch-all; no value labelled as not recorded
     role: case.pcr_sars2
     kind: category
     model: mark
@@ -1030,6 +1067,8 @@ columns:
     fact_domain_evidence: "\"Data da Tomografia\" (case.ct_date): date of care, sample, test, treatment, hospitalisation or transfer: how care and diagnosis happened"
     name: "Data da Tomografia"
   TP_TES_AN:
+    missing: []
+    # declared from DATASUS's own sources (2026): no form dictionary; the table names every code the records use, each with its own label (1='imunofluorescência (if)', 2='teste rápido antigênico'): a code table, not a catch-all; no value labelled as not recorded
     role: case.antigen_test_type
     kind: category
     model: mark
@@ -1062,6 +1101,8 @@ columns:
     fact_domain_evidence: "\"Agente etiológico Teste Antigênico: Positivo para Influenza?\" (case.antigen_influenza_positive): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
     name: "Agente etiológico Teste Antigênico: Positivo para Influenza?"
   TP_FLU_AN:
+    missing: []
+    # declared from DATASUS's own sources (2026): no form dictionary; the table names every code the records use, each with its own label (1='influenza a', 2='influenza b'): a code table, not a catch-all; no value labelled as not recorded
     role: case.antigen_influenza_type
     kind: category
     model: mark
@@ -1078,6 +1119,8 @@ columns:
     fact_domain_evidence: "\"Agente etiológico Teste Antigênico: Positivo para outros vírus?\" (case.antigen_other_virus_positive): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
     name: "Agente etiológico Teste Antigênico: Positivo para outros vírus?"
   AN_SARS2:
+    missing: []
+    # declared from DATASUS's own sources (2026): no form dictionary; the table names every code the records use, each with its own label (1='marcado pelo usuário'): a code table, not a catch-all; no value labelled as not recorded
     role: case.antigen_sars2
     kind: category
     model: mark
@@ -1086,6 +1129,8 @@ columns:
     name: "Agente etiológico Teste Antigênico: SARS-CoV-2"
     note: "Filed as '1.0' in the INFLUD20 file; read as the integer's digits, the value as filed stays in AN_SARS2__RAW."
   AN_VSR:
+    missing: []
+    # declared from DATASUS's own sources (2026): no form dictionary; the table names every code the records use, each with its own label (1='marcado pelo usuário'): a code table, not a catch-all; no value labelled as not recorded
     role: case.antigen_rsv
     kind: category
     model: mark
@@ -1093,6 +1138,8 @@ columns:
     fact_domain_evidence: "\"Agente etiológico Teste Antigênico: VSR\" (case.antigen_rsv): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
     name: "Agente etiológico Teste Antigênico: VSR"
   AN_PARA1:
+    missing: []
+    # declared from DATASUS's own sources (2026): no form dictionary; the table names every code the records use, each with its own label (1='marcado pelo usuário'): a code table, not a catch-all; no value labelled as not recorded
     role: case.antigen_parainfluenza_1
     kind: category
     model: mark
@@ -1100,6 +1147,8 @@ columns:
     fact_domain_evidence: "\"Agente etiológico Teste Antigênico: Parainfluenza 1\" (case.antigen_parainfluenza_1): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
     name: "Agente etiológico Teste Antigênico: Parainfluenza 1"
   AN_PARA2:
+    missing: []
+    # declared from DATASUS's own sources (2026): no form dictionary; the table names every code the records use, each with its own label (1='marcado pelo usuário'): a code table, not a catch-all; no value labelled as not recorded
     role: case.antigen_parainfluenza_2
     kind: category
     model: mark
@@ -1107,6 +1156,8 @@ columns:
     fact_domain_evidence: "\"Agente etiológico Teste Antigênico: Parainfluenza 2\" (case.antigen_parainfluenza_2): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
     name: "Agente etiológico Teste Antigênico: Parainfluenza 2"
   AN_PARA3:
+    missing: []
+    # declared from DATASUS's own sources (2026): no form dictionary; the table names every code the records use, each with its own label (1='marcado pelo usuário'): a code table, not a catch-all; no value labelled as not recorded
     role: case.antigen_parainfluenza_3
     kind: category
     model: mark
@@ -1114,6 +1165,8 @@ columns:
     fact_domain_evidence: "\"Agente etiológico Teste Antigênico: Parainfluenza 3\" (case.antigen_parainfluenza_3): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
     name: "Agente etiológico Teste Antigênico: Parainfluenza 3"
   AN_ADENO:
+    missing: []
+    # declared from DATASUS's own sources (2026): no form dictionary; the table names every code the records use, each with its own label (1='marcado pelo usuário'): a code table, not a catch-all; no value labelled as not recorded
     role: case.antigen_adenovirus
     kind: category
     model: mark
@@ -1121,6 +1174,8 @@ columns:
     fact_domain_evidence: "\"Agente etiológico Teste Antigênico: Adenovírus\" (case.antigen_adenovirus): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
     name: "Agente etiológico Teste Antigênico: Adenovírus"
   AN_OUTRO:
+    missing: []
+    # declared from DATASUS's own sources (2026): no form dictionary; the table names every code the records use, each with its own label (1='marcado pelo usuário'): a code table, not a catch-all; no value labelled as not recorded
     role: case.antigen_other_virus
     kind: category
     model: mark
@@ -1154,6 +1209,8 @@ columns:
     fact_domain_evidence: "\"Data da coleta (sorologia)\" (case.serology_sample_date): date of care, sample, test, treatment, hospitalisation or transfer: how care and diagnosis happened"
     name: "Data da coleta (sorologia)"
   TP_SOR:
+    missing: []
+    # declared from DATASUS's own sources (2026): no form dictionary; the table names every code the records use, each with its own label (1='teste rápido', 2='elisa', 3='quimiluminescência', 4='outro, qual'): a code table, not a catch-all; no value labelled as not recorded
     role: case.serology_test_type
     kind: category
     model: mark
@@ -1179,9 +1236,9 @@ columns:
     fact_domain: clinical
     fact_domain_evidence: "\"Resultado do Teste Sorológico para SARS-CoV-2: IgG\" (case.serology_igg): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
     name: "Resultado do Teste Sorológico para SARS-CoV-2: IgG"
-    review: draft
     missing: ['9']
     note: "The 2019-2025 dictionary prints the field without its categories; the notification form (campo 76, ficha SVS 31/07/2026) and the SIVEP-Gripe dictionary's campo 73 (prefeitura.sp.gov.br copy) print 1-Positivo 2-Negativo 3-Inconclusivo 4-Não realizado 5-Aguardando resultado 9-Ignorado, declared in intake.yml (2026-10-24). Checked, onsets 2020-2022: code 1 has a result date in 95.0 % and is classified covid-19 in 95.1 % of its 123,742 rows, code 2 a date in 94.6 % and covid-19 in 55.7 %, code 4 a date in 4.5 %."
+    # reviewed 2026-11-23: the notification form of 31/07/2026 (campo 76) prints the categories the note lists, and the records agree with them (result dates and classification by code, measured in the note); the 2019-2025 dictionary is silent, not contradictory
   RES_IGM:
     role: case.serology_igm
     kind: category
@@ -1189,9 +1246,9 @@ columns:
     fact_domain: clinical
     fact_domain_evidence: "\"Resultado do Teste Sorológico para SARS-CoV-2: IgM\" (case.serology_igm): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
     name: "Resultado do Teste Sorológico para SARS-CoV-2: IgM"
-    review: draft
     missing: ['9']
     note: "As RES_IGG (campo 76 of the form; code 1 has a result date in 95.0 % and covid-19 in 96.9 %, code 4 a date in 3.4 %)."
+    # reviewed 2026-11-23: the notification form of 31/07/2026 (campo 76) prints the categories the note lists, and the records agree with them (result dates and classification by code, measured in the note); the 2019-2025 dictionary is silent, not contradictory
   RES_IGA:
     role: case.serology_iga
     kind: category
@@ -1199,10 +1256,12 @@ columns:
     fact_domain: clinical
     fact_domain_evidence: "\"Resultado do Teste Sorológico para SARS-CoV-2: IgA\" (case.serology_iga): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
     name: "Resultado do Teste Sorológico para SARS-CoV-2: IgA"
-    review: draft
     missing: ['9']
     note: "As RES_IGG (campo 76 of the form; code 1 has a result date in 93.1 % and covid-19 in 95.4 %, code 4 a date in 34.0 %)."
+    # reviewed 2026-11-23: the notification form of 31/07/2026 (campo 76) prints the categories the note lists, and the records agree with them (result dates and classification by code, measured in the note); the 2019-2025 dictionary is silent, not contradictory
   POV_CT:
+    missing: []
+    # declared from DATASUS's own sources (2026): no form dictionary; the table names every code the records use, each with its own label (1='sim', 2='não'): a code table, not a catch-all; no value labelled as not recorded
     role: patient.traditional_community_member
     kind: category
     model: dimension
@@ -1210,6 +1269,7 @@ columns:
     fact_domain_evidence: "\"É membro de povo ou comunidade tradicional?\" (patient.traditional_community_member): attribute of the patient (age, birth, residence, occupation, employer)"
     name: "É membro de povo ou comunidade tradicional?"
   TP_POV_CT:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2026)'
     role: patient.traditional_community
     kind: category
     model: dimension
@@ -1217,6 +1277,8 @@ columns:
     fact_domain_evidence: "\"Se sim, qual?\" (patient.traditional_community): attribute of the patient (age, birth, residence, occupation, employer)"
     name: "Se sim, qual?"
   TEM_CPF:
+    missing: []
+    # declared from DATASUS's own sources (2026): no form dictionary; the table names every code the records use, each with its own label (1='sim', 2='não'): a code table, not a catch-all; no value labelled as not recorded
     role: patient.has_cpf
     kind: category
     model: mark
@@ -1224,6 +1286,8 @@ columns:
     fact_domain_evidence: "\"Tem CPF?\" (patient.has_cpf): facility register and record keeping"
     name: "Tem CPF?"
   ESTRANG:
+    missing: []
+    # declared from DATASUS's own sources (2026): no form dictionary; the table names every code the records use, each with its own label (1='sim', 2='não'): a code table, not a catch-all; no value labelled as not recorded
     role: patient.foreigner
     kind: category
     model: dimension
@@ -1356,6 +1420,8 @@ columns:
     model: excluded
     name: "Lote da vacina COVID-19: Lote dose reforço bivalente"
   FNT_IN_COV:
+    missing: []
+    # declared from DATASUS's own sources (2026): no form dictionary; the table names every code the records use, each with its own label (1='manual', 2='integração'): a code table, not a catch-all; no value labelled as not recorded
     role: notification.covid_vaccine_source
     kind: category
     model: mark
@@ -1372,6 +1438,8 @@ columns:
     fact_domain_evidence: "\"Recebeu tratamento antiviral para covid-19?\" (treatment.covid_antiviral_used): treatment given: serum, drug, doses, dates or transfer"
     name: "Recebeu tratamento antiviral para covid-19?"
   TIPO_TRAT:
+    missing: []
+    # declared from DATASUS's own sources (2026): no form dictionary; the table names every code the records use, each with its own label (1='nirmatrelvir/ritonavir (paxlovid)', 2='molnupiravir (lagevrio)', 3='baricitinibe (olumiant)'): a code table, not a catch-all; no value labelled as not recorded
     role: treatment.covid_antiviral_type
     kind: category
     model: mark
@@ -1410,6 +1478,8 @@ columns:
     name: "É um caso de co-detecção?"
     note: "The dictionary names it CO-DETEC."
   VG_OMS:
+    missing: []
+    # declared from DATASUS's own sources (2026): no form dictionary; the table names every code the records use, each with its own label (1='ômicron', 6='recombinante (exemplos xe, xf, xq, xs)', 7='outra, especifique'): a code table, not a catch-all; no value labelled as not recorded
     role: case.variant_who
     kind: category
     model: mark
@@ -1429,6 +1499,8 @@ columns:
     fact_domain_evidence: "\"Linhagem da variante\" (case.variant_lineage): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
     name: "Linhagem da variante"
   VG_MET:
+    missing: []
+    # declared from DATASUS's own sources (2026): no form dictionary; the table names every code the records use, each with its own label (1='sequenciamento genômico completo', 2='sequenciamento genômico parcial', 3='rt-pcr em tempo real de inferência', 4='outro, especifique'): a code table, not a catch-all; no value labelled as not recorded
     role: case.sequencing_method
     kind: category
     model: mark
@@ -1448,6 +1520,8 @@ columns:
     fact_domain_evidence: "\"Data do resultado (vigilância genômica)\" (case.sequencing_result_date): date of care, sample, test, treatment, hospitalisation or transfer: how care and diagnosis happened"
     name: "Data do resultado (vigilância genômica)"
   VG_ENC:
+    missing: []
+    # declared from DATASUS's own sources (2026): no form dictionary; the table names every code the records use, each with its own label (1='confirmado por sequenciamento genômico completo', 3='sugestivo por rt-pcr de inferência', 4='sugestivo por vínculo epidemiológico', 5='descartado'): a code table, not a catch-all; no value labelled as not recorded
     role: case.variant_closure
     kind: category
     model: mark

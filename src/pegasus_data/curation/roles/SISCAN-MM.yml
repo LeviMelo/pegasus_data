@@ -194,6 +194,8 @@ columns:
     - 2009
     - 2015
   CIRURGANTD:
+    missing: []
+    # declared 2026-11-23 from the tabulation's own definition: an I (incremento) line is a count the tabulator sums, so each record adds a recorded count (a zero is a recorded zero) and no code stands for not recorded (unit_evidence)
     role: exam.previous_surgery_right_breast
     kind: number
     unit: "count"
@@ -207,6 +209,8 @@ columns:
     - 2009
     - 2015
   CIRURGANTE:
+    missing: []
+    # declared 2026-11-23 from the tabulation's own definition: an I (incremento) line is a count the tabulator sums, so each record adds a recorded count (a zero is a recorded zero) and no code stands for not recorded (unit_evidence)
     role: exam.previous_surgery_left_breast
     kind: number
     unit: "count"
@@ -617,6 +621,8 @@ columns:
     - 2009
     - 2015
   MICRODIR:
+    missing: []
+    # declared 2026-11-23 from the tabulation's own definition: an I (incremento) line is a count the tabulator sums, so each record adds a recorded count (a zero is a recorded zero) and no code stands for not recorded (unit_evidence)
     role: exam.microcalcifications_right_breast
     kind: number
     unit: "count"
@@ -630,6 +636,8 @@ columns:
     - 2009
     - 2015
   MICROESQ:
+    missing: []
+    # declared 2026-11-23 from the tabulation's own definition: an I (incremento) line is a count the tabulator sums, so each record adds a recorded count (a zero is a recorded zero) and no code stands for not recorded (unit_evidence)
     role: exam.microcalcifications_left_breast
     kind: number
     unit: "count"
@@ -653,6 +661,8 @@ columns:
     - 2009
     - 2015
   NODULODIR:
+    missing: []
+    # declared 2026-11-23 from the tabulation's own definition: an I (incremento) line is a count the tabulator sums, so each record adds a recorded count (a zero is a recorded zero) and no code stands for not recorded (unit_evidence)
     role: exam.nodule_right_breast
     kind: number
     unit: "count"
@@ -666,6 +676,8 @@ columns:
     - 2009
     - 2015
   NODULOESQ:
+    missing: []
+    # declared 2026-11-23 from the tabulation's own definition: an I (incremento) line is a count the tabulator sums, so each record adds a recorded count (a zero is a recorded zero) and no code stands for not recorded (unit_evidence)
     role: exam.nodule_left_breast
     kind: number
     unit: "count"
@@ -751,6 +763,8 @@ columns:
     - 2009
     - 2015
   SEMACHADOS:
+    missing: []
+    # declared 2026-11-23 from the tabulation's own definition: an I (incremento) line is a count the tabulator sums, so each record adds a recorded count (a zero is a recorded zero) and no code stands for not recorded (unit_evidence)
     role: exam.without_findings
     kind: number
     unit: "count"

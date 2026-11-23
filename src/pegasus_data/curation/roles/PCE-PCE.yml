@@ -2,6 +2,7 @@ dataset: PCE-PCE
 record: survey
 columns:
   CS_FASE:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2026)'
     role: survey.program_phase_category
     kind: category
     model: mark
@@ -25,6 +26,7 @@ columns:
     - ANO
     - DT_COMP
   ID_DISTR:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2026)'
     role: survey.health_district_region_code
     kind: category
     model: mark
@@ -35,6 +37,7 @@ columns:
     - 1995
     - 2026
   ID_DRS:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2026)'
     role: survey.regional_health_department_drs_code
     kind: category
     model: mark
@@ -67,6 +70,8 @@ columns:
     - 1995
     - 2026
   NU_FASE:
+    missing: []
+    # measured 2026 (149 rows, 149 filled): range [0, 36], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: survey.work_cycle_number
     kind: number
     model: mark
@@ -77,6 +82,8 @@ columns:
     - 2024
     - 2026
   QT_17:
+    missing: []
+    # measured 2026 (149 rows, 149 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: survey.positives_17_eggs
     kind: number
     model: mark
@@ -87,6 +94,8 @@ columns:
     - 1995
     - 2026
   QT_1A4:
+    missing: []
+    # measured 2026 (149 rows, 149 filled): range [0, 13], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: survey.positives_1_4_eggs
     kind: number
     model: mark
@@ -97,6 +106,8 @@ columns:
     - 1995
     - 2026
   QT_5A16:
+    missing: []
+    # measured 2026 (149 rows, 149 filled): range [0, 4], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: survey.positives_5_16_eggs
     kind: number
     model: mark
@@ -107,6 +118,8 @@ columns:
     - 1995
     - 2026
   QT_ANC:
+    missing: []
+    # measured 2026 (149 rows, 149 filled): range [0, 64], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: survey.positive_for_hookworm_ancylostoma_duodenale
     kind: number
     model: mark
@@ -117,6 +130,8 @@ columns:
     - 1995
     - 2026
   QT_ASC:
+    missing: []
+    # measured 2026 (149 rows, 149 filled): range [0, 71], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: survey.positive_for_ascaris_lumbricoides
     kind: number
     model: mark
@@ -127,6 +142,8 @@ columns:
     - 1995
     - 2026
   QT_ATRAT:
+    missing: []
+    # measured 2026 (149 rows, 149 filled): range [0, 18], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: survey.scheduled_for_treatment
     kind: number
     model: mark
@@ -137,6 +154,8 @@ columns:
     - 1995
     - 2026
   QT_AUS:
+    missing: []
+    # measured 2026 (149 rows, 149 filled): range [0, 15], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: survey.untreated_absent
     kind: number
     model: mark
@@ -147,6 +166,8 @@ columns:
     - 1995
     - 2026
   QT_BGLA:
+    missing: []
+    # measured 2026 (149 rows, 149 filled): range [0, 0], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: survey.captured_biomphalaria_glabrata
     kind: number
     model: mark
@@ -157,6 +178,8 @@ columns:
     - 1995
     - 2026
   QT_BSTR:
+    missing: []
+    # measured 2026 (149 rows, 149 filled): range [0, 0], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: survey.captured_biomphalaria_straminea
     kind: number
     model: mark
@@ -167,6 +190,8 @@ columns:
     - 1995
     - 2026
   QT_BTEN:
+    missing: []
+    # measured 2026 (149 rows, 149 filled): range [0, 0], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: survey.captured_biomphalaria_tenagophila
     kind: number
     model: mark
@@ -177,6 +202,8 @@ columns:
     - 1995
     - 2026
   QT_CAP:
+    missing: []
+    # measured 2026 (149 rows, 149 filled): range [0, 0], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: survey.snails_captured_total
     kind: number
     model: mark
@@ -187,6 +214,8 @@ columns:
     - 1995
     - 2026
   QT_CI:
+    missing: []
+    # measured 2026 (149 rows, 149 filled): range [0, 0], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: survey.untreated_due_to_contraindication
     kind: number
     model: mark
@@ -197,6 +226,8 @@ columns:
     - 1995
     - 2026
   QT_EV:
+    missing: []
+    # measured 2026 (149 rows, 149 filled): range [0, 7], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: survey.positive_for_enterobius_vermicularis
     kind: number
     model: mark
@@ -207,6 +238,8 @@ columns:
     - 1995
     - 2026
   QT_EXAM:
+    missing: []
+    # measured 2026 (149 rows, 149 filled): range [0, 434], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: survey.stool_exams_performed
     kind: number
     model: mark
@@ -217,6 +250,8 @@ columns:
     - 1995
     - 2026
   QT_HN:
+    missing: []
+    # measured 2026 (149 rows, 149 filled): range [0, 5], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: survey.positive_for_hymenolepis_nana
     kind: number
     model: mark
@@ -227,6 +262,8 @@ columns:
     - 1995
     - 2026
   QT_NRECOL:
+    missing: []
+    # measured 2026 (149 rows, 149 filled): range [0, 473], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: survey.containers_not_collected_back
     kind: number
     model: mark
@@ -237,6 +274,8 @@ columns:
     - 1995
     - 2026
   QT_OUT:
+    missing: []
+    # measured 2026 (149 rows, 149 filled): range [0, 2], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: survey.positive_for_other_intestinal_worms
     kind: number
     model: mark
@@ -247,6 +286,8 @@ columns:
     - 1995
     - 2026
   QT_OUT1:
+    missing: []
+    # measured 2026 (149 rows, 149 filled): range [0, 0], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: survey.captured_other_snail_species
     kind: number
     model: mark
@@ -257,6 +298,8 @@ columns:
     - 1995
     - 2026
   QT_PESQ:
+    missing: []
+    # measured 2026 (149 rows, 149 filled): range [0, 0], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: survey.sites_water_collections_surveyed
     kind: number
     model: mark
@@ -267,6 +310,8 @@ columns:
     - 1995
     - 2026
   QT_POP:
+    missing: []
+    # measured 2026 (149 rows, 149 filled): range [0, 893], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: survey.population_worked_people_given_a_collection_container
     kind: number
     model: mark
@@ -277,6 +322,8 @@ columns:
     - 1995
     - 2026
   QT_POS:
+    missing: []
+    # measured 2026 (149 rows, 149 filled): range [0, 18], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: survey.total_positives
     kind: number
     model: mark
@@ -287,6 +334,8 @@ columns:
     - 1995
     - 2026
   QT_POSBGLA:
+    missing: []
+    # measured 2026 (149 rows, 149 filled): range [0, 0], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: survey.positive_biomphalaria_glabrata
     kind: number
     model: mark
@@ -297,6 +346,8 @@ columns:
     - 1995
     - 2026
   QT_POSBSTR:
+    missing: []
+    # measured 2026 (149 rows, 149 filled): range [0, 0], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: survey.positive_biomphalaria_straminea
     kind: number
     model: mark
@@ -307,6 +358,8 @@ columns:
     - 1995
     - 2026
   QT_POSBTEN:
+    missing: []
+    # measured 2026 (149 rows, 149 filled): range [0, 0], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: survey.positive_biomphalaria_tenagophila
     kind: number
     model: mark
@@ -317,6 +370,8 @@ columns:
     - 1995
     - 2026
   QT_POSOUT:
+    missing: []
+    # measured 2026 (149 rows, 149 filled): range [0, 0], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: survey.positive_other_snail_species
     kind: number
     model: mark
@@ -327,6 +382,8 @@ columns:
     - 1995
     - 2026
   QT_PRED:
+    missing: []
+    # measured 2026 (149 rows, 149 filled): range [0, 0], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: survey.buildings_households_visited
     kind: number
     model: mark
@@ -337,6 +394,8 @@ columns:
     - 1995
     - 2026
   QT_REC:
+    missing: []
+    # measured 2026 (149 rows, 149 filled): range [0, 0], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: survey.untreated_refused
     kind: number
     model: mark
@@ -347,6 +406,8 @@ columns:
     - 1995
     - 2026
   QT_SE:
+    missing: []
+    # measured 2026 (149 rows, 149 filled): range [0, 0], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: survey.positive_for_strongyloides_stercoralis
     kind: number
     model: mark
@@ -357,6 +418,8 @@ columns:
     - 1995
     - 2026
   QT_TAE:
+    missing: []
+    # measured 2026 (149 rows, 149 filled): range [0, 2], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: survey.positive_for_taenia_sp
     kind: number
     model: mark
@@ -367,6 +430,8 @@ columns:
     - 1995
     - 2026
   QT_TRAT:
+    missing: []
+    # measured 2026 (149 rows, 149 filled): range [0, 6], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: survey.treated
     kind: number
     model: mark
@@ -377,6 +442,8 @@ columns:
     - 1995
     - 2026
   QT_TT:
+    missing: []
+    # measured 2026 (149 rows, 149 filled): range [0, 20], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: survey.positive_for_trichuris_trichiura
     kind: number
     model: mark

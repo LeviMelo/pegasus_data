@@ -2,6 +2,8 @@ dataset: SINAN-ESPO
 record: notification
 columns:
   C_D:
+    missing: []
+    # measured 2022 (7615 rows, 235 filled): range [0, 5], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: epizootic.dogs_sick
     kind: number
     model: mark
@@ -13,6 +15,8 @@ columns:
     - 2022
     note: Number of sick dogs, if notified (Dicionario_de_dados_Epizootias_Esporotricose).
   C_M:
+    missing: []
+    # measured 2022 (7615 rows, 27 filled): range [0, 2], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: epizootic.dogs_dead
     kind: number
     model: mark
@@ -76,6 +80,8 @@ columns:
     - 2022
     note: 1 cat, 2 dog, 3 both (same dictionary).
   G_D:
+    missing: []
+    # measured 2022 (7615 rows, 6779 filled): range [0, 18], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: epizootic.cats_sick
     kind: number
     model: mark
@@ -87,6 +93,8 @@ columns:
     - 2022
     note: Number of sick cats, if notified (same dictionary).
   G_M:
+    missing: []
+    # measured 2022 (7615 rows, 1366 filled): range [0, 14], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: epizootic.cats_dead
     kind: number
     model: mark

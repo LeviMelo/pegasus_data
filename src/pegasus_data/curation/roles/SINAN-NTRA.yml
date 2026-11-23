@@ -2,6 +2,8 @@ dataset: SINAN-NTRA
 record: notification
 columns:
   CS_INQUERI:
+    missing: []
+    # declared from DATASUS's own sources (2026): no form dictionary; the table names every code the records use, each with its own label (1='escolar', 2='domiciliar'): a code table, not a catch-all; no value labelled as not recorded
     role: survey.survey_type
     kind: category
     model: mark
@@ -172,6 +174,8 @@ columns:
     - 2026
     note: role from the notification block
   NU_CASOEXA:
+    missing: []
+    # measured 2026 (178 rows, 178 filled): range [1, 831], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: survey.cases_examined
     kind: number
     model: mark
@@ -182,6 +186,8 @@ columns:
     - 2010
     - 2026
   NU_CASOPOS:
+    missing: []
+    # measured 2026 (178 rows, 178 filled): range [0, 29], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: survey.cases_positive
     kind: number
     model: mark

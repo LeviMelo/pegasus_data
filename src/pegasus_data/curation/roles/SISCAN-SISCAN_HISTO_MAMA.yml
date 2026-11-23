@@ -46,6 +46,7 @@ columns:
     - 2013
     - 2025
   CO_INTERVALO_COLETA:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2025)'
     role: exam.collection_interval
     kind: category
     model: mark
@@ -56,6 +57,7 @@ columns:
     - 2013
     - 2025
   CO_INTERVALO_EXAME:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2025)'
     role: exam.result_interval
     kind: category
     model: mark
@@ -96,6 +98,7 @@ columns:
     - 2013
     - 2025
   CO_TEMPO_EXAME:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2025)'
     role: exam.total_exam_turnaround
     kind: category
     model: mark
@@ -119,6 +122,8 @@ columns:
     - 2013
     - 2025
   NU_ADENOSE_SOE:
+    missing: []
+    # measured 2025 (63279 rows, 35265 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: exam.count_of_adenosis_diagnoses_not_otherwise_specified
     kind: number
     model: mark
@@ -150,6 +155,8 @@ columns:
     - 2013
     - 2025
   NU_CONDICAO_FIBROCISTICA:
+    missing: []
+    # measured 2025 (63279 rows, 35265 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: exam.count_of_fibrocystic_change_diagnoses
     kind: number
     model: mark
@@ -160,6 +167,8 @@ columns:
     - 2025
     note: '0 or 1 on each exam: summing it counts the exams with this finding.'
   NU_FIBROADENOMA:
+    missing: []
+    # measured 2025 (63279 rows, 35265 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: exam.count_of_fibroadenoma_diagnoses
     kind: number
     model: mark
@@ -170,6 +179,8 @@ columns:
     - 2025
     note: '0 or 1 on each exam: summing it counts the exams with this finding.'
   NU_HIPERPLAS_DUCTAL_COM_ATIP:
+    missing: []
+    # measured 2025 (63279 rows, 35265 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: exam.count_of_atypical_ductal_hyperplasia_diagnoses
     kind: number
     model: mark
@@ -180,6 +191,8 @@ columns:
     - 2025
     note: '0 or 1 on each exam: summing it counts the exams with this finding.'
   NU_HIPERPLAS_DUCTAL_SEM_ATIP:
+    missing: []
+    # measured 2025 (63279 rows, 35265 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: exam.count_of_usual_ductal_hyperplasia_diagnoses_without_atypia
     kind: number
     model: mark
@@ -190,6 +203,8 @@ columns:
     - 2025
     note: '0 or 1 on each exam: summing it counts the exams with this finding.'
   NU_HIPERPLAS_LOBULAR_COM_ATIP:
+    missing: []
+    # measured 2025 (63279 rows, 35265 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: exam.count_of_atypical_lobular_hyperplasia_diagnoses
     kind: number
     model: mark
@@ -200,6 +215,8 @@ columns:
     - 2025
     note: '0 or 1 on each exam: summing it counts the exams with this finding.'
   NU_LESAO_ESCLEROSANTE_RADIAL:
+    missing: []
+    # measured 2025 (63279 rows, 35265 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: exam.count_of_radial_scar_complex_sclerosing_lesion_diagnoses
     kind: number
     model: mark
@@ -210,6 +227,8 @@ columns:
     - 2025
     note: '0 or 1 on each exam: summing it counts the exams with this finding.'
   NU_MASTITE:
+    missing: []
+    # measured 2025 (63279 rows, 35265 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: exam.count_of_mastitis_diagnoses
     kind: number
     model: mark
@@ -220,6 +239,8 @@ columns:
     - 2025
     note: '0 or 1 on each exam: summing it counts the exams with this finding.'
   NU_OUTROS:
+    missing: []
+    # measured 2025 (63279 rows, 35265 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: exam.count_of_other_benign_lesions
     kind: number
     model: mark
@@ -230,6 +251,8 @@ columns:
     - 2025
     note: '0 or 1 on each exam: summing it counts the exams with this finding.'
   NU_PAPILOMATOSE_FLORIDA_DO_MAM:
+    missing: []
+    # measured 2025 (63279 rows, 35265 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: exam.count_of_florid_papillomatosis_of_the_nipple_diagnoses
     kind: number
     model: mark
@@ -240,6 +263,8 @@ columns:
     - 2025
     note: '0 or 1 on each exam: summing it counts the exams with this finding.'
   NU_PAPILOMA_MULTIPLO:
+    missing: []
+    # measured 2025 (63279 rows, 35265 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: exam.count_of_multiple_intraductal_papilloma_diagnoses
     kind: number
     model: mark
@@ -250,6 +275,8 @@ columns:
     - 2025
     note: '0 or 1 on each exam: summing it counts the exams with this finding.'
   NU_PAPILOMA_SOLITARIO:
+    missing: []
+    # measured 2025 (63279 rows, 35265 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: exam.count_of_solitary_intraductal_papilloma_diagnoses
     kind: number
     model: mark
@@ -284,6 +311,7 @@ columns:
     - 2013
     - 2025
   ST_MICROCALCIFICACAO:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2025)'
     role: exam.microcalcifications_present
     kind: category
     model: mark
@@ -305,6 +333,8 @@ columns:
     - 2013
     - 2025
   TP_ADEQUABILIDAD_MATERIAL:
+    missing: []
+    # declared from DATASUS's own sources (2025): no form dictionary; the table names every code the records use, each with its own label (01='satisfatório', 02='insatisfatório'): a code table, not a catch-all; no value labelled as not recorded
     role: exam.material_adequacy
     kind: category
     model: mark
@@ -315,6 +345,7 @@ columns:
     - 2013
     - 2025
   TP_DETECCAO_LESAO:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2025)'
     role: exam.how_the_lesion_was_detected
     kind: category
     model: mark
@@ -325,6 +356,7 @@ columns:
     - 2013
     - 2025
   TP_DIAGNOSTICO_IMAGEM:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2025)'
     role: exam.imaging_finding
     kind: category
     model: mark
@@ -335,6 +367,7 @@ columns:
     - 2013
     - 2025
   TP_EXAME_HISTOPATOLOGICO:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2025)'
     role: exam.type_of_histopathology_exam
     kind: category
     model: mark
@@ -345,6 +378,7 @@ columns:
     - 2013
     - 2025
   TP_GRAU_HISTOLOGICO:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2025)'
     role: exam.histological_grade
     kind: category
     model: mark
@@ -355,6 +389,7 @@ columns:
     - 2013
     - 2025
   TP_LATERALIDADE_LESAO:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2025)'
     role: exam.lesion_laterality
     kind: category
     model: mark
@@ -365,6 +400,8 @@ columns:
     - 2013
     - 2025
   TP_LESAO:
+    missing: []
+    # declared from DATASUS's own sources (2025): no form dictionary; the table names every code the records use, each with its own label (01='caráter benigno', 02='core biopsy indeterminada', 03='core biopsy suspeita', 04='caráter neoplásico maligno'): a code table, not a catch-all; no value labelled as not recorded
     role: exam.lesion_type
     kind: category
     model: mark
@@ -375,6 +412,8 @@ columns:
     - 2013
     - 2025
   TP_LESAO_CARAT_NEOPL_MALI:
+    missing: []
+    # declared from DATASUS's own sources (2025): no form dictionary; the table names every code the records use, each with its own label (01='carcinoma intraductal (in situ) de baixo grau histológico', 02='carcinoma intraductal (in situ) de grau intermediário', 03='carcinoma intraductal (in situ) de alto grau histológico', 04='carcinoma lobular in situ', 05='doença de paget do mamilo sem tumor associado', 06='carcinoma ductal infiltrante', 07='carcinoma ductal infiltrante com componente intraductal predominante', 08='carcinoma lobular invasivo', 09='carcinoma tubular', 10='carcinoma mucinoso', 11='carcinoma medular', 12='outros'): a code table, not a catch-all; no value labelled as not recorded
     role: exam.malignant_neoplasia_subtype
     kind: category
     model: mark
@@ -385,6 +424,7 @@ columns:
     - 2013
     - 2025
   TP_LINFONODO_AXILAR_PALPAVEL:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2025)'
     role: exam.palpable_axillary_lymph_node
     kind: category
     model: mark
@@ -395,6 +435,8 @@ columns:
     - 2013
     - 2025
   TP_MARGEM_CIRURGICA:
+    missing: []
+    # declared from DATASUS's own sources (2025): no form dictionary; the table names every code the records use, each with its own label (02='comprometidas', 04='livres (sem tumor detectável)', 05='não avaliável'): a code table, not a catch-all; no value labelled as not recorded
     role: exam.surgical_margin
     kind: category
     model: mark
@@ -405,6 +447,8 @@ columns:
     - 2013
     - 2025
   TP_MATER_ENVIA_PROCEDENTE:
+    missing: []
+    # declared from DATASUS's own sources (2025): no form dictionary; the table names every code the records use, each with its own label (01='biópsia incisional', 02='biópsia excisional', 03='biópsia por agulha grossa', 04='biópsia estereotáxica', 05='ressecção segmentar', 06='excisão de ductos principais', 07='mastectomia glandular', 08='ressecção segmentar com esvaziamento axilar', 09='mastectomia simples', 10='mastectomia radical e radical modificada'): a code table, not a catch-all; no value labelled as not recorded
     role: exam.materials_procedural_origin
     kind: category
     model: mark
@@ -415,6 +459,8 @@ columns:
     - 2013
     - 2025
   TP_PROCEDIMENTO_CIRURGICO:
+    missing: []
+    # declared from DATASUS's own sources (2025): no form dictionary; the table names every code the records use, each with its own label (01='biópsia incisional', 02='biópsia excisional', 03='biópsia por agulha grossa (core biopsy)', 04='biópsia estereotáxica', 05='ressecção segmentar', 06='excisão de ductos principais', 07='mastectomia glandular', 08='ressecção segmentar com esvaziamento axilar', 09='mastectomia simples', 10='mastectomia radical e radical modificada'): a code table, not a catch-all; no value labelled as not recorded
     role: exam.breast_surgical_procedure_type
     kind: category
     model: mark
@@ -425,6 +471,8 @@ columns:
     - 2013
     - 2025
   TP_RECEPTOR_HORMONAL_ESTROG:
+    missing: []
+    # declared from DATASUS's own sources (2025): no form dictionary; the table names every code the records use, each with its own label (01='positivo', 02='negativo', 03='nr'): a code table, not a catch-all; no value labelled as not recorded
     role: exam.estrogen_receptor_er_status
     kind: category
     model: mark
@@ -434,6 +482,8 @@ columns:
     - 2013
     - 2025
   TP_RECEPTOR_HORMONAL_PROGES:
+    missing: []
+    # declared from DATASUS's own sources (2025): no form dictionary; the table names every code the records use, each with its own label (01='positivo', 02='negativo', 03='nr'): a code table, not a catch-all; no value labelled as not recorded
     role: exam.progesterone_receptor_pr_status
     kind: category
     model: mark
@@ -443,6 +493,8 @@ columns:
     - 2013
     - 2025
   TP_RISCO_ELEVADO:
+    missing: []
+    # declared from DATASUS's own sources (2025): no form dictionary; the table names every code the records use, each with its own label (01='sim', 02='não', 03='não sabe'): a code table, not a catch-all; no value labelled as not recorded
     role: exam.elevated_breast_cancer_risk_histopathology_form
     kind: category
     model: mark
@@ -453,6 +505,8 @@ columns:
     - 2013
     - 2025
   TP_TAMANHO_LESAO:
+    missing: []
+    # declared from DATASUS's own sources (2025): no form dictionary; the table names every code the records use, each with its own label (01='< 2cm', 02='2 a 5cm', 03='> 5 a 10cm', 04='> 10cm', 05='não palpável'): a code table, not a catch-all; no value labelled as not recorded
     role: exam.lesion_size_on_requisition
     kind: category
     model: mark
@@ -463,6 +517,8 @@ columns:
     - 2013
     - 2025
   TP_TAMANHO_TUMOR:
+    missing: ['05']
+    # declared from DATASUS's own sources (2025): no form dictionary; the table names every code the records use, each with its own label (01='< 2 cm', 02='2 a 5 cm', 03='> 5 cm', 04='não avaliável', 05='não informado'): a code table, not a catch-all; 05='Não informado'
     role: exam.pathologic_tumor_size
     kind: category
     model: mark

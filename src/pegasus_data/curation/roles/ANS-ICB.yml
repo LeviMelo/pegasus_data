@@ -40,6 +40,8 @@ columns:
     note: With CD_OPERADORA and the plan's term, the key of the 'Características dos produtos da saúde suplementar' dataset
       (dictionary note b).
   COBERTURA_ASSIST_PLAN:
+    missing: []
+    # declared from DATASUS's own sources (2025): no code table: the records hold the labels themselves ('Médico-hospitalar', 'Odontológico')
     role: plan.coverage
     kind: category
     model: dimension
@@ -52,6 +54,8 @@ columns:
     - 2025
     note: Médico-hospitalar with or without dental cover, or exclusively dental (dictionary).
   DE_ABRG_GEOGRAFICA_PLANO:
+    missing: []
+    # declared from DATASUS's own sources (2025): no code table: the records hold the labels themselves ('Estadual', 'Grupo de estados', 'Grupo de municípios', 'Municipal', 'Nacional', 'Não Identificado')
     role: plan.geographic_scope
     kind: category
     model: dimension
@@ -64,6 +68,8 @@ columns:
     - 2025
     note: Nacional, grupo de estados, estadual, grupo de municípios, municipal, outras (dictionary).
   DE_CONTRATACAO_PLANO:
+    missing: []
+    # declared from DATASUS's own sources (2025): no code table: the records hold the labels themselves ('Coletivo Empresarial', 'Coletivo Empresarial + Coletivo por Adesão', 'Coletivo Empresarial com patrocínio', 'Coletivo Empresarial sem patrocínio', 'Coletivo por Adesão', 'Coletivo por Adesão com patrocínio', 'Coletivo por Adesão sem patrocínio', 'Individual ou Familiar', 'Individual ou Familiar + Coletivo Empresarial', 'Individual ou Familiar + Coletivo Empresarial + Coletivo por Adesão', 'Individual ou Familiar + Coletivo por Adesão', 'Não Identificado')
     role: plan.contracting
     kind: category
     model: dimension
@@ -76,6 +82,8 @@ columns:
     - 2025
     note: Individual or family, collective by company, collective by membership and their combinations (dictionary).
   DE_FAIXA_ETARIA:
+    missing: []
+    # declared from DATASUS's own sources (2025): no code table: the records hold the labels themselves ('1 a 4 anos', '10 a 14 anos', '15 a 17 anos', '18 a 19 anos', '20 a 24 anos', '25 a 29 anos', '30 a 34 anos', '35 a 39 anos', '40 a 44 anos', '45 a 49 anos', '5 a 9 anos', '50 a 54 anos' …)
     role: beneficiary.age_band
     kind: category
     model: dimension
@@ -87,6 +95,8 @@ columns:
     - 2021
     - 2025
   DE_FAIXA_ETARIA_REAJ:
+    missing: []
+    # declared from DATASUS's own sources (2025): no code table: the records hold the labels themselves ('0 a 18 anos', '19 a 23 anos', '24 a 28 anos', '29 a 33 anos', '34 a 38 anos', '39 a 43 anos', '44 a 48 anos', '49 a 53 anos', '54 a 58 anos', '59 anos ou mais', 'Informada Incorr')
     role: plan.readjustment_age_band
     kind: category
     model: dimension
@@ -99,6 +109,8 @@ columns:
     - 2025
     note: The band Lei 9.656 uses to readjust the price of plans contracted from 1999-01-02 (dictionary).
   DE_SEGMENTACAO_PLANO:
+    missing: []
+    # declared from DATASUS's own sources (2025): no code table: the records hold the labels themselves ('Amb + Hosp c/s Obstetrícia', 'Ambulatorial', 'Ambulatorial + Hospitalar com obstetrícia', 'Ambulatorial + Hospitalar com obstetrícia + Odontológico', 'Ambulatorial + Hospitalar sem obstetrícia', 'Ambulatorial + Hospitalar sem obstetrícia + Odontológico', 'Ambulatorial + Odontológico', 'Hospitalar com obstetrícia', 'Hospitalar com obstetrícia + Odontológico', 'Hospitalar sem obstetrícia', 'Hospitalar sem obstetrícia + Odontológico', 'Não Identificado' …)
     role: plan.segmentation
     kind: category
     model: dimension
@@ -133,6 +145,7 @@ columns:
     - 2021
     - 2025
   MODALIDADE_OPERADORA:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2025)'
     role: operator.modality
     kind: category
     model: dimension
@@ -233,6 +246,8 @@ columns:
     - 2025
     note: XX is not identified and EX abroad (dictionary); the XX file is read like the others.
   TIPO_VINCULO:
+    missing: []
+    # declared from DATASUS's own sources (2025): no code table: the records hold the labels themselves ('Dependente', 'Não Identificado', 'Titular')
     role: beneficiary.link_type
     kind: category
     model: dimension
@@ -256,6 +271,7 @@ columns:
     - 2025
     note: M or F (dictionary).
   TP_VIGENCIA_PLANO:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2025)'
     role: plan.law_period
     kind: category
     model: dimension

@@ -14,6 +14,8 @@ columns:
     - 2005
     - 2026
   AMB_SUS:
+    missing: []
+    # declared from DATASUS's own sources (2026): no form dictionary; the table names every code the records use, each with its own label (0='não', 1='sim'): a code table, not a catch-all; no value labelled as not recorded
     role: service.outpatient_care_for_sus
     kind: category
     model: mark
@@ -140,6 +142,7 @@ columns:
     - 2026
     note: YYYYMM of the monthly CNES snapshot.
   CONTSRVU:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2026)'
     role: service.unique_specialized_service_indicator
     kind: category
     model: mark
@@ -180,6 +183,7 @@ columns:
     - 2005
     - 2026
   ESFERA_A:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2026)'
     role: establishment.administrative_sphere
     kind: category
     model: mark
@@ -192,6 +196,8 @@ columns:
     codelists:
     - ESFERADM
   HOSP_NSUS:
+    missing: []
+    # declared from DATASUS's own sources (2026): no form dictionary; the table names every code the records use, each with its own label (0='não', 1='sim'): a code table, not a catch-all; no value labelled as not recorded
     role: service.hospital_care_outside_sus
     kind: category
     model: mark
@@ -202,6 +208,8 @@ columns:
     - 2005
     - 2026
   HOSP_SUS:
+    missing: []
+    # declared from DATASUS's own sources (2026): no form dictionary; the table names every code the records use, each with its own label (0='não', 1='sim'): a code table, not a catch-all; no value labelled as not recorded
     role: service.hospital_care_for_sus
     kind: category
     model: mark
@@ -287,6 +295,7 @@ columns:
     codelists:
     - TP_PFPJ
   REGSAUDE:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2026)'
     role: establishment.health_region_local
     kind: category
     model: mark
@@ -309,6 +318,8 @@ columns:
     codelists:
     - RETENCAO
   SERV_ESP:
+    missing: []
+    # declared from DATASUS's own sources (2026): no form dictionary; the table names every code the records use, each with its own label (103='servico de atendimento movel de urgencias', 104='regulacao do acesso a acoes e servicos de saude', 105='servico de atencao em neurologia / neurocirurgia', 106='servico de atencao a dst/hiv/aids', 107='servico de atencao a saude auditiva', 108='servico de atencao a saude do trabalhador', 110='servico de atencao a saude reprodutiva', 111='servico de atencao ao paciente com tuberculose', 112='servico de atencao ao pre-natal, parto e nascimento', 113='servico de atencao domiciliar', 114='servico de atencao em saude bucal', 115='servico de atencao psicossocial', 116='servico de atencao cardiovascular / cardiologia', 117='servico de cirurgia reparadora', 119='servico de controle de tabagismo', 120='servico de diagnostico por anatomia patologica eou citopato', 121='servico de diagnostico por imagem', 122='servico de diagnostico por metodos graficos dinamicos', 123='servico de dispensacao de orteses proteses e materiais espe', 124='servico de endocrinologia', 125='servico de farmacia', 126='servico de fisioterapia', 128='servico de hemoterapia', 130='atencao a doenca renal cronica', 131='servico de oftalmologia', 132='servico de oncologia', 133='servico de pneumologia', 134='servico de praticas integrativas e complementares', 135='servico de reabilitacao', 136='servico de suporte nutricional', 139='servico de triagem neonatal', 140='servico de urgencia e emergencia', 141='servico de vigilancia em saude', 142='servico de endoscopia', 144='servico posto de coleta de materiais  biologicos', 145='servico de diagnostico de laboratorio clinico', 146='servico de videolaparoscopia', 148='hospital dia', 149='transplante', 150='cirurgia vascular', 151='medicina nuclear', 152='atencao a saude de populacoes indigenas', 153='atencao especializada no processo transexualizador', 155='servico de traumatologia e ortopedia', 157='servico de laboratorio de protese dentaria', 158='servico de atencao integral em hanseniase', 159='atencao primaria', 160='teleconsultoria', 162='servico de terapia intensiva', 164='servico de orteses, proteses e mat especiais em reabilitacao', 165='atencao as pessoas em situacao de violencia sexual', 166='serv analise laboratorial de prod sujeitos a vig sanitaria', 169='atencao em urologia', 170='comissoes e comites', 173='logistica de imunobiologicos', 174='imunizacao'): a code table, not a catch-all; no value labelled as not recorded
     role: service.specialised_service
     kind: category
     model: dimension
@@ -321,6 +332,8 @@ columns:
     codelists:
     - SRN_ORD_N
   SRVUNICO:
+    missing: []
+    # declared from DATASUS's own sources (2026): no form dictionary; the table names every code the records use, each with its own label (103='servico de atendimento movel de urgencias', 104='regulacao do acesso a acoes e servicos de saude', 105='servico de atencao em neurologia / neurocirurgia', 106='servico de atencao a dst/hiv/aids', 107='servico de atencao a saude auditiva', 108='servico de atencao a saude do trabalhador', 110='servico de atencao a saude reprodutiva', 111='servico de atencao ao paciente com tuberculose', 112='servico de atencao ao pre-natal, parto e nascimento', 113='servico de atencao domiciliar', 114='servico de atencao em saude bucal', 115='servico de atencao psicossocial', 116='servico de atencao cardiovascular / cardiologia', 117='servico de cirurgia reparadora', 119='servico de controle de tabagismo', 120='servico de diagnostico por anatomia patologica eou citopato', 121='servico de diagnostico por imagem', 122='servico de diagnostico por metodos graficos dinamicos', 123='servico de dispensacao de orteses proteses e materiais espe', 124='servico de endocrinologia', 125='servico de farmacia', 126='servico de fisioterapia', 128='servico de hemoterapia', 130='atencao a doenca renal cronica', 131='servico de oftalmologia', 132='servico de oncologia', 133='servico de pneumologia', 134='servico de praticas integrativas e complementares', 135='servico de reabilitacao', 136='servico de suporte nutricional', 139='servico de triagem neonatal', 140='servico de urgencia e emergencia', 141='servico de vigilancia em saude', 142='servico de endoscopia', 144='servico posto de coleta de materiais  biologicos', 145='servico de diagnostico de laboratorio clinico', 146='servico de videolaparoscopia', 148='hospital dia', 149='transplante', 150='cirurgia vascular', 151='medicina nuclear', 152='atencao a saude de populacoes indigenas', 153='atencao especializada no processo transexualizador', 155='servico de traumatologia e ortopedia', 157='servico de laboratorio de protese dentaria', 158='servico de atencao integral em hanseniase', 159='atencao primaria', 160='teleconsultoria', 162='servico de terapia intensiva', 164='servico de orteses, proteses e mat especiais em reabilitacao', 165='atencao as pessoas em situacao de violencia sexual', 166='serv analise laboratorial de prod sujeitos a vig sanitaria', 169='atencao em urologia', 170='comissoes e comites', 173='logistica de imunobiologicos', 174='imunizacao'): a code table, not a catch-all; no value labelled as not recorded
     role: service.service_classification
     kind: category
     model: mark
@@ -360,6 +373,8 @@ columns:
     - NIVELDEP
     - TPGESTAO
   TP_UNID:
+    missing: []
+    # declared from DATASUS's own sources (2026): no form dictionary; the table names every code the records use, each with its own label (01='posto de saude', 02='centro de saude/unidade basica de saude', 04='policlinica', 05='hospital geral', 07='hospital especializado', 22='consultorio', 32='unidade movel fluvial', 36='clinica especializada/ambulatorio especializado', 39='unidade de servico de apoio de diagnose e terapia', 40='unidade movel terrestre', 42='unidade movel de nivel pre-hosp-urgencia/emergencia', 43='farmacia', 50='unidade de vigilancia em saude', 61='centro de parto normal', 62='hospital dia', 68='secretaria de saude', 69='centro de atenção hemoterápica e/ou hematológica', 70='centro de atenção psicossocial-caps', 72='unidade de atenção à saúde indígena', 73='pronto antedimento', 74='academia da saúde', 75='telesaúde', 76='central de regulação médica das urgências', 80='laboratorio de saude publica', 81='central de regulação', 84='central de abastecimento'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.type
     kind: category
     model: mark

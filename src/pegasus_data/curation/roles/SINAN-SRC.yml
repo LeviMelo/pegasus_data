@@ -462,7 +462,8 @@ columns:
     - 2007
     - 2026
   IDADEMAE:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: []
+    # measured 2026 (44 rows, 31 filled): range [16, 44], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: mother.age
     kind: number
     model: mark
@@ -707,7 +708,8 @@ columns:
     - 2007
     - 2026
   PESO:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: []
+    # measured 2026 (44 rows, 40 filled): range [870, 4550], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: case.birth_weight_g
     kind: number
     model: mark

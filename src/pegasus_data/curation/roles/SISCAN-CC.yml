@@ -2,6 +2,8 @@ dataset: SISCAN-CC
 record: exam
 columns:
   ADENCARCIN:
+    missing: []
+    # declared 2026-11-23 from the tabulation's own definition: an I (incremento) line is a count the tabulator sums, so each record adds a recorded count (a zero is a recorded zero) and no code stands for not recorded (unit_evidence)
     role: exam.adenocarcinoma
     kind: number
     unit: "count"
@@ -25,6 +27,8 @@ columns:
     - 2006
     - 2015
   AMOSREJALH:
+    missing: []
+    # declared 2026-11-23 from the tabulation's own definition: an I (incremento) line is a count the tabulator sums, so each record adds a recorded count (a zero is a recorded zero) and no code stands for not recorded (unit_evidence)
     role: exam.rejected_causes_outside_the_laboratory
     kind: number
     unit: "count"
@@ -38,6 +42,8 @@ columns:
     - 2006
     - 2015
   AMOSREJAUS:
+    missing: []
+    # declared 2026-11-23 from the tabulation's own definition: an I (incremento) line is a count the tabulator sums, so each record adds a recorded count (a zero is a recorded zero) and no code stands for not recorded (unit_evidence)
     role: exam.rejected_missing_or_wrong_identification
     kind: number
     unit: "count"
@@ -51,6 +57,8 @@ columns:
     - 2006
     - 2015
   AMOSREJDAN:
+    missing: []
+    # declared 2026-11-23 from the tabulation's own definition: an I (incremento) line is a count the tabulator sums, so each record adds a recorded count (a zero is a recorded zero) and no code stands for not recorded (unit_evidence)
     role: exam.rejected_slide_damaged_or_missing
     kind: number
     unit: "count"
@@ -64,6 +72,8 @@ columns:
     - 2006
     - 2015
   AMOSREJOUT:
+    missing: []
+    # declared 2026-11-23 from the tabulation's own definition: an I (incremento) line is a count the tabulator sums, so each record adds a recorded count (a zero is a recorded zero) and no code stands for not recorded (unit_evidence)
     role: exam.rejected_other_reason
     kind: number
     unit: "count"
@@ -87,6 +97,8 @@ columns:
     - 2006
     - 2015
   CARCINO:
+    missing: []
+    # declared 2026-11-23 from the tabulation's own definition: an I (incremento) line is a count the tabulator sums, so each record adds a recorded count (a zero is a recorded zero) and no code stands for not recorded (unit_evidence)
     role: exam.invasive_squamous_carcinoma
     kind: number
     unit: "count"
@@ -100,6 +112,8 @@ columns:
     - 2006
     - 2015
   CBEMATROF:
+    missing: []
+    # declared 2026-11-23 from the tabulation's own definition: an I (incremento) line is a count the tabulator sums, so each record adds a recorded count (a zero is a recorded zero) and no code stands for not recorded (unit_evidence)
     role: exam.benign_change_atrophy_with_inflammation
     kind: number
     unit: "count"
@@ -113,6 +127,8 @@ columns:
     - 2006
     - 2015
   CBEMINFLA:
+    missing: []
+    # declared 2026-11-23 from the tabulation's own definition: an I (incremento) line is a count the tabulator sums, so each record adds a recorded count (a zero is a recorded zero) and no code stands for not recorded (unit_evidence)
     role: exam.benign_change_inflammation
     kind: number
     unit: "count"
@@ -126,6 +142,8 @@ columns:
     - 2006
     - 2015
   CBEMMETAS:
+    missing: []
+    # declared 2026-11-23 from the tabulation's own definition: an I (incremento) line is a count the tabulator sums, so each record adds a recorded count (a zero is a recorded zero) and no code stands for not recorded (unit_evidence)
     role: exam.benign_change_immature_squamous_metaplasia
     kind: number
     unit: "count"
@@ -139,6 +157,8 @@ columns:
     - 2006
     - 2015
   CBEMOUT:
+    missing: []
+    # declared 2026-11-23 from the tabulation's own definition: an I (incremento) line is a count the tabulator sums, so each record adds a recorded count (a zero is a recorded zero) and no code stands for not recorded (unit_evidence)
     role: exam.benign_change_other
     kind: number
     unit: "count"
@@ -152,6 +172,8 @@ columns:
     - 2006
     - 2015
   CBEMRADI:
+    missing: []
+    # declared 2026-11-23 from the tabulation's own definition: an I (incremento) line is a count the tabulator sums, so each record adds a recorded count (a zero is a recorded zero) and no code stands for not recorded (unit_evidence)
     role: exam.benign_change_radiation_effect
     kind: number
     unit: "count"
@@ -165,6 +187,8 @@ columns:
     - 2006
     - 2015
   CBEMREPAR:
+    missing: []
+    # declared 2026-11-23 from the tabulation's own definition: an I (incremento) line is a count the tabulator sums, so each record adds a recorded count (a zero is a recorded zero) and no code stands for not recorded (unit_evidence)
     role: exam.benign_change_repair
     kind: number
     unit: "count"
@@ -204,6 +228,8 @@ columns:
     - 2006
     - 2015
   CMICACTI:
+    missing: []
+    # declared 2026-11-23 from the tabulation's own definition: an I (incremento) line is a count the tabulator sums, so each record adds a recorded count (a zero is a recorded zero) and no code stands for not recorded (unit_evidence)
     role: exam.actinomyces_seen
     kind: number
     unit: "count"
@@ -217,6 +243,8 @@ columns:
     - 2006
     - 2015
   CMICBACI:
+    missing: []
+    # declared 2026-11-23 from the tabulation's own definition: an I (incremento) line is a count the tabulator sums, so each record adds a recorded count (a zero is a recorded zero) and no code stands for not recorded (unit_evidence)
     role: exam.other_bacilli_seen
     kind: number
     unit: "count"
@@ -230,6 +258,8 @@ columns:
     - 2006
     - 2015
   CMICCAND:
+    missing: []
+    # declared 2026-11-23 from the tabulation's own definition: an I (incremento) line is a count the tabulator sums, so each record adds a recorded count (a zero is a recorded zero) and no code stands for not recorded (unit_evidence)
     role: exam.candida_seen
     kind: number
     unit: "count"
@@ -243,6 +273,8 @@ columns:
     - 2006
     - 2015
   CMICCHLA:
+    missing: []
+    # declared 2026-11-23 from the tabulation's own definition: an I (incremento) line is a count the tabulator sums, so each record adds a recorded count (a zero is a recorded zero) and no code stands for not recorded (unit_evidence)
     role: exam.suggestive_of_chlamydia
     kind: number
     unit: "count"
@@ -256,6 +288,8 @@ columns:
     - 2006
     - 2015
   CMICCOCO:
+    missing: []
+    # declared 2026-11-23 from the tabulation's own definition: an I (incremento) line is a count the tabulator sums, so each record adds a recorded count (a zero is a recorded zero) and no code stands for not recorded (unit_evidence)
     role: exam.cocci_seen
     kind: number
     unit: "count"
@@ -269,6 +303,8 @@ columns:
     - 2006
     - 2015
   CMICGARD:
+    missing: []
+    # declared 2026-11-23 from the tabulation's own definition: an I (incremento) line is a count the tabulator sums, so each record adds a recorded count (a zero is a recorded zero) and no code stands for not recorded (unit_evidence)
     role: exam.supracytoplasmic_bacilli_gardnerella_mobiluncus_seen
     kind: number
     unit: "count"
@@ -282,6 +318,8 @@ columns:
     - 2006
     - 2015
   CMICHERP:
+    missing: []
+    # declared 2026-11-23 from the tabulation's own definition: an I (incremento) line is a count the tabulator sums, so each record adds a recorded count (a zero is a recorded zero) and no code stands for not recorded (unit_evidence)
     role: exam.herpes_cytopathic_effect_seen
     kind: number
     unit: "count"
@@ -295,6 +333,8 @@ columns:
     - 2006
     - 2015
   CMICLACT:
+    missing: []
+    # declared 2026-11-23 from the tabulation's own definition: an I (incremento) line is a count the tabulator sums, so each record adds a recorded count (a zero is a recorded zero) and no code stands for not recorded (unit_evidence)
     role: exam.lactobacilli_seen
     kind: number
     unit: "count"
@@ -308,6 +348,8 @@ columns:
     - 2006
     - 2015
   CMICOUT:
+    missing: []
+    # declared 2026-11-23 from the tabulation's own definition: an I (incremento) line is a count the tabulator sums, so each record adds a recorded count (a zero is a recorded zero) and no code stands for not recorded (unit_evidence)
     role: exam.other_organism_seen
     kind: number
     unit: "count"
@@ -321,6 +363,8 @@ columns:
     - 2006
     - 2015
   CMICTRICO:
+    missing: []
+    # declared 2026-11-23 from the tabulation's own definition: an I (incremento) line is a count the tabulator sums, so each record adds a recorded count (a zero is a recorded zero) and no code stands for not recorded (unit_evidence)
     role: exam.trichomonas_seen
     kind: number
     unit: "count"
@@ -500,6 +544,8 @@ columns:
     - 2006
     - 2015
   CO_EPI_MET:
+    missing: []
+    # declared 2026-11-23 from the tabulation's own definition: an I (incremento) line is a count the tabulator sums, so each record adds a recorded count (a zero is a recorded zero) and no code stands for not recorded (unit_evidence)
     role: exam.metaplastic_epithelium_present
     kind: number
     unit: "count"
@@ -527,6 +573,8 @@ columns:
     codelists:
     - FETARIA
   CO_INSA_AC:
+    missing: []
+    # declared 2026-11-23 from the tabulation's own definition: an I (incremento) line is a count the tabulator sums, so each record adds a recorded count (a zero is a recorded zero) and no code stands for not recorded (unit_evidence)
     role: exam.unsatisfactory_acellular_hypocellular_material
     kind: number
     unit: "count"
@@ -540,6 +588,8 @@ columns:
     - 2006
     - 2015
   CO_INSA_AR:
+    missing: []
+    # declared 2026-11-23 from the tabulation's own definition: an I (incremento) line is a count the tabulator sums, so each record adds a recorded count (a zero is a recorded zero) and no code stands for not recorded (unit_evidence)
     role: exam.unsatisfactory_drying_artifact
     kind: number
     unit: "count"
@@ -553,6 +603,8 @@ columns:
     - 2006
     - 2015
   CO_INSA_CO:
+    missing: []
+    # declared 2026-11-23 from the tabulation's own definition: an I (incremento) line is a count the tabulator sums, so each record adds a recorded count (a zero is a recorded zero) and no code stands for not recorded (unit_evidence)
     role: exam.unsatisfactory_external_contaminants
     kind: number
     unit: "count"
@@ -566,6 +618,8 @@ columns:
     - 2006
     - 2015
   CO_INSA_OU:
+    missing: []
+    # declared 2026-11-23 from the tabulation's own definition: an I (incremento) line is a count the tabulator sums, so each record adds a recorded count (a zero is a recorded zero) and no code stands for not recorded (unit_evidence)
     role: exam.unsatisfactory_other_reason
     kind: number
     unit: "count"
@@ -579,6 +633,8 @@ columns:
     - 2006
     - 2015
   CO_INSA_PI:
+    missing: []
+    # declared 2026-11-23 from the tabulation's own definition: an I (incremento) line is a count the tabulator sums, so each record adds a recorded count (a zero is a recorded zero) and no code stands for not recorded (unit_evidence)
     role: exam.unsatisfactory_pus_cells_present
     kind: number
     unit: "count"
@@ -592,6 +648,8 @@ columns:
     - 2006
     - 2015
   CO_INSA_SA:
+    missing: []
+    # declared 2026-11-23 from the tabulation's own definition: an I (incremento) line is a count the tabulator sums, so each record adds a recorded count (a zero is a recorded zero) and no code stands for not recorded (unit_evidence)
     role: exam.unsatisfactory_blood_present
     kind: number
     unit: "count"
@@ -605,6 +663,8 @@ columns:
     - 2006
     - 2015
   CO_INSA_SU:
+    missing: []
+    # declared 2026-11-23 from the tabulation's own definition: an I (incremento) line is a count the tabulator sums, so each record adds a recorded count (a zero is a recorded zero) and no code stands for not recorded (unit_evidence)
     role: exam.unsatisfactory_cell_overlap
     kind: number
     unit: "count"
@@ -856,6 +916,8 @@ columns:
     - 2006
     - 2015
   C_EPI_ESCA:
+    missing: []
+    # declared 2026-11-23 from the tabulation's own definition: an I (incremento) line is a count the tabulator sums, so each record adds a recorded count (a zero is a recorded zero) and no code stands for not recorded (unit_evidence)
     role: exam.squamous_epithelium_present_in_sample
     kind: number
     unit: "count"
@@ -869,6 +931,8 @@ columns:
     - 2006
     - 2015
   C_EPI_GLAN:
+    missing: []
+    # declared 2026-11-23 from the tabulation's own definition: an I (incremento) line is a count the tabulator sums, so each record adds a recorded count (a zero is a recorded zero) and no code stands for not recorded (unit_evidence)
     role: exam.glandular_epithelium_present_in_sample
     kind: number
     unit: "count"
@@ -882,6 +946,8 @@ columns:
     - 2006
     - 2015
   DENCARCINV:
+    missing: []
+    # declared 2026-11-23 from the tabulation's own definition: an I (incremento) line is a count the tabulator sums, so each record adds a recorded count (a zero is a recorded zero) and no code stands for not recorded (unit_evidence)
     role: exam.invasive_squamous_carcinoma_flag_cytology
     kind: number
     unit: "count"
@@ -968,6 +1034,8 @@ columns:
     - 2006
     - 2015
   LAGRAU:
+    missing: []
+    # declared 2026-11-23 from the tabulation's own definition: an I (incremento) line is a count the tabulator sums, so each record adds a recorded count (a zero is a recorded zero) and no code stands for not recorded (unit_evidence)
     role: exam.high_grade_squamous_lesion_family_flag
     kind: number
     unit: "count"
@@ -991,6 +1059,8 @@ columns:
     - 2006
     - 2015
   LBGRAU:
+    missing: []
+    # declared 2026-11-23 from the tabulation's own definition: an I (incremento) line is a count the tabulator sums, so each record adds a recorded count (a zero is a recorded zero) and no code stands for not recorded (unit_evidence)
     role: exam.low_grade_squamous_intraepithelial_lesion_lsil_flag
     kind: number
     unit: "count"
@@ -1004,6 +1074,8 @@ columns:
     - 2006
     - 2015
   LESALTGRA:
+    missing: []
+    # declared 2026-11-23 from the tabulation's own definition: an I (incremento) line is a count the tabulator sums, so each record adds a recorded count (a zero is a recorded zero) and no code stands for not recorded (unit_evidence)
     role: exam.atypical_squamous_cells_cannot_exclude_high_grade_lesion_asc
     kind: number
     unit: "count"
@@ -1027,6 +1099,8 @@ columns:
     - 2006
     - 2015
   NALTGRA:
+    missing: []
+    # declared 2026-11-23 from the tabulation's own definition: an I (incremento) line is a count the tabulator sums, so each record adds a recorded count (a zero is a recorded zero) and no code stands for not recorded (unit_evidence)
     role: exam.atypical_cells_of_undefined_origin_cannot_exclude_high_grade
     kind: number
     unit: "count"
@@ -1040,6 +1114,8 @@ columns:
     - 2006
     - 2015
   NLSALTGRA:
+    missing: []
+    # declared 2026-11-23 from the tabulation's own definition: an I (incremento) line is a count the tabulator sums, so each record adds a recorded count (a zero is a recorded zero) and no code stands for not recorded (unit_evidence)
     role: exam.atypical_glandular_cells_cannot_exclude_high_grade_lesion
     kind: number
     unit: "count"
@@ -1053,6 +1129,8 @@ columns:
     - 2006
     - 2015
   OUTNEO:
+    missing: []
+    # declared 2026-11-23 from the tabulation's own definition: an I (incremento) line is a count the tabulator sums, so each record adds a recorded count (a zero is a recorded zero) and no code stands for not recorded (unit_evidence)
     role: exam.other_malignant_neoplasm_flag_cytology_alternate_encoding
     kind: number
     unit: "count"
@@ -1066,6 +1144,8 @@ columns:
     - 2006
     - 2015
   POSNAONEO:
+    missing: []
+    # declared 2026-11-23 from the tabulation's own definition: an I (incremento) line is a count the tabulator sums, so each record adds a recorded count (a zero is a recorded zero) and no code stands for not recorded (unit_evidence)
     role: exam.atypical_squamous_cells_possibly_non_neoplastic_asc_us
     kind: number
     unit: "count"
@@ -1079,6 +1159,8 @@ columns:
     - 2006
     - 2015
   PSNAONPLA:
+    missing: []
+    # declared 2026-11-23 from the tabulation's own definition: an I (incremento) line is a count the tabulator sums, so each record adds a recorded count (a zero is a recorded zero) and no code stands for not recorded (unit_evidence)
     role: exam.atypical_glandular_cells_possibly_non_neoplastic
     kind: number
     unit: "count"
@@ -1092,6 +1174,8 @@ columns:
     - 2006
     - 2015
   PSNNPLA:
+    missing: []
+    # declared 2026-11-23 from the tabulation's own definition: an I (incremento) line is a count the tabulator sums, so each record adds a recorded count (a zero is a recorded zero) and no code stands for not recorded (unit_evidence)
     role: exam.atypical_cells_of_undefined_origin_possibly_non_neoplastic
     kind: number
     unit: "count"
@@ -1164,6 +1248,8 @@ columns:
     - 2006
     - 2015
   REJEITADA:
+    missing: []
+    # declared 2026-11-23 from the tabulation's own definition: an I (incremento) line is a count the tabulator sums, so each record adds a recorded count (a zero is a recorded zero) and no code stands for not recorded (unit_evidence)
     role: exam.rejected_sample_flag_cytology
     kind: number
     unit: "count"
@@ -1187,6 +1273,8 @@ columns:
     - 2006
     - 2015
   RESNORM:
+    missing: []
+    # declared 2026-11-23 from the tabulation's own definition: an I (incremento) line is a count the tabulator sums, so each record adds a recorded count (a zero is a recorded zero) and no code stands for not recorded (unit_evidence)
     role: exam.normal_benign_result_flag
     kind: number
     unit: "count"

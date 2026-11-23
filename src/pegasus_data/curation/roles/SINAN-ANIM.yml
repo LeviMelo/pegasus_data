@@ -733,7 +733,8 @@ columns:
     - 2007
     - 2026
   NU_AMPOLAS:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: []
+    # measured 2026 (327095 rows, 14663 filled): range [0, 66], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: treatment.ampoules_antibothropic
     kind: number
     model: mark
@@ -744,7 +745,8 @@ columns:
     - 2007
     - 2026
   NU_AMPOL_1:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: []
+    # measured 2026 (327095 rows, 2782 filled): range [0, 51], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: treatment.ampoules_anticrotalic
     kind: number
     model: mark
@@ -766,7 +768,8 @@ columns:
     - 2007
     - 2026
   NU_AMPOL_4:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: []
+    # measured 2026 (327095 rows, 1746 filled): range [0, 20], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: treatment.ampoules_antielapidic
     kind: number
     model: mark
@@ -777,7 +780,8 @@ columns:
     - 2007
     - 2026
   NU_AMPOL_6:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: []
+    # measured 2026 (327095 rows, 2533 filled): range [0, 22], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: treatment.ampoules_antibothropic_lachetic
     kind: number
     model: mark
@@ -788,7 +792,8 @@ columns:
     - 2007
     - 2026
   NU_AMPOL_8:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: []
+    # measured 2026 (327095 rows, 3672 filled): range [0, 22], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: treatment.ampoules_antiarachnidic
     kind: number
     model: mark

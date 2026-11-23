@@ -1851,7 +1851,8 @@ columns:
     - 2007
     - 2026
   MICRO1_T_1:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: []
+    # measured 2026 (14848 rows, 974 filled): range [0, 8000], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: case.mat_sample1_titer_1
     kind: number
     model: mark
@@ -1862,7 +1863,8 @@ columns:
     - 2007
     - 2026
   MICRO1_T_2:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: []
+    # measured 2026 (14848 rows, 639 filled): range [0, 51200], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: case.mat_sample1_titer_2
     kind: number
     model: mark
@@ -1895,7 +1897,8 @@ columns:
     - 2007
     - 2026
   MICRO2_T_1:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: []
+    # measured 2026 (14848 rows, 319 filled): range [0, 6400], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: case.mat_sample2_titer_1
     kind: number
     model: mark
@@ -1906,7 +1909,8 @@ columns:
     - 2007
     - 2026
   MICRO2_T_2:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: []
+    # measured 2026 (14848 rows, 252 filled): range [0, 6400], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: case.mat_sample2_titer_2
     kind: number
     model: mark

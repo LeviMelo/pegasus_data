@@ -941,7 +941,8 @@ columns:
     - 2007
     - 2026
   MED_QUAN_M:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: []
+    # measured 2026 (27 rows, 2 filled): range [7, 11], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: case.contacts_sampled_count
     kind: number
     model: mark
@@ -952,7 +953,8 @@ columns:
     - 2007
     - 2026
   MED_QUAN_P:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: []
+    # measured 2026 (27 rows, 2 filled): range [0, 0], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: case.contacts_carriers_count
     kind: number
     model: mark

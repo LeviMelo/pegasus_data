@@ -53,6 +53,7 @@ columns:
     codelists:
     - FXET
   IMUNO:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2019)'
     role: vaccination.vaccine
     kind: category
     model: dimension
@@ -81,6 +82,8 @@ columns:
     note: The variable note says the municipality of application; the open-data republication names the same 
       file ..._RESIDENCIA (residence). Both claims recorded; not resolved.
   POP:
+    missing: []
+    # measured 2019 (401 rows, 384 filled): range [66, 79855], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: vaccination.target_population
     kind: number
     model: mark
@@ -92,6 +95,8 @@ columns:
     - 2019
     note: The coverage's denominator, as published.
   QT_DOSE:
+    missing: []
+    # measured 2019 (401 rows, 401 filled): range [1, 35312], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: vaccination.doses
     kind: number
     model: mark

@@ -22,6 +22,7 @@ columns:
     - 1991
     - 2010
   IDADE:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2010)'
     role: population.age_band
     kind: category
     model: dimension
@@ -46,6 +47,8 @@ columns:
     - 1991
     - 2010
   POPDEPEND:
+    missing: []
+    # measured 2010 (33382 rows, 33382 filled): range [0, 55595], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: population.dependent_age
     kind: number
     model: mark
@@ -56,6 +59,8 @@ columns:
     - 1991
     - 2010
   POPTOT:
+    missing: []
+    # measured 2010 (33382 rows, 33382 filled): range [1, 416379], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: population.total
     kind: number
     model: mark

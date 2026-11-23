@@ -50,6 +50,7 @@ columns:
     - 2012
     - 2014
   CO_PAIS:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2014)'
     role: pregnancy.country_nationality_code
     kind: category
     model: mark
@@ -74,6 +75,7 @@ columns:
     codelists:
     - RACA_COR
   CO_STF_GP:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2014)'
     role: pregnancy.household_family_living_situation_grouped
     kind: category
     model: mark
@@ -111,6 +113,7 @@ columns:
     - 2012
     - 2014
   DS_ZONA:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2014)'
     role: pregnancy.residential_zone
     kind: category
     model: mark
@@ -224,6 +227,8 @@ columns:
     - 2014
     note: A direct personal identifier, passed through unchanged.
   QT_AB_ECT:
+    missing: []
+    # measured 2014 (35 rows, 35 filled): range [0, 0], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: pregnancy.ectopic_pregnancy_count_obstetric_history
     kind: number
     model: mark
@@ -234,6 +239,8 @@ columns:
     - 2012
     - 2014
   QT_AB_GER:
+    missing: []
+    # measured 2014 (35 rows, 35 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: pregnancy.abortion_count_general_other
     kind: number
     model: mark
@@ -244,6 +251,8 @@ columns:
     - 2012
     - 2014
   QT_AB_MOL:
+    missing: []
+    # measured 2014 (35 rows, 35 filled): range [0, 0], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: pregnancy.molar_pregnancy_count_obstetric_history
     kind: number
     model: mark
@@ -254,6 +263,8 @@ columns:
     - 2012
     - 2014
   QT_CONS:
+    missing: []
+    # measured 2014 (35 rows, 35 filled): range [1, 2], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: pregnancy.consultation_count_summable
     kind: number
     model: mark
@@ -297,6 +308,8 @@ columns:
     - 2012
     - 2014
   QT_NSC_MOR:
+    missing: []
+    # measured 2014 (35 rows, 35 filled): range [0, 0], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: pregnancy.stillbirth_count_obstetric_history
     kind: number
     model: mark
@@ -307,6 +320,8 @@ columns:
     - 2012
     - 2014
   QT_NSC_VIV:
+    missing: []
+    # measured 2014 (35 rows, 35 filled): range [0, 5], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: pregnancy.live_birth_count_obstetric_history
     kind: number
     model: mark
@@ -317,6 +332,8 @@ columns:
     - 2012
     - 2014
   QT_PRT_CIR:
+    missing: []
+    # measured 2014 (35 rows, 35 filled): range [0, 2], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: pregnancy.surgical_cesarean_delivery_count
     kind: number
     model: mark
@@ -327,6 +344,8 @@ columns:
     - 2012
     - 2014
   QT_PRT_FOR:
+    missing: []
+    # measured 2014 (35 rows, 35 filled): range [0, 0], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: pregnancy.forceps_delivery_count
     kind: number
     model: mark
@@ -337,6 +356,8 @@ columns:
     - 2012
     - 2014
   QT_PRT_VAG:
+    missing: []
+    # measured 2014 (35 rows, 35 filled): range [0, 5], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: pregnancy.vaginal_delivery_count
     kind: number
     model: mark
@@ -347,6 +368,8 @@ columns:
     - 2012
     - 2014
   ST_AUX_DSL:
+    missing: []
+    # declared from DATASUS's own sources (2014): no form dictionary; the table names every code the records use, each with its own label (N='não'): a code table, not a catch-all; no value labelled as not recorded
     role: pregnancy.needs_transportation_assistance_flag
     kind: category
     model: mark
@@ -357,6 +380,7 @@ columns:
     - 2012
     - 2014
   ST_GESTAC:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2014)'
     role: pregnancy.pregnancy_case_status
     kind: category
     model: mark
@@ -367,6 +391,8 @@ columns:
     - 2012
     - 2014
   ST_GRA_ANT:
+    missing: []
+    # declared from DATASUS's own sources (2014): no form dictionary; the table names every code the records use, each with its own label (N='não'): a code table, not a catch-all; no value labelled as not recorded
     role: pregnancy.previous_pregnancy_ended_under_a_year_ago_flag
     kind: category
     model: mark
@@ -377,6 +403,8 @@ columns:
     - 2012
     - 2014
   ST_GRA_PLA:
+    missing: []
+    # declared from DATASUS's own sources (2014): no form dictionary; the table names every code the records use, each with its own label (N='não', S='sim'): a code table, not a catch-all; no value labelled as not recorded
     role: pregnancy.planned_pregnancy_flag
     kind: category
     model: mark

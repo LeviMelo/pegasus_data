@@ -512,7 +512,8 @@ columns:
     - 2026
     note: role from the notification block
   NU_TRAB:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: []
+    # measured 2026 (486782 rows, 475667 filled): range [0, 300], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: case.other_workers_count
     kind: number
     model: mark

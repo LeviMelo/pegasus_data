@@ -39,6 +39,7 @@ columns:
       fits a birth year, so model is provisional. Not printed by the form's dictionary; meaning read from the variable
       note, kind from the values."
   ANT_ARAGEM:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2004)'
     role: notification.exposure_plowing_tilling_soil
     kind: category
     model: mark
@@ -51,6 +52,7 @@ columns:
     note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
       TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   ANT_ARRUMO:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2004)'
     role: notification.cleaned_tidied_an_enclosed_space_antecedent
     kind: category
     model: mark
@@ -63,6 +65,7 @@ columns:
     note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
       TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   ANT_COLHEI:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2004)'
     role: notification.harvesting_activity_in_the_last_30_days_flag
     kind: category
     model: mark
@@ -75,6 +78,7 @@ columns:
     note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
       TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   ANT_CONTAT:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (0=''Ign/Branco'', 9=''Ign/Branco''; 2004)'
     role: notification.exposure_contact_legacy
     kind: category
     model: mark
@@ -91,6 +95,7 @@ columns:
       published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN, TAB_SINANNET, the web). Meaning read from the variable
       note (the name); kind from the values; codes undecoded.'
   ANT_CORTE:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2004)'
     role: notification.history_of_brush_cutting_activity
     kind: category
     model: mark
@@ -103,6 +108,7 @@ columns:
     note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
       TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   ANT_DESMAT:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2004)'
     role: notification.exposure_clearing_forest_brush
     kind: category
     model: mark
@@ -125,6 +131,7 @@ columns:
     - 1999
     - 2006
   ANT_EXPOSI:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2004)'
     role: notification.risk_area_exposure_antecedent
     kind: category
     model: mark
@@ -137,6 +144,7 @@ columns:
     note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
       TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   ANT_LAZER:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2004)'
     role: notification.recreational_activity_in_risk_area_flag
     kind: category
     model: mark
@@ -149,6 +157,7 @@ columns:
     note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
       TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   ANT_LIMPEZ:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2004)'
     role: notification.history_of_cleaning_an_enclosed_structure
     kind: category
     model: mark
@@ -161,6 +170,7 @@ columns:
     note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
       TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   ANT_MOAGEM:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2004)'
     role: notification.exposure_grain_milling_threshing
     kind: category
     model: mark
@@ -173,6 +183,7 @@ columns:
     note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
       TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   ANT_OCUPAC:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2004)'
     role: notification.occupational_exposure_code_legacy
     kind: category
     model: mark
@@ -186,6 +197,7 @@ columns:
       SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN, TAB_SINANNET,
       the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   ANT_PLANTI:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2004)'
     role: notification.farming_planting_activity_antecedent
     kind: category
     model: mark
@@ -198,6 +210,7 @@ columns:
     note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
       TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   ANT_ROEDOR:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2004)'
     role: notification.rodent_contact_in_the_last_30_days_flag
     kind: category
     model: mark
@@ -241,6 +254,7 @@ columns:
     - 1999
     - 2026
   CLI_ANGUST:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2004)'
     role: notification.respiratory_distress
     kind: category
     model: mark
@@ -358,6 +372,7 @@ columns:
     - 1999
     - 2026
   CLI_GARGAN:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2004)'
     role: notification.sore_throat_clinical_sign
     kind: category
     model: mark
@@ -370,6 +385,7 @@ columns:
     note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
       TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   CLI_H:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2004)'
     role: notification.clinical_sign_h_coded
     kind: category
     model: mark
@@ -426,6 +442,7 @@ columns:
     - 2007
     - 2026
   CLI_MIALGI:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (0=''Ign/Branco'', 9=''Ign/Branco''; 2004)'
     role: notification.myalgia
     kind: category
     model: mark
@@ -549,6 +566,7 @@ columns:
     - 2007
     - 2026
   CLI_RINORR:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2004)'
     role: notification.runny_nose_rhinorrhea_clinical_sign
     kind: category
     model: mark
@@ -684,6 +702,7 @@ columns:
     - 2007
     - 2026
   CON_AREA:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (0=''Ign/Branco'', 4=''Ign/Branco'', 9=''Ign/Branco''; 2004)'
     role: notification.probable_infection_area
     kind: category
     model: mark
@@ -710,6 +729,7 @@ columns:
     - 1999
     - 2026
   CON_CRITER:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2004)'
     role: notification.confirmation_criterion
     kind: category
     model: mark
@@ -722,6 +742,7 @@ columns:
     note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
       TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   CON_DIAGNO:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2004)'
     role: notification.diagnostic_confirmation_criterion
     kind: category
     model: mark
@@ -734,6 +755,7 @@ columns:
     note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
       TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   CON_DIAG_D:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2004)'
     role: notification.diagnosis_confirmation_flag_truncated_field_name
     kind: category
     model: mark
@@ -744,6 +766,7 @@ columns:
     note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
       TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   CON_DOENCA:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2004)'
     role: notification.final_diagnosed_disease_legacy
     kind: category
     model: mark
@@ -776,6 +799,7 @@ columns:
     - 1999
     - 2006
   CON_EVOLUC:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2004)'
     role: case.outcome
     kind: category
     model: mark
@@ -798,6 +822,7 @@ columns:
     - 2007
     - 2026
   CON_INF_PA:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2004)'
     role: notification.infection_country_legacy
     kind: category
     model: mark
@@ -823,7 +848,8 @@ columns:
     - 2007
     - 2026
   CON_LOCALI:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: []
+    # measured 2026 (308 rows, 3 filled): range [2, 20], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: case.infection_site_distance_km
     kind: number
     model: mark
@@ -885,6 +911,7 @@ columns:
     - 2007
     - 2026
   CS_ESCOLAR:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2004)'
     role: patient.education
     kind: category
     model: dimension
@@ -1214,6 +1241,7 @@ columns:
     - 2026
     note: role from the notification block
   ID_DG_NOT:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2004)'
     role: notification.notification_record_control_code
     kind: category
     model: mark
@@ -1226,6 +1254,7 @@ columns:
     note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
       TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   ID_EV_NOT:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2004)'
     role: notification.notification_record_control_code_evolution_block
     kind: category
     model: mark
@@ -1381,6 +1410,7 @@ columns:
     - 1999
     - 2026
   LAB_BILATE:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2004)'
     role: notification.bilateral_pulmonary_infiltrates_flag
     kind: category
     model: mark
@@ -1428,6 +1458,7 @@ columns:
     - 2007
     - 2026
   LAB_HEMATO:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2004)'
     role: notification.hematocrit_result_category
     kind: category
     model: mark
@@ -1452,6 +1483,7 @@ columns:
     - 2007
     - 2026
   LAB_HISTOP:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (0=''Ign/Branco'', 9=''Ign/Branco''; 2004)'
     role: notification.histopathology
     kind: category
     model: mark
@@ -1464,6 +1496,7 @@ columns:
     note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
       TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   LAB_IGG:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2004)'
     role: notification.igg_serology_result_lab_igg
     kind: category
     model: mark
@@ -1476,6 +1509,7 @@ columns:
     note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
       TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   LAB_IGG_R:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2004)'
     role: notification.igg_serology_result_lab_igg_r
     kind: category
     model: mark
@@ -1488,6 +1522,7 @@ columns:
     note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
       TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   LAB_IGM:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2004)'
     role: notification.igm_serology_result
     kind: category
     model: mark
@@ -1524,6 +1559,7 @@ columns:
     - 2007
     - 2026
   LAB_LEUC_N:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2004)'
     role: notification.leukocyte_count_result_category
     kind: category
     model: mark
@@ -1548,6 +1584,7 @@ columns:
     - 2007
     - 2026
   LAB_L_C_DE:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2004)'
     role: notification.supplementary_laboratory_test_result
     kind: category
     model: mark
@@ -1572,6 +1609,7 @@ columns:
     note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
       TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   LAB_L_S_DE:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2004)'
     role: notification.leukocytosis_with_left_shift_flag
     kind: category
     model: mark
@@ -1584,6 +1622,7 @@ columns:
     note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
       TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   LAB_MICRON:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2004)'
     role: notification.microscopic_lab_finding
     kind: category
     model: mark
@@ -1596,6 +1635,7 @@ columns:
     note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
       TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   LAB_OUTRO:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2004)'
     role: notification.other_laboratory_test_result
     kind: category
     model: mark
@@ -1618,6 +1658,7 @@ columns:
     note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
       TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   LAB_OUT_E:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2004)'
     role: notification.other_lab_exam_performed_flag
     kind: category
     model: mark
@@ -1642,6 +1683,7 @@ columns:
     - 2007
     - 2026
   LAB_REALIZ:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2004)'
     role: notification.laboratory_exam_performed_flag
     kind: category
     model: mark

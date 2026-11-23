@@ -25,7 +25,8 @@ columns:
     - 2007
     - 2026
   ANT_DOSES:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: []
+    # measured 2026 (275 rows, 165 filled): range [1, 10], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: case.number_of_polio_doses_received
     kind: number
     model: mark
@@ -1579,7 +1580,8 @@ columns:
     - 2007
     - 2026
   LAB_L_CEL1:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: []
+    # measured 2026 (275 rows, 81 filled): range [0, 1608], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: case.csf_cell_count_first_sample
     kind: number
     model: mark
@@ -1590,7 +1592,8 @@ columns:
     - 2007
     - 2026
   LAB_L_CEL2:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: []
+    # measured 2026 (275 rows, 9 filled): range [3, 480], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: case.csf_cell_count_second_sample
     kind: number
     model: mark
@@ -1601,7 +1604,8 @@ columns:
     - 2007
     - 2026
   LAB_L_CL1:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: []
+    # measured 2026 (275 rows, 52 filled): range [0, 12100], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: case.csf_chloride_first_sample
     kind: number
     model: mark
@@ -1612,7 +1616,8 @@ columns:
     - 2007
     - 2026
   LAB_L_CL2:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: []
+    # measured 2026 (275 rows, 6 filled): range [0, 150], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: case.csf_chloride_second_sample
     kind: number
     model: mark
@@ -1623,7 +1628,8 @@ columns:
     - 2007
     - 2026
   LAB_L_GLI1:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: []
+    # measured 2026 (275 rows, 103 filled): range [10, 6463], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: case.csf_glucose_first_sample
     kind: number
     model: mark
@@ -1634,7 +1640,8 @@ columns:
     - 2007
     - 2026
   LAB_L_GLI2:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: []
+    # measured 2026 (275 rows, 11 filled): range [10, 76], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: case.csf_glucose_second_sample
     kind: number
     model: mark
@@ -1645,7 +1652,8 @@ columns:
     - 2007
     - 2026
   LAB_L_LIN1:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: []
+    # measured 2026 (275 rows, 56 filled): range [0, 233], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: case.csf_lymphocytes_first_sample
     kind: number
     model: mark
@@ -1656,7 +1664,8 @@ columns:
     - 2007
     - 2026
   LAB_L_LIN2:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: []
+    # measured 2026 (275 rows, 9 filled): range [0, 82], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: case.csf_lymphocytes_second_sample
     kind: number
     model: mark
@@ -1667,7 +1676,8 @@ columns:
     - 2007
     - 2026
   LAB_L_PRO1:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: []
+    # measured 2026 (275 rows, 108 filled): range [10, 17474], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: case.csf_protein_first_sample
     kind: number
     model: mark
@@ -1678,7 +1688,8 @@ columns:
     - 2007
     - 2026
   LAB_L_PRO2:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: []
+    # measured 2026 (275 rows, 11 filled): range [12, 545], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: case.csf_protein_second_sample
     kind: number
     model: mark

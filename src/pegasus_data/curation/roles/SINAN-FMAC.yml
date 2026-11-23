@@ -1130,7 +1130,8 @@ columns:
     - 2026
     note: role from the notification block
   TIT_IGG_S1:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: []
+    # measured 2026 (3131 rows, 2024 filled): range [0, 1256], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: case.igg_titre_1
     kind: number
     model: mark
@@ -1143,7 +1144,8 @@ columns:
     note: 'Titres with 0 (most records) and entry errors (-64, 164) beside true dilutions: a measurement whose missing
       codes are not yet declared.'
   TIT_IGG_S2:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: []
+    # measured 2026 (3131 rows, 2024 filled): range [0, 1512], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: case.igg_titre_2
     kind: number
     model: mark
@@ -1154,7 +1156,8 @@ columns:
     - 2007
     - 2026
   TIT_IGM_S1:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: []
+    # measured 2026 (3131 rows, 2125 filled): range [0, 164], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: case.igm_titre_1
     kind: number
     model: mark
@@ -1166,7 +1169,8 @@ columns:
     - 2026
     note: The form types it text(5); the values are titres like its three siblings.
   TIT_IGM_S2:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: []
+    # measured 2026 (3131 rows, 2126 filled): range [0, 512], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: case.igm_titre_2
     kind: number
     model: mark

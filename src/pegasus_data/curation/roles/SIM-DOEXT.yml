@@ -1170,6 +1170,7 @@ columns:
     - 2026
     note: role from SIM-DO
   NUMEROLOTE:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: death.batch_number
     kind: number
     model: excluded

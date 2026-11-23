@@ -298,6 +298,7 @@ columns:
     - 2026
     note: role from SIASUS-AN
   AP_COIDADE:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2026)'
     role: patient.age_unit
     kind: category
     model: mark
@@ -631,6 +632,7 @@ columns:
     - 2026
     note: role from SIASUS-AN
   AP_TPATEN:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2026)'
     role: authorisation.care_type
     kind: category
     model: mark
@@ -703,6 +705,8 @@ columns:
     - 2026
     note: role from SIASUS-AN
   AP_UFNACIO:
+    missing: []
+    # declared from DATASUS's own sources (2026): no form dictionary; the table names every code the records use, each with its own label (010='brasil'): a code table, not a catch-all; no value labelled as not recorded
     role: patient.nationality
     kind: category
     model: dimension
@@ -731,6 +735,8 @@ columns:
     - 2026
     note: role from SIASUS-AN
   AP_VL_AP:
+    missing: []
+    # measured 2026 (10 rows, 10 filled): range [859.2, 859.2], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: authorisation.approved_value
     kind: number
     model: mark

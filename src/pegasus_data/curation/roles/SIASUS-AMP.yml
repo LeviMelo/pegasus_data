@@ -2,6 +2,7 @@ dataset: SIASUS-AMP
 record: procedure
 columns:
   AMP_ACEVAS:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2026)'
     role: authorisation.vascular_access_type
     kind: category
     model: mark
@@ -25,6 +26,7 @@ columns:
     - 2016
     - 2026
   AMP_CARACT:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2026)'
     role: authorisation.case_characteristic
     kind: category
     model: mark
@@ -53,6 +55,7 @@ columns:
     - 2016
     - 2026
   AMP_FOSFOR:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2026)'
     role: authorisation.serum_phosphorus
     kind: category
     model: mark
@@ -63,6 +66,7 @@ columns:
     - 2016
     - 2026
   AMP_HB:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2026)'
     role: authorisation.hemoglobin
     kind: category
     model: mark
@@ -73,6 +77,7 @@ columns:
     - 2016
     - 2026
   AMP_HBSAG:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2026)'
     role: authorisation.hepatitis_b_surface_antigen_result
     kind: category
     model: mark
@@ -84,6 +89,7 @@ columns:
     - 2026
     note: Empty in every file read; kind from its variable note.
   AMP_HCV:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2026)'
     role: authorisation.hepatitis_c_antibody_result
     kind: category
     model: mark
@@ -95,6 +101,7 @@ columns:
     - 2026
     note: Empty in every file read; kind from its variable note.
   AMP_HIV:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2026)'
     role: authorisation.hiv_antibody_result
     kind: category
     model: mark
@@ -106,6 +113,7 @@ columns:
     - 2026
     note: Empty in every file read; kind from its variable note.
   AMP_INTERC:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2026)'
     role: authorisation.clinical_complication_flag
     kind: category
     model: mark
@@ -152,6 +160,7 @@ columns:
     - 2016
     - 2026
   AMP_SEAPTO:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2026)'
     role: authorisation.transplant_eligibility_status_detail
     kind: category
     model: mark
@@ -162,6 +171,7 @@ columns:
     - 2016
     - 2026
   AMP_SEPERI:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2026)'
     role: authorisation.peritonitis_occurrence_flag
     kind: category
     model: mark
@@ -172,6 +182,7 @@ columns:
     - 2016
     - 2026
   AMP_SITINI:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2026)'
     role: authorisation.status_at_admission
     kind: category
     model: mark
@@ -182,6 +193,7 @@ columns:
     - 2016
     - 2026
   AMP_SITTRA:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2026)'
     role: authorisation.transplant_eligibility_status
     kind: category
     model: mark
@@ -378,6 +390,7 @@ columns:
     - 2026
     note: role from SIASUS-AN
   AP_COIDADE:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2026)'
     role: patient.age_unit
     kind: category
     model: mark
@@ -709,6 +722,7 @@ columns:
     - 2026
     note: role from SIASUS-AN
   AP_TPATEN:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2026)'
     role: authorisation.care_type
     kind: category
     model: mark
@@ -811,6 +825,8 @@ columns:
     - 2026
     note: role from SIASUS-AN
   AP_VL_AP:
+    missing: []
+    # measured 2026 (49 rows, 49 filled): range [61, 61], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: authorisation.approved_value
     kind: number
     model: mark

@@ -149,6 +149,7 @@ columns:
     - 2007
     - 2026
   ESFERA_A:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2026)'
     role: establishment.administrative_sphere
     kind: category
     model: mark
@@ -232,6 +233,8 @@ columns:
     codelists:
     - NIV_HIER
   NULEITOS:
+    missing: []
+    # measured 2026 (86 rows, 86 filled): range [0, 28], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: habilitation.beds
     kind: number
     model: mark
@@ -264,6 +267,7 @@ columns:
     - 2007
     - 2026
   REGSAUDE:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2026)'
     role: establishment.health_region_local
     kind: category
     model: mark
@@ -286,6 +290,7 @@ columns:
     codelists:
     - RETENCAO
   SGRUPHAB:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2026)'
     role: habilitation.group
     kind: category
     model: dimension

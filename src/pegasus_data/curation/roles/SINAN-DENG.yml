@@ -967,6 +967,8 @@ columns:
     - 2007
     - 2026
   DURACAO:
+    missing: []
+    # measured 2000 (172855 rows, 2259 filled): range [1, 15], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded
     role: case.duration_days_legacy
     kind: number
     model: mark
@@ -1283,6 +1285,8 @@ columns:
     - 2000
     - 2026
   HEMA_MAIOR:
+    missing: []
+    # measured 2000 (172855 rows, 153489 filled): range [0, 392], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded
     role: case.hematocrit_max
     kind: number
     model: mark
@@ -1294,6 +1298,8 @@ columns:
     - 2000
     - 2006
   HEMA_MENOR:
+    missing: []
+    # measured 2000 (172855 rows, 153464 filled): range [0, 100], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded
     role: case.hematocrit_min
     kind: number
     model: mark
@@ -1896,6 +1902,8 @@ columns:
     - 2000
     - 2006
   PALQ_MAIOR:
+    missing: []
+    # measured 2000 (172855 rows, 153468 filled): range [0, 980000], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded
     role: case.platelets_max
     kind: number
     model: mark
@@ -1944,7 +1952,8 @@ columns:
     - 2014
     - 2026
   PLAQ_MENOR:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: []
+    # measured 2000 (172855 rows, 153465 filled): range [0, 950000], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: case.platelets_min
     kind: number
     model: mark
@@ -2146,6 +2155,8 @@ columns:
     - 2000
     - 2006
   S1_TIT1:
+    missing: []
+    # measured 2000 (172855 rows, 5 filled): range [0, 4], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded
     role: case.serology1_titer
     kind: number
     model: mark
@@ -2179,6 +2190,8 @@ columns:
     - 2000
     - 2006
   S2_TIT1:
+    missing: []
+    # measured 2000 (172855 rows, 3 filled): range [2, 4], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded
     role: case.serology2_titer
     kind: number
     model: mark

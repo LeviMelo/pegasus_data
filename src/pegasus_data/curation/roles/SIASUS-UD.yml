@@ -502,6 +502,8 @@ columns:
     - 2001
     - 2004
   UDI_QTDMQD:
+    missing: []
+    # measured 2003 (84 rows, 84 filled): range [0, 3], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded
     role: authorisation.dialysis_machine_count_category_d
     kind: number
     model: mark
@@ -511,6 +513,8 @@ columns:
     - 2001
     - 2004
   UDI_QTDMQO:
+    missing: []
+    # measured 2003 (84 rows, 84 filled): range [0, 31], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded
     role: authorisation.dialysis_machine_count_category_o
     kind: number
     model: mark
@@ -520,6 +524,8 @@ columns:
     - 2001
     - 2004
   UDI_QTDMQP:
+    missing: []
+    # measured 2003 (84 rows, 84 filled): range [0, 57], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded
     role: authorisation.dialysis_machine_count_category_p
     kind: number
     model: mark

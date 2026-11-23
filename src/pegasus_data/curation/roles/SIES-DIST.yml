@@ -40,6 +40,8 @@ columns:
     - 2018
     - 2026
   ORIGEM:
+    missing: []
+    # declared from DATASUS's own sources (2026): no code table: the records hold the labels themselves ('Distribuido', 'Solicitado')
     role: distribution.kind
     kind: category
     model: dimension
@@ -69,6 +71,7 @@ columns:
     - 2026
     note: The dictionary types every column VARCHAR; the intake reads it as a number.
   TX_AREA:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2026)'
     role: distribution.area
     kind: category
     model: dimension
@@ -81,6 +84,7 @@ columns:
     - 2026
     note: Vacinas, soros, imunoglobulinas and insumos (dictionary).
   TX_INSUMO:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2026)'
     role: distribution.supply
     kind: category
     model: dimension

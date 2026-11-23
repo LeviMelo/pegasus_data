@@ -406,7 +406,8 @@ columns:
     - 2012
     - 2026
   PA_QTDAPR:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: []
+    # measured 2026 (502 rows, 502 filled): range [1, 10], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: care.approved_quantity
     kind: number
     model: mark
@@ -420,7 +421,8 @@ columns:
     - 2012
     - 2026
   PA_QTDPRO:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: []
+    # measured 2026 (502 rows, 502 filled): range [1, 10], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: care.submitted_presented_quantity
     kind: number
     model: mark
@@ -448,7 +450,8 @@ columns:
     codelists:
     - S_CLASSEN
   PERMANEN:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: []
+    # measured 2026 (502 rows, 259 filled): range [3, 30], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: care.time_in_attendance
     kind: number
     model: mark
@@ -460,7 +463,8 @@ columns:
     - 2012
     - 2026
   QTDATE:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: []
+    # measured 2026 (502 rows, 502 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: care.number_of_attendances
     kind: number
     model: mark
@@ -474,7 +478,8 @@ columns:
     - 2012
     - 2026
   QTDPCN:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: []
+    # measured 2026 (502 rows, 502 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: care.number_of_patients
     kind: number
     model: mark
