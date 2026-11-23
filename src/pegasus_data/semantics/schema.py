@@ -93,10 +93,7 @@ def check(path: str, data: Any) -> None:
         raise DeclarationError("\n".join(f"{path}: {p}" for p in problems))
 
 
-@lru_cache(maxsize=1)
-def fingerprint() -> str:
-    """A digest of the declared schemas (this module and the roles' key vocabulary, read as files so that nothing is
-    imported): a parsed-file cache written under another schema must be checked again."""
+def _digest() -> str:
     import hashlib
     from pathlib import Path
 
@@ -104,6 +101,26 @@ def fingerprint() -> str:
     for name in (__file__, str(Path(__file__).with_name("column_roles.py"))):
         digest.update(Path(name).read_bytes())
     return digest.hexdigest()
+
+
+#: the schemas this process imported: the files on disk can be newer (a commit while a job runs)
+LOADED = _digest()
+
+
+def fingerprint() -> str:
+    """A digest of the declared schemas this process checks with (this module and the roles' key vocabulary, as
+    imported): a parsed-file cache written under another schema must be checked again."""
+    return LOADED
+
+
+def newer_on_disk() -> bool:
+    """Whether the schema files on disk differ from the ones this process imported: curation written for a schema this
+    process does not have (a key added with its validator) is then not an error of the curation, but of the process's
+    age (`curation.read_yaml` keeps its last valid copy)."""
+    try:
+        return _digest() != LOADED
+    except OSError:
+        return False
 
 
 # --- the kinds ---------------------------------------------------------------------------------------------------

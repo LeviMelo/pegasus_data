@@ -369,8 +369,33 @@ def read_yaml(path: Path, *, shared: bool = False, missing_ok: bool = False) -> 
     if missing_ok and not path.exists():
         return {}
     stat = path.stat()
-    doc = _parsed_yaml(str(path), stat.st_mtime_ns, stat.st_size)
+    try:
+        doc = _parsed_yaml(str(path), stat.st_mtime_ns, stat.st_size)
+    except Exception as exc:
+        from . import schema
+
+        if not isinstance(exc, schema.DeclarationError) or not schema.newer_on_disk():
+            raise                    # the curation itself is wrong: refused, as ever
+        # curation written for a schema newer than this process's (a key added with its validator while a job ran):
+        # the process keeps the curation its code was written for and says so, instead of failing mid-run. Every
+        # extension of the schema had killed the running jobs (census intake keys, a PegaSUS scope, 2026-11-23).
+        kept = _LAST_VALID.get(str(path))
+        if kept is None:
+            raise schema.DeclarationError(f"{exc}; {path.name} was written for a newer schema than this process "
+                                          "imported, and the process holds no earlier copy of it: restart it") from exc
+        import warnings
+
+        warnings.warn(f"{path.name}: written for a newer schema than this process's; reading the last copy it "
+                      "validated (restart to read the new one)", stacklevel=2)
+        doc = kept
+    else:
+        _LAST_VALID[str(path)] = doc
     return doc if shared else copy.deepcopy(doc)
+
+
+#: each curation file's last version this process validated (`read_yaml`): what it reads when a newer schema's file
+#: arrives while it runs
+_LAST_VALID: dict[str, dict[str, Any]] = {}
 
 
 def declared(file: str, *path: str) -> Any:
