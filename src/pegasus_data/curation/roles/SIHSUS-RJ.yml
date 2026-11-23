@@ -25,6 +25,8 @@ columns:
     - 2026
     note: role from SIH-RD
   CBOR:
+    missing: ['000000']
+    # not recorded, sentinel sweep 2026-11-23 ('000000' sihsus_rj 2023:100.0; CBO2002: Não informado)
     role: patient.occupation
     kind: code_tree
     model: dimension
@@ -61,6 +63,8 @@ columns:
     - 2026
     note: role from SIH-RD
   CID_ASSO:
+    missing: ['0000']
+    # not recorded, sentinel sweep 2026-11-23 ('0000' sihsus_rj 2023:100.0; S_CID: CID NAO INFORMADO)
     role: admission.associated_cause
     kind: code_tree
     model: mark
@@ -75,6 +79,8 @@ columns:
     - 2026
     note: role from SIH-RD
   CID_MORTE:
+    missing: ['0000']
+    # not recorded, sentinel sweep 2026-11-23 ('0000' sihsus_rj 2023:100.0; S_CID: CID NAO INFORMADO)
     role: admission.death_cause
     kind: code_tree
     model: mark
@@ -249,6 +255,8 @@ columns:
     - 2026
     note: role from SIH-RD
   DIAG_SECUN:
+    missing: ['0000']
+    # not recorded, sentinel sweep 2026-11-23 ('0000' sihsus_rj 2023:100.0; S_CID: CID NAO INFORMADO)
     role: admission.secondary_diagnosis
     kind: code_tree
     model: mark

@@ -417,6 +417,8 @@ columns:
     - 2007
     - 2026
   ATE_MUNICI:
+    missing: [']']
+    # not recorded, sentinel sweep 2026-11-23 (']' sinan_meni 2010:0.0, 2015:0.0, 2025:0.0; not a code of BR_MUNICIPALFA)
     role: case.hospital_municipality
     kind: place
     model: where

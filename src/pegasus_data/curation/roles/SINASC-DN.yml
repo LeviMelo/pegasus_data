@@ -115,6 +115,8 @@ columns:
     - 2010
     - 2013
   CODESTAB:
+    missing: ['000000', '9999999']
+    # not recorded, sentinel sweep 2026-11-23 ('000000' sinasc_dn 1994:0.03, 2015:0.0, 2025:0.0; not a code of CADGERBR; '9999999' sinasc_dn 1994:0.0, 2015:0.0, 2025:0.0; not a code of CADGERBR)
     compare: {birth.facility: {type: facility}}
     role: birth.facility
     kind: institution

@@ -1090,6 +1090,8 @@ columns:
     - 1995
     note: Seven-digit IBGE codes (with the check digit) in the 1979-1995 layout; geography reads both widths.
   NATURAL:
+    missing: ['999', '99']
+    # not recorded, sentinel sweep 2026-11-23 ('999' sim_doext 2013:7.93, 2025:0.09; not a code of NATURALIDADE; '99' sim_doext 2013:0.17, 2025:0.0; not a code of NATURALIDADE)
     role: deceased.birth_place
     kind: place
     model: dimension

@@ -269,6 +269,8 @@ columns:
     - 2008
     - 2014
   AP_CIDCAS:
+    missing: ['0000']
+    # not recorded, sentinel sweep 2026-11-23 ('0000' siasus_an 2009:77.35, 2014:75.93; S_CID: CID NAO INFORMADO)
     role: authorisation.associated_cause
     kind: code_tree
     model: mark
@@ -296,6 +298,8 @@ columns:
     - 2008
     - 2014
   AP_CIDSEC:
+    missing: ['0000']
+    # not recorded, sentinel sweep 2026-11-23 ('0000' siasus_an 2009:9.64, 2014:17.57; S_CID: CID NAO INFORMADO)
     role: authorisation.secondary_diagnosis
     kind: code_tree
     model: mark
@@ -646,6 +650,8 @@ columns:
     - 2008
     - 2014
   AP_RACACOR:
+    missing: ['99']
+    # not recorded, sentinel sweep 2026-11-23 ('99' siasus_an 2009:11.4, 2014:10.71; RACA_COR: SEM INFORMAÇÃO)
     role: patient.race
     kind: category
     model: stratum
@@ -769,7 +775,8 @@ columns:
     - 2008
     - 2014
   AP_UFNACIO:
-    missing: []
+    missing: ['000']
+    # not recorded, sentinel sweep 2026-11-23 ('000' siasus_an 2009:0.0, 2014:0.02; not a code of UFNACIO)
     # declared from DATASUS's own sources (SP 2014-09): no form dictionary; the table names every code the records use, each with its own label (010='brasil'): a code table, not a catch-all; no value labelled as not recorded
     role: patient.nationality
     kind: category
@@ -783,6 +790,8 @@ columns:
     - 2008
     - 2014
   AP_UNISOL:
+    missing: ['0000000']
+    # not recorded, sentinel sweep 2026-11-23 ('0000000' siasus_an 2009:10.78, 2014:7.91; not a code of CADGERBR)
     role: authorisation.requesting_facility
     kind: institution
     model: institution

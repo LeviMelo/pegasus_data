@@ -127,6 +127,8 @@ columns:
     - 2026
     note: role from SINASC-DN
   CODPAISRES:
+    missing: ['99']
+    # not recorded, sentinel sweep 2026-11-23 ('99' sinasc_dnex 2014:0.08, 2015:0.0, 2025:0.0; not a code of NATURALIDADE)
     role: mother.residence_country
     kind: place
     model: mark

@@ -139,6 +139,8 @@ columns:
     - 1995
     - 1997
   UF_DOM:
+    missing: ['00']
+    # not recorded, sentinel sweep 2026-11-23 ('00' sihsus_mt 1996:0.03; not a code of UF_BR)
     role: professional.domicile_state
     kind: place
     model: mark

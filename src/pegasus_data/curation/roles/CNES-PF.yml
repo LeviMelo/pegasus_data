@@ -403,6 +403,8 @@ columns:
     codelists:
     - TURNOSAT
   UFMUNRES:
+    missing: ['000000']
+    # not recorded, sentinel sweep 2026-11-23 ('000000' cnes_pf 2006:100.0, 2015:99.91, 2023:99.97; BR_MUNICIPALFA: Ignorado ou exterior; MUNICBR: 000000 Ignorado ou exterior)
     role: professional.residence
     kind: place
     model: mark

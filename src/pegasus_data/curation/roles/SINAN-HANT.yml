@@ -1280,6 +1280,8 @@ columns:
     - 2026
     note: role from the notification block
   ID_OCUPA_N:
+    missing: ['99999']
+    # not recorded, sentinel sweep 2026-11-23 ('99999' sinan_hant 2025:29.32; not a code of CBO2002)
     role: patient.occupation
     kind: code_tree
     model: dimension
@@ -1338,6 +1340,8 @@ columns:
     - 2026
     note: role from the notification block
   ID_UNIDADE:
+    missing: ['9999999']
+    # not recorded, sentinel sweep 2026-11-23 ('9999999' sinan_hant 1999:9.09, 2025:0.0; not a code of UNIDANET)
     role: notification.facility
     kind: institution
     width: 7

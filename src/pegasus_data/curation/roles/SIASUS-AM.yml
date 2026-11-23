@@ -134,6 +134,8 @@ columns:
     - 2026
     note: role from SIASUS-AN
   AP_CIDCAS:
+    missing: ['0000']
+    # not recorded, sentinel sweep 2026-11-23 ('0000' siasus_am 2023:100.0, 2025:100.0; S_CID: CID NAO INFORMADO)
     role: authorisation.associated_cause
     kind: code_tree
     model: mark
@@ -158,6 +160,8 @@ columns:
     - 2008
     - 2026
   AP_CIDSEC:
+    missing: ['0000']
+    # not recorded, sentinel sweep 2026-11-23 ('0000' siasus_am 2023:100.0, 2025:100.0; S_CID: CID NAO INFORMADO)
     role: authorisation.secondary_diagnosis
     kind: code_tree
     model: mark
@@ -519,6 +523,8 @@ columns:
     - 2026
     note: role from SIASUS-AN
   AP_RACACOR:
+    missing: ['99']
+    # not recorded, sentinel sweep 2026-11-23 ('99' siasus_am 2023:0.56, 2025:0.0; RACA_COR: SEM INFORMAÇÃO)
     role: patient.race
     kind: category
     model: stratum
@@ -662,6 +668,8 @@ columns:
     - 2026
     note: role from SIASUS-AN
   AP_UNISOL:
+    missing: ['0000000']
+    # not recorded, sentinel sweep 2026-11-23 ('0000000' siasus_am 2023:93.58, 2025:93.94; not a code of CADGERBR)
     role: authorisation.requesting_facility
     kind: institution
     model: institution

@@ -146,6 +146,8 @@ columns:
     - 2026
     note: The AIH's principal diagnosis, repeated on each act row.
   SP_CIDSEC:
+    missing: ['0000']
+    # not recorded, sentinel sweep 2026-11-23 ('0000' sihsus_sp 2023:100.0; S_CID: CID NAO INFORMADO)
     role: admission.secondary_diagnosis
     kind: code_tree
     model: mark
@@ -345,6 +347,8 @@ columns:
     - 2026
     note: Zeroed from 2008.
   SP_PF_CBO:
+    missing: ['000000']
+    # not recorded, sentinel sweep 2026-11-23 ('000000' sihsus_sp 2023:65.74; CBO2002: Não informado)
     role: professional.occupation
     kind: code_tree
     model: dimension

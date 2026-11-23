@@ -135,6 +135,8 @@ columns:
     - 2006
     - 2026
   CNAE:
+    missing: ['00000']
+    # not recorded, sentinel sweep 2026-11-23 ('00000' sinan_acbi 2010:0.0, 2015:0.0, 2025:0.05; not a code of CNAENET)
     role: patient.employer_activity
     kind: code_tree
     model: dimension

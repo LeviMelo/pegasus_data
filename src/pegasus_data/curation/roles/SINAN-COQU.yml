@@ -702,6 +702,8 @@ columns:
     - 2026
     note: role from the notification block
   ID_OCUPA_N:
+    missing: ['000000']
+    # not recorded, sentinel sweep 2026-11-23 ('000000' sinan_coqu 2022:1.15, 2025:1.4; CBO2002: Não informado; OCUPANET: CBO sem definição)
     role: patient.occupation
     kind: code_tree
     model: dimension

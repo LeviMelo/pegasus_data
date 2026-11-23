@@ -2,7 +2,8 @@ dataset: SIASUS-SAD
 record: care
 columns:
   CATEND:
-    missing: []
+    missing: ['00']
+    # not recorded, sentinel sweep 2026-11-23 ('00' siasus_sad 2012:1.5, 2015:0.0, 2018:0.0; CARAT_AT: CARATER DE ATENDIMENTO NÃO INFORMADO)
     # declared from DATASUS's own sources (TO 2015-10): no form dictionary; the table names every code the records use, each with its own label (01='eletivo'): a code table, not a catch-all; no value labelled as not recorded
     role: care.type_of_care_episode
     kind: category
@@ -374,6 +375,8 @@ columns:
     - 2012
     - 2018
   PA_CLASS_S:
+    missing: ['000']
+    # not recorded, sentinel sweep 2026-11-23 ('000' siasus_sad 2012:0.05, 2015:0.0, 2018:0.0; not a code of S_CLASSEN)
     role: care.service_classification
     kind: category
     model: mark

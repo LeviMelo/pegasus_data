@@ -1046,6 +1046,8 @@ columns:
     - 1995
     note: Seven-digit IBGE codes (with the check digit) in the 1979-1995 layout; geography reads both widths.
   NATURAL:
+    missing: ['999']
+    # not recorded, sentinel sweep 2026-11-23 ('999' sim_dofet 1979:None, 2015:0.3, 2025:0.08; not a code of NATURALIDADE)
     role: deceased.birth_place
     kind: place
     model: dimension
@@ -1223,6 +1225,8 @@ columns:
     - 1998
     note: Pre-2002 CBO, three digits; not CBO-2002.
   OCUPMAE:
+    missing: ['000', '999']
+    # not recorded, sentinel sweep 2026-11-23 ('000' sim_dofet 1979:13.33, 2015:0.0, 2025:0.0; not a code of CBO2002; '999' sim_dofet 1979:0.35, 2015:0.0, 2025:0.0; not a code of CBO2002)
     role: mother.occupation
     kind: code_tree
     model: dimension
@@ -1237,6 +1241,8 @@ columns:
     - 2026
     note: 'Role from SIM-DO: foetal deaths are certified on the same Declaração de Óbito (TIPOBITO 1).'
   OCUPPAI:
+    missing: ['000']
+    # not recorded, sentinel sweep 2026-11-23 ('000' sim_dofet 1979:33.71; GRUPOCUP: IGNORADO; SGRPOCUP: Ignorado)
     role: father.occupation_legacy
     kind: code_tree
     model: mark

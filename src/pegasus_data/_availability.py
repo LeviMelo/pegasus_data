@@ -50,7 +50,7 @@ from typing import Any, Literal, cast
 from .catalog.store import CatalogStore
 from .catalog.store import CatalogStore as _Store
 from .config import Settings, load_settings
-from .ontology import Ontology, dataset_key
+from .ontology import Ontology
 
 __all__ = [
     "Availability",
@@ -452,8 +452,10 @@ def field_fill(dataset: str, fields: list[str] | str, years: list[int] | range, 
     wanted = [fields] if isinstance(fields, str) else list(fields)
     wanted = [f.upper() for f in wanted]
     try:
-        roles = {r.column: r for r in column_roles.load_column_roles().get(dataset_key(dataset), ())}
-    except Exception:  # noqa: BLE001 - a dataset without roles has no declared missing codes
+        # the role files' own key (`declared_key`: SIA.AQ is filed as SIASUS-AQ); a bare dataset_key missed every SIA
+        # dataset, and its declared not-recorded codes ('0000' in AP_CIDCAS) counted as filled (2026-11-23)
+        roles = {r.column: r for r in column_roles.declared_columns(dataset)}
+    except KeyError:  # a dataset without roles has no declared missing codes
         roles = {}
     out: dict[str, list[Any]] = {"year": [], "field": [], "records": [], "filled": [], "share": [], "modal": [],
                                  "modal_share": []}

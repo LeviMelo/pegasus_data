@@ -780,6 +780,8 @@ columns:
     - 2009
     - 2026
   NATURAL:
+    missing: ['000', '00', '.', '999']
+    # not recorded, sentinel sweep 2026-11-23 ('000' sim_do 1996:1.92, 2015:0.0, 2025:0.0; not a code of NATURALIDADE; '00' sim_do 1996:0.0, 2015:0.0, 2025:0.0; not a code of NATURALIDADE; '.' sim_do 1996:0.0, 2015:0.0, 2025:0.0; not a code of NATURALIDADE; '999' sim_do 1996:0.0, 2015:0.11, 2025:0.07; not a code of NATURALIDADE)
     role: deceased.birth_place
     kind: place
     model: dimension

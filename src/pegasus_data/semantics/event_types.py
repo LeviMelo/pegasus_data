@@ -393,17 +393,18 @@ def _chain(spec: dict[str, Any] | None, where: str) -> Chain | None:
 def _person_checks(dataset: str, chain: Chain) -> dict[str, tuple[tuple[str, ...], str | None]]:
     """For each person column of ``chain``: its declared not-recorded values and, for a date, its strptime format, read
     from the dataset's roles file (the one declaration the linkage reads for the same key)."""
-    from ..linkage.roles import _FORMATS, load_roles
-    from .column_roles import load_column_roles
+    from ..linkage.roles import _FORMATS, dataset_roles
+    from .column_roles import declared_columns, declared_key
 
-    system, _, series = dataset.upper().replace(".", "-").partition("-")
-
-    def same(key: str) -> bool:
-        s2, _, r2 = key.upper().replace(".", "-").partition("-")
-        return _canonical_system(s2) == _canonical_system(system) and r2 == series
-
-    columns = next((v for k, v in load_column_roles().items() if same(k)), ())
-    linked = next((v for k, v in load_roles().items() if same(k)), None)
+    try:
+        key = declared_key(dataset)
+        columns = declared_columns(dataset)
+    except KeyError:
+        key, columns = dataset, ()
+    try:
+        linked = dataset_roles(key)
+    except KeyError:
+        linked = None
     out: dict[str, tuple[tuple[str, ...], str | None]] = {}
     for c in chain.person:
         declared = next((r for r in columns if r.column == c), None)
@@ -761,11 +762,15 @@ def event_weights(table: pa.Table, event: EventType) -> pa.Array:
 def _integers(table: pa.Table, column: str, event: EventType) -> pa.Array:
     """A count column as integers, blank and its role's missing codes as null (SDTA's NU_TOT 0: an outbreak has two
     or more ill); any other text raises (an unknown quantity is not zero events)."""
-    from .column_roles import load_column_roles
+    from .column_roles import declared_columns
 
     if column not in table.column_names:
         raise KeyError(f"{event.name}: grid column {column} is not in the table")
-    role = next((r for r in load_column_roles().get(f"{event.system}-{event.series}", ()) if r.column == column), None)
+    try:
+        declared = declared_columns(f"{event.system}-{event.series}")
+    except KeyError:
+        declared = ()
+    role = next((r for r in declared if r.column == column), None)
     text = pc.utf8_trim_whitespace(pc.cast(table.column(column), pa.string()))
     blank = pc.fill_null(pc.equal(text, ""), True)
     if role is not None and role.missing:

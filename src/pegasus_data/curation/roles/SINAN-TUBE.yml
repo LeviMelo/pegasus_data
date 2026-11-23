@@ -243,7 +243,8 @@ columns:
     - 2001
     - 2025
   BENEF_GOV:
-    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9', '-']
+    # not recorded, sentinel sweep 2026-11-23 ('-' sinan_tube 2010:0.0, 2015:0.0, 2025:0.0; not a code of SIM_NAO)
     # declared from DATASUS's own sources (2019): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: patient.income_transfer_beneficiary
     kind: category

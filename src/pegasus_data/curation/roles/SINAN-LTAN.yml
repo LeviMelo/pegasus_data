@@ -250,6 +250,8 @@ columns:
     note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
       TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   CON_MUNICI:
+    missing: ['00000']
+    # not recorded, sentinel sweep 2026-11-23 ('00000' sinan_ltan 2000:0.04; not a code of BR_MUNICIPALFA)
     role: case.infection_municipality
     kind: place
     model: where
@@ -907,6 +909,8 @@ columns:
     note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
       TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   ID_MN_RESI:
+    missing: ['9999999']
+    # not recorded, sentinel sweep 2026-11-23 ('9999999' sinan_ltan 2000:0.21, 2015:0.0, 2025:0.0; not a code of BR_MUNICIPALFA)
     role: patient.residence
     kind: place
     model: stratum
@@ -955,6 +959,8 @@ columns:
     - 2000
     - 2006
   ID_OCUPA_N:
+    missing: ['000000']
+    # not recorded, sentinel sweep 2026-11-23 ('000000' sinan_ltan 2015:0.0, 2025:1.3; CBO2002: Não informado; OCUPANET: CBO sem definição)
     role: patient.occupation
     kind: code_tree
     model: dimension
@@ -1010,6 +1016,8 @@ columns:
     - 2007
     - 2025
   ID_UNIDADE:
+    missing: ['9999999']
+    # not recorded, sentinel sweep 2026-11-23 ('9999999' sinan_ltan 2000:0.16, 2015:0.0, 2025:0.0; not a code of UNIDANET)
     role: notification.facility
     kind: institution
     width: 7

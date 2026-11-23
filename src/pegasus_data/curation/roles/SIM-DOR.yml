@@ -386,6 +386,8 @@ columns:
     - 1995
     note: role from SIM-DO
   MUNIOCOR:
+    missing: ['0000000']
+    # not recorded, sentinel sweep 2026-11-23 ('0000000' sim_dor 1991:0.3, 1995:0.0; not a code of BR_MUNICIPALFA)
     role: death.municipality
     kind: place
     model: where
@@ -414,6 +416,8 @@ columns:
     - 1995
     note: Seven-digit IBGE codes (with the check digit) in the 1979-1995 layout; geography reads both widths.
   NATURAL:
+    missing: ['000', '.', '00']
+    # not recorded, sentinel sweep 2026-11-23 ('000' sim_dor 1991:2.58, 1995:2.29; not a code of NATURALIDADE; '.' sim_dor 1991:0.0, 1995:0.0; not a code of NATURALIDADE; '00' sim_dor 1991:0.0, 1995:0.0; not a code of NATURALIDADE)
     role: deceased.birth_place
     kind: place
     model: dimension
@@ -480,6 +484,8 @@ columns:
     codelists:
     - OBITOFE2
   OCUPACAO:
+    missing: ['00', '000', '.', '+']
+    # not recorded, sentinel sweep 2026-11-23 ('00' sim_dor 1991:0.0, 1995:0.01; not a code of GRUPOCUP; '000' sim_dor 1991:18.46, 1995:10.54; GRUPOCUP: IGNORADO; SGRPOCUP: Ignorado; '.' sim_dor 1991:0.0, 1995:0.0; not a code of GRUPOCUP; '+' sim_dor 1991:0.0, 1995:0.0; not a code of GRUPOCUP)
     role: deceased.occupation_legacy
     kind: code_tree
     model: mark
@@ -494,6 +500,8 @@ columns:
     - 1995
     note: Pre-2002 CBO, three digits; not CBO-2002.
   OCUPMAE:
+    missing: ['000', '999', '00']
+    # not recorded, sentinel sweep 2026-11-23 ('000' sim_dor 1991:91.57, 1995:20.03; not a code of CBO2002; '999' sim_dor 1991:0.05, 1995:0.58; not a code of CBO2002; '00' sim_dor 1991:0.0, 1995:0.0; not a code of CBO2002)
     role: mother.occupation
     kind: code_tree
     model: dimension
@@ -508,6 +516,8 @@ columns:
     - 1995
     note: role from SIM-DO
   OCUPPAI:
+    missing: ['.', '000', '00']
+    # not recorded, sentinel sweep 2026-11-23 ('.' sim_dor 1991:0.0, 1995:0.0; not a code of GRUPOCUP; '000' sim_dor 1991:93.05, 1995:31.04; GRUPOCUP: IGNORADO; SGRPOCUP: Ignorado; '00' sim_dor 1991:0.0, 1995:0.0; not a code of GRUPOCUP)
     role: father.occupation_legacy
     kind: code_tree
     model: mark

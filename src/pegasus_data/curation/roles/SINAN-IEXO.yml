@@ -159,6 +159,8 @@ columns:
     - 2006
     - 2026
   CNAE:
+    missing: ['00000', '999', '99']
+    # not recorded, sentinel sweep 2026-11-23 ('00000' sinan_iexo 2010:0.0, 2015:0.0, 2025:0.04; not a code of CNAENET; '999' sinan_iexo 2010:0.0, 2015:0.0, 2025:0.0; not a code of CNAENET; '99' sinan_iexo 2010:0.0, 2015:0.0, 2025:0.0; not a code of CNAENET)
     role: patient.employer_activity
     kind: code_tree
     model: dimension
@@ -286,6 +288,8 @@ columns:
     - 2006
     - 2026
   DIAG_CONF:
+    missing: ['%']
+    # not recorded, sentinel sweep 2026-11-23 ('%' sinan_iexo 2010:0.0, 2015:0.0, 2025:0.0; not a code of ICD10)
     role: case.confirmed_diagnosis
     kind: code_tree
     model: mark
@@ -533,6 +537,8 @@ columns:
     - 2006
     - 2026
   ID_OCUPA_N:
+    missing: ['000000']
+    # not recorded, sentinel sweep 2026-11-23 ('000000' sinan_iexo 2010:0.0, 2015:0.0, 2025:0.73; CBO2002: Não informado; OCUPANET: CBO sem definição)
     role: patient.occupation
     kind: code_tree
     model: dimension
@@ -588,6 +594,8 @@ columns:
     - 2006
     - 2026
   ID_UNIDADE:
+    missing: ['0000000']
+    # not recorded, sentinel sweep 2026-11-23 ('0000000' sinan_iexo 2010:0.0, 2015:0.0, 2025:0.0; not a code of UNIDANET)
     role: notification.facility
     kind: institution
     width: 7
@@ -689,6 +697,8 @@ columns:
     - 2006
     - 2026
   MUN_HOSP:
+    missing: ['''', '-']
+    # not recorded, sentinel sweep 2026-11-23 (''' sinan_iexo 2010:0.0, 2015:0.0, 2025:0.0; not a code of BR_MUNICIPALFA; '-' sinan_iexo 2010:0.0, 2015:0.0, 2025:0.0; not a code of BR_MUNICIPALFA)
     role: case.hospital_municipality
     kind: place
     model: where

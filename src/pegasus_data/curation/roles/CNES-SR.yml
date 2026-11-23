@@ -50,6 +50,8 @@ columns:
     - 2005
     - 2026
   CLASS_SR:
+    missing: ['000']
+    # not recorded, sentinel sweep 2026-11-23 ('000' cnes_sr 2014:0.1, 2015:0.0, 2025:0.0; not a code of S_CLASSEN)
     role: service.specialized_service_classification_code
     kind: category
     model: mark

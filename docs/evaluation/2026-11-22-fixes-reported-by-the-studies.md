@@ -152,7 +152,8 @@ computation: every record its event type counts, with `__person`, `__starts` and
 `events_of` keeps `__starts = 1`. A person column that is blank, a declared not-recorded value of its roles entry, or
 an unparseable date (the linkage role's format) makes the record its own person. Pernambuco 2019-2020, 1,075,155 rows:
 episodes.py 970,346 stays, the stay event before 970,343 (reading-order ties), after 970,346, and all 1,065,304 IDENT-1
-AIHs carry the same stay as episodes.py.
+AIHs carry the same stay as episodes.py. The studies' episodes.py is now a wrapper over it (abnc b42ad8f); PE 2024 (669,715 AIHs) and
+the whole t03 cohort rebuilt through it (52,360 stays, 51,884 persons, 84,905 AIHs) are identical to the old build.
 
 **A held extract was invisible to query() (science-2, t08/t02 SIH-SP).** `query("SIH.SP", period="2019-06",
 geography="SP", rows={"SP_PROCREA": ["040803"]}, max_download=0)` planned 57.1 MiB of downloads and refused, although the

@@ -241,6 +241,8 @@ columns:
     - 2026
     note: role from the notification block
   ID_UNIDADE:
+    missing: ['0000000']
+    # not recorded, sentinel sweep 2026-11-23 ('0000000' sinan_trac 2022:100.0, 2025:100.0; not a code of UNIDANET)
     role: notification.facility
     kind: institution
     width: 7

@@ -856,6 +856,8 @@ columns:
     - 2026
     note: role from SIM-DO
   NATURAL:
+    missing: ['999']
+    # not recorded, sentinel sweep 2026-11-23 ('999' sim_domat 2013:4.55, 2025:0.08; not a code of NATURALIDADE)
     role: deceased.birth_place
     kind: place
     model: dimension

@@ -889,6 +889,8 @@ columns:
     - 2007
     - 2023
   SG_UF:
+    missing: ['99']
+    # not recorded, sentinel sweep 2026-11-23 ('99' sinan_hepa 2007:0.03, 2015:0.02, 2023:0.01; not a code of UF_BR)
     role: patient.residence_state
     kind: place
     model: dimension

@@ -39,6 +39,8 @@ columns:
     - 2008
     - 2026
   CIDPRI:
+    missing: ['0000']
+    # not recorded, sentinel sweep 2026-11-23 ('0000' siasus_bi 2023:60.45; S_CID: CID NAO INFORMADO)
     role: procedure.diagnosis
     kind: code_tree
     model: mark

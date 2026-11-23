@@ -480,6 +480,8 @@ columns:
     codelists:
     - OBITOFE2
   OCUPACAO:
+    missing: ['000']
+    # not recorded, sentinel sweep 2026-11-23 ('000' sim_dorig 1995:5.22; GRUPOCUP: IGNORADO; SGRPOCUP: Ignorado)
     role: deceased.occupation_legacy
     kind: code_tree
     model: mark
@@ -494,6 +496,8 @@ columns:
     - 1995
     note: Pre-2002 CBO, three digits; not CBO-2002.
   OCUPMAE:
+    missing: ['000']
+    # not recorded, sentinel sweep 2026-11-23 ('000' sim_dorig 1995:11.11; not a code of CBO2002)
     role: mother.occupation
     kind: code_tree
     model: dimension
@@ -508,6 +512,8 @@ columns:
     - 1995
     note: role from SIM-DO
   OCUPPAI:
+    missing: ['000']
+    # not recorded, sentinel sweep 2026-11-23 ('000' sim_dorig 1995:11.11; GRUPOCUP: IGNORADO; SGRPOCUP: Ignorado)
     role: father.occupation_legacy
     kind: code_tree
     model: mark
