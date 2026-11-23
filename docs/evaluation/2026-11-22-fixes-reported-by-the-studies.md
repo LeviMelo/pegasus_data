@@ -333,3 +333,9 @@ and t05 read it as an "independent clock" for the radiotherapy interval. INCA's 
 that it takes the diagnosis and treatment dates from SIA (APAC, BPA-I), SIH and SISCAN, the diagnosis from the
 anatomopathology record: for a radiotherapy-first case its treatment date is SIA-AR's own APAC. A gotcha of
 PAINEL_ONCOLOGIA.PO now says so.
+**Corrected the same day** (science-2's re-read). The first rule judged a horizon past the last day a kept pair reached
+as not viable and within it as "use with caution"; the discharge-day pass reaches up to 78 days after admission on long
+stays, so 2017's 30-day horizon read "use with caution" while it still saw no death after discharge (and the read-time
+reach was taken from a column the follow-up table lacked). A dropped pass's events are missing at every horizon, so every
+horizon of such a run is now "not viable", the dropped pass named: spine 2017 and 2019 horizons 7-365 not viable; 2016,
+whose year pass was kept to a shorter reach, unchanged (7 days not viable, 30-365 use with caution).

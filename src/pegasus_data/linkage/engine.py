@@ -835,33 +835,33 @@ def _horizons(con: duckdb.DuckDBPyConnection, spec: LinkSpec, pairs: pa.Table, c
     return dropped_pass_verdicts(rows, reports or [], int(real.max()) if len(real) else None)
 
 
-def dropped_pass_verdicts(horizons: list[dict[str, Any]], passes: list[Any], cover_days: int | None) -> list[dict[str, Any]]:
-    """Each follow-up horizon's verdict with the passes the run dropped taken into account: a pass dropped at every horizon
-    finds none of its events, so a horizon is judged only on what the kept passes can see. Past the last day any kept
-    pair reached (``cover_days``) a horizon counts nothing the dropped pass would have found: "not viable"; within it,
-    at most "use with caution". Spine surgery to SIM, Brazil 2012-2023: the year pass was dropped in 10 of 12 years
-    (48-62% chance), the discharge-day pass alone was kept, and the 30-day mortality read "viable" while it held only
-    deaths in hospital (science-2, t08, 2026-11-23). Applied when a run is made and when a stored run is read, idempotent."""
+def dropped_pass_verdicts(horizons: list[dict[str, Any]], passes: list[Any], cover_days: int | None = None) -> list[dict[str, Any]]:
+    """Each follow-up horizon's verdict with the passes the run dropped taken into account. A pass is dropped because its
+    pairs are mostly chance, not because its events do not exist: a horizon counts none of the events only it would find
+    (a death after discharge, when the pass kept is the discharge day's), so its count is short by an unknown amount and
+    the horizon is "not viable", the dropped pass named. Spine surgery to SIM, Brazil 2012-2023: the year pass was
+    dropped in 10 of 12 years (48-62% chance), the discharge-day pass alone was kept, and the 30-day mortality read
+    "viable" while it held only deaths in hospital (science-2, t08, 2026-11-23). A first version judged a horizon past
+    the last day a kept pair reached as not viable and within it as "use with caution"; the discharge-day pass reaches
+    78 days after admission on long stays, so the 30-day horizon read "use with caution" though it still saw no death
+    after discharge (science-2's re-read). Applied when a run is made and when a stored run is read; idempotent.
+    ``cover_days`` is kept for callers and no longer read."""
+    del cover_days
+
     def get(p: Any, k: str) -> Any:
         return p.get(k) if isinstance(p, dict) else getattr(p, k, None)
     dropped = [p for p in passes if not get(p, "kept") and not get(p, "skipped") and (get(p, "pairs") or 0) > 0]
     if not dropped:
         return horizons
     names = ", ".join(f"{get(p, 'name')} (chance {get(p, 'chance_percent')}% over its window)" for p in dropped)
+    note = f"pass {names} dropped: the events only it finds are not counted, so the horizon's count is short"
     out = []
     for row in horizons:
         row = dict(row)
-        reasons = list(row.get("verdict_reasons") or [])
-        note = f"pass {names} dropped: deaths only it finds are missing"
-        if note not in reasons:
-            reasons.append(note)
-        if cover_days is None or row["days"] > cover_days:
-            past = f"no kept pass finds an event after day {cover_days if cover_days is not None else 0}"
-            if past not in reasons:
-                reasons.append(past)
-            row["verdict"] = "not viable"
-        elif row.get("verdict") == "viable":
-            row["verdict"] = "use with caution"
+        reasons = [r for r in (row.get("verdict_reasons") or []) if not str(r).startswith("no kept pass finds an event")]
+        reasons = [r for r in reasons if not (str(r).startswith("pass ") and "dropped:" in str(r))]
+        reasons.append(note)
+        row["verdict"] = "not viable"
         row["verdict_reasons"] = reasons
         row["dropped_passes"] = [get(p, "name") for p in dropped]
         out.append(row)
