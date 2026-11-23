@@ -278,3 +278,6 @@ cnes_accreditation_oncology_cacon/_unacon/_radiotherapy (2014-2024) and cnes_rad
 of the lake's HB), 1,207 radiation oncologists (SBRT's own count is of the order of 1,100). Linear accelerators and cobalt
 units are not CNES-EQ codes: they are counts on CNES-DC (S_ACELL6, S_ALSEME, S_ALCOME, UN_COBAL; layout IT_CNES_1706),
 whose December files the lake holds only for 2026.
+The radiotherapy machines are a CNES family over CNES-DC (`radiotherapy_machines`), December 2008-2023, Brazil:
+linear accelerators 241 (2008), 354 (2014), 421 (2019), 504 (2023); cobalt units 106, 89, 57, 43 (phased out);
+brachytherapy 336, 315, then 242 from 2015 and flat (a break of registration, undocumented; stated in the field's gaps).
