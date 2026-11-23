@@ -369,6 +369,7 @@ def read_yaml(path: Path, *, shared: bool = False, missing_ok: bool = False) -> 
     if missing_ok and not path.exists():
         return {}
     stat = path.stat()
+    _snapshot_curation(path)
     try:
         doc = _parsed_yaml(str(path), stat.st_mtime_ns, stat.st_size)
     except Exception as exc:
@@ -396,6 +397,31 @@ def read_yaml(path: Path, *, shared: bool = False, missing_ok: bool = False) -> 
 #: each curation file's last version this process validated (`read_yaml`): what it reads when a newer schema's file
 #: arrives while it runs
 _LAST_VALID: dict[str, dict[str, Any]] = {}
+_SNAPSHOT_TAKEN = False
+
+
+def _snapshot_curation(path: Path) -> None:
+    """On a process's first read of a curation file, every curation file it may read later validated once, as of now:
+    a file first read after a schema extension had no earlier copy to fall back on, and a census-length landing stopped
+    on `fields.yml` hours after it began (2026-11-23). Read through the parsed-file cache, so a warm start costs little."""
+    global _SNAPSHOT_TAKEN
+    if _SNAPSHOT_TAKEN:
+        return
+    _SNAPSHOT_TAKEN = True
+    from ..config import curation_root
+
+    root = curation_root()
+    if _curation_relative(str(path)) is None:
+        return
+    for f in root.rglob("*.yml"):
+        key = str(f)
+        if key in _LAST_VALID:
+            continue
+        try:
+            st = f.stat()
+            _LAST_VALID[key] = _parsed_yaml(key, st.st_mtime_ns, st.st_size)
+        except Exception:  # noqa: BLE001 - a file invalid now is refused when it is read, as ever
+            continue
 
 
 def declared(file: str, *path: str) -> Any:
