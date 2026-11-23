@@ -37,6 +37,7 @@ from .engine import (
     _roles_needed,
     _side_table,
     bind,
+    dropped_pass_verdicts,
     link,
     load_links,
     padded_period,
@@ -252,7 +253,9 @@ def _followup(dataset: str, codes: Iterable[str] | str, *, years: object, geogra
         "period": [period] if isinstance(period, str) else list(cast(Iterable[Any], period)), "geography": area,
         "verdict": report.get("verdict"), "verdict_reasons": report.get("verdict_reasons") or [],
         "false_match_percent": report.get("chance_percent"), "false_match_upper95_percent": report.get("chance_upper95_percent"),
-        "horizons": report.get("horizons") or [], "window_days": _window(spec),
+        # a stored run made before the dropped-pass rule: its horizons judged again on what its kept passes can see
+        "horizons": dropped_pass_verdicts(report.get("horizons") or [], report.get("passes") or [],
+                                          _cover_days(table, death_names)), "window_days": _window(spec),
         "passes": report.get("passes") or [], "validations": report.get("validations") or {},
         "cohort": table.num_rows, "linked": linked, "linked_share": round(linked / table.num_rows, 4) if table.num_rows else 0.0,
         "death_data_end": ((report.get("carried") or {}).get(outcome.event) or {}).get("last"),
@@ -281,6 +284,16 @@ def _with_partner(table: pa.Table, spec: Any, pairs: pa.Table, roles: list[str],
                       ).to_arrow_table()
     con.close()
     return out
+
+
+def _cover_days(table: pa.Table, death_names: bool) -> int | None:
+    """The last day after the origin any linked event of the run falls on (the kept passes' reach in fact)."""
+    col = "days_to_death" if death_names and "days_to_death" in table.column_names else (
+        "days_to_event" if "days_to_event" in table.column_names else None)
+    if col is None:
+        return None
+    m = pc.max(table.column(col)).as_py()
+    return None if m is None else int(m)
 
 
 def _window(spec: Any) -> int:

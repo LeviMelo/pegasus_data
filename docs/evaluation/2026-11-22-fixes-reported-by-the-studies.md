@@ -311,3 +311,13 @@ beside its topographic ICD (sources/apac_layout.txt, p. 10). Their roles carried
 has a note saying what it records. **Corrected the same day** (the reviewer, t05): the first note called them the
 start and end of irradiation; the SIA oncology manual (2008, 6.2.3.1) defines them as the *planned* dates informed on
 the APAC/RT request, kept to check the billing. The notes now say planned, not delivered.
+
+**A dropped pass left its horizons "viable"** (science-2, t08). `sih_admissions_to_sim` for spine surgery (040803), Brazil
+2012-2023: the pass "birth date, sex, residence, day of death in the year" was dropped in 10 of 12 years (48-62% chance
+over its window), the discharge-day pass alone was kept, and every follow-up horizon (7 to 365 days) read "viable" while
+it held deaths in hospital only. Horizons accounted only for passes kept to a shorter reach. `engine.dropped_pass_verdicts`
+now judges each horizon on what the kept passes can see: past the last day a kept pair reached, "not viable"; within it,
+at most "use with caution"; with the dropped pass named. Applied when a run is made and when a stored run is read
+(`linked_outcomes`), so stored runs are judged again without relinking: 2017 and 2019 horizons 7-365 now "not viable"
+("no kept pass finds an event after day 0"); 2016, whose year pass was kept to a shorter reach, unchanged ("use with
+caution"). A pass's `chance_percent` is its rate over its whole window; within its kept reach it is lower.

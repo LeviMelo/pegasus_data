@@ -832,7 +832,40 @@ def _horizons(con: duckdb.DuckDBPyConnection, spec: LinkSpec, pairs: pa.Table, c
                 verdict = "use with caution"
         rows.append({"days": days, "pairs": n, "control_pairs": c, "chance_percent": chance, "chance_upper95_percent": upper,
                      "verdict": verdict, "verdict_reasons": reasons, **({"short_passes": limited} if limited else {})})
-    return rows
+    return dropped_pass_verdicts(rows, reports or [], int(real.max()) if len(real) else None)
+
+
+def dropped_pass_verdicts(horizons: list[dict[str, Any]], passes: list[Any], cover_days: int | None) -> list[dict[str, Any]]:
+    """Each follow-up horizon's verdict with the passes the run dropped taken into account: a pass dropped at every horizon
+    finds none of its events, so a horizon is judged only on what the kept passes can see. Past the last day any kept
+    pair reached (``cover_days``) a horizon counts nothing the dropped pass would have found: "not viable"; within it,
+    at most "use with caution". Spine surgery to SIM, Brazil 2012-2023: the year pass was dropped in 10 of 12 years
+    (48-62% chance), the discharge-day pass alone was kept, and the 30-day mortality read "viable" while it held only
+    deaths in hospital (science-2, t08, 2026-11-23). Applied when a run is made and when a stored run is read, idempotent."""
+    def get(p: Any, k: str) -> Any:
+        return p.get(k) if isinstance(p, dict) else getattr(p, k, None)
+    dropped = [p for p in passes if not get(p, "kept") and not get(p, "skipped") and (get(p, "pairs") or 0) > 0]
+    if not dropped:
+        return horizons
+    names = ", ".join(f"{get(p, 'name')} (chance {get(p, 'chance_percent')}% over its window)" for p in dropped)
+    out = []
+    for row in horizons:
+        row = dict(row)
+        reasons = list(row.get("verdict_reasons") or [])
+        note = f"pass {names} dropped: deaths only it finds are missing"
+        if note not in reasons:
+            reasons.append(note)
+        if cover_days is None or row["days"] > cover_days:
+            past = f"no kept pass finds an event after day {cover_days if cover_days is not None else 0}"
+            if past not in reasons:
+                reasons.append(past)
+            row["verdict"] = "not viable"
+        elif row.get("verdict") == "viable":
+            row["verdict"] = "use with caution"
+        row["verdict_reasons"] = reasons
+        row["dropped_passes"] = [get(p, "name") for p in dropped]
+        out.append(row)
+    return out
 
 
 def _pairs(con: duckdb.DuckDBPyConnection, spec: LinkSpec) -> tuple[pa.Table, dict[str, Any]]:
