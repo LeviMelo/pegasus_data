@@ -33,6 +33,14 @@ from the files: series, place, years, axes, age range. `read_modelled` returns `
 show it. INPC: `price_index(index="INPC")` (SIDRA 1736, variable 2289, December 1993 = 100) beside IPCA; 2012 to 2024 annual
 factor 1.982 against IPCA's 1.986.
 
+**IGP-M deflator (t10 paper's sensitivity analysis).** `price_index` had no IGP-M. It now serves `index="IGP-M"` and
+`"IGP-DI"` from the Banco Central's SGS (series 189 and 190, `sources/bcb_sgs.py`, stored with URL, SHA-256 and fetch time like
+the SIDRA facts); the monthly percentage changes are chained into an index (first month = 100, stated in the metadata). The
+API's bare URL answered `304` with an empty body, so the request always carries explicit dates. Check on the fresh home
+(2026-11-23): the index reproduces IGP-M's accumulated December-to-December change, 2020 23.14% and 2021 17.79% (FGV's
+published 23.14% and 17.78%; the last digit is the SGS's two-decimal monthly rounding); IGP-DI 23.07% and 17.74%. Annual factor
+2012 to 2024: IGP-M 2.327 against IPCA 1.986.
+
 **The newborn link's 11-17% (science-1).** No defect in the keys: in AL 2022, 85% of 6,913 newborn admissions have a
 birth agreeing on birth date, sex, hospital and residence, 40% exactly one, and the 7-day control finds 826 unique pairs
 against the first pass's 2,600 (deterministic: not viable). The linked share is what the data identify; the link's

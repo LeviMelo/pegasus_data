@@ -601,6 +601,7 @@ The general interface to IBGE's SIDRA (aggregates API v3), ADR-0142. Every reque
 - `sources/ibge_biomas.py`: IBGE's predominant biome per municipality (2024 CSV), the geography pack's `biome` classification (ADR-0213).
 - `sources/ipea_amc.py`: minimum comparable areas from IPEA's geobr (Ehrl 2017),
   read from the GeoPackage's attributes alone, for the geography pack.
+- `sources/bcb_sgs.py`: the Banco Central's SGS monthly series (IGP-M 189, IGP-DI 190) stored as Parquet with URL, SHA-256 and fetch time, read by `price_index`.
 
 ---
 

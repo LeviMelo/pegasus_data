@@ -355,13 +355,13 @@ def price_index_cmd(
     grain: Annotated[str, typer.Option("--grain", help="month (the monthly index number) or year (the mean of the year's twelve)")] = "month",
     reference: Annotated[str | None, typer.Option("--reference", help="A month (2025-12) or, with --grain year, a year: adds `factor`, nominal reais x factor = reais of that month")] = None,
     years: Annotated[str | None, typer.Option("--years", help="Rows to keep, e.g. 2014-2025")] = None,
-    refresh: Annotated[bool, typer.Option("--refresh", help="Re-read IBGE's list of months first, for those published since")] = False,
-    index: Annotated[str, typer.Option("--index", help="IPCA (default) or INPC")] = "IPCA",
+    refresh: Annotated[bool, typer.Option("--refresh", help="Re-read the source first (IBGE's list of months; the BCB series), for those published since")] = False,
+    index: Annotated[str, typer.Option("--index", help="IPCA (default), INPC (IBGE, SIDRA), IGP-M or IGP-DI (FGV, via BCB SGS 189/190)")] = "IPCA",
     out: Annotated[Path | None, typer.Option("--out", help="Write the table as .csv or .parquet")] = None,
     root: RootOpt = None,
     as_json: JsonOpt = False,
 ) -> None:
-    """IBGE's IPCA or INPC (December 1993 = 100), to deflate the nominal reais of SIH and SIA; fetches its table once."""
+    """IPCA or INPC (IBGE, December 1993 = 100), IGP-M or IGP-DI (FGV, via the Banco Central SGS), to deflate the nominal reais of SIH and SIA; fetches the series once."""
     from ..sidra.prices import price_index
 
     table = price_index(_settings(root).root, grain=grain, reference=reference, refresh=refresh,
