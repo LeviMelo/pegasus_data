@@ -1,0 +1,2900 @@
+# CENSO2010-PESSOAS: one person living in a sampled household of the Census 2010 sample, with the sample weight that expands the row to the population (intake source census2010_pessoas).
+# Meaning from IBGE's own layout, Layout_microdados_Amostra.xls sheet PESS (Documentacao.zip of the microdata): each variable's name, positions, digits and code list; the title is IBGE's words.
+# A property is named in English where it is a stratum or a key; every other variable is `<entity>.<IBGE variable>`, because translating 300 questionnaire items would add claims the layout does not make.
+dataset: CENSO2010-PESSOAS
+record: person
+columns:
+  CODMUN:
+    role: person.residence
+    kind: place
+    model: stratum
+    place_of: subject
+    fact_domain: person
+    fact_domain_evidence: '"CÓDIGO DO MUNICÍPIO" with the state (V0001, V0002) (person.residence): attribute of the person, the municipality of
+      the household'
+    name: Município de residência (UF + código do município)
+    years:
+    - 2010
+    - 2010
+    note: 7-digit IBGE code made of V0001 and V0002 (positions 1-7); 6-digit places of the lake come from it
+  V0001:
+    role: person.state_code
+    kind: place
+    model: mark
+    place_of: subject
+    fact_domain: administrative
+    fact_domain_evidence: '"UNIDADE DA FEDERAÇÃO" (person.state_code): geography, sampling or processing key of the survey'
+    name: UNIDADE DA FEDERAÇÃO
+    years:
+    - 2010
+    - 2010
+  V0002:
+    role: person.municipality_code_in_state
+    kind: category
+    model: excluded
+    name: CÓDIGO DO MUNICÍPIO
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V0011:
+    role: person.weighting_area
+    kind: identifier
+    model: link_only
+    name: ÁREA DE PONDERAÇÃO
+    years:
+    - 2010
+    - 2010
+  V0300:
+    role: person.household_control
+    kind: identifier
+    model: link_only
+    name: CONTROLE
+    years:
+    - 2010
+    - 2010
+  V0010:
+    role: person.sample_weight
+    kind: number
+    model: mark
+    measure: false
+    fact_domain: administrative
+    fact_domain_evidence: '"PESO AMOSTRAL" (person.sample_weight): geography, sampling or processing key of the survey'
+    name: PESO AMOSTRAL
+    note: 3 digits then 13 after an implied decimal point; the digits as filed are V0010__RAW.
+    years:
+    - 2010
+    - 2010
+  V1001:
+    role: person.region
+    kind: category
+    model: dimension
+    fact_domain: administrative
+    fact_domain_evidence: '"REGIÃO GEOGRÁFICA" (person.region): geography, sampling or processing key of the survey'
+    name: REGIÃO GEOGRÁFICA
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V1002:
+    role: person.mesoregion
+    kind: category
+    model: dimension
+    fact_domain: administrative
+    fact_domain_evidence: '"CÓDIGO DA MESORREGIÃO" (person.mesoregion): geography, sampling or processing key of the survey'
+    name: CÓDIGO DA MESORREGIÃO
+    note: The codes are listed in a workbook of Documentacao.zip, not decoded here.
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V1003:
+    role: person.microregion
+    kind: category
+    model: dimension
+    fact_domain: administrative
+    fact_domain_evidence: '"CÓDIGO DA MICRORREGIÃO" (person.microregion): geography, sampling or processing key of the survey'
+    name: CÓDIGO DA MICRORREGIÃO
+    note: The codes are listed in a workbook of Documentacao.zip, not decoded here.
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V1004:
+    role: person.metropolitan_region
+    kind: category
+    model: dimension
+    fact_domain: administrative
+    fact_domain_evidence: '"CÓDIGO DA REGIÃO METROPOLITANA" (person.metropolitan_region): geography, sampling or processing key of the survey'
+    name: CÓDIGO DA REGIÃO METROPOLITANA
+    note: The codes are listed in a workbook of Documentacao.zip, not decoded here.
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V1006:
+    role: person.situation
+    kind: category
+    model: dimension
+    fact_domain: administrative
+    fact_domain_evidence: '"SITUAÇÃO DO DOMICÍLIO" (person.situation): geography, sampling or processing key of the survey'
+    name: SITUAÇÃO DO DOMICÍLIO
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V0502:
+    role: person.relationship_to_head
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"RELAÇÃO DE PARENTESCO OU DE CONVIVÊNCIA COM A PESSOA RESPONSÁVEL PELO DOMICÍLIO" (person.relationship_to_head): attribute
+      of the person or of the household they live in'
+    name: RELAÇÃO DE PARENTESCO OU DE CONVIVÊNCIA COM A PESSOA RESPONSÁVEL PELO DOMICÍLIO
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V0504:
+    role: person.order_in_household
+    kind: identifier
+    model: link_only
+    name: ORDEM LÓGICA
+    years:
+    - 2010
+    - 2010
+  V0601:
+    role: person.sex
+    kind: category
+    model: stratum
+    fact_domain: person
+    fact_domain_evidence: '"SEXO" (person.sex): attribute of the person or of the household they live in'
+    name: SEXO
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V6033:
+    role: person.age_coded
+    kind: number
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: '"VARIÁVEL AUXILIAR DA IDADE CALCULADA (ANOS E MESES)" (person.age_coded): attribute of the person or of the household
+      they live in'
+    name: VARIÁVEL AUXILIAR DA IDADE CALCULADA (ANOS E MESES)
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V6036:
+    role: person.age_years
+    kind: number
+    model: stratum
+    unit: years
+    unit_evidence: '"VARIÁVEL AUXILIAR DA IDADE CALCULADA EM ANOS" (layout, sheet PESS)'
+    fact_domain: person
+    fact_domain_evidence: '"VARIÁVEL AUXILIAR DA IDADE CALCULADA EM ANOS" (person.age_years): attribute of the person or of the household they
+      live in'
+    name: VARIÁVEL AUXILIAR DA IDADE CALCULADA EM ANOS
+    years:
+    - 2010
+    - 2010
+    domain:
+    - 0
+    - 140
+    missing: []
+  V6037:
+    role: person.age_months_under_one
+    kind: number
+    model: mark
+    unit: months
+    unit_evidence: '"VARIÁVEL AUXILIAR DA IDADE CALCULADA EM MESES (PARA AS PESSOAS MENORES DE 1 ANO)" (layout, sheet PESS)'
+    fact_domain: person
+    fact_domain_evidence: '"VARIÁVEL AUXILIAR DA IDADE CALCULADA EM MESES (PARA AS PESSOAS MENORES DE 1 ANO)" (person.age_months_under_one): attribute
+      of the person or of the household they live in'
+    name: VARIÁVEL AUXILIAR DA IDADE CALCULADA EM MESES (PARA AS PESSOAS MENORES DE 1 ANO)
+    years:
+    - 2010
+    - 2010
+    domain:
+    - 0
+    - 11
+    missing: []
+  V6040:
+    role: person.age_declaration
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"FORMA DE DECLARAÇÃO DA IDADE" (person.age_declaration): attribute of the person or of the household they live in'
+    name: FORMA DE DECLARAÇÃO DA IDADE
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V0606:
+    role: person.race
+    kind: category
+    model: stratum
+    fact_domain: person
+    fact_domain_evidence: '"COR OU RAÇA" (person.race): attribute of the person or of the household they live in'
+    name: COR OU RAÇA
+    years:
+    - 2010
+    - 2010
+    missing:
+    - '9'
+  V0613:
+    role: person.v0613
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"REGISTRO DE NASCIMENTO" (person.v0613): attribute of the person or of the household they live in'
+    name: REGISTRO DE NASCIMENTO
+    years:
+    - 2010
+    - 2010
+    missing:
+    - '9'
+  V0614:
+    role: person.v0614
+    kind: category
+    model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: '"DIFICULDADE PERMANENTE DE ENXERGAR" (person.v0614): the person''s health condition as they report it'
+    name: DIFICULDADE PERMANENTE DE ENXERGAR
+    years:
+    - 2010
+    - 2010
+    missing:
+    - '9'
+  V0615:
+    role: person.v0615
+    kind: category
+    model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: '"DIFICULDADE PERMANENTE DE OUVIR" (person.v0615): the person''s health condition as they report it'
+    name: DIFICULDADE PERMANENTE DE OUVIR
+    years:
+    - 2010
+    - 2010
+    missing:
+    - '9'
+  V0616:
+    role: person.v0616
+    kind: category
+    model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: '"DIFICULDADE PERMANENTE DE CAMINHAR OU SUBIR DEGRAUS" (person.v0616): the person''s health condition as they report
+      it'
+    name: DIFICULDADE PERMANENTE DE CAMINHAR OU SUBIR DEGRAUS
+    years:
+    - 2010
+    - 2010
+    missing:
+    - '9'
+  V0617:
+    role: person.v0617
+    kind: category
+    model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: '"DEFICIÊNCIA MENTAL/INTELECTUAL PERMANENTE" (person.v0617): the person''s health condition as they report it'
+    name: DEFICIÊNCIA MENTAL/INTELECTUAL PERMANENTE
+    years:
+    - 2010
+    - 2010
+    missing:
+    - '9'
+  V0618:
+    role: person.v0618
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"NASCEU NESTE MUNICÍPIO" (person.v0618): attribute of the person or of the household they live in'
+    name: NASCEU NESTE MUNICÍPIO
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V0619:
+    role: person.v0619
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"NASCEU NESTA UNIDADE DA FEDERAÇÃO" (person.v0619): attribute of the person or of the household they live in'
+    name: NASCEU NESTA UNIDADE DA FEDERAÇÃO
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V0620:
+    role: person.v0620
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"NACIONALIDADE" (person.v0620): attribute of the person or of the household they live in'
+    name: NACIONALIDADE
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V0621:
+    role: person.brazil_residence_year
+    kind: number
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: '"ANO QUE FIXOU RESIDÊNCIA NO BRASIL" (person.brazil_residence_year): attribute of the person or of the household they
+      live in'
+    name: ANO QUE FIXOU RESIDÊNCIA NO BRASIL
+    years:
+    - 2010
+    - 2010
+    domain:
+    - 1869
+    - 2010
+    missing: []
+  V0622:
+    role: person.v0622
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"UF OU PAÍS ESTRANGEIRO DE NASCIMENTO" (person.v0622): attribute of the person or of the household they live in'
+    name: UF OU PAÍS ESTRANGEIRO DE NASCIMENTO
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V6222:
+    role: person.v6222
+    kind: place
+    model: mark
+    place_of: subject
+    fact_domain: person
+    fact_domain_evidence: '"UNIDADE DA FEDERAÇÃO DE NASCIMENTO – código" (person.v6222): attribute of the person or of the household they live
+      in'
+    name: UNIDADE DA FEDERAÇÃO DE NASCIMENTO – código
+    note: The codes are listed in a workbook of Documentacao.zip, not decoded here.
+    years:
+    - 2010
+    - 2010
+  V6224:
+    role: person.v6224
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"QUAL É O PAÍS ESTRANGEIRO DE NASCIMENTO – código" (person.v6224): attribute of the person or of the household they
+      live in'
+    name: QUAL É O PAÍS ESTRANGEIRO DE NASCIMENTO – código
+    note: The codes are listed in a workbook of Documentacao.zip, not decoded here.
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V0623:
+    role: person.v0623
+    kind: number
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: '"TEMPO DE MORADIA NA UF" (person.v0623): attribute of the person or of the household they live in'
+    name: TEMPO DE MORADIA NA UF
+    years:
+    - 2010
+    - 2010
+    domain:
+    - 0
+    - 140
+    missing: []
+  V0624:
+    role: person.v0624
+    kind: number
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: '"TEMPO DE MORADIA NO MUNICÍPIO" (person.v0624): attribute of the person or of the household they live in'
+    name: TEMPO DE MORADIA NO MUNICÍPIO
+    years:
+    - 2010
+    - 2010
+    domain:
+    - 0
+    - 140
+    missing: []
+  V0625:
+    role: person.v0625
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"UNIDADE DA FEDERAÇÃO E MUNICÍPIO OU PAÍS ESTRANGEIRO DE MORADIA ANTES DE MUDAR-SE PARA ESTE MUNICÍPIO" (person.v0625):
+      attribute of the person or of the household they live in'
+    name: UNIDADE DA FEDERAÇÃO E MUNICÍPIO OU PAÍS ESTRANGEIRO DE MORADIA ANTES DE MUDAR-SE PARA ESTE MUNICÍPIO
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V6252:
+    role: person.v6252
+    kind: place
+    model: mark
+    place_of: subject
+    fact_domain: person
+    fact_domain_evidence: '"UF DE RESIDÊNCIA ANTERIOR – código" (person.v6252): attribute of the person or of the household they live in'
+    name: UF DE RESIDÊNCIA ANTERIOR – código
+    note: The codes are listed in a workbook of Documentacao.zip, not decoded here.
+    years:
+    - 2010
+    - 2010
+  V6254:
+    role: person.v6254
+    kind: place
+    model: mark
+    place_of: subject
+    fact_domain: person
+    fact_domain_evidence: '"MUNICÍPIO DE RESIDÊNCIA ANTERIOR – código" (person.v6254): attribute of the person or of the household they live in'
+    name: MUNICÍPIO DE RESIDÊNCIA ANTERIOR – código
+    note: The codes are listed in a workbook of Documentacao.zip, not decoded here.
+    years:
+    - 2010
+    - 2010
+  V6256:
+    role: person.v6256
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"PAÍS DE RESIDÊNCIA ANTERIOR – código" (person.v6256): attribute of the person or of the household they live in'
+    name: PAÍS DE RESIDÊNCIA ANTERIOR – código
+    note: The codes are listed in a workbook of Documentacao.zip, not decoded here.
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V0626:
+    role: person.v0626
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"RESIDÊNCIA EM 31 DE JULHO DE 2005" (person.v0626): attribute of the person or of the household they live in'
+    name: RESIDÊNCIA EM 31 DE JULHO DE 2005
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V6262:
+    role: person.v6262
+    kind: place
+    model: mark
+    place_of: subject
+    fact_domain: person
+    fact_domain_evidence: '"UF DE RESIDÊNCIA EM 31 DE JULHO DE 2005 – código" (person.v6262): attribute of the person or of the household they
+      live in'
+    name: UF DE RESIDÊNCIA EM 31 DE JULHO DE 2005 – código
+    note: The codes are listed in a workbook of Documentacao.zip, not decoded here.
+    years:
+    - 2010
+    - 2010
+  V6264:
+    role: person.v6264
+    kind: place
+    model: mark
+    place_of: subject
+    fact_domain: person
+    fact_domain_evidence: '"MUNICÍPIO DE RESIDÊNCIA EM 31 DE JULHO DE 2005 – código" (person.v6264): attribute of the person or of the household
+      they live in'
+    name: MUNICÍPIO DE RESIDÊNCIA EM 31 DE JULHO DE 2005 – código
+    note: The codes are listed in a workbook of Documentacao.zip, not decoded here.
+    years:
+    - 2010
+    - 2010
+  V6266:
+    role: person.v6266
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"PAÍS DE RESIDÊNCIA EM 31 DE JULHO DE 2005 – código" (person.v6266): attribute of the person or of the household they
+      live in'
+    name: PAÍS DE RESIDÊNCIA EM 31 DE JULHO DE 2005 – código
+    note: The codes are listed in a workbook of Documentacao.zip, not decoded here.
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V0627:
+    role: person.v0627
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"SABE LER E ESCREVER" (person.v0627): attribute of the person or of the household they live in'
+    name: SABE LER E ESCREVER
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V0628:
+    role: person.v0628
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"FREQUENTA ESCOLA OU CRECHE" (person.v0628): attribute of the person or of the household they live in'
+    name: FREQUENTA ESCOLA OU CRECHE
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V0629:
+    role: person.v0629
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"CURSO QUE FREQUENTA" (person.v0629): attribute of the person or of the household they live in'
+    name: CURSO QUE FREQUENTA
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V0630:
+    role: person.v0630
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"SÉRIE / ANO QUE FREQUENTA" (person.v0630): attribute of the person or of the household they live in'
+    name: SÉRIE / ANO QUE FREQUENTA
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V0631:
+    role: person.v0631
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"SÉRIE QUE FREQUENTA" (person.v0631): attribute of the person or of the household they live in'
+    name: SÉRIE QUE FREQUENTA
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V0632:
+    role: person.v0632
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"CONCLUSÃO DE OUTRO CURSO SUPERIOR DE GRADUAÇÃO" (person.v0632): attribute of the person or of the household they live
+      in'
+    name: CONCLUSÃO DE OUTRO CURSO SUPERIOR DE GRADUAÇÃO
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V0633:
+    role: person.v0633
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"CURSO MAIS ELEVADO QUE FREQUENTOU" (person.v0633): attribute of the person or of the household they live in'
+    name: CURSO MAIS ELEVADO QUE FREQUENTOU
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V0634:
+    role: person.v0634
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"CONCLUSÃO DESTE CURSO" (person.v0634): attribute of the person or of the household they live in'
+    name: CONCLUSÃO DESTE CURSO
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V0635:
+    role: person.v0635
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"ESPÉCIE DO CURSO MAIS ELEVADO CONCLUÍDO" (person.v0635): attribute of the person or of the household they live in'
+    name: ESPÉCIE DO CURSO MAIS ELEVADO CONCLUÍDO
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V6400:
+    role: person.v6400
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"NÍVEL DE INSTRUÇÃO" (person.v6400): attribute of the person or of the household they live in'
+    name: NÍVEL DE INSTRUÇÃO
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V6352:
+    role: person.v6352
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"CURSO SUPERIOR DE GRADUAÇÃO – código" (person.v6352): attribute of the person or of the household they live in'
+    name: CURSO SUPERIOR DE GRADUAÇÃO – código
+    note: The codes are listed in a workbook of Documentacao.zip, not decoded here.
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V6354:
+    role: person.v6354
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"CURSO DE MESTRADO – código" (person.v6354): attribute of the person or of the household they live in'
+    name: CURSO DE MESTRADO – código
+    note: The codes are listed in a workbook of Documentacao.zip, not decoded here.
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V6356:
+    role: person.v6356
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"CURSO DE DOUTORADO – código" (person.v6356): attribute of the person or of the household they live in'
+    name: CURSO DE DOUTORADO – código
+    note: The codes are listed in a workbook of Documentacao.zip, not decoded here.
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V0636:
+    role: person.v0636
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"MUNICÍPIO E UNIDADE DA FEDERAÇÃO OU PAÍS ESTRANGEIRO QUE FREQUENTAVA ESCOLA (OU CRECHE)" (person.v0636): attribute
+      of the person or of the household they live in'
+    name: MUNICÍPIO E UNIDADE DA FEDERAÇÃO OU PAÍS ESTRANGEIRO QUE FREQUENTAVA ESCOLA (OU CRECHE)
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V6362:
+    role: person.v6362
+    kind: place
+    model: mark
+    place_of: subject
+    fact_domain: person
+    fact_domain_evidence: '"UF QUE FREQUENTAVA ESCOLA (OU CRECHE) – código" (person.v6362): attribute of the person or of the household they live
+      in'
+    name: UF QUE FREQUENTAVA ESCOLA (OU CRECHE) – código
+    note: The codes are listed in a workbook of Documentacao.zip, not decoded here.
+    years:
+    - 2010
+    - 2010
+  V6364:
+    role: person.v6364
+    kind: place
+    model: mark
+    place_of: subject
+    fact_domain: person
+    fact_domain_evidence: '"MUNICÍPIO QUE FREQUENTAVA ESCOLA (OU CRECHE) – código" (person.v6364): attribute of the person or of the household
+      they live in'
+    name: MUNICÍPIO QUE FREQUENTAVA ESCOLA (OU CRECHE) – código
+    note: The codes are listed in a workbook of Documentacao.zip, not decoded here.
+    years:
+    - 2010
+    - 2010
+  V6366:
+    role: person.v6366
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"PAÍS ESTRANGEIRO QUE FREQUENTAVA ESCOLA (OU CRECHE) – código" (person.v6366): attribute of the person or of the household
+      they live in'
+    name: PAÍS ESTRANGEIRO QUE FREQUENTAVA ESCOLA (OU CRECHE) – código
+    note: The codes are listed in a workbook of Documentacao.zip, not decoded here.
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V0637:
+    role: person.v0637
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"VIVE EM COMPANHIA DE CÔNJUGE OU COMPANHEIRO(A)" (person.v0637): attribute of the person or of the household they live
+      in'
+    name: VIVE EM COMPANHIA DE CÔNJUGE OU COMPANHEIRO(A)
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V0638:
+    role: person.spouse_order
+    kind: number
+    model: mark
+    measure: false
+    fact_domain: person
+    fact_domain_evidence: '"NÚMERO DE ORDEM DO CÔNJUGE OU COMPANHEIRO(A)" (person.spouse_order): attribute of the person or of the household they
+      live in'
+    name: NÚMERO DE ORDEM DO CÔNJUGE OU COMPANHEIRO(A)
+    years:
+    - 2010
+    - 2010
+    domain:
+    - 1
+    - 98
+    missing:
+    - '99'
+  V0639:
+    role: person.v0639
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"NATUREZA DA UNIÃO" (person.v0639): attribute of the person or of the household they live in'
+    name: NATUREZA DA UNIÃO
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V0640:
+    role: person.v0640
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"ESTADO CIVIL" (person.v0640): attribute of the person or of the household they live in'
+    name: ESTADO CIVIL
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V0641:
+    role: person.v0641
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"NA SEMANA DE 25 A 31/07/10, DURANTE PELO MENOS 1 HORA, TRABALHOU GANHANDO EM DINHEIRO, PRODUTOS, MERCADORIAS OU BENEFÍCIOS"
+      (person.v0641): attribute of the person or of the household they live in'
+    name: NA SEMANA DE 25 A 31/07/10, DURANTE PELO MENOS 1 HORA, TRABALHOU GANHANDO EM DINHEIRO, PRODUTOS, MERCADORIAS OU BENEFÍCIOS
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V0642:
+    role: person.v0642
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"NA SEMANA DE 25 A 31/07/10, TINHA TRABALHO REMUNERADO DO QUAL ESTAVA TEMPORARIAMENTE AFASTADO(A)" (person.v0642):
+      attribute of the person or of the household they live in'
+    name: NA SEMANA DE 25 A 31/07/10, TINHA TRABALHO REMUNERADO DO QUAL ESTAVA TEMPORARIAMENTE AFASTADO(A)
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V0643:
+    role: person.v0643
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"NA SEMANA DE 25 A 31/07/10, DURANTE PELO MENOS 1 HORA, AJUDOU SEM QUALQUER PAGAMENTO NO TRABALHO REMUNERADO DE MORADOR
+      DO DOMICÍLIO" (person.v0643): attribute of the person or of the household they live in'
+    name: NA SEMANA DE 25 A 31/07/10, DURANTE PELO MENOS 1 HORA, AJUDOU SEM QUALQUER PAGAMENTO NO TRABALHO REMUNERADO DE MORADOR DO DOMICÍLIO
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V0644:
+    role: person.v0644
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"NA SEMANA DE 25 A 31/07/10, DURANTE PELO MENOS 1 HORA, TRABALHOU NA PLANTAÇÃO, CRIAÇÃO DE ANIMAIS OU PESCA, SOMENTE
+      PARA ALIMENTAÇÃO DOS MORADORES DO DOMICÍLIO (INCLUSIVE CAÇA E EXTRAÇÃO VEGETAL)" (person.v0644): attribute of the person or of the household
+      they live in'
+    name: NA SEMANA DE 25 A 31/07/10, DURANTE PELO MENOS 1 HORA, TRABALHOU NA PLANTAÇÃO, CRIAÇÃO DE ANIMAIS OU PESCA, SOMENTE PARA ALIMENTAÇÃO
+      DOS MORADORES DO DOMICÍLIO (INCLUSIVE CAÇA E EXTRAÇÃO VEGETAL)
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V0645:
+    role: person.v0645
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"QUANTOS TRABALHOS TINHA" (person.v0645): attribute of the person or of the household they live in'
+    name: QUANTOS TRABALHOS TINHA
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V6461:
+    role: person.v6461
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"OCUPAÇÃO – código" (person.v6461): attribute of the person or of the household they live in'
+    name: OCUPAÇÃO – código
+    note: The codes are listed in a workbook of Documentacao.zip, not decoded here. (pode ter valor branco)
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V6471:
+    role: person.v6471
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"ATIVIDADE – código" (person.v6471): attribute of the person or of the household they live in'
+    name: ATIVIDADE – código
+    note: The codes are listed in a workbook of Documentacao.zip, not decoded here. (pode ter valor branco)
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V0648:
+    role: person.v0648
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"NESSE TRABALHO ERA" (person.v0648): attribute of the person or of the household they live in'
+    name: NESSE TRABALHO ERA
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V0649:
+    role: person.v0649
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"QUANTAS PESSOAS EMPREGAVA NESSE TRABALHO" (person.v0649): attribute of the person or of the household they live in'
+    name: QUANTAS PESSOAS EMPREGAVA NESSE TRABALHO
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V0650:
+    role: person.v0650
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"ERA CONTRIBUINTE DE INSTITUTO DE PREVIDÊNCIA OFICIAL EM ALGUM TRABALHO QUE TINHA NA SEMANA DE 25 A 31 DE JULHO DE
+      2010" (person.v0650): attribute of the person or of the household they live in'
+    name: ERA CONTRIBUINTE DE INSTITUTO DE PREVIDÊNCIA OFICIAL EM ALGUM TRABALHO QUE TINHA NA SEMANA DE 25 A 31 DE JULHO DE 2010
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V0651:
+    role: person.v0651
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"NO TRABALHO PRINCIPAL, QUAL ERA O RENDIMENTO BRUTO (OU A RETIRADA) MENSAL QUE GANHAVA HABITUALMENTE EM JULHO DE 2010"
+      (person.v0651): attribute of the person or of the household they live in'
+    name: NO TRABALHO PRINCIPAL, QUAL ERA O RENDIMENTO BRUTO (OU A RETIRADA) MENSAL QUE GANHAVA HABITUALMENTE EM JULHO DE 2010
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V6511:
+    role: person.v6511
+    kind: number
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: '"VALOR DO RENDIMENTO BRUTO (OU A RETIRADA) MENSAL NO TRABALHO PRINCIPAL: (pode ter valor branco)" (person.v6511): attribute
+      of the person or of the household they live in'
+    name: 'VALOR DO RENDIMENTO BRUTO (OU A RETIRADA) MENSAL NO TRABALHO PRINCIPAL: (pode ter valor branco)'
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V6513:
+    role: person.v6513
+    kind: number
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: '"RENDIMENTO NO TRABALHO PRINCIPAL: (pode ter valor branco)" (person.v6513): attribute of the person or of the household
+      they live in'
+    name: 'RENDIMENTO NO TRABALHO PRINCIPAL: (pode ter valor branco)'
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V6514:
+    role: person.v6514
+    kind: number
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: '"RENDIMENTO NO TRABALHO PRINCIPAL EM Nº DE SALÁRIOS MÍNIMOS: (pode ter valor branco)" (person.v6514): attribute of
+      the person or of the household they live in'
+    name: 'RENDIMENTO NO TRABALHO PRINCIPAL EM Nº DE SALÁRIOS MÍNIMOS: (pode ter valor branco)'
+    note: 4 digits then 2 after an implied decimal point; the digits as filed are V6514__RAW.
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V0652:
+    role: person.v0652
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"NOS DEMAIS TRABALHOS, QUAL ERA O RENDIMENTO BRUTO (OU A RETIRADA) MENSAL QUE GANHAVA HABITUALMENTE EM JULHO DE 2010"
+      (person.v0652): attribute of the person or of the household they live in'
+    name: NOS DEMAIS TRABALHOS, QUAL ERA O RENDIMENTO BRUTO (OU A RETIRADA) MENSAL QUE GANHAVA HABITUALMENTE EM JULHO DE 2010
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V6521:
+    role: person.v6521
+    kind: number
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: '"VALOR DO RENDIMENTO BRUTO (OU A RETIRADA) MENSAL NOS DEMAIS TRABALHOS (EM REAIS)" (person.v6521): attribute of the
+      person or of the household they live in'
+    name: VALOR DO RENDIMENTO BRUTO (OU A RETIRADA) MENSAL NOS DEMAIS TRABALHOS (EM REAIS)
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V6524:
+    role: person.v6524
+    kind: number
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: '"RENDIMENTO BRUTO NOS DEMAIS TRABALHOS EM Nº DE SALÁRIOS MÍNIMOS" (person.v6524): attribute of the person or of the
+      household they live in'
+    name: RENDIMENTO BRUTO NOS DEMAIS TRABALHOS EM Nº DE SALÁRIOS MÍNIMOS
+    note: 4 digits then 5 after an implied decimal point; the digits as filed are V6524__RAW.
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V6525:
+    role: person.v6525
+    kind: number
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: '"RENDIMENTO EM TODOS OS TRABALHOS" (person.v6525): attribute of the person or of the household they live in'
+    name: RENDIMENTO EM TODOS OS TRABALHOS
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V6526:
+    role: person.v6526
+    kind: number
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: '"RENDIMENTO EM TODOS OS TRABALHOS EM Nº DE SALÁRIOS MÍNIMOS" (person.v6526): attribute of the person or of the household
+      they live in'
+    name: RENDIMENTO EM TODOS OS TRABALHOS EM Nº DE SALÁRIOS MÍNIMOS
+    note: 4 digits then 5 after an implied decimal point; the digits as filed are V6526__RAW.
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V6527:
+    role: person.v6527
+    kind: number
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: '"RENDIMENTO MENSAL TOTAL EM JULHO DE 2010" (person.v6527): attribute of the person or of the household they live in'
+    name: RENDIMENTO MENSAL TOTAL EM JULHO DE 2010
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V6528:
+    role: person.v6528
+    kind: number
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: '"RENDIMENTO MENSAL TOTAL EM Nº DE SALÁRIOS MÍNIMOS EM JULHO DE 2010" (person.v6528): attribute of the person or of
+      the household they live in'
+    name: RENDIMENTO MENSAL TOTAL EM Nº DE SALÁRIOS MÍNIMOS EM JULHO DE 2010
+    note: 4 digits then 5 after an implied decimal point; the digits as filed are V6528__RAW.
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V6529:
+    role: person.v6529
+    kind: number
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: '"RENDIMENTO DOMICILIAR (DOMICÍLIO PARTICULAR) EM JULHO DE 2010" (person.v6529): attribute of the person or of the household
+      they live in'
+    name: RENDIMENTO DOMICILIAR (DOMICÍLIO PARTICULAR) EM JULHO DE 2010
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V6530:
+    role: person.v6530
+    kind: number
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: '"RENDIMENTO DOMICILIAR (DOMICÍLIO PARTICULAR) EM Nº DE SALÁRIOS MÍNIMOS EM JULHO DE 2010" (person.v6530): attribute
+      of the person or of the household they live in'
+    name: RENDIMENTO DOMICILIAR (DOMICÍLIO PARTICULAR) EM Nº DE SALÁRIOS MÍNIMOS EM JULHO DE 2010
+    note: 5 digits then 5 after an implied decimal point; the digits as filed are V6530__RAW.
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V6531:
+    role: person.v6531
+    kind: number
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: '"RENDIMENTO DOMICILIAR (DOMICÍLIO PARTICULAR) PER CAPITA EM JULHO DE 2010" (person.v6531): attribute of the person
+      or of the household they live in'
+    name: RENDIMENTO DOMICILIAR (DOMICÍLIO PARTICULAR) PER CAPITA EM JULHO DE 2010
+    note: 6 digits then 2 after an implied decimal point; the digits as filed are V6531__RAW.
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V6532:
+    role: person.v6532
+    kind: number
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: '"RENDIMENTO DOMICILIAR (DOMICÍLIO PARTICULAR) PER CAPITA EM Nº DE SALÁRIOS MÍNIMOS EM JULHO DE 2010" (person.v6532):
+      attribute of the person or of the household they live in'
+    name: RENDIMENTO DOMICILIAR (DOMICÍLIO PARTICULAR) PER CAPITA EM Nº DE SALÁRIOS MÍNIMOS EM JULHO DE 2010
+    note: 4 digits then 5 after an implied decimal point; the digits as filed are V6532__RAW.
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V0653:
+    role: person.v0653
+    kind: number
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: '"NO TRABALHO PRINCIPAL, QUANTAS HORAS TRABALHAVA HABITUALMENTE POR SEMANA" (person.v0653): attribute of the person
+      or of the household they live in'
+    name: NO TRABALHO PRINCIPAL, QUANTAS HORAS TRABALHAVA HABITUALMENTE POR SEMANA
+    years:
+    - 2010
+    - 2010
+    domain:
+    - 1
+    - 140
+    missing: []
+  V0654:
+    role: person.v0654
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"NO PERÍODO DE 02 A 31 DE JULHO DE 2010, TOMOU ALGUMA PROVIDÊNCIA, DE FATO, PARA CONSEGUIR TRABALHO?" (person.v0654):
+      attribute of the person or of the household they live in'
+    name: NO PERÍODO DE 02 A 31 DE JULHO DE 2010, TOMOU ALGUMA PROVIDÊNCIA, DE FATO, PARA CONSEGUIR TRABALHO?
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V0655:
+    role: person.v0655
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"SE TIVESSE CONSEGUIDO TRABALHO, ESTARIA DISPONÍVEL PARA ASSUMI-LO NA SEMANA DE 25 A 31 DE JULHO DE 2010?" (person.v0655):
+      attribute of the person or of the household they live in'
+    name: SE TIVESSE CONSEGUIDO TRABALHO, ESTARIA DISPONÍVEL PARA ASSUMI-LO NA SEMANA DE 25 A 31 DE JULHO DE 2010?
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V0656:
+    role: person.v0656
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"EM JULHO DE 2010, TINHA RENDIMENTO MENSAL HABITUAL DE APOSENTADORIA OU PENSÃO DE INSTITUTO DE PREVIDÊNCIA OFICIAL
+      (FEDERAL, ESTADUAL OU MUNICIPAL)?" (person.v0656): attribute of the person or of the household they live in'
+    name: EM JULHO DE 2010, TINHA RENDIMENTO MENSAL HABITUAL DE APOSENTADORIA OU PENSÃO DE INSTITUTO DE PREVIDÊNCIA OFICIAL (FEDERAL, ESTADUAL
+      OU MUNICIPAL)?
+    years:
+    - 2010
+    - 2010
+    missing:
+    - '9'
+  V0657:
+    role: person.v0657
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"EM JULHO DE 2010, TINHA RENDIMENTO MENSAL HABITUAL DE PROGRAMA SOCIAL BOLSA-FAMÍLIA OU PROGRAMA DE ERRADICAÇÃO DO
+      TRABALHO INFANTIL (PETI)" (person.v0657): attribute of the person or of the household they live in'
+    name: EM JULHO DE 2010, TINHA RENDIMENTO MENSAL HABITUAL DE PROGRAMA SOCIAL BOLSA-FAMÍLIA OU PROGRAMA DE ERRADICAÇÃO DO TRABALHO INFANTIL
+      (PETI)
+    years:
+    - 2010
+    - 2010
+    missing:
+    - '9'
+  V0658:
+    role: person.v0658
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"EM JULHO 2010, TINHA RENDIMENTO MENSAL HABITUAL DE OUTROS PROGRAMAS SOCIAIS OU DE TRANSFERÊNCIAS" (person.v0658):
+      attribute of the person or of the household they live in'
+    name: EM JULHO 2010, TINHA RENDIMENTO MENSAL HABITUAL DE OUTROS PROGRAMAS SOCIAIS OU DE TRANSFERÊNCIAS
+    years:
+    - 2010
+    - 2010
+    missing:
+    - '9'
+  V0659:
+    role: person.v0659
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"EM JULHO DE 2010, TINHA RENDIMENTO MENSAL HABITUAL DE OUTRAS FONTES (JUROS DE POUPANÇA, APLICAÇÕES FINANCEIRAS, ALUGUEL,
+      PENSÃO, APOSENTADORIA DE PREVIDÊNCIA PRIVADA, ETC)?" (person.v0659): attribute of the person or of the household they live in'
+    name: EM JULHO DE 2010, TINHA RENDIMENTO MENSAL HABITUAL DE OUTRAS FONTES (JUROS DE POUPANÇA, APLICAÇÕES FINANCEIRAS, ALUGUEL, PENSÃO, APOSENTADORIA
+      DE PREVIDÊNCIA PRIVADA, ETC)?
+    years:
+    - 2010
+    - 2010
+    missing:
+    - '9'
+  V6591:
+    role: person.v6591
+    kind: number
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: '"EM JULHO DE 2010 QUAL FOI O VALOR TOTAL DESTE(S) RENDIMENTO(S)" (person.v6591): attribute of the person or of the
+      household they live in'
+    name: EM JULHO DE 2010 QUAL FOI O VALOR TOTAL DESTE(S) RENDIMENTO(S)
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V0660:
+    role: person.v0660
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"EM QUE MUNICÍPIO E UNIDADE DA FEDERAÇÃO OU PAÍS ESTRANGEIRO TRABALHA" (person.v0660): attribute of the person or of
+      the household they live in'
+    name: EM QUE MUNICÍPIO E UNIDADE DA FEDERAÇÃO OU PAÍS ESTRANGEIRO TRABALHA
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V6602:
+    role: person.v6602
+    kind: place
+    model: mark
+    place_of: subject
+    fact_domain: person
+    fact_domain_evidence: '"EM QUE UNIDADE DA FEDERAÇÃO TRABALHAVA - código" (person.v6602): attribute of the person or of the household they
+      live in'
+    name: EM QUE UNIDADE DA FEDERAÇÃO TRABALHAVA - código
+    note: The codes are listed in a workbook of Documentacao.zip, not decoded here.
+    years:
+    - 2010
+    - 2010
+  V6604:
+    role: person.v6604
+    kind: place
+    model: mark
+    place_of: subject
+    fact_domain: person
+    fact_domain_evidence: '"EM QUE MUNICÍPIO TRABALHAVA - código" (person.v6604): attribute of the person or of the household they live in'
+    name: EM QUE MUNICÍPIO TRABALHAVA - código
+    note: The codes are listed in a workbook of Documentacao.zip, not decoded here.
+    years:
+    - 2010
+    - 2010
+  V6606:
+    role: person.v6606
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"EM QUE PAÍS ESTRANGEIRO TRABALHAVA - código" (person.v6606): attribute of the person or of the household they live
+      in'
+    name: EM QUE PAÍS ESTRANGEIRO TRABALHAVA - código
+    note: The codes are listed in a workbook of Documentacao.zip, not decoded here.
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V0661:
+    role: person.v0661
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"RETORNA DO TRABALHO PARA CASA DIARIAMENTE" (person.v0661): attribute of the person or of the household they live in'
+    name: RETORNA DO TRABALHO PARA CASA DIARIAMENTE
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V0662:
+    role: person.v0662
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"QUAL É O TEMPO HABITUAL GASTO DE DESLOCAMENTO DE SUA CASA ATÉ O TRABALHO" (person.v0662): attribute of the person
+      or of the household they live in'
+    name: QUAL É O TEMPO HABITUAL GASTO DE DESLOCAMENTO DE SUA CASA ATÉ O TRABALHO
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V0663:
+    role: person.v0663
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"QUANTOS FILHOS E FILHAS NASCIDOS VIVOS TEVE ATÉ 31 DE JULHO DE 2010" (person.v0663): attribute of the person or of
+      the household they live in'
+    name: QUANTOS FILHOS E FILHAS NASCIDOS VIVOS TEVE ATÉ 31 DE JULHO DE 2010
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V6631:
+    role: person.v6631
+    kind: number
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: '"QUANTOS FILHOS NASCIDOS VIVOS TEVE ATÉ 31 DE JULHO DE 2010" (person.v6631): attribute of the person or of the household
+      they live in'
+    name: QUANTOS FILHOS NASCIDOS VIVOS TEVE ATÉ 31 DE JULHO DE 2010
+    years:
+    - 2010
+    - 2010
+    domain:
+    - 0
+    - 31
+    missing: []
+  V6632:
+    role: person.v6632
+    kind: number
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: '"QUANTAS FILHAS NASCIDAS VIVAS TEVE ATÉ 31 DE JULHO DE 2010" (person.v6632): attribute of the person or of the household
+      they live in'
+    name: QUANTAS FILHAS NASCIDAS VIVAS TEVE ATÉ 31 DE JULHO DE 2010
+    years:
+    - 2010
+    - 2010
+    domain:
+    - 0
+    - 31
+    missing: []
+  V6633:
+    role: person.v6633
+    kind: number
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: '"TOTAL DE FILHOS NASCIDOS VIVOS QUE TEVE ATÉ 31 DE JULHO DE 2010" (person.v6633): attribute of the person or of the
+      household they live in'
+    name: TOTAL DE FILHOS NASCIDOS VIVOS QUE TEVE ATÉ 31 DE JULHO DE 2010
+    years:
+    - 2010
+    - 2010
+    domain:
+    - 0
+    - 31
+    missing: []
+  V0664:
+    role: person.v0664
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"DOS FILHOS E FILHAS QUE TEVE, QUANTOS ESTAVAM VIVOS EM 31 DE JULHO DE 2010" (person.v0664): attribute of the person
+      or of the household they live in'
+    name: DOS FILHOS E FILHAS QUE TEVE, QUANTOS ESTAVAM VIVOS EM 31 DE JULHO DE 2010
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V6641:
+    role: person.v6641
+    kind: number
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: '"DOS FILHOS QUE TEVE, QUANTOS ESTAVAM VIVOS EM 31 DE JULHO DE 2010" (person.v6641): attribute of the person or of the
+      household they live in'
+    name: DOS FILHOS QUE TEVE, QUANTOS ESTAVAM VIVOS EM 31 DE JULHO DE 2010
+    years:
+    - 2010
+    - 2010
+    domain:
+    - 0
+    - 31
+    missing: []
+  V6642:
+    role: person.v6642
+    kind: number
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: '"DAS FILHAS QUE TEVE, QUANTAS ESTAVAM VIVAS EM 31 DE JULHO DE 2010" (person.v6642): attribute of the person or of the
+      household they live in'
+    name: DAS FILHAS QUE TEVE, QUANTAS ESTAVAM VIVAS EM 31 DE JULHO DE 2010
+    years:
+    - 2010
+    - 2010
+    domain:
+    - 0
+    - 31
+    missing: []
+  V6643:
+    role: person.v6643
+    kind: number
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: '"TOTAL DE FILHOS QUE TEVE, QUANTOS ESTAVAM VIVOS EM 31 DE JULHO DE 2010" (person.v6643): attribute of the person or
+      of the household they live in'
+    name: TOTAL DE FILHOS QUE TEVE, QUANTOS ESTAVAM VIVOS EM 31 DE JULHO DE 2010
+    years:
+    - 2010
+    - 2010
+    domain:
+    - 0
+    - 31
+    missing: []
+  V0665:
+    role: person.v0665
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"QUAL É O SEXO DO ÚLTIMO FILHO TIDO NASCIDO VIVO ATÉ 31 DE JULHO DE 2010" (person.v0665): attribute of the person or
+      of the household they live in'
+    name: QUAL É O SEXO DO ÚLTIMO FILHO TIDO NASCIDO VIVO ATÉ 31 DE JULHO DE 2010
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V6660:
+    role: person.v6660
+    kind: number
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: '"IDADE DO ÚLTIMO FILHO TIDO NASCIDO VIVO ATÉ 31 DE JULHO DE 2010" (person.v6660): attribute of the person or of the
+      household they live in'
+    name: IDADE DO ÚLTIMO FILHO TIDO NASCIDO VIVO ATÉ 31 DE JULHO DE 2010
+    years:
+    - 2010
+    - 2010
+    domain:
+    - 0
+    - 130
+    missing: []
+  V6664:
+    role: person.v6664
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"EXISTÊNCIA DE FILHO TIDO NASCIDO VIVO NO PERÍODO DE REFERÊNCIA DE 12 MESES ANTERIORES A 31/07/2010" (person.v6664):
+      attribute of the person or of the household they live in'
+    name: EXISTÊNCIA DE FILHO TIDO NASCIDO VIVO NO PERÍODO DE REFERÊNCIA DE 12 MESES ANTERIORES A 31/07/2010
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V0667:
+    role: person.v0667
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"ESTE(A) FILHO(A) ESTAVA VIVO(A) EM 31 DE JULHO DE 2010" (person.v0667): attribute of the person or of the household
+      they live in'
+    name: ESTE(A) FILHO(A) ESTAVA VIVO(A) EM 31 DE JULHO DE 2010
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V0668:
+    role: person.v0668
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"QUAL FOI O MÊS E O ANO QUE ESTE(A) FILHO(A) FALECEU" (person.v0668): attribute of the person or of the household they
+      live in'
+    name: QUAL FOI O MÊS E O ANO QUE ESTE(A) FILHO(A) FALECEU
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V6681:
+    role: person.child_death_month
+    kind: number
+    model: mark
+    measure: false
+    fact_domain: person
+    fact_domain_evidence: '"QUAL FOI O MÊS QUE ESTE(A) FILHO(A) FALECEU" (person.child_death_month): attribute of the person or of the household
+      they live in'
+    name: QUAL FOI O MÊS QUE ESTE(A) FILHO(A) FALECEU
+    years:
+    - 2010
+    - 2010
+    domain:
+    - 1
+    - 12
+    missing:
+    - '99'
+  V6682:
+    role: person.child_death_year
+    kind: number
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: '"QUAL FOI O ANO QUE ESTE(A) FILHO(A) FALECEU" (person.child_death_year): attribute of the person or of the household
+      they live in'
+    name: QUAL FOI O ANO QUE ESTE(A) FILHO(A) FALECEU
+    years:
+    - 2010
+    - 2010
+    domain:
+    - 1879
+    - 2010
+    missing:
+    - '9999'
+  V0669:
+    role: person.v0669
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"QUANTOS FILHOS E FILHAS NASCIDOS MORTOS TEVE ATÉ 31 DE JULHO DE 2010" (person.v0669): attribute of the person or of
+      the household they live in'
+    name: QUANTOS FILHOS E FILHAS NASCIDOS MORTOS TEVE ATÉ 31 DE JULHO DE 2010
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V6691:
+    role: person.v6691
+    kind: number
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: '"QUANTOS FILHOS NASCIDOS MORTOS TEVE ATÉ 31 DE JULHO DE 2010" (person.v6691): attribute of the person or of the household
+      they live in'
+    name: QUANTOS FILHOS NASCIDOS MORTOS TEVE ATÉ 31 DE JULHO DE 2010
+    years:
+    - 2010
+    - 2010
+    domain:
+    - 0
+    - 31
+    missing: []
+  V6692:
+    role: person.v6692
+    kind: number
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: '"QUANTOS FILHAS NASCIDAS MORTAS TEVE ATÉ 31 DE JULHO DE 2010" (person.v6692): attribute of the person or of the household
+      they live in'
+    name: QUANTOS FILHAS NASCIDAS MORTAS TEVE ATÉ 31 DE JULHO DE 2010
+    years:
+    - 2010
+    - 2010
+    domain:
+    - 0
+    - 31
+    missing: []
+  V6693:
+    role: person.v6693
+    kind: number
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: '"QUANTOS FILHOS E FILHAS NASCIDOS MORTOS TEVE ATÉ 31 DE JULHO DE 2010" (person.v6693): attribute of the person or of
+      the household they live in'
+    name: QUANTOS FILHOS E FILHAS NASCIDOS MORTOS TEVE ATÉ 31 DE JULHO DE 2010
+    years:
+    - 2010
+    - 2010
+    domain:
+    - 0
+    - 31
+    missing: []
+  V6800:
+    role: person.v6800
+    kind: number
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: '"TOTAL DE FILHOS TIDOS NASCIDOS VIVOS E NASCIDOS MORTOS" (person.v6800): attribute of the person or of the household
+      they live in'
+    name: TOTAL DE FILHOS TIDOS NASCIDOS VIVOS E NASCIDOS MORTOS
+    years:
+    - 2010
+    - 2010
+    domain:
+    - 0
+    - 31
+    missing: []
+  V0670:
+    role: person.v0670
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"ASSINALE QUEM PRESTOU AS INFORMAÇÕES DESTA PESSOA" (person.v0670): attribute of the person or of the household they
+      live in'
+    name: ASSINALE QUEM PRESTOU AS INFORMAÇÕES DESTA PESSOA
+    years:
+    - 2010
+    - 2010
+    missing:
+    - '9'
+  V0671:
+    role: person.v0671
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"NÚMERO DE ORDEM DO INFORMANTE (OUTRO MORADOR)" (person.v0671): attribute of the person or of the household they live
+      in'
+    name: NÚMERO DE ORDEM DO INFORMANTE (OUTRO MORADOR)
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V6900:
+    role: person.v6900
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"CONDIÇÃO DE ATIVIDADE NA SEMANA DE REFERÊNCIA" (person.v6900): attribute of the person or of the household they live
+      in'
+    name: CONDIÇÃO DE ATIVIDADE NA SEMANA DE REFERÊNCIA
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V6910:
+    role: person.v6910
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"CONDIÇÃO DE OCUPAÇÃO NA SEMANA DE REFERÊNCIA" (person.v6910): attribute of the person or of the household they live
+      in'
+    name: CONDIÇÃO DE OCUPAÇÃO NA SEMANA DE REFERÊNCIA
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V6920:
+    role: person.v6920
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"SITUAÇÃO DE OCUPAÇÃO NA SEMANA DE REFERÊNCIA" (person.v6920): attribute of the person or of the household they live
+      in'
+    name: SITUAÇÃO DE OCUPAÇÃO NA SEMANA DE REFERÊNCIA
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V6930:
+    role: person.v6930
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"POSIÇÃO NA OCUPAÇÃO E CATEGORIA DO EMPREGO NO TRABALHO PRINCIPAL" (person.v6930): attribute of the person or of the
+      household they live in'
+    name: POSIÇÃO NA OCUPAÇÃO E CATEGORIA DO EMPREGO NO TRABALHO PRINCIPAL
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V6940:
+    role: person.v6940
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"SUBGRUPO E CATEGORIA DO EMPREGO NO TRABALHO PRINCIPAL" (person.v6940): attribute of the person or of the household
+      they live in'
+    name: SUBGRUPO E CATEGORIA DO EMPREGO NO TRABALHO PRINCIPAL
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V6121:
+    role: person.v6121
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"Qual é a sua religião ou culto? - código (banco de códigos; 999 = ignorado)" (person.v6121): attribute of the person
+      or of the household they live in'
+    name: Qual é a sua religião ou culto? - código (banco de códigos; 999 = ignorado)
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V0604:
+    role: person.v0604
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"TEM MÃE VIVA?" (person.v0604): attribute of the person or of the household they live in'
+    name: TEM MÃE VIVA?
+    years:
+    - 2010
+    - 2010
+    missing:
+    - '9'
+  V0605:
+    role: person.v0605
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"Número de ordem da mãe da pessoa (branco; 1 a 98; 99 = ignorado)" (person.v0605): attribute of the person or of the
+      household they live in'
+    name: Número de ordem da mãe da pessoa (branco; 1 a 98; 99 = ignorado)
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V5020:
+    role: person.v5020
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"NÚMERO DA FAMÍLIA" (person.v5020): attribute of the person or of the household they live in'
+    name: NÚMERO DA FAMÍLIA
+    note: Branco – para pessoas residentes em domicílios coletivos e/ou em unidades domésticas localizadas em terras indígenas, onde não se fez
+      a identificação de famílias.
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V5060:
+    role: person.v5060
+    kind: number
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: '"Número de Pessoas na Família" (person.v5060): attribute of the person or of the household they live in'
+    name: Número de Pessoas na Família
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V5070:
+    role: person.v5070
+    kind: number
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: '"Rendimento familiar per capita em julho de 2010 (0 a 999999,99)" (person.v5070): attribute of the person or of the
+      household they live in'
+    name: Rendimento familiar per capita em julho de 2010 (0 a 999999,99)
+    note: 6 digits then 2 after an implied decimal point; the digits as filed are V5070__RAW.
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V5080:
+    role: person.v5080
+    kind: number
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: '"Rendimento familiar per capita em nº de salários mínimos em julho de 2010 (0 a 9999,99999)" (person.v5080): attribute
+      of the person or of the household they live in'
+    name: Rendimento familiar per capita em nº de salários mínimos em julho de 2010 (0 a 9999,99999)
+    note: 4 digits then 5 after an implied decimal point; the digits as filed are V5080__RAW.
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V6462:
+    role: person.v6462
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"Qual era a ocupação que exercia no trabalho que tinha? - código 2000 (branco; banco de códigos de 2000)" (person.v6462):
+      attribute of the person or of the household they live in'
+    name: Qual era a ocupação que exercia no trabalho que tinha? - código 2000 (branco; banco de códigos de 2000)
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V6472:
+    role: person.v6472
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"Qual era a atividade principal do empreendimento em que tinha esse trabalho? - código 2000 (branco; banco de códigos
+      de 2000)" (person.v6472): attribute of the person or of the household they live in'
+    name: Qual era a atividade principal do empreendimento em que tinha esse trabalho? - código 2000 (branco; banco de códigos de 2000)
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V5110:
+    role: person.v5110
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"CONDIÇÃO DE CONTRIBUIÇÃO PARA INSTITUTO DE PREVIDÊNCIA OFICIAL NO TRABALHO PRINCIPAL" (person.v5110): attribute of
+      the person or of the household they live in'
+    name: CONDIÇÃO DE CONTRIBUIÇÃO PARA INSTITUTO DE PREVIDÊNCIA OFICIAL NO TRABALHO PRINCIPAL
+    note: Contribuintes; Não contribuintes
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V5120:
+    role: person.v5120
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"CONDIÇÃO DE CONTRIBUIÇÃO PARA INSTITUTO DE PREVIDÊNCIA OFICIAL EM QUALQUER TRABALHO" (person.v5120): attribute of
+      the person or of the household they live in'
+    name: CONDIÇÃO DE CONTRIBUIÇÃO PARA INSTITUTO DE PREVIDÊNCIA OFICIAL EM QUALQUER TRABALHO
+    note: Contribuintes; Não contribuintes
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V5030:
+    role: person.v5030
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"TIPO DE UNIDADE DOMÉSTICA" (person.v5030): attribute of the person or of the household they live in'
+    name: TIPO DE UNIDADE DOMÉSTICA
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V5040:
+    role: person.v5040
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"INDICADORA DE FAMÍLIA" (person.v5040): attribute of the person or of the household they live in'
+    name: INDICADORA DE FAMÍLIA
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V5090:
+    role: person.v5090
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"TIPO DE COMPOSIÇÃO FAMILIAR DAS FAMÍLIAS ÚNICAS E CONVIVENTES PRINCIPAIS" (person.v5090): attribute of the person
+      or of the household they live in'
+    name: TIPO DE COMPOSIÇÃO FAMILIAR DAS FAMÍLIAS ÚNICAS E CONVIVENTES PRINCIPAIS
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V5100:
+    role: person.v5100
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"TIPO DE COMPOSIÇÃO FAMILIAR DAS FAMÍLIAS CONVIVENTES SECUNDÁRIAS" (person.v5100): attribute of the person or of the
+      household they live in'
+    name: TIPO DE COMPOSIÇÃO FAMILIAR DAS FAMÍLIAS CONVIVENTES SECUNDÁRIAS
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V5130:
+    role: person.v5130
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"ORDEM LÓGICA NA FAMÍLIA" (person.v5130): attribute of the person or of the household they live in'
+    name: ORDEM LÓGICA NA FAMÍLIA
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M0502:
+    role: person.imputed_v0502
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V0502" (person.imputed_v0502): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V0502
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M0601:
+    role: person.imputed_v0601
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V0601" (person.imputed_v0601): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V0601
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M6033:
+    role: person.imputed_v6033
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V6033" (person.imputed_v6033): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V6033
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M0606:
+    role: person.imputed_v0606
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V0606" (person.imputed_v0606): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V0606
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M0613:
+    role: person.imputed_v0613
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V0613" (person.imputed_v0613): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V0613
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M0614:
+    role: person.imputed_v0614
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V0614" (person.imputed_v0614): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V0614
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M0615:
+    role: person.imputed_v0615
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V0615" (person.imputed_v0615): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V0615
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M0616:
+    role: person.imputed_v0616
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V0616" (person.imputed_v0616): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V0616
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M0617:
+    role: person.imputed_v0617
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V0617" (person.imputed_v0617): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V0617
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M0618:
+    role: person.imputed_v0618
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V0618" (person.imputed_v0618): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V0618
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M0619:
+    role: person.imputed_v0619
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V0619" (person.imputed_v0619): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V0619
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M0620:
+    role: person.imputed_v0620
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V0620" (person.imputed_v0620): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V0620
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M0621:
+    role: person.imputed_v0621
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V0621" (person.imputed_v0621): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V0621
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M0622:
+    role: person.imputed_v0622
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V0622" (person.imputed_v0622): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V0622
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M6222:
+    role: person.imputed_v6222
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V6222" (person.imputed_v6222): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V6222
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M6224:
+    role: person.imputed_v6224
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V6224" (person.imputed_v6224): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V6224
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M0623:
+    role: person.imputed_v0623
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V0623" (person.imputed_v0623): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V0623
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M0624:
+    role: person.imputed_v0624
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V0624" (person.imputed_v0624): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V0624
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M0625:
+    role: person.imputed_v0625
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V0625" (person.imputed_v0625): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V0625
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M6252:
+    role: person.imputed_v6252
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V6252" (person.imputed_v6252): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V6252
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M6254:
+    role: person.imputed_v6254
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V6254" (person.imputed_v6254): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V6254
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M6256:
+    role: person.imputed_v6256
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V6256" (person.imputed_v6256): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V6256
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M0626:
+    role: person.imputed_v0626
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V0626" (person.imputed_v0626): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V0626
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M6262:
+    role: person.imputed_v6262
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V6262" (person.imputed_v6262): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V6262
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M6264:
+    role: person.imputed_v6264
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V6264" (person.imputed_v6264): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V6264
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M6266:
+    role: person.imputed_v6266
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V6266" (person.imputed_v6266): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V6266
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M0627:
+    role: person.imputed_v0627
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V0627" (person.imputed_v0627): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V0627
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M0628:
+    role: person.imputed_v0628
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V0628" (person.imputed_v0628): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V0628
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M0629:
+    role: person.imputed_v0629
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V0629" (person.imputed_v0629): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V0629
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M0630:
+    role: person.imputed_v0630
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V0630" (person.imputed_v0630): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V0630
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M0631:
+    role: person.imputed_v0631
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V0631" (person.imputed_v0631): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V0631
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M0632:
+    role: person.imputed_v0632
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V0632" (person.imputed_v0632): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V0632
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M0633:
+    role: person.imputed_v0633
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V0633" (person.imputed_v0633): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V0633
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M0634:
+    role: person.imputed_v0634
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V0634" (person.imputed_v0634): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V0634
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M0635:
+    role: person.imputed_v0635
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V0635" (person.imputed_v0635): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V0635
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M6352:
+    role: person.imputed_v6352
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V6352" (person.imputed_v6352): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V6352
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M6354:
+    role: person.imputed_v6354
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V6354" (person.imputed_v6354): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V6354
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M6356:
+    role: person.imputed_v6356
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V6356" (person.imputed_v6356): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V6356
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M0636:
+    role: person.imputed_v0636
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V0636" (person.imputed_v0636): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V0636
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M6362:
+    role: person.imputed_v6362
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V6362" (person.imputed_v6362): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V6362
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M6364:
+    role: person.imputed_v6364
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V6364" (person.imputed_v6364): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V6364
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M6366:
+    role: person.imputed_v6366
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V6366" (person.imputed_v6366): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V6366
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M0637:
+    role: person.imputed_v0637
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V0637" (person.imputed_v0637): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V0637
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M0638:
+    role: person.imputed_v0638
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V0638" (person.imputed_v0638): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V0638
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M0639:
+    role: person.imputed_v0639
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V0639" (person.imputed_v0639): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V0639
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M0640:
+    role: person.imputed_v0640
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V0640" (person.imputed_v0640): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V0640
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M0641:
+    role: person.imputed_v0641
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V0641" (person.imputed_v0641): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V0641
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M0642:
+    role: person.imputed_v0642
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V0642" (person.imputed_v0642): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V0642
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M0643:
+    role: person.imputed_v0643
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V0643" (person.imputed_v0643): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V0643
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M0644:
+    role: person.imputed_v0644
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V0644" (person.imputed_v0644): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V0644
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M0645:
+    role: person.imputed_v0645
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V0645" (person.imputed_v0645): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V0645
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M6461:
+    role: person.imputed_v6461
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V6461" (person.imputed_v6461): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V6461
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M6471:
+    role: person.imputed_v6471
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V6471" (person.imputed_v6471): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V6471
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M0648:
+    role: person.imputed_v0648
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V0648" (person.imputed_v0648): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V0648
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M0649:
+    role: person.imputed_v0649
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V0649" (person.imputed_v0649): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V0649
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M0650:
+    role: person.imputed_v0650
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V0650" (person.imputed_v0650): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V0650
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M0651:
+    role: person.imputed_v0651
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V0651" (person.imputed_v0651): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V0651
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M6511:
+    role: person.imputed_v6511
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V6511" (person.imputed_v6511): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V6511
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M0652:
+    role: person.imputed_v0652
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V0652" (person.imputed_v0652): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V0652
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M6521:
+    role: person.imputed_v6521
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V6521" (person.imputed_v6521): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V6521
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M0653:
+    role: person.imputed_v0653
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V0653" (person.imputed_v0653): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V0653
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M0654:
+    role: person.imputed_v0654
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V0654" (person.imputed_v0654): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V0654
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M0655:
+    role: person.imputed_v0655
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V0655" (person.imputed_v0655): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V0655
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M0656:
+    role: person.imputed_v0656
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V0656" (person.imputed_v0656): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V0656
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M0657:
+    role: person.imputed_v0657
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V0657" (person.imputed_v0657): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V0657
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M0658:
+    role: person.imputed_v0658
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V0658" (person.imputed_v0658): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V0658
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M0659:
+    role: person.imputed_v0659
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V0659" (person.imputed_v0659): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V0659
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M6591:
+    role: person.imputed_v6591
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V6591" (person.imputed_v6591): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V6591
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M0660:
+    role: person.imputed_v0660
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V0660" (person.imputed_v0660): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V0660
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M6602:
+    role: person.imputed_v6602
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V6602" (person.imputed_v6602): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V6602
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M6604:
+    role: person.imputed_v6604
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V6604" (person.imputed_v6604): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V6604
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M6606:
+    role: person.imputed_v6606
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V6606" (person.imputed_v6606): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V6606
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M0661:
+    role: person.imputed_v0661
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V0661" (person.imputed_v0661): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V0661
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M0662:
+    role: person.imputed_v0662
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V0662" (person.imputed_v0662): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V0662
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M0663:
+    role: person.imputed_v0663
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V0663" (person.imputed_v0663): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V0663
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M6631:
+    role: person.imputed_v6631
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V6631" (person.imputed_v6631): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V6631
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M6632:
+    role: person.imputed_v6632
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V6632" (person.imputed_v6632): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V6632
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M6633:
+    role: person.imputed_v6633
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V6633" (person.imputed_v6633): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V6633
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M0664:
+    role: person.imputed_v0664
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V0664" (person.imputed_v0664): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V0664
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M6641:
+    role: person.imputed_v6641
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V6641" (person.imputed_v6641): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V6641
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M6642:
+    role: person.imputed_v6642
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V6642" (person.imputed_v6642): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V6642
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M6643:
+    role: person.imputed_v6643
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V6643" (person.imputed_v6643): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V6643
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M0665:
+    role: person.imputed_v0665
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V0665" (person.imputed_v0665): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V0665
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M6660:
+    role: person.imputed_v6660
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V6660" (person.imputed_v6660): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V6660
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M0667:
+    role: person.imputed_v0667
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V0667" (person.imputed_v0667): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V0667
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M0668:
+    role: person.imputed_v0668
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V0668" (person.imputed_v0668): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V0668
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M6681:
+    role: person.imputed_v6681
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V6681" (person.imputed_v6681): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V6681
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M6682:
+    role: person.imputed_v6682
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V6682" (person.imputed_v6682): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V6682
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M0669:
+    role: person.imputed_v0669
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V0669" (person.imputed_v0669): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V0669
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M6691:
+    role: person.imputed_v6691
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V6691" (person.imputed_v6691): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V6691
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M6692:
+    role: person.imputed_v6692
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V6692" (person.imputed_v6692): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V6692
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M6693:
+    role: person.imputed_v6693
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V6693" (person.imputed_v6693): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V6693
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M0670:
+    role: person.imputed_v0670
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V0670" (person.imputed_v0670): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V0670
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M0671:
+    role: person.imputed_v0671
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V0671" (person.imputed_v0671): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V0671
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M6800:
+    role: person.imputed_v6800
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V6800" (person.imputed_v6800): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V6800
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M6121:
+    role: person.imputed_v6121
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V6121" (person.imputed_v6121): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V6121
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M0604:
+    role: person.imputed_v0604
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V0604" (person.imputed_v0604): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V0604
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M0605:
+    role: person.imputed_v0605
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V0605" (person.imputed_v0605): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V0605
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M6462:
+    role: person.imputed_v6462
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V6462" (person.imputed_v6462): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V6462
+    years:
+    - 2010
+    - 2010
+    missing: []
+  M6472:
+    role: person.imputed_v6472
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"MARCA DE IMPUTAÇÃO NA V6472" (person.imputed_v6472): geography, sampling or processing key of the survey'
+    name: MARCA DE IMPUTAÇÃO NA V6472
+    years:
+    - 2010
+    - 2010
+    missing: []
+  V1005:
+    role: person.sector_situation
+    kind: category
+    model: dimension
+    fact_domain: administrative
+    fact_domain_evidence: '"Situação do setor" (person.sector_situation): geography, sampling or processing key of the survey'
+    name: Situação do setor
+    years:
+    - 2010
+    - 2010
+    missing: []

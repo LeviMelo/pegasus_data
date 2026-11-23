@@ -148,7 +148,7 @@ _FIELD_DECL = obj("by declares grain label law measure outcome over population_l
 _SOURCE = obj(
     "citation columns compare dictionary dictionary_columns fields gotchas known_biases official_name one_row origin period place series "
     "snapshot system system_name translated_name unit_of_analysis use what why_no_event_type",
-    sub={"columns": free(obj("aliases codelist codes decimal derived description format key label_from optional take type")),
+    sub={"columns": free(obj("aliases codelist codes decimal derived description format from implied_decimals key label_from optional positions take type")),
          "fields": free(_FIELD_DECL), "place": obj("as column states type uf"),
          "period": obj("column format grain month type valid year"),
          "system_name": obj("authority official_name translated_name what_it_is")})

@@ -15,6 +15,13 @@
 #                       `months` files the units by month, and each is the publication of its month: a query for one month opens
 #                       that month's part file. `years` and listed files are filed by year, whatever month column their records
 #                       hold (`period` below dates the records, never the publication)
+#   origin.format fixed fixed-width records, one line a row: `fixed` {layout: "module:function" (the documentation's layout, as
+#                       `sources.census_commuting.record_layouts` returns it), record, member (a regex of the zip's member), eol
+#                       (the line end, default "\n"), encoding}; each column declares `positions` [first, last] (1-based, inclusive),
+#                       `implied_decimals` for a number written without its point, and `from` [layout variables] for a column that is
+#                       the contiguous span of several. Every position is checked against the layout, every layout variable must be
+#                       declared, and the file must be whole lines of the layout's width, or nothing is landed. `origin.store`: the
+#                       registry folder holding the files several sources read (one zip, four record types), kept (`keep: true`)
 #   origin.on_request   `true` for a source too large to land whole (SI-PNI's doses, 200 GiB zipped): `pegasus-data fields`
 #                       with no names leaves its fields out, and a build of it must name its years. A pattern may name the
 #                       month as `{month}` (01-12) or `{month_pt}` (jan, fev, ..., dez: the Portal's spelling)
@@ -2975,3 +2982,523 @@ sources:
       QT_ELEITORES_DEFICIENCIA: {description: "number of those with a disability or reduced mobility; it can fall from one year to the next, since a voter can leave that condition between elections", type: integer}
       QT_ELEITORES_NOME_SOCIAL: {description: "number of those who asked for a social name to be included in their registration (the leiame's QT_ELEITORES_INC_NM_SOCIAL)", type: integer}
     period: {type: year, column: AA_ELEICAO, grain: year}
+
+  census2010_domicilios:
+    system: CENSO2010
+    series: DOMICILIOS
+    system_name:
+      official_name: Censo Demográfico 2010, Resultados Gerais da Amostra (microdados)
+      translated_name: Brazilian Population Census 2010, sample microdata
+      authority: IBGE
+      what_it_is: >
+        The long-form questionnaire of the 2010 census, answered by about a tenth of households (a fifth in small municipalities), published as one record file per state and record type with a sample weight and a weighting area.
+    official_name: "Censo Demográfico 2010: Amostra, registro de domicílios"
+    translated_name: "Census 2010 sample: household records"
+    what: >
+      The Census 2010 sample questionnaire's household record: the housing conditions (walls, rooms, water, sanitation, rubbish, electricity, goods), the rent, the household's income and its composition, one row per sampled household, as IBGE's microdata publishes it, every variable of the layout.
+    one_row: "one sampled household (private permanent occupied, or the other kinds of unit visited, `V4001`) of the Census 2010 sample"
+    unit_of_analysis: household of the sample
+    use: context
+    why_no_event_type: >-
+      A sample survey of residents on one reference date (31 July 2010): attributes of people and households, weighted
+      to the population, and no health event is recorded in it.
+    known_biases: >-
+      A sample, not a count: every row stands for V0010 people or households (the sample weight, never ignored; a sum of rows is not a
+      population), and an estimate is exact only for the weighting areas the sample was designed for (V0011) and up. A blank is a
+      question the person was not asked or did not answer: it is null, never zero. Income and counts are as declared in July 2010.
+    gotchas:
+      - "Positions and widths are the documentation's layout (Layout_microdados_Amostra.xls, sheet DOMI), checked at every landing; the file is whole lines of 172 characters."
+      - "Every variable is landed as filed (text); a numeric one also has a typed column and its digits as filed in `<NAME>__RAW`; the sample weight V0010 has 13 implied decimals."
+      - "A household and its persons share V0300 (the control number) and V0011 within a state's file; SP is two files (the capital's region and the rest) with their own households."
+      - "The codes of the places, occupations, activities, courses and religion are in the documentation's workbooks, not decoded here."
+    citation: IBGE, Censo Demográfico 2010, Resultados Gerais da Amostra, Microdados (ftp.ibge.gov.br/Censos/Censo_Demografico_2010/Resultados_Gerais_da_Amostra/Microdados)
+    dictionary: Layout_microdados_Amostra.xls (Documentacao.zip), sheet DOMI
+    place: {column: CODMUN, type: municipality}
+    period: {type: file}
+    origin:
+      kind: files
+      format: fixed
+      store: census2010_microdata
+      keep: true
+      fixed: {layout: "pegasus_data.sources.census_commuting:record_layouts", record: Amostra_Domicilios, member: "Amostra_Domicilios.*[.]txt$", eol: "\r\n", encoding: latin1}
+      pattern: https://ftp.ibge.gov.br/Censos/Censo_Demografico_2010/Resultados_Gerais_da_Amostra/Microdados/{uf}.zip
+      years: 2010
+      across: {uf: &states [AC, AL, AM, AP, BA, CE, DF, ES, GO, MA, MG, MS, MT, PA, PB, PE, PI, PR, RJ, RN, RO, RR, RS, SC, SE, SP1, SP2_RM, TO]}
+      on_request: true
+    columns:
+      CODMUN: {description: "IBGE municipality code of the household (7 digits): the state (V0001) followed by the municipality (V0002)", type: municipality, positions: [1, 7], from: [V0001, V0002]}
+      V0001: {description: "UNIDADE DA FEDERAÇÃO", type: code, positions: [1, 2], codes: {"11": "Rondônia", "12": "Acre", "13": "Amazonas", "14": "Roraima", "15": "Pará", "16": "Amapá", "17": "Tocantins", "21": "Maranhão", "22": "Piauí", "23": "Ceará", "24": "Rio Grande do Norte", "25": "Paraíba", "26": "Pernambuco", "27": "Alagoas", "28": "Sergipe", "29": "Bahia", "31": "Minas Gerais", "32": "Espírito Santo", "33": "Rio de Janeiro", "35": "São Paulo", "41": "Paraná", "42": "Santa Catarina", "43": "Rio Grande do Sul", "50": "Mato Grosso do Sul", "51": "Mato Grosso", "52": "Goiás", "53": "Distrito Federal"}}
+      V0002: {description: "CÓDIGO DO MUNICÍPIO", type: code, positions: [3, 7]}
+      V0011: {description: "ÁREA DE PONDERAÇÃO", type: code, positions: [8, 20]}
+      V0300: {description: "CONTROLE", type: code, positions: [21, 28]}
+      V0010: {description: "PESO AMOSTRAL", type: number, implied_decimals: 13, positions: [29, 44]}
+      V1001: {description: "REGIÃO GEOGRÁFICA", type: code, positions: [45, 45], codes: {"1": "Região norte (uf=11 a 17)", "2": "Região nordeste (uf=21 a 29)", "3": "Região sudeste (uf=31 a 33 e 35)", "4": "Região sul (uf=41 a 43)", "5": "Região centro-oeste (uf=50 a 53)"}}
+      V1002: {description: "CÓDIGO DA MESORREGIÃO. Code list: a workbook of IBGE's documentation, not named in this layout", type: code, positions: [46, 47]}
+      V1003: {description: "CÓDIGO DA MICRORREGIÃO. Code list: a workbook of IBGE's documentation, not named in this layout", type: code, positions: [48, 50]}
+      V1004: {description: "CÓDIGO DA REGIÃO METROPOLITANA. Code list: a workbook of IBGE's documentation, not named in this layout", type: code, positions: [51, 52]}
+      V1006: {description: "SITUAÇÃO DO DOMICÍLIO", type: code, positions: [53, 53], codes: {"1": "Urbana", "2": "Rural"}}
+      V4001: {description: "ESPÉCIE DE UNIDADE VISITADA", type: code, positions: [54, 55], codes: {"01": "Domicílio particular permanente ocupado", "02": "Domicílio particular permanente ocupado sem entrevista realizada", "05": "Domicílio particular improvisado ocupado", "06": "Domicílio coletivo com morador"}}
+      V4002: {description: "TIPO DE ESPÉCIE", type: code, positions: [56, 57], codes: {"11": "Casa", "12": "Casa de vila ou em condomínio", "13": "Apartamento", "14": "Habitação em: casa de cômodos, cortiço ou cabeça de porco", "15": "Oca ou maloca", "51": "Tenda ou barraca", "52": "Dentro de estabelecimento", "53": "Outro (vagão, trailer, gruta, etc)", "61": "Asilo, orfanato e similares com morador", "62": "Hotel, pensão e similares com morador", "63": "Alojamento de trabalhadores com morador", "64": "Penitenciária, presídio ou casa de detenção com morador", "65": "Outro com morador"}}
+      V0201: {description: "DOMICÍLIO, CONDIÇÃO DE OCUPAÇÃO", type: code, positions: [58, 58], codes: {"1": "Próprio de algum morador - já pago", "2": "Próprio de algum morador - ainda pagando", "3": "Alugado", "4": "Cedido por empregador", "5": "Cedido de outra forma", "6": "Outra condição"}}
+      V2011: {description: "VALOR DO ALUGUEL (EM REAIS)", type: integer, positions: [59, 64]}
+      V2012: {description: "ALUGUEL EM Nº DE SALÁRIOS MÍNIMOS", type: number, implied_decimals: 5, positions: [65, 73]}
+      V0202: {description: "MATERIAL PREDOMINANTE, PAREDES EXTERNAS", type: code, positions: [74, 74], codes: {"1": "Alvenaria com revestimento", "2": "Alvenaria sem revestimento", "3": "Madeira apropriada para construção (aparelhada)", "4": "Taipa revestida", "5": "Taipa não revestida", "6": "Madeira aproveitada", "7": "Palha", "8": "Outro material", "9": "Sem parede"}}
+      V0203: {description: "CÔMODOS, NÚMERO", type: integer, positions: [75, 76]}
+      V6203: {description: "DENSIDADE DE MORADOR/CÔMODO", type: number, implied_decimals: 1, positions: [77, 79]}
+      V0204: {description: "CÔMODOS COMO DORMITÓRIO, NÚMERO", type: integer, positions: [80, 81]}
+      V6204: {description: "DENSIDADE DE MORADOR / DORMITÓRIO", type: number, implied_decimals: 1, positions: [82, 84]}
+      V0205: {description: "BANHEIROS DE USO EXCLUSIVO, NÚMERO", type: code, positions: [85, 85], codes: {"0": "Zero banheiros", "1": "Um banheiro", "2": "Dois banheiros", "3": "Três banheiros", "4": "Quatro banheiros", "5": "Cinco banheiros", "6": "Seis banheiros", "7": "Sete banheiros", "8": "Oito banheiros", "9": "Nove ou mais banheiros"}}
+      V0206: {description: "SANITÁRIO OU BURACO PARA DEJEÇÕES, EXISTÊNCIA", type: code, positions: [86, 86], codes: {"1": "Sim", "2": "Não"}}
+      V0207: {description: "ESGOTAMENTO SANITÁRIO, TIPO", type: code, positions: [87, 87], codes: {"1": "Rede geral de esgoto ou pluvial", "2": "Fossa séptica", "3": "Fossa rudimentar", "4": "Vala", "5": "Rio, lago ou mar", "6": "Outro"}}
+      V0208: {description: "ABASTECIMENTO DE ÁGUA, FORMA", type: code, positions: [88, 89], codes: {"01": "Rede geral de distribuição", "02": "Poço ou nascente na propriedade", "03": "Poço ou nascente fora da propriedade", "04": "Carro-pipa", "05": "Água da chuva armazenada em cisterna", "06": "Água da chuva armazenada de outra forma", "07": "Rios, açudes, lagos e igarapés", "08": "Outra", "09": "Poço ou nascente na aldeia", "10": "Poço ou nascente fora da aldeia"}}
+      V0209: {description: "ABASTECIMENTO DE ÁGUA, CANALIZAÇÃO", type: code, positions: [90, 90], codes: {"1": "Sim, em pelo menos um cômodo", "2": "Sim, só na propriedade ou terreno", "3": "Não"}}
+      V0210: {description: "LIXO, DESTINO", type: code, positions: [91, 91], codes: {"1": "Coletado diretamente por serviço de limpeza", "2": "Colocado em caçamba de serviço de limpeza", "3": "Queimado (na propriedade)", "4": "Enterrado (na propriedade)", "5": "Jogado em terreno baldio ou logradouro", "6": "Jogado em rio, lago ou mar", "7": "Tem outro destino"}}
+      V0211: {description: "ENERGIA ELÉTRICA, EXISTÊNCIA", type: code, positions: [92, 92], codes: {"1": "Sim, de companhia distribuidora", "2": "Sim, de outras fontes", "3": "Não existe energia elétrica"}}
+      V0212: {description: "EXISTÊNCIA DE MEDIDOR OU RELÓGIO, ENERGIA ELÉTRICA, COMPANHIA DISTRIBUIDORA", type: code, positions: [93, 93], codes: {"1": "Sim, de uso exclusivo", "2": "Sim, de uso comum", "3": "Não tem medidor ou relógio"}}
+      V0213: {description: "RÁDIO, EXISTÊNCIA", type: code, positions: [94, 94], codes: {"1": "Sim", "2": "Não"}}
+      V0214: {description: "TELEVISÃO, EXISTÊNCIA", type: code, positions: [95, 95], codes: {"1": "Sim", "2": "Não"}}
+      V0215: {description: "MÁQUINA DE LAVAR ROUPA, EXISTÊNCIA", type: code, positions: [96, 96], codes: {"1": "Sim", "2": "Não"}}
+      V0216: {description: "GELADEIRA, EXISTÊNCIA", type: code, positions: [97, 97], codes: {"1": "Sim", "2": "Não"}}
+      V0217: {description: "TELEFONE CELULAR, EXISTÊNCIA", type: code, positions: [98, 98], codes: {"1": "Sim", "2": "Não"}}
+      V0218: {description: "TELEFONE FIXO, EXISTÊNCIA", type: code, positions: [99, 99], codes: {"1": "Sim", "2": "Não"}}
+      V0219: {description: "MICROCOMPUTADOR, EXISTÊNCIA", type: code, positions: [100, 100], codes: {"1": "Sim", "2": "Não"}}
+      V0220: {description: "MICROCOMPUTADOR COM ACESSO À INTERNET, EXISTÊNCIA", type: code, positions: [101, 101], codes: {"1": "Sim", "2": "Não"}}
+      V0221: {description: "MOTOCICLETA PARA USO PARTICULAR, EXISTÊNCIA", type: code, positions: [102, 102], codes: {"1": "Sim", "2": "Não"}}
+      V0222: {description: "AUTOMÓVEL PARA USO PARTICULAR, EXISTÊNCIA", type: code, positions: [103, 103], codes: {"1": "Sim", "2": "Não"}}
+      V0301: {description: "ALGUMA PESSOA QUE MORAVA COM VOCÊ(S) ESTAVA MORANDO EM OUTRO PAÍS EM 31 DE JULHO DE 2010", type: code, positions: [104, 104], codes: {"1": "Sim", "2": "Não"}}
+      V0401: {description: "QUANTAS PESSOAS MORAVAM NESTE DOMICÍLIO EM 31 DE JULHO DE 2010", type: integer, positions: [105, 106]}
+      V0402: {description: "A RESPONSABILIDADE PELO DOMICÍLIO É DE", type: code, positions: [107, 107], codes: {"1": "Apenas um morador", "2": "Mais de um morador", "9": "Ignorado"}}
+      V0701: {description: "DE AGOSTO DE 2009 A JULHO DE 2010, FALECEU ALGUMA PESSOA QUE MORAVA COM VOCÊ(S) (INCLUSIVE CRIANÇAS RECÉM-NASCIDAS E IDOSOS)", type: code, positions: [108, 108], codes: {"1": "Sim", "2": "Não"}}
+      V6529: {description: "RENDIMENTO MENSAL DOMICILIAR EM JULHO DE 2010", type: integer, positions: [109, 115]}
+      V6530: {description: "RENDIMENTO DOMICILIAR, SALÁRIOS MÍNIMOS, EM JULHO DE 2010", type: number, implied_decimals: 5, positions: [116, 125]}
+      V6531: {description: "RENDIMENTO DOMICILIAR PER CAPITA EM JULHO DE 2010", type: number, implied_decimals: 2, positions: [126, 133]}
+      V6532: {description: "RENDIMENTO DOMICILIAR PER CAPITA, EM Nº DE SALÁRIOS MÍNIMOS, EM JULHO DE 2010", type: number, implied_decimals: 5, positions: [134, 142]}
+      V6600: {description: "Espécie da Unidade Doméstica", type: code, positions: [143, 143], codes: {"1": "Unipessoal", "2": "Nuclear", "3": "Estendida", "4": "Composta"}}
+      V6210: {description: "ADEQUAÇÃO DA MORADIA", type: code, positions: [144, 144], codes: {"1": "Adequada", "2": "Semi-adequada", "3": "Inadequada"}}
+      M0201: {description: "MARCA DE IMPUTAÇÃO NA V0201", type: code, positions: [145, 145], codes: {"1": "Sim", "2": "Não"}}
+      M2011: {description: "MARCA DE IMPUTAÇÃO NA V2011", type: code, positions: [146, 146], codes: {"1": "Sim", "2": "Não"}}
+      M0202: {description: "MARCA DE IMPUTAÇÃO NA V0202", type: code, positions: [147, 147], codes: {"1": "Sim", "2": "Não"}}
+      M0203: {description: "MARCA DE IMPUTAÇÃO NA V0203", type: code, positions: [148, 148], codes: {"1": "Sim", "2": "Não"}}
+      M0204: {description: "MARCA DE IMPUTAÇÃO NA V0204", type: code, positions: [149, 149], codes: {"1": "Sim", "2": "Não"}}
+      M0205: {description: "MARCA DE IMPUTAÇÃO NA V0205", type: code, positions: [150, 150], codes: {"1": "Sim", "2": "Não"}}
+      M0206: {description: "MARCA DE IMPUTAÇÃO NA V0206", type: code, positions: [151, 151], codes: {"1": "Sim", "2": "Não"}}
+      M0207: {description: "MARCA DE IMPUTAÇÃO NA V0207", type: code, positions: [152, 152], codes: {"1": "Sim", "2": "Não"}}
+      M0208: {description: "MARCA DE IMPUTAÇÃO NA V0208", type: code, positions: [153, 153], codes: {"1": "Sim", "2": "Não"}}
+      M0209: {description: "MARCA DE IMPUTAÇÃO NA V0209", type: code, positions: [154, 154], codes: {"1": "Sim", "2": "Não"}}
+      M0210: {description: "MARCA DE IMPUTAÇÃO NA V0210", type: code, positions: [155, 155], codes: {"1": "Sim", "2": "Não"}}
+      M0211: {description: "MARCA DE IMPUTAÇÃO NA V0211", type: code, positions: [156, 156], codes: {"1": "Sim", "2": "Não"}}
+      M0212: {description: "MARCA DE IMPUTAÇÃO NA V0212", type: code, positions: [157, 157], codes: {"1": "Sim", "2": "Não"}}
+      M0213: {description: "MARCA DE IMPUTAÇÃO NA V0213", type: code, positions: [158, 158], codes: {"1": "Sim", "2": "Não"}}
+      M0214: {description: "MARCA DE IMPUTAÇÃO NA V0214", type: code, positions: [159, 159], codes: {"1": "Sim", "2": "Não"}}
+      M0215: {description: "MARCA DE IMPUTAÇÃO NA V0215", type: code, positions: [160, 160], codes: {"1": "Sim", "2": "Não"}}
+      M0216: {description: "MARCA DE IMPUTAÇÃO NA V0216", type: code, positions: [161, 161], codes: {"1": "Sim", "2": "Não"}}
+      M0217: {description: "MARCA DE IMPUTAÇÃO NA V0217", type: code, positions: [162, 162], codes: {"1": "Sim", "2": "Não"}}
+      M0218: {description: "MARCA DE IMPUTAÇÃO NA V0218", type: code, positions: [163, 163], codes: {"1": "Sim", "2": "Não"}}
+      M0219: {description: "MARCA DE IMPUTAÇÃO NA V0219", type: code, positions: [164, 164], codes: {"1": "Sim", "2": "Não"}}
+      M0220: {description: "MARCA DE IMPUTAÇÃO NA V0220", type: code, positions: [165, 165], codes: {"1": "Sim", "2": "Não"}}
+      M0221: {description: "MARCA DE IMPUTAÇÃO NA V0221", type: code, positions: [166, 166], codes: {"1": "Sim", "2": "Não"}}
+      M0222: {description: "MARCA DE IMPUTAÇÃO NA V0222", type: code, positions: [167, 167], codes: {"1": "Sim", "2": "Não"}}
+      M0301: {description: "MARCA DE IMPUTAÇÃO NA V0301", type: code, positions: [168, 168], codes: {"1": "Sim", "2": "Não"}}
+      M0401: {description: "MARCA DE IMPUTAÇÃO NA V0401", type: code, positions: [169, 169], codes: {"1": "Sim", "2": "Não"}}
+      M0402: {description: "MARCA DE IMPUTAÇÃO NA V0402", type: code, positions: [170, 170], codes: {"1": "Sim", "2": "Não"}}
+      M0701: {description: "MARCA DE IMPUTAÇÃO NA V0701", type: code, positions: [171, 171], codes: {"1": "Sim", "2": "Não"}}
+      V1005: {description: "Situação do setor", type: code, positions: [172, 172], codes: {"1": "Masculino", "2": "Feminino", "3": "Área urbanizada isolada", "4": "Área rural de extensão urbana", "5": "Aglomerado rural (povoado)", "6": "Aglomerado rural (núcleo)", "7": "Aglomerado rural (outros)", "8": "Área rural exclusive aglomerado rural"}}
+
+  census2010_pessoas:
+    system: CENSO2010
+    series: PESSOAS
+    official_name: "Censo Demográfico 2010: Amostra, registro de pessoas"
+    translated_name: "Census 2010 sample: person records"
+    what: >
+      The Census 2010 sample questionnaire's person record: sex, age, race, disability, migration, education, marital status, work, income and fertility of each person in a sampled household, one row per person, as IBGE's microdata publishes it, every variable of the layout.
+    one_row: "one person living in a sampled household of the Census 2010 sample, with the sample weight that expands the row to the population"
+    unit_of_analysis: person of the sample
+    use: context
+    why_no_event_type: >-
+      A sample survey of residents on one reference date (31 July 2010): attributes of people and households, weighted
+      to the population, and no health event is recorded in it.
+    known_biases: >-
+      A sample, not a count: every row stands for V0010 people or households (the sample weight, never ignored; a sum of rows is not a
+      population), and an estimate is exact only for the weighting areas the sample was designed for (V0011) and up. A blank is a
+      question the person was not asked or did not answer: it is null, never zero. Income and counts are as declared in July 2010.
+    gotchas:
+      - "Positions and widths are the documentation's layout (Layout_microdados_Amostra.xls, sheet PESS), checked at every landing; the file is whole lines of 540 characters."
+      - "Every variable is landed as filed (text); a numeric one also has a typed column and its digits as filed in `<NAME>__RAW`; the sample weight V0010 has 13 implied decimals."
+      - "A household and its persons share V0300 (the control number) and V0011 within a state's file; SP is two files (the capital's region and the rest) with their own households."
+      - "The codes of the places, occupations, activities, courses and religion are in the documentation's workbooks, not decoded here."
+    citation: IBGE, Censo Demográfico 2010, Resultados Gerais da Amostra, Microdados (ftp.ibge.gov.br/Censos/Censo_Demografico_2010/Resultados_Gerais_da_Amostra/Microdados)
+    dictionary: Layout_microdados_Amostra.xls (Documentacao.zip), sheet PESS
+    place: {column: CODMUN, type: municipality}
+    period: {type: file}
+    origin:
+      kind: files
+      format: fixed
+      store: census2010_microdata
+      keep: true
+      fixed: {layout: "pegasus_data.sources.census_commuting:record_layouts", record: Amostra_Pessoas, member: "Amostra_Pessoas.*[.]txt$", eol: "\r\n", encoding: latin1}
+      pattern: https://ftp.ibge.gov.br/Censos/Censo_Demografico_2010/Resultados_Gerais_da_Amostra/Microdados/{uf}.zip
+      years: 2010
+      across: {uf: *states}
+      on_request: true
+    columns:
+      CODMUN: {description: "IBGE municipality code of the household (7 digits): the state (V0001) followed by the municipality (V0002)", type: municipality, positions: [1, 7], from: [V0001, V0002]}
+      V0001: {description: "UNIDADE DA FEDERAÇÃO", type: code, positions: [1, 2], codes: {"11": "Rondônia", "12": "Acre", "13": "Amazonas", "14": "Roraima", "15": "Pará", "16": "Amapá", "17": "Tocantins", "21": "Maranhão", "22": "Piauí", "23": "Ceará", "24": "Rio Grande do Norte", "25": "Paraíba", "26": "Pernambuco", "27": "Alagoas", "28": "Sergipe", "29": "Bahia", "31": "Minas Gerais", "32": "Espírito Santo", "33": "Rio de Janeiro", "35": "São Paulo", "41": "Paraná", "42": "Santa Catarina", "43": "Rio Grande do Sul", "50": "Mato Grosso do Sul", "51": "Mato Grosso", "52": "Goiás", "53": "Distrito Federal"}}
+      V0002: {description: "CÓDIGO DO MUNICÍPIO", type: code, positions: [3, 7]}
+      V0011: {description: "ÁREA DE PONDERAÇÃO", type: code, positions: [8, 20]}
+      V0300: {description: "CONTROLE", type: code, positions: [21, 28]}
+      V0010: {description: "PESO AMOSTRAL", type: number, implied_decimals: 13, positions: [29, 44]}
+      V1001: {description: "REGIÃO GEOGRÁFICA", type: code, positions: [45, 45], codes: {"1": "Região norte (uf=11 a 17)", "2": "Região nordeste (uf=21 a 29)", "3": "Região sudeste (uf=31 a 33 e 35)", "4": "Região sul (uf=41 a 43)", "5": "Região centro-oeste (uf=50 a 53)"}}
+      V1002: {description: "CÓDIGO DA MESORREGIÃO. Code list: a workbook of IBGE's documentation, not named in this layout", type: code, positions: [46, 47]}
+      V1003: {description: "CÓDIGO DA MICRORREGIÃO. Code list: a workbook of IBGE's documentation, not named in this layout", type: code, positions: [48, 50]}
+      V1004: {description: "CÓDIGO DA REGIÃO METROPOLITANA. Code list: a workbook of IBGE's documentation, not named in this layout", type: code, positions: [51, 52]}
+      V1006: {description: "SITUAÇÃO DO DOMICÍLIO", type: code, positions: [53, 53], codes: {"1": "Urbana", "2": "Rural"}}
+      V0502: {description: "RELAÇÃO DE PARENTESCO OU DE CONVIVÊNCIA COM A PESSOA RESPONSÁVEL PELO DOMICÍLIO", type: code, positions: [54, 55], codes: {"01": "Pessoa responsável pelo domicílio", "02": "Cônjuge ou companheiro(a) de sexo diferente", "03": "Cônjuge ou companheiro(a) do mesmo sexo", "04": "Filho(a) do responsável e do cônjuge", "05": "Filho(a) somente do responsável", "06": "Enteado(a)", "07": "Genro ou nora", "08": "Pai, mãe, padrasto ou madrasta", "09": "Sogro(a)", "10": "Neto(a)", "11": "Bisneto(a)", "12": "Irmão ou irmã", "13": "Avô ou avó", "14": "Outro parente", "15": "Agregado(a)", "16": "Convivente", "17": "Pensionista", "18": "Empregado(a) doméstico(a)", "19": "Parente do(a) empregado(a) doméstico(a)", "20": "Individual em domicílio coletivo"}}
+      V0504: {description: "ORDEM LÓGICA", type: code, positions: [56, 57]}
+      V0601: {description: "SEXO", type: code, positions: [58, 58], codes: {"1": "Masculino", "2": "Feminino"}}
+      V6033: {description: "VARIÁVEL AUXILIAR DA IDADE CALCULADA (ANOS E MESES)", type: integer, positions: [59, 61]}
+      V6036: {description: "VARIÁVEL AUXILIAR DA IDADE CALCULADA EM ANOS", type: integer, positions: [62, 64]}
+      V6037: {description: "VARIÁVEL AUXILIAR DA IDADE CALCULADA EM MESES (PARA AS PESSOAS MENORES DE 1 ANO)", type: integer, positions: [65, 66]}
+      V6040: {description: "FORMA DE DECLARAÇÃO DA IDADE", type: code, positions: [67, 67], codes: {"1": "Data de nascimento", "2": "Idade declarada"}}
+      V0606: {description: "COR OU RAÇA", type: code, positions: [68, 68], codes: {"1": "Branca", "2": "Preta", "3": "Amarela", "4": "Parda", "5": "Indígena", "9": "Ignorado"}}
+      V0613: {description: "REGISTRO DE NASCIMENTO", type: code, positions: [69, 69], codes: {"1": "Do cartório", "2": "Declaração de nascido vivo (DNV) do hospital ou da maternidade", "3": "Registro administrativo de nascimento indígena (RANI)", "4": "Não tem", "5": "Não sabe", "9": "Ignorado"}}
+      V0614: {description: "DIFICULDADE PERMANENTE DE ENXERGAR", type: code, positions: [70, 70], codes: {"1": "Sim, não consegue de modo algum", "2": "Sim, grande dificuldade", "3": "Sim, alguma dificuldade", "4": "Não, nenhuma dificuldade", "9": "Ignorado"}}
+      V0615: {description: "DIFICULDADE PERMANENTE DE OUVIR", type: code, positions: [71, 71], codes: {"1": "Sim, não consegue de modo algum", "2": "Sim, grande dificuldade", "3": "Sim, alguma dificuldade", "4": "Não, nenhuma dificuldade", "9": "Ignorado"}}
+      V0616: {description: "DIFICULDADE PERMANENTE DE CAMINHAR OU SUBIR DEGRAUS", type: code, positions: [72, 72], codes: {"1": "Sim, não consegue de modo algum", "2": "Sim, grande dificuldade", "3": "Sim, alguma dificuldade", "4": "Não, nenhuma dificuldade", "9": "Ignorado"}}
+      V0617: {description: "DEFICIÊNCIA MENTAL/INTELECTUAL PERMANENTE", type: code, positions: [73, 73], codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
+      V0618: {description: "NASCEU NESTE MUNICÍPIO", type: code, positions: [74, 74], codes: {"1": "Sim e sempre morou", "2": "Sim mas morou em outro município ou país estrangeiro", "3": "Não"}}
+      V0619: {description: "NASCEU NESTA UNIDADE DA FEDERAÇÃO", type: code, positions: [75, 75], codes: {"1": "Sim, e sempre morou", "2": "Sim, mas morou em outra UF ou país estrangeiro", "3": "Não"}}
+      V0620: {description: "NACIONALIDADE", type: code, positions: [76, 76], codes: {"1": "Brasileiro nato", "2": "Naturalizado brasileiro", "3": "Estrangeiro"}}
+      V0621: {description: "ANO QUE FIXOU RESIDÊNCIA NO BRASIL", type: integer, positions: [77, 80]}
+      V0622: {description: "UF OU PAÍS ESTRANGEIRO DE NASCIMENTO", type: code, positions: [81, 81], codes: {"1": "UF", "2": "País estrangeiro"}}
+      V6222: {description: "UNIDADE DA FEDERAÇÃO DE NASCIMENTO – código. Code list: A relação de códigos encontra-se no arquivo: “Migração_UFs_2010 V6222 V 6252 V6262 V6362 V6602.xls”", type: code, positions: [82, 88]}
+      V6224: {description: "QUAL É O PAÍS ESTRANGEIRO DE NASCIMENTO – código. Code list: A relação de códigos encontra-se no arquivo: “Migração_Países_2010 V3061 V6224 V6256 V6266 V6366 V6606.xls”", type: code, positions: [89, 95]}
+      V0623: {description: "TEMPO DE MORADIA NA UF", type: integer, positions: [96, 98]}
+      V0624: {description: "TEMPO DE MORADIA NO MUNICÍPIO", type: integer, positions: [99, 101]}
+      V0625: {description: "UNIDADE DA FEDERAÇÃO E MUNICÍPIO OU PAÍS ESTRANGEIRO DE MORADIA ANTES DE MUDAR-SE PARA ESTE MUNICÍPIO", type: code, positions: [102, 102], codes: {"1": "UF/Município", "2": "País estrangeiro"}}
+      V6252: {description: "UF DE RESIDÊNCIA ANTERIOR – código. Code list: A relação de códigos encontra-se no arquivo: “Migração_UFs_2010 V6222 V6252 V6262 V6362 V6602.xls”", type: code, positions: [103, 109]}
+      V6254: {description: "MUNICÍPIO DE RESIDÊNCIA ANTERIOR – código. Code list: A relação de códigos encontra-se no arquivo: “Migração_Município_2010 V6254 V6264 V6364 V6604.xls”", type: code, positions: [110, 116]}
+      V6256: {description: "PAÍS DE RESIDÊNCIA ANTERIOR – código. Code list: A relação de códigos encontra-se no arquivo: “Migração_Países_2010 V3061 V6224 V6256 V6266 V6366 V6606.xls”", type: code, positions: [117, 123]}
+      V0626: {description: "RESIDÊNCIA EM 31 DE JULHO DE 2005", type: code, positions: [124, 124], codes: {"1": "UF/Município", "2": "País estrangeiro"}}
+      V6262: {description: "UF DE RESIDÊNCIA EM 31 DE JULHO DE 2005 – código. Code list: A relação de códigos encontra-se no arquivo: “Migração_UFs_2010 V6222 V6252 V6262 V6362 V6602.xls”", type: code, positions: [125, 131]}
+      V6264: {description: "MUNICÍPIO DE RESIDÊNCIA EM 31 DE JULHO DE 2005 – código. Code list: A relação de códigos encontra-se no arquivo: “Migração_Município_2010 V6254 V6264 V6364 V6604.xls”", type: code, positions: [132, 138]}
+      V6266: {description: "PAÍS DE RESIDÊNCIA EM 31 DE JULHO DE 2005 – código. Code list: A relação de códigos encontra-se no arquivo: “Migração_Países_2010 V3061 V6224 V6256 V6266 V6366 V6606.xls”", type: code, positions: [139, 145]}
+      V0627: {description: "SABE LER E ESCREVER", type: code, positions: [146, 146], codes: {"1": "Sim", "2": "Não"}}
+      V0628: {description: "FREQUENTA ESCOLA OU CRECHE", type: code, positions: [147, 147], codes: {"1": "Sim, pública", "2": "Sim, particular", "3": "Não, já frequentou", "4": "Não, nunca frequentou"}}
+      V0629: {description: "CURSO QUE FREQUENTA", type: code, positions: [148, 149], codes: {"01": "Creche", "02": "Pré-escolar (maternal e jardim da infância)", "03": "Classe de alfabetização - CA", "04": "Alfabetização de jovens e adultos", "05": "Regular do ensino fundamental", "06": "Educação de jovens e adultos - EJA - ou supletivo do ensino fundamental", "07": "Regular do ensino médio", "08": "Educação de jovens e adultos - EJA - ou supletivo do ensino médio", "09": "Superior de graduação", "10": "Especialização de nível superior ( mínimo de 360 horas )", "11": "Mestrado", "12": "Doutorado"}}
+      V0630: {description: "SÉRIE / ANO QUE FREQUENTA", type: code, positions: [150, 151], codes: {"01": "Primeiro ano", "02": "Primeira série / Segundo ano", "03": "Segunda série / Terceiro ano", "04": "Terceira série / Quarto ano", "05": "Quarta série / Quinto ano", "06": "Quinta série / Sexto ano", "07": "Sexta série / Sétimo ano", "08": "Sétima série / Oitavo ano", "09": "Oitava série / Nono ano", "10": "Não seriado"}}
+      V0631: {description: "SÉRIE QUE FREQUENTA", type: code, positions: [152, 152], codes: {"1": "Primeira série", "2": "Segunda série", "3": "Terceira série", "4": "Quarta série", "5": "Não seriado"}}
+      V0632: {description: "CONCLUSÃO DE OUTRO CURSO SUPERIOR DE GRADUAÇÃO", type: code, positions: [153, 153], codes: {"1": "Sim", "2": "Não"}}
+      V0633: {description: "CURSO MAIS ELEVADO QUE FREQUENTOU", type: code, positions: [154, 155], codes: {"01": "Creche, pré-escolar (maternal e jardim de infância), classe de alfabetização - CA", "02": "Alfabetização de jovens e adultos", "03": "Antigo primário (elementar)", "04": "Antigo ginásio (médio 1º ciclo)", "05": "Ensino fundamental ou 1º grau (da 1ª a 3ª série/ do 1º ao 4º ano)", "06": "Ensino fundamental ou 1º grau (4ª série/ 5º ano)", "07": "Ensino fundamental ou 1º grau (da 5ª a 8ª série/ 6º ao 9º ano)", "08": "Supletivo do ensino fundamental ou do 1º grau", "09": "Antigo científico, clássico, etc.....(médio 2º ciclo)", "10": "Regular ou supletivo do ensino médio ou do 2º grau", "11": "Superior de graduação", "12": "Especialização de nível superior ( mínimo de 360 horas )", "13": "Mestrado", "14": "Doutorado"}}
+      V0634: {description: "CONCLUSÃO DESTE CURSO", type: code, positions: [156, 156], codes: {"1": "Sim", "2": "Não"}}
+      V0635: {description: "ESPÉCIE DO CURSO MAIS ELEVADO CONCLUÍDO", type: code, positions: [157, 157], codes: {"1": "Superior de graduação", "2": "Mestrado", "3": "Doutorado"}}
+      V6400: {description: "NÍVEL DE INSTRUÇÃO", type: code, positions: [158, 158], codes: {"1": "Sem instrução e fundamental incompleto", "2": "Fundamental completo e médio incompleto", "3": "Médio completo e superior incompleto", "4": "Superior completo", "5": "Não determinado"}}
+      V6352: {description: "CURSO SUPERIOR DE GRADUAÇÃO – código. Code list: A relação de códigos encontra-se no arquivo: “Cursos Superiores_Estrutura 2010 V6352.xls”", type: code, positions: [159, 161]}
+      V6354: {description: "CURSO DE MESTRADO – código. Code list: A relação de códigos encontra-se no arquivo: “Cursos Mestrado_Estrutura 2010 V6354.xls”", type: code, positions: [162, 164]}
+      V6356: {description: "CURSO DE DOUTORADO – código. Code list: A relação de códigos encontra-se no arquivo: “Cursos Doutorado_Estrutura 2010 V6356.xls”", type: code, positions: [165, 167]}
+      V0636: {description: "MUNICÍPIO E UNIDADE DA FEDERAÇÃO OU PAÍS ESTRANGEIRO QUE FREQUENTAVA ESCOLA (OU CRECHE)", type: code, positions: [168, 168], codes: {"1": "Neste município", "2": "Em outro município", "3": "Em país estrangeiro"}}
+      V6362: {description: "UF QUE FREQUENTAVA ESCOLA (OU CRECHE) – código. Code list: A relação de códigos encontra-se no arquivo: “Migração_UFs_2010 V6222 V6252 V6262 V6362 V6602.xls”", type: code, positions: [169, 175]}
+      V6364: {description: "MUNICÍPIO QUE FREQUENTAVA ESCOLA (OU CRECHE) – código. Code list: A relação de códigos encontra-se no arquivo: “Migração_Municípios_2010 V6254 V6264 V6364 V6604.xls”", type: code, positions: [176, 182]}
+      V6366: {description: "PAÍS ESTRANGEIRO QUE FREQUENTAVA ESCOLA (OU CRECHE) – código. Code list: A relação de códigos encontra-se no arquivo: “Migração_Países_2010 V3061 V6224 V6256 V6266 V6366 V6606.xls”", type: code, positions: [183, 189]}
+      V0637: {description: "VIVE EM COMPANHIA DE CÔNJUGE OU COMPANHEIRO(A)", type: code, positions: [190, 190], codes: {"1": "Sim", "2": "Não, mas viveu", "3": "Não, nunca viveu"}}
+      V0638: {description: "NÚMERO DE ORDEM DO CÔNJUGE OU COMPANHEIRO(A)", type: integer, positions: [191, 192], codes: {"99": "ignorado"}}
+      V0639: {description: "NATUREZA DA UNIÃO", type: code, positions: [193, 193], codes: {"1": "Casamento civil e religioso", "2": "Só casamento civil", "3": "Só casamento religioso", "4": "União consensual"}}
+      V0640: {description: "ESTADO CIVIL", type: code, positions: [194, 194], codes: {"1": "Casado(a)", "2": "Desquitado(a) ou separado(a) judicialmente", "3": "Divorciado(a)", "4": "Viúvo(a)", "5": "Solteiro(a)"}}
+      V0641: {description: "NA SEMANA DE 25 A 31/07/10, DURANTE PELO MENOS 1 HORA, TRABALHOU GANHANDO EM DINHEIRO, PRODUTOS, MERCADORIAS OU BENEFÍCIOS", type: code, positions: [195, 195], codes: {"1": "Sim", "2": "Não"}}
+      V0642: {description: "NA SEMANA DE 25 A 31/07/10, TINHA TRABALHO REMUNERADO DO QUAL ESTAVA TEMPORARIAMENTE AFASTADO(A)", type: code, positions: [196, 196], codes: {"1": "Sim", "2": "Não"}}
+      V0643: {description: "NA SEMANA DE 25 A 31/07/10, DURANTE PELO MENOS 1 HORA, AJUDOU SEM QUALQUER PAGAMENTO NO TRABALHO REMUNERADO DE MORADOR DO DOMICÍLIO", type: code, positions: [197, 197], codes: {"1": "Sim", "2": "Não"}}
+      V0644: {description: "NA SEMANA DE 25 A 31/07/10, DURANTE PELO MENOS 1 HORA, TRABALHOU NA PLANTAÇÃO, CRIAÇÃO DE ANIMAIS OU PESCA, SOMENTE PARA ALIMENTAÇÃO DOS MORADORES DO DOMICÍLIO (INCLUSIVE CAÇA E EXTRAÇÃO VEGETAL)", type: code, positions: [198, 198], codes: {"1": "Sim", "2": "Não"}}
+      V0645: {description: "QUANTOS TRABALHOS TINHA", type: code, positions: [199, 199], codes: {"1": "Um", "2": "Dois ou mais"}}
+      V6461: {description: "OCUPAÇÃO – código. (pode ter valor branco). Code list: A relação de códigos encontra-se no arquivo: “Ocupação COD_Estrutura 2010.xls”", type: code, positions: [200, 203]}
+      V6471: {description: "ATIVIDADE – código. (pode ter valor branco). Code list: A relação de códigos encontra-se no arquivo: “CNAEDOM2.0_Estrutura 2010.xls”", type: code, positions: [204, 208]}
+      V0648: {description: "NESSE TRABALHO ERA", type: code, positions: [209, 209], codes: {"1": "Empregado com carteira de trabalho assinada", "2": "Militar do exército, marinha, aeronáutica, policia militar ou corpo de bombeiros", "3": "Empregado pelo regime jurídico dos funcionários públicos", "4": "Empregado sem carteira de trabalho assinada", "5": "Conta própria", "6": "Empregador", "7": "Não remunerado"}}
+      V0649: {description: "QUANTAS PESSOAS EMPREGAVA NESSE TRABALHO", type: code, positions: [210, 210], codes: {"1": "1 a 5 pessoas", "2": "6 ou mais pessoas"}}
+      V0650: {description: "ERA CONTRIBUINTE DE INSTITUTO DE PREVIDÊNCIA OFICIAL EM ALGUM TRABALHO QUE TINHA NA SEMANA DE 25 A 31 DE JULHO DE 2010", type: code, positions: [211, 211], codes: {"1": "Sim, no trabalho principal", "2": "Sim, em outro trabalho", "3": "Não"}}
+      V0651: {description: "NO TRABALHO PRINCIPAL, QUAL ERA O RENDIMENTO BRUTO (OU A RETIRADA) MENSAL QUE GANHAVA HABITUALMENTE EM JULHO DE 2010", type: code, positions: [212, 212], codes: {"0": "Não tem", "1": "Em dinheiro, produtos ou mercadorias", "2": "Somente em benefícios"}}
+      V6511: {description: "VALOR DO RENDIMENTO BRUTO (OU A RETIRADA) MENSAL NO TRABALHO PRINCIPAL: (pode ter valor branco)", type: integer, positions: [213, 218]}
+      V6513: {description: "RENDIMENTO NO TRABALHO PRINCIPAL: (pode ter valor branco)", type: integer, positions: [219, 224]}
+      V6514: {description: "RENDIMENTO NO TRABALHO PRINCIPAL EM Nº DE SALÁRIOS MÍNIMOS: (pode ter valor branco)", type: number, implied_decimals: 2, positions: [225, 230]}
+      V0652: {description: "NOS DEMAIS TRABALHOS, QUAL ERA O RENDIMENTO BRUTO (OU A RETIRADA) MENSAL QUE GANHAVA HABITUALMENTE EM JULHO DE 2010", type: code, positions: [231, 231], codes: {"0": "Não tem", "1": "Em dinheiro, produtos ou mercadorias", "2": "Somente em benefícios"}}
+      V6521: {description: "VALOR DO RENDIMENTO BRUTO (OU A RETIRADA) MENSAL NOS DEMAIS TRABALHOS (EM REAIS)", type: integer, positions: [232, 237]}
+      V6524: {description: "RENDIMENTO BRUTO NOS DEMAIS TRABALHOS EM Nº DE SALÁRIOS MÍNIMOS", type: number, implied_decimals: 5, positions: [238, 246]}
+      V6525: {description: "RENDIMENTO EM TODOS OS TRABALHOS", type: integer, positions: [247, 253]}
+      V6526: {description: "RENDIMENTO EM TODOS OS TRABALHOS EM Nº DE SALÁRIOS MÍNIMOS", type: number, implied_decimals: 5, positions: [254, 262]}
+      V6527: {description: "RENDIMENTO MENSAL TOTAL EM JULHO DE 2010", type: integer, positions: [263, 269]}
+      V6528: {description: "RENDIMENTO MENSAL TOTAL EM Nº DE SALÁRIOS MÍNIMOS EM JULHO DE 2010", type: number, implied_decimals: 5, positions: [270, 278]}
+      V6529: {description: "RENDIMENTO DOMICILIAR (DOMICÍLIO PARTICULAR) EM JULHO DE 2010", type: integer, positions: [279, 285]}
+      V6530: {description: "RENDIMENTO DOMICILIAR (DOMICÍLIO PARTICULAR) EM Nº DE SALÁRIOS MÍNIMOS EM JULHO DE 2010", type: number, implied_decimals: 5, positions: [286, 295]}
+      V6531: {description: "RENDIMENTO DOMICILIAR (DOMICÍLIO PARTICULAR) PER CAPITA EM JULHO DE 2010", type: number, implied_decimals: 2, positions: [296, 303]}
+      V6532: {description: "RENDIMENTO DOMICILIAR (DOMICÍLIO PARTICULAR) PER CAPITA EM Nº DE SALÁRIOS MÍNIMOS EM JULHO DE 2010", type: number, implied_decimals: 5, positions: [304, 312]}
+      V0653: {description: "NO TRABALHO PRINCIPAL, QUANTAS HORAS TRABALHAVA HABITUALMENTE POR SEMANA", type: integer, positions: [313, 315]}
+      V0654: {description: "NO PERÍODO DE 02 A 31 DE JULHO DE 2010, TOMOU ALGUMA PROVIDÊNCIA, DE FATO, PARA CONSEGUIR TRABALHO?", type: code, positions: [316, 316], codes: {"1": "Sim", "2": "Não"}}
+      V0655: {description: "SE TIVESSE CONSEGUIDO TRABALHO, ESTARIA DISPONÍVEL PARA ASSUMI-LO NA SEMANA DE 25 A 31 DE JULHO DE 2010?", type: code, positions: [317, 317], codes: {"1": "Sim", "2": "Não"}}
+      V0656: {description: "EM JULHO DE 2010, TINHA RENDIMENTO MENSAL HABITUAL DE APOSENTADORIA OU PENSÃO DE INSTITUTO DE PREVIDÊNCIA OFICIAL (FEDERAL, ESTADUAL OU MUNICIPAL)?", type: code, positions: [318, 318], codes: {"1": "Sim", "0": "Não", "9": "Ignorado"}}
+      V0657: {description: "EM JULHO DE 2010, TINHA RENDIMENTO MENSAL HABITUAL DE PROGRAMA SOCIAL BOLSA-FAMÍLIA OU PROGRAMA DE ERRADICAÇÃO DO TRABALHO INFANTIL (PETI)", type: code, positions: [319, 319], codes: {"1": "Sim", "0": "Não", "9": "Ignorado"}}
+      V0658: {description: "EM JULHO 2010, TINHA RENDIMENTO MENSAL HABITUAL DE OUTROS PROGRAMAS SOCIAIS OU DE TRANSFERÊNCIAS", type: code, positions: [320, 320], codes: {"1": "Sim", "0": "Não", "9": "Ignorado"}}
+      V0659: {description: "EM JULHO DE 2010, TINHA RENDIMENTO MENSAL HABITUAL DE OUTRAS FONTES (JUROS DE POUPANÇA, APLICAÇÕES FINANCEIRAS, ALUGUEL, PENSÃO, APOSENTADORIA DE PREVIDÊNCIA PRIVADA, ETC)?", type: code, positions: [321, 321], codes: {"1": "Sim", "0": "Não", "9": "Ignorado"}}
+      V6591: {description: "EM JULHO DE 2010 QUAL FOI O VALOR TOTAL DESTE(S) RENDIMENTO(S)", type: integer, positions: [322, 327]}
+      V0660: {description: "EM QUE MUNICÍPIO E UNIDADE DA FEDERAÇÃO OU PAÍS ESTRANGEIRO TRABALHA", type: code, positions: [328, 328], codes: {"1": "No próprio domicílio", "2": "Apenas neste município, mas não no próprio domicílio", "3": "Em outro município", "4": "Em país estrangeiro", "5": "Em mais de um município ou país"}}
+      V6602: {description: "EM QUE UNIDADE DA FEDERAÇÃO TRABALHAVA - código. Code list: A relação de códigos encontra-se no arquivo: “Migração_UFs_2010 V6222 V6252 V6262 V6362 V6602.xls”", type: code, positions: [329, 335]}
+      V6604: {description: "EM QUE MUNICÍPIO TRABALHAVA - código. Code list: A relação de códigos encontra-se no arquivo: “Migração_Municípios_2010 V6254 V6264 V6364 V6604.xls”", type: code, positions: [336, 342]}
+      V6606: {description: "EM QUE PAÍS ESTRANGEIRO TRABALHAVA - código. Code list: A relação de códigos encontra-se no arquivo: “Migração_Países_2010 V3061 V6224 V6256 V6266 V6366 V6606.xls”", type: code, positions: [343, 349]}
+      V0661: {description: "RETORNA DO TRABALHO PARA CASA DIARIAMENTE", type: code, positions: [350, 350], codes: {"1": "Sim", "2": "Não"}}
+      V0662: {description: "QUAL É O TEMPO HABITUAL GASTO DE DESLOCAMENTO DE SUA CASA ATÉ O TRABALHO", type: code, positions: [351, 351], codes: {"1": "Até 05 minutos", "2": "De 06 minutos até meia hora", "3": "Mais de meia hora até uma hora", "4": "Mais de uma hora até duas horas", "5": "Mais de duas horas"}}
+      V0663: {description: "QUANTOS FILHOS E FILHAS NASCIDOS VIVOS TEVE ATÉ 31 DE JULHO DE 2010", type: code, positions: [352, 352], codes: {"1": "Teve filhos nascidos vivos", "2": "Não teve nenhum filho nascido vivo"}}
+      V6631: {description: "QUANTOS FILHOS NASCIDOS VIVOS TEVE ATÉ 31 DE JULHO DE 2010", type: integer, positions: [353, 354]}
+      V6632: {description: "QUANTAS FILHAS NASCIDAS VIVAS TEVE ATÉ 31 DE JULHO DE 2010", type: integer, positions: [355, 356]}
+      V6633: {description: "TOTAL DE FILHOS NASCIDOS VIVOS QUE TEVE ATÉ 31 DE JULHO DE 2010", type: integer, positions: [357, 358]}
+      V0664: {description: "DOS FILHOS E FILHAS QUE TEVE, QUANTOS ESTAVAM VIVOS EM 31 DE JULHO DE 2010", type: code, positions: [359, 359], codes: {"1": "Filhos vivos", "2": "Não sabe"}}
+      V6641: {description: "DOS FILHOS QUE TEVE, QUANTOS ESTAVAM VIVOS EM 31 DE JULHO DE 2010", type: integer, positions: [360, 361]}
+      V6642: {description: "DAS FILHAS QUE TEVE, QUANTAS ESTAVAM VIVAS EM 31 DE JULHO DE 2010", type: integer, positions: [362, 363]}
+      V6643: {description: "TOTAL DE FILHOS QUE TEVE, QUANTOS ESTAVAM VIVOS EM 31 DE JULHO DE 2010", type: integer, positions: [364, 365]}
+      V0665: {description: "QUAL É O SEXO DO ÚLTIMO FILHO TIDO NASCIDO VIVO ATÉ 31 DE JULHO DE 2010", type: code, positions: [366, 366], codes: {"1": "Masculino", "2": "Feminino"}}
+      V6660: {description: "IDADE DO ÚLTIMO FILHO TIDO NASCIDO VIVO ATÉ 31 DE JULHO DE 2010", type: integer, positions: [367, 369]}
+      V6664: {description: "EXISTÊNCIA DE FILHO TIDO NASCIDO VIVO NO PERÍODO DE REFERÊNCIA DE 12 MESES ANTERIORES A 31/07/2010", type: code, positions: [370, 370], codes: {"1": "Sim", "0": "Não"}}
+      V0667: {description: "ESTE(A) FILHO(A) ESTAVA VIVO(A) EM 31 DE JULHO DE 2010", type: code, positions: [371, 371], codes: {"1": "Sim", "2": "Não", "9": "Não sabe"}}
+      V0668: {description: "QUAL FOI O MÊS E O ANO QUE ESTE(A) FILHO(A) FALECEU", type: code, positions: [372, 372], codes: {"1": "Sabe o mês e ano ou somente o ano", "2": "Não sabe"}}
+      V6681: {description: "QUAL FOI O MÊS QUE ESTE(A) FILHO(A) FALECEU", type: integer, positions: [373, 374], codes: {"99": "ignorado"}}
+      V6682: {description: "QUAL FOI O ANO QUE ESTE(A) FILHO(A) FALECEU", type: integer, positions: [375, 378], codes: {"9999": "ignorado"}}
+      V0669: {description: "QUANTOS FILHOS E FILHAS NASCIDOS MORTOS TEVE ATÉ 31 DE JULHO DE 2010", type: code, positions: [379, 379], codes: {"1": "Teve filho nascido morto", "2": "Não teve filho nascido morto", "3": "Não sabe"}}
+      V6691: {description: "QUANTOS FILHOS NASCIDOS MORTOS TEVE ATÉ 31 DE JULHO DE 2010", type: integer, positions: [380, 381]}
+      V6692: {description: "QUANTOS FILHAS NASCIDAS MORTAS TEVE ATÉ 31 DE JULHO DE 2010", type: integer, positions: [382, 383]}
+      V6693: {description: "QUANTOS FILHOS E FILHAS NASCIDOS MORTOS TEVE ATÉ 31 DE JULHO DE 2010", type: integer, positions: [384, 385]}
+      V6800: {description: "TOTAL DE FILHOS TIDOS NASCIDOS VIVOS E NASCIDOS MORTOS", type: integer, positions: [386, 387]}
+      V0670: {description: "ASSINALE QUEM PRESTOU AS INFORMAÇÕES DESTA PESSOA", type: code, positions: [388, 388], codes: {"1": "A própria pessoa", "2": "Outro morador", "3": "Não morador", "9": "Ignorado"}}
+      V0671: {description: "NÚMERO DE ORDEM DO INFORMANTE (OUTRO MORADOR)", type: code, positions: [389, 390]}
+      V6900: {description: "CONDIÇÃO DE ATIVIDADE NA SEMANA DE REFERÊNCIA", type: code, positions: [391, 391], codes: {"1": "Economicamente ativas", "2": "Não economicamente ativas"}}
+      V6910: {description: "CONDIÇÃO DE OCUPAÇÃO NA SEMANA DE REFERÊNCIA", type: code, positions: [392, 392], codes: {"1": "Ocupadas", "2": "Desocupadas"}}
+      V6920: {description: "SITUAÇÃO DE OCUPAÇÃO NA SEMANA DE REFERÊNCIA", type: code, positions: [393, 393], codes: {"1": "Ocupadas", "2": "Não ocupadas"}}
+      V6930: {description: "POSIÇÃO NA OCUPAÇÃO E CATEGORIA DO EMPREGO NO TRABALHO PRINCIPAL", type: code, positions: [394, 394], codes: {"1": "Empregados com carteira de trabalho assinada", "2": "Militares e funcionários públicos estatutários", "3": "Empregados sem carteira de trabalho assinada", "4": "Conta própria", "5": "Empregadores", "6": "Não remunerados", "7": "Trabalhadores na produção para o próprio consumo"}}
+      V6940: {description: "SUBGRUPO E CATEGORIA DO EMPREGO NO TRABALHO PRINCIPAL", type: code, positions: [395, 395], codes: {"1": "Trabalhadores domésticos com carteira de trabalho assinada", "2": "Trabalhadores domésticos sem carteira de trabalho assinada", "3": "Demais empregados com carteira de trabalho assinada", "4": "Militares e funcionários públicos estatutários", "5": "Demais empregados sem carteira de trabalho assinada"}}
+      V6121: {description: "Qual é a sua religião ou culto? - código (banco de códigos; 999 = ignorado)", type: code, positions: [396, 398]}
+      V0604: {description: "TEM MÃE VIVA?", type: code, positions: [399, 399], codes: {"1": "Sim e mora neste domicílio", "2": "Sim e mora em outro domicílio", "3": "Não", "4": "Não sabe", "9": "Ignorado"}}
+      V0605: {description: "Número de ordem da mãe da pessoa (branco; 1 a 98; 99 = ignorado)", type: code, positions: [400, 401]}
+      V5020: {description: "NÚMERO DA FAMÍLIA", type: code, positions: [402, 403], codes: {"01": "Famílias únicas ou conviventes principais: Corresponde à família dos responsáveis pela unidade doméstica.", "02": "Família convivente – segunda", "03": "Família convivente – terceira", "04": "Família convivente – quarta", "05": "Família convivente – quinta", "06": "Família convivente – sexta", "07": "Família convivente – sétima", "08": "Família convivente – oitava", "09": "Família convivente – nona"}}
+      V5060: {description: "Número de Pessoas na Família", type: integer, positions: [404, 405]}
+      V5070: {description: "Rendimento familiar per capita em julho de 2010 (0 a 999999,99)", type: number, implied_decimals: 2, positions: [406, 413]}
+      V5080: {description: "Rendimento familiar per capita em nº de salários mínimos em julho de 2010 (0 a 9999,99999)", type: number, implied_decimals: 5, positions: [414, 422]}
+      V6462: {description: "Qual era a ocupação que exercia no trabalho que tinha? - código 2000 (branco; banco de códigos de 2000)", type: code, positions: [423, 426]}
+      V6472: {description: "Qual era a atividade principal do empreendimento em que tinha esse trabalho? - código 2000 (branco; banco de códigos de 2000)", type: code, positions: [427, 431]}
+      V5110: {description: "CONDIÇÃO DE CONTRIBUIÇÃO PARA INSTITUTO DE PREVIDÊNCIA OFICIAL NO TRABALHO PRINCIPAL. Contribuintes; Não contribuintes", type: code, positions: [432, 432]}
+      V5120: {description: "CONDIÇÃO DE CONTRIBUIÇÃO PARA INSTITUTO DE PREVIDÊNCIA OFICIAL EM QUALQUER TRABALHO. Contribuintes; Não contribuintes", type: code, positions: [433, 433]}
+      V5030: {description: "TIPO DE UNIDADE DOMÉSTICA", type: code, positions: [434, 434], codes: {"1": "Unipessoal", "2": "Duas pessoas ou mais sem parentesco", "3": "Duas pessoas ou mais com parentesco"}}
+      V5040: {description: "INDICADORA DE FAMÍLIA", type: code, positions: [435, 435], codes: {"1": "Arranjo familiar", "0": "Arranjo não familiar"}}
+      V5090: {description: "TIPO DE COMPOSIÇÃO FAMILIAR DAS FAMÍLIAS ÚNICAS E CONVIVENTES PRINCIPAIS", type: code, positions: [436, 436], codes: {"1": "Casal sem filho(s)", "2": "Casal sem filho(s) e com parente(s)", "3": "Casal com filho(s)", "4": "Casal com filho(s) e com parente(s)", "5": "Mulher sem cônjuge com filho(s)", "6": "Mulher sem cônjuge com filho(s) e com parente(s)", "7": "Homem sem cônjuge com filho(s)", "8": "Homem sem cônjuge com filho(s) e com parente(s)", "9": "Outro"}}
+      V5100: {description: "TIPO DE COMPOSIÇÃO FAMILIAR DAS FAMÍLIAS CONVIVENTES SECUNDÁRIAS", type: code, positions: [437, 437], codes: {"1": "Casal sem filho(s)", "2": "Casal com filho(s)", "3": "Mulher sem cônjuge com filho(s)"}}
+      V5130: {description: "ORDEM LÓGICA NA FAMÍLIA", type: code, positions: [438, 439]}
+      M0502: {description: "MARCA DE IMPUTAÇÃO NA V0502", type: code, positions: [440, 440], codes: {"1": "Sim", "2": "Não"}}
+      M0601: {description: "MARCA DE IMPUTAÇÃO NA V0601", type: code, positions: [441, 441], codes: {"1": "Sim", "2": "Não"}}
+      M6033: {description: "MARCA DE IMPUTAÇÃO NA V6033", type: code, positions: [442, 442], codes: {"1": "Sim", "2": "Não"}}
+      M0606: {description: "MARCA DE IMPUTAÇÃO NA V0606", type: code, positions: [443, 443], codes: {"1": "Sim", "2": "Não"}}
+      M0613: {description: "MARCA DE IMPUTAÇÃO NA V0613", type: code, positions: [444, 444], codes: {"1": "Sim", "2": "Não"}}
+      M0614: {description: "MARCA DE IMPUTAÇÃO NA V0614", type: code, positions: [445, 445], codes: {"1": "Sim", "2": "Não"}}
+      M0615: {description: "MARCA DE IMPUTAÇÃO NA V0615", type: code, positions: [446, 446], codes: {"1": "Sim", "2": "Não"}}
+      M0616: {description: "MARCA DE IMPUTAÇÃO NA V0616", type: code, positions: [447, 447], codes: {"1": "Sim", "2": "Não"}}
+      M0617: {description: "MARCA DE IMPUTAÇÃO NA V0617", type: code, positions: [448, 448], codes: {"1": "Sim", "2": "Não"}}
+      M0618: {description: "MARCA DE IMPUTAÇÃO NA V0618", type: code, positions: [449, 449], codes: {"1": "Sim", "2": "Não"}}
+      M0619: {description: "MARCA DE IMPUTAÇÃO NA V0619", type: code, positions: [450, 450], codes: {"1": "Sim", "2": "Não"}}
+      M0620: {description: "MARCA DE IMPUTAÇÃO NA V0620", type: code, positions: [451, 451], codes: {"1": "Sim", "2": "Não"}}
+      M0621: {description: "MARCA DE IMPUTAÇÃO NA V0621", type: code, positions: [452, 452], codes: {"1": "Sim", "2": "Não"}}
+      M0622: {description: "MARCA DE IMPUTAÇÃO NA V0622", type: code, positions: [453, 453], codes: {"1": "Sim", "2": "Não"}}
+      M6222: {description: "MARCA DE IMPUTAÇÃO NA V6222", type: code, positions: [454, 454], codes: {"1": "Sim", "2": "Não"}}
+      M6224: {description: "MARCA DE IMPUTAÇÃO NA V6224", type: code, positions: [455, 455], codes: {"1": "Sim", "2": "Não"}}
+      M0623: {description: "MARCA DE IMPUTAÇÃO NA V0623", type: code, positions: [456, 456], codes: {"1": "Sim", "2": "Não"}}
+      M0624: {description: "MARCA DE IMPUTAÇÃO NA V0624", type: code, positions: [457, 457], codes: {"1": "Sim", "2": "Não"}}
+      M0625: {description: "MARCA DE IMPUTAÇÃO NA V0625", type: code, positions: [458, 458], codes: {"1": "Sim", "2": "Não"}}
+      M6252: {description: "MARCA DE IMPUTAÇÃO NA V6252", type: code, positions: [459, 459], codes: {"1": "Sim", "2": "Não"}}
+      M6254: {description: "MARCA DE IMPUTAÇÃO NA V6254", type: code, positions: [460, 460], codes: {"1": "Sim", "2": "Não"}}
+      M6256: {description: "MARCA DE IMPUTAÇÃO NA V6256", type: code, positions: [461, 461], codes: {"1": "Sim", "2": "Não"}}
+      M0626: {description: "MARCA DE IMPUTAÇÃO NA V0626", type: code, positions: [462, 462], codes: {"1": "Sim", "2": "Não"}}
+      M6262: {description: "MARCA DE IMPUTAÇÃO NA V6262", type: code, positions: [463, 463], codes: {"1": "Sim", "2": "Não"}}
+      M6264: {description: "MARCA DE IMPUTAÇÃO NA V6264", type: code, positions: [464, 464], codes: {"1": "Sim", "2": "Não"}}
+      M6266: {description: "MARCA DE IMPUTAÇÃO NA V6266", type: code, positions: [465, 465], codes: {"1": "Sim", "2": "Não"}}
+      M0627: {description: "MARCA DE IMPUTAÇÃO NA V0627", type: code, positions: [466, 466], codes: {"1": "Sim", "2": "Não"}}
+      M0628: {description: "MARCA DE IMPUTAÇÃO NA V0628", type: code, positions: [467, 467], codes: {"1": "Sim", "2": "Não"}}
+      M0629: {description: "MARCA DE IMPUTAÇÃO NA V0629", type: code, positions: [468, 468], codes: {"1": "Sim", "2": "Não"}}
+      M0630: {description: "MARCA DE IMPUTAÇÃO NA V0630", type: code, positions: [469, 469], codes: {"1": "Sim", "2": "Não"}}
+      M0631: {description: "MARCA DE IMPUTAÇÃO NA V0631", type: code, positions: [470, 470], codes: {"1": "Sim", "2": "Não"}}
+      M0632: {description: "MARCA DE IMPUTAÇÃO NA V0632", type: code, positions: [471, 471], codes: {"1": "Sim", "2": "Não"}}
+      M0633: {description: "MARCA DE IMPUTAÇÃO NA V0633", type: code, positions: [472, 472], codes: {"1": "Sim", "2": "Não"}}
+      M0634: {description: "MARCA DE IMPUTAÇÃO NA V0634", type: code, positions: [473, 473], codes: {"1": "Sim", "2": "Não"}}
+      M0635: {description: "MARCA DE IMPUTAÇÃO NA V0635", type: code, positions: [474, 474], codes: {"1": "Sim", "2": "Não"}}
+      M6352: {description: "MARCA DE IMPUTAÇÃO NA V6352", type: code, positions: [475, 475], codes: {"1": "Sim", "2": "Não"}}
+      M6354: {description: "MARCA DE IMPUTAÇÃO NA V6354", type: code, positions: [476, 476], codes: {"1": "Sim", "2": "Não"}}
+      M6356: {description: "MARCA DE IMPUTAÇÃO NA V6356", type: code, positions: [477, 477], codes: {"1": "Sim", "2": "Não"}}
+      M0636: {description: "MARCA DE IMPUTAÇÃO NA V0636", type: code, positions: [478, 478], codes: {"1": "Sim", "2": "Não"}}
+      M6362: {description: "MARCA DE IMPUTAÇÃO NA V6362", type: code, positions: [479, 479], codes: {"1": "Sim", "2": "Não"}}
+      M6364: {description: "MARCA DE IMPUTAÇÃO NA V6364", type: code, positions: [480, 480], codes: {"1": "Sim", "2": "Não"}}
+      M6366: {description: "MARCA DE IMPUTAÇÃO NA V6366", type: code, positions: [481, 481], codes: {"1": "Sim", "2": "Não"}}
+      M0637: {description: "MARCA DE IMPUTAÇÃO NA V0637", type: code, positions: [482, 482], codes: {"1": "Sim", "2": "Não"}}
+      M0638: {description: "MARCA DE IMPUTAÇÃO NA V0638", type: code, positions: [483, 483], codes: {"1": "Sim", "2": "Não"}}
+      M0639: {description: "MARCA DE IMPUTAÇÃO NA V0639", type: code, positions: [484, 484], codes: {"1": "Sim", "2": "Não"}}
+      M0640: {description: "MARCA DE IMPUTAÇÃO NA V0640", type: code, positions: [485, 485], codes: {"1": "Sim", "2": "Não"}}
+      M0641: {description: "MARCA DE IMPUTAÇÃO NA V0641", type: code, positions: [486, 486], codes: {"1": "Sim", "2": "Não"}}
+      M0642: {description: "MARCA DE IMPUTAÇÃO NA V0642", type: code, positions: [487, 487], codes: {"1": "Sim", "2": "Não"}}
+      M0643: {description: "MARCA DE IMPUTAÇÃO NA V0643", type: code, positions: [488, 488], codes: {"1": "Sim", "2": "Não"}}
+      M0644: {description: "MARCA DE IMPUTAÇÃO NA V0644", type: code, positions: [489, 489], codes: {"1": "Sim", "2": "Não"}}
+      M0645: {description: "MARCA DE IMPUTAÇÃO NA V0645", type: code, positions: [490, 490], codes: {"1": "Sim", "2": "Não"}}
+      M6461: {description: "MARCA DE IMPUTAÇÃO NA V6461", type: code, positions: [491, 491], codes: {"1": "Sim", "2": "Não"}}
+      M6471: {description: "MARCA DE IMPUTAÇÃO NA V6471", type: code, positions: [492, 492], codes: {"1": "Sim", "2": "Não"}}
+      M0648: {description: "MARCA DE IMPUTAÇÃO NA V0648", type: code, positions: [493, 493], codes: {"1": "Sim", "2": "Não"}}
+      M0649: {description: "MARCA DE IMPUTAÇÃO NA V0649", type: code, positions: [494, 494], codes: {"1": "Sim", "2": "Não"}}
+      M0650: {description: "MARCA DE IMPUTAÇÃO NA V0650", type: code, positions: [495, 495], codes: {"1": "Sim", "2": "Não"}}
+      M0651: {description: "MARCA DE IMPUTAÇÃO NA V0651", type: code, positions: [496, 496], codes: {"1": "Sim", "2": "Não"}}
+      M6511: {description: "MARCA DE IMPUTAÇÃO NA V6511", type: code, positions: [497, 497], codes: {"1": "Sim", "2": "Não"}}
+      M0652: {description: "MARCA DE IMPUTAÇÃO NA V0652", type: code, positions: [498, 498], codes: {"1": "Sim", "2": "Não"}}
+      M6521: {description: "MARCA DE IMPUTAÇÃO NA V6521", type: code, positions: [499, 499], codes: {"1": "Sim", "2": "Não"}}
+      M0653: {description: "MARCA DE IMPUTAÇÃO NA V0653", type: code, positions: [500, 500], codes: {"1": "Sim", "2": "Não"}}
+      M0654: {description: "MARCA DE IMPUTAÇÃO NA V0654", type: code, positions: [501, 501], codes: {"1": "Sim", "2": "Não"}}
+      M0655: {description: "MARCA DE IMPUTAÇÃO NA V0655", type: code, positions: [502, 502], codes: {"1": "Sim", "2": "Não"}}
+      M0656: {description: "MARCA DE IMPUTAÇÃO NA V0656", type: code, positions: [503, 503], codes: {"1": "Sim", "2": "Não"}}
+      M0657: {description: "MARCA DE IMPUTAÇÃO NA V0657", type: code, positions: [504, 504], codes: {"1": "Sim", "2": "Não"}}
+      M0658: {description: "MARCA DE IMPUTAÇÃO NA V0658", type: code, positions: [505, 505], codes: {"1": "Sim", "2": "Não"}}
+      M0659: {description: "MARCA DE IMPUTAÇÃO NA V0659", type: code, positions: [506, 506], codes: {"1": "Sim", "2": "Não"}}
+      M6591: {description: "MARCA DE IMPUTAÇÃO NA V6591", type: code, positions: [507, 507], codes: {"1": "Sim", "2": "Não"}}
+      M0660: {description: "MARCA DE IMPUTAÇÃO NA V0660", type: code, positions: [508, 508], codes: {"1": "Sim", "2": "Não"}}
+      M6602: {description: "MARCA DE IMPUTAÇÃO NA V6602", type: code, positions: [509, 509], codes: {"1": "Sim", "2": "Não"}}
+      M6604: {description: "MARCA DE IMPUTAÇÃO NA V6604", type: code, positions: [510, 510], codes: {"1": "Sim", "2": "Não"}}
+      M6606: {description: "MARCA DE IMPUTAÇÃO NA V6606", type: code, positions: [511, 511], codes: {"1": "Sim", "2": "Não"}}
+      M0661: {description: "MARCA DE IMPUTAÇÃO NA V0661", type: code, positions: [512, 512], codes: {"1": "Sim", "2": "Não"}}
+      M0662: {description: "MARCA DE IMPUTAÇÃO NA V0662", type: code, positions: [513, 513], codes: {"1": "Sim", "2": "Não"}}
+      M0663: {description: "MARCA DE IMPUTAÇÃO NA V0663", type: code, positions: [514, 514], codes: {"1": "Sim", "2": "Não"}}
+      M6631: {description: "MARCA DE IMPUTAÇÃO NA V6631", type: code, positions: [515, 515], codes: {"1": "Sim", "2": "Não"}}
+      M6632: {description: "MARCA DE IMPUTAÇÃO NA V6632", type: code, positions: [516, 516], codes: {"1": "Sim", "2": "Não"}}
+      M6633: {description: "MARCA DE IMPUTAÇÃO NA V6633", type: code, positions: [517, 517], codes: {"1": "Sim", "2": "Não"}}
+      M0664: {description: "MARCA DE IMPUTAÇÃO NA V0664", type: code, positions: [518, 518], codes: {"1": "Sim", "2": "Não"}}
+      M6641: {description: "MARCA DE IMPUTAÇÃO NA V6641", type: code, positions: [519, 519], codes: {"1": "Sim", "2": "Não"}}
+      M6642: {description: "MARCA DE IMPUTAÇÃO NA V6642", type: code, positions: [520, 520], codes: {"1": "Sim", "2": "Não"}}
+      M6643: {description: "MARCA DE IMPUTAÇÃO NA V6643", type: code, positions: [521, 521], codes: {"1": "Sim", "2": "Não"}}
+      M0665: {description: "MARCA DE IMPUTAÇÃO NA V0665", type: code, positions: [522, 522], codes: {"1": "Sim", "2": "Não"}}
+      M6660: {description: "MARCA DE IMPUTAÇÃO NA V6660", type: code, positions: [523, 523], codes: {"1": "Sim", "2": "Não"}}
+      M0667: {description: "MARCA DE IMPUTAÇÃO NA V0667", type: code, positions: [524, 524], codes: {"1": "Sim", "2": "Não"}}
+      M0668: {description: "MARCA DE IMPUTAÇÃO NA V0668", type: code, positions: [525, 525], codes: {"1": "Sim", "2": "Não"}}
+      M6681: {description: "MARCA DE IMPUTAÇÃO NA V6681", type: code, positions: [526, 526], codes: {"1": "Sim", "2": "Não"}}
+      M6682: {description: "MARCA DE IMPUTAÇÃO NA V6682", type: code, positions: [527, 527], codes: {"1": "Sim", "2": "Não"}}
+      M0669: {description: "MARCA DE IMPUTAÇÃO NA V0669", type: code, positions: [528, 528], codes: {"1": "Sim", "2": "Não"}}
+      M6691: {description: "MARCA DE IMPUTAÇÃO NA V6691", type: code, positions: [529, 529], codes: {"1": "Sim", "2": "Não"}}
+      M6692: {description: "MARCA DE IMPUTAÇÃO NA V6692", type: code, positions: [530, 530], codes: {"1": "Sim", "2": "Não"}}
+      M6693: {description: "MARCA DE IMPUTAÇÃO NA V6693", type: code, positions: [531, 531], codes: {"1": "Sim", "2": "Não"}}
+      M0670: {description: "MARCA DE IMPUTAÇÃO NA V0670", type: code, positions: [532, 532], codes: {"1": "Sim", "2": "Não"}}
+      M0671: {description: "MARCA DE IMPUTAÇÃO NA V0671", type: code, positions: [533, 533], codes: {"1": "Sim", "2": "Não"}}
+      M6800: {description: "MARCA DE IMPUTAÇÃO NA V6800", type: code, positions: [534, 534], codes: {"1": "Sim", "2": "Não"}}
+      M6121: {description: "MARCA DE IMPUTAÇÃO NA V6121", type: code, positions: [535, 535], codes: {"1": "Sim", "2": "Não"}}
+      M0604: {description: "MARCA DE IMPUTAÇÃO NA V0604", type: code, positions: [536, 536], codes: {"1": "Sim", "2": "Não"}}
+      M0605: {description: "MARCA DE IMPUTAÇÃO NA V0605", type: code, positions: [537, 537], codes: {"1": "Sim", "2": "Não"}}
+      M6462: {description: "MARCA DE IMPUTAÇÃO NA V6462", type: code, positions: [538, 538], codes: {"1": "Sim", "2": "Não"}}
+      M6472: {description: "MARCA DE IMPUTAÇÃO NA V6472", type: code, positions: [539, 539], codes: {"1": "Sim", "2": "Não"}}
+      V1005: {description: "Situação do setor", type: code, positions: [540, 540], codes: {"1": "Masculino", "2": "Feminino", "3": "Área urbanizada isolada", "4": "Área rural de extensão urbana", "5": "Aglomerado rural (povoado)", "6": "Aglomerado rural (núcleo)", "7": "Aglomerado rural (outros)", "8": "Área rural exclusive aglomerado rural"}}
+
+  census2010_emigracao:
+    system: CENSO2010
+    series: EMIGRACAO
+    official_name: "Censo Demográfico 2010: Amostra, registro de emigração"
+    translated_name: "Census 2010 sample: emigration records"
+    what: >
+      The Census 2010 sample's emigration record: the sex, year of birth, year of last departure and country of residence abroad of each person the household reported as living in another country (V0301), one row per emigrant, as IBGE's microdata publishes it.
+    one_row: "one person who had lived in a sampled household and was living in another country on 31 July 2010"
+    unit_of_analysis: emigrant of the sample
+    use: context
+    why_no_event_type: >-
+      A sample survey of residents on one reference date (31 July 2010): attributes of people and households, weighted
+      to the population, and no health event is recorded in it.
+    known_biases: >-
+      A sample, not a count: every row stands for V0010 people or households (the sample weight, never ignored; a sum of rows is not a
+      population), and an estimate is exact only for the weighting areas the sample was designed for (V0011) and up. A blank is a
+      question the person was not asked or did not answer: it is null, never zero. Income and counts are as declared in July 2010.
+    gotchas:
+      - "Positions and widths are the documentation's layout (Layout_microdados_Amostra.xls, sheet EMIG), checked at every landing; the file is whole lines of 74 characters."
+      - "Every variable is landed as filed (text); a numeric one also has a typed column and its digits as filed in `<NAME>__RAW`; the sample weight V0010 has 13 implied decimals."
+      - "A household and its persons share V0300 (the control number) and V0011 within a state's file; SP is two files (the capital's region and the rest) with their own households."
+      - "The codes of the places, occupations, activities, courses and religion are in the documentation's workbooks, not decoded here."
+    citation: IBGE, Censo Demográfico 2010, Resultados Gerais da Amostra, Microdados (ftp.ibge.gov.br/Censos/Censo_Demografico_2010/Resultados_Gerais_da_Amostra/Microdados)
+    dictionary: Layout_microdados_Amostra.xls (Documentacao.zip), sheet EMIG
+    place: {column: CODMUN, type: municipality}
+    period: {type: file}
+    origin:
+      kind: files
+      format: fixed
+      store: census2010_microdata
+      keep: true
+      fixed: {layout: "pegasus_data.sources.census_commuting:record_layouts", record: Amostra_Emigracao, member: "Amostra_Emigracao.*[.]txt$", eol: "\r\n", encoding: latin1}
+      pattern: https://ftp.ibge.gov.br/Censos/Censo_Demografico_2010/Resultados_Gerais_da_Amostra/Microdados/{uf}.zip
+      years: 2010
+      across: {uf: *states}
+      on_request: true
+    columns:
+      CODMUN: {description: "IBGE municipality code of the household (7 digits): the state (V0001) followed by the municipality (V0002)", type: municipality, positions: [1, 7], from: [V0001, V0002]}
+      V0001: {description: "UNIDADE DA FEDERAÇÃO", type: code, positions: [1, 2], codes: {"11": "Rondônia", "12": "Acre", "13": "Amazonas", "14": "Roraima", "15": "Pará", "16": "Amapá", "17": "Tocantins", "21": "Maranhão", "22": "Piauí", "23": "Ceará", "24": "Rio Grande do Norte", "25": "Paraíba", "26": "Pernambuco", "27": "Alagoas", "28": "Sergipe", "29": "Bahia", "31": "Minas Gerais", "32": "Espírito Santo", "33": "Rio de Janeiro", "35": "São Paulo", "41": "Paraná", "42": "Santa Catarina", "43": "Rio Grande do Sul", "50": "Mato Grosso do Sul", "51": "Mato Grosso", "52": "Goiás", "53": "Distrito Federal"}}
+      V0002: {description: "CÓDIGO DO MUNICÍPIO", type: code, positions: [3, 7]}
+      V0011: {description: "ÁREA DE PONDERAÇÃO", type: code, positions: [8, 20]}
+      V0300: {description: "CONTROLE", type: code, positions: [21, 28]}
+      V0010: {description: "PESO AMOSTRAL", type: number, implied_decimals: 13, positions: [29, 44]}
+      V1001: {description: "REGIÃO GEOGRÁFICA", type: code, positions: [45, 45], codes: {"1": "Região norte (uf=11 a 17)", "2": "Região nordeste (uf=21 a 29)", "3": "Região sudeste (uf=31 a 33 e 35)", "4": "Região sul (uf=41 a 43)", "5": "Região centro-oeste (uf=50 a 53)"}}
+      V1002: {description: "CÓDIGO DA MESORREGIÃO. Code list: a workbook of IBGE's documentation, not named in this layout", type: code, positions: [46, 47]}
+      V1003: {description: "CÓDIGO DA MICRORREGIÃO. Code list: a workbook of IBGE's documentation, not named in this layout", type: code, positions: [48, 50]}
+      V1004: {description: "CÓDIGO DA REGIÃO METROPOLITANA. Code list: a workbook of IBGE's documentation, not named in this layout", type: code, positions: [51, 52]}
+      V1006: {description: "SITUAÇÃO DO DOMICÍLIO", type: code, positions: [53, 53], codes: {"1": "Urbana", "2": "Rural"}}
+      V0303: {description: "SEXO DO EMIGRANTE", type: code, positions: [54, 54], codes: {"1": "Masculino", "2": "Feminino", "9": "Ignorado"}}
+      V0304: {description: "ANO DE NASCIMENTO DO EMIGRANTE", type: integer, positions: [55, 58], codes: {"9999": "ignorado"}}
+      V0305: {description: "ANO DA ÚLTIMA PARTIDA DO EMIGRANTE", type: integer, positions: [59, 62], codes: {"9999": "ignorado"}}
+      V3061: {description: "PAÍS DE RESIDÊNCIA EM 31 DE JULHO DE 2010 – CÓDIGO. Code list: A relação de códigos encontra-se no arquivo: “Migração_Países_2010 V3061 V6224 V6256 V6266 V6366 V6606.xls”", type: code, positions: [63, 69]}
+      M0303: {description: "MARCA DE IMPUTAÇÃO NA V0303", type: code, positions: [70, 70], codes: {"1": "Sim", "2": "Não"}}
+      M0304: {description: "MARCA DE IMPUTAÇÃO NA V0304", type: code, positions: [71, 71], codes: {"1": "Sim", "2": "Não"}}
+      M0305: {description: "MARCA DE IMPUTAÇÃO NA V0305", type: code, positions: [72, 72], codes: {"1": "Sim", "2": "Não"}}
+      M3061: {description: "MARCA DE IMPUTAÇÃO NA V3061", type: code, positions: [73, 73], codes: {"1": "Sim", "2": "Não"}}
+      V1005: {description: "Situação do setor", type: code, positions: [74, 74], codes: {"1": "Masculino", "2": "Feminino", "3": "Área urbanizada isolada", "4": "Área rural de extensão urbana", "5": "Aglomerado rural (povoado)", "6": "Aglomerado rural (núcleo)", "7": "Aglomerado rural (outros)", "8": "Área rural exclusive aglomerado rural"}}
+
+  census2010_mortalidade:
+    system: CENSO2010
+    series: MORTALIDADE
+    official_name: "Censo Demográfico 2010: Amostra, registro de mortalidade"
+    translated_name: "Census 2010 sample: household mortality records"
+    what: >
+      The Census 2010 sample's mortality record: the month and year of death, the sex and the age at death of each person who died in a sampled household in the 12 months before the census (V0701), one row per death reported, as IBGE's microdata publishes it.
+    one_row: "one death in a sampled household between August 2009 and July 2010, as the household reported it"
+    unit_of_analysis: death of the sample
+    use: context
+    why_no_event_type: >-
+      A sample survey of residents on one reference date (31 July 2010): attributes of people and households, weighted
+      to the population, and no health event is recorded in it.
+    known_biases: >-
+      A sample, not a count: every row stands for V0010 people or households (the sample weight, never ignored; a sum of rows is not a
+      population), and an estimate is exact only for the weighting areas the sample was designed for (V0011) and up. A blank is a
+      question the person was not asked or did not answer: it is null, never zero. Income and counts are as declared in July 2010.
+    gotchas:
+      - "Positions and widths are the documentation's layout (Layout_microdados_Amostra.xls, sheet MORT), checked at every landing; the file is whole lines of 66 characters."
+      - "Every variable is landed as filed (text); a numeric one also has a typed column and its digits as filed in `<NAME>__RAW`; the sample weight V0010 has 13 implied decimals."
+      - "A household and its persons share V0300 (the control number) and V0011 within a state's file; SP is two files (the capital's region and the rest) with their own households."
+      - "The codes of the places, occupations, activities, courses and religion are in the documentation's workbooks, not decoded here."
+    citation: IBGE, Censo Demográfico 2010, Resultados Gerais da Amostra, Microdados (ftp.ibge.gov.br/Censos/Censo_Demografico_2010/Resultados_Gerais_da_Amostra/Microdados)
+    dictionary: Layout_microdados_Amostra.xls (Documentacao.zip), sheet MORT
+    place: {column: CODMUN, type: municipality}
+    period: {type: file}
+    origin:
+      kind: files
+      format: fixed
+      store: census2010_microdata
+      keep: true
+      fixed: {layout: "pegasus_data.sources.census_commuting:record_layouts", record: Amostra_Mortalidade, member: "Amostra_Mortalidade.*[.]txt$", eol: "\r\n", encoding: latin1}
+      pattern: https://ftp.ibge.gov.br/Censos/Censo_Demografico_2010/Resultados_Gerais_da_Amostra/Microdados/{uf}.zip
+      years: 2010
+      across: {uf: *states}
+      on_request: true
+    columns:
+      CODMUN: {description: "IBGE municipality code of the household (7 digits): the state (V0001) followed by the municipality (V0002)", type: municipality, positions: [1, 7], from: [V0001, V0002]}
+      V0001: {description: "UNIDADE DA FEDERAÇÃO", type: code, positions: [1, 2], codes: {"11": "Rondônia", "12": "Acre", "13": "Amazonas", "14": "Roraima", "15": "Pará", "16": "Amapá", "17": "Tocantins", "21": "Maranhão", "22": "Piauí", "23": "Ceará", "24": "Rio Grande do Norte", "25": "Paraíba", "26": "Pernambuco", "27": "Alagoas", "28": "Sergipe", "29": "Bahia", "31": "Minas Gerais", "32": "Espírito Santo", "33": "Rio de Janeiro", "35": "São Paulo", "41": "Paraná", "42": "Santa Catarina", "43": "Rio Grande do Sul", "50": "Mato Grosso do Sul", "51": "Mato Grosso", "52": "Goiás", "53": "Distrito Federal"}}
+      V0002: {description: "CÓDIGO DO MUNICÍPIO", type: code, positions: [3, 7]}
+      V0011: {description: "ÁREA DE PONDERAÇÃO", type: code, positions: [8, 20]}
+      V0300: {description: "CONTROLE", type: code, positions: [21, 28]}
+      V0010: {description: "PESO AMOSTRAL", type: number, implied_decimals: 13, positions: [29, 44]}
+      V1001: {description: "REGIÃO GEOGRÁFICA", type: code, positions: [45, 45], codes: {"1": "Região norte (uf=11 a 17)", "2": "Região nordeste (uf=21 a 29)", "3": "Região sudeste (uf=31 a 33 e 35)", "4": "Região sul (uf=41 a 43)", "5": "Região centro-oeste (uf=50 a 53)"}}
+      V1002: {description: "CÓDIGO DA MESORREGIÃO. Code list: a workbook of IBGE's documentation, not named in this layout", type: code, positions: [46, 47]}
+      V1003: {description: "CÓDIGO DA MICRORREGIÃO. Code list: a workbook of IBGE's documentation, not named in this layout", type: code, positions: [48, 50]}
+      V1004: {description: "CÓDIGO DA REGIÃO METROPOLITANA. Code list: a workbook of IBGE's documentation, not named in this layout", type: code, positions: [51, 52]}
+      V1006: {description: "SITUAÇÃO DO DOMICÍLIO", type: code, positions: [53, 53], codes: {"1": "Urbana", "2": "Rural"}}
+      V0703: {description: "MÊS E ANO DE FALECIMENTO", type: code, positions: [54, 55], codes: {"01": "Agosto de 2009", "02": "Setembro de 2009", "03": "Outubro de 2009", "04": "Novembro de 2009", "05": "Dezembro de 2009", "06": "Janeiro de 2010", "07": "Fevereiro de 2010", "08": "Março de 2010", "09": "Abril de 2010", "10": "Maio de 2010", "11": "Junho de 2010", "12": "Julho de 2010", "99": "Ignorado"}}
+      V0704: {description: "SEXO DA PESSOA FALECIDA", type: code, positions: [56, 56], codes: {"1": "Masculino", "2": "Feminino", "9": "Ignorado"}}
+      V7051: {description: "IDADE AO FALECER, EM ANOS", type: integer, positions: [57, 59], codes: {"999": "ignorado"}}
+      V7052: {description: "IDADE AO FALECER, EM MESES", type: integer, positions: [60, 61], codes: {"99": "ignorado"}}
+      M0703: {description: "MARCA DE IMPUTAÇÃO NA V0703", type: code, positions: [62, 62], codes: {"1": "Sim", "2": "Não"}}
+      M0704: {description: "MARCA DE IMPUTAÇÃO NA V0704", type: code, positions: [63, 63], codes: {"1": "Sim", "2": "Não"}}
+      M7051: {description: "MARCA DE IMPUTAÇÃO NA V7051", type: code, positions: [64, 64], codes: {"1": "Sim", "2": "Não"}}
+      M7052: {description: "MARCA DE IMPUTAÇÃO NA V7052", type: code, positions: [65, 65], codes: {"1": "Sim", "2": "Não"}}
+      V1005: {description: "Situação do setor", type: code, positions: [66, 66], codes: {"1": "Masculino", "2": "Feminino", "3": "Área urbanizada isolada", "4": "Área rural de extensão urbana", "5": "Aglomerado rural (povoado)", "6": "Aglomerado rural (núcleo)", "7": "Aglomerado rural (outros)", "8": "Área rural exclusive aglomerado rural"}}

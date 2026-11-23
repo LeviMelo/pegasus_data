@@ -33,8 +33,8 @@ to ADD what declarations do not reach, and every such addition or exclusion is r
    a spina bifida scope). **Done** (212ad192): the latest year held whole.
 2. **Holdings check:** every store matched to the variables it holds and the ones described and served; fails on held
    and undescribed. **Done** (212ad192, 9ab512f4, 85673778): 957 variables in 29 stores described from their sources'
-   documentation; 0 defects. Left: the Census 2010 microdata's 321 variables are described, not served (a fixed-width
-   reader).
+   documentation; 0 defects. The Census 2010 microdata's 321 variables, described there, are
+   now served: a fixed-width reader in intake lands the four record types (`docs/evaluation/2026-11-23-census-2010-microdata.md`).
 3. **Contexts beyond declared fields:** SIDRA's tables reach a scope only once declared as fields (156 of 9,336). A
    scope lists the SIDRA tables and registry variables its places and period can join, from their IBGE metadata, each
    with a recorded decision. **Done** (65846705; PegaSUS cc6795a: `contexts_considered`, `study.body` part).

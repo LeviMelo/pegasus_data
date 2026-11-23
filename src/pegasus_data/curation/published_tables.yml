@@ -126,10 +126,10 @@ census_commuting:
   source: "Layout_microdados_Amostra.xls (IBGE Censo 2010), SIDRA tables 1615 and 1611"
   as_of: "Census 2010"
   # layer -> the event kind, the question variable, the place-code variable, and the question's answer codes for
-  # "another municipality", "foreign country", "several places" (null when the question has no such answer).
+  # "another municipality", "foreign country", "several places" (null when the question has no such answer), as the questionnaire files them (text).
   layers:
-    work: {kind: commute_work_2010, question: V0660, code_variable: V6604, other_municipality: 51, foreign_country: 52, several_places: 53}
-    study: {kind: commute_study_2010, question: V0636, code_variable: V6364, other_municipality: 50, foreign_country: 51, several_places: null}
+    work: {kind: commute_work_2010, question: V0660, code_variable: V6604, other_municipality: "3", foreign_country: "4", several_places: "5"}
+    study: {kind: commute_study_2010, question: V0636, code_variable: V6364, other_municipality: "2", foreign_country: "3", several_places: null}
   # Persons by place of work / school: the SIDRA table, variable, classification and the category "Outro municipio".
   sidra:
     work: {table: 1615, variable: 918, classification: 469, category: 12188}
