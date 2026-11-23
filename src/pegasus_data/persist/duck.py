@@ -67,19 +67,28 @@ class DuckLake:
 
     # ------------------------------------------------------------- registration
 
-    def register_family(self, system: str, family_id: str, view: str | None = None) -> str | None:
+    def register_family(self, system: str, family_id: str, view: str | None = None,
+                        files: Sequence[str] | None = None) -> str | None:
+        """A view over one family. ``files`` (lake-relative paths) are the partitions to read, as `query()` chooses them
+        (`register_all`); without them, every file under the family's directory."""
         base = self.lake_root / system / family_id
         if not base.exists():
             return None
         name = view or _SAFE_NAME.sub("_", family_id.lower())
-        glob = str(base / "**" / "*.parquet").replace("\\", "/")
+        if files is not None:
+            paths = [str(self.lake_root / f).replace("\\", "/") for f in files]
+            if not paths:
+                return None
+            source = "[" + ", ".join(f"'{q}'" for q in paths) + "]"
+        else:
+            source = "'" + str(base / "**" / "*.parquet").replace("\\", "/") + "'"
         # The partition keys from the path, not by DuckDB's Hive detection: DuckDB matches names case-insensitively, and
         # a file's own field of a key's name (SINAN's national dengue files carry `UF`) read as the partition's value,
         # "BR". A key a file's field already names is `partition_<key>`. The record key is not here: the lake computes
         # it per file (`Lake._read_derived`), and over files of different columns a view would hash a missing one as null.
         import pyarrow.parquet as pq
 
-        first = next(base.rglob("*.parquet"), None)
+        first = (self.lake_root / files[0]) if files else next(base.rglob("*.parquet"), None)
         taken = {f.lower() for f in (pq.read_schema(first).names if first is not None else [])}
         keys = []
         for key in ("schema_signature", "uf", "year"):
@@ -88,7 +97,7 @@ class DuckLake:
                         f"{f'partition_{key}' if key in taken else key}")
         self.conn.execute(
             f'CREATE OR REPLACE VIEW "{name}" AS SELECT * EXCLUDE (filename), {", ".join(keys)} '
-            f"FROM read_parquet('{glob}', hive_partitioning = false, union_by_name = true, filename = true)"
+            f"FROM read_parquet({source}, hive_partitioning = false, union_by_name = true, filename = true)"
         )
         return name
 
@@ -98,11 +107,30 @@ class DuckLake:
             return self._register_from_disk()
         registered: list[str] = []
         by_series: dict[tuple[str, str | None], list[str]] = {}
-        for row in self.catalog.query("SELECT family_id, system, series FROM families"):
-            name = self.register_family(row["system"], row["family_id"])
-            if name:
-                registered.append(name)
-                by_series.setdefault((row["system"], row["series"]), []).append(name)
+        # The files `query()` reads, never a walk of the directories: the partitions the catalog lists (a superseded
+        # family's are delisted, `persist.lake._delist_superseded`), and of a year held as a national file and as its
+        # state files, the national one (`one_reading`). The views globbed each family's directory, a second reading
+        # beside the query engine's, and study scripts that globbed the lake the same way mixed SIH's rejected AIHs (RJ)
+        # into RD cohorts (2026-11-22).
+        from .._query_engine.coverage import declared_widths, one_reading
+        from .lake import listed_partitions
+
+        rows = [dict(r) for r in self.catalog.query("SELECT family_id, system, series FROM families")]
+        groups: dict[tuple[str, str | None], list[dict[str, Any]]] = {}
+        for row in rows:
+            groups.setdefault((row["system"], row["series"]), []).append(row)
+        listed = listed_partitions(self.catalog, sorted({str(r["family_id"]) for r in rows}))
+        widths = declared_widths(self.catalog)
+        for (system, series), members in groups.items():
+            chosen = one_reading([p for m in members for p in listed.get(str(m["family_id"]), ())], widths)
+            files: dict[str, list[str]] = {}
+            for part in sorted(chosen, key=lambda p: (p.uf, p.year, p.relative_path)):
+                files.setdefault(part.family_id, []).append(part.relative_path)
+            for row in members:
+                name = self.register_family(system, row["family_id"], files=files.get(str(row["family_id"]), []))
+                if name:
+                    registered.append(name)
+                    by_series.setdefault((system, series), []).append(name)
 
         dataset_rows: list[tuple[object, ...]] = []
         for (system, series), views in by_series.items():

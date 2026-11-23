@@ -135,3 +135,9 @@ from 2015) and CBOR (every record '000000') declared no missing code, so `field_
 3.9%, 3.2%, 16.1% real codes; CBOR 0.0). Recorded zeros stay values (VAL_ORTP, VAL_SADT 0.00 in every record; MARCA_UTI
 '00' no ICU in 93-96%): `field_fill` now adds `modal` and `modal_share`, so a column one value fills shows as filled and
 uninformative without a global zero rule. A column no year of the dataset carries now raises instead of reading 0.
+
+**Lake views read what query() reads** (science-1's rule note). The study scripts' glob `SIHSUS/*/*/*/*/*.parquet`
+reads every SIH series: neurosurgical index rows 2010-2025 were 1,458,819 RD and 232 RJ (rejected AIHs; 96 share an
+N_AIH with RD). `open_lake()`'s views globbed each family directory the same way, a second reading beside
+`plan_lake_read`. They now register the catalog-listed partitions with one reading per year (`one_reading`): `sihsus_rd`
+returns the 1,458,819 RD rows in 8.9 s; registering every view takes 36 s. No SIH file on disk was unlisted.
