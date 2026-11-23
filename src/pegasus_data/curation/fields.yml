@@ -844,3 +844,93 @@ fields:
       interview, by state, both sexes and all households (IBGE, PNS 2013, table 5351, variable 5824; limits 5825 and
       5826, CV 5827). The percentage IBGE publishes (variable 5828) is this count over all residents aged 18 or more.
     years: 2013
+
+  pns_chronic_spine_problem_percent:
+    label: "Share of adults with chronic spine problem (PNS, by state)"
+    level: N3
+    table: 4638
+    variable: 4618
+    interval: {lower: 4619, upper: 4620, cv: 4935}
+    unit: percent
+    what: >
+      IBGE's published survey estimate of the share of adults (18+) reporting a chronic spine problem, among all residents aged 18 or more, by state, both sexes and
+      all households (IBGE, PNS, table 4638, variable 4618; limits 4619 and 4620, CV 4935). A design-based estimate IBGE
+      publishes, not a ratio pegasus_data computes: the survey's weighted universe is not published as a count, so the
+      share cannot be rebuilt from pns_chronic_spine_problem and is stored as published. It does not add across states or years; a
+      coarser figure is IBGE's own (level N1/N2), never a mean of these.
+    years: 2013, 2019
+
+  pns_hypertension_percent:
+    label: "Share of adults with hypertension diagnosis (PNS, by state)"
+    level: N3
+    table: 4418
+    variable: 4399
+    interval: {lower: 4400, upper: 4401, cv: 4862}
+    unit: percent
+    what: >
+      IBGE's published survey estimate of the share of adults (18+) reporting a medical diagnosis of arterial hypertension, among all residents aged 18 or more, by state, both sexes and
+      all households (IBGE, PNS, table 4418, variable 4399; limits 4400 and 4401, CV 4862). A design-based estimate IBGE
+      publishes, not a ratio pegasus_data computes: the survey's weighted universe is not published as a count, so the
+      share cannot be rebuilt from pns_hypertension and is stored as published. It does not add across states or years; a
+      coarser figure is IBGE's own (level N1/N2), never a mean of these.
+    years: 2013, 2019
+
+  pns_helmet_motorcycle_driver_percent:
+    label: "Share of motorcycle drivers always using helmet (PNS, by state)"
+    level: N3
+    table: 5267
+    variable: 5716
+    interval: {lower: 5717, upper: 5718, cv: 5719}
+    unit: percent
+    what: >
+      IBGE's published survey estimate of the share of adults (18+) who always wear a helmet when driving a motorcycle, among the adults who drive a motorcycle (a universe IBGE publishes as no count), by state, both sexes and
+      all households (IBGE, PNS, table 5267, variable 5716; limits 5717 and 5718, CV 5719). A design-based estimate IBGE
+      publishes, not a ratio pegasus_data computes: the survey's weighted universe is not published as a count, so the
+      share cannot be rebuilt from pns_helmet_motorcycle_driver and is stored as published. It does not add across states or years; a
+      coarser figure is IBGE's own (level N1/N2), never a mean of these.
+    years: 2013, 2019
+
+  pns_seat_belt_front_percent:
+    label: "Share of car users always using front seat belt (PNS 2019, by state)"
+    level: N3
+    table: 8082
+    variable: 11692
+    interval: {lower: 11693, upper: 11694, cv: 11695}
+    unit: percent
+    what: >
+      IBGE's published survey estimate of the share of adults (18+) who always wear the front seat belt, among the adults who drive or ride a car (published as no count), by state, both sexes and
+      all households (IBGE, PNS, table 8082, variable 11692; limits 11693 and 11694, CV 11695). A design-based estimate IBGE
+      publishes, not a ratio pegasus_data computes: the survey's weighted universe is not published as a count, so the
+      share cannot be rebuilt from pns_seat_belt_front and is stored as published. It does not add across states or years; a
+      coarser figure is IBGE's own (level N1/N2), never a mean of these.
+    years: 2019
+
+  pns_alcohol_abusive_use_percent:
+    label: "Share of adults with abusive alcohol use (PNS 2019, by state)"
+    level: N3
+    table: 7726
+    variable: 4301
+    interval: {lower: 4302, upper: 4303, cv: 4830}
+    unit: percent
+    what: >
+      IBGE's published survey estimate of the share of adults (18+) with abusive alcohol consumption in the 30 days before the interview, among all residents aged 18 or more, by state, both sexes and
+      all households (IBGE, PNS, table 7726, variable 4301; limits 4302 and 4303, CV 4830). A design-based estimate IBGE
+      publishes, not a ratio pegasus_data computes: the survey's weighted universe is not published as a count, so the
+      share cannot be rebuilt from pns_alcohol_abusive_use and is stored as published. It does not add across states or years; a
+      coarser figure is IBGE's own (level N1/N2), never a mean of these.
+    years: 2019
+
+  pns_violence_by_stranger_percent:
+    label: "Share of adults assaulted by a stranger (PNS 2013, by state)"
+    level: N3
+    table: 5351
+    variable: 5828
+    interval: {lower: 5829, upper: 5830, cv: 5831}
+    unit: percent
+    what: >
+      IBGE's published survey estimate of the share of adults (18+) who suffered violence or aggression from a stranger in the 12 months before the interview, among all residents aged 18 or more, by state, both sexes and
+      all households (IBGE, PNS, table 5351, variable 5828; limits 5829 and 5830, CV 5831). A design-based estimate IBGE
+      publishes, not a ratio pegasus_data computes: the survey's weighted universe is not published as a count, so the
+      share cannot be rebuilt from pns_violence_by_stranger and is stored as published. It does not add across states or years; a
+      coarser figure is IBGE's own (level N1/N2), never a mean of these.
+    years: 2013

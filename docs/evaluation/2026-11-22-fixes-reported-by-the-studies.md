@@ -258,3 +258,14 @@ publishes no count of any universe; count over its own percentage gives 159.0 mi
 that read them), 125 state-only groups (869 tables, N3 and not N6) are added with grain `state`; of the 28 intake entries one (`sies`,
 placed by state) is now grain `state`, 27 `municipality` (184 entries before, 309 after). A PNS group with any N6 table (the capitals)
 stays a municipal group.
+
+**PNS percentages beside the counts** (science-2, t06 and t08). The studies compare IBGE's published shares (chronic
+spine problem among adults; helmet use among motorcycle drivers), which cannot be rebuilt from the count fields: the
+survey's weighted universe is published as no count (for the helmet, the drivers). Six `_percent` fields store IBGE's
+design-based estimate as published, at state grain, with its own limits and CV (`unit: percent`, never summed; a coarser
+share is IBGE's own level): pns_chronic_spine_problem_percent (4638/4618), pns_hypertension_percent (4418/4399),
+pns_helmet_motorcycle_driver_percent (5267/5716), pns_seat_belt_front_percent (8082/11692),
+pns_alcohol_abusive_use_percent (7726/4301), pns_violence_by_stranger_percent (5351/5828). This is not a mean pegasus_data
+computes (CLAUDE.md's rule is about those) but a source's official estimate, which is never recomputed. Minas Gerais
+2019: spine 22.0% [20.2; 23.8] CV 4.2 (as SIDRA), helmet 95.1% [92.9; 96.7], seat belt 82.3%, hypertension 27.7%,
+alcohol 17.2%; 2013 spine 17.7% [15.4; 20.3]; violence 2013 2.5% [1.8; 3.4] CV 16.9. 27 states in every field-year.
