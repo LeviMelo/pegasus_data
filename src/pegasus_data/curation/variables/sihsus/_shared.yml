@@ -720,9 +720,14 @@ variables:
   IN_TP_VAL:
     official_name: Tipo de valor
     translated_name: Value type
-    description: 'Whether this row carries a professional-services value or a hospital-services
-      one: 1 is SP, 2 is SH. Add SP_VALATO without splitting on it and two different things
-      are added together.'
+    description: 'Which value this line carries: 1 hospital services (SH), 2 professional services
+      (SP), 3 and 4 the federal complement of SH and SP, 5 and 6 the local complement of SH and
+      SP (TabNet TP_VAL.CNV, TAB_SIH). Odd is SH, even is SP. Add SP_VALATO without splitting on
+      it and different things are added together. Source conflict: the Informe Técnico SIH 2016-03
+      (SEQ 29) writes "1 - SP / 2 - SH"; the records side with TP_VAL.CNV: in the 2024 lines of
+      0403 AIHs, codes 2, 4 and 6 carry the performing physician''s CBO in 89-100% of lines
+      (225151 anaesthetist, 225260 neurosurgeon), codes 1, 3 and 5 none (000000) or nursing and
+      physiotherapy CBOs with the ICU daily rates and OPME (science-1, 2026-11-23).'
     code_system: internal
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §3

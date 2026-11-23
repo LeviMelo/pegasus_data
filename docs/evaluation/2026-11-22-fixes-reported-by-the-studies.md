@@ -203,3 +203,7 @@ and sex within one municipality recur across a year of the other payer's admissi
 control finds nearly as many pairs as the real data. No threshold was tuned. The link stays declared for a stronger key
 (a patient token in CIHA, or a pass anchored on one named hospital); until then a private reoperation after an SUS
 operation cannot be recovered from the lake.
+*SIH-SP IN_TP_VAL described backwards* (science-1, t10): the variable text said "1 is SP, 2 is SH" from the Informe
+Técnico SIH 2016-03; TabNet's TP_VAL.CNV (the label table pegasus_data already renders with) says 1 SH, 2 SP, 3/4
+federal complement SH/SP, 5/6 local complement SH/SP, and the records agree (physician CBOs on even codes, ICU dailies
+and OPME on odd). The text now follows the CNV and records the conflicting claim; labels in query output were right.
