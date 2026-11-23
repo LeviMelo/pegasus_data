@@ -1782,8 +1782,11 @@ variables:
   VAL_UTI:
     official_name: Valor de UTI
     translated_name: ICU value
-    description: Amount paid for intensive care on this AIH. Included in VAL_TOT, so adding
-      the two double-counts.
+    description: 'Amount paid for intensive care on this AIH. Included in VAL_TOT, so adding the two
+      double-counts; and split between VAL_SH and VAL_SP, not held inside VAL_SH (SIH-RD AL 2024, 13,772
+      AIHs with ICU value: VAL_SH below VAL_UTI in 2,972, 21.6%, while VAL_SH + VAL_SP equals VAL_TOT in
+      13,762; measured 2026-11-23): the ICU physicians'' daily fees are professional services. A share
+      of VAL_SP is therefore not the main procedure''s professional component.'
     code_system: none
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2

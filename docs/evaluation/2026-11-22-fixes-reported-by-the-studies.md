@@ -321,3 +321,9 @@ at most "use with caution"; with the dropped pass named. Applied when a run is m
 (`linked_outcomes`), so stored runs are judged again without relinking: 2017 and 2019 horizons 7-365 now "not viable"
 ("no kept pass finds an event after day 0"); 2016, whose year pass was kept to a shorter reach, unchanged ("use with
 caution"). A pass's `chance_percent` is its rate over its whole window; within its kept reach it is lower.
+
+**VAL_UTI split across SH and SP; a stale manual page** (the reviewer, t10). VAL_UTI's text said only that it is inside
+VAL_TOT; SIH-RD AL 2024 (13,772 AIHs with ICU value) has VAL_SH below VAL_UTI in 2,972 (21.6%) while VAL_SH + VAL_SP
+equals VAL_TOT in 13,762: the ICU value is split between the hospital and the professional components (the physicians'
+daily fees are SP). The text now says so. The manual's SIH.SP page still showed IN_TP_VAL reversed (written 2026-11-22,
+before 4d69bfa8): the catalog was curated and the manual regenerated.
