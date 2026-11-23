@@ -1,9 +1,11 @@
-"""The consumer price index as a read from the SIDRA fact store: the deflator of nominal reais.
+"""Price indices as a read from the stored facts: the deflator of nominal reais.
 
 SIH's ``VAL_TOT``, SIA's values and every other amount in reais are nominal (the reais of the month billed), so two years'
 costs differ by inflation as much as by care. ``price_index`` returns IBGE's IPCA (or INPC, `INDICES`), the monthly index number (December
 1993 = 100), declared as the series ``price_index_ipca`` (``curation/sidra/series.yml``; table 1737, variable 2266): the
 planning, the cache, the stored provenance and the symbols are the general SIDRA interface's, not a second mechanism.
+FGV's IGP-M and IGP-DI are not in SIDRA: they come from the Banco Central's SGS (series 189 and 190, `sources/bcb_sgs.py`, stored
+with the same provenance) as monthly percentage changes, chained into an index number.
 """
 
 from __future__ import annotations
@@ -13,10 +15,12 @@ import re
 from collections.abc import Callable
 from pathlib import Path
 
+import numpy as np
 import pyarrow as pa
 import pyarrow.compute as pc
 
 from ..normalize.time import month_of, month_range, parse_month, years_of
+from ..sources import bcb_sgs
 from . import store
 from .session import Sidra
 
@@ -28,6 +32,8 @@ INDICES = {
              "producer": "IBGE, Índice Nacional de Preços ao Consumidor Amplo (IPCA)"},
     "INPC": {"series": "price_index_inpc", "table": 1736, "variable": 2289,
              "producer": "IBGE, Índice Nacional de Preços ao Consumidor (INPC)"},
+    "IGP-M": {"sgs": 189, "producer": "FGV, Índice Geral de Preços do Mercado (IGP-M), via Banco Central SGS series 189"},
+    "IGP-DI": {"sgs": 190, "producer": "FGV, Índice Geral de Preços, Disponibilidade Interna (IGP-DI), via Banco Central SGS series 190"},
 }
 #: The schema-metadata key under which the table says what it is (JSON): the series, its source and what was read.
 METADATA = b"pegasus.price_index"
@@ -36,8 +42,11 @@ METADATA = b"pegasus.price_index"
 def price_index(root: str | Path | None = None, *, grain: str = "month", years: list[int] | int | None = None,
                 reference: str | int | None = None, fetch: bool = True, refresh: bool = False,
                 sidra: Sidra | None = None, index: str = "IPCA") -> pa.Table:
-    """IBGE's consumer price index, to deflate nominal reais: ``index="IPCA"`` (the default, one to forty minimum wages)
-    or ``"INPC"`` (one to five minimum wages: incomes, a deflator sensitivity), both December 1993 = 100.
+    """A price index, to deflate nominal reais: IBGE's ``index="IPCA"`` (the default, one to forty minimum wages) or
+    ``"INPC"`` (one to five minimum wages: incomes, a deflator sensitivity), both December 1993 = 100; FGV's ``"IGP-M"`` or
+    ``"IGP-DI"`` (general prices, a sensitivity deflator; from the Banco Central's SGS series 189 and 190, whose monthly
+    percentage changes are chained into an index number whose first month, the series' first, is 100: only ratios of the
+    index, hence ``factor``, mean anything, and they do not depend on the base).
 
     ``grain="month"``: ``period`` (YYYYMM), ``year``, ``month`` and ``index``, the monthly index number (December 1993 =
     100). ``grain="year"``: ``year``, ``months`` (the monthly numbers there are) and ``index``, the mean of the year's
@@ -48,8 +57,8 @@ def price_index(root: str | Path | None = None, *, grain: str = "month", years: 
     reference month (year). Deflate by month when an amount has a month (SIH, SIA: the competence month); the annual mean
     is for an amount known by year only. ``years`` cuts the rows, never the reference.
 
-    The index is read from the stored facts of table 1737; ``fetch`` fetches what is not stored (one request) and
-    ``refresh`` re-reads IBGE's list of periods first, for the months published since. A month missing between the first
+    The index is read from the stored facts (IPCA: table 1737; IGP: the SGS series); ``fetch`` fetches what is not stored
+    (one request) and ``refresh`` re-reads the source first (IBGE's list of periods; the SGS series), for the months published since. A month missing between the first
     and the last raises. ``table.schema.metadata[b"pegasus.price_index"]`` (JSON) names the series, the table, the
     variable, the base and the stored requests (fetch time, SHA-256 of the body) the numbers were read from.
     """
@@ -58,24 +67,12 @@ def price_index(root: str | Path | None = None, *, grain: str = "month", years: 
     if index.upper() not in INDICES:
         raise ValueError(f"index is one of {sorted(INDICES)}, not {index!r}")
     chosen_index = INDICES[index.upper()]
-    series_name, table_id = chosen_index["series"], chosen_index["table"]
-    session = sidra if sidra is not None else Sidra(root)
-    if refresh:
-        session.client.periods(table_id, refresh=True)
-        session.registry.load_periods(session.client, table_id)
-    series = session.series(series_name, fetch=fetch, log=lambda _m: None)
-    series = series.filter(pc.and_(series.column("selected"), pc.equal(series.column("status"), "value")))
-    if series.num_rows == 0:
-        raise LookupError(f"series {series_name!r} has no value")
-    order = pc.sort_indices(series.column("period"))
-    periods = series.column("period").take(order).to_pylist()
-    expected = _months(periods[0], periods[-1])
-    if periods != expected:
-        raise ValueError(f"the price index has no value for {sorted(set(expected) - set(periods))[:6]}: not a continuous monthly series")
+    reader = _sgs_index if "sgs" in chosen_index else _sidra_index
+    periods, values, series_name, source_meta, base_note = reader(chosen_index, root, sidra, fetch, refresh)
     monthly = pa.table({"period": pa.array(periods, pa.string()),
                         "year": pa.array(years_of(periods), pa.int32()),
                         "month": pa.array([month_of(p) for p in periods], pa.int32()),
-                        "index": series.column("value").take(order).cast(pa.float64())})
+                        "index": pa.array(values, pa.float64())})
     parse: Callable[[str | int], str | int]
     if grain == "month":
         table, key, parse = monthly, "period", _month_key
@@ -98,11 +95,51 @@ def price_index(root: str | Path | None = None, *, grain: str = "month", years: 
         table = table.filter(pc.is_in(table.column("year"), pa.array(chosen, pa.int32())))
         if table.num_rows == 0:
             raise LookupError(f"the price index has no {grain} in {chosen}: it runs {periods[0]} to {periods[-1]}")
-    meta = {"series": series_name, "producer": chosen_index["producer"], "table": table_id,
-            "variable": chosen_index["variable"], "unit": "Número-índice", "base": "December 1993 = 100", "first": periods[0], "last": periods[-1],
-            "grain": grain, "reference": None if reference is None else str(reference),
-            "stored": [{"fetched_at": p["fetched_at"], "body_sha256": p["body_sha256"]} for p in store.provenance(session.lake, table_id)]}
+    meta = {"series": series_name, "producer": chosen_index["producer"], **source_meta, "unit": "Número-índice", "base": base_note,
+            "first": periods[0], "last": periods[-1], "grain": grain, "reference": None if reference is None else str(reference)}
     return table.replace_schema_metadata({METADATA: json.dumps(meta, ensure_ascii=False).encode()})
+
+
+def _sidra_index(spec: dict, root, sidra: Sidra | None, fetch: bool, refresh: bool) -> tuple[list[str], list[float], str, dict, str]:
+    """The monthly index numbers of a SIDRA-declared series: periods, values, series name, source metadata, base."""
+    series_name, table_id = spec["series"], spec["table"]
+    session = sidra if sidra is not None else Sidra(root)
+    if refresh:
+        session.client.periods(table_id, refresh=True)
+        session.registry.load_periods(session.client, table_id)
+    series = session.series(series_name, fetch=fetch, log=lambda _m: None)
+    series = series.filter(pc.and_(series.column("selected"), pc.equal(series.column("status"), "value")))
+    if series.num_rows == 0:
+        raise LookupError(f"series {series_name!r} has no value")
+    order = pc.sort_indices(series.column("period"))
+    periods = series.column("period").take(order).to_pylist()
+    _require_continuous(periods)
+    stored = [{"fetched_at": p["fetched_at"], "body_sha256": p["body_sha256"]} for p in store.provenance(session.lake, table_id)]
+    meta = {"table": table_id, "variable": spec["variable"], "stored": stored}
+    return periods, series.column("value").take(order).cast(pa.float64()).to_pylist(), series_name, meta, "December 1993 = 100"
+
+
+def _sgs_index(spec: dict, root, sidra: Sidra | None, fetch: bool, refresh: bool) -> tuple[list[str], list[float], str, dict, str]:
+    """A Banco Central SGS series of monthly percentage changes, chained into an index number (first month = 100)."""
+    from ..config import load_settings
+
+    code = spec["sgs"]
+    lake = Path(sidra.lake) if sidra is not None else Path(load_settings(root=Path(root) if root else None).lake_dir)
+    table = bcb_sgs.load_series(lake, code, fetch=fetch, refresh=refresh).sort_by("period")
+    periods = table.column("period").to_pylist()
+    _require_continuous(periods)
+    changes = table.column("value").to_numpy(zero_copy_only=False).astype(float)
+    if np.isnan(changes).any():
+        raise ValueError(f"SGS series {code} has no value for {[p for p, v in zip(periods, changes, strict=True) if np.isnan(v)][:6]}")
+    values = (100.0 * np.cumprod(1.0 + changes / 100.0) / (1.0 + changes[0] / 100.0)).tolist()
+    meta = {"sgs_series": code, "stored": [{"fetched_at": p["fetched_at"], "body_sha256": p["body_sha256"]} for p in bcb_sgs.provenance(lake, code)]}
+    return periods, values, f"bcb_sgs_{code}", meta, f"{periods[0]} = 100 (the chained product of the monthly percentage changes)"
+
+
+def _require_continuous(periods: list[str]) -> None:
+    expected = _months(periods[0], periods[-1])
+    if periods != expected:
+        raise ValueError(f"the price index has no value for {sorted(set(expected) - set(periods))[:6]}: not a continuous monthly series")
 
 
 def _months(first: str, last: str) -> list[str]:

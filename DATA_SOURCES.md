@@ -985,6 +985,7 @@ TabNet's state forms classify by `territorio/{UF}_macsaud.cnv` and `{UF}_regsaud
   are what SIDRA's query service (`apisidra.ibge.gov.br`) returns for January 2014, December 2020 and December 2025, and SIDRA's table page shows September 2026 ("7.695,82", of "Mês [1/562]"). Values before the real are on the base's scale (1.1e-8 in
   1980): a ratio of two months is the inflation between them. The values are `.` decimals with 13 digits; SIH and SIA amounts are nominal, so
   an amount of competence month m is in reais of month r when multiplied by index(r) / index(m) (`price_index(reference=...)`).
+- **IGP-M and IGP-DI, Banco Central SGS 189 and 190 (measured 2026-11-23).** FGV's general price indices are not in SIDRA; the SGS serves each as the month's percentage change, the whole monthly series in one request (`api.bcb.gov.br/dados/serie/bcdata.sgs.<n>/dados?formato=json`). The bare URL answered `304 Not Modified` with no body to a client that sent no validator; with `dataInicial`/`dataFinal` it answers 200. `price_index(index="IGP-M")` chains the changes into an index number (first month = 100), stored with its provenance (`sources/bcb_sgs.py`).
 
 ### 6.5 CNEFE 2022, the Census's georeferenced addresses (measured 2026-10-24; ADR-0205; docs/evaluation/2026-10-24-cnefe-cep.md)
 
