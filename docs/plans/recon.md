@@ -27,18 +27,18 @@ to ADD what declarations do not reach, and every such addition or exclusion is r
 - **No external vocabulary** (MeSH fits biomedical literature, not SIDRA economics or billing fields, and has no
   Portuguese; DeCS needs a PAHO licence): the data's own code systems carry the subject. **No embeddings** (author).
 
-## Gaps, in dependency order
+## Gaps, in dependency order (status 2026-11-23)
 1. **Robustness of the index.** `condition_codes` and `dispensed` counted the latest lake year nationally without
    downloading; a year held for some states only raised and took the whole index, and every scope, down (2026-11-23,
-   a spina bifida scope). Fixed: the latest year held whole.
+   a spina bifida scope). **Done** (212ad192): the latest year held whole.
 2. **Holdings check:** every store matched to the variables it holds and the ones described and served; fails on held
-   and undescribed (Census 2010 microdata read for two commuting variables of hundreds; TSE unclaimed; ANS TISS
-   itemised events and ANS TabNet beneficiaries without roles; tract variables only as products). Then describe and
-   serve them whole.
+   and undescribed. **Done** (212ad192, 9ab512f4, 85673778): 957 variables in 29 stores described from their sources'
+   documentation; 0 defects. Left: the Census 2010 microdata's 321 variables are described, not served (a fixed-width
+   reader).
 3. **Contexts beyond declared fields:** SIDRA's tables reach a scope only once declared as fields (156 of 9,336). A
    scope lists the SIDRA tables and registry variables its places and period can join, from their IBGE metadata, each
-   with a recorded decision.
-4. **Procedure seeds:** SIGTAP codes as a topic seed (four of the ten studies are defined by a procedure).
+   with a recorded decision. **Done** (65846705; PegaSUS cc6795a: `contexts_considered`, `study.body` part).
+4. **Procedure seeds:** SIGTAP codes as a topic seed. **Done** (PegaSUS cc6795a, `--sigtap`).
 5. **Undeclared missing codes and draft roles** that keep columns out of every scope (`fields.declared` reasons),
    swept per column.
 6. **Studies go through it:** the skills make a PegaSUS scope the first step of any study; its `scope.yml` is the data
