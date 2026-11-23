@@ -189,3 +189,17 @@ none holds the years whole (2024: 2,119,682 rows). *`info SIHSUS-SP.IN_TP_VAL` d
 field is now split on its last dot whenever the dataset resolves, in any spelling. Not a defect: SIH-RD's CBOR reads
 0.0% filled while 225265 is its most common real value; nationally 2024 holds about 1,600 real CBOs among 14.2 M AIHs
 ('000000'), under 0.1%.
+
+**Certification quality of the cause of death** (the reviewer of t06, t07 and t09 asked for a context). Three counts by
+municipality of residence and year of death, 1996-2023, declared in `fields.yml` as the first `source: records` fields
+(`fields.records_cube`: one cube of a landed dataset's events, with `where` as the cube takes it; no new aggregation):
+`sim_deaths_residence`, `sim_deaths_ill_defined` (CAUSABAS R00-R99, RIPSA ficha C.5) and `sim_deaths_garbage_codes` (GBD
+2019 garbage list, read from `garbage_codes('GBD2019')` by `{garbage_codes: GBD2019}`, not copied). A share is a count over
+`sim_deaths_residence` (`over`), never stored. A municipality with deaths and none that meet `where` is a true 0 (the events'
+own cube is the support). The cube's prefix filter now tests one membership per prefix length (6,018 GBD codes were a chain
+of 6,018 `or`s). 2019, read against a direct DuckDB count of the lake view `sim_do` (DTOBITO in 2019, CODMUNRES): national
+1,347,262 deaths, 74,593 ill-defined (5.54%, RIPSA's order), 523,744 garbage-coded (38.9%: the GBD list reaches well beyond
+chapter XVIII, heart failure I50 among them); Bahia 12.2% ill-defined, Sao Paulo 4.7%, Federal District 2.1%; Salvador
+(292740) 16,853 / 1,143 / 6,379 and Sao Paulo city (355030) 78,581 / 2,574 / 27,295, equal to the direct count. The only
+differences from it are the 23 "municipality ignored" codes (xx0000), 2,539 deaths that belong to no municipality and
+stay in the state and country cubes (BA 93,058 vs 93,365 direct, the same). Read in 11-15 s a year per field.

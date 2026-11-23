@@ -693,3 +693,58 @@ fields:
   cnes_beds_neurosurgery_sus: {label: "Neurosurgery beds available to the SUS", over: population, source: cnes, years: 2008-2023, law: sum, family: beds, kind: neurosurgery, sector: sus, unit: beds, what: "Existing neurosurgery beds (ESP_LEIT 09, NEUROCIRURGIA) available to the SUS (QT_SUS), December (CNES-LT).", gaps: "Registered capacity, not staffed or occupied beds. No neurological or neurosurgical ICU bed code exists in the bed-type codelist: such beds are inside the ICU totals."}
   cnes_beds_neurology: {label: "Neurology beds", over: population, source: cnes, years: 2008-2023, law: sum, family: beds, kind: neurology, sector: all, unit: beds, what: "Existing neurology beds (ESP_LEIT 42, NEUROLOGIA) (QT_EXIST), December (CNES-LT).", gaps: "Registered capacity, not staffed or occupied beds. No neurological or neurosurgical ICU bed code exists in the bed-type codelist: such beds are inside the ICU totals."}
   cnes_beds_neurology_sus: {label: "Neurology beds available to the SUS", over: population, source: cnes, years: 2008-2023, law: sum, family: beds, kind: neurology, sector: sus, unit: beds, what: "Existing neurology beds (ESP_LEIT 42, NEUROLOGIA) available to the SUS (QT_SUS), December (CNES-LT).", gaps: "Registered capacity, not staffed or occupied beds. No neurological or neurosurgical ICU bed code exists in the bed-type codelist: such beds are inside the ICU totals."}
+
+  # Certification quality of the cause of death (SIM-DO, a records cube: `source: records`, `fields.records_cube`): counts of
+  # deaths by municipality of residence and year of death, 1996-2023 (ICD-10). Counts, never finished shares: a share is a
+  # numerator over `sim_deaths_residence`, formed at use and lifted to any place by summing both.
+  sim_deaths_residence:
+    label: "Deaths by residence (SIM)"
+    over: population
+    source: records
+    dataset: SIM-DO
+    event: death
+    years: 1996-2023
+    law: sum
+    unit: deaths
+    what: >
+      Deaths of the year, by municipality of residence (SIM-DO, counted by the dataset's event rules): the denominator
+      of the two certification-quality fields below.
+    gaps: >
+      Deaths whose residence is no IBGE municipality are in no municipality's row (0.2% in 2019; they count in the state and
+      the country, cube manifest `unplaced_events`). SIM under-enumerates deaths in part of the North and Northeast (RIPSA
+      ficha F.11), where a low share of ill-defined causes can also reflect low coverage.
+  sim_deaths_ill_defined:
+    label: "Deaths from ill-defined causes (R00-R99)"
+    over: sim_deaths_residence
+    source: records
+    dataset: SIM-DO
+    event: death
+    where: {CAUSABAS: {prefix: [R]}}
+    years: 1996-2023
+    law: sum
+    unit: deaths
+    what: >
+      Deaths whose underlying cause (CAUSABAS) is in ICD-10 chapter XVIII, symptoms, signs and abnormal findings not
+      elsewhere classified (R00-R99), by municipality of residence. Over `sim_deaths_residence`: the proportion of deaths
+      from ill-defined causes, the classic indicator of the quality of the information on the DO (RIPSA, ficha C.5).
+    gaps: >
+      The whole chapter counts, as the RIPSA indicator does (R95-R99 and R54, senility, included). A low share where SIM
+      coverage is low is not good certification.
+  sim_deaths_garbage_codes:
+    label: "Deaths with a garbage-code cause (GBD 2019)"
+    over: sim_deaths_residence
+    source: records
+    dataset: SIM-DO
+    event: death
+    where: {CAUSABAS: {garbage_codes: GBD2019}}
+    years: 1996-2023
+    law: sum
+    unit: deaths
+    what: >
+      Deaths whose underlying cause is a garbage code of the Global Burden of Disease 2019 list (Johnson et al. 2021;
+      `garbage_codes('GBD2019')`: causes that say little of what the person died of, in any chapter), by municipality of
+      residence. Over `sim_deaths_residence`.
+    gaps: >
+      The list holds codes by prefix (a three-character category covers its subcategories). GBD2017, the list Brazilian
+      studies cite, classifies COVID-19 (B34.2) as garbage and GBD2019 does not, which is why GBD2019 is used for the
+      pandemic years.

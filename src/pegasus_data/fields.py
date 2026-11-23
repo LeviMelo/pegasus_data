@@ -124,7 +124,7 @@ def build_fields(settings: Any, names: list[str] | None = None, years: list[int]
     for name, spec in declared.items():
         if names and name not in names:
             continue
-        if spec.get("source") in ("cnes", "intake", "inmet", "brdwgd"):
+        if spec.get("source") in ("cnes", "intake", "inmet", "brdwgd", "records"):
             continue
         if sidra is None:
             from .sidra import Sidra
@@ -248,6 +248,29 @@ def intake_cube(name: str, spec: dict[str, Any]) -> dict[str, Any] | None:
             "states": ({"as": str(place.get("as") or place["column"]).lower(), "prefix": str(place["states"])}
                        if place.get("states") is not None else None),
             "citation": str(source.get("citation") or source.get("what") or "")}
+
+
+def records_cube(name: str, spec: dict[str, Any]) -> dict[str, Any] | None:
+    """The records cube a ``source: records`` field is: the events of ``dataset`` (its ``event`` type, placed and dated by the
+    dataset's default bindings, `cubes._bindings`) that meet ``where``, counted per municipality and year. ``where`` is the
+    cube's own (codes, ``{prefix: [...]}``, ``{not: [...]}``); ``{garbage_codes: <edition>}`` is the prefixes of that
+    edition's list (`semantics.code_structures.garbage_codes`), read from there and never copied."""
+    if spec.get("source") != "records":
+        return None
+    where: dict[str, Any] = {}
+    for column, rule in (spec.get("where") or {}).items():
+        if isinstance(rule, dict) and "garbage_codes" in rule:
+            from .semantics.code_structures import garbage_codes
+
+            rule = {"prefix": sorted(set(garbage_codes(str(rule["garbage_codes"])).column("code").to_pylist()))}
+        where[str(column).upper()] = rule
+    dataset = str(spec["dataset"])
+    event = spec.get("event") or "rows"
+    source = f"records:{dataset}/{event}"
+    # a municipality with events and none that meet `where` is a true 0 (the support is the event's own cube), not absent
+    return {"source": source, "dataset": dataset, "support": {"source": source, "where": {}} if where else None,
+            "where": where, "strata": [],
+            "measure": None, "grain": "year", "states": None, "citation": f"{dataset} {event}"}
 
 
 def _landed(source: dict[str, Any]) -> bool:
@@ -691,7 +714,7 @@ def _held_years(name: str, spec: dict[str, Any], settings: Any) -> list[int]:
             return sorted(set(_field_from_cube(name, spec, None, settings).column("year").to_pylist()))
         except (LookupError, FileNotFoundError, KeyError, ValueError):
             return []
-    plan = intake_cube(name, spec)
+    plan = intake_cube(name, spec) or records_cube(name, spec)
     if plan is not None:
         family = str(plan["dataset"]).replace("-", "_").replace(".", "_") + "_%"
         con = sqlite3.connect(f"file:{Path(settings.catalog_path).as_posix()}?mode=ro", uri=True)
@@ -719,8 +742,8 @@ def _load_field(name: str, spec: dict[str, Any], wanted: list[int] | None, setti
     settings = settings or load_settings()
     if cube_of(spec) is not None:                 # a SIDRA or series field is its cube, read from the fact store
         return _field_from_cube(name, spec, wanted, settings)
-    plan = intake_cube(name, spec)
-    if plan is not None:                          # an intake count or sum is its records cube (ADR-0217)
+    plan = intake_cube(name, spec) or records_cube(name, spec)
+    if plan is not None:                          # an intake or records field is its records cube (ADR-0217)
         return _field_from_records(name, spec, plan, wanted, settings)
     plan = cnes_cube(name, spec)
     if plan is not None:                          # a CNES supply field is its records cube over December's register

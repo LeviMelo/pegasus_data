@@ -479,9 +479,11 @@ def _kept(table: pa.Table, after: Mapping[str, Any]) -> pa.Table:
                     hit = test if hit is None else pc.and_kleene(hit, test)
         elif isinstance(rule, Mapping) and "prefix" in rule:
             starts = [str(x) for x in rule["prefix"]]
-            hit = pc.starts_with(text, starts[0])
-            for start in starts[1:]:
-                hit = pc.or_kleene(hit, pc.starts_with(text, start))
+            # one membership test per prefix length: a list of thousands of prefixes (GBD's garbage codes) is a few tests
+            hit = None
+            for width in sorted({len(x) for x in starts}):
+                part = pc.is_in(pc.utf8_slice_codeunits(text, 0, width), pa.array([x for x in starts if len(x) == width]))
+                hit = part if hit is None else pc.or_kleene(hit, part)
         elif isinstance(rule, Mapping):
             # an exclusion of a value not recorded is unknown, never kept: a facility with no SUS link recorded is
             # neither SUS nor non-SUS (as the CNES fields counted it)
