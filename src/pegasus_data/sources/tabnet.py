@@ -25,7 +25,7 @@ from ..transport import download, request
 
 BASE = "http://tabnet.datasus.gov.br/cgi"
 
-__all__ = ["BASE", "fetch_territorial", "tabulate"]
+__all__ = ["BASE", "fetch_territorial", "prn", "tabulate"]
 
 
 def fetch_territorial(name: str, cache_dir: str | Path, *, refresh: bool = False, timeout: float = 120.0) -> Path:
@@ -50,27 +50,28 @@ def fetch_territorial(name: str, cache_dir: str | Path, *, refresh: bool = False
     return target
 
 
-def tabulate(definition: str, *, row: str, files: list[str], column: str = "--Não-Ativa--",
-             measure: str = "População_residente", timeout: float = 180.0) -> list[tuple[str, str]]:
-    """One TabNet tabulation as (row label, value) pairs, total row included.
-
-    ``definition`` is the form's ``.def`` path (``ibge/cnv/popsvs2024br.def``);
-    ``row``, ``column``, ``measure`` and ``files`` are the form's own option
-    values. TabNet reads the form in Latin-1.
-    """
-    fields = [("Linha", row), ("Coluna", column), ("Incremento", measure)]
-    fields += [("Arquivos", f) for f in files]
-    fields += [("formato", "prn"), ("mostre", "Mostra")]
-    body = urllib.parse.urlencode(fields, encoding="latin-1").encode()
-    answer = request(f"{BASE}/tabcgi.exe?{definition}", method="POST", content=body, timeout=timeout,
+def prn(definition: str, fields: list[tuple[str, str]], *, base: str = BASE, timeout: float = 180.0) -> list[list[str]]:
+    """The ``prn`` ("columns separated by ;") answer of one TabNet form, as rows of cells (header first, whatever
+    trailer the answer has dropped). ``fields`` are the form's own names and option values; TabNet reads and writes
+    Latin-1. A page without the table (a selection of no records, a content the base does not hold) raises."""
+    body = urllib.parse.urlencode([*fields, ("formato", "prn"), ("mostre", "Mostra")], encoding="latin-1").encode()
+    answer = request(f"{base}/tabcgi.exe?{definition}", method="POST", content=body, timeout=timeout,
                      headers={"Content-Type": "application/x-www-form-urlencoded"})
     page = answer.content.decode("latin-1")
     pre = re.search(r"<PRE>(.*?)</PRE>", page, re.S | re.I)
     if pre is None:
         raise RuntimeError(f"TabNet returned no table for {definition}")
-    out: list[tuple[str, str]] = []
-    for line in html.unescape(pre.group(1)).splitlines()[1:]:
-        parts = [p.strip().strip('"') for p in line.split(";")]
-        if len(parts) >= 2 and parts[0]:
-            out.append((parts[0], parts[-1]))
-    return out
+    rows = [[p.strip().strip('"') for p in line.split(";")] for line in html.unescape(pre.group(1)).splitlines() if line.strip()]
+    return [r for r in rows if r != ["&"]]
+
+
+def tabulate(definition: str, *, row: str, files: list[str], column: str = "--Não-Ativa--",
+             measure: str = "População_residente", timeout: float = 180.0) -> list[tuple[str, str]]:
+    """One TabNet tabulation as (row label, value) pairs, header and total row included.
+
+    ``definition`` is the form's ``.def`` path (``ibge/cnv/popsvs2024br.def``);
+    ``row``, ``column``, ``measure`` and ``files`` are the form's own option
+    values.
+    """
+    fields = [("Linha", row), ("Coluna", column), ("Incremento", measure), *(("Arquivos", f) for f in files)]
+    return [(r[0], r[-1]) for r in prn(definition, fields, timeout=timeout) if len(r) >= 2 and r[0]]

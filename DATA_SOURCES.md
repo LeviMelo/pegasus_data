@@ -1227,6 +1227,33 @@ TabNet's state forms classify by `territorio/{UF}_macsaud.cnv` and `{UF}_regsaud
   are other tables, not read. The SIGTAP wiki of the Ministry points at the same workbook; no newer TUSS-SIGTAP file was found on gov.br, dadosabertos or the wiki (2026-11-22).
 - **Use in TISS.** A TISS item is the pair `CD_TABELA_REFERENCIA` + `CD_PROCEDIMENTO`; the label is looked up by their concatenation (`22` + `10101012`), a code of table 63 being 3 digits and 19, 20, 22 8.
 
+## 18. Subnational health spending: SIOPS and SICONFI (measured 2026-11-23; docs/evaluation/2026-11-23-subnational-health-spending.md)
+
+- **SIOPS** (Ministério da Saúde, DESID/SE) is the declaration of health revenue and spending by which EC 29/2000 and LC 141/2012 are checked (15% of the tax base for municipalities, 12% for states).
+  Its machine-readable access is **TabNet**, on `siops-asp.datasus.gov.br/CGI` over plain http (https does not connect from this network; the same host answers http):
+  `deftohtm.exe?SIOPS/serhist/municipio/indic<UF>.def` (26 states; the Distrito Federal is in `ESTADO/indicdf.def`), one file per year `indmun00.dbf` to `indmun25.dbf`. `siops.datasus.gov.br` redirects to gov.br; its PHP
+  consultation (`relindicadoresmun2.php`, POST by year, state, municipality) is one HTML page per municipality and year. No SIOPS dataset on the FTP; the open-data portal and `dados.gov.br` were not found to hold one
+  (their searches redirected or answered 401: not excluded). The site's licence is CC BY-ND 3.0 (the gov.br notice); no separate data licence is stated.
+- **What TabNet gives.** 22 contents: Frequência, População, indicators 1.1-1.6, 2.1-2.5, 3.1, 3.2 and five reais amounts (R.Impostos e Transf.Const, R.Transf.SUS, D.Pessoal, D.R.Próprios, D.Total Saúde), plus two per
+  inhabitant. Relations hold to the rounding of the published 2 decimals: 2.1 = D.Total/População (reais, not %, despite its name), 2.2 = D.Pessoal/D.Total, 3.1 = R.Transf.SUS/D.Total, 3.2 = D.R.Próprios/R.Impostos
+  (the EC 29 share), R.Transf.SUS/Hab and D.R.Próprios/Hab are the amount over População (Acre and Sergipe 2023, all 97 municipalities: no difference above 0.005). TabNet's Total row is the sum of the rows for the amounts. The subfunction shares 2.21-2.26 hold values for 2013-2015 only (mostly
+  0,00), `...` from 2016, and asking for one beside other contents returns no rows for 2000-2012: they are not usable, spending by subfunction is SICONFI's.
+- **Pitfalls.** (1) **A municipality that did not declare is absent**; TabNet lists it, as Frequência 0 and zeros, only with "show zero rows" (`exibirlz`), so never read that option's zeros as spending. (2) **Stage of
+  expenditure changes within the series**: empenhada before 2002, liquidada 2002-2003, empenhada less restos a pagar without financial availability from 2004 (the TabNet page's own note). (3) **Declaration and
+  retification**: entes declare by bimestre (2023: 1st until 30 March, 2nd 30 May, 3rd 30 July, 4th 30 September; Portaria 53/2013 sets the terms, LC 141 art. 39), the manager homologates, and the Tribunal de Contas's
+  declaration overrides the manager's where it has one (FAQ); the table is the version held when read, so a past year can change and the latest years are provisional. (4) Amounts are current reais of the year. (5) The
+  population is SIOPS's own estimate for the year. (6) 2.1 is labelled "%" and is reais. (7) TabNet **sums the files** it is given (a table of several years is a sum); each landing asks for one.
+- **SICONFI** (Tesouro Nacional, `apidatalake.tesouro.gov.br/ords/siconfi/tt/`; open JSON answering a browser User-Agent; `limit`/`offset`, 5,000 rows a page, `hasMore`; an empty `items` for a request that matches
+  nothing): `entes` (5,598 entities: IBGE code, esfera, population), `extrato_entregas?id_ente&an_referencia` (what an entity delivered), `dca?an_exercicio&no_anexo&id_ente`, `rreo?an_exercicio&nr_periodo&co_tipo_demonstrativo&
+  co_esfera&id_ente`. **DCA-Anexo I-E** (2013 on; named `Anexo I-E` in 2013, `DCA-Anexo I-E` from 2014) has spending by function and subfunction in the columns Despesas Empenhadas, Liquidadas, Pagas and Inscrição de
+  Restos a Pagar (processados and não processados), one row per account (`10 - Saúde`, `10.301 - Atenção Básica`, ...), about 280 rows per municipality-year; function 10 holds only the subfunctions the entity used.
+  **The RREO has no Anexo 12** (ASPS) for São Paulo 2019/2023, Rio Branco 2018/2023 or Acre 2023 (anexos 01-04, 06, 07, 09-11, 13, 14 only), and a municipality under 50,000 files `RREO Simplificado` (Acrelândia 2023:
+  anexos 01, 02, 06): the ASPS statement reaches SIOPS, not SICONFI. A municipality that has not delivered the DCA has no rows (`extrato_entregas` says what was delivered).
+- **Between the two.** SIOPS D.Total Saúde equals DCA function 10 empenhada to R$ 1 for 198 of 289 AC and SE municipality-years (2018, 2021, 2023) and differs both ways otherwise (ratio 0.946-1.721; larger in total by
+  3-8%); the cause is untested (OQ 102). They are different declarations of the same spending, not one figure: do not add them or fill one from the other.
+- **Landed.** `siops_municipal` (dataset `SIOPS-MUNICIPAL`, fields `siops_health_spending`, `_own_resources`, `_transfers_sus`, `_tax_base`, `_spending_personnel`, `siops_declarations`). National command in
+  RUNBOOK ("Subnational health spending").
+
 ## SINAN residence codes and representations (measured 2026-10-24; ADR-0207)
 
 - `ID_MN_RESI` (SINAN-DENG 2010-2026) writes Federal District residents with region codes as well as 530010: 5300xx (530020-530180, as SIH did before 2018) and SINAN's 5399xx (539901-539934), 22,958 rows, 13,585 of them in 2024; DATASUS's TabWin tables AGLBR and BR_CAPITAL map 530000-539999 to Brasília. `XX0000` is the state with its municipality unknown (BR_DIVADM: "Município ignorado - UF").

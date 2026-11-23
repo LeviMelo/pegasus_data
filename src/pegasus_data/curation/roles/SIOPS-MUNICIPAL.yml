@@ -1,0 +1,356 @@
+# SIOPS, the municipal declaration of health revenue and spending, one row per municipality and year (intake source siops_municipal).
+# Meaning from the Ministry of Health's SIOPS notas técnicas dos indicadores (https://www.gov.br/saude/pt-br/acesso-a-informacao/siops/indicadores/notas-tecnicas) and from the relations the values obey (indicators 2.1, 2.2, 3.1, 3.2 and the per-inhabitant amounts recomputed from the amounts, Acre 2023).
+dataset: SIOPS-MUNICIPAL
+record: declaration
+columns:
+  UF:
+    role: declaration.state
+    kind: category
+    model: dimension
+    fact_domain: administrative
+    fact_domain_evidence: '"UF da tabela" (declaration.state): SIOPS municipal declaration of health revenue and spending: the budget register'
+    name: UF da tabela
+    missing: []
+    note: The state whose table the row came from (TabNet's municipal tables are one per state); the municipality code starts with the state's
+      own.
+    years:
+    - 2000
+    - 2025
+  CO_MUNICIPIO:
+    role: declaration.municipality
+    kind: place
+    model: where
+    fact_domain: administrative
+    fact_domain_evidence: '"Município (código)" (declaration.municipality): SIOPS municipal declaration of health revenue and spending: the budget
+      register'
+    name: Município (código)
+    place_of: event
+    width: 6
+    width_evidence: TabNet prints the 6-digit IBGE code (no check digit) before the name; 'Município ignorado' of a state is the state code followed
+      by 0000
+    note: The municipality that declared; the Distrito Federal declares as a state and is not in this table.
+    years:
+    - 2000
+    - 2025
+  NO_MUNICIPIO:
+    role: declaration.municipality_name
+    kind: text
+    model: excluded
+    name: Município (nome)
+    years:
+    - 2000
+    - 2025
+  FREQUENCIA:
+    role: declaration.count
+    kind: number
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"Freqüência" (declaration.count): SIOPS municipal declaration of health revenue and spending: the budget register'
+    name: Freqüência
+    missing: []
+    unit: count
+    unit_of: declarations of the municipality in the year
+    unit_evidence: 'TabNet ''Freqüência'': the count of records of the DBF; 1 where the municipality declared'
+    note: TabNet lists a municipality that did not declare only when asked for zero rows, as 0; this table does not ask, so it is absent, not
+      0.
+    years:
+    - 2000
+    - 2025
+  POPULACAO:
+    role: declaration.population
+    kind: number
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"População" (declaration.population): SIOPS municipal declaration of health revenue and spending: the budget register'
+    name: População
+    missing: []
+    unit: count
+    unit_of: inhabitants
+    unit_evidence: 'TabNet ''População'': the population SIOPS takes for the year''s per-inhabitant indicators'
+    note: 'Not the census count: the estimate SIOPS uses for the year.'
+    years:
+    - 2000
+    - 2025
+  IND_1_1:
+    role: declaration.indicator_1_1
+    kind: number
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"1.1 %R.Líquida Total" (declaration.indicator_1_1): SIOPS municipal declaration of health revenue and spending: the
+      budget register'
+    name: 1.1 %R.Líquida Total
+    missing: []
+    measure: false
+    note: A finished ratio the source calculates (never summed or recomputed from sums of places); '...' where TabNet has no value.
+    years:
+    - 2000
+    - 2025
+  IND_1_2:
+    role: declaration.indicator_1_2
+    kind: number
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"1.2 %Transf. Intergov. líquidas" (declaration.indicator_1_2): SIOPS municipal declaration of health revenue and spending:
+      the budget register'
+    name: 1.2 %Transf. Intergov. líquidas
+    missing: []
+    measure: false
+    note: A finished ratio the source calculates (never summed or recomputed from sums of places); '...' where TabNet has no value.
+    years:
+    - 2000
+    - 2025
+  IND_1_3:
+    role: declaration.indicator_1_3
+    kind: number
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"1.3 %Transf. para a Saúde (SUS)" (declaration.indicator_1_3): SIOPS municipal declaration of health revenue and spending:
+      the budget register'
+    name: 1.3 %Transf. para a Saúde (SUS)
+    missing: []
+    measure: false
+    note: A finished ratio the source calculates (never summed or recomputed from sums of places); '...' where TabNet has no value.
+    years:
+    - 2000
+    - 2025
+  IND_1_4:
+    role: declaration.indicator_1_4
+    kind: number
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"1.4 %Transf. União p/ Saúde" (declaration.indicator_1_4): SIOPS municipal declaration of health revenue and spending:
+      the budget register'
+    name: 1.4 %Transf. União p/ Saúde
+    missing: []
+    measure: false
+    note: A finished ratio the source calculates (never summed or recomputed from sums of places); '...' where TabNet has no value.
+    years:
+    - 2000
+    - 2025
+  IND_1_5:
+    role: declaration.indicator_1_5
+    kind: number
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"1.5 %Transf. da União p/ (SUS)" (declaration.indicator_1_5): SIOPS municipal declaration of health revenue and spending:
+      the budget register'
+    name: 1.5 %Transf. da União p/ (SUS)
+    missing: []
+    measure: false
+    note: A finished ratio the source calculates (never summed or recomputed from sums of places); '...' where TabNet has no value.
+    years:
+    - 2000
+    - 2025
+  IND_1_6:
+    role: declaration.indicator_1_6
+    kind: number
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"1.6 %R.Imp. Transf.Const.Legais" (declaration.indicator_1_6): SIOPS municipal declaration of health revenue and spending:
+      the budget register'
+    name: 1.6 %R.Imp. Transf.Const.Legais
+    missing: []
+    measure: false
+    note: A finished ratio the source calculates (never summed or recomputed from sums of places); '...' where TabNet has no value.
+    years:
+    - 2000
+    - 2025
+  IND_2_1:
+    role: declaration.spending_per_inhabitant
+    kind: number
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"2.1 %D.Total/ Hab" (declaration.spending_per_inhabitant): SIOPS municipal declaration of health revenue and spending:
+      the budget register'
+    name: 2.1 %D.Total/ Hab
+    missing: []
+    measure: false
+    note: A finished per-inhabitant amount in reais, D.Total Saúde / População whatever its '%' name (recomputed on Acre 2023); never summed;
+      '...' where TabNet has no value.
+    years:
+    - 2000
+    - 2025
+  IND_2_2:
+    role: declaration.personnel_share
+    kind: number
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"2.2 %D.Pessoal/D.Total" (declaration.personnel_share): SIOPS municipal declaration of health revenue and spending:
+      the budget register'
+    name: 2.2 %D.Pessoal/D.Total
+    missing: []
+    measure: false
+    note: A finished ratio the source calculates (never summed or recomputed from sums of places); '...' where TabNet has no value.
+    years:
+    - 2000
+    - 2025
+  IND_2_3:
+    role: declaration.indicator_2_3
+    kind: number
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"2.3 %D.com Medicamentos" (declaration.indicator_2_3): SIOPS municipal declaration of health revenue and spending:
+      the budget register'
+    name: 2.3 %D.com Medicamentos
+    missing: []
+    measure: false
+    note: A finished ratio the source calculates (never summed or recomputed from sums of places); '...' where TabNet has no value.
+    years:
+    - 2000
+    - 2025
+  IND_2_4:
+    role: declaration.indicator_2_4
+    kind: number
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"2.4 %D.Serv.Terc/D.Total" (declaration.indicator_2_4): SIOPS municipal declaration of health revenue and spending:
+      the budget register'
+    name: 2.4 %D.Serv.Terc/D.Total
+    missing: []
+    measure: false
+    note: A finished ratio the source calculates (never summed or recomputed from sums of places); '...' where TabNet has no value.
+    years:
+    - 2000
+    - 2025
+  IND_2_5:
+    role: declaration.indicator_2_5
+    kind: number
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"2.5 %D.Invest/D.Total" (declaration.indicator_2_5): SIOPS municipal declaration of health revenue and spending: the
+      budget register'
+    name: 2.5 %D.Invest/D.Total
+    missing: []
+    measure: false
+    note: A finished ratio the source calculates (never summed or recomputed from sums of places); '...' where TabNet has no value.
+    years:
+    - 2000
+    - 2025
+  IND_3_1:
+    role: declaration.sus_transfer_share
+    kind: number
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"3.1 %Transf.SUS/D.Total" (declaration.sus_transfer_share): SIOPS municipal declaration of health revenue and spending:
+      the budget register'
+    name: 3.1 %Transf.SUS/D.Total
+    missing: []
+    measure: false
+    note: A finished ratio the source calculates (never summed or recomputed from sums of places); '...' where TabNet has no value.
+    years:
+    - 2000
+    - 2025
+  IND_3_2:
+    role: declaration.own_resources_share
+    kind: number
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"3.2 %R.Próprios em Saúde-EC 29" (declaration.own_resources_share): SIOPS municipal declaration of health revenue and
+      spending: the budget register'
+    name: 3.2 %R.Próprios em Saúde-EC 29
+    missing: []
+    measure: false
+    note: A finished ratio the source calculates (never summed or recomputed from sums of places); '...' where TabNet has no value.
+    years:
+    - 2000
+    - 2025
+  R_IMPOSTOS_TRANSF_CONST:
+    role: declaration.tax_base
+    kind: number
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"R.Impostos e Transf.Const" (declaration.tax_base): SIOPS municipal declaration of health revenue and spending: the
+      budget register'
+    name: R.Impostos e Transf.Const
+    missing: []
+    note: 'Receita de impostos e transferências constitucionais e legais, the base of the EC 29 / LC 141 minimum (SIOPS notas técnicas dos indicadores),
+      in current reais of the year, not deflated; ''...'' where TabNet has no value. No `unit` is declared: a currency names its monthly competence
+      column, and an annual declaration has none.'
+    years:
+    - 2000
+    - 2025
+  R_TRANSF_SUS:
+    role: declaration.sus_transfers
+    kind: number
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"R.Transf.SUS" (declaration.sus_transfers): SIOPS municipal declaration of health revenue and spending: the budget
+      register'
+    name: R.Transf.SUS
+    missing: []
+    note: 'Transferências do SUS received for health (SIOPS notas técnicas dos indicadores), in current reais of the year, not deflated; ''...''
+      where TabNet has no value. No `unit` is declared: a currency names its monthly competence column, and an annual declaration has none.'
+    years:
+    - 2000
+    - 2025
+  R_TRANSF_SUS_HAB:
+    role: declaration.sus_transfers_per_inhabitant
+    kind: number
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"R.Transf.SUS/Hab" (declaration.sus_transfers_per_inhabitant): SIOPS municipal declaration of health revenue and spending:
+      the budget register'
+    name: R.Transf.SUS/Hab
+    missing: []
+    measure: false
+    note: A finished per-inhabitant amount in reais of the year (the amount over POPULACAO, recomputed on Acre 2023); never summed.
+    years:
+    - 2000
+    - 2025
+  D_PESSOAL:
+    role: declaration.spending_personnel
+    kind: number
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"D.Pessoal" (declaration.spending_personnel): SIOPS municipal declaration of health revenue and spending: the budget
+      register'
+    name: D.Pessoal
+    missing: []
+    note: 'Health spending on personnel (SIOPS notas técnicas dos indicadores), in current reais of the year, not deflated; ''...'' where TabNet
+      has no value. No `unit` is declared: a currency names its monthly competence column, and an annual declaration has none.'
+    years:
+    - 2000
+    - 2025
+  D_RECURSOS_PROPRIOS:
+    role: declaration.spending_own_resources
+    kind: number
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"D.R.Próprios" (declaration.spending_own_resources): SIOPS municipal declaration of health revenue and spending: the
+      budget register'
+    name: D.R.Próprios
+    missing: []
+    note: 'Health spending from own resources, the numerator of the EC 29 share (SIOPS notas técnicas dos indicadores), in current reais of the
+      year, not deflated; ''...'' where TabNet has no value. No `unit` is declared: a currency names its monthly competence column, and an annual
+      declaration has none.'
+    years:
+    - 2000
+    - 2025
+  D_RECURSOS_PROPRIOS_HAB:
+    role: declaration.spending_own_resources_per_inhabitant
+    kind: number
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"D.R.Próprios em Saúde/Hab" (declaration.spending_own_resources_per_inhabitant): SIOPS municipal declaration of health
+      revenue and spending: the budget register'
+    name: D.R.Próprios em Saúde/Hab
+    missing: []
+    measure: false
+    note: A finished per-inhabitant amount in reais of the year (the amount over POPULACAO, recomputed on Acre 2023); never summed.
+    years:
+    - 2000
+    - 2025
+  D_TOTAL_SAUDE:
+    role: declaration.spending_total
+    kind: number
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"D.Total Saúde" (declaration.spending_total): SIOPS municipal declaration of health revenue and spending: the budget
+      register'
+    name: D.Total Saúde
+    missing: []
+    note: 'Total health spending from every resource (SIOPS notas técnicas dos indicadores), in current reais of the year, not deflated; ''...''
+      where TabNet has no value. No `unit` is declared: a currency names its monthly competence column, and an annual declaration has none.'
+    years:
+    - 2000
+    - 2025

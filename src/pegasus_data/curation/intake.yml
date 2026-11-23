@@ -15,6 +15,13 @@
 #                       `months` files the units by month, and each is the publication of its month: a query for one month opens
 #                       that month's part file. `years` and listed files are filed by year, whatever month column their records
 #                       hold (`period` below dates the records, never the publication)
+#   origin.kind tabnet  a TabNet base read as one table per period file and `across` axis value (SIOPS: a state and a year): `base`,
+#                       `definition` ({uf} from across), `file` ({year}, {yy}), `years`, `row` (the classification on the rows),
+#                       `row_label` {code, name} (the two columns a row label "120001 Acrelândia" is cut into), `contents` {the
+#                       form's option value: the column it lands as}, `total_row` (dropped; the independent count), `check_total`
+#                       (the additive columns whose sum over the rows must equal the Total row, or the unit is not landed), `workers`
+#                       (requests at once). Rows are those TabNet lists: a place that did not report is absent, never a zero. The
+#                       header TabNet answers must equal the contents asked for, in order
 #   origin.format fixed fixed-width records, one line a row: `fixed` {layout: "module:function" (the documentation's layout, as
 #                       `sources.census_commuting.record_layouts` returns it), record, member (a regex of the zip's member), eol
 #                       (the line end, default "\n"), encoding}; each column declares `positions` [first, last] (1-based, inclusive),
@@ -3502,3 +3509,153 @@ sources:
       M7051: {description: "MARCA DE IMPUTAÇÃO NA V7051", type: code, positions: [64, 64], codes: {"1": "Sim", "2": "Não"}}
       M7052: {description: "MARCA DE IMPUTAÇÃO NA V7052", type: code, positions: [65, 65], codes: {"1": "Sim", "2": "Não"}}
       V1005: {description: "Situação do setor", type: code, positions: [66, 66], codes: {"1": "Masculino", "2": "Feminino", "3": "Área urbanizada isolada", "4": "Área rural de extensão urbana", "5": "Aglomerado rural (povoado)", "6": "Aglomerado rural (núcleo)", "7": "Aglomerado rural (outros)", "8": "Área rural exclusive aglomerado rural"}}
+
+  siops_municipal:
+    system: SIOPS
+    series: MUNICIPAL
+    system_name:
+      official_name: Sistema de Informações sobre Orçamentos Públicos em Saúde
+      translated_name: Public Health Budgets Information System
+      authority: Ministério da Saúde / Departamento de Economia e Desenvolvimento em Saúde (DESID/SE)
+      what_it_is: The declarations that every municipality, state and the Federal District make of their health revenue and
+        spending, by which the constitutional minimum for health (EC 29/2000, LC 141/2012) is verified.
+    official_name: Indicadores Municipais (série histórica)
+    translated_name: Municipal indicators (historical series)
+    what: >
+      SIOPS's municipal declaration as DATASUS publishes it in the TabNet base "Indicadores Municipais" (siops-asp.datasus.gov.br,
+      files indmunYY.dbf): for each municipality and year that declared, its population, the revenue base of the constitutional
+      minimum (taxes and constitutional transfers), the transfers received for the SUS, total health spending, personnel
+      spending, spending from own resources (the numerator of the EC 29 share), and the indicators SIOPS calculates from them.
+      2000-2025, 26 states (the Distrito Federal declares as a state).
+    one_row: one municipality's declaration of one year (the version SIOPS holds when read)
+    unit_of_analysis: municipality x year
+    use: context
+    why_no_event_type: >-
+      A municipality's declared budget figures for a year: what the local government raised and spent on health, not an event that
+      happened to a person.
+    known_biases: >-
+      The figures are the municipality's own declaration (homologated by the manager; the Tribunal de Contas's overrides it where
+      it has one), not an audited account, and a municipality can retify a year after its deadline: the table is the version SIOPS
+      holds when it is read. Spending is the despesa empenhada less the restos a pagar without financial availability from 2004
+      (liquidada for 2002-2003, empenhada before 2002), so the series has breaks at those years. A municipality that did not
+      declare a year is absent, not zero.
+    gotchas:
+      - "'D.Total Saúde' is all spending of the municipality's health function from any resource (its own, federal and state transfers, credit); 'D.R.Próprios' is the part paid from own resources, the numerator of the EC 29 share (indicator 3.2 = D.R.Próprios / R.Impostos e Transf.Const, recomputed on the municipalities of Acre 2023); 'R.Transf.SUS' is what the SUS transferred to it."
+      - "The minimum of LC 141 is 15% of the tax base (indicator 3.2) for municipalities and 12% for states; a municipality at exactly the minimum is not evidence of compliance, since own-resource spending can include items the Tribunal de Contas later refuses."
+      - "A municipality that did not declare is not in the table (TabNet lists it, with Frequência 0, only when asked for zero rows); FREQUENCIA is 1 for a declared year."
+      - "'...' is TabNet's 'numeric data not available': it is kept in the column's __RAW and the typed column is null."
+      - "The subfunction shares (2.21 atenção básica to 2.26 alimentação e nutrição) are not landed: TabNet holds them for 2013-2015 only, mostly as 0,00, answers no rows for 2000-2012 and has '...' from 2016. Spending by subfunction (301 atenção básica, 302 assistência hospitalar e ambulatorial) is in SICONFI's DCA-Anexo I-E."
+      - "Brasília (530010) is not here: the Distrito Federal declares as a state (indicdf.def of the state base). The 'Município ignorado' row of each state (the state code followed by 0000, when listed) is kept and is unallocated."
+      - "Values are in current reais of the year; nothing is deflated."
+      - "TabNet sums the files it is given; each unit asks for one year, so a table is never a sum of years."
+    citation: Ministério da Saúde, SIOPS, Indicadores Municipais (TabNet DATASUS, siops-asp.datasus.gov.br/CGI/deftohtm.exe?SIOPS/serhist/municipio/indicUF.def)
+    dictionary: https://www.gov.br/saude/pt-br/acesso-a-informacao/siops/indicadores/notas-tecnicas (notas técnicas dos indicadores)
+    origin:
+      kind: tabnet
+      format: csv
+      csv: {sep: ";", encoding: utf8}
+      base: http://siops-asp.datasus.gov.br/CGI
+      definition: "SIOPS/serhist/municipio/indic{uf}.def"
+      file: "indmun{yy}.dbf"
+      years: 2000-2025
+      workers: 2
+      row: Municípios
+      row_label: {code: CO_MUNICIPIO, name: NO_MUNICIPIO}
+      total_row: Total
+      contents:
+        "Freqüência": FREQUENCIA
+        "População": POPULACAO
+        "1.1_%R.Líquida_Total": IND_1_1
+        "1.2_%Transf._Intergov._líquidas": IND_1_2
+        "1.3_%Transf._para_a_Saúde_(SUS)": IND_1_3
+        "1.4_%Transf._União_p/_Saúde": IND_1_4
+        "1.5_%Transf._da_União_p/_(SUS)": IND_1_5
+        "1.6_%R.Imp._Transf.Const.Legais": IND_1_6
+        "2.1_%D.Total/_Hab": IND_2_1
+        "2.2_%D.Pessoal/D.Total": IND_2_2
+        "2.3_%D.com_Medicamentos": IND_2_3
+        "2.4_%D.Serv.Terc/D.Total": IND_2_4
+        "2.5_%D.Invest/D.Total": IND_2_5
+        "3.1_%Transf.SUS/D.Total": IND_3_1
+        "3.2_%R.Próprios_em_Saúde-EC_29": IND_3_2
+        "R.Impostos_e_Transf.Const": R_IMPOSTOS_TRANSF_CONST
+        "R.Transf.SUS": R_TRANSF_SUS
+        "R.Transf.SUS/Hab": R_TRANSF_SUS_HAB
+        "D.Pessoal": D_PESSOAL
+        "D.R.Próprios": D_RECURSOS_PROPRIOS
+        "D.R.Próprios_em_Saúde/Hab": D_RECURSOS_PROPRIOS_HAB
+        "D.Total_Saúde": D_TOTAL_SAUDE
+      check_total: [FREQUENCIA, POPULACAO, R_IMPOSTOS_TRANSF_CONST, R_TRANSF_SUS, D_PESSOAL, D_RECURSOS_PROPRIOS, D_TOTAL_SAUDE]
+      across:
+        uf: [AC, AL, AM, AP, BA, CE, ES, GO, MA, MG, MS, MT, PA, PB, PE, PI, PR, RJ, RN, RO, RR, RS, SC, SE, SP, TO]
+    columns:
+      UF: {description: "state of the table (the request's state: TabNet's municipal tables are one per state)", type: code}
+      CO_MUNICIPIO: {description: "IBGE code of the municipality, 6 digits (the first part of TabNet's row label)", type: municipality}
+      NO_MUNICIPIO: {description: "name of the municipality (the rest of TabNet's row label)", type: label}
+      FREQUENCIA: {description: "number of declarations of the year (1 where the municipality declared)", type: integer}
+      POPULACAO: {description: "population SIOPS uses for the year (for the per-inhabitant indicators)", type: integer}
+      IND_1_1: {description: "indicator 1.1 '%R.Líquida Total' as TabNet names it, percent, as published (not recomputed)", type: number, decimal: ","}
+      IND_1_2: {description: "indicator 1.2 '%Transf. Intergov. líquidas', percent, as published (not recomputed)", type: number, decimal: ","}
+      IND_1_3: {description: "indicator 1.3 '%Transf. para a Saúde (SUS)', percent, as published (not recomputed)", type: number, decimal: ","}
+      IND_1_4: {description: "indicator 1.4 '%Transf. União p/ Saúde', percent, as published (not recomputed)", type: number, decimal: ","}
+      IND_1_5: {description: "indicator 1.5 '%Transf. da União p/ (SUS)', percent, as published (not recomputed)", type: number, decimal: ","}
+      IND_1_6: {description: "indicator 1.6 '%R.Imp. Transf.Const.Legais', percent, as published (not recomputed)", type: number, decimal: ","}
+      IND_2_1: {description: "indicator 2.1 '%D.Total/ Hab': total health spending per inhabitant, in reais (D_TOTAL_SAUDE / POPULACAO, recomputed), not a percent despite the name", type: number, decimal: ","}
+      IND_2_2: {description: "indicator 2.2 '%D.Pessoal/D.Total': personnel as a share of total health spending, percent (D_PESSOAL / D_TOTAL_SAUDE, recomputed)", type: number, decimal: ","}
+      IND_2_3: {description: "indicator 2.3 '%D.com Medicamentos', percent, as published (not recomputed)", type: number, decimal: ","}
+      IND_2_4: {description: "indicator 2.4 '%D.Serv.Terc/D.Total', percent, as published (not recomputed)", type: number, decimal: ","}
+      IND_2_5: {description: "indicator 2.5 '%D.Invest/D.Total', percent, as published (not recomputed)", type: number, decimal: ","}
+      IND_3_1: {description: "indicator 3.1 '%Transf.SUS/D.Total': SUS transfers as a share of total health spending, percent (R_TRANSF_SUS / D_TOTAL_SAUDE, recomputed)", type: number, decimal: ","}
+      IND_3_2: {description: "indicator 3.2 '%R.Próprios em Saúde-EC 29': own-resource health spending as a share of the tax base, percent, the constitutional share (D_RECURSOS_PROPRIOS / R_IMPOSTOS_TRANSF_CONST, recomputed); the minimum is 15% for a municipality", type: number, decimal: ","}
+      R_IMPOSTOS_TRANSF_CONST: {description: "receita de impostos e transferências constitucionais e legais, reais: the base on which the EC 29 minimum is computed", type: number, decimal: ","}
+      R_TRANSF_SUS: {description: "transferências do SUS (federal and state transfers for health) received, reais", type: number, decimal: ","}
+      R_TRANSF_SUS_HAB: {description: "SUS transfers per inhabitant, reais (R_TRANSF_SUS / POPULACAO, recomputed)", type: number, decimal: ","}
+      D_PESSOAL: {description: "health spending on personnel, reais", type: number, decimal: ","}
+      D_RECURSOS_PROPRIOS: {description: "health spending from own resources, reais: the numerator of the EC 29 share", type: number, decimal: ","}
+      D_RECURSOS_PROPRIOS_HAB: {description: "own-resource health spending per inhabitant, reais", type: number, decimal: ","}
+      D_TOTAL_SAUDE: {description: "total health spending of the municipality, reais, from every resource (empenhada less restos a pagar without financial availability from 2004)", type: number, decimal: ","}
+    place: {column: CO_MUNICIPIO, type: municipality}
+    period: {type: file, grain: year, valid: 2000-2025}
+    fields:
+      siops_health_spending:
+        label: "Health spending, all resources (SIOPS)"
+        measure: {sum: D_TOTAL_SAUDE}
+        unit: reais, current, of the year
+        what: >
+          The municipality's total spending on health in a year as it declared it to SIOPS (all resources; empenhada less restos a
+          pagar without financial availability from 2004). Absent for a municipality that did not declare.
+        years: 2000-2025
+      siops_health_spending_own_resources:
+        label: "Health spending from own resources (SIOPS)"
+        measure: {sum: D_RECURSOS_PROPRIOS}
+        unit: reais, current, of the year
+        what: >
+          The part of the municipality's health spending paid from its own resources (taxes and constitutional transfers), the
+          numerator of the EC 29 / LC 141 constitutional share (indicator 3.2), as declared to SIOPS.
+        years: 2000-2025
+      siops_health_transfers_sus:
+        label: "SUS transfers received for health (SIOPS)"
+        measure: {sum: R_TRANSF_SUS}
+        unit: reais, current, of the year
+        what: Federal and state transfers for the SUS that the municipality declared to SIOPS it received in the year.
+        years: 2000-2025
+      siops_health_tax_base:
+        label: "Tax base of the health minimum (SIOPS)"
+        measure: {sum: R_IMPOSTOS_TRANSF_CONST}
+        unit: reais, current, of the year
+        what: >
+          The municipality's receita de impostos e transferências constitucionais e legais, the base on which the 15% minimum of
+          LC 141 is computed (denominator of the EC 29 share), as declared to SIOPS.
+        years: 2000-2025
+      siops_health_spending_personnel:
+        label: "Health spending on personnel (SIOPS)"
+        measure: {sum: D_PESSOAL}
+        unit: reais, current, of the year
+        what: The municipality's health spending on personnel as declared to SIOPS.
+        years: 2000-2025
+      siops_declarations:
+        label: "SIOPS declarations of the year"
+        measure: {sum: FREQUENCIA}
+        unit: declarations (1 where the municipality declared the year)
+        what: Whether the municipality declared the year to SIOPS (1), so a missing figure can be told from a not-declared year.
+        years: 2000-2025
