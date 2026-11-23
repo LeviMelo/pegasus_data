@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import Literal
 
@@ -28,7 +28,10 @@ def plan(
     allow_unbounded: bool = False,
     root: str | Path | None = None,
     settings: Settings | None = None,
+    rows: Mapping[str, Sequence[str]] | None = None,
 ) -> QueryPlan:
+    """The plan of a query: what is read from the lake, what from the published files, and what that downloads.
+    ``rows`` (the query's row filter) lets the plan read from an extract that holds every record it can keep."""
     from ..retrieve import parse_dataset
 
     spec = _spec(
@@ -149,10 +152,15 @@ def plan(
     requirements = tuple(
         provider(name).describe(resolved, resource_period) for name in required
     )
+    held: frozenset[str] = frozenset()
+    if rows and capabilities.fetch_years:
+        from ..extract import held_files
+
+        held = frozenset(held_files(resolved, dataset, rows))
     with shared_catalog(resolved) as catalog:
         estimate = download_estimate(
             resolved, catalog, system, series, capabilities.fetch_years, dict(year_months), physical_uf,
-            dict(capabilities.year_geography),
+            dict(capabilities.year_geography), held=held,
         )
     return QueryPlan(
         spec,
@@ -161,7 +169,7 @@ def plan(
             tuple(sorted(hidden)), tuple(adaptations), capabilities.lake_years,
             capabilities.fetch_years, capabilities.year_resolutions,
             tuple(year_months), estimate[0], estimate[1], capabilities.year_geography, capabilities.lake_partitions,
-            capabilities.lake_competence,
+            capabilities.lake_competence, estimate[2] or 0,
         ),
         SemanticPlan(labels, spec.dimensions, spec.enrichments, required, requirements),
     )

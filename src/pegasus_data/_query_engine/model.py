@@ -131,6 +131,9 @@ class RetrievalPlan:
     #: ``(record source, YYYYMM)`` of the lake files built from one publication of a month: the competence of their records,
     #: which they do not store (an intake unit's, `coverage.sole_competence`).
     lake_competence: tuple[tuple[str, int], ...] = ()
+    #: Of ``download_bytes``, the files an extract holds every record of that the query's row filter can keep: read
+    #: from the extract, never downloaded (`extract.held_files`).
+    extract_bytes: int = 0
 
     def geography_for(self, year: int | None) -> tuple[str, ...]:
         """The states' files (``BR``: the national one) a year is read from; empty: every file of the year."""
@@ -164,11 +167,13 @@ class QueryPlan:
         if self.retrieval.physical_geography:
             lines.append(f"Physical geography filter: {', '.join(self.retrieval.physical_geography)}")
         if self.retrieval.download_bytes is not None:
-            new = self.retrieval.download_bytes - (self.retrieval.cached_bytes or 0)
+            extract = self.retrieval.extract_bytes
+            new = self.retrieval.download_bytes - (self.retrieval.cached_bytes or 0) - extract
             lines.append(
                 f"Download: {new / 2**20:,.1f} MiB new"
                 f" ({self.retrieval.download_bytes / 2**20:,.1f} MiB selected, "
-                f"{(self.retrieval.cached_bytes or 0) / 2**20:,.1f} MiB already cached)"
+                f"{(self.retrieval.cached_bytes or 0) / 2**20:,.1f} MiB already cached"
+                + (f", {extract / 2**20:,.1f} MiB held in an extract for the row filter" if extract else "") + ")"
             )
         for adaptation in self.retrieval.adaptations:
             lines.append(

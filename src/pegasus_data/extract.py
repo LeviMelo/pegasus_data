@@ -11,7 +11,9 @@ An extract reads the published files through ``fetch`` (``only_paths``), one at 
 point is a dataset the lake cannot hold, and the planner's lake/fetch choice has nothing to choose.
 
 An extract lives apart from the lake (``<lake>/extracts/<dataset>/<digest>/``): a query for other codes must never read
-a filtered table as if it were the dataset. Its manifest names the filters, every file read with the rows read and
+a filtered table as if it were the dataset. A query whose row filter an extract's filters cover reads the files the
+extract holds from it, file by file, instead of downloading them again (`held_files`, `held_rows`): every record that
+can match the query was kept, so the query's own filter, applied after, gives what the file would have given. Its manifest names the filters, every file read with the rows read and
 kept, and the files that failed, so a short extract is visibly short.
 """
 
@@ -30,7 +32,7 @@ import pyarrow.parquet as pq
 
 from .persist.kept import write_json_atomic, write_parquet_atomic
 
-__all__ = ["build_extract", "extract_dir", "extract_table"]
+__all__ = ["build_extract", "extract_dir", "extract_table", "held_files", "held_rows"]
 
 
 def _filters(filters: Mapping[str, Sequence[str]]) -> dict[str, list[str]]:
@@ -304,6 +306,54 @@ def _build_extract(dataset: str, years: Sequence[int], filters: dict[str, Sequen
     manifest["pace"] = pace.as_dict()
     _write_manifest(mpath, manifest)
     return manifest
+
+
+def held_files(settings: Any, dataset: str, filters: Mapping[str, Sequence[str]],
+               join: str = "all") -> dict[str, tuple[Path, dict[str, Any]]]:
+    """The published files of ``dataset`` an extract holds every record of that row filter ``filters`` (column -> code
+    prefixes, combined by ``join``: "all" or "any") can keep: path -> (extract directory, the manifest's entry).
+
+    An extract kept a record when ANY of its filters matched. Under "all" the query keeps only records that match
+    each of its columns, so one column whose prefixes an extract's filter on it covers makes the extract complete
+    for the query; under "any" every column of the query must be covered. A file the manifest records as failed,
+    or does not record, is not held: it is read from its publication."""
+    from ._query_engine.request import normalise_prefix
+    from ._request import parse_dataset
+
+    asked = {str(c).upper(): {normalise_prefix(x) for x in v} for c, v in filters.items() if v}
+    if not asked:
+        return {}
+    system, series = parse_dataset(dataset)
+    base = Path(settings.lake_dir) / "extracts" / f"{system}-{series or system}"
+    out: dict[str, tuple[Path, dict[str, Any]]] = {}
+    for d in sorted(base.iterdir()) if base.exists() else []:
+        m = _read_manifest(d / "manifest.json")
+        if not m:
+            continue
+        held = {str(c).upper(): list(v) for c, v in (m.get("filters") or {}).items()}
+        covered = [c for c, want in asked.items()
+                   if c in held and all(any(a.startswith(p) for p in held[c]) for a in want)]
+        if not (covered if join == "all" else len(covered) == len(asked)):
+            continue
+        failed = set(m.get("failed") or ())
+        for path, entry in (m.get("files") or {}).items():
+            if path not in failed and path not in out:
+                out[path] = (d, entry)
+    return out
+
+
+def held_rows(directory: Path, path: str, entry: Mapping[str, Any]) -> pa.Table | None:
+    """The kept records of the published file ``path`` in the extract at ``directory`` (None: it kept none)."""
+    if not int(entry.get("kept") or 0):
+        return None
+    part = _part_path(directory, int(entry["year"]), str(entry["uf"]), str(entry["period"]))
+    table = pq.read_table(part)
+    if "_source_path" in table.column_names:
+        # a part is one file's rows; a publication split into members carries the member in its source id
+        source = pc.cast(table.column("_source_path"), pa.string())
+        mine = pc.or_(pc.equal(source, path), pc.starts_with(source, path + "!"))
+        table = table.filter(pc.fill_null(mine, False))
+    return table
 
 
 def extract_table(dataset: str, column: str, codes: Sequence[str], years: Sequence[int] | None = None, *,

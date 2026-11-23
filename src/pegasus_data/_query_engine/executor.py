@@ -137,7 +137,7 @@ def _refuse_before_reading(query_plan: Any, *, as_of: object, max_download: int 
     # A download budget the caller sees before anything moves (ADR-0076):
     # 1 GiB of NEW compressed bytes by default; cached files cost nothing.
     if as_of is None and max_download is not None and retrieval.download_bytes is not None:
-        new = retrieval.download_bytes - (retrieval.cached_bytes or 0)
+        new = retrieval.download_bytes - (retrieval.cached_bytes or 0) - retrieval.extract_bytes
         if new > max_download:
             from ..retrieve import DownloadBudgetExceeded
 
@@ -151,7 +151,9 @@ def _refuse_before_reading(query_plan: Any, *, as_of: object, max_download: int 
     # planned 6.75 GB "cached" whose blobs an extract had released, and fetched them again, 324 files, inside a study
     # that had set 0 (2026-10-12); a dataset with no lake at all plans "fetch" with no fetch_years
     fetching = bool(retrieval.fetch_years) or retrieval.source_strategy == "fetch"
-    if as_of is None and max_download == 0 and fetching:
+    # every file an extract holds for the row filter: read from it, nothing fetched (science-2's SIH-SP, 2026-11-23)
+    from_extract = bool(retrieval.download_bytes) and retrieval.download_bytes == retrieval.extract_bytes
+    if as_of is None and max_download == 0 and fetching and not from_extract:
         from ..retrieve import DownloadBudgetExceeded
 
         raise DownloadBudgetExceeded(
@@ -490,7 +492,7 @@ def query(
         dimensions=dimensions, enrich=enrich, provenance=provenance,
         resource_policy=resource_policy, time_policy=time_policy,
         allow_unbounded=allow_unbounded,
-        root=root, settings=settings,
+        root=root, settings=settings, rows=rows,
     )
     retrieval = query_plan.retrieval
 

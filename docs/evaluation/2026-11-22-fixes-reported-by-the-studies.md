@@ -153,3 +153,15 @@ computation: every record its event type counts, with `__person`, `__starts` and
 an unparseable date (the linkage role's format) makes the record its own person. Pernambuco 2019-2020, 1,075,155 rows:
 episodes.py 970,346 stays, the stay event before 970,343 (reading-order ties), after 970,346, and all 1,065,304 IDENT-1
 AIHs carry the same stay as episodes.py.
+
+**A held extract was invisible to query() (science-2, t08/t02 SIH-SP).** `query("SIH.SP", period="2019-06",
+geography="SP", rows={"SP_PROCREA": ["040803"]}, max_download=0)` planned 57.1 MiB of downloads and refused, although the
+extract `SIHSUS-SP/5b8634771b66` (filters SP_PROCREA 0403, 040803 and SP_ATOPROF 0702040126; 5,184 files, none failed)
+holds every record that filter can keep; the study read the extract's directory by hand. A query whose row filter an
+extract's filters cover (one covered column under "all", every column under "any") now reads each file the extract
+holds from it, as a version is read from the lake (`extract.held_files`, `retrieve._extract_outcome`); the plan counts
+those bytes as held (`RetrievalPlan.extract_bytes`, shown in `explain()`), the budget and `max_download=0` see them, and
+such files are reported in `FetchReport.from_extract`, never landed. SP 2019-06: 8,389 rows, equal to the extract's
+part, 3.6 s, nothing downloaded; all states 2019 with labels: 359,898 rows in 11.3 s, equal to the year's parts. The
+`open_lake()` view `sihsus_sp` stays the dataset's partitions: an extract is a filtered table and is read only through
+a filter it covers.

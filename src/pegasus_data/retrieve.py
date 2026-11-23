@@ -191,6 +191,9 @@ class FetchReport:
     sources_read: int = 0
     #: The physical files read (paths): what a query builds into the lake after reading them (`build.land`).
     paths_read: list[str] = field(default_factory=list)
+    #: The files read from an extract that holds every record the row filter can keep (`extract.held_files`): read,
+    #: not downloaded, and not landed
+    from_extract: list[str] = field(default_factory=list)
     representations_deduplicated: list[str] = field(default_factory=list)
     representation_conflicts: list[str] = field(default_factory=list)
     #: Columns in the answer the ledger classifies as direct personal
@@ -1328,6 +1331,29 @@ def _version_outcome(
             "family": None, "failure": None}
 
 
+def _extract_outcome(
+    position: int, item: dict[str, Any], directory: Path, entry: dict[str, Any], keep_columns: frozenset[str] | None,
+    record_key: bool,
+) -> dict[str, object]:
+    """A selected file's outcome read from an extract that holds it (`extract.held_rows`), in the form a decode gives."""
+    from .extract import held_rows
+    from .normalize.engine import record_keys
+
+    path = str(item["path"])
+    try:
+        table = held_rows(directory, path, entry)
+    except OSError as exc:
+        return {"position": position, "path": path, "item": item, "failure": f"extract {directory.name}: {exc}"}
+    batches = []
+    if table is not None:
+        table = table.drop_columns([c for c in (*_BUILD_ONLY, "_record_key") if c in table.column_names])
+        for batch in table.to_batches(max_chunksize=131_072):
+            keys = record_keys(batch) if record_key else pa.nulls(batch.num_rows, pa.string())
+            batches.append(_project(batch.append_column("_record_key", keys), keep_columns))
+    return {"position": position, "path": path, "batches": batches, "matched": True, "read_bytes": 0, "item": item,
+            "family": None, "failure": None, "extract": True}
+
+
 def _acquire_and_decode(
     pipeline: Pipeline, selected: Sequence[tuple[str, NormalizePlan, dict[str, Any]]],
     positions_by_path: Mapping[str, list[int]], decode: Callable[..., dict[str, object]], *,
@@ -1428,7 +1454,10 @@ def _fold_outcomes(
                     report.source_facts[source_id] = (str(outcome["family"]), facts[1], facts[2])
                 report.refamilied.append(source_id)
             report.files_read += 1
-            read_sources.add(path)
+            if outcome.get("extract"):
+                report.from_extract.append(path)
+            else:
+                read_sources.add(path)
             if item["year"] is not None:
                 seen_years.add(int(item["year"]))
             if item["geo_code"]:
@@ -1502,19 +1531,31 @@ def _read_families(
         selected = [triple for triple in selected if str(triple[2]["path"]) in wanted]
     report.files_matched = len(selected)
     alternatives = _alternative_plans(catalog, families, plans, municipalities, cache)
-    _measure_selection(catalog, selected, report, max_bytes)
+    # The files an extract holds every record of that the row filter can keep are read from it, never downloaded
+    # again (`extract.held_files`): SIH-SP's procedure lines, 1.3% of 1.6 billion rows, were extracted once and every
+    # query of them planned the whole files' download (science-2, 2026-11-23)
+    held: dict[str, tuple[Path, dict[str, Any]]] = {}
+    if row_filter and as_of is None and not only_paths:
+        from .extract import held_files
+
+        held = held_files(pipeline.settings, f"{report.system}.{report.series or report.system}", *row_filter)
+    from_extract = [(i, t) for i, t in enumerate(selected) if str(t[2]["path"]) in held]
+    to_read = [(i, t) for i, t in enumerate(selected) if str(t[2]["path"]) not in held]
+    _measure_selection(catalog, [t for _, t in to_read], report, max_bytes)
     if not selected:
         return pa.table({}), report
 
+    original = [i for i, _ in to_read]
+    reading = [t for _, t in to_read]
     positions_by_path: dict[str, list[int]] = {}
-    for position, (_family_id, _plan, item) in enumerate(selected):
+    for position, (_family_id, _plan, item) in enumerate(reading):
         positions_by_path.setdefault(str(item["path"]), []).append(position)
     # One physical artifact is decoded once with the union of members selected
     # from it.  An empty member denotes the loose payload itself and disables
     # member filtering for that artifact.
     members_by_path: dict[str, frozenset[str] | None] = {}
     for path, positions in positions_by_path.items():
-        members = {str(selected[i][2]["member"] or "") for i in positions}
+        members = {str(reading[i][2]["member"] or "") for i in positions}
         members_by_path[path] = None if "" in members else frozenset(members)
 
     # The same watchdog and heartbeat every pipeline stage runs under. This is a
@@ -1537,7 +1578,11 @@ def _read_families(
         alternatives=alternatives, record_key=record_key, row_filter=row_filter,
     )
     outcomes = _acquire_and_decode(
-        pipeline, selected, positions_by_path, decode, report=report, on_progress=on_progress, as_of=as_of)
+        pipeline, reading, positions_by_path, decode, report=report, on_progress=on_progress, as_of=as_of
+    ) if reading else []
+    for outcome in outcomes:
+        outcome["position"] = original[int(outcome["position"])]
+    outcomes += [_extract_outcome(i, t[2], *held[str(t[2]["path"])], keep_columns, record_key) for i, t in from_extract]
     batches, seen_years, seen_ufs, read_sources = _fold_outcomes(catalog, settings, outcomes, report)
 
     # Every member has been read into memory; the decoder spools on disk can go

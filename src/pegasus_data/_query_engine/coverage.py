@@ -616,8 +616,10 @@ def download_estimate(
     months_by_year: dict[int, tuple[int, ...]],
     ufs: Sequence[str],
     year_ufs: dict[int, tuple[str, ...]] | None = None,
-) -> tuple[int | None, int | None]:
-    """(bytes the fetch would select, bytes of those already cached).
+    held: frozenset[str] = frozenset(),
+) -> tuple[int | None, int | None, int | None]:
+    """(bytes the fetch would select, bytes of those already cached, bytes of those an extract holds for the query's
+    row filter: ``held``, `extract.held_files`, read from the extract and never downloaded).
 
     From the catalog alone, before anything moves: the publications a fetch of
     these years, months and states would read, one representation each
@@ -625,13 +627,13 @@ def download_estimate(
     files). ``(None, None)`` when the catalog cannot say.
     """
     if not years:
-        return 0, 0
+        return 0, 0, 0
     from ..representations import choose_representations
     from .readplan import resolve_family
 
     ids = [str(f["family_id"]) for f in resolve_family(store, system, series, None)]
     if not ids:
-        return None, None
+        return None, None, None
     wanted_all = {u.upper() for u in ufs}
     per_year = {y: {u.upper() for u in v} for y, v in (year_ufs or {}).items()}
     rows = []
@@ -648,8 +650,10 @@ def download_estimate(
             continue
         rows.append(row)
     selected = list(choose_representations(store, rows, on_conflict="all").selected) if rows else []
-    paths = sorted({str(r["path"]) for r in selected})
-    total = sum(int(r.get("size") or 0) for r in {str(r["path"]): r for r in selected}.values())
+    sizes = {str(r["path"]): int(r.get("size") or 0) for r in selected}
+    total = sum(sizes.values())
+    in_extract = sum(v for k, v in sizes.items() if k in held)
+    paths = sorted(k for k in sizes if k not in held)
     cached = 0
     if paths:
         # a file is cached while one of its fetched blobs is on disk: the fetch history is append-only, and a blob
@@ -661,10 +665,10 @@ def download_estimate(
         fetched = store.query(
             f"SELECT DISTINCT f.path, f.size, x.sha256 FROM files f JOIN fetches x ON x.source_path = f.path "
             f"WHERE f.path IN ({marks})", tuple(paths))
-        held: dict[str, int] = {}
+        blob_held: dict[str, int] = {}
         for blob_row in fetched:
             digest = str(blob_row["sha256"])
             if (blobs / digest[:2] / digest).exists():
-                held[str(blob_row["path"])] = int(blob_row["size"] or 0)
-        cached = sum(held.values())
-    return total, cached
+                blob_held[str(blob_row["path"])] = int(blob_row["size"] or 0)
+        cached = sum(blob_held.values())
+    return total, cached, in_extract
