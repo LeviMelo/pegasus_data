@@ -235,6 +235,7 @@ columns:
   QT_EXIST:
     missing: []
     # measured 2026 (3586 rows, 3586 filled): range [0, 224], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 0.0% of the 3,586 values of 2026; 2026-11-23)
     role: equipment.existing
     kind: number
     model: mark
@@ -247,6 +248,7 @@ columns:
   QT_USO:
     missing: []
     # measured 2026 (3586 rows, 3586 filled): range [0, 163], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 2.0% of the 3,586 values of 2026; 2026-11-23)
     role: equipment.in_use
     kind: number
     model: mark

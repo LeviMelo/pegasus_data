@@ -594,6 +594,7 @@ columns:
   AP_VL_AP:
     missing: []
     # measured 2026 (386 rows, 386 filled): range [0, 5461.29], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 0.5% of the 386 values of 2026; 2026-11-23)
     role: authorisation.approved_value
     kind: number
     model: mark

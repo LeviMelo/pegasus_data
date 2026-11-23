@@ -1285,6 +1285,8 @@ columns:
     - 2026
   PLAQ_MENOR:
     missing: []
+    domain: [1, 1.0e+7]
+    # a platelet count per mm3: 0 on every value of 2021, 2024 and 2026, no count; 1.0e+7 is past any recorded count (OQ 99, 2026-11-23)
     # measured 2026 (145588 rows, 1134 filled): range [0, 0], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: case.platelets_min
     kind: number

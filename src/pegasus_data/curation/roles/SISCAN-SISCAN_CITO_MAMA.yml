@@ -166,6 +166,7 @@ columns:
   NU_PAAF_B_ABC_SUBARE:
     missing: []
     # measured 2022 (14606 rows, 14606 filled): range [0, 3], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 99.6% of the 14,606 values of 2022; 2026-11-23)
     role: exam.count_of_benign_fna_results_subareolar_abscess
     kind: number
     model: mark
@@ -178,6 +179,7 @@ columns:
   NU_PAAF_B_COM_FIB_MAM:
     missing: []
     # measured 2022 (14606 rows, 14606 filled): range [0, 2], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 99.3% of the 14,606 values of 2022; 2026-11-23)
     role: exam.count_of_benign_fna_results_fibrocystic_breast_condition
     kind: number
     model: mark
@@ -190,6 +192,7 @@ columns:
   NU_PAAF_B_FIBROAD:
     missing: []
     # measured 2022 (14606 rows, 14606 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 99.9% of the 14,606 values of 2022; 2026-11-23)
     role: exam.count_of_benign_fna_results_fibroadenoma
     kind: number
     model: mark
@@ -202,6 +205,7 @@ columns:
   NU_PAAF_B_L_E_P:
     missing: []
     # measured 2022 (14606 rows, 14606 filled): range [0, 4], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 89.8% of the 14,606 values of 2022; 2026-11-23)
     role: exam.count_of_benign_fna_results_proliferative_epithelial_lesion_
     kind: number
     model: mark
@@ -214,6 +218,7 @@ columns:
   NU_PAAF_B_MASTITE:
     missing: []
     # measured 2022 (14606 rows, 14606 filled): range [0, 2], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 99.4% of the 14,606 values of 2022; 2026-11-23)
     role: exam.count_of_benign_fna_results_mastitis
     kind: number
     model: mark
@@ -226,6 +231,7 @@ columns:
   NU_PAAF_B_NECR_GORDUR:
     missing: []
     # measured 2022 (14606 rows, 14606 filled): range [0, 4], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 91.0% of the 14,606 values of 2022; 2026-11-23)
     role: exam.count_of_benign_fna_results_fat_necrosis
     kind: number
     model: mark
@@ -238,6 +244,7 @@ columns:
   NU_PAAF_B_OUTRAS:
     missing: []
     # measured 2022 (14606 rows, 14606 filled): range [0, 5], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 91.8% of the 14,606 values of 2022; 2026-11-23)
     role: exam.count_of_other_benign_fna_results
     kind: number
     model: mark
@@ -250,6 +257,7 @@ columns:
   NU_PAAF_M_IND_OUTROS:
     missing: []
     # measured 2022 (14606 rows, 14606 filled): range [0, 0], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 100.0% of the 14,606 values of 2022; 2026-11-23)
     role: exam.count_of_fna_results_of_indeterminate_malignancy_other
     kind: number
     model: mark
@@ -262,6 +270,7 @@ columns:
   NU_PAAF_M_IND_TUMF:
     missing: []
     # measured 2022 (14606 rows, 14606 filled): range [0, 3], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 99.7% of the 14,606 values of 2022; 2026-11-23)
     role: exam.count_of_fna_results_of_indeterminate_malignancy_phyllodes_t
     kind: number
     model: mark
@@ -285,6 +294,7 @@ columns:
   NU_PAAF_P_M_CARC_DUC:
     missing: []
     # measured 2022 (14606 rows, 14606 filled): range [0, 2], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 99.3% of the 14,606 values of 2022; 2026-11-23)
     role: exam.count_of_malignant_fna_results_ductal_carcinoma
     kind: number
     model: mark
@@ -297,6 +307,7 @@ columns:
   NU_PAAF_P_M_CARC_LOB:
     missing: []
     # measured 2022 (14606 rows, 14606 filled): range [0, 2], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 99.1% of the 14,606 values of 2022; 2026-11-23)
     role: exam.count_of_malignant_fna_results_lobular_carcinoma
     kind: number
     model: mark
@@ -309,6 +320,7 @@ columns:
   NU_PAAF_P_M_OUTROS:
     missing: []
     # measured 2022 (14606 rows, 14606 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 100.0% of the 14,606 values of 2022; 2026-11-23)
     role: exam.count_of_malignant_fna_results_other_type
     kind: number
     model: mark
@@ -321,6 +333,7 @@ columns:
   NU_PAAF_SUSM_OUTROS:
     missing: []
     # measured 2022 (14606 rows, 14606 filled): range [0, 2], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 97.8% of the 14,606 values of 2022; 2026-11-23)
     role: exam.count_of_suspicious_fna_results_other
     kind: number
     model: mark
@@ -333,6 +346,7 @@ columns:
   NU_PAAF_SUS_L_E_P:
     missing: []
     # measured 2022 (14606 rows, 14606 filled): range [0, 3], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 99.2% of the 14,606 values of 2022; 2026-11-23)
     role: exam.count_of_suspicious_fna_results_proliferative_epithelial_les
     kind: number
     model: mark
@@ -345,6 +359,7 @@ columns:
   NU_QDESC_LES_PAPIL:
     missing: []
     # measured 2022 (14606 rows, 14606 filled): range [0, 2], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 99.9% of the 14,606 values of 2022; 2026-11-23)
     role: exam.count_of_nipple_discharge_cytology_results_papillary_lesion
     kind: number
     model: mark
@@ -357,6 +372,7 @@ columns:
   NU_QDESC_MALIG_INDT:
     missing: []
     # measured 2022 (14606 rows, 14606 filled): range [0, 5], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 83.4% of the 14,606 values of 2022; 2026-11-23)
     role: exam.count_of_nipple_discharge_cytology_results_indeterminate_mal
     kind: number
     model: mark
@@ -369,6 +385,7 @@ columns:
   NU_QDESC_MAT_ACELULAR:
     missing: []
     # measured 2022 (14606 rows, 14606 filled): range [0, 4], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 95.7% of the 14,606 values of 2022; 2026-11-23)
     role: exam.count_of_nipple_discharge_cytology_results_acellular_materia
     kind: number
     model: mark
@@ -381,6 +398,7 @@ columns:
   NU_QDESC_NEG_MALIG:
     missing: []
     # measured 2022 (14606 rows, 14606 filled): range [0, 2], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 98.8% of the 14,606 values of 2022; 2026-11-23)
     role: exam.count_of_nipple_discharge_cytology_results_negative_for_mali
     kind: number
     model: mark
@@ -393,6 +411,7 @@ columns:
   NU_QDESC_POS_MALIG:
     missing: []
     # measured 2022 (14606 rows, 14606 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 99.8% of the 14,606 values of 2022; 2026-11-23)
     role: exam.count_of_nipple_discharge_cytology_results_positive_for_mali
     kind: number
     model: mark
@@ -405,6 +424,7 @@ columns:
   NU_QDESC_PROC_INFL:
     missing: []
     # measured 2022 (14606 rows, 14606 filled): range [0, 3], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 99.7% of the 14,606 values of 2022; 2026-11-23)
     role: exam.count_of_nipple_discharge_cytology_results_inflammatory_proc
     kind: number
     model: mark

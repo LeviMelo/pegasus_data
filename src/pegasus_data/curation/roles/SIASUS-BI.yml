@@ -213,6 +213,7 @@ columns:
   IDADEPAC:
     missing: []
     # measured 2026 (19376 rows, 19376 filled): range [0, 98], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 0.6% of the 19,376 values of 2026; 2026-11-23)
     role: patient.age
     kind: number
     model: mark
@@ -296,6 +297,7 @@ columns:
   QT_APRES:
     missing: []
     # measured 2026 (19376 rows, 19376 filled): range [1, 301], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (no zero in the 19,376 values of 2026; 2026-11-23)
     role: procedure.quantity_presented_produced
     kind: number
     model: mark
@@ -308,6 +310,7 @@ columns:
   QT_APROV:
     missing: []
     # measured 2026 (19376 rows, 19376 filled): range [1, 301], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (no zero in the 19,376 values of 2026; 2026-11-23)
     role: procedure.quantity_approved
     kind: number
     model: mark
@@ -435,6 +438,7 @@ columns:
   VL_APRES:
     missing: []
     # measured 2026 (19376 rows, 19376 filled): range [0, 7449.75], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 6.4% of the 19,376 values of 2026; 2026-11-23)
     role: procedure.value_presented_produced
     kind: number
     model: mark
@@ -447,6 +451,7 @@ columns:
   VL_APROV:
     missing: []
     # measured 2026 (19376 rows, 19376 filled): range [0, 7449.75], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 6.4% of the 19,376 values of 2026; 2026-11-23)
     role: procedure.value_approved
     kind: number
     model: mark

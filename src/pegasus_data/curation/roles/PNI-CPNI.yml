@@ -84,6 +84,7 @@ columns:
   POP:
     missing: []
     # measured 2019 (401 rows, 384 filled): range [66, 79855], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (no zero in the 357 values of 2019; 2026-11-23)
     role: vaccination.target_population
     kind: number
     model: mark
@@ -97,6 +98,7 @@ columns:
   QT_DOSE:
     missing: []
     # measured 2019 (401 rows, 401 filled): range [1, 35312], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (no zero in the 373 values of 2019; 2026-11-23)
     role: vaccination.doses
     kind: number
     model: mark

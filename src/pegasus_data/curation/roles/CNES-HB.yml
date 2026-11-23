@@ -235,6 +235,7 @@ columns:
   NULEITOS:
     missing: []
     # measured 2026 (86 rows, 86 filled): range [0, 28], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 83.7% of the 86 values of 2026; 2026-11-23)
     role: habilitation.beds
     kind: number
     model: mark

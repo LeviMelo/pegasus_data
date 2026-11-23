@@ -446,6 +446,8 @@ columns:
     name: "Fatores de risco/Obesidade"
   OBES_IMC:
     missing: []
+    domain: [1, 200]
+    # a body mass index cannot be 0: 0 on 32% of the 472 values of 2026, 3% to 28% in 2019-2025; values to 9999 (2019), 3000 (2021) and 3161 (2023) are no index; 200 kg/m2 is past the heaviest person recorded (635 kg, about 185 kg/m2) (OQ 99, 2026-11-23)
     # measured 2026 (222592 rows, 479 filled): range [0, 87.8], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: patient.bmi
     kind: number

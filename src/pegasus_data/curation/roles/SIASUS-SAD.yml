@@ -472,6 +472,7 @@ columns:
   PERMANEN:
     missing: []
     # measured 2018 (1158 rows, 383 filled): range [2, 31], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (no zero in the 184 values of 2018; 2026-11-23)
     role: care.time_in_attendance
     kind: number
     unit_unknown: "Informe_Tecnico_SIASUS_2019_07.pdf PERMANEN \"Permanência em Atendimento\", CHAR (4), no unit stated; whole numbers 1 to 31, 31, 30, 28 and 29 the commonest (first 40 partitions of each SAD family, 2026-10-23; the 2014 family also holds a few negatives and values to 120): a lead, not a unit"
@@ -486,6 +487,7 @@ columns:
   QTDATE:
     missing: []
     # measured 2018 (1158 rows, 1158 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 78.8% of the 867 values of 2018; 2026-11-23)
     role: care.number_of_attendances
     kind: number
     model: mark
@@ -501,6 +503,7 @@ columns:
   QTDPCN:
     missing: []
     # measured 2018 (1158 rows, 1158 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 78.8% of the 867 values of 2018; 2026-11-23)
     role: care.number_of_patients
     kind: number
     model: mark

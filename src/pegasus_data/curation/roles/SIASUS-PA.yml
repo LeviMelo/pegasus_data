@@ -4,6 +4,7 @@ columns:
   IDADEMAX:
     missing: []
     # measured 2026 (2210914 rows, 2196050 filled): range [0, 130], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (no zero in the 207,821 values of 2026; 2026-11-23)
     role: procedure.procedures_maximum_eligible_age
     kind: number
     model: mark
@@ -17,6 +18,7 @@ columns:
   IDADEMIN:
     missing: []
     # measured 2026 (2210914 rows, 2196050 filled): range [0, 60], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 85.5% of the 207,821 values of 2026; 2026-11-23)
     role: procedure.procedures_minimum_eligible_age
     kind: number
     model: mark
@@ -30,6 +32,7 @@ columns:
   NU_PA_TOT:
     missing: []
     # measured 2026 (2210914 rows, 2210914 filled): range [0, 11644], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 18.8% of the 209,586 values of 2026; 2026-11-23)
     role: procedure.sigtap_unit_price
     kind: number
     model: mark
@@ -45,6 +48,7 @@ columns:
   NU_VPA_TOT:
     missing: []
     # measured 2026 (2210914 rows, 2210914 filled): range [0, 150], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 100.0% of the 1,177,644 values of 2026; 2026-11-23)
     role: procedure.vpa_unit_price
     kind: number
     model: mark
@@ -709,6 +713,7 @@ columns:
   PA_QTDAPR:
     missing: []
     # measured 2026 (2210914 rows, 2210914 filled): range [0, 376020], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 2.1% of the 209,586 values of 2026; 2026-11-23)
     role: procedure.approved_quantity
     kind: number
     model: mark
@@ -724,6 +729,7 @@ columns:
   PA_QTDPRO:
     missing: []
     # measured 2026 (2210914 rows, 2210914 filled): range [0, 376020], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 1.1% of the 209,586 values of 2026; 2026-11-23)
     role: procedure.submitted_presented_quantity
     kind: number
     model: mark
@@ -941,6 +947,7 @@ columns:
   PA_VALAPR:
     missing: []
     # measured 2026 (2210914 rows, 2210914 filled): range [0, 1.39763e+06], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 22.6% of the 209,586 values of 2026; 2026-11-23)
     role: procedure.approved_value_brl
     kind: number
     model: mark
@@ -956,6 +963,7 @@ columns:
   PA_VALPRO:
     missing: []
     # measured 2026 (2210914 rows, 2210914 filled): range [0, 6.95497e+06], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 22.5% of the 209,586 values of 2026; 2026-11-23)
     role: procedure.submitted_value_brl
     kind: number
     model: mark
@@ -971,6 +979,7 @@ columns:
   PA_VL_CF:
     missing: []
     # measured 2026 (2210914 rows, 2210914 filled): range [0, 771.6], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 100.0% of the 1,177,644 values of 2026; 2026-11-23)
     role: procedure.federal_supplement_value
     kind: number
     model: mark
@@ -984,6 +993,7 @@ columns:
   PA_VL_CL:
     missing: []
     # measured 2026 (2210914 rows, 2210914 filled): range [0, 22026.5], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 100.0% of the 1,177,644 values of 2026; 2026-11-23)
     role: procedure.local_supplement_value
     kind: number
     model: mark
@@ -1010,6 +1020,7 @@ columns:
   PA_VL_INC:
     missing: []
     # measured 2026 (2210914 rows, 2210914 filled): range [0, 1726.2], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 99.9% of the 209,586 values of 2026; 2026-11-23)
     role: procedure.increment_value
     kind: number
     model: mark

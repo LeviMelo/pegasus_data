@@ -3,6 +3,8 @@ record: notification
 columns:
   AMPOLAS:
     missing: []
+    domain: [1, 1.0e+9]
+    # ampoules prescribed: 0 on 97% of the 9,168 filled values of 2025 and 73% to 84% in 2010-2017, against 1 of 4,731 in 2018-2023 where the form was filled, so 0 is the form default, no prescription; no documented upper bound (1.0e+9 only closes the interval) (OQ 99, 2026-11-23)
     # measured 2025 (9168 rows, 9168 filled): range [0, 160], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: treatment.ampoules
     kind: number
@@ -1215,6 +1217,8 @@ columns:
     - 2025
   PESO:
     missing: []
+    domain: [1, 650]
+    # a weight in kg; 0 is no weight (97% of the 9,168 filled values of 2025, 73% to 84% in 2010-2017, none in 2018-2023); 650 kg is past the heaviest person recorded (635 kg) (OQ 99, 2026-11-23)
     # measured 2025 (9168 rows, 9168 filled): range [0, 614], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: case.weight_kg
     kind: number

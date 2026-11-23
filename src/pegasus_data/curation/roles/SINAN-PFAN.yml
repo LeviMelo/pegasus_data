@@ -27,6 +27,7 @@ columns:
   ANT_DOSES:
     missing: []
     # measured 2026 (275 rows, 165 filled): range [1, 10], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (no zero in the 165 values of 2026; 2026-11-23)
     role: case.number_of_polio_doses_received
     kind: number
     model: mark
@@ -1582,6 +1583,7 @@ columns:
   LAB_L_CEL1:
     missing: []
     # measured 2026 (275 rows, 81 filled): range [0, 1608], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 11.1% of the 81 values of 2026; 2026-11-23)
     role: case.csf_cell_count_first_sample
     kind: number
     model: mark
@@ -1594,6 +1596,7 @@ columns:
   LAB_L_CEL2:
     missing: []
     # measured 2026 (275 rows, 9 filled): range [3, 480], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (no zero in the 9 values of 2026; 2026-11-23)
     role: case.csf_cell_count_second_sample
     kind: number
     model: mark
@@ -1605,6 +1608,8 @@ columns:
     - 2026
   LAB_L_CL1:
     missing: []
+    domain: [1, 1.0e+9]
+    # a CSF chloride concentration cannot be 0: 0 on 8% of 2026 values and 4% to 10% of 2022-2025; no documented upper bound (1.0e+9 only closes the interval) (OQ 99, 2026-11-23)
     # measured 2026 (275 rows, 52 filled): range [0, 12100], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: case.csf_chloride_first_sample
     kind: number
@@ -1617,6 +1622,8 @@ columns:
     - 2026
   LAB_L_CL2:
     missing: []
+    domain: [1, 1.0e+9]
+    # a CSF chloride concentration cannot be 0: 0 on 1 of 6 values of 2026; no documented upper bound (1.0e+9 only closes the interval) (OQ 99, 2026-11-23)
     # measured 2026 (275 rows, 6 filled): range [0, 150], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: case.csf_chloride_second_sample
     kind: number
@@ -1629,6 +1636,8 @@ columns:
     - 2026
   LAB_L_GLI1:
     missing: []
+    domain: [1, 1.0e+9]
+    # a CSF glucose concentration is not measured as exactly 0: 0 on 1 of 322 values of 2022, none of 2026 (minimum 10); no documented upper bound (1.0e+9 only closes the interval) (OQ 99, 2026-11-23)
     # measured 2026 (275 rows, 103 filled): range [10, 6463], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: case.csf_glucose_first_sample
     kind: number
@@ -1641,6 +1650,8 @@ columns:
     - 2026
   LAB_L_GLI2:
     missing: []
+    domain: [1, 1.0e+9]
+    # a CSF glucose concentration is not measured as exactly 0 (the first sample's twin has 0 on 0.3% to 0.7% of 2022-2025 values); no documented upper bound (1.0e+9 only closes the interval) (OQ 99, 2026-11-23)
     # measured 2026 (275 rows, 11 filled): range [10, 76], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: case.csf_glucose_second_sample
     kind: number
@@ -1654,6 +1665,7 @@ columns:
   LAB_L_LIN1:
     missing: []
     # measured 2026 (275 rows, 56 filled): range [0, 233], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 35.7% of the 56 values of 2026; 2026-11-23)
     role: case.csf_lymphocytes_first_sample
     kind: number
     model: mark
@@ -1666,6 +1678,7 @@ columns:
   LAB_L_LIN2:
     missing: []
     # measured 2026 (275 rows, 9 filled): range [0, 82], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 11.1% of the 9 values of 2026; 2026-11-23)
     role: case.csf_lymphocytes_second_sample
     kind: number
     model: mark
@@ -1677,6 +1690,8 @@ columns:
     - 2026
   LAB_L_PRO1:
     missing: []
+    domain: [1, 1.0e+9]
+    # a CSF protein concentration cannot be 0: 0 on 0.5% to 1.5% of 2022-2025 values; no documented upper bound (1.0e+9 only closes the interval) (OQ 99, 2026-11-23)
     # measured 2026 (275 rows, 108 filled): range [10, 17474], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: case.csf_protein_first_sample
     kind: number
@@ -1689,6 +1704,8 @@ columns:
     - 2026
   LAB_L_PRO2:
     missing: []
+    domain: [1, 1.0e+9]
+    # a CSF protein concentration cannot be 0 (the first sample's twin has 0 on 0.5% to 1.5% of 2022-2025 values); no documented upper bound (1.0e+9 only closes the interval) (OQ 99, 2026-11-23)
     # measured 2026 (275 rows, 11 filled): range [12, 545], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: case.csf_protein_second_sample
     kind: number

@@ -420,6 +420,7 @@ columns:
   UDO_RAL6MV:
     missing: []
     # measured 2002 (74 rows, 74 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 92.9% of the 28 values of 2002; 2026-11-23)
     role: authorisation.radiotherapy_equipment_count_acelerador_linear_6_mv
     kind: number
     model: mark
@@ -431,6 +432,7 @@ columns:
   UDO_RALM6C:
     missing: []
     # measured 2002 (74 rows, 74 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 92.9% of the 28 values of 2002; 2026-11-23)
     role: authorisation.radiotherapy_equipment_count_acelerador_linear_acima_de_6_mv
     kind: number
     model: mark
@@ -442,6 +444,7 @@ columns:
   UDO_RALM6S:
     missing: []
     # measured 2002 (74 rows, 74 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 100.0% of the 28 values of 2002; 2026-11-23)
     role: authorisation.radiotherapy_equipment_count_acelerador_linear_acima_de_6_mv
     kind: number
     model: mark
@@ -453,6 +456,7 @@ columns:
   UDO_RBRAQA:
     missing: []
     # measured 2002 (74 rows, 74 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 100.0% of the 28 values of 2002; 2026-11-23)
     role: authorisation.radiotherapy_equipment_count_braquiterapia_de_alta_taxa_de_d
     kind: number
     model: mark
@@ -464,6 +468,7 @@ columns:
   UDO_RBRAQB:
     missing: []
     # measured 2002 (74 rows, 74 filled): range [0, 10], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 78.6% of the 28 values of 2002; 2026-11-23)
     role: authorisation.radiotherapy_equipment_count_braquiterapia_de_baixa_taxa_de_
     kind: number
     model: mark
@@ -475,6 +480,7 @@ columns:
   UDO_RBRAQM:
     missing: []
     # measured 2002 (74 rows, 74 filled): range [0, 2], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 92.9% of the 28 values of 2002; 2026-11-23)
     role: authorisation.radiotherapy_equipment_count_braquiterapia_de_m_dia_taxa_de_
     kind: number
     model: mark
@@ -486,6 +492,7 @@ columns:
   UDO_RDOSCL:
     missing: []
     # measured 2002 (74 rows, 74 filled): range [0, 5], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 64.3% of the 28 values of 2002; 2026-11-23)
     role: authorisation.radiotherapy_equipment_count_dosimetria_cl_nica
     kind: number
     model: mark
@@ -497,6 +504,7 @@ columns:
   UDO_RFONSE:
     missing: []
     # measured 2002 (74 rows, 74 filled): range [0, 34], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 64.3% of the 28 values of 2002; 2026-11-23)
     role: authorisation.radiotherapy_equipment_count_fontes_seladas
     kind: number
     model: mark
@@ -531,6 +539,7 @@ columns:
   UDO_RMONAR:
     missing: []
     # measured 2002 (74 rows, 74 filled): range [0, 2], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 64.3% of the 28 values of 2002; 2026-11-23)
     role: authorisation.radiotherapy_equipment_count_monitor_de_rea
     kind: number
     model: mark
@@ -542,6 +551,7 @@ columns:
   UDO_RMONIN:
     missing: []
     # measured 2002 (74 rows, 74 filled): range [0, 24], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 64.3% of the 28 values of 2002; 2026-11-23)
     role: authorisation.radiotherapy_equipment_count_monitor_individual
     kind: number
     model: mark
@@ -561,6 +571,7 @@ columns:
   UDO_RO150K:
     missing: []
     # measured 2002 (74 rows, 74 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 78.6% of the 28 values of 2002; 2026-11-23)
     role: authorisation.radiotherapy_equipment_count_ortovoltagem_150_kv
     kind: number
     model: mark
@@ -572,6 +583,7 @@ columns:
   UDO_RO500K:
     missing: []
     # measured 2002 (74 rows, 74 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 92.9% of the 28 values of 2002; 2026-11-23)
     role: authorisation.radiotherapy_equipment_count_ortovoltagem_500_kv
     kind: number
     model: mark
@@ -583,6 +595,7 @@ columns:
   UDO_RO50K:
     missing: []
     # measured 2002 (74 rows, 74 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 85.7% of the 28 values of 2002; 2026-11-23)
     role: authorisation.radiotherapy_equipment_count_ortovoltagem_50_kv
     kind: number
     model: mark
@@ -594,6 +607,7 @@ columns:
   UDO_RSICPL:
     missing: []
     # measured 2002 (74 rows, 74 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 85.7% of the 28 values of 2002; 2026-11-23)
     role: authorisation.radiotherapy_equipment_count_sistema_computadorizado_de_plan
     kind: number
     model: mark
@@ -605,6 +619,7 @@ columns:
   UDO_RSIMUL:
     missing: []
     # measured 2002 (74 rows, 74 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 100.0% of the 28 values of 2002; 2026-11-23)
     role: authorisation.radiotherapy_equipment_count_simulador
     kind: number
     model: mark
@@ -616,6 +631,7 @@ columns:
   UDO_RUNCOB:
     missing: []
     # measured 2002 (74 rows, 74 filled): range [0, 2], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 71.4% of the 28 values of 2002; 2026-11-23)
     role: authorisation.radiotherapy_equipment_count_unidade_de_cobalto
     kind: number
     model: mark

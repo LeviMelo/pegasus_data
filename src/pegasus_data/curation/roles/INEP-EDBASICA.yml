@@ -3714,6 +3714,7 @@ columns:
   QT_DOC_BAS:
     missing: []
     # measured 2024 (215545 rows, 178997 filled): range [1, 345], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (no zero in the 178,997 values of 2024; 2026-11-23)
     role: school.qt_doc_bas
     kind: number
     model: mark
@@ -3754,6 +3755,7 @@ columns:
   QT_DOC_EJA:
     missing: []
     # measured 2024 (215545 rows, 178997 filled): range [0, 225], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 83.9% of the 178,997 values of 2024; 2026-11-23)
     role: school.qt_doc_eja
     kind: number
     model: mark
@@ -3769,6 +3771,7 @@ columns:
   QT_DOC_EJA_FUND:
     missing: []
     # measured 2024 (215545 rows, 178997 filled): range [0, 172], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 87.0% of the 178,997 values of 2024; 2026-11-23)
     role: school.qt_doc_eja_fund
     kind: number
     model: mark
@@ -3784,6 +3787,7 @@ columns:
   QT_DOC_EJA_MED:
     missing: []
     # measured 2024 (215545 rows, 178997 filled): range [0, 175], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 94.9% of the 178,997 values of 2024; 2026-11-23)
     role: school.qt_doc_eja_med
     kind: number
     model: mark
@@ -3799,6 +3803,7 @@ columns:
   QT_DOC_ESP:
     missing: []
     # measured 2024 (215545 rows, 178997 filled): range [0, 269], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 18.9% of the 178,997 values of 2024; 2026-11-23)
     role: school.qt_doc_esp
     kind: number
     model: mark
@@ -3814,6 +3819,7 @@ columns:
   QT_DOC_ESP_CC:
     missing: []
     # measured 2024 (215545 rows, 178997 filled): range [0, 269], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 19.9% of the 178,997 values of 2024; 2026-11-23)
     role: school.qt_doc_esp_cc
     kind: number
     model: mark
@@ -3829,6 +3835,7 @@ columns:
   QT_DOC_ESP_CE:
     missing: []
     # measured 2024 (215545 rows, 178997 filled): range [0, 101], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 98.3% of the 178,997 values of 2024; 2026-11-23)
     role: school.qt_doc_esp_ce
     kind: number
     model: mark
@@ -3844,6 +3851,7 @@ columns:
   QT_DOC_FUND:
     missing: []
     # measured 2024 (215545 rows, 178997 filled): range [0, 193], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 32.4% of the 178,997 values of 2024; 2026-11-23)
     role: school.qt_doc_fund
     kind: number
     model: mark
@@ -3859,6 +3867,7 @@ columns:
   QT_DOC_FUND_AF:
     missing: []
     # measured 2024 (215545 rows, 178997 filled): range [0, 158], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 56.0% of the 178,997 values of 2024; 2026-11-23)
     role: school.qt_doc_fund_af
     kind: number
     model: mark
@@ -3874,6 +3883,7 @@ columns:
   QT_DOC_FUND_AI:
     missing: []
     # measured 2024 (215545 rows, 178997 filled): range [0, 120], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 50.1% of the 178,997 values of 2024; 2026-11-23)
     role: school.qt_doc_fund_ai
     kind: number
     model: mark
@@ -3889,6 +3899,7 @@ columns:
   QT_DOC_INF:
     missing: []
     # measured 2024 (215545 rows, 178997 filled): range [0, 123], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 41.6% of the 178,997 values of 2024; 2026-11-23)
     role: school.qt_doc_inf
     kind: number
     model: mark
@@ -3904,6 +3915,7 @@ columns:
   QT_DOC_INF_CRE:
     missing: []
     # measured 2024 (215545 rows, 178997 filled): range [0, 90], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 63.3% of the 178,997 values of 2024; 2026-11-23)
     role: school.qt_doc_inf_cre
     kind: number
     model: mark
@@ -3919,6 +3931,7 @@ columns:
   QT_DOC_INF_PRE:
     missing: []
     # measured 2024 (215545 rows, 178997 filled): range [0, 52], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 49.5% of the 178,997 values of 2024; 2026-11-23)
     role: school.qt_doc_inf_pre
     kind: number
     model: mark
@@ -3934,6 +3947,7 @@ columns:
   QT_DOC_MED:
     missing: []
     # measured 2024 (215545 rows, 178997 filled): range [0, 318], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 83.2% of the 178,997 values of 2024; 2026-11-23)
     role: school.qt_doc_med
     kind: number
     model: mark
@@ -3949,6 +3963,7 @@ columns:
   QT_DOC_PROF:
     missing: []
     # measured 2024 (215545 rows, 178997 filled): range [0, 345], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 93.6% of the 178,997 values of 2024; 2026-11-23)
     role: school.qt_doc_prof
     kind: number
     model: mark
@@ -3964,6 +3979,7 @@ columns:
   QT_DOC_PROF_TEC:
     missing: []
     # measured 2024 (215545 rows, 178997 filled): range [0, 345], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 94.3% of the 178,997 values of 2024; 2026-11-23)
     role: school.qt_doc_prof_tec
     kind: number
     model: mark
@@ -4244,6 +4260,7 @@ columns:
   QT_MAT_BAS_D:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 4690], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 1.5% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_mat_bas_d
     kind: number
     model: mark
@@ -4263,6 +4280,7 @@ columns:
   QT_MAT_BAS_EAD:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 36822], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 98.0% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_mat_bas_ead
     kind: number
     model: mark
@@ -4284,6 +4302,7 @@ columns:
   QT_MAT_BAS_N:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 4471], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 81.0% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_mat_bas_n
     kind: number
     model: mark
@@ -4302,6 +4321,7 @@ columns:
   QT_MAT_EJA:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 7982], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 83.9% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_mat_eja
     kind: number
     model: mark
@@ -4320,6 +4340,7 @@ columns:
   QT_MAT_EJA_FUND:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 3174], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 87.0% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_mat_eja_fund
     kind: number
     model: mark
@@ -4338,6 +4359,7 @@ columns:
   QT_MAT_EJA_FUND_AF:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 1940], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 91.6% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_mat_eja_fund_af
     kind: number
     model: mark
@@ -4356,6 +4378,7 @@ columns:
   QT_MAT_EJA_FUND_AI:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 2728], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 90.4% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_mat_eja_fund_ai
     kind: number
     model: mark
@@ -4374,6 +4397,7 @@ columns:
   QT_MAT_EJA_FUND_FIC:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 1052], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 99.7% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_mat_eja_fund_fic
     kind: number
     model: mark
@@ -4396,6 +4420,7 @@ columns:
   QT_MAT_EJA_MED:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 6110], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 94.9% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_mat_eja_med
     kind: number
     model: mark
@@ -4415,6 +4440,7 @@ columns:
   QT_MAT_EJA_MED_FIC:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 4045], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 99.8% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_mat_eja_med_fic
     kind: number
     model: mark
@@ -4436,6 +4462,7 @@ columns:
   QT_MAT_EJA_MED_NPROF:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 6110], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 95.4% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_mat_eja_med_nprof
     kind: number
     model: mark
@@ -4455,6 +4482,7 @@ columns:
   QT_MAT_EJA_MED_TEC:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 697], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 99.5% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_mat_eja_med_tec
     kind: number
     model: mark
@@ -4476,6 +4504,7 @@ columns:
   QT_MAT_ESP:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 1361], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 18.9% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_mat_esp
     kind: number
     model: mark
@@ -4495,6 +4524,7 @@ columns:
   QT_MAT_ESP_CC:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 1361], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 19.9% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_mat_esp_cc
     kind: number
     model: mark
@@ -4514,6 +4544,7 @@ columns:
   QT_MAT_ESP_CE:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 551], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 98.3% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_mat_esp_ce
     kind: number
     model: mark
@@ -4534,6 +4565,7 @@ columns:
   QT_MAT_FUND:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 3307], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 32.5% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_mat_fund
     kind: number
     model: mark
@@ -4552,6 +4584,7 @@ columns:
   QT_MAT_FUND_AF:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 1886], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 65.6% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_mat_fund_af
     kind: number
     model: mark
@@ -4570,6 +4603,7 @@ columns:
   QT_MAT_FUND_AF_6:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 569], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 66.7% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_mat_fund_af_6
     kind: number
     model: mark
@@ -4588,6 +4622,7 @@ columns:
   QT_MAT_FUND_AF_7:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 648], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 67.1% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_mat_fund_af_7
     kind: number
     model: mark
@@ -4606,6 +4641,7 @@ columns:
   QT_MAT_FUND_AF_8:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 463], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 67.5% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_mat_fund_af_8
     kind: number
     model: mark
@@ -4624,6 +4660,7 @@ columns:
   QT_MAT_FUND_AF_9:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 741], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 68.0% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_mat_fund_af_9
     kind: number
     model: mark
@@ -4642,6 +4679,7 @@ columns:
   QT_MAT_FUND_AF_INT:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 1252], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 85.9% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_mat_fund_af_int
     kind: number
     model: mark
@@ -4660,6 +4698,7 @@ columns:
   QT_MAT_FUND_AI:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 2092], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 42.5% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_mat_fund_ai
     kind: number
     model: mark
@@ -4678,6 +4717,7 @@ columns:
   QT_MAT_FUND_AI_1:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 880], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 46.4% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_mat_fund_ai_1
     kind: number
     model: mark
@@ -4696,6 +4736,7 @@ columns:
   QT_MAT_FUND_AI_2:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 458], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 47.0% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_mat_fund_ai_2
     kind: number
     model: mark
@@ -4714,6 +4755,7 @@ columns:
   QT_MAT_FUND_AI_3:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 420], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 47.0% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_mat_fund_ai_3
     kind: number
     model: mark
@@ -4732,6 +4774,7 @@ columns:
   QT_MAT_FUND_AI_4:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 459], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 47.7% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_mat_fund_ai_4
     kind: number
     model: mark
@@ -4750,6 +4793,7 @@ columns:
   QT_MAT_FUND_AI_5:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 446], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 49.0% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_mat_fund_ai_5
     kind: number
     model: mark
@@ -4768,6 +4812,7 @@ columns:
   QT_MAT_FUND_AI_INT:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 1055], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 78.3% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_mat_fund_ai_int
     kind: number
     model: mark
@@ -4786,6 +4831,7 @@ columns:
   QT_MAT_FUND_INT:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 1336], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 71.1% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_mat_fund_int
     kind: number
     model: mark
@@ -4804,6 +4850,7 @@ columns:
   QT_MAT_INF:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 2208], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 36.1% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_mat_inf
     kind: number
     model: mark
@@ -4822,6 +4869,7 @@ columns:
   QT_MAT_INF_CRE:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 2208], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 56.5% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_mat_inf_cre
     kind: number
     model: mark
@@ -4840,6 +4888,7 @@ columns:
   QT_MAT_INF_CRE_INT:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 2208], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 79.5% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_mat_inf_cre_int
     kind: number
     model: mark
@@ -4858,6 +4907,7 @@ columns:
   QT_MAT_INF_INT:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 2208], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 72.7% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_mat_inf_int
     kind: number
     model: mark
@@ -4880,6 +4930,7 @@ columns:
   QT_MAT_INF_PRE:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 1055], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 44.1% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_mat_inf_pre
     kind: number
     model: mark
@@ -4898,6 +4949,7 @@ columns:
   QT_MAT_INF_PRE_INT:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 571], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 83.8% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_mat_inf_pre_int
     kind: number
     model: mark
@@ -4916,6 +4968,7 @@ columns:
   QT_MAT_MED:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 3341], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 83.3% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_mat_med
     kind: number
     model: mark
@@ -4934,6 +4987,7 @@ columns:
   QT_MAT_MED_CT:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 3341], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 96.8% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_mat_med_ct
     kind: number
     model: mark
@@ -4952,6 +5006,7 @@ columns:
   QT_MAT_MED_CT_1:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 920], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 97.7% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_mat_med_ct_1
     kind: number
     model: mark
@@ -4971,6 +5026,7 @@ columns:
   QT_MAT_MED_CT_2:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 2280], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 97.7% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_mat_med_ct_2
     kind: number
     model: mark
@@ -4990,6 +5046,7 @@ columns:
   QT_MAT_MED_CT_3:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 1061], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 98.1% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_mat_med_ct_3
     kind: number
     model: mark
@@ -5009,6 +5066,7 @@ columns:
   QT_MAT_MED_CT_4:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 418], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 99.8% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_mat_med_ct_4
     kind: number
     model: mark
@@ -5028,6 +5086,7 @@ columns:
   QT_MAT_MED_CT_NS:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 1515], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 99.9% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_mat_med_ct_ns
     kind: number
     model: mark
@@ -5047,6 +5106,7 @@ columns:
   QT_MAT_MED_INT:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 1776], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 92.4% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_mat_med_int
     kind: number
     model: mark
@@ -5065,6 +5125,7 @@ columns:
   QT_MAT_MED_NM:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 1393], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 99.7% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_mat_med_nm
     kind: number
     model: mark
@@ -5083,6 +5144,7 @@ columns:
   QT_MAT_MED_NM_1:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 485], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 99.8% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_mat_med_nm_1
     kind: number
     model: mark
@@ -5101,6 +5163,7 @@ columns:
   QT_MAT_MED_NM_2:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 466], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 99.8% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_mat_med_nm_2
     kind: number
     model: mark
@@ -5119,6 +5182,7 @@ columns:
   QT_MAT_MED_NM_3:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 442], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 99.8% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_mat_med_nm_3
     kind: number
     model: mark
@@ -5137,6 +5201,7 @@ columns:
   QT_MAT_MED_NM_4:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 137], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 99.9% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_mat_med_nm_4
     kind: number
     model: mark
@@ -5155,6 +5220,7 @@ columns:
   QT_MAT_MED_PROP:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 3116], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 84.4% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_mat_med_prop
     kind: number
     model: mark
@@ -5173,6 +5239,7 @@ columns:
   QT_MAT_MED_PROP_1:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 1107], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 85.0% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_mat_med_prop_1
     kind: number
     model: mark
@@ -5191,6 +5258,7 @@ columns:
   QT_MAT_MED_PROP_2:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 2104], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 85.0% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_mat_med_prop_2
     kind: number
     model: mark
@@ -5209,6 +5277,7 @@ columns:
   QT_MAT_MED_PROP_3:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 1057], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 85.2% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_mat_med_prop_3
     kind: number
     model: mark
@@ -5227,6 +5296,7 @@ columns:
   QT_MAT_MED_PROP_4:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 74], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 100.0% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_mat_med_prop_4
     kind: number
     model: mark
@@ -5245,6 +5315,7 @@ columns:
   QT_MAT_MED_PROP_NS:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 541], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 99.6% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_mat_med_prop_ns
     kind: number
     model: mark
@@ -5263,6 +5334,7 @@ columns:
   QT_MAT_PROF:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 36822], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 93.6% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_mat_prof
     kind: number
     model: mark
@@ -5288,6 +5360,7 @@ columns:
   QT_MAT_PROF_FIC_CONC:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 1990], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 99.5% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_mat_prof_fic_conc
     kind: number
     model: mark
@@ -5306,6 +5379,7 @@ columns:
   QT_MAT_PROF_TEC:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 36822], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 94.3% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_mat_prof_tec
     kind: number
     model: mark
@@ -5327,6 +5401,7 @@ columns:
   QT_MAT_PROF_TEC_CONC:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 36821], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 98.1% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_mat_prof_tec_conc
     kind: number
     model: mark
@@ -5345,6 +5420,7 @@ columns:
   QT_MAT_PROF_TEC_SUBS:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 35691], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 97.4% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_mat_prof_tec_subs
     kind: number
     model: mark
@@ -5363,6 +5439,7 @@ columns:
   QT_MAT_ZR_NA:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 335], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 99.9% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_mat_zr_na
     kind: number
     model: mark
@@ -5384,6 +5461,7 @@ columns:
   QT_MAT_ZR_RUR:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 2324], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 19.5% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_mat_zr_rur
     kind: number
     model: mark
@@ -5402,6 +5480,7 @@ columns:
   QT_MAT_ZR_URB:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 36505], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 11.0% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_mat_zr_urb
     kind: number
     model: mark
@@ -5778,6 +5857,7 @@ columns:
   QT_SALAS_UTILIZADAS:
     missing: []
     # measured 2024 (215545 rows, 181065 filled): range [1, 2379], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (no zero in the 181,065 values of 2024; 2026-11-23)
     role: school.qt_salas_utilizadas
     kind: number
     model: mark
@@ -5794,6 +5874,7 @@ columns:
   QT_SALAS_UTILIZADAS_ACESSIVEIS:
     missing: []
     # measured 2024 (215545 rows, 181065 filled): range [0, 431], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 61.1% of the 181,065 values of 2024; 2026-11-23)
     role: school.qt_salas_utilizadas_acessiveis
     kind: number
     model: mark
@@ -5812,6 +5893,7 @@ columns:
   QT_SALAS_UTILIZADAS_DENTRO:
     missing: []
     # measured 2024 (215545 rows, 181065 filled): range [0, 912], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 2.1% of the 181,065 values of 2024; 2026-11-23)
     role: school.qt_salas_utilizadas_dentro
     kind: number
     model: mark
@@ -5827,6 +5909,7 @@ columns:
   QT_SALAS_UTILIZADAS_FORA:
     missing: []
     # measured 2024 (215545 rows, 181065 filled): range [0, 2348], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 89.0% of the 181,065 values of 2024; 2026-11-23)
     role: school.qt_salas_utilizadas_fora
     kind: number
     model: mark
@@ -5842,6 +5925,7 @@ columns:
   QT_SALAS_UTILIZA_CLIMATIZADAS:
     missing: []
     # measured 2024 (215545 rows, 181065 filled): range [0, 431], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 55.0% of the 181,065 values of 2024; 2026-11-23)
     role: school.qt_salas_utiliza_climatizadas
     kind: number
     model: mark
@@ -5875,6 +5959,7 @@ columns:
   QT_TRANSP_PUBLICO:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 2500], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 44.4% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_transp_publico
     kind: number
     model: mark
@@ -5890,6 +5975,7 @@ columns:
   QT_TRANSP_RESP_EST:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 2500], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 92.5% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_transp_resp_est
     kind: number
     model: mark
@@ -5906,6 +5992,7 @@ columns:
   QT_TRANSP_RESP_MUN:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 2348], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 49.3% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_transp_resp_mun
     kind: number
     model: mark
@@ -5922,6 +6009,7 @@ columns:
   QT_TUR_BAS:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [1, 660], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (no zero in the 179,286 values of 2024; 2026-11-23)
     role: school.qt_tur_bas
     kind: number
     model: mark
@@ -5937,6 +6025,7 @@ columns:
   QT_TUR_BAS_D:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 172], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 1.5% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_tur_bas_d
     kind: number
     model: mark
@@ -5953,6 +6042,7 @@ columns:
   QT_TUR_BAS_EAD:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 660], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 98.0% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_tur_bas_ead
     kind: number
     model: mark
@@ -5970,6 +6060,7 @@ columns:
   QT_TUR_BAS_N:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 164], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 81.0% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_tur_bas_n
     kind: number
     model: mark
@@ -5985,6 +6076,7 @@ columns:
   QT_TUR_EJA:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 252], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 83.9% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_tur_eja
     kind: number
     model: mark
@@ -6000,6 +6092,7 @@ columns:
   QT_TUR_EJA_FUND:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 189], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 87.0% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_tur_eja_fund
     kind: number
     model: mark
@@ -6015,6 +6108,7 @@ columns:
   QT_TUR_EJA_MED:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 191], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 94.9% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_tur_eja_med
     kind: number
     model: mark
@@ -6030,6 +6124,7 @@ columns:
   QT_TUR_ESP:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 366], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 18.9% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_tur_esp
     kind: number
     model: mark
@@ -6045,6 +6140,7 @@ columns:
   QT_TUR_ESP_CC:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 366], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 19.9% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_tur_esp_cc
     kind: number
     model: mark
@@ -6060,6 +6156,7 @@ columns:
   QT_TUR_ESP_CE:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 79], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 98.3% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_tur_esp_ce
     kind: number
     model: mark
@@ -6075,6 +6172,7 @@ columns:
   QT_TUR_FUND:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 113], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 32.5% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_tur_fund
     kind: number
     model: mark
@@ -6090,6 +6188,7 @@ columns:
   QT_TUR_FUND_AF:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 81], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 56.1% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_tur_fund_af
     kind: number
     model: mark
@@ -6105,6 +6204,7 @@ columns:
   QT_TUR_FUND_AF_INT:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 36], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 94.2% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_tur_fund_af_int
     kind: number
     model: mark
@@ -6120,6 +6220,7 @@ columns:
   QT_TUR_FUND_AI:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 67], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 50.2% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_tur_fund_ai
     kind: number
     model: mark
@@ -6135,6 +6236,7 @@ columns:
   QT_TUR_FUND_AI_INT:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 34], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 94.8% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_tur_fund_ai_int
     kind: number
     model: mark
@@ -6150,6 +6252,7 @@ columns:
   QT_TUR_FUND_INT:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 50], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 90.5% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_tur_fund_int
     kind: number
     model: mark
@@ -6165,6 +6268,7 @@ columns:
   QT_TUR_INF:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 110], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 41.5% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_tur_inf
     kind: number
     model: mark
@@ -6180,6 +6284,7 @@ columns:
   QT_TUR_INF_CRE:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 110], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 62.9% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_tur_inf_cre
     kind: number
     model: mark
@@ -6195,6 +6300,7 @@ columns:
   QT_TUR_INF_CRE_INT:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 110], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 82.0% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_tur_inf_cre_int
     kind: number
     model: mark
@@ -6210,6 +6316,7 @@ columns:
   QT_TUR_INF_INT:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 110], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 79.5% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_tur_inf_int
     kind: number
     model: mark
@@ -6226,6 +6333,7 @@ columns:
   QT_TUR_INF_PRE:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 57], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 49.6% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_tur_inf_pre
     kind: number
     model: mark
@@ -6241,6 +6349,7 @@ columns:
   QT_TUR_INF_PRE_INT:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 28], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 91.1% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_tur_inf_pre_int
     kind: number
     model: mark
@@ -6256,6 +6365,7 @@ columns:
   QT_TUR_MED:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 184], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 83.3% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_tur_med
     kind: number
     model: mark
@@ -6271,6 +6381,7 @@ columns:
   QT_TUR_MED_INT:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 60], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 95.2% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_tur_med_int
     kind: number
     model: mark
@@ -6286,6 +6397,7 @@ columns:
   QT_TUR_PROF:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 660], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 93.6% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_tur_prof
     kind: number
     model: mark
@@ -6301,6 +6413,7 @@ columns:
   QT_TUR_PROF_TEC:
     missing: []
     # measured 2024 (215545 rows, 179286 filled): range [0, 660], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 94.3% of the 179,286 values of 2024; 2026-11-23)
     role: school.qt_tur_prof_tec
     kind: number
     model: mark

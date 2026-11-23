@@ -969,6 +969,7 @@ columns:
   DURACAO:
     missing: []
     # measured 2000 (172855 rows, 2259 filled): range [1, 15], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 0.0% of the 329,458 values of 2006; 2026-11-23)
     role: case.duration_days_legacy
     kind: number
     model: mark
@@ -1909,6 +1910,8 @@ columns:
     - 2006
   PALQ_MAIOR:
     missing: []
+    domain: [1, 1.0e+7]
+    # a platelet count per mm3: 0 on 82% of 2006 and 98% of 2000 values, no count; 1.0e+7 is past any recorded count (2,200,000 the largest in 2010-2026) (OQ 99, 2026-11-23)
     # measured 2000 (172855 rows, 153468 filled): range [0, 980000], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded
     role: case.platelets_max
     kind: number
@@ -1959,6 +1962,8 @@ columns:
     - 2026
   PLAQ_MENOR:
     missing: []
+    domain: [1, 1.0e+7]
+    # a platelet count per mm3: 0 on 95% of 2006 and 99.5% of 2000 values, on every value of 2021, 2024, 2025 and 2026, no count; 1.0e+7 is past any recorded count (2,200,000 the largest) (OQ 99, 2026-11-23)
     # measured 2000 (172855 rows, 153465 filled): range [0, 950000], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: case.platelets_min
     kind: number

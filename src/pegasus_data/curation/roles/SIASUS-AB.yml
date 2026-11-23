@@ -47,6 +47,7 @@ columns:
   AB_MESACOM:
     missing: []
     # measured 2025 (19782 rows, 17148 filled): range [0, 36], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 0.4% of the 6,821 values of 2025; 2026-11-23)
     role: authorisation.months_of_follow_up
     kind: number
     model: mark
@@ -753,6 +754,7 @@ columns:
   AP_VL_AP:
     missing: []
     # measured 2025 (19782 rows, 19781 filled): range [0, 40], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 28.4% of the 6,821 values of 2025; 2026-11-23)
     role: authorisation.approved_value
     kind: number
     model: mark

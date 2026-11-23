@@ -408,6 +408,7 @@ columns:
   PA_QTDAPR:
     missing: []
     # measured 2026 (502 rows, 502 filled): range [1, 10], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (no zero in the 502 values of 2026; 2026-11-23)
     role: care.approved_quantity
     kind: number
     model: mark
@@ -423,6 +424,7 @@ columns:
   PA_QTDPRO:
     missing: []
     # measured 2026 (502 rows, 502 filled): range [1, 10], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (no zero in the 502 values of 2026; 2026-11-23)
     role: care.submitted_presented_quantity
     kind: number
     model: mark
@@ -452,6 +454,7 @@ columns:
   PERMANEN:
     missing: []
     # measured 2026 (502 rows, 259 filled): range [3, 30], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (no zero in the 259 values of 2026; 2026-11-23)
     role: care.time_in_attendance
     kind: number
     model: mark
@@ -465,6 +468,7 @@ columns:
   QTDATE:
     missing: []
     # measured 2026 (502 rows, 502 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 48.4% of the 502 values of 2026; 2026-11-23)
     role: care.number_of_attendances
     kind: number
     model: mark
@@ -480,6 +484,7 @@ columns:
   QTDPCN:
     missing: []
     # measured 2026 (502 rows, 502 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 48.4% of the 502 values of 2026; 2026-11-23)
     role: care.number_of_patients
     kind: number
     model: mark

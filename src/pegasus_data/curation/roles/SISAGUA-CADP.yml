@@ -303,6 +303,7 @@ columns:
   NU_ECONOMIAS_DOMICILIOS_NAO_PE:
     missing: []
     # measured 2026 (182317 rows, 68576 filled): range [0, 1e+06], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 29.6% of the 68,576 values of 2026; 2026-11-23)
     role: supply.occasional_dwellings
     kind: number
     model: mark
@@ -367,6 +368,7 @@ columns:
   NU_VALOR_RURAL:
     missing: []
     # measured 2026 (182317 rows, 134805 filled): range [0, 1.50682e+06], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 43.3% of the 134,805 values of 2026; 2026-11-23)
     role: supply.rural_population
     kind: number
     model: mark
@@ -384,6 +386,7 @@ columns:
   NU_VALOR_URBANA:
     missing: []
     # measured 2026 (182317 rows, 129298 filled): range [0, 4.664e+06], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 57.7% of the 129,298 values of 2026; 2026-11-23)
     role: supply.urban_population
     kind: number
     model: mark

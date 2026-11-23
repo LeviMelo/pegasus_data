@@ -229,6 +229,7 @@ columns:
   DM_UNI HABITA DANIFICADAS:
     missing: []
     # measured 2025 (4262 rows, 4262 filled): range [0, 9272], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 71.7% of the 4,262 values of 2025; 2026-11-23)
     role: disaster.housing_units_damaged
     kind: number
     model: mark
@@ -246,6 +247,7 @@ columns:
   DM_UNI HABITA DESTRUIDAS:
     missing: []
     # measured 2025 (4262 rows, 4262 filled): range [0, 639], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 93.4% of the 4,262 values of 2025; 2026-11-23)
     role: disaster.housing_units_destroyed
     kind: number
     model: mark
@@ -261,6 +263,7 @@ columns:
   DM_UNI HABITA VALOR:
     missing: []
     # measured 2025 (4262 rows, 4262 filled): range [0, 7.5e+07], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a value that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 77.1% of the 4,262 values of 2025; 2026-11-23)
     role: disaster.housing_units_value
     kind: number
     model: mark
@@ -273,6 +276,7 @@ columns:
   DM_INST SAÚDE DANIFICADAS:
     missing: []
     # measured 2025 (4262 rows, 4262 filled): range [0, 70], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 93.7% of the 4,262 values of 2025; 2026-11-23)
     role: disaster.health_facilities_damaged
     kind: number
     model: mark
@@ -288,6 +292,7 @@ columns:
   DM_INST SAÚDE DESTRUIDAS:
     missing: []
     # measured 2025 (4262 rows, 4262 filled): range [0, 13], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 99.7% of the 4,262 values of 2025; 2026-11-23)
     role: disaster.health_facilities_destroyed
     kind: number
     model: mark
@@ -303,6 +308,7 @@ columns:
   DM_INST SAÚDE VALOR:
     missing: []
     # measured 2025 (4262 rows, 4262 filled): range [0, 1.5e+07], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a value that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 94.3% of the 4,262 values of 2025; 2026-11-23)
     role: disaster.health_facilities_value
     kind: number
     model: mark
@@ -315,6 +321,7 @@ columns:
   DM_INST ENSINO DANIFICADAS:
     missing: []
     # measured 2025 (4262 rows, 4262 filled): range [0, 70], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 90.7% of the 4,262 values of 2025; 2026-11-23)
     role: disaster.school_facilities_damaged
     kind: number
     model: mark
@@ -330,6 +337,7 @@ columns:
   DM_INST ENSINO DESTRUIDAS:
     missing: []
     # measured 2025 (4262 rows, 4262 filled): range [0, 4], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 99.5% of the 4,262 values of 2025; 2026-11-23)
     role: disaster.school_facilities_destroyed
     kind: number
     model: mark
@@ -345,6 +353,7 @@ columns:
   DM_INST ENSINO VALOR:
     missing: []
     # measured 2025 (4262 rows, 4262 filled): range [0, 3.37e+08], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a value that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 91.6% of the 4,262 values of 2025; 2026-11-23)
     role: disaster.school_facilities_value
     kind: number
     model: mark
@@ -357,6 +366,7 @@ columns:
   DM_INST SERVIÇOS DANIFICADAS:
     missing: []
     # measured 2025 (4262 rows, 4262 filled): range [0, 180], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 96.2% of the 4,262 values of 2025; 2026-11-23)
     role: disaster.service_facilities_damaged
     kind: number
     model: mark
@@ -373,6 +383,7 @@ columns:
   DM_INST SERVIÇOS DESTRUIDAS:
     missing: []
     # measured 2025 (4262 rows, 4262 filled): range [0, 180], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 99.5% of the 4,262 values of 2025; 2026-11-23)
     role: disaster.service_facilities_destroyed
     kind: number
     model: mark
@@ -389,6 +400,7 @@ columns:
   DM_INST SERVIÇOS VALOR:
     missing: []
     # measured 2025 (4262 rows, 4262 filled): range [0, 3e+07], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a value that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 96.5% of the 4,262 values of 2025; 2026-11-23)
     role: disaster.service_facilities_value
     kind: number
     model: mark
@@ -401,6 +413,7 @@ columns:
   DM_INST COMUNI DANIFICADAS:
     missing: []
     # measured 2025 (4262 rows, 4262 filled): range [0, 15000], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 94.1% of the 4,262 values of 2025; 2026-11-23)
     role: disaster.community_facilities_damaged
     kind: number
     model: mark
@@ -417,6 +430,7 @@ columns:
   DM_INST COMUNI DESTRUIDAS:
     missing: []
     # measured 2025 (4262 rows, 4262 filled): range [0, 30], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 99.3% of the 4,262 values of 2025; 2026-11-23)
     role: disaster.community_facilities_destroyed
     kind: number
     model: mark
@@ -433,6 +447,7 @@ columns:
   DM_INST COMUNI VALOR:
     missing: []
     # measured 2025 (4262 rows, 4262 filled): range [0, 6e+06], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a value that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 94.4% of the 4,262 values of 2025; 2026-11-23)
     role: disaster.community_facilities_value
     kind: number
     model: mark
@@ -445,6 +460,7 @@ columns:
   DM_OBRAS DE INFRA DANIFICADAS:
     missing: []
     # measured 2025 (4262 rows, 4262 filled): range [0, 105000], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 75.2% of the 4,262 values of 2025; 2026-11-23)
     role: disaster.infrastructure_works_damaged
     kind: number
     model: mark
@@ -460,6 +476,7 @@ columns:
   DM_OBRAS DE INFRA DESTRUIDAS:
     missing: []
     # measured 2025 (4262 rows, 4262 filled): range [0, 1200], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a count that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 90.1% of the 4,262 values of 2025; 2026-11-23)
     role: disaster.infrastructure_works_destroyed
     kind: number
     model: mark
@@ -475,6 +492,7 @@ columns:
   DM_OBRAS DE INFRA VALOR:
     missing: []
     # measured 2025 (4262 rows, 4262 filled): range [0, 4e+08], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a value that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 72.8% of the 4,262 values of 2025; 2026-11-23)
     role: disaster.infrastructure_works_value
     kind: number
     model: mark
@@ -511,6 +529,7 @@ columns:
   PEPL_ASSIS_MÉD E EMERGÊN(R$):
     missing: []
     # measured 2025 (4262 rows, 4262 filled): range [0, 3.56e+08], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a value that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 91.2% of the 4,262 values of 2025; 2026-11-23)
     role: disaster.public_loss_health
     kind: number
     model: mark
@@ -528,6 +547,7 @@ columns:
   PEPL_ABAST DE ÁGUA POT(R$):
     missing: []
     # measured 2025 (4262 rows, 4262 filled): range [0, 3.64001e+08], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a value that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 64.9% of the 4,262 values of 2025; 2026-11-23)
     role: disaster.public_loss_water
     kind: number
     model: mark
@@ -544,6 +564,7 @@ columns:
   PEPL_SIST DE ESGOTOS SANIT(R$):
     missing: []
     # measured 2025 (4262 rows, 4262 filled): range [0, 2e+07], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a value that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 93.0% of the 4,262 values of 2025; 2026-11-23)
     role: disaster.public_loss_sewage
     kind: number
     model: mark
@@ -560,6 +581,7 @@ columns:
   PEPL_SIS LIMP E REC LIXO (R$):
     missing: []
     # measured 2025 (4262 rows, 4262 filled): range [0, 6.4e+07], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a value that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 86.0% of the 4,262 values of 2025; 2026-11-23)
     role: disaster.public_loss_waste
     kind: number
     model: mark
@@ -576,6 +598,7 @@ columns:
   PEPL_SIS CONT PRAGAS (R$):
     missing: []
     # measured 2025 (4262 rows, 4262 filled): range [0, 4e+06], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a value that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 97.7% of the 4,262 values of 2025; 2026-11-23)
     role: disaster.public_loss_pest_control
     kind: number
     model: mark
@@ -592,6 +615,7 @@ columns:
   PEPL_DISTRIB ENERGIA (R$):
     missing: []
     # measured 2025 (4262 rows, 4262 filled): range [0, 8e+06], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a value that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 96.7% of the 4,262 values of 2025; 2026-11-23)
     role: disaster.public_loss_energy
     kind: number
     model: mark
@@ -608,6 +632,7 @@ columns:
   PEPL_TELECOMUNICAÇÕES (R$):
     missing: []
     # measured 2025 (4262 rows, 4262 filled): range [0, 1e+06], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a value that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 98.6% of the 4,262 values of 2025; 2026-11-23)
     role: disaster.public_loss_telecom
     kind: number
     model: mark
@@ -624,6 +649,7 @@ columns:
   PEPL_TRAN LOC/REG/L_CURSO (R$):
     missing: []
     # measured 2025 (4262 rows, 4262 filled): range [0, 1.14805e+08], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a value that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 85.2% of the 4,262 values of 2025; 2026-11-23)
     role: disaster.public_loss_transport
     kind: number
     model: mark
@@ -640,6 +666,7 @@ columns:
   PEPL_DISTRIB COMBUSTÍVEIS(R$):
     missing: []
     # measured 2025 (4262 rows, 4262 filled): range [0, 5e+06], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a value that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 95.3% of the 4,262 values of 2025; 2026-11-23)
     role: disaster.public_loss_fuel
     kind: number
     model: mark
@@ -656,6 +683,7 @@ columns:
   PEPL_SEGURANÇA PÚBLICA (R$):
     missing: []
     # measured 2025 (4262 rows, 4262 filled): range [0, 3e+06], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a value that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 97.4% of the 4,262 values of 2025; 2026-11-23)
     role: disaster.public_loss_security
     kind: number
     model: mark
@@ -672,6 +700,7 @@ columns:
   PEPL_ENSINO (R$):
     missing: []
     # measured 2025 (4262 rows, 4262 filled): range [0, 2e+08], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a value that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 92.4% of the 4,262 values of 2025; 2026-11-23)
     role: disaster.public_loss_education
     kind: number
     model: mark
@@ -688,6 +717,7 @@ columns:
   PEPR_AGRICULTURA (R$):
     missing: []
     # measured 2025 (4262 rows, 4262 filled): range [0, 5.259e+08], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a value that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 54.0% of the 4,262 values of 2025; 2026-11-23)
     role: disaster.private_loss_agriculture
     kind: number
     model: mark
@@ -703,6 +733,7 @@ columns:
   PEPR_PECUÁRIA (R$):
     missing: []
     # measured 2025 (4262 rows, 4262 filled): range [0, 1.17233e+09], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a value that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 63.0% of the 4,262 values of 2025; 2026-11-23)
     role: disaster.private_loss_livestock
     kind: number
     model: mark
@@ -718,6 +749,7 @@ columns:
   PEPR_INDÚSTRIA (R$):
     missing: []
     # measured 2025 (4262 rows, 4262 filled): range [0, 4.59138e+07], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a value that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 96.7% of the 4,262 values of 2025; 2026-11-23)
     role: disaster.private_loss_industry
     kind: number
     model: mark
@@ -733,6 +765,7 @@ columns:
   PEPR_COMÉRCIO (R$):
     missing: []
     # measured 2025 (4262 rows, 4262 filled): range [0, 2e+07], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a value that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 90.5% of the 4,262 values of 2025; 2026-11-23)
     role: disaster.private_loss_commerce
     kind: number
     model: mark
@@ -748,6 +781,7 @@ columns:
   PEPR_SERVIÇOS (R$):
     missing: []
     # measured 2025 (4262 rows, 4262 filled): range [0, 3.80776e+07], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (the dictionary names no code for a value that was not filled)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 93.2% of the 4,262 values of 2025; 2026-11-23)
     role: disaster.private_loss_services
     kind: number
     model: mark

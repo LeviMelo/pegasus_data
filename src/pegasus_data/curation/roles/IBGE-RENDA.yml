@@ -24,6 +24,7 @@ columns:
   DENCRIREND:
     missing: []
     # measured 2010 (25400 rows, 25400 filled): range [0, 1.34203e+06], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 10.5% of the 25,400 values of 2010; 2026-11-23)
     role: population.child_poverty_denominator
     kind: number
     model: mark
@@ -36,6 +37,7 @@ columns:
   DENDESOCUP:
     missing: []
     # measured 2010 (25400 rows, 25400 filled): range [0, 3.59334e+06], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 3.0% of the 25,400 values of 2010; 2026-11-23)
     role: population.unemployment_denominator
     kind: number
     model: mark
@@ -48,6 +50,7 @@ columns:
   DENRENDA:
     missing: []
     # measured 2010 (25400 rows, 25400 filled): range [1, 6.77915e+06], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (no zero in the 25,400 values of 2010; 2026-11-23)
     role: population.income_denominator
     kind: number
     model: mark
@@ -60,6 +63,7 @@ columns:
   DENTRABINF:
     missing: []
     # measured 2010 (25400 rows, 25400 filled): range [0, 562964], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 14.5% of the 25,400 values of 2010; 2026-11-23)
     role: population.child_labour_denominator
     kind: number
     model: mark
@@ -85,6 +89,7 @@ columns:
   NUMCRIPOB:
     missing: []
     # measured 2010 (25400 rows, 25400 filled): range [0, 353607], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 15.7% of the 25,400 values of 2010; 2026-11-23)
     role: population.children_below_half_minimum_wage
     kind: number
     model: mark
@@ -97,6 +102,7 @@ columns:
   NUMCRIPOBX:
     missing: []
     # measured 2010 (25400 rows, 25400 filled): range [0, 151968], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 24.0% of the 25,400 values of 2010; 2026-11-23)
     role: population.children_below_quarter_minimum_wage
     kind: number
     model: mark
@@ -109,6 +115,7 @@ columns:
   NUMDESOCUP:
     missing: []
     # measured 2010 (25400 rows, 25400 filled): range [0, 223276], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 26.5% of the 25,400 values of 2010; 2026-11-23)
     role: population.unemployed
     kind: number
     model: mark
@@ -121,6 +128,7 @@ columns:
   NUMPOBRES:
     missing: []
     # measured 2010 (25400 rows, 25400 filled): range [0, 1.06056e+06], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 7.3% of the 25,400 values of 2010; 2026-11-23)
     role: population.below_half_minimum_wage
     kind: number
     model: mark
@@ -133,6 +141,7 @@ columns:
   NUMPOBRESX:
     missing: []
     # measured 2010 (25400 rows, 25400 filled): range [0, 545291], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 14.8% of the 25,400 values of 2010; 2026-11-23)
     role: population.below_quarter_minimum_wage
     kind: number
     model: mark
@@ -145,6 +154,7 @@ columns:
   NUMRENDA:
     missing: []
     # measured 2010 (25400 rows, 25400 filled): range [0, 1.24979e+10], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 0.3% of the 25,400 values of 2010; 2026-11-23)
     role: population.per_capita_income_sum
     kind: number
     model: mark
@@ -158,6 +168,7 @@ columns:
   NUMTRABINF:
     missing: []
     # measured 2010 (25400 rows, 25400 filled): range [0, 32844], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 34.7% of the 25,400 values of 2010; 2026-11-23)
     role: population.child_labourers
     kind: number
     model: mark

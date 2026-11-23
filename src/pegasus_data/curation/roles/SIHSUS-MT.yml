@@ -183,6 +183,7 @@ columns:
   VAL_ATO:
     missing: []
     # measured 1996 (4483286 rows, 4483286 filled): range [0, 4649.74], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 0.1% of the 4,483,286 values of 1996; 2026-11-23)
     role: act.value
     kind: number
     model: mark

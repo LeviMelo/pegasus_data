@@ -4,6 +4,7 @@ columns:
   C_D:
     missing: []
     # measured 2022 (7615 rows, 235 filled): range [0, 5], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 1.3% of the 235 values of 2022; 2026-11-23)
     role: epizootic.dogs_sick
     kind: number
     model: mark
@@ -17,6 +18,7 @@ columns:
   C_M:
     missing: []
     # measured 2022 (7615 rows, 27 filled): range [0, 2], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 85.2% of the 27 values of 2022; 2026-11-23)
     role: epizootic.dogs_dead
     kind: number
     model: mark
@@ -82,6 +84,7 @@ columns:
   G_D:
     missing: []
     # measured 2022 (7615 rows, 6779 filled): range [0, 18], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 1.9% of the 6,779 values of 2022; 2026-11-23)
     role: epizootic.cats_sick
     kind: number
     model: mark
@@ -95,6 +98,7 @@ columns:
   G_M:
     missing: []
     # measured 2022 (7615 rows, 1366 filled): range [0, 14], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 68.7% of the 1,366 values of 2022; 2026-11-23)
     role: epizootic.cats_dead
     kind: number
     model: mark

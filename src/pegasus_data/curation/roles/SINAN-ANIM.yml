@@ -735,6 +735,7 @@ columns:
   NU_AMPOLAS:
     missing: []
     # measured 2026 (327095 rows, 14663 filled): range [0, 66], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 5.0% of the 14,663 values of 2026; 2026-11-23)
     role: treatment.ampoules_antibothropic
     kind: number
     model: mark
@@ -747,6 +748,7 @@ columns:
   NU_AMPOL_1:
     missing: []
     # measured 2026 (327095 rows, 2782 filled): range [0, 51], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 50.5% of the 2,782 values of 2026; 2026-11-23)
     role: treatment.ampoules_anticrotalic
     kind: number
     model: mark
@@ -770,6 +772,7 @@ columns:
   NU_AMPOL_4:
     missing: []
     # measured 2026 (327095 rows, 1746 filled): range [0, 20], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 84.0% of the 1,746 values of 2026; 2026-11-23)
     role: treatment.ampoules_antielapidic
     kind: number
     model: mark
@@ -782,6 +785,7 @@ columns:
   NU_AMPOL_6:
     missing: []
     # measured 2026 (327095 rows, 2533 filled): range [0, 22], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 75.0% of the 2,533 values of 2026; 2026-11-23)
     role: treatment.ampoules_antibothropic_lachetic
     kind: number
     model: mark
@@ -794,6 +798,7 @@ columns:
   NU_AMPOL_8:
     missing: []
     # measured 2026 (327095 rows, 3672 filled): range [0, 22], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 42.5% of the 3,672 values of 2026; 2026-11-23)
     role: treatment.ampoules_antiarachnidic
     kind: number
     model: mark

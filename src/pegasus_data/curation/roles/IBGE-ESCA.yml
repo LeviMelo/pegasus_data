@@ -48,6 +48,7 @@ columns:
   POPTOT:
     missing: []
     # measured 2010 (299348 rows, 299348 filled): range [1, 2.10178e+06], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (no zero in the 299,348 values of 2010; 2026-11-23)
     role: population.total
     kind: number
     model: mark

@@ -124,6 +124,7 @@ columns:
   NU_ADENOSE_SOE:
     missing: []
     # measured 2025 (63279 rows, 35265 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 91.3% of the 35,265 values of 2025; 2026-11-23)
     role: exam.count_of_adenosis_diagnoses_not_otherwise_specified
     kind: number
     model: mark
@@ -157,6 +158,7 @@ columns:
   NU_CONDICAO_FIBROCISTICA:
     missing: []
     # measured 2025 (63279 rows, 35265 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 85.3% of the 35,265 values of 2025; 2026-11-23)
     role: exam.count_of_fibrocystic_change_diagnoses
     kind: number
     model: mark
@@ -169,6 +171,7 @@ columns:
   NU_FIBROADENOMA:
     missing: []
     # measured 2025 (63279 rows, 35265 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 73.9% of the 35,265 values of 2025; 2026-11-23)
     role: exam.count_of_fibroadenoma_diagnoses
     kind: number
     model: mark
@@ -181,6 +184,7 @@ columns:
   NU_HIPERPLAS_DUCTAL_COM_ATIP:
     missing: []
     # measured 2025 (63279 rows, 35265 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 99.2% of the 35,265 values of 2025; 2026-11-23)
     role: exam.count_of_atypical_ductal_hyperplasia_diagnoses
     kind: number
     model: mark
@@ -193,6 +197,7 @@ columns:
   NU_HIPERPLAS_DUCTAL_SEM_ATIP:
     missing: []
     # measured 2025 (63279 rows, 35265 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 92.5% of the 35,265 values of 2025; 2026-11-23)
     role: exam.count_of_usual_ductal_hyperplasia_diagnoses_without_atypia
     kind: number
     model: mark
@@ -205,6 +210,7 @@ columns:
   NU_HIPERPLAS_LOBULAR_COM_ATIP:
     missing: []
     # measured 2025 (63279 rows, 35265 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 99.9% of the 35,265 values of 2025; 2026-11-23)
     role: exam.count_of_atypical_lobular_hyperplasia_diagnoses
     kind: number
     model: mark
@@ -217,6 +223,7 @@ columns:
   NU_LESAO_ESCLEROSANTE_RADIAL:
     missing: []
     # measured 2025 (63279 rows, 35265 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 99.6% of the 35,265 values of 2025; 2026-11-23)
     role: exam.count_of_radial_scar_complex_sclerosing_lesion_diagnoses
     kind: number
     model: mark
@@ -229,6 +236,7 @@ columns:
   NU_MASTITE:
     missing: []
     # measured 2025 (63279 rows, 35265 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 97.5% of the 35,265 values of 2025; 2026-11-23)
     role: exam.count_of_mastitis_diagnoses
     kind: number
     model: mark
@@ -241,6 +249,7 @@ columns:
   NU_OUTROS:
     missing: []
     # measured 2025 (63279 rows, 35265 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 44.6% of the 35,265 values of 2025; 2026-11-23)
     role: exam.count_of_other_benign_lesions
     kind: number
     model: mark
@@ -253,6 +262,7 @@ columns:
   NU_PAPILOMATOSE_FLORIDA_DO_MAM:
     missing: []
     # measured 2025 (63279 rows, 35265 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 100.0% of the 35,265 values of 2025; 2026-11-23)
     role: exam.count_of_florid_papillomatosis_of_the_nipple_diagnoses
     kind: number
     model: mark
@@ -265,6 +275,7 @@ columns:
   NU_PAPILOMA_MULTIPLO:
     missing: []
     # measured 2025 (63279 rows, 35265 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 99.6% of the 35,265 values of 2025; 2026-11-23)
     role: exam.count_of_multiple_intraductal_papilloma_diagnoses
     kind: number
     model: mark
@@ -277,6 +288,7 @@ columns:
   NU_PAPILOMA_SOLITARIO:
     missing: []
     # measured 2025 (63279 rows, 35265 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 98.6% of the 35,265 values of 2025; 2026-11-23)
     role: exam.count_of_solitary_intraductal_papilloma_diagnoses
     kind: number
     model: mark

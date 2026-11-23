@@ -162,6 +162,7 @@ columns:
   QT_DIARIA_UTI:
     missing: []
     # measured 2025 (8004199 rows, 8004199 filled): range [0, 960], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 96.3% of the 268,899 values of 2025; 2026-11-23)
     role: admission.icu_days
     kind: number
     model: mark
@@ -173,6 +174,7 @@ columns:
   QT_DIARIA_ACOMPANHANTE:
     missing: []
     # measured 2025 (8004199 rows, 8004199 filled): range [0, 1573], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 94.9% of the 268,899 values of 2025; 2026-11-23)
     role: admission.companion_days
     kind: number
     model: mark
@@ -215,6 +217,7 @@ columns:
   VL_EVENTO_INFORMADO:
     missing: []
     # measured 2025 (8004199 rows, 8004199 filled): range [0, 2.34058e+08], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 0.9% of the 268,899 values of 2025; 2026-11-23)
     role: admission.value_billed
     kind: number
     model: mark
@@ -227,6 +230,7 @@ columns:
   VL_EVENTO_PAGO:
     missing: []
     # measured 2025 (8004199 rows, 8004199 filled): range [0, 1.91587e+07], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 18.9% of the 268,899 values of 2025; 2026-11-23)
     role: admission.value_paid
     kind: number
     model: mark
@@ -239,6 +243,7 @@ columns:
   VL_EVENTO_GLOSA:
     missing: []
     # measured 2025 (8004199 rows, 8004199 filled): range [0, 2.33827e+08], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 63.7% of the 268,899 values of 2025; 2026-11-23)
     role: admission.value_refused
     kind: number
     model: mark

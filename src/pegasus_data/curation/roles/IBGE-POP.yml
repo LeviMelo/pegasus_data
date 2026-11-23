@@ -66,6 +66,7 @@ columns:
   POP:
     missing: []
     # measured 2025 (902502 rows, 902502 filled): range [1, 216049], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (no zero in the 902,502 values of 2025; 2026-11-23)
     role: population.count
     kind: number
     model: mark
@@ -78,6 +79,7 @@ columns:
   POPULACAO:
     missing: []
     # measured 1999 (1123428 rows, 1123428 filled): range [0, 491287], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 0.3% of the 1,123,428 values of 1999; 2026-11-23)
     role: population.count
     kind: number
     model: mark

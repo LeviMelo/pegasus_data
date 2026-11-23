@@ -321,6 +321,7 @@ columns:
   D_DIAR:
     missing: []
     # measured 2026 (321 rows, 209 filled): range [0, 30], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 0.5% of the 209 values of 2026; 2026-11-23)
     role: case.diarrhoea_days
     kind: number
     model: mark
@@ -333,6 +334,7 @@ columns:
   D_VOMITO:
     missing: []
     # measured 2026 (321 rows, 129 filled): range [0, 20], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 2.3% of the 129 values of 2026; 2026-11-23)
     role: case.vomiting_days
     kind: number
     model: mark
@@ -636,6 +638,7 @@ columns:
   N_DIAR:
     missing: []
     # measured 2026 (321 rows, 219 filled): range [1, 30], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (no zero in the 219 values of 2026; 2026-11-23)
     role: case.diarrhoea_episodes
     kind: number
     model: mark
@@ -648,6 +651,7 @@ columns:
   N_VOMITO:
     missing: []
     # measured 2026 (321 rows, 133 filled): range [0, 27], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 3.0% of the 133 values of 2026; 2026-11-23)
     role: case.vomiting_episodes
     kind: number
     model: mark

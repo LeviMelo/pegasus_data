@@ -189,6 +189,7 @@ columns:
   HORAHOSP:
     missing: []
     # measured 2026 (19023 rows, 19023 filled): range [0, 123], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 64.0% of the 19,023 values of 2026; 2026-11-23)
     role: professional.weekly_hours_hospital
     kind: number
     model: mark
@@ -201,6 +202,7 @@ columns:
   HORAOUTR:
     missing: []
     # measured 2026 (19023 rows, 19023 filled): range [0, 60], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 83.6% of the 19,023 values of 2026; 2026-11-23)
     role: professional.weekly_hours_other_setting
     kind: number
     model: mark
@@ -213,6 +215,7 @@ columns:
   HORA_AMB:
     missing: []
     # measured 2026 (19023 rows, 19023 filled): range [0, 80], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a zero is a recorded zero, not a missing code: a quantity that can be none (0 on 27.3% of the 19,023 values of 2026; 2026-11-23)
     role: professional.weekly_hours_outpatient
     kind: number
     model: mark
