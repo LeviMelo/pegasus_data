@@ -2904,3 +2904,74 @@ sources:
         what: >
           Doses applied (final RNDS documents), by the person's municipality of residence, month of vaccination, vaccine and
           dose.
+
+  tse:
+    system: TSE
+    series: ELEITORADO
+    system_name:
+      official_name: Tribunal Superior Eleitoral (TSE), dados abertos
+      translated_name: Superior Electoral Court (TSE), open data
+      authority: TSE
+      what_it_is: The electoral courts' open data repository; its electorate profile counts the voters eligible at each election.
+    official_name: Perfil do eleitorado
+    translated_name: Electorate profile
+    what: >
+      TSE's profile of the eligible electorate for the 2022 election (perfil_eleitorado_2022): the count of voters by electoral
+      zone and municipality (TSE's own code) crossed by gender, marital status, age band, schooling, race/colour, gender identity,
+      quilombola origin and sign-language interpreter, with the voters who registered biometrics, a disability or reduced mobility,
+      and a social name. One CSV per state in the zip, and BRASIL (the sum of them), 956 MB.
+    one_row: the voters of one electoral zone of one municipality in one cell of gender, marital status, age band, schooling, race, gender identity, quilombola and interpreter
+    unit_of_analysis: electorate cell
+    use: denominator
+    why_no_event_type: >-
+      A count of eligible voters by profile cell, not events and not people with a health outcome: it is a population (the
+      resident population aged 16 and over who registered to vote), and it carries no health fact.
+    known_biases: >-
+      It counts registered voters, which is not the resident population: registration is compulsory for literate adults aged 18 to
+      69 and optional for the others, a voter may be registered where they no longer live, and the profile is as declared at
+      registration and not updated (the leiame says marital status and schooling may not be current). Race/colour, gender identity,
+      quilombola origin and the interpreter flag were collected from 2022, and are -1 (not informed) in whole states' files read.
+    gotchas:
+      - "The municipality code (CD_MUNICIPIO) is TSE's own, not IBGE's (Salvador is 38490, IBGE 2927408): it needs a TSE-IBGE crosswalk before it joins anything; it is declared as a code, never as an IBGE municipality."
+      - "TSE writes #NULO for a blank text and -1 for a blank number; #NE (not recorded that year) is -3 (the leiame). A -1 is not zero and a -3 is not a band: CD_FAIXA_ETARIA is -3 ('Inválida') in 15 rows of the AC file."
+      - "SG_UF is also BR (a national row), VT (votes in transit) or ZZ (abroad); the zip's BRASIL file is the sum of the state files, so reading both double counts."
+      - "The files' column names differ from the leiame's (AA_ELEICAO for ANO_ELEICAO, QT_ELEITORES for QT_ELEITORES_PERFIL, QT_ELEITORES_NOME_SOCIAL for QT_ELEITORES_INC_NM_SOCIAL): the declared columns are the files' own, as read."
+      - "Every text is Latin-1, every field quoted and semicolon-separated, numbers included."
+    citation: TSE, Repositório de dados eleitorais, Perfil do eleitorado 2022 (dadosabertos.tse.jus.br, cdn.tse.jus.br/estatistica/sead/odsele/perfil_eleitorado)
+    dictionary: leiame.pdf inside perfil_eleitorado_2022.zip (Leiaute PERFIL_ELEITORADO)
+    origin:
+      kind: files
+      format: csv
+      csv: {sep: ";", encoding: latin1, member: "perfil_eleitorado_{year}_BRASIL.csv"}
+      pattern: https://cdn.tse.jus.br/estatistica/sead/odsele/perfil_eleitorado/perfil_eleitorado_{year}.zip
+      years: 2022
+      on_request: true
+    columns:
+      DT_GERACAO: {description: "date the data were extracted to generate the file (dd/mm/yyyy)", type: date, format: "%d/%m/%Y"}
+      HH_GERACAO: {description: "time of that extraction, Brasília time (hh:mm:ss)", type: code}
+      AA_ELEICAO: {description: "reference year of the election the file is generated for (a supplementary election is filed under its ordinary election's year; the leiame names it ANO_ELEICAO)", type: year}
+      SG_UF: {description: "state abbreviation of the election; also BR (national), VT (votes in transit) or ZZ (abroad)", type: code}
+      CD_MUNICIPIO: {description: "TSE's code of the municipality where the election took place (not IBGE's)", type: code}
+      NM_MUNICIPIO: {description: "name of the municipality where the election took place", type: label}
+      NR_ZONA: {description: "number of the electoral zone", type: code}
+      CD_GENERO: {description: "code of the voter's gender", type: code, label_from: DS_GENERO, codes: {"2": Masculino, "4": Feminino, "0": Não Informado}}
+      DS_GENERO: {description: "description of the voter's gender", type: label}
+      CD_ESTADO_CIVIL: {description: "code of the voter's marital status; it may not be the current one, since the registration is not updated", type: code, label_from: DS_ESTADO_CIVIL, codes: {"0": Não informado, "1": Solteiro, "3": Casado, "5": Viúvo, "7": Separado judicialmente, "9": Divorciado}}
+      DS_ESTADO_CIVIL: {description: "description of the voter's marital status", type: label}
+      CD_FAIXA_ETARIA: {description: "code of the voter's age band (the leiame gives the column and not the code list; the file's own labels sit in DS_FAIXA_ETARIA)", type: code, label_from: DS_FAIXA_ETARIA}
+      DS_FAIXA_ETARIA: {description: "description of the voter's age band (16, 17, 18, 19, 20 years, 21 to 24 and then five-year bands to 95 to 99, 100 or more)", type: label}
+      CD_GRAU_ESCOLARIDADE: {description: "code of the voter's declared schooling; it may not be the current one", type: code, label_from: DS_GRAU_ESCOLARIDADE, codes: {"0": Não informado, "1": Analfabeto, "2": Lê e escreve, "3": Ensino fundamental incompleto, "4": Ensino fundamental completo, "5": Ensino médio incompleto, "6": Ensino médio completo, "7": Superior incompleto, "8": Superior completo}}
+      DS_GRAU_ESCOLARIDADE: {description: "description of the voter's declared schooling", type: label}
+      CD_RACA_COR: {description: "code of the race/colour the voter reported", type: code, label_from: DS_RACA_COR, codes: {"1": Branca, "2": Preta, "3": Parda, "4": Indígena, "5": Amarela}}
+      DS_RACA_COR: {description: "description of the race/colour the voter reported (NÃO INFORMADO where -1)", type: label}
+      CD_IDENTIDADE_GENERO: {description: "code of the gender identity the voter reported", type: code, label_from: DS_IDENTIDADE_GENERO, codes: {"1": Cisgênero, "2": Transgênero, "3": Prefere não informar}}
+      DS_IDENTIDADE_GENERO: {description: "description of the gender identity the voter reported", type: label}
+      CD_QUILOMBOLA: {description: "code indicating the voter is of quilombola origin", type: code, label_from: DS_QUILOMBOLA, codes: {"1": Sim, "2": Não}}
+      DS_QUILOMBOLA: {description: "indication of quilombola origin (Sim, Não)", type: label}
+      CD_INTERPRETE_LIBRAS: {description: "code indicating the voter is a sign-language (Libras) interpreter", type: code, label_from: DS_INTERPRETE_LIBRAS, codes: {"1": Sim, "2": Não}}
+      DS_INTERPRETE_LIBRAS: {description: "indication of being a Libras interpreter (Sim, Não)", type: label}
+      QT_ELEITORES: {description: "number of eligible voters in the cell (the leiame's QT_ELEITORES_PERFIL: voters apt to vote)", type: integer}
+      QT_ELEITORES_BIOMETRIA: {description: "number of those with biometrics registered", type: integer}
+      QT_ELEITORES_DEFICIENCIA: {description: "number of those with a disability or reduced mobility; it can fall from one year to the next, since a voter can leave that condition between elections", type: integer}
+      QT_ELEITORES_NOME_SOCIAL: {description: "number of those who asked for a social name to be included in their registration (the leiame's QT_ELEITORES_INC_NM_SOCIAL)", type: integer}
+    period: {type: year, column: AA_ELEICAO, grain: year}

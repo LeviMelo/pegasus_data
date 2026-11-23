@@ -1734,3 +1734,38 @@ columns:
     fact_domain: person
     fact_domain_evidence: "\"IDADE_anos\" (patient.age_years): attribute of the patient (age, birth, residence, occupation, employer)"
     derived: true
+  VAL_SANG:
+    missing: []
+    role: admission.value_blood
+    kind: number
+    model: mark
+    unit: BRL
+    unit_evidence: 'GEOCOD_AIH.pdf (CEM-USP dictionary of the AIH-SUS database, p.5): "(Os campos seguintes estão em R$, valores
+      correntes)" and "VAL_SANG - Valor gasto com sangue; nos arquivos de 1992, este valor está somado em VAL_SADT"'
+    unit_from: 199501
+    competence:
+    - ANO_CMPT
+    - MES_CMPT
+    fact_domain: administrative
+    fact_domain_evidence: '"Valor gasto com sangue" (admission.value_blood): a value of the AIH: billing'
+    name: Valor sangue (spelling of the 1994 files)
+    years:
+    - 1994
+    - 1994
+    note: 'The same measure as VAL_SANGUE, spelled VAL_SANG in the 1994 files (GEOCOD_AIH); all 1,966 values of the Acre 1994
+      file are 0.00, the layout names no code for not recorded. As for VAL_SANGUE, the currency before 199501 is not reais
+      (unit_from); the 1994 values here are all zero.'
+  CGC_MANT:
+    review: draft
+    role: facility.maintainer_cnpj
+    kind: institution
+    model: mark
+    codelists:
+    - CNPJ_BR
+    name: CNPJ da mantenedora (name read from the column; no layout found)
+    years:
+    - 2004
+    - 2004
+    note: 'Held in the 2004 files only (the Acre 2004 file: 14-numeral CNPJ values, 00000000000000 in 671 of 3,449 rows). Not
+      in IT_SIHSUS_1603, GEOCOD_AIH, the TAB_SIH DEFs or the APAC manuals: the meaning (CGC of the maintainer, the entity that
+      keeps the hospital) is the name read, not a documented fact.'

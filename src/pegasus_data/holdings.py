@@ -3,10 +3,13 @@
 A store can be claimed and still invisible: the Census 2010 microdata is named by the commuting products, which read two
 of its hundreds of variables, so nothing a study scopes can reach the rest. ``holdings()`` lists every store of the home
 with the variables it physically holds (a lake partition's schema, a CSV's header, inside archives too) and those its
-describer names (the roles of a lake dataset, an intake source's declared columns, IBGE's tract dictionary). A variable
-held and undescribed, and a store whose variables nothing can list (a fixed-width file without a declared layout), are
-defects; ``check`` lists them. Built stores (fields, cubes, links, versions) are pegasus_data's own outputs, made from
-described inputs, and are classed, not counted.
+describer names (the roles of a lake dataset, an intake source's declared columns, the columns `published_tables.yml`
+lists for a raw registry file, IBGE's dictionaries, the layout sheets of a fixed-width record file). A variable held and
+undescribed, and a store whose variables nothing can list (a fixed-width file with no documented layout), are defects;
+``check`` lists them. Built stores are pegasus_data's own outputs, made from described inputs, and are classed, not
+counted: the lake's fields, cubes, links and versions, and the Parquet files of a registry store a product claims
+(`curation/products.yml` stores: the claiming products are the builders; the raw files beside them stay held). A text
+file with no header that is not fixed-width records (a leiame, a listing) and a documentation archive hold no variables.
 
 Reads headers and schemas only: no file is decoded whole.
 """
@@ -65,26 +68,39 @@ def _norm(name: str) -> str:
 
 
 def _header(first: bytes) -> list[str] | None:
-    """The column names of a delimited file's first line, or None when it is not one (fixed width, no header)."""
+    """The column names of a delimited file's header, or None when it has none (fixed width, no header). A file may open with
+    a line of its own before the header (ANAC's "Atualizado em: 2026-10-15"): up to three lines that name no columns are skipped."""
+    text = ""
     for enc in ("utf-8-sig", "latin-1"):
         try:
-            line = first.decode(enc).splitlines()[0] if first else ""
+            text = first.decode(enc)
             break
-        except (UnicodeDecodeError, IndexError):
-            line = ""
-    best: list[str] = []
-    for delim in (";", ",", "\t", "|"):
-        cols = next(csv.reader(io.StringIO(line), delimiter=delim), [])
-        if len(cols) > len(best):
-            best = cols
-    names = [_norm(c) for c in best]
-    # a header names its columns: three or more, none blank, not all numbers (a data row of a headerless file)
-    if len(names) < 3 or any(not n for n in names) or all(n.replace(".", "").replace("-", "").isdigit() for n in names):
-        return None
-    return names
+        except UnicodeDecodeError:
+            continue
+    for line in [ln for ln in text.splitlines() if ln.strip()][:4]:
+        best: list[str] = []
+        for delim in (";", ",", "\t", "|"):
+            cols = next(csv.reader(io.StringIO(line), delimiter=delim), [])
+            if len(cols) > len(best):
+                best = cols
+        names = [_norm(c) for c in best]
+        # a header names its columns: three or more, short, none blank, not all numbers (a data row of a headerless file)
+        if len(names) >= 3 and all(names) and max(map(len, names)) <= 60 and not all(n.replace(".", "").replace("-", "").isdigit() for n in names):
+            return names
+    return None
 
 
-def _file_variables(path: Path, notes: list[str]) -> set[str] | None:
+def _fixed_width(first: bytes) -> bool:
+    """Whether a headerless text file is fixed-width records (data) and not prose or a listing: at least ten lines and nine
+    in ten of one length."""
+    lines = [ln for ln in first.splitlines()[:-1] if ln.strip()]       # the last line may be cut by the read
+    if len(lines) < 10:
+        return False
+    common = max(set(map(len, lines)), key=list(map(len, lines)).count)
+    return common >= 20 and sum(len(ln) == common for ln in lines) >= 0.9 * len(lines)
+
+
+def _file_variables(path: Path, notes: list[str], layouts: dict[str, dict[str, Any]] | None = None) -> set[str] | None:
     """The variables a file holds; None when it holds data no reader here can list."""
     suffix = path.suffix.lower()
     if suffix == ".parquet":
@@ -93,16 +109,32 @@ def _file_variables(path: Path, notes: list[str]) -> set[str] | None:
         return {_norm(n) for n in pq.read_schema(path).names if not n.startswith("_")}
     if suffix in _DATA:
         with path.open("rb") as fh:
-            names = _header(fh.read(65536))
+            first = fh.read(65536)
+        names = _header(first)
+        if names is None and suffix == ".txt" and not _fixed_width(first):
+            return set()                         # prose or a listing (a leiame, a file list): documentation, no variables
         if names is None:
             notes.append(f"{path.name}: no header (fixed width or headerless)")
         return None if names is None else set(names)
     if suffix == ".zip":
-        return _zip_variables(path, notes)
+        if path.stem.lower().startswith("documenta"):
+            return set()                         # a store's documentation package: layouts, lists and manuals, no variables of its own
+        return _zip_variables(path, notes, layouts)
     return set()                                 # a document or sidecar: holds no variables of its own
 
 
-def _zip_variables(path: Path, notes: list[str]) -> set[str] | None:
+def _layout_variables(zf: zipfile.ZipFile, member: str, layouts: dict[str, dict[str, Any]]) -> set[str] | None:
+    """The variables of a fixed-width member a documented layout describes: the layout whose file stem the member's name carries,
+    when the record is as wide as the layout's last position (a line break aside). None when no layout fits."""
+    for stem, layout in layouts.items():
+        if stem.lower() in member.lower():
+            with zf.open(member) as fh:
+                width = len(fh.readline().rstrip(b"\r\n"))
+            return {_norm(v) for v in layout["variables"]} if width == layout["width"] else None
+    return None
+
+
+def _zip_variables(path: Path, notes: list[str], layouts: dict[str, dict[str, Any]] | None = None) -> set[str] | None:
     out: set[str] = set()
     opaque = False
     try:
@@ -116,7 +148,13 @@ def _zip_variables(path: Path, notes: list[str]) -> set[str] | None:
             if member.endswith("/") or "~$" in member or not low.endswith(_DATA):
                 continue
             with zf.open(member) as fh:
-                names = _header(fh.read(65536))
+                first = fh.read(65536)
+            names = _header(first)
+            if names is None and low.endswith(".txt") and not _fixed_width(first):
+                continue                         # documentation inside the archive
+            if names is None and layouts and (got := _layout_variables(zf, member, layouts)) is not None:
+                out |= got
+                continue
             if names is None:
                 opaque = True
                 notes.append(f"{path.name}!{member}: no header (fixed width or headerless)")
@@ -129,9 +167,11 @@ def _opaque(notes: list[str]) -> list[str]:
     return [n.split(": ", 1)[0] for n in notes if n.endswith("no header (fixed width or headerless)")]
 
 
-def _store_variables(folder: Path, notes: list[str]) -> set[str] | None:
+def _store_variables(folder: Path, notes: list[str], *, built_parquet: bool = False,
+                     layouts: dict[str, dict[str, Any]] | None = None) -> set[str] | None:
     """Every variable of every data file under ``folder`` (or the file itself); None if any data file is opaque and
-    nothing could be listed."""
+    nothing could be listed. ``built_parquet``: the store's Parquet files are builds of pegasus_data (classed, not held).
+    ``layouts``: documented layouts of fixed-width record files (`census_commuting.record_layouts`), read by file stem."""
     files = [folder] if folder.is_file() else [f for f in folder.rglob("*") if f.is_file()]
     held: set[str] = set()
     opaque = False
@@ -139,7 +179,9 @@ def _store_variables(folder: Path, notes: list[str]) -> set[str] | None:
     for f in sorted(files):
         if f.name.startswith(".") or (f.suffix.lower() in _DOCS and f.suffix.lower() != ".zip"):
             continue
-        got = _file_variables(f, notes)
+        if built_parquet and f.suffix.lower() == ".parquet":
+            continue
+        got = _file_variables(f, notes, layouts)
         if got is None:
             opaque = True
             continue
@@ -157,7 +199,14 @@ def _lake_families(settings: Any) -> list[Holding]:
     from .catalog.store import CatalogStore
     from .ontology import Ontology, dataset_key
     from .semantics.column_roles import roles as role_rows
+    from .semantics.intake_declarations import declared_sources
     onto = Ontology.load()
+    # an intake source (ADR-0162) describes the dataset it lands by its declared columns, beside any roles
+    declared: dict[str, tuple[str, set[str]]] = {}
+    for sname, spec in declared_sources().items():
+        if spec.get("system"):
+            declared[dataset_key(f"{spec['system']}.{spec['series']}")] = (
+                sname, {_norm(c) for c in (spec.get("columns") or {})})
     store = CatalogStore(settings.catalog_path, read_only=True)
     try:
         fams = [dict(r) for r in store.query(
@@ -178,8 +227,10 @@ def _lake_families(settings: Any) -> list[Holding]:
                 rows = role_rows(code)             # resolves the dataset's spellings (CIHA.CIHA: roles keyed CIHA)
             except KeyError:
                 rows = []
-            by_ds[key] = Holding(f"lake/{fam['system']} ({code})", "record dataset", f"roles:{key}" if rows else None,
-                                 described={_norm(str(r["column"])) for r in rows})
+            intake = declared.get(key)
+            who = [d for d in (f"roles:{key}" if rows else None, f"intake:{intake[0]}" if intake else None) if d]
+            by_ds[key] = Holding(f"lake/{fam['system']} ({code})", "record dataset", "+".join(who) or None,
+                                 described={_norm(str(r["column"])) for r in rows} | (intake[1] if intake else set()))
         h = by_ds[key]
         path = Path(settings.lake_dir) / fam["path"]
         try:
@@ -192,27 +243,45 @@ def _lake_families(settings: Any) -> list[Holding]:
     return list(by_ds.values())
 
 
-def _registry_describer(name: str, sources: dict[str, dict]) -> tuple[str | None, set[str]]:
-    """Who describes ``registries/<name>`` and the variables it names."""
+def _registry_describer(name: str, sources: dict[str, dict]) -> tuple[str | None, set[str], bool]:
+    """Who describes ``registries/<name>``, the variables it names, and whether the store's Parquet files are builds.
+
+    * an intake source (ADR-0162): its declared columns;
+    * a published table declared in ``curation/published_tables.yml`` (`registry_columns`): the columns that
+      declaration lists, each from the source's own documentation (IBGE's tract dictionary and the identity columns of
+      its mesh, for ``ibge_tracts``);
+    * a product (``curation/products.yml`` stores): the store's Parquet files are its builds, made by pegasus_data from
+      the described files beside them, so they are classed, not counted; the products that read the store are the builders.
+    """
+    parts: list[str] = []
+    described: set[str] = set()
     if name in sources:
-        return f"intake:{name}", {_norm(c) for c in (sources[name].get("columns") or {})}
+        parts.append(f"intake:{name}")
+        described |= {_norm(c) for c in (sources[name].get("columns") or {})}
+    else:
+        family = [s for s in sources if s.split("_", 1)[0] == name]
+        if family:
+            parts.append(f"intake:{'+'.join(family)} (shared documents)")
     if name == "ibge_tracts":
-        from .sources.ibge_tracts import tract_dictionary
+        from .sources.ibge_tracts import described_columns, tract_dictionary
 
         try:
-            names = {_norm(v) for v in tract_dictionary().column("variable").to_pylist()}
+            described |= {_norm(v) for v in tract_dictionary().column("variable").to_pylist()}
         except Exception:  # noqa: BLE001 - the dictionary is itself a holding; without it the variables are undescribed
-            names = set()
-        return "tract_dictionary", names
-    family = [s for s in sources if s.split("_", 1)[0] == name]
-    if family:
-        return f"intake:{'+'.join(family)} (shared documents)", set()
-    claims = _product_claims()
-    if name.lower() in claims:
-        # a product reads the store (`curation/products.yml` stores): it is claimed, but a product names what it serves,
-        # not the store's variables, so those stay undescribed until a declaration lists them
-        return "product:" + "+".join(sorted(claims[name.lower()])), set()
-    return None, set()
+            pass
+        described |= described_columns()
+        parts.append("tract_dictionary+published_tables")
+    else:
+        from .semantics.curation import declared
+
+        listed = (declared("published_tables.yml", "registry_columns") or {}).get(name.lower())
+        if listed:
+            parts.append(f"published_tables:{name.lower()}")
+            described |= {_norm(c) for c in (listed.get("columns") or {})}
+    claims = _product_claims().get(name.lower())
+    if claims:
+        parts.append("built by " + "+".join(sorted(claims)))
+    return ("; ".join(parts) or None), described, bool(claims) and name not in sources
 
 
 def _product_claims() -> dict[str, set[str]]:
@@ -244,29 +313,42 @@ def holdings(settings: Any | None = None, *, root: str | Path | None = None) -> 
     out = _lake_families(cfg)
     systems = {h.store.split(" ", 1)[0].split("/", 1)[1] for h in out}
     lake = Path(cfg.lake_dir)
+    sources = declared_sources()
     for path in sorted(lake.iterdir()) if lake.is_dir() else ():
         if path.name.startswith(".") or path.name in systems:
             continue
-        out.append(Holding(f"lake/{path.name}", "built" if path.name in BUILT else "registry",
-                           "pegasus_data (built)" if path.name in BUILT else None,
-                           None if path.name not in BUILT else set()))
-        if path.name not in BUILT:
-            h = out[-1]
+        built = path.name in BUILT
+        # a lake folder an intake source lands (SNGPC: its sources' own system is not in the catalog's families)
+        landed = {n: s for n, s in sources.items() if str(s.get("system") or "").lower() == path.name.lower()}
+        h = Holding(f"lake/{path.name}", "built" if built else "intake source" if landed else "registry",
+                    "pegasus_data (built)" if built else "intake:" + "+".join(landed) if landed else None,
+                    set(), {_norm(c) for s in landed.values() for c in (s.get("columns") or {})})
+        out.append(h)
+        if not built:
             h.held = _store_variables(path, h.notes)
             h.opaque_files = _opaque(h.notes)
-            h.notes.append("a lake folder that is neither a record system nor a known build")
-    sources = declared_sources()
+            if not landed:
+                h.notes.append("a lake folder that is neither a record system nor a known build")
     reg = Path(cfg.registries_dir)
     seen: set[str] = set()
     for path in sorted(reg.iterdir()) if reg.is_dir() else ():
         if path.name.startswith(".") or path.name.lower() in seen:
             continue                              # a folder spelled twice (registries/CNES, registries/cnes)
         seen.add(path.name.lower())
-        describer, described = _registry_describer(path.name, sources)
+        describer, described, built = _registry_describer(path.name, sources)
         notes: list[str] = []
         raw = path / "raw" if (path / "raw").is_dir() else path
+        layouts = None
+        if path.name == "census2010_microdata":
+            # fixed-width records: the layout sheets of the held documentation name and describe every variable
+            from .sources.census_commuting import record_layouts
+
+            layouts = record_layouts(root=root)
+            described = described | {_norm(v) for lay in layouts.values() for v in lay["variables"]}
+            describer = "; ".join(filter(None, [describer, "layout:Layout_microdados_Amostra.xls (Documentacao.zip)"]))
         h = Holding(f"registries/{path.name}", "intake source" if describer and describer.startswith("intake:")
-                    else "registry", describer, _store_variables(raw, notes), described, notes, _opaque(notes))
+                    else "registry", describer, _store_variables(raw, notes, built_parquet=built, layouts=layouts), described, notes,
+                    _opaque(notes))
         out.append(h)
     return out
 

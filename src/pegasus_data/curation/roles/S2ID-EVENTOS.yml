@@ -1,5 +1,5 @@
 # S2iD, disasters registered by municipalities since 1991: one row per municipal event (intake source s2id).
-# Meaning from the MIDR/SEDEC 'Dicionário de Dados - Reconhecimento Federal - Relatório Gerencial - Dados informados' (updated 2021-10-13, https://dadosabertos.mdr.gov.br/dataset/1aabd419-5677-4fa2-a0e3-a1a3e1a42234), whose column names are the 2021 file's; the file of 2026 (70 columns, 76,190 rows) was read. These 15 columns are the ones pegasus_data declares and reads; the others are landed as filed, undeclared.
+# Meaning from the MIDR/SEDEC 'Dicionário de Dados - Reconhecimento Federal - Relatório Gerencial - Dados informados' (updated 2021-10-13, https://dadosabertos.mdr.gov.br/dataset/1aabd419-5677-4fa2-a0e3-a1a3e1a42234), whose column names are the 2021 file's; the file of 2026 (70 columns, 76,190 rows) was read. The 15 first columns are the ones pegasus_data declares and reads; the 55 after them are described from the same dictionary where it names them (the 2026 file abbreviates the names of the 2021 dictionary), and `review: draft` where it does not.
 dataset: S2ID-EVENTOS
 record: disaster
 columns:
@@ -221,3 +221,686 @@ columns:
     - 2025
     note: Registro (40,582 of 76,190 events) or Reconhecido (35,608) in the file read; 'referência para situação atual do
       processo' (dictionary).
+  DM_UNI HABITA DANIFICADAS:
+    role: disaster.housing_units_damaged
+    kind: number
+    model: mark
+    missing_unknown: the dictionary names no code for a count that was not filled
+    unit: count
+    unit_of: unidades habitacionais damaged by the disaster, as the municipality reported it
+    unit_evidence: 'MIDR/SEDEC ''Dicionário de Dados - Reconhecimento Federal - Relatório Gerencial - Dados informados'' (updated
+      2021-10-13, https://dadosabertos.mdr.gov.br/dataset/1aabd419-5677-4fa2-a0e3-a1a3e1a42234): DM_Unidades Habitacionais Danificadas
+      ''quantidade de ... danificadas pelo desastre'''
+    name: Danos Materiais - Unidades Habitacionais Danificadas
+    years: &id001
+    - 1991
+    - 2025
+    note: The 2026 file spells the column in abbreviated form; the dictionary (2021 file) names it 'DM_Unidades Habitacionais
+      Danificadas'. Matched by the words of the name. A count of the things named, as the municipality reports it.
+  DM_UNI HABITA DESTRUIDAS:
+    role: disaster.housing_units_destroyed
+    kind: number
+    model: mark
+    missing_unknown: the dictionary names no code for a count that was not filled
+    unit: count
+    unit_of: unidades habitacionais destroyed by the disaster, as the municipality reported it
+    unit_evidence: 'MIDR/SEDEC ''Dicionário de Dados - Reconhecimento Federal - Relatório Gerencial - Dados informados'' (updated
+      2021-10-13, https://dadosabertos.mdr.gov.br/dataset/1aabd419-5677-4fa2-a0e3-a1a3e1a42234): DM_Unidades Habitacionais Destruídas
+      ''quantidade de ... destruídas pelo desastre'''
+    name: Danos Materiais - Unidades Habitacionais Destruídas
+    years: *id001
+    note: The 2026 file spells the column in abbreviated form; the dictionary (2021 file) names it 'DM_Unidades Habitacionais
+      Destruídas'. Matched by the words of the name. A count of the things named, as the municipality reports it.
+  DM_UNI HABITA VALOR:
+    role: disaster.housing_units_value
+    kind: number
+    model: mark
+    missing_unknown: the dictionary names no code for a value that was not filled
+    unit_unknown: the dictionary says 'estimativa de valores' and names no currency or price month for Danos Materiais
+    name: Danos Materiais - Unidades Habitacionais Valor
+    years: *id001
+    note: The 2026 file spells the column in abbreviated form; the dictionary (2021 file) names it 'DM_Unidades Habitacionais
+      Valor'. Matched by the words of the name. 'Estimativa de valores' of the damage; the dictionary does not name the currency
+      (string with two decimals in the file).
+  DM_INST SAÚDE DANIFICADAS:
+    role: disaster.health_facilities_damaged
+    kind: number
+    model: mark
+    missing_unknown: the dictionary names no code for a count that was not filled
+    unit: count
+    unit_of: instalações públicas de saúde damaged by the disaster, as the municipality reported it
+    unit_evidence: 'MIDR/SEDEC ''Dicionário de Dados - Reconhecimento Federal - Relatório Gerencial - Dados informados'' (updated
+      2021-10-13, https://dadosabertos.mdr.gov.br/dataset/1aabd419-5677-4fa2-a0e3-a1a3e1a42234): DM_Instalações públicas de
+      saúde Danificadas ''quantidade de ... danificadas pelo desastre'''
+    name: Danos Materiais - Instalações públicas de saúde Danificadas
+    years: *id001
+    note: The 2026 file spells the column in abbreviated form; the dictionary (2021 file) names it 'DM_Instalações públicas
+      de saúde Danificadas'. Matched by the words of the name. A count of the things named, as the municipality reports it.
+  DM_INST SAÚDE DESTRUIDAS:
+    role: disaster.health_facilities_destroyed
+    kind: number
+    model: mark
+    missing_unknown: the dictionary names no code for a count that was not filled
+    unit: count
+    unit_of: instalações públicas de saúde destroyed by the disaster, as the municipality reported it
+    unit_evidence: 'MIDR/SEDEC ''Dicionário de Dados - Reconhecimento Federal - Relatório Gerencial - Dados informados'' (updated
+      2021-10-13, https://dadosabertos.mdr.gov.br/dataset/1aabd419-5677-4fa2-a0e3-a1a3e1a42234): DM_Instalações públicas de
+      saúde Destruídas ''quantidade de ... destruídas pelo desastre'''
+    name: Danos Materiais - Instalações públicas de saúde Destruídas
+    years: *id001
+    note: The 2026 file spells the column in abbreviated form; the dictionary (2021 file) names it 'DM_Instalações públicas
+      de saúde Destruídas'. Matched by the words of the name. A count of the things named, as the municipality reports it.
+  DM_INST SAÚDE VALOR:
+    role: disaster.health_facilities_value
+    kind: number
+    model: mark
+    missing_unknown: the dictionary names no code for a value that was not filled
+    unit_unknown: the dictionary says 'estimativa de valores' and names no currency or price month for Danos Materiais
+    name: Danos Materiais - Instalações públicas de saúde Valor
+    years: *id001
+    note: The 2026 file spells the column in abbreviated form; the dictionary (2021 file) names it 'DM_Instalações públicas
+      de saúde Valor'. Matched by the words of the name. 'Estimativa de valores' of the damage; the dictionary does not name
+      the currency (string with two decimals in the file).
+  DM_INST ENSINO DANIFICADAS:
+    role: disaster.school_facilities_damaged
+    kind: number
+    model: mark
+    missing_unknown: the dictionary names no code for a count that was not filled
+    unit: count
+    unit_of: instalações públicas de ensino damaged by the disaster, as the municipality reported it
+    unit_evidence: 'MIDR/SEDEC ''Dicionário de Dados - Reconhecimento Federal - Relatório Gerencial - Dados informados'' (updated
+      2021-10-13, https://dadosabertos.mdr.gov.br/dataset/1aabd419-5677-4fa2-a0e3-a1a3e1a42234): DM_Instalações públicas de
+      ensino Danificadas ''quantidade de ... danificadas pelo desastre'''
+    name: Danos Materiais - Instalações públicas de ensino Danificadas
+    years: *id001
+    note: The 2026 file spells the column in abbreviated form; the dictionary (2021 file) names it 'DM_Instalações públicas
+      de ensino Danificadas'. Matched by the words of the name. A count of the things named, as the municipality reports it.
+  DM_INST ENSINO DESTRUIDAS:
+    role: disaster.school_facilities_destroyed
+    kind: number
+    model: mark
+    missing_unknown: the dictionary names no code for a count that was not filled
+    unit: count
+    unit_of: instalações públicas de ensino destroyed by the disaster, as the municipality reported it
+    unit_evidence: 'MIDR/SEDEC ''Dicionário de Dados - Reconhecimento Federal - Relatório Gerencial - Dados informados'' (updated
+      2021-10-13, https://dadosabertos.mdr.gov.br/dataset/1aabd419-5677-4fa2-a0e3-a1a3e1a42234): DM_Instalações públicas de
+      ensino Destruídas ''quantidade de ... destruídas pelo desastre'''
+    name: Danos Materiais - Instalações públicas de ensino Destruídas
+    years: *id001
+    note: The 2026 file spells the column in abbreviated form; the dictionary (2021 file) names it 'DM_Instalações públicas
+      de ensino Destruídas'. Matched by the words of the name. A count of the things named, as the municipality reports it.
+  DM_INST ENSINO VALOR:
+    role: disaster.school_facilities_value
+    kind: number
+    model: mark
+    missing_unknown: the dictionary names no code for a value that was not filled
+    unit_unknown: the dictionary says 'estimativa de valores' and names no currency or price month for Danos Materiais
+    name: Danos Materiais - Instalações públicas de ensino Valor
+    years: *id001
+    note: The 2026 file spells the column in abbreviated form; the dictionary (2021 file) names it 'DM_Instalações públicas
+      de ensino Valor'. Matched by the words of the name. 'Estimativa de valores' of the damage; the dictionary does not name
+      the currency (string with two decimals in the file).
+  DM_INST SERVIÇOS DANIFICADAS:
+    role: disaster.service_facilities_damaged
+    kind: number
+    model: mark
+    missing_unknown: the dictionary names no code for a count that was not filled
+    unit: count
+    unit_of: instalações públicas prestadoras de outros serviços damaged by the disaster, as the municipality reported it
+    unit_evidence: 'MIDR/SEDEC ''Dicionário de Dados - Reconhecimento Federal - Relatório Gerencial - Dados informados'' (updated
+      2021-10-13, https://dadosabertos.mdr.gov.br/dataset/1aabd419-5677-4fa2-a0e3-a1a3e1a42234): DM_Instalações públicas prestadoras
+      de outros serviços Danificadas ''quantidade de ... danificadas pelo desastre'''
+    name: Danos Materiais - Instalações públicas prestadoras de outros serviços Danificadas
+    years: *id001
+    note: The 2026 file spells the column in abbreviated form; the dictionary (2021 file) names it 'DM_Instalações públicas
+      prestadoras de outros serviços Danificadas'. Matched by the words of the name. A count of the things named, as the municipality
+      reports it.
+  DM_INST SERVIÇOS DESTRUIDAS:
+    role: disaster.service_facilities_destroyed
+    kind: number
+    model: mark
+    missing_unknown: the dictionary names no code for a count that was not filled
+    unit: count
+    unit_of: instalações públicas prestadoras de outros serviços destroyed by the disaster, as the municipality reported it
+    unit_evidence: 'MIDR/SEDEC ''Dicionário de Dados - Reconhecimento Federal - Relatório Gerencial - Dados informados'' (updated
+      2021-10-13, https://dadosabertos.mdr.gov.br/dataset/1aabd419-5677-4fa2-a0e3-a1a3e1a42234): DM_Instalações públicas prestadoras
+      de outros serviços Destruídas ''quantidade de ... destruídas pelo desastre'''
+    name: Danos Materiais - Instalações públicas prestadoras de outros serviços Destruídas
+    years: *id001
+    note: The 2026 file spells the column in abbreviated form; the dictionary (2021 file) names it 'DM_Instalações públicas
+      prestadoras de outros serviços Destruídas'. Matched by the words of the name. A count of the things named, as the municipality
+      reports it.
+  DM_INST SERVIÇOS VALOR:
+    role: disaster.service_facilities_value
+    kind: number
+    model: mark
+    missing_unknown: the dictionary names no code for a value that was not filled
+    unit_unknown: the dictionary says 'estimativa de valores' and names no currency or price month for Danos Materiais
+    name: Danos Materiais - Instalações públicas prestadoras de outros serviços Valor
+    years: *id001
+    note: The 2026 file spells the column in abbreviated form; the dictionary (2021 file) names it 'DM_Instalações públicas
+      prestadoras de outros serviços Valor'. Matched by the words of the name. 'Estimativa de valores' of the damage; the dictionary
+      does not name the currency (string with two decimals in the file).
+  DM_INST COMUNI DANIFICADAS:
+    role: disaster.community_facilities_damaged
+    kind: number
+    model: mark
+    missing_unknown: the dictionary names no code for a count that was not filled
+    unit: count
+    unit_of: instalações públicas de uso comunitário damaged by the disaster, as the municipality reported it
+    unit_evidence: 'MIDR/SEDEC ''Dicionário de Dados - Reconhecimento Federal - Relatório Gerencial - Dados informados'' (updated
+      2021-10-13, https://dadosabertos.mdr.gov.br/dataset/1aabd419-5677-4fa2-a0e3-a1a3e1a42234): DM_Instalações públicas de
+      uso comunitário Danificadas ''quantidade de ... danificadas pelo desastre'''
+    name: Danos Materiais - Instalações públicas de uso comunitário Danificadas
+    years: *id001
+    note: The 2026 file spells the column in abbreviated form; the dictionary (2021 file) names it 'DM_Instalações públicas
+      de uso comunitário Danificadas'. Matched by the words of the name. A count of the things named, as the municipality reports
+      it.
+  DM_INST COMUNI DESTRUIDAS:
+    role: disaster.community_facilities_destroyed
+    kind: number
+    model: mark
+    missing_unknown: the dictionary names no code for a count that was not filled
+    unit: count
+    unit_of: instalações públicas de uso comunitário destroyed by the disaster, as the municipality reported it
+    unit_evidence: 'MIDR/SEDEC ''Dicionário de Dados - Reconhecimento Federal - Relatório Gerencial - Dados informados'' (updated
+      2021-10-13, https://dadosabertos.mdr.gov.br/dataset/1aabd419-5677-4fa2-a0e3-a1a3e1a42234): DM_Instalações públicas de
+      uso comunitário Destruídas ''quantidade de ... destruídas pelo desastre'''
+    name: Danos Materiais - Instalações públicas de uso comunitário Destruídas
+    years: *id001
+    note: The 2026 file spells the column in abbreviated form; the dictionary (2021 file) names it 'DM_Instalações públicas
+      de uso comunitário Destruídas'. Matched by the words of the name. A count of the things named, as the municipality reports
+      it.
+  DM_INST COMUNI VALOR:
+    role: disaster.community_facilities_value
+    kind: number
+    model: mark
+    missing_unknown: the dictionary names no code for a value that was not filled
+    unit_unknown: the dictionary says 'estimativa de valores' and names no currency or price month for Danos Materiais
+    name: Danos Materiais - Instalações públicas de uso comunitário Valor
+    years: *id001
+    note: The 2026 file spells the column in abbreviated form; the dictionary (2021 file) names it 'DM_Instalações públicas
+      de uso comunitário Valor'. Matched by the words of the name. 'Estimativa de valores' of the damage; the dictionary does
+      not name the currency (string with two decimals in the file).
+  DM_OBRAS DE INFRA DANIFICADAS:
+    role: disaster.infrastructure_works_damaged
+    kind: number
+    model: mark
+    missing_unknown: the dictionary names no code for a count that was not filled
+    unit: count
+    unit_of: obras de infraestrutura pública damaged by the disaster, as the municipality reported it
+    unit_evidence: 'MIDR/SEDEC ''Dicionário de Dados - Reconhecimento Federal - Relatório Gerencial - Dados informados'' (updated
+      2021-10-13, https://dadosabertos.mdr.gov.br/dataset/1aabd419-5677-4fa2-a0e3-a1a3e1a42234): DM_Obras de infraestrutura
+      pública Danificadas ''quantidade de ... danificadas pelo desastre'''
+    name: Danos Materiais - Obras de infraestrutura pública Danificadas
+    years: *id001
+    note: The 2026 file spells the column in abbreviated form; the dictionary (2021 file) names it 'DM_Obras de infraestrutura
+      pública Danificadas'. Matched by the words of the name. A count of the things named, as the municipality reports it.
+  DM_OBRAS DE INFRA DESTRUIDAS:
+    role: disaster.infrastructure_works_destroyed
+    kind: number
+    model: mark
+    missing_unknown: the dictionary names no code for a count that was not filled
+    unit: count
+    unit_of: obras de infraestrutura pública destroyed by the disaster, as the municipality reported it
+    unit_evidence: 'MIDR/SEDEC ''Dicionário de Dados - Reconhecimento Federal - Relatório Gerencial - Dados informados'' (updated
+      2021-10-13, https://dadosabertos.mdr.gov.br/dataset/1aabd419-5677-4fa2-a0e3-a1a3e1a42234): DM_Obras de infraestrutura
+      pública Destruídas ''quantidade de ... destruídas pelo desastre'''
+    name: Danos Materiais - Obras de infraestrutura pública Destruídas
+    years: *id001
+    note: The 2026 file spells the column in abbreviated form; the dictionary (2021 file) names it 'DM_Obras de infraestrutura
+      pública Destruídas'. Matched by the words of the name. A count of the things named, as the municipality reports it.
+  DM_OBRAS DE INFRA VALOR:
+    role: disaster.infrastructure_works_value
+    kind: number
+    model: mark
+    missing_unknown: the dictionary names no code for a value that was not filled
+    unit_unknown: the dictionary says 'estimativa de valores' and names no currency or price month for Danos Materiais
+    name: Danos Materiais - Obras de infraestrutura pública Valor
+    years: *id001
+    note: The 2026 file spells the column in abbreviated form; the dictionary (2021 file) names it 'DM_Obras de infraestrutura
+      pública Valor'. Matched by the words of the name. 'Estimativa de valores' of the damage; the dictionary does not name
+      the currency (string with two decimals in the file).
+  DM_TOTAL_DANOS_MATERIAIS:
+    role: disaster.material_damage_total
+    kind: number
+    model: mark
+    missing_unknown: no documentation names the total's missing codes
+    unit_unknown: not in the dictionary; the six values it totals have no stated currency
+    name: Total dos danos materiais
+    years: *id001
+    note: Not in the dictionary; the sum of the six material-damage values is what the name says, not verified here.
+    review: draft
+  DH_TOTAL_DANOS_HUMANOS_DIRETOS:
+    role: disaster.human_damage_total
+    kind: number
+    model: mark
+    missing_unknown: no documentation names the total's missing codes
+    fact_domain: person
+    fact_domain_evidence: 'the name: total of direct human damage, a count of persons (dictionary silent on the column)'
+    unit: count
+    unit_of: people directly damaged, as the municipality reported it
+    unit_evidence: the column's name; not in the dictionary
+    name: Total de danos humanos diretos
+    years: *id001
+    note: Not in the dictionary; which of the human-damage columns it totals is not documented.
+    review: draft
+  PEPL_ASSIS_MÉD E EMERGÊN(R$):
+    role: disaster.public_loss_health
+    kind: number
+    model: mark
+    unit_evidence: 'MIDR/SEDEC ''Dicionário de Dados - Reconhecimento Federal - Relatório Gerencial - Dados informados'' (updated
+      2021-10-13, https://dadosabertos.mdr.gov.br/dataset/1aabd419-5677-4fa2-a0e3-a1a3e1a42234): PEPL_Assistência médica, saúde
+      pública e atendimento de emergências médicas (R$) ''valor estimado de prejuízos econômicos públicos'''
+    missing_unknown: the dictionary names no code for a value that was not filled
+    unit: BRL
+    competence: &id002
+    - Data_Evento
+    name: Prejuízos Econômicos Públicos - Assistência médica, saúde pública e atendimento de emergências médicas
+    years: *id001
+    note: The 2026 file spells the column in abbreviated form; the dictionary (2021 file) names it 'PEPL_Assistência médica,
+      saúde pública e atendimento de emergências médicas (R$)'. Matched by the words of the name. Estimated value of the public
+      economic loss in the essential service, in R$ (dictionary); dated by the event's date.
+  PEPL_ABAST DE ÁGUA POT(R$):
+    role: disaster.public_loss_water
+    kind: number
+    model: mark
+    unit_evidence: 'MIDR/SEDEC ''Dicionário de Dados - Reconhecimento Federal - Relatório Gerencial - Dados informados'' (updated
+      2021-10-13, https://dadosabertos.mdr.gov.br/dataset/1aabd419-5677-4fa2-a0e3-a1a3e1a42234): PEPL_Abastecimento de água
+      potável (R$) ''valor estimado de prejuízos econômicos públicos'''
+    missing_unknown: the dictionary names no code for a value that was not filled
+    unit: BRL
+    competence: *id002
+    name: Prejuízos Econômicos Públicos - Abastecimento de água potável
+    years: *id001
+    note: The 2026 file spells the column in abbreviated form; the dictionary (2021 file) names it 'PEPL_Abastecimento de água
+      potável (R$)'. Matched by the words of the name. Estimated value of the public economic loss in the essential service,
+      in R$ (dictionary); dated by the event's date.
+  PEPL_SIST DE ESGOTOS SANIT(R$):
+    role: disaster.public_loss_sewage
+    kind: number
+    model: mark
+    unit_evidence: 'MIDR/SEDEC ''Dicionário de Dados - Reconhecimento Federal - Relatório Gerencial - Dados informados'' (updated
+      2021-10-13, https://dadosabertos.mdr.gov.br/dataset/1aabd419-5677-4fa2-a0e3-a1a3e1a42234): PEPL_Esgoto de águas pluviais
+      e sistema de esgotos sanitários (R$) ''valor estimado de prejuízos econômicos públicos'''
+    missing_unknown: the dictionary names no code for a value that was not filled
+    unit: BRL
+    competence: *id002
+    name: Prejuízos Econômicos Públicos - Esgoto de águas pluviais e sistema de esgotos sanitários
+    years: *id001
+    note: The 2026 file spells the column in abbreviated form; the dictionary (2021 file) names it 'PEPL_Esgoto de águas pluviais
+      e sistema de esgotos sanitários (R$)'. Matched by the words of the name. Estimated value of the public economic loss in
+      the essential service, in R$ (dictionary); dated by the event's date.
+  PEPL_SIS LIMP E REC LIXO (R$):
+    role: disaster.public_loss_waste
+    kind: number
+    model: mark
+    unit_evidence: 'MIDR/SEDEC ''Dicionário de Dados - Reconhecimento Federal - Relatório Gerencial - Dados informados'' (updated
+      2021-10-13, https://dadosabertos.mdr.gov.br/dataset/1aabd419-5677-4fa2-a0e3-a1a3e1a42234): PEPL_Sistema de limpeza urbana
+      e de recolhimento e destinação do lixo (R$) ''valor estimado de prejuízos econômicos públicos'''
+    missing_unknown: the dictionary names no code for a value that was not filled
+    unit: BRL
+    competence: *id002
+    name: Prejuízos Econômicos Públicos - Sistema de limpeza urbana e de recolhimento e destinação do lixo
+    years: *id001
+    note: The 2026 file spells the column in abbreviated form; the dictionary (2021 file) names it 'PEPL_Sistema de limpeza
+      urbana e de recolhimento e destinação do lixo (R$)'. Matched by the words of the name. Estimated value of the public economic
+      loss in the essential service, in R$ (dictionary); dated by the event's date.
+  PEPL_SIS CONT PRAGAS (R$):
+    role: disaster.public_loss_pest_control
+    kind: number
+    model: mark
+    unit_evidence: 'MIDR/SEDEC ''Dicionário de Dados - Reconhecimento Federal - Relatório Gerencial - Dados informados'' (updated
+      2021-10-13, https://dadosabertos.mdr.gov.br/dataset/1aabd419-5677-4fa2-a0e3-a1a3e1a42234): PEPL_Sistema de desinfestação/desinfecção
+      do habitat/controle de pragas e vetores (R$) ''valor estimado de prejuízos econômicos públicos'''
+    missing_unknown: the dictionary names no code for a value that was not filled
+    unit: BRL
+    competence: *id002
+    name: Prejuízos Econômicos Públicos - Sistema de desinfestação/desinfecção do habitat/controle de pragas e vetores
+    years: *id001
+    note: The 2026 file spells the column in abbreviated form; the dictionary (2021 file) names it 'PEPL_Sistema de desinfestação/desinfecção
+      do habitat/controle de pragas e vetores (R$)'. Matched by the words of the name. Estimated value of the public economic
+      loss in the essential service, in R$ (dictionary); dated by the event's date.
+  PEPL_DISTRIB ENERGIA (R$):
+    role: disaster.public_loss_energy
+    kind: number
+    model: mark
+    unit_evidence: 'MIDR/SEDEC ''Dicionário de Dados - Reconhecimento Federal - Relatório Gerencial - Dados informados'' (updated
+      2021-10-13, https://dadosabertos.mdr.gov.br/dataset/1aabd419-5677-4fa2-a0e3-a1a3e1a42234): PEPL_Geração e distribuição
+      de energia elétrica (R$) ''valor estimado de prejuízos econômicos públicos'''
+    missing_unknown: the dictionary names no code for a value that was not filled
+    unit: BRL
+    competence: *id002
+    name: Prejuízos Econômicos Públicos - Geração e distribuição de energia elétrica
+    years: *id001
+    note: The 2026 file spells the column in abbreviated form; the dictionary (2021 file) names it 'PEPL_Geração e distribuição
+      de energia elétrica (R$)'. Matched by the words of the name. Estimated value of the public economic loss in the essential
+      service, in R$ (dictionary); dated by the event's date.
+  PEPL_TELECOMUNICAÇÕES (R$):
+    role: disaster.public_loss_telecom
+    kind: number
+    model: mark
+    unit_evidence: 'MIDR/SEDEC ''Dicionário de Dados - Reconhecimento Federal - Relatório Gerencial - Dados informados'' (updated
+      2021-10-13, https://dadosabertos.mdr.gov.br/dataset/1aabd419-5677-4fa2-a0e3-a1a3e1a42234): PEPL_Telecomunicações (R$)
+      ''valor estimado de prejuízos econômicos públicos'''
+    missing_unknown: the dictionary names no code for a value that was not filled
+    unit: BRL
+    competence: *id002
+    name: Prejuízos Econômicos Públicos - Telecomunicações
+    years: *id001
+    note: The 2026 file spells the column in abbreviated form; the dictionary (2021 file) names it 'PEPL_Telecomunicações (R$)'.
+      Matched by the words of the name. Estimated value of the public economic loss in the essential service, in R$ (dictionary);
+      dated by the event's date.
+  PEPL_TRAN LOC/REG/L_CURSO (R$):
+    role: disaster.public_loss_transport
+    kind: number
+    model: mark
+    unit_evidence: 'MIDR/SEDEC ''Dicionário de Dados - Reconhecimento Federal - Relatório Gerencial - Dados informados'' (updated
+      2021-10-13, https://dadosabertos.mdr.gov.br/dataset/1aabd419-5677-4fa2-a0e3-a1a3e1a42234): PEPL_Transportes locais, regionais
+      e de longo curso (R$) ''valor estimado de prejuízos econômicos públicos'''
+    missing_unknown: the dictionary names no code for a value that was not filled
+    unit: BRL
+    competence: *id002
+    name: Prejuízos Econômicos Públicos - Transportes locais, regionais e de longo curso
+    years: *id001
+    note: The 2026 file spells the column in abbreviated form; the dictionary (2021 file) names it 'PEPL_Transportes locais,
+      regionais e de longo curso (R$)'. Matched by the words of the name. Estimated value of the public economic loss in the
+      essential service, in R$ (dictionary); dated by the event's date.
+  PEPL_DISTRIB COMBUSTÍVEIS(R$):
+    role: disaster.public_loss_fuel
+    kind: number
+    model: mark
+    unit_evidence: 'MIDR/SEDEC ''Dicionário de Dados - Reconhecimento Federal - Relatório Gerencial - Dados informados'' (updated
+      2021-10-13, https://dadosabertos.mdr.gov.br/dataset/1aabd419-5677-4fa2-a0e3-a1a3e1a42234): PEPL_Distribuição de combustíveis,
+      especialmente os de uso doméstico (R$) ''valor estimado de prejuízos econômicos públicos'''
+    missing_unknown: the dictionary names no code for a value that was not filled
+    unit: BRL
+    competence: *id002
+    name: Prejuízos Econômicos Públicos - Distribuição de combustíveis, especialmente os de uso doméstico
+    years: *id001
+    note: The 2026 file spells the column in abbreviated form; the dictionary (2021 file) names it 'PEPL_Distribuição de combustíveis,
+      especialmente os de uso doméstico (R$)'. Matched by the words of the name. Estimated value of the public economic loss
+      in the essential service, in R$ (dictionary); dated by the event's date.
+  PEPL_SEGURANÇA PÚBLICA (R$):
+    role: disaster.public_loss_security
+    kind: number
+    model: mark
+    unit_evidence: 'MIDR/SEDEC ''Dicionário de Dados - Reconhecimento Federal - Relatório Gerencial - Dados informados'' (updated
+      2021-10-13, https://dadosabertos.mdr.gov.br/dataset/1aabd419-5677-4fa2-a0e3-a1a3e1a42234): PEPL_Segurança pública (R$)
+      ''valor estimado de prejuízos econômicos públicos'''
+    missing_unknown: the dictionary names no code for a value that was not filled
+    unit: BRL
+    competence: *id002
+    name: Prejuízos Econômicos Públicos - Segurança pública
+    years: *id001
+    note: The 2026 file spells the column in abbreviated form; the dictionary (2021 file) names it 'PEPL_Segurança pública (R$)'.
+      Matched by the words of the name. Estimated value of the public economic loss in the essential service, in R$ (dictionary);
+      dated by the event's date.
+  PEPL_ENSINO (R$):
+    role: disaster.public_loss_education
+    kind: number
+    model: mark
+    unit_evidence: 'MIDR/SEDEC ''Dicionário de Dados - Reconhecimento Federal - Relatório Gerencial - Dados informados'' (updated
+      2021-10-13, https://dadosabertos.mdr.gov.br/dataset/1aabd419-5677-4fa2-a0e3-a1a3e1a42234): PEPL_Ensino (R$) ''valor estimado
+      de prejuízos econômicos públicos'''
+    missing_unknown: the dictionary names no code for a value that was not filled
+    unit: BRL
+    competence: *id002
+    name: Prejuízos Econômicos Públicos - Ensino
+    years: *id001
+    note: The 2026 file spells the column in abbreviated form; the dictionary (2021 file) names it 'PEPL_Ensino (R$)'. Matched
+      by the words of the name. Estimated value of the public economic loss in the essential service, in R$ (dictionary); dated
+      by the event's date.
+  PEPR_AGRICULTURA (R$):
+    role: disaster.private_loss_agriculture
+    kind: number
+    model: mark
+    unit_evidence: 'MIDR/SEDEC ''Dicionário de Dados - Reconhecimento Federal - Relatório Gerencial - Dados informados'' (updated
+      2021-10-13, https://dadosabertos.mdr.gov.br/dataset/1aabd419-5677-4fa2-a0e3-a1a3e1a42234): PEPR_Agricultura (R$) ''valor
+      da perda no setor'''
+    missing_unknown: the dictionary names no code for a value that was not filled
+    unit: BRL
+    competence: *id002
+    name: Prejuízos Econômicos Privados - Agricultura
+    years: *id001
+    note: The 2026 file spells the column in abbreviated form; the dictionary (2021 file) names it 'PEPR_Agricultura (R$)'.
+      Matched by the words of the name. Value of the private loss in the sector, in R$ (dictionary).
+  PEPR_PECUÁRIA (R$):
+    role: disaster.private_loss_livestock
+    kind: number
+    model: mark
+    unit_evidence: 'MIDR/SEDEC ''Dicionário de Dados - Reconhecimento Federal - Relatório Gerencial - Dados informados'' (updated
+      2021-10-13, https://dadosabertos.mdr.gov.br/dataset/1aabd419-5677-4fa2-a0e3-a1a3e1a42234): PEPR_Pecuária (R$) ''valor
+      da perda no setor'''
+    missing_unknown: the dictionary names no code for a value that was not filled
+    unit: BRL
+    competence: *id002
+    name: Prejuízos Econômicos Privados - Pecuária
+    years: *id001
+    note: The 2026 file spells the column in abbreviated form; the dictionary (2021 file) names it 'PEPR_Pecuária (R$)'. Matched
+      by the words of the name. Value of the private loss in the sector, in R$ (dictionary).
+  PEPR_INDÚSTRIA (R$):
+    role: disaster.private_loss_industry
+    kind: number
+    model: mark
+    unit_evidence: 'MIDR/SEDEC ''Dicionário de Dados - Reconhecimento Federal - Relatório Gerencial - Dados informados'' (updated
+      2021-10-13, https://dadosabertos.mdr.gov.br/dataset/1aabd419-5677-4fa2-a0e3-a1a3e1a42234): PEPR_Indústria (R$) ''valor
+      da perda no setor'''
+    missing_unknown: the dictionary names no code for a value that was not filled
+    unit: BRL
+    competence: *id002
+    name: Prejuízos Econômicos Privados - Indústria
+    years: *id001
+    note: The 2026 file spells the column in abbreviated form; the dictionary (2021 file) names it 'PEPR_Indústria (R$)'. Matched
+      by the words of the name. Value of the private loss in the sector, in R$ (dictionary).
+  PEPR_COMÉRCIO (R$):
+    role: disaster.private_loss_commerce
+    kind: number
+    model: mark
+    unit_evidence: 'MIDR/SEDEC ''Dicionário de Dados - Reconhecimento Federal - Relatório Gerencial - Dados informados'' (updated
+      2021-10-13, https://dadosabertos.mdr.gov.br/dataset/1aabd419-5677-4fa2-a0e3-a1a3e1a42234): PEPR_Comércio (R$) ''valor
+      da perda no setor'''
+    missing_unknown: the dictionary names no code for a value that was not filled
+    unit: BRL
+    competence: *id002
+    name: Prejuízos Econômicos Privados - Comércio
+    years: *id001
+    note: The 2026 file spells the column in abbreviated form; the dictionary (2021 file) names it 'PEPR_Comércio (R$)'. Matched
+      by the words of the name. Value of the private loss in the sector, in R$ (dictionary).
+  PEPR_SERVIÇOS (R$):
+    role: disaster.private_loss_services
+    kind: number
+    model: mark
+    unit_evidence: 'MIDR/SEDEC ''Dicionário de Dados - Reconhecimento Federal - Relatório Gerencial - Dados informados'' (updated
+      2021-10-13, https://dadosabertos.mdr.gov.br/dataset/1aabd419-5677-4fa2-a0e3-a1a3e1a42234): PEPR_Serviços (R$) ''valor
+      da perda no setor'''
+    missing_unknown: the dictionary names no code for a value that was not filled
+    unit: BRL
+    competence: *id002
+    name: Prejuízos Econômicos Privados - Serviços
+    years: *id001
+    note: The 2026 file spells the column in abbreviated form; the dictionary (2021 file) names it 'PEPR_Serviços (R$)'. Matched
+      by the words of the name. Value of the private loss in the sector, in R$ (dictionary).
+  PEPL_TOTAL_PUBLICO:
+    role: disaster.public_loss_total
+    kind: number
+    model: mark
+    missing_unknown: no documentation names the total's missing codes
+    unit: BRL
+    competence:
+    - Data_Evento
+    unit_evidence: the name's (R$) of the PEPL/PEPR columns the total stands for; not in the dictionary
+    name: Total dos prejuízos econômicos públicos
+    years: *id001
+    note: Not in the dictionary; the name says a total, which columns it sums is not documented (R$ by the PEPL/PEPR columns
+      it totals).
+    review: draft
+  PEPR_TOTAL_PRIVADO:
+    role: disaster.private_loss_total
+    kind: number
+    model: mark
+    missing_unknown: no documentation names the total's missing codes
+    unit: BRL
+    competence:
+    - Data_Evento
+    unit_evidence: the name's (R$) of the PEPL/PEPR columns the total stands for; not in the dictionary
+    name: Total dos prejuízos econômicos privados
+    years: *id001
+    note: Not in the dictionary; the name says a total, which columns it sums is not documented (R$ by the PEPL/PEPR columns
+      it totals).
+    review: draft
+  PE_PLEPR:
+    role: disaster.economic_loss_total
+    kind: number
+    model: mark
+    missing_unknown: no documentation names the total's missing codes
+    unit: BRL
+    competence:
+    - Data_Evento
+    unit_evidence: the name's (R$) of the PEPL/PEPR columns the total stands for; not in the dictionary
+    name: Total dos prejuízos econômicos (públicos e privados)
+    years: *id001
+    note: Not in the dictionary; the name says a total, which columns it sums is not documented (R$ by the PEPL/PEPR columns
+      it totals).
+    review: draft
+  DA_POLUI/CONT DA ÁGUA:
+    role: disaster.environmental_pollution_water
+    kind: category
+    model: dimension
+    name: Danos Ambientais - Poluição ou contaminação da água
+    years: *id001
+    note: The 2026 file spells the column in abbreviated form; the dictionary (2021 file) names it 'DA_Poluição ou contaminação
+      da água'. Matched by the words of the name. The dictionary says only 'alterações ocorridas no meio ambiente que comprometeram
+      a qualidade ambiental'; the 2023 file holds the share of the population affected as text ('DE 0% A 5% DA POPULAÇÃO AFETADA'
+      ... 'MAIS DE 20% DA POPULAÇÃO AFETADA'), blank when none.
+  DA_POLUI/CONT DO AR:
+    role: disaster.environmental_pollution_air
+    kind: category
+    model: dimension
+    name: Danos Ambientais - Poluição ou contaminação do ar
+    years: *id001
+    note: The 2026 file spells the column in abbreviated form; the dictionary (2021 file) names it 'DA_Poluição ou contaminação
+      do ar'. Matched by the words of the name. The dictionary says only 'alterações ocorridas no meio ambiente que comprometeram
+      a qualidade ambiental'; the 2023 file holds the share of the population affected as text ('DE 0% A 5% DA POPULAÇÃO AFETADA'
+      ... 'MAIS DE 20% DA POPULAÇÃO AFETADA'), blank when none.
+  DA_POLUI/CONT DO SOLO:
+    role: disaster.environmental_pollution_soil
+    kind: category
+    model: dimension
+    name: Danos Ambientais - Poluição ou contaminação do solo
+    years: *id001
+    note: The 2026 file spells the column in abbreviated form; the dictionary (2021 file) names it 'DA_Poluição ou contaminação
+      do solo'. Matched by the words of the name. The dictionary says only 'alterações ocorridas no meio ambiente que comprometeram
+      a qualidade ambiental'; the 2023 file holds the share of the population affected as text ('DE 0% A 5% DA POPULAÇÃO AFETADA'
+      ... 'MAIS DE 20% DA POPULAÇÃO AFETADA'), blank when none.
+  DA_DIMI/EXAURI HÍDRICO:
+    role: disaster.environmental_water_depletion
+    kind: category
+    model: dimension
+    name: Danos Ambientais - Diminuição ou exaurimento hídrico
+    years: *id001
+    note: The 2026 file spells the column in abbreviated form; the dictionary (2021 file) names it 'DA_Diminuição ou exaurimento
+      hídrico'. Matched by the words of the name. The dictionary says only 'alterações ocorridas no meio ambiente que comprometeram
+      a qualidade ambiental'; the 2023 file holds the share of the population affected as text ('DE 0% A 5% DA POPULAÇÃO AFETADA'
+      ... 'MAIS DE 20% DA POPULAÇÃO AFETADA'), blank when none.
+  DA_INCÊNDI PARQUES/APA'S/APP'S:
+    role: disaster.environmental_park_fires
+    kind: category
+    model: dimension
+    name: Danos Ambientais - Incêndios em parques, APA's ou APP's
+    years: *id001
+    note: The 2026 file spells the column in abbreviated form; the dictionary (2021 file) names it 'DA_Incêndios em parques,
+      APA's ou APP's'. Matched by the words of the name. The dictionary says only 'alterações ocorridas no meio ambiente que
+      comprometeram a qualidade ambiental'; the 2023 file holds the share of the population affected as text ('DE 0% A 5% DA
+      POPULAÇÃO AFETADA' ... 'MAIS DE 20% DA POPULAÇÃO AFETADA'), blank when none.
+  DH_DESCRICAO:
+    role: disaster.human_damage_description
+    kind: text
+    model: excluded
+    name: Descrição dos danos humanos
+    years: *id001
+    note: Not in the dictionary; free text the municipality wrote (values read in the 2023 file), kept as filed.
+    review: draft
+  DM_DESCRICAO:
+    role: disaster.material_damage_description
+    kind: text
+    model: excluded
+    name: Descrição dos danos materiais
+    years: *id001
+    note: Not in the dictionary; free text the municipality wrote (values read in the 2023 file), kept as filed.
+    review: draft
+  DA_DESCRICAO:
+    role: disaster.environmental_description
+    kind: text
+    model: excluded
+    name: Descrição dos danos ambientais
+    years: *id001
+    note: Not in the dictionary; free text the municipality wrote (values read in the 2023 file), kept as filed.
+    review: draft
+  PEPL_DESCRICAO:
+    role: disaster.public_loss_description
+    kind: text
+    model: excluded
+    name: Descrição dos prejuízos econômicos públicos
+    years: *id001
+    note: Not in the dictionary; free text the municipality wrote (values read in the 2023 file), kept as filed.
+    review: draft
+  PEPR_DESCRICAO:
+    role: disaster.private_loss_description
+    kind: text
+    model: excluded
+    name: Descrição dos prejuízos econômicos privados
+    years: *id001
+    note: Not in the dictionary; free text the municipality wrote (values read in the 2023 file), kept as filed.
+    review: draft
+  DATA_REGISTRO:
+    role: disaster.registration_date
+    kind: date
+    model: mark
+    name: Registro - data do registro da ocorrência
+    years: *id001
+    note: 'MIDR/SEDEC ''Dicionário de Dados - Reconhecimento Federal - Relatório Gerencial - Dados informados'' (updated 2021-10-13,
+      https://dadosabertos.mdr.gov.br/dataset/1aabd419-5677-4fa2-a0e3-a1a3e1a42234): ''Registro: Data do registro da ocorrência'';
+      dd/mm/yyyy as filed. Distinct from the date of the event.'
+  NOME_MUNICIPIO:
+    role: disaster.municipality_name
+    kind: text
+    model: excluded
+    name: Município (nome)
+    years: *id001
+    note: The name of the municipality (the dictionary's 'Município'); the IBGE code is COD_IBGE_MUN.
+  SIGLA_UF:
+    role: disaster.state
+    kind: place
+    model: mark
+    place_of: event
+    name: UF - sigla da unidade federativa
+    years: *id001
+    note: 'MIDR/SEDEC ''Dicionário de Dados - Reconhecimento Federal - Relatório Gerencial - Dados informados'' (updated 2021-10-13,
+      https://dadosabertos.mdr.gov.br/dataset/1aabd419-5677-4fa2-a0e3-a1a3e1a42234): ''UF: Sigla para unidade Federativa''.'
+  REGIAO:
+    role: disaster.region
+    kind: place
+    model: mark
+    place_of: event
+    name: Região
+    years: *id001
+    note: Not in the dictionary; the file holds Norte, Nordeste, Sudeste, Sul and Centro-oeste (the macro-region of the municipality).
+    review: draft
+  TIPOLOGIA:
+    role: disaster.typology_code
+    kind: category
+    model: dimension
+    name: Tipologia (código)
+    years: *id001
+    note: Not in the dictionary; numeric typology code ('13.00', '4.00', 15 distinct values in 2023) beside the COBRADE typology
+      description.
+    review: draft
+  SETORES CENSITÁRIOS:
+    role: disaster.census_tracts
+    kind: text
+    model: excluded
+    name: Setores censitários
+    years: *id001
+    note: Not in the dictionary; 15-digit IBGE tract codes in the 2023 file (blank in the early years).
+    review: draft

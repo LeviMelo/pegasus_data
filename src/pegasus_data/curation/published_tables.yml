@@ -134,3 +134,250 @@ census_commuting:
   sidra:
     work: {table: 1615, variable: 918, classification: 469, category: 12188}
     study: {table: 1611, variable: 690, classification: 468, category: 12164}
+
+# The columns of the raw files a registry store holds, described from the source's own documentation (`pegasus-data holdings`:
+# every variable held is described, or the check fails). One entry per `registries/<store>` (lower case); `source` names the
+# document, `columns` lists each column as the files spell it. A store pegasus_data builds from these is classed as built there
+# (its Parquet files), never listed. Intake sources (intake.yml) and lake datasets (roles/) describe their own columns.
+registry_columns:
+  ibge_tracts:
+    source: "IBGE, Censo 2022, Agregados por Setores Censitários, malha_com_atributos/Dicionario_de_dados_malha_agregados.xlsx (sheet Setor, read 2026-11-23); the V-variables are in the dictionary workbook held beside the files"
+    columns:
+      SETOR: "The key column of the themes' files (domicilio1-3 and kin): the tract's geocode, the same value as CD_SETOR; IBGE's dictionary names the themes' variables and not this key"
+      CD_SETOR: Geocódigo de Setor Censitário (15 numerals, the first seven the municipality)
+      SITUACAO: Situação do Setor Censitário (Urbana, Rural)
+      CD_SIT: "Situação detalhada do Setor Censitário (IBGE's mesh dictionary spells it CD_SITUACAO): 1 urban, high density; 2 urban, low density; 3 urban nucleus; 5 rural village; 6 rural nucleus; 7 rural hamlet; 8 rural area; 9 water mass"
+      CD_TIPO: "Tipo do Setor Censitário: 0 não especial; 1 favela e comunidade urbana; 2 quartel e base militar; 3 alojamento/acampamento; 4 baixo patamar domiciliar; 5 agrupamento indígena; 6 unidade prisional; 7 convento/hospital/ILPI/IACA; 8 agrovila do PA; 9 agrupamento quilombola"
+      AREA_KM2: Área do Setor Censitário em quilômetros quadrados
+      CD_REGIAO: Código das Grandes Regiões (Regiões Geográficas)
+      NM_REGIAO: Nome das Grandes Regiões (Regiões Geográficas)
+      CD_UF: Código da Unidade da Federação
+      NM_UF: Nome da Unidade da Federação
+      CD_MUN: Código do Município
+      NM_MUN: Nome do Município
+      CD_DIST: Código do Distrito
+      NM_DIST: Nome do Distrito
+      CD_SUBDIST: "Código do Subdistrito (IBGE's mesh dictionary spells it CD_SUBDIS)"
+      NM_SUBDIST: Nome do Subdistrito
+      CD_BAIRRO: Código do Bairro
+      NM_BAIRRO: Nome do Bairro
+      CD_NU: Código do Núcleo Urbano
+      NM_NU: Nome do Núcleo Urbano
+      CD_FCU: Código da Favela ou Comunidade Urbana
+      NM_FCU: Nome da Favela ou Comunidade Urbana
+      CD_AGLOM: Código do Aglomerado
+      NM_AGLOM: Nome do Aglomerado
+      CD_RGINT: Código da Região Geográfica Intermediária
+      NM_RGINT: Nome da Região Geográfica Intermediária
+      CD_RGI: Código da Região Geográfica Imediata
+      NM_RGI: Nome da Região Geográfica Imediata
+      CD_CONCURB: Código da Concentração Urbana
+      NM_CONCURB: Nome da Concentração Urbana
+  ibge_cnefe:
+    source: 'IBGE, Censo 2022, CNEFE: Dicionario_CNEFE_Censo_2022.xls and Dicionario_Agregados_por_CEP_CNEFE_Censo_2022.xls (held in the store)'
+    columns:
+      COD_UNICO_ENDERECO: Código único do endereço
+      COD_UF: Código da UF
+      COD_MUNICIPIO: Código do município
+      COD_DISTRITO: Código do distrito
+      COD_SUBDISTRITO: Código do subdistrito
+      COD_SETOR: Código do setor
+      NUM_QUADRA: Número da quadra ¹
+      NUM_FACE: Número da face
+      CEP: Código de Endereçamento Postal
+      DSC_LOCALIDADE: Localidade
+      NOM_TIPO_SEGLOGR: Tipo do logradouro
+      NOM_TITULO_SEGLOGR: Título do logradouro
+      NOM_SEGLOGR: Nome do logradouro
+      NUM_ENDERECO: Número no logradouro
+      DSC_MODIFICADOR: Modificador do número
+      NOM_COMP_ELEM1: 'Complemento: Elemento 1'
+      VAL_COMP_ELEM1: 'Complemento: Valor 1'
+      NOM_COMP_ELEM2: 'Complemento: Elemento 2'
+      VAL_COMP_ELEM2: 'Complemento: Valor 2'
+      NOM_COMP_ELEM3: 'Complemento: Elemento 3'
+      VAL_COMP_ELEM3: 'Complemento: Valor 3'
+      NOM_COMP_ELEM4: 'Complemento: Elemento 4'
+      VAL_COMP_ELEM4: 'Complemento: Valor 4'
+      NOM_COMP_ELEM5: 'Complemento: Elemento 5'
+      VAL_COMP_ELEM5: 'Complemento: Valor 5'
+      LATITUDE: Latitude do Endereço
+      LONGITUDE: Longitude do Endereço
+      NV_GEO_COORD: Nível de geocodificação (1=Endereço - coordenada original do Censo 2022; 2=Endereço - coordenada modificada (apartamentos em
+        um mesmo número no logradouro) ²; 3=Endereço - coordenada estimada (endereços originalmente sem coordenadas ou coordenadas inválidas) ³;
+        4=Face de quadra; 5=Localidade; 6=Setor censitário)
+      COD_ESPECIE: Espécie de endereço (1=Domicílio particular; 2=Domicílio coletivo; 3=Estabelecimento agropecuário; 4=Estabelecimento de ensino;
+        5=Estabelecimento de saúde; 6=Estabelecimento de outras finalidades; 7=Edificação em construção ou reforma; 8=Estabelecimento religioso)
+      DSC_ESTABELECIMENTO: Identificação do estabelecimento
+      COD_INDICADOR_ESTAB_ENDERECO: Indicador de estabelecimento (1=Único; 2=Múltiplo, com até 10 estabelecimentos no endereço; 3=Múltiplo, com
+        mais de 10 estabelecimentos no endereço; 4=Múltiplo, com quantidade de estabelecimentos desconhecida no endereço)
+      COD_INDICADOR_CONST_ENDERECO: Indicador de construção ou reforma (1=Único; 2=Múltiplo, com até 10 unidades no endereço; 3=Múltiplo, com mais
+        de 10 unidades no endereço; 4=Múltiplo, com quantidade de unidades desconhecida no endereço)
+      COD_INDICADOR_FINALIDADE_CONST: Indicador de finalidade de construção (1=Residencial; 2=Não residencial; 3=Misto; 4=Indeterminado)
+      COD_TIPO_ESPECI: 'Tipo da edificação dos domicílios (101=Casa; 102=Casa de vila ou em condomínio; 103=Apartamento; 104=Outros) (the files''
+        header is cut at 15 characters: COD_TIPO_ESPECI)'
+      TOT_END: Total de endereços (Agregados por CEP)
+      TOT_DP: Total de domicílios particulares (Agregados por CEP)
+      TOT_TIPO_101: Total de casas (Agregados por CEP)
+      TOT_TIPO_102: Total de casas de vila ou em condomínio (Agregados por CEP)
+      TOT_TIPO_103: Total de apartamentos (Agregados por CEP)
+      TOT_TIPO_104: Total de outros tipos de edificação (Agregados por CEP)
+      TOT_DOM_COND: Total de domicílios em arranjos condominiais (Agregados por CEP)
+      TOT_DC: Total de domicílios coletivos (Agregados por CEP)
+      TOT_EAGRO: Total de estabelecimentos agropecuários (Agregados por CEP)
+      TOT_EENSINO: Total de estabelecimentos de ensino (Agregados por CEP)
+      TOT_ESAUDE: Total de estabelecimentos de saúde (Agregados por CEP)
+      TOT_ERELIG: Total de estabelecimentos religiosos (Agregados por CEP)
+      TOT_EOF: Total de estabelecimentos de outras finalidades (Agregados por CEP)
+      TOT_ECR: Total de edificações em construção ou reforma (Agregados por CEP)
+  ibge_biomas:
+    source: "IBGE, Bioma predominante por município 2024 (Bioma_Predominante_por_Municipio_2024.csv, the file's own header)"
+    columns:
+      GEOCÓDIGO: IBGE code of the municipality (7 numerals; two lagoons carry territorial codes and are not municipalities, see not_municipalities above)
+      NOME DO MUNICÍPIO: Name of the municipality
+      SIGLA DA UF: State abbreviation
+      BIOMA PREDOMINANTE: The biome that covers most of the municipality's area
+  inmet:
+    source: "The Zenodo mirror's own glossaries (inmet_autoh_glossary.csv, inmet_convd_glossary.csv, held beside them: each catalog column's description in Portuguese and English) for the catalogs and the glossaries' columns; NOAA NCEI, Integrated Surface Database, isd-history.csv header and its isd-history.txt description for the ISD station list"
+    columns:
+      STATION_ID: INMET station code (glossary)
+      STATION_NAME: Official station name (glossary)
+      STATION_STATUS: Station status in 2025 (glossary)
+      STATION_START: Date the station began operating (glossary)
+      STATION_X: Longitude of the station in degrees (glossary)
+      STATION_Y: Latitude of the station in degrees (glossary)
+      STATION_Z: Altitude of the station in metres (glossary)
+      STATE_ALIAS: State abbreviation (glossary)
+      FIELD: The glossary's field name, a column of the mirror's database or catalog
+      DTYPE: The glossary's data type of the field
+      DESCRIPTION_PT: The glossary's description of the field in Portuguese
+      DESCRIPTION_EN: The glossary's description of the field in English
+      FILE: The mirror's file the field belongs to
+      USAF: ISD station identifier assigned by the US Air Force (with WBAN, the station's key)
+      WBAN: ISD station identifier assigned by the US Weather Bureau, Air Force, Navy (99999 where none)
+      STATION NAME: ISD station name
+      CTRY: ISD country code (FIPS)
+      STATE: ISD state code (US stations)
+      ICAO: ISD ICAO aerodrome identifier
+      LAT: ISD station latitude, signed decimal degrees
+      LON: ISD station longitude, signed decimal degrees
+      ELEV(M): ISD station elevation in metres
+      BEGIN: ISD first date of the station's record (YYYYMMDD)
+      END: ISD last date of the station's record (YYYYMMDD)
+    unconfirmed: [USAF, WBAN, STATION NAME, CTRY, STATE, ICAO, LAT, LON, ELEV(M), BEGIN, END]
+    unconfirmed_why: "the ISD column meanings are NOAA's isd-history.txt header as known; that file was not fetched here (the CSV carries the names only)"
+  tuss:
+    source: "ANS, PDA 049 TUSS dictionary (dicionario-pda-049-tuss.ods, dadosabertos.ans.gov.br/FTP/PDA/terminologia_unificada_saude_suplementar_TUSS-049/, read 2026-11-23: sheets TUSS_18, 19, 20, 22_a_57_76_77, 60_79, 63, 64)"
+    columns:
+      CD_TERMO: "Identifier of the term (the TUSS table's 'Código do Termo'; in tables 22 and 24 one code can have an active and an inactive term)"
+      NM_TERMO: Description of the term (the table's 'Termo')
+      DS_TERMO_DETALHADA: Detailed description of the term (tables 18 and 60/79)
+      DS_TERMO_DETALHADO: Detailed description of the group (table 63's 'Grupo')
+      DT_INICIO_VIGENCIA: Date the term's validity began in the TISS standard
+      DT_FIM_VIGENCIA: Last date of the term's validity; empty means the term is active
+      DT_FIM_IMPLANTACAO: Date from which all exchange agents must use the term
+      DT_INICIO_VIGENCIA;DT_FIM_VIGENCIA: "A header artefact: a file whose header is filed with the two dictionary columns DT_INICIO_VIGENCIA and DT_FIM_VIGENCIA joined by the delimiter; they are those two columns"
+      TP_MODELO: Model description (table 19, materials and OPME)
+      NM_FABRICANTE: Manufacturer's name as in the ANVISA registration (table 19)
+      REGISTRO_ANVISA: ANVISA registration number (tables 19 and 20)
+      GR_CLASSE_RISCO: Risk class under the ANVISA registration (table 19)
+      NM_TECNICO: Technical name under the ANVISA registration (table 19)
+      NM_APRESENTACAO: Form of presentation of the medicine (table 20)
+      NM_LABORATORIO: Name of the company that holds the ANVISA registration (table 20)
+      ID_TERMINOLOGIA_TUSS: Identifier of the TUSS table (table 64's 'Terminologia')
+      CD_TUSS: Identifier of the term (table 64's 'Código TUSS')
+      TP_ENVIO: How the datum is sent to ANS, individualised or consolidated (a consolidated term is sent within a group of table 63 and cannot be told apart by its TUSS code)
+      CD_GRUPO: Identifier of the table-63 group the procedure code belongs to (filled for consolidated sending only)
+      DS_GRUPO_DETALHADA: Detailed description of that group (consolidated sending only)
+  anac:
+    source: "ANAC registers (AerodromosPublicos.csv, AerodromosPrivados.csv, Aerodromos_Publicos_Excluidos.csv: the files' own headers, after their 'Atualizado em' line); ANAC, Dados Estatisticos do Transporte Aereo, 'Descricao das variaveis', Etapa Basica, as quoted by sources/anac_air.py; OurAirports (ourairports_airports.csv, ourairports.com/data, public domain: its header)"
+    columns:
+      ANO: Year of the flight stage's month
+      MES: Month of the flight stage
+      EMPRESA_SIGLA: Airline's code
+      EMPRESA_NOME: Airline's name
+      EMPRESA_NACIONALIDADE: Airline's nationality
+      AEROPORTO_DE_ORIGEM_SIGLA: Origin aerodrome's code
+      AEROPORTO_DE_ORIGEM_NOME: Origin aerodrome's name (ANAC's commercial city)
+      AEROPORTO_DE_ORIGEM_UF: Origin aerodrome's state
+      AEROPORTO_DE_ORIGEM_REGIAO: Origin aerodrome's region
+      AEROPORTO_DE_ORIGEM_PAIS: Origin aerodrome's country
+      AEROPORTO_DE_ORIGEM_CONTINENTE: Origin aerodrome's continent
+      AEROPORTO_DE_DESTINO_SIGLA: Destination aerodrome's code
+      AEROPORTO_DE_DESTINO_NOME: Destination aerodrome's name
+      AEROPORTO_DE_DESTINO_UF: Destination aerodrome's state
+      AEROPORTO_DE_DESTINO_REGIAO: Destination aerodrome's region
+      AEROPORTO_DE_DESTINO_PAIS: Destination aerodrome's country
+      AEROPORTO_DE_DESTINO_CONTINENTE: Destination aerodrome's continent
+      NATUREZA: "Doméstico (spelled DOMÉSTICA in the file) only when take-off and landing are in Brazil and the operator is Brazilian; otherwise Internacional"
+      GRUPO_DE_VOO: "REGULAR, NÃO REGULAR (charter) or IMPRODUTIVO (no revenue: training, ferry)"
+      PASSAGEIROS_PAGOS: Passengers occupying seats that generate revenue for the airline (promotional, loyalty, discounted and preferential fares included)
+      PASSAGEIROS_GRATIS: Passengers occupying seats that generate no revenue (free, staff at discount, staff on duty)
+      DECOLAGENS: Take-offs between the stage's origin and destination
+      DISTANCIA_VOADA_KM: Distance flown in km (stage only)
+      HORAS_VOADAS: Hours flown (stage only)
+      ASK: Available seat-kilometres (stage only)
+      RPK: Revenue passenger-kilometres (stage only)
+      ATK: Available tonne-kilometres
+      RTK: Revenue tonne-kilometres
+      ASSENTOS: Seats offered
+      PAYLOAD: Payload
+      BAGAGEM_KG: Baggage carried in kg
+      CARGA_PAGA_KG: Paid cargo carried in kg
+      CARGA_GRATIS_KG: Free cargo carried in kg
+      CARGA_PAGA_KM: Paid cargo tonne-kilometres
+      CARGA_GRATIS_KM: Free cargo tonne-kilometres
+      CORREIO_KG: Mail carried in kg
+      CORREIO_KM: Mail tonne-kilometres
+      COMBUSTIVEL_LITROS: Fuel used in litres
+      CÓDIGO OACI: Aerodrome's ICAO code (registers)
+      CIAD: ANAC's aerodrome registry code (registers)
+      NOME: Aerodrome's name (registers)
+      MUNICÍPIO: Municipality the aerodrome lies in (registers; not Município Servido)
+      MUNICIPIO: Municipality of the excluded aerodrome (the excluded register, written without the accent)
+      UF: State (registers)
+      MUNICÍPIO SERVIDO: Municipality the aerodrome serves (public register)
+      UF SERVIDO: State of the municipality served (public register)
+      LATGEOPOINT: Latitude in decimal degrees (registers; the coordinates sources/anac_air.py places with)
+      LONGEOPOINT: Longitude in decimal degrees (registers)
+      LATITUDE: Latitude as the register writes it (degrees, minutes, seconds)
+      LONGITUDE: Longitude as the register writes it (degrees, minutes, seconds)
+      ALTITUDE: Altitude in metres, decimal comma (registers)
+      OPERAÇÃO DIURNA: Flight rules the aerodrome allows by day (VFR, IFR and category)
+      OPERAÇÃO NOTURNA: Flight rules the aerodrome allows by night, or Sem Operação
+      SITUAÇÃO: Registration status in the public register (Cadastrado ...)
+      VALIDADE DO REGISTRO: Date the registration is valid until (public register)
+      PORTARIA DE REGISTRO: ANAC ordinance that registered the aerodrome
+      LINK PORTARIA: Link to that ordinance
+      PORTARIA DE EXCLUSAO: Ordinance that excluded the aerodrome (excluded register)
+      DESIGNAÇÃO 1: Runway 1 designation (private register)
+      COMPRIMENTO 1: Runway 1 length in metres
+      LARGURA 1: Runway 1 width in metres
+      RESISTÊNCIA 1: Runway 1 pavement strength as the register writes it
+      SUPERFÍCIE 1: Runway 1 surface
+      DESIGNAÇÃO 2: Runway 2 designation
+      COMPRIMENTO 2: Runway 2 length in metres
+      LARGURA 2: Runway 2 width in metres
+      RESISTÊNCIA 2: Runway 2 pavement strength as the register writes it
+      SUPERFÍCIE 2: Runway 2 surface
+      ID: OurAirports' record identifier
+      IDENT: OurAirports' airport identifier (ICAO code where there is one)
+      TYPE: OurAirports' airport type
+      ELEVATION_FT: Elevation in feet
+      CONTINENT: Continent
+      ISO_COUNTRY: ISO 3166-1 country code
+      ISO_REGION: ISO 3166-2 region code
+      MUNICIPALITY: Municipality as OurAirports gives it
+      SCHEDULED_SERVICE: Whether the airport has scheduled airline service (yes or no)
+      GPS_CODE: GPS code
+      IATA_CODE: IATA code
+      ICAO_CODE: ICAO code
+      LOCAL_CODE: Local code
+      HOME_LINK: Airport website
+      WIKIPEDIA_LINK: Wikipedia page
+      KEYWORDS: Keywords
+      LATITUDE_DEG: Latitude in decimal degrees
+      LONGITUDE_DEG: Longitude in decimal degrees
+      NAME: Airport name
+    unconfirmed: [ASSENTOS, ATK, RTK, PAYLOAD, BAGAGEM_KG, CARGA_PAGA_KG, CARGA_GRATIS_KG, CARGA_PAGA_KM, CARGA_GRATIS_KM, CORREIO_KG, CORREIO_KM, COMBUSTIVEL_LITROS, ANO, MES, EMPRESA_SIGLA, EMPRESA_NOME, EMPRESA_NACIONALIDADE, RESISTÊNCIA 1, RESISTÊNCIA 2, "OPERAÇÃO DIURNA", "OPERAÇÃO NOTURNA"]
+    unconfirmed_why: "named by the files' headers and values, not by ANAC's 'Descrição das variáveis' (the description document was not found on ANAC's statistics page; only the definitions quoted in sources/anac_air.py were read); the build reads none of them"
