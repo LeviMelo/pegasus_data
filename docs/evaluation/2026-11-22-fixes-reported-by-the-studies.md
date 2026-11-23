@@ -141,3 +141,15 @@ reads every SIH series: neurosurgical index rows 2010-2025 were 1,458,819 RD and
 N_AIH with RD). `open_lake()`'s views globbed each family directory the same way, a second reading beside
 `plan_lake_read`. They now register the catalog-listed partitions with one reading per year (`one_reading`): `sihsus_rd`
 returns the 1,458,819 RD rows in 8.9 s; registering every view takes 36 s. No SIH file on disk was unlisted.
+
+**One stay chaining (coordinator, 2026-11-23).** The studies chained SIH-RD AIHs into stays with their own SQL
+(`abnc2027_neuro/lib/episodes.py`) beside the declared `stay` event (abnc STATUS 82cec68 lists five differences). On the
+lake 2010-2025 three of them are void: no AIH has a malformed or zero CEP, an unparseable NASC, a SEXO outside 1/3, or an
+IDENT other than 1 and 5. The two real ones are fixed in pegasus_data: ties of one person's order were broken by reading
+order (now by the declared `record`, N_AIH), and only a chain's first record was available, while a study needs every AIH
+with its stay (length, ICU days, paid). `chain_sql(source, "SIH-RD", "stay")` (`pegasus_data.api`) is the one
+computation: every record its event type counts, with `__person`, `__starts` and `__chain` (the first AIH's number);
+`events_of` keeps `__starts = 1`. A person column that is blank, a declared not-recorded value of its roles entry, or
+an unparseable date (the linkage role's format) makes the record its own person. Pernambuco 2019-2020, 1,075,155 rows:
+episodes.py 970,346 stays, the stay event before 970,343 (reading-order ties), after 970,346, and all 1,065,304 IDENT-1
+AIHs carry the same stay as episodes.py.

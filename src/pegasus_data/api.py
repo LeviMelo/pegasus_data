@@ -54,6 +54,9 @@ from .semantics.dictionary import (
     observed_values,
     rollups_for,
 )
+from .semantics.event_types import (
+    chain_sql,  # noqa: F401  (a dataset event's chaining as SQL: every record with its chain)
+)
 from .semantics.label_bindings import field_decision
 from .sources.ibge import (
     _AXIS_COLUMNS,
@@ -86,6 +89,7 @@ __all__ = [
     "load_population",
     "load_reference",
     "open_lake",
+    "chain_sql",
     "scan",
     "LakeScan",
     "FieldDescription",

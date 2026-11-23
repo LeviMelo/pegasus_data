@@ -92,8 +92,10 @@ class GridCell:
 class Chain:
     """One event made of a person's consecutive records: a record continues the previous one of its ``person`` when it
     starts at most ``gap_days`` after that one ends and that one closed with a ``continues`` reason in the same
-    ``facility``, or with a ``transfer`` reason in any. A record missing a person column is its own person (null keys
-    partitioned together would chain strangers). The event is the chain's first record."""
+    ``facility``, or with a ``transfer`` reason in any. A record whose person column is blank, one of the column's
+    declared not-recorded values, or (a date) does not parse is its own person: null keys partitioned together would
+    chain strangers. Records of one person are ordered by start, end and ``record`` (the record's identifier, so the
+    chaining does not depend on reading order); the chain is named by its first record. The event is that record."""
 
     person: tuple[str, ...]
     start: str
@@ -107,10 +109,12 @@ class Chain:
     #: the earliest the next record may start relative to the previous end: a transfer's next AIH often starts the day
     #: before the last one closes (Pernambuco 2019-2020: 886 of 16,324 transfers at -1 day)
     gap_min: int = 0
+    #: the record's identifier (SIH's N_AIH): the last tie-break of a person's order and the name of a chain
+    record: str | None = None
 
     @property
     def columns(self) -> tuple[str, ...]:
-        return (*self.person, self.start, self.end, self.reason, self.facility)
+        return (*self.person, self.start, self.end, self.reason, self.facility, *((self.record,) if self.record else ()))
 
 
 @dataclass(frozen=True, slots=True)
@@ -382,33 +386,110 @@ def _chain(spec: dict[str, Any] | None, where: str) -> Chain | None:
                  str(spec["reason"]).upper(), str(spec["facility"]).upper(), tuple(str(c) for c in spec["continues"]),
                  tuple(str(c) for c in spec.get("transfer") or ()),
                  int(spec["gap"][1] if spec.get("gap") is not None else spec["gap_days"]), str(spec["evidence"]),
-                 int(spec["gap"][0]) if spec.get("gap") is not None else 0)
+                 int(spec["gap"][0]) if spec.get("gap") is not None else 0,
+                 str(spec["record"]).upper() if spec.get("record") else None)
 
 
-def _chained_first(table: pa.Table, chain: Chain) -> pa.Table:
-    """The first record of each chain of ``table`` (`Chain`), in the table's order."""
+def _person_checks(dataset: str, chain: Chain) -> dict[str, tuple[tuple[str, ...], str | None]]:
+    """For each person column of ``chain``: its declared not-recorded values and, for a date, its strptime format, read
+    from the dataset's roles file (the one declaration the linkage reads for the same key)."""
+    from ..linkage.roles import _FORMATS, load_roles
+    from .column_roles import load_column_roles
+
+    system, _, series = dataset.upper().replace(".", "-").partition("-")
+
+    def same(key: str) -> bool:
+        s2, _, r2 = key.upper().replace(".", "-").partition("-")
+        return _canonical_system(s2) == _canonical_system(system) and r2 == series
+
+    columns = next((v for k, v in load_column_roles().items() if same(k)), ())
+    linked = next((v for k, v in load_roles().items() if same(k)), None)
+    out: dict[str, tuple[tuple[str, ...], str | None]] = {}
+    for c in chain.person:
+        declared = next((r for r in columns if r.column == c), None)
+        role = next((r for r in (linked.roles.values() if linked else ()) if r.column == c), None)
+        missing = tuple(declared.missing or ()) if declared else ()
+        if role is not None:
+            missing = tuple(dict.fromkeys((*missing, *role.missing)))
+        fmt = _FORMATS.get(role.format or "") if role is not None and role.type == "date" else None
+        out[c] = (missing, fmt)
+    return out
+
+
+def chain_sql(source: str, dataset: str, event: str = "stay", *, order: str | None = None) -> str:
+    """SQL over the relation ``source`` (a dataset's records, in DuckDB) giving every record its event type counts (its
+    ``status`` rule) with ``__person`` (the chain's person key), ``__starts`` (1 for a chain's first record) and
+    ``__chain`` (the first record's ``record`` identifier, else its ``order`` value): the declared chaining of
+    ``event`` (`Chain`). The one computation behind the event (`events_of` keeps ``__starts = 1``) and behind any
+    reader that needs a chain's every record (a stay's AIHs: its length, its ICU days, what it paid). ``order`` is a
+    further tie-break column (a row position, for a chain without ``record``); ``d_in`` and ``d_out`` are added."""
+    ev = event_type(dataset, event)
+    chain = ev.chain
+    if chain is None:
+        raise ValueError(f"{dataset}:{event} declares no chain")
+    if not chain.record and not order:
+        raise ValueError(f"{dataset}:{event}: a chain without a declared record needs an order column")
+
+    def q(c: str) -> str:
+        return '"' + c + '"'
+
+    def text(c: str) -> str:
+        return f"trim(CAST({q(c)} AS VARCHAR))"
+
+    checks = []
+    for c, (missing, fmt) in _person_checks(dataset, chain).items():
+        checks.append(f"nullif({text(c)}, '') IS NOT NULL")
+        if missing:
+            checks.append(f"{text(c)} NOT IN ({', '.join(repr(m) for m in missing)})")
+        if fmt:
+            checks.append(f"try_strptime({text(c)}, '{fmt}') IS NOT NULL")
+    person = " || '|' || ".join(text(c) for c in chain.person)
+    ident = text(chain.record) if chain.record else str(order)
+    ties = ", ".join(x for x in (text(chain.record) if chain.record else None, order) if x)
+    by = f"d_in NULLS LAST, d_out, {ties}"
+    status = ""
+    if ev.status_column:
+        vals = ", ".join(repr(v) for v in (ev.status_values or ev.status_excluded))
+        status = (f"WHERE {text(ev.status_column)} IN ({vals})" if ev.status_values else
+                  f"WHERE {text(ev.status_column)} IS NULL OR {text(ev.status_column)} NOT IN ({vals})")
+    cont = ", ".join(f"'{c}'" for c in chain.continues) or "NULL"
+    tr = ", ".join(f"'{c}'" for c in chain.transfer) or "NULL"
+
+    def day(c: str) -> str:
+        return f"try_strptime({text(c)}, '%Y%m%d')::DATE"
+
+    return f"""
+WITH __a AS (SELECT *, CASE WHEN {' AND '.join(checks)} THEN {person} ELSE 'record:' || CAST({ident} AS VARCHAR) END
+                       AS __person, {day(chain.start)} AS d_in, {day(chain.end)} AS d_out, {ident} AS __id
+             FROM {source} {status}),
+     __o AS (SELECT *, lag(d_out) OVER __w AS __po, lag({text(chain.reason)}) OVER __w AS __pr,
+                    lag({text(chain.facility)}) OVER __w AS __pf
+             FROM __a WINDOW __w AS (PARTITION BY __person ORDER BY {by})),
+     __b AS (SELECT *, CASE WHEN __po IS NOT NULL AND d_in IS NOT NULL
+                             AND date_diff('day', __po, d_in) BETWEEN {chain.gap_min} AND {chain.gap_days}
+                             AND ((__pr IN ({cont}) AND __pf = {text(chain.facility)}) OR __pr IN ({tr}))
+                        THEN 0 ELSE 1 END AS __starts FROM __o),
+     __g AS (SELECT *, sum(__starts) OVER (PARTITION BY __person ORDER BY {by} ROWS UNBOUNDED PRECEDING) AS __grp
+             FROM __b)
+SELECT * EXCLUDE (__po, __pr, __pf, __grp, __id),
+       first_value(__id) OVER (PARTITION BY __person, __grp ORDER BY {by}) AS __chain
+FROM __g"""
+
+
+def _chained_first(table: pa.Table, event: EventType) -> pa.Table:
+    """The first record of each chain of ``table`` (`chain_sql`), in the table's order."""
     import duckdb
 
+    chain = event.chain
+    assert chain is not None
     missing = [c for c in chain.columns if c not in table.column_names]
     if missing:
         raise KeyError(f"chain columns {missing} are not in the table")
     con = duckdb.connect()
-    con.register("t", table.append_column("__i", pa.array(range(table.num_rows), pa.int64())))
-    q = lambda c: '"' + c + '"'  # noqa: E731
-    keyed = " AND ".join(f"nullif(trim(CAST({q(c)} AS VARCHAR)), '') IS NOT NULL" for c in chain.person)
-    person = " || '|' || ".join(f"trim(CAST({q(c)} AS VARCHAR))" for c in chain.person)
-    cont = ", ".join(f"'{c}'" for c in chain.continues) or "NULL"
-    tr = ", ".join(f"'{c}'" for c in chain.transfer) or "NULL"
-    day = lambda c: f"try_strptime(trim(CAST({q(c)} AS VARCHAR)), '%Y%m%d')::DATE"  # noqa: E731
-    keep = con.execute(f"""
-        WITH a AS (SELECT __i, CASE WHEN {keyed} THEN {person} ELSE 'row:' || __i END AS p, {day(chain.start)} AS d_in,
-                          {day(chain.end)} AS d_out, trim(CAST({q(chain.reason)} AS VARCHAR)) AS r,
-                          trim(CAST({q(chain.facility)} AS VARCHAR)) AS f FROM t),
-             o AS (SELECT *, lag(d_out) OVER w AS po, lag(r) OVER w AS pr, lag(f) OVER w AS pf
-                   FROM a WINDOW w AS (PARTITION BY p ORDER BY d_in NULLS LAST, d_out, __i))
-        SELECT __i FROM o WHERE NOT (po IS NOT NULL AND d_in IS NOT NULL AND date_diff('day', po, d_in) BETWEEN {chain.gap_min} AND {chain.gap_days}
-                                      AND ((pr IN ({cont}) AND pf = f) OR pr IN ({tr})))
-        ORDER BY __i""").fetchnumpy()["__i"]
+    con.register("t", table.select([*dict.fromkeys(c for c in (*chain.columns, *((event.status_column,) if event.status_column else ())))]).append_column(
+        "__i", pa.array(range(table.num_rows), pa.int64())))
+    sql = chain_sql("t", f"{event.system}-{event.series}", event.name, order="__i")
+    keep = con.execute(f"SELECT __i FROM ({sql}) WHERE __starts = 1 ORDER BY __i").fetchnumpy()["__i"]
     return table.take(pa.array(keep, pa.int64()))
 
 
@@ -655,7 +736,7 @@ def events_of(table: pa.Table, event: EventType, *, flag_absent_ok: bool = False
         if n_unkeyed:
             table = table.replace_schema_metadata({**(table.schema.metadata or {}), UNKEYED: str(n_unkeyed).encode()})
     if event.chain is not None and table.num_rows:
-        table = _chained_first(table, event.chain)
+        table = _chained_first(table, event)
     return table
 
 
