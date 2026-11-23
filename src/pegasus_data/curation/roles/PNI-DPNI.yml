@@ -22,8 +22,10 @@ columns:
     - 2004
     - 2019
   DIFER:
-    missing: []
+    missing: ['0']
     # measured 2019 (11412 rows, 11412 filled): range [0, 0], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # every row of the held year (2019, 11,412) has QT_DOSE >= 1 and DOSE = the dose's order, yet 0 in DOSE1, DOSEN and DIFER, so these legacy dropout columns are
+    # not filled; 2009-2010 (DPNIUF) hold them empty; 2004-2018 of this series are not held, so the code is declared on what was read (2026-11-23)
     role: vaccination.dropout_difference
     kind: number
     model: mark
@@ -49,8 +51,10 @@ columns:
     codelists:
     - DOSE
   DOSE1:
-    missing: []
+    missing: ['0']
     # measured 2019 (11412 rows, 11412 filled): range [0, 0], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # every row of the held year (2019, 11,412) has QT_DOSE >= 1 and DOSE = the dose's order, yet 0 in DOSE1, DOSEN and DIFER, so these legacy dropout columns are
+    # not filled; 2009-2010 (DPNIUF) hold them empty; 2004-2018 of this series are not held, so the code is declared on what was read (2026-11-23)
     role: vaccination.first_doses
     kind: number
     model: mark
@@ -61,8 +65,10 @@ columns:
     - 2004
     - 2019
   DOSEN:
-    missing: []
+    missing: ['0']
     # measured 2019 (11412 rows, 11412 filled): range [0, 0], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # every row of the held year (2019, 11,412) has QT_DOSE >= 1 and DOSE = the dose's order, yet 0 in DOSE1, DOSEN and DIFER, so these legacy dropout columns are
+    # not filled; 2009-2010 (DPNIUF) hold them empty; 2004-2018 of this series are not held, so the code is declared on what was read (2026-11-23)
     role: vaccination.closing_doses
     kind: number
     model: mark

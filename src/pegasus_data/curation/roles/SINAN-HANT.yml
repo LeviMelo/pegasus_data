@@ -850,6 +850,8 @@ columns:
   CON_LOCALI:
     missing: []
     # measured 2026 (308 rows, 3 filled): range [2, 20], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a distance in km of the probable site of infection from the municipal seat: 0 km is the seat itself, a valid answer; the column is empty unless
+    # answered (74 filled in 4 years, 1 zero), so it is not a default (2026-11-23)
     role: case.infection_site_distance_km
     kind: number
     model: mark

@@ -312,6 +312,8 @@ columns:
   PA_DIF_VAL:
     missing: []
     # measured 2026 (2210914 rows, 2210914 filled): range [0, 0], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # a difference of unit values times the approved quantity (Informe_Tecnico_SIASUS_2019_07.pdf): 0 is no difference, a recorded value: it is non-zero on 0.58% of
+    # 55.8M rows in 2015, 1.2% in 2014, 0.003% in 2016 and none in 2012, 2020-2023 and 2025-2026, a regime that vanishes, not a default (2026-11-23)
     role: procedure.unit_price_gap_x_approved_quantity_brl
     kind: number
     model: mark
@@ -1005,7 +1007,7 @@ columns:
     - 2011
     - 2026
   PA_VL_CRD:
-    missing: []
+    missing_unknown: '0 on every one of 3.83M rows of 2025 and 2026, the only years that carry it; Informe_Tecnico_SIASUS_2019_07.pdf predates it and no harvested document defines it: a later technical note or a year with a non-zero value would decide (2026-11-23)'
     # measured 2026 (2210914 rows, 2210914 filled): range [0, 0], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: procedure.value_credit
     kind: number

@@ -1746,8 +1746,10 @@ columns:
     note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
       TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   TEMPO:
-    missing: []
+    missing: ['0']
     # measured 2025 (7537 rows, 615 filled): range [0, 184], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # the form's qt_dia_tratamento (number(3), days of treatment): 0 is the default of a case without treatment, not a duration: 2022 fills it on every
+    # record, 0 on 4,749 of 5,194 and on 4,649 of 4,668 filled with no DROGA, while 2023-2025 fill it only for the treated and hold 3 zeros in 1,763 (2026-11-23)
     role: treatment.days
     kind: number
     model: mark

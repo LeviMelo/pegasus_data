@@ -92,13 +92,11 @@ columns:
     - 2007
     note: Empty in every file read; kind from its variable note.
   COB_NUM:
-    missing: []
-    # measured 2006 (2731 rows, 2731 filled): range [211585, 1.2062e+10], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded
+    # an identifier, not a measure (2026-11-23): the APAC's number (up to 2.4e10, 12 digits; 77,830 distinct values in 246,415 rows
+    # of 2001 and 614,946 in 2.03M of 2002, no zero in either year), never summed or averaged
     role: authorisation.apac_number
-    kind: number
-    model: mark
-    fact_domain: administrative
-    fact_domain_evidence: "\"COB_NUM\" (authorisation.apac_number): billing value or quantity, competence, validity or exit of the authorisation: billing"
+    kind: identifier
+    model: link_only
     years:
     - 2001
     - 2007

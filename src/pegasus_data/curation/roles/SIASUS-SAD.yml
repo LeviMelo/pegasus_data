@@ -414,7 +414,7 @@ columns:
     - 2012
     - 2018
   PA_QTDAPR:
-    missing: []
+    missing_unknown: "0 on 0.1-17% of lines in 2012-2017 and 75% of 2018 (max 1), almost always together with a zero PA_QTDPRO (never presented but not approved, unlike SIASUS-PA's glosa lines), and QTDATE > 0 on 184 of 867 zero lines of 2018: a line of procedure 0101030029 with no quantity may be a visit not made or an unfilled count; the RAAS-AD layout's rule on the quantity would decide (2026-11-23)"
     # measured 2018 (1158 rows, 1158 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: care.approved_quantity
     kind: number
@@ -429,7 +429,7 @@ columns:
     - 2012
     - 2018
   PA_QTDPRO:
-    missing: []
+    missing_unknown: "0 exactly where PA_QTDAPR is 0 (see it): a line with no quantity presented may be none or unfilled; the RAAS-AD layout's rule on the quantity would decide (2026-11-23)"
     # measured 2018 (1158 rows, 1158 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: care.submitted_presented_quantity
     kind: number

@@ -210,8 +210,10 @@ columns:
     codelists:
     - TP_PFPJ
   QT_CONTR:
-    missing: []
+    missing: ['0']
     # measured 2026 (53771 rows, 53771 filled): range [0, 28], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
+    # 'Quantidade de leitos contratados' (IT_CNES_1706): positive in 12 establishments in 2012-2026 (28-54 rows of ~50,000 a year), and 0 for every private-law
+    # establishment with SUS beds in 2026 (NAT_JUR 2xxx, 15-51% hold QT_SUS > 0): contracted beds are not recorded in it, so 0 does not say none (2026-11-23)
     role: bed.contracted
     kind: number
     model: mark
