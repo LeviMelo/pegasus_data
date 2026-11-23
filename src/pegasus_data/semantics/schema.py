@@ -257,7 +257,7 @@ KINDS: tuple[tuple[str, Any], ...] = (
                 "registry": obj("columns establishments owners patterns reach_it_instead_by what",
                                 sub={"columns": free(obj("code label"))})})})),
         ("geography.yml", obj(
-            "classifications excluded ibge_classifications ipea_classifications legacy_places municipality_fields "
+            "classifications excluded ibge_classifications ipea_classifications legacy_places municipality_fields municipalities_by_year "
             "state_only_codes tabnet_classifications", sub={
                 "classifications": free(_RESTRICTED),
                 "ibge_classifications": free(obj("source status verified what")),

@@ -281,3 +281,18 @@ whose December files the lake holds only for 2026.
 The radiotherapy machines are a CNES family over CNES-DC (`radiotherapy_machines`), December 2008-2023, Brazil:
 linear accelerators 241 (2008), 354 (2014), 421 (2019), 504 (2023); cobalt units 106, 89, 57, 43 (phased out);
 brachytherapy 336, 315, then 242 from 2015 and flat (a break of registration, undocumented; stated in the field's gaps).
+**Grain is measured (2026-11-23).** SIDRA's level N6 also means "some municipalities" (PNS and PeNSE publish the 27 capitals), so
+`context_candidates` now counts each N6 table's localities (`/localidades/N6`, 4,448 tables fetched through the SIDRA client,
+kept in `locality_count` with `n_capitals`) and compares them with the municipalities IBGE's territorial division (DTB) lists for
+the table's last year: `geography.yml` `municipalities_by_year`, from `scripts/ibge_dtb_vintages.py` (4,974 in 1994, 5,507 in 2000,
+5,564 in 2005-08, 5,565 in 2009-12, 5,570 in 2013-23, 5,571 in 2024-25; a year IBGE does not publish takes the latest before it).
+A table is `municipal` when it lists them all, `capitals` when its localities are exactly the 27 of `members('capital')`, else
+`partial (n of N)`, naming the missing codes when fewer are missing than listed; a group takes its best table's grain. No
+fraction or threshold. Before and after on the real home: the 309 entries and 4,448 tables are identical apart from the grain
+(`grain`, `n_localities`, `n_capitals`, `municipalities_in_year`, `missing` are new); the 156 municipal SIDRA groups are 58
+`capitals`, 50 `municipal`, 48 `partial`; the 27 municipal intake sources are `municipal`; the 125 state groups are unchanged. By
+table: 1,231 municipal, 1,559 capitals, 1,609 partial, 49 ending before 1994 (counted, no DTB total to compare). Every PNS and
+PeNSE group with N6 tables reads `capitals` (4 PNS groups are state-only). 168 tables end in 2024-25: 4 municipal, 103 capitals, 61
+partial; 34 of them read `partial (5570 of 5571)`, 32 missing 510183 (Boa Esperança do Norte, MT: in the DTB, not in SIDRA's N6
+lists) and 2 missing 354880: measured, not relabelled. Checks against the IBGE API: table 9418 lists 5,570 N6 localities, table
+5133 (PNS) 27, the capitals from Porto Velho.

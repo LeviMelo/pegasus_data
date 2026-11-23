@@ -803,8 +803,99 @@ def _load_field(name: str, spec: dict[str, Any], wanted: list[int] | None, setti
     return dataset.to_table(filter=expression)
 
 
+def _municipalities_in(year: int, declared: dict[Any, Any]) -> int | None:
+    """The municipalities IBGE's territorial division (DTB) lists for ``year``: ``geography.yml``'s
+    ``municipalities_by_year``, a year it does not publish taking the latest before it; None before 1994."""
+    earlier = [int(y) for y in declared if int(y) <= year]
+    return int(declared[max(earlier)]) if earlier else None
+
+
+def _locality_measures(cfg: Any, path: Any, rows: list[Any], levels: tuple[str, ...], measure: bool
+                       ) -> dict[int, tuple[int, int | None]]:
+    """``table -> (localities, of them capitals)`` for the registry's N6 tables. With ``measure`` the missing counts are
+    fetched (one small request a table, through the SIDRA client's cache) and kept in the registry."""
+    import json
+
+    from .sidra.client import SidraClient
+    from .sidra.registry import Registry
+
+    if "N6" not in levels:
+        return {}
+    registry = Registry(Path(path))
+    try:
+        held = {r[0]: (r[1], r[2]) for r in registry.db.execute(
+            "SELECT tab, n, n_capitals FROM locality_count WHERE level = 'N6' AND n_capitals IS NOT NULL")}
+        missing = [int(r[0]) for r in rows if "N6" in json.loads(r[5] or "[]") and int(r[0]) not in held]
+        if measure and missing:
+            client = SidraClient(cfg.registry_dir("sidra", "http"))
+            for table in missing:
+                try:
+                    registry.load_locality_count(client, table, "N6")
+                except Exception:      # one table IBGE will not answer for stays unmeasured; the rest are counted
+                    continue
+            held = {r[0]: (r[1], r[2]) for r in registry.db.execute(
+                "SELECT tab, n, n_capitals FROM locality_count WHERE level = 'N6' AND n_capitals IS NOT NULL")}
+        return held
+    finally:
+        registry.db.close()
+
+
+def _table_grain(count: tuple[int, int | None] | None, in_year: int | None) -> dict[str, Any]:
+    """A table's grain from its measured localities: ``municipal`` (all the municipalities of its last year), ``capitals``
+    (exactly the 27 state capitals), else ``partial (n of N)``; ``unmeasured`` when IBGE's count was not obtained."""
+    from .sidra.registry import _capital_codes
+
+    if count is None:
+        return {"grain": "unmeasured", "n_localities": None, "n_capitals": None, "municipalities_in_year": in_year}
+    n, capitals = count
+    if not in_year:      # a table that ends before the DTB's first year (1994): counted, with no total to compare it with
+        return {"grain": "unmeasured (no municipality total before 1994)", "n_localities": n, "n_capitals": capitals,
+                "municipalities_in_year": None}
+    if n >= in_year:
+        grain = "municipal"
+    elif n == capitals == len(_capital_codes()):
+        grain = "capitals"
+    else:
+        grain = f"partial ({n} of {in_year})"
+    return {"grain": grain, "n_localities": n, "n_capitals": capitals, "municipalities_in_year": in_year}
+
+
+def _name_missing(entry: dict[str, Any], cfg: Any) -> None:
+    """For a partial table of a year whose total is today's municipality count, the municipalities of the pack its N6 list
+    lacks (``missing``, from the cached ``/localidades/N6``), named in the grain when fewer than it lists: 5570 of 5571
+    reads ``missing 510183``, one municipality created after IBGE's lists. For an earlier year the pack holds
+    municipalities that did not exist yet, so nothing is named."""
+    from .geography import municipalities
+    from .sidra.client import SidraClient
+
+    pack = set(municipalities())
+    if entry["municipalities_in_year"] != len(pack):
+        return
+    try:
+        listed = {str(x["id"])[:6] for x in SidraClient(cfg.registry_dir("sidra", "http")).localities(entry["table"], "N6").payload}
+    except Exception:
+        return
+    missing = sorted(pack - listed)
+    entry["missing"] = missing
+    if len(missing) < entry["n_localities"]:
+        entry["grain"] = entry["grain"][:-1] + f"; missing {', '.join(missing)})"
+
+
+def _group_grain(tables: list[dict[str, Any]]) -> str:
+    """The grain of the group's best table: municipal, else capitals, else the partial one with most localities."""
+    grains = [t["grain"] for t in tables]
+    for best in ("municipal", "capitals"):
+        if best in grains:
+            return best
+    partial = [t for t in tables if t["grain"].startswith("partial")]
+    if partial:
+        return max(partial, key=lambda t: t["n_localities"])["grain"]
+    return "unmeasured"
+
+
 def context_candidates(years: tuple[int, int] | None = None, levels: tuple[str, ...] = ("N6",), *,
-                       state_groups: bool = True, root: str | Path | None = None) -> list[dict[str, Any]]:
+                       state_groups: bool = True, measure: bool = True,
+                       root: str | Path | None = None) -> list[dict[str, Any]]:
     """What could be a context of a study of places and years and is not yet a declared field, or is one: each group with
     its tables or columns, so that a study decides on each knowing what it is (docs/plans/recon.md, gap 3).
 
@@ -814,9 +905,18 @@ def context_candidates(years: tuple[int, int] | None = None, levels: tuple[str, 
     * one entry per intake source placed by a municipality or a state: its declared columns, and the fields that
       read it.
 
-    Every entry has a ``grain``: ``municipality`` or ``state``. A research and subject none of whose tables is published at
+    Every entry has a ``grain``, a measured fact. IBGE's level N6 means "municipality" but also "some municipalities"
+    (PNS publishes the 27 capitals as N6), so each N6 table carries the count of localities IBGE lists for it
+    (``n_localities``; ``n_capitals`` of them state capitals) and ``municipalities_in_year``, the municipalities IBGE's
+    territorial division (DTB) lists for the table's last year (``geography.yml`` ``municipalities_by_year``: 5,507 in
+    2000, 5,564 in 2007, 5,565 in 2010, 5,570 in 2013-2023, 5,571 in 2024-25). A table is ``municipal`` when it lists all of them, ``capitals`` when its localities are exactly the
+    27 capitals of `geography.members('capital')`, else ``partial (n of N)``; a group's grain is that of its best table
+    (municipal over capitals over the most localities). A research and subject none of whose tables is published at
     ``levels`` but some at the state level (N3) is listed with grain ``state`` and those tables (``state_groups=False``
     leaves them out): a covariate of 27 units, to be modelled with a state effect and never copied onto municipalities.
+    An intake source placed by municipality is ``municipality`` as declared. ``measure`` fetches the missing counts of the
+    N6 tables through the SIDRA client (a small request each, cached, kept in the registry); False reads what is held and
+    leaves a table without a count ``unmeasured``.
 
     A group a declared field covers is still listed: covered is a fact about it, not a reason to stop considering it.
     Read from the SIDRA registry and the declarations only."""
@@ -846,6 +946,8 @@ def context_candidates(years: tuple[int, int] | None = None, levels: tuple[str, 
                                "FROM tab ORDER BY research, subject, id").fetchall()
         finally:
             con.close()
+        dtb = (read_yaml(curation_root() / "geography.yml", missing_ok=True) or {}).get("municipalities_by_year") or {}
+        counts = _locality_measures(cfg, path, rows, levels, measure)
         groups: dict[tuple[str, str], dict[str, Any]] = {}
         state_only: dict[tuple[str, str], dict[str, Any]] = {}
         for tid, name, rid, research, subject, lv, first, last in rows:
@@ -862,12 +964,19 @@ def context_candidates(years: tuple[int, int] | None = None, levels: tuple[str, 
             g = into.setdefault((str(research), str(subject)), {
                 "kind": "sidra", "id": f"sidra:{rid}:{subject}", "research": research, "subject": subject,
                 "grain": grain, "tables": [], "fields": set()})
-            g["tables"].append({"table": int(tid), "name": name, "first": lo, "last": hi,
-                                "levels": sorted(chosen), "fields": read_tables.get(int(tid), [])})
+            entry = {"table": int(tid), "name": name, "first": lo, "last": hi,
+                     "levels": sorted(chosen), "fields": read_tables.get(int(tid), [])}
+            if grain == "municipality":
+                entry.update(_table_grain(counts.get(int(tid)), _municipalities_in(hi, dtb)))
+                if entry["grain"].startswith("partial"):
+                    _name_missing(entry, cfg)
+            g["tables"].append(entry)
             g["fields"] |= set(read_tables.get(int(tid), []))
         # a research and subject with a table at `levels` is a municipal group; its state-only tables are not listed apart
         groups.update({k: v for k, v in state_only.items() if k not in groups})
         for g in groups.values():
+            if g["grain"] == "municipality":      # the level's name, until the tables' localities are counted
+                g["grain"] = _group_grain(g["tables"])
             g["fields"] = sorted(g["fields"])
             g["covered_tables"] = sum(1 for t in g["tables"] if t["fields"])
             out.append(g)
@@ -877,7 +986,7 @@ def context_candidates(years: tuple[int, int] | None = None, levels: tuple[str, 
             continue
         reading = sorted(f for f, spec in fields.items() if spec.get("source") == "intake" and spec.get("intake") == name)
         out.append({"kind": "intake", "id": f"intake:{name}", "research": str(src.get("citation") or src.get("what") or name)[:200],
-                    "subject": name, "grain": "state" if place.get("type") not in ("municipality", "municipality_name") else "municipality",
+                    "subject": name, "grain": "state" if place.get("type") not in ("municipality", "municipality_name") else "municipal",
                     "columns": sorted(str(c).upper() for c in (src.get("columns") or {})),
                     "fields": reading})
     return out

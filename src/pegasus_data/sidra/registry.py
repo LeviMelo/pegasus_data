@@ -16,6 +16,7 @@ import json
 import re
 import sqlite3
 from collections.abc import Callable, Iterable
+from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
@@ -43,7 +44,7 @@ CREATE TABLE IF NOT EXISTS category (
 CREATE TABLE IF NOT EXISTS period (
     tab INTEGER, id TEXT, literal TEXT, modified TEXT, PRIMARY KEY (tab, id));
 CREATE TABLE IF NOT EXISTS locality_count (
-    tab INTEGER, level TEXT, n INTEGER, sha256 TEXT, PRIMARY KEY (tab, level));
+    tab INTEGER, level TEXT, n INTEGER, sha256 TEXT, n_capitals INTEGER, PRIMARY KEY (tab, level));
 CREATE TABLE IF NOT EXISTS compendium_variable (tab INTEGER, id INTEGER, kind TEXT, keep INTEGER, PRIMARY KEY (tab, id));
 CREATE TABLE IF NOT EXISTS compendium_policy (tab INTEGER, class_id INTEGER, policy TEXT, PRIMARY KEY (tab, class_id));
 CREATE TABLE IF NOT EXISTS compendium (
@@ -51,6 +52,13 @@ CREATE TABLE IF NOT EXISTS compendium (
 CREATE INDEX IF NOT EXISTS tab_research ON tab(research_id);
 CREATE INDEX IF NOT EXISTS category_name ON category(tab, class_id);
 """
+
+
+@lru_cache(maxsize=1)
+def _capital_codes() -> frozenset[str]:
+    from ..geography import members
+
+    return frozenset(members("capital"))
 
 
 def health_researches() -> tuple[str, ...]:
@@ -99,6 +107,8 @@ class Registry:
         self.db = sqlite3.connect(path)
         self.db.row_factory = sqlite3.Row
         self.db.executescript(SCHEMA)
+        if "n_capitals" not in {r[1] for r in self.db.execute("PRAGMA table_info(locality_count)")}:
+            self.db.execute("ALTER TABLE locality_count ADD COLUMN n_capitals INTEGER")   # counts read before it are refetched (cached)
         self._fold_search()
 
     def _fold_search(self) -> None:
@@ -222,10 +232,16 @@ class Registry:
         return rows
 
     def load_locality_count(self, client: SidraClient, table: int, level: str) -> int:
+        """The table's localities at ``level`` (IBGE's ``/localidades``), and how many of them are state capitals
+        (`geography.members('capital')`, by the six digits of the code): a table whose N6 are exactly the 27 capitals
+        is told from one that covers the country by these two numbers."""
         response = client.localities(table, level)
         n = len(response.payload)
+        capitals = _capital_codes()
+        n_capitals = sum(1 for loc in response.payload if str(loc["id"])[:6] in capitals) if level == "N6" else None
         with self.db:
-            self.db.execute("INSERT OR REPLACE INTO locality_count VALUES (?,?,?,?)", (table, level, n, response.sha256))
+            self.db.execute("INSERT OR REPLACE INTO locality_count VALUES (?,?,?,?,?)",
+                            (table, level, n, response.sha256, n_capitals))
         return n
 
     def load_compendium(self, entries: dict[str, dict[str, Any]]) -> int:
