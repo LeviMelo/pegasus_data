@@ -663,6 +663,7 @@ columns:
     - 2026
     note: 'Role from SIM-DO: foetal deaths are certified on the same Declaração de Óbito (TIPOBITO 1).'
   FILHMORT:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 1995)'
     role: pregnancy.previous_children_dead_legacy
     kind: category
     model: mark
@@ -673,6 +674,7 @@ columns:
     - 1998
     note: 'Same coding as FILHVIVOS: 0 ignored, XX none.'
   FILHVIVOS:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 1995)'
     role: pregnancy.previous_live_births_legacy
     kind: category
     model: mark
@@ -820,6 +822,7 @@ columns:
     - 1979
     - 1998
   INSTRPAI:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (0=''Ign'', 9=''Ign''; 1995)'
     role: father.education_legacy
     kind: category
     model: mark
@@ -978,6 +981,7 @@ columns:
     note: Empty in every file read (2026 BR); the original entry before the automatic cause selection 
       (variable note).
   LOCACID:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 1995)'
     role: death.accident_place_legacy
     kind: category
     model: mark
@@ -1280,7 +1284,9 @@ columns:
     - 2026
     note: 'Role from SIM-DO: foetal deaths are certified on the same Declaração de Óbito (TIPOBITO 1).'
   PESO:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: []
+    domain: [1, 8000]
+    # declared 2026-11-23 as SIM-DO's PESO (the same SIM layout variable, 'Peso ao nascer em gramas'; domain [1, 8000] there): read 1998 (40321 rows): range [0, 9999] with 55 records at 9999; what falls outside the domain (9999, 0, negatives, text) is not a weight
     role: birth.weight
     kind: number
     model: mark
@@ -1296,6 +1302,9 @@ columns:
     - 2026
     note: 'Role from SIM-DO: foetal deaths are certified on the same Declaração de Óbito (TIPOBITO 1).'
   PESONASC:
+    missing: []
+    domain: [1, 8000]
+    # declared 2026-11-23 as SIM-DO's PESO (the same SIM layout variable, 'Peso ao nascer em gramas'; domain [1, 8000] there): read 1998 (40321 rows): range [0, 9999] with 55 records at 9999; what falls outside the domain (9999, 0, negatives, text) is not a weight
     role: birth.weight
     kind: number
     model: mark
@@ -1375,6 +1384,7 @@ columns:
     - 2026
     note: 'Role from SIM-DO: foetal deaths are certified on the same Declaração de Óbito (TIPOBITO 1).'
   SEMANGEST:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (0=''Ignorado'', 7=''Ignorado'', 8=''Ignorado'', 9=''Ignorado''; 1995)'
     role: pregnancy.gestation_band_legacy
     kind: category
     model: mark
@@ -1462,6 +1472,7 @@ columns:
     - 2026
     note: 'Role from SIM-DO: foetal deaths are certified on the same Declaração de Óbito (TIPOBITO 1).'
   TIPOACID:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 1995)'
     role: death.accident_type_legacy
     kind: category
     model: mark
@@ -1482,6 +1493,7 @@ columns:
     - 2026
     note: 'Role from SIM-DO: foetal deaths are certified on the same Declaração de Óbito (TIPOBITO 1).'
   TIPOGRAV:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (0=''Ignorado'', 4=''Ignorado'', 9=''Ignorado''; 1995)'
     role: birth.plurality_legacy
     kind: category
     model: mark
@@ -1491,6 +1503,7 @@ columns:
     - 1979
     - 1998
   TIPOPARTO:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (0=''Ignorado'', 3=''Ignorado'', 4=''Ignorado'', 9=''Ignorado''; 1995)'
     role: birth.delivery_legacy
     kind: category
     model: mark

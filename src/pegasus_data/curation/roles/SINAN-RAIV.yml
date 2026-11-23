@@ -322,7 +322,8 @@ columns:
     - 2007
     - 2026
   DOSES_A:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: []
+    # measured 2026 (5 rows, 2 filled): range [2, 4], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: treatment.vaccine_doses_current
     kind: number
     model: mark
@@ -878,7 +879,8 @@ columns:
     - 2007
     - 2026
   NUM_DOSES:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: []
+    # measured 2026 (5 rows, 1 filled): range [2, 2], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: treatment.vaccine_doses_previous
     kind: number
     model: mark
@@ -991,7 +993,8 @@ columns:
     - 2007
     - 2026
   QUANTID:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: []
+    # measured 2026 (5 rows, 1 filled): range [10, 10], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: treatment.serum_ml
     kind: number
     model: mark

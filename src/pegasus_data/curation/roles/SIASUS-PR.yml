@@ -30,6 +30,8 @@ columns:
     - 2001
     - 2007
   PAR_CAMPOS:
+    missing: []
+    # measured 2005 (198069 rows, 196932 filled): range [1, 309], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded
     role: authorisation.number_of_radiotherapy_fields
     kind: number
     model: mark

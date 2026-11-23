@@ -319,7 +319,8 @@ columns:
     - 2009
     - 2026
   D_DIAR:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: []
+    # measured 2026 (321 rows, 209 filled): range [0, 30], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: case.diarrhoea_days
     kind: number
     model: mark
@@ -330,7 +331,8 @@ columns:
     - 2009
     - 2026
   D_VOMITO:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: []
+    # measured 2026 (321 rows, 129 filled): range [0, 20], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: case.vomiting_days
     kind: number
     model: mark
@@ -632,7 +634,8 @@ columns:
     - 2009
     - 2026
   N_DIAR:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: []
+    # measured 2026 (321 rows, 219 filled): range [1, 30], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: case.diarrhoea_episodes
     kind: number
     model: mark
@@ -643,7 +646,8 @@ columns:
     - 2009
     - 2026
   N_VOMITO:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: []
+    # measured 2026 (321 rows, 133 filled): range [0, 27], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: case.vomiting_episodes
     kind: number
     model: mark

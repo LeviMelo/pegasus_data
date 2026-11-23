@@ -12,6 +12,7 @@ columns:
     - 2000
     - 2070
   IDADE:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2070)'
     role: population.age_band
     kind: category
     model: dimension
@@ -23,6 +24,8 @@ columns:
     - 2070
     note: 'An age or a band as the table codes it: single years (000), bands (2559 = 25-59), or A0000.'
   POPULACAO:
+    missing: []
+    # measured 2070 (4914 rows, 4914 filled): range [1496, 790083], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: population.count
     kind: number
     model: mark

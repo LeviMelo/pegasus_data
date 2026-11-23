@@ -307,7 +307,8 @@ columns:
     - 2008
     - 2011
   UTI_INT_TO:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: []
+    # measured 2011 (469749 rows, 460247 filled): range [0, 623], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: admission.intermediate_days
     kind: number
     model: mark
@@ -318,7 +319,8 @@ columns:
     - 2008
     - 2011
   UTI_MES_TO:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: []
+    # measured 2011 (469749 rows, 469749 filled): range [0, 0], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: admission.icu_days_month
     kind: number
     model: mark

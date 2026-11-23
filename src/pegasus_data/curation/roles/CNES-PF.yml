@@ -174,6 +174,7 @@ columns:
     - 2005
     - 2026
   ESFERA_A:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2026)'
     role: establishment.administrative_sphere
     kind: category
     model: mark
@@ -186,6 +187,8 @@ columns:
     codelists:
     - ESFERADM
   HORAHOSP:
+    missing: []
+    # measured 2026 (19023 rows, 19023 filled): range [0, 123], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: professional.weekly_hours_hospital
     kind: number
     model: mark
@@ -196,6 +199,8 @@ columns:
     - 2005
     - 2026
   HORAOUTR:
+    missing: []
+    # measured 2026 (19023 rows, 19023 filled): range [0, 60], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: professional.weekly_hours_other_setting
     kind: number
     model: mark
@@ -206,6 +211,8 @@ columns:
     - 2005
     - 2026
   HORA_AMB:
+    missing: []
+    # measured 2026 (19023 rows, 19023 filled): range [0, 80], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: professional.weekly_hours_outpatient
     kind: number
     model: mark
@@ -300,6 +307,7 @@ columns:
     codelists:
     - TP_PFPJ
   PROFNSUS:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2026)'
     role: professional.professional_serves_non_sus_patients
     kind: category
     model: mark
@@ -310,6 +318,7 @@ columns:
     - 2005
     - 2026
   PROF_SUS:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2026)'
     role: professional.professional_serves_sus_patients
     kind: category
     model: mark
@@ -328,6 +337,7 @@ columns:
     - 2005
     - 2026
   REGSAUDE:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2026)'
     role: establishment.health_region_local
     kind: category
     model: mark
@@ -377,6 +387,7 @@ columns:
     - NIVELDEP
     - TPGESTAO
   TP_UNID:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2026)'
     role: establishment.type
     kind: category
     model: mark
@@ -433,6 +444,7 @@ columns:
     codelists:
     - VINCULO
   VINCUL_A:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2026)'
     role: professional.autonomous_link_flag
     kind: category
     model: mark
@@ -443,6 +455,7 @@ columns:
     - 2005
     - 2026
   VINCUL_C:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2026)'
     role: professional.contractual_link_flag
     kind: category
     model: mark
@@ -453,6 +466,7 @@ columns:
     - 2005
     - 2026
   VINCUL_N:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2026)'
     role: professional.unidentified_link_flag
     kind: category
     model: mark

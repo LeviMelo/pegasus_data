@@ -270,7 +270,8 @@ columns:
     - 2007
     - 2026
   DE15A39ANO:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: []
+    # measured 2026 (5695 rows, 1820 filled): range [0, 991], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: case.blockade_vaccinated_15_39
     kind: number
     model: mark
@@ -281,7 +282,8 @@ columns:
     - 2007
     - 2026
   DE5A14ANOS:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: []
+    # measured 2026 (5695 rows, 1205 filled): range [0, 621], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: case.blockade_vaccinated_5_14
     kind: number
     model: mark
@@ -1101,7 +1103,8 @@ columns:
     - 2007
     - 2026
   MENOR_5ANO:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: []
+    # measured 2026 (5695 rows, 1259 filled): range [0, 327], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: case.blockade_vaccinated_under_5
     kind: number
     model: mark

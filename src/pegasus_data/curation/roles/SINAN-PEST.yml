@@ -583,6 +583,7 @@ columns:
     - 2025
     note: role from the notification block
   IGG_T2:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2022)'
     role: case.hemagglutination_igg_titre
     kind: category
     model: mark

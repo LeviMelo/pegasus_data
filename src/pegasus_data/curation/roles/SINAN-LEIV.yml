@@ -2,7 +2,8 @@ dataset: SINAN-LEIV
 record: notification
 columns:
   AMPOLAS:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: []
+    # measured 2025 (9168 rows, 9168 filled): range [0, 160], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: treatment.ampoules
     kind: number
     model: mark
@@ -1213,7 +1214,8 @@ columns:
     - 2007
     - 2025
   PESO:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: []
+    # measured 2025 (9168 rows, 9168 filled): range [0, 614], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: case.weight_kg
     kind: number
     model: mark

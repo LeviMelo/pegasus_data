@@ -72,7 +72,8 @@ columns:
     - 2001
     - 2026
   CONTEXAM:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: []
+    # measured 2026 (18840 rows, 9781 filled): range [0, 33], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: case.contacts_examined
     kind: number
     model: mark
@@ -83,7 +84,8 @@ columns:
     - 2001
     - 2026
   CONTREG:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: []
+    # measured 2026 (18840 rows, 18840 filled): range [0, 56], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: case.contacts_registered
     kind: number
     model: mark

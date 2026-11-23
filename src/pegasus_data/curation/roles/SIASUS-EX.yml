@@ -95,6 +95,8 @@ columns:
     - 2001
     - 2007
   EXA_INDCRE:
+    missing: []
+    # measured 2007 (99 rows, 99 filled): range [5, 190], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded
     role: authorisation.serum_creatinine
     kind: number
     model: mark
@@ -104,6 +106,8 @@ columns:
     - 2001
     - 2007
   EXA_INDUPR:
+    missing: []
+    # measured 2007 (99 rows, 99 filled): range [70, 2700], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded
     role: authorisation.pre_dialysis_urea
     kind: number
     model: mark

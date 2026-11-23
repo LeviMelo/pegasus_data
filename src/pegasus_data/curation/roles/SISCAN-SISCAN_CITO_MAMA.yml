@@ -33,6 +33,8 @@ columns:
     - 2013
     - 2025
   CO_FAIXA_ETARIA_PACIENTE:
+    missing: []
+    # declared from DATASUS's own sources (2022): no form dictionary; the table names every code the records use, each with its own label (01='até 9 anos', 02='entre 10 a 14 anos', 03='entre 15 a 19 anos', 04='entre 20 a 24 anos', 05='entre 25 a 29 anos', 06='entre 30 a 34 anos', 07='entre 35 a 39 anos', 08='entre 40 a 44 anos', 09='entre 45 a 49 anos', 10='entre 50 a 54 anos', 11='entre 55 a 59 anos', 12='entre 60 a 64 anos', 13='entre 65 a 69 anos', 14='entre 70 a 74 anos', 15='entre 75 a 79 anos', 16='acima de 79 anos'): a code table, not a catch-all; no value labelled as not recorded
     role: exam.age_bracket
     kind: category
     model: mark
@@ -43,6 +45,7 @@ columns:
     - 2013
     - 2025
   CO_INTERVALO_COLETA:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2022)'
     role: exam.collection_interval
     kind: category
     model: mark
@@ -53,6 +56,7 @@ columns:
     - 2013
     - 2025
   CO_INTERVALO_EXAME:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2022)'
     role: exam.result_interval
     kind: category
     model: mark
@@ -86,6 +90,7 @@ columns:
     - 2013
     - 2025
   CO_RISCO_ELEVADO:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2022)'
     role: exam.elevated_breast_cancer_risk
     kind: category
     model: mark
@@ -103,6 +108,7 @@ columns:
     - 2013
     - 2025
   CO_TEMPO_EXAME:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2022)'
     role: exam.total_exam_turnaround
     kind: category
     model: mark
@@ -113,6 +119,7 @@ columns:
     - 2013
     - 2025
   CO_TEM_NODULO:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2022)'
     role: exam.reported_breast_lump
     kind: category
     model: mark
@@ -157,6 +164,8 @@ columns:
     - 2013
     - 2025
   NU_PAAF_B_ABC_SUBARE:
+    missing: []
+    # measured 2022 (14606 rows, 14606 filled): range [0, 3], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: exam.count_of_benign_fna_results_subareolar_abscess
     kind: number
     model: mark
@@ -167,6 +176,8 @@ columns:
     - 2025
     note: '0 or 1 on each exam: summing it counts the exams with this finding.'
   NU_PAAF_B_COM_FIB_MAM:
+    missing: []
+    # measured 2022 (14606 rows, 14606 filled): range [0, 2], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: exam.count_of_benign_fna_results_fibrocystic_breast_condition
     kind: number
     model: mark
@@ -177,6 +188,8 @@ columns:
     - 2025
     note: '0 or 1 on each exam: summing it counts the exams with this finding.'
   NU_PAAF_B_FIBROAD:
+    missing: []
+    # measured 2022 (14606 rows, 14606 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: exam.count_of_benign_fna_results_fibroadenoma
     kind: number
     model: mark
@@ -187,6 +200,8 @@ columns:
     - 2025
     note: '0 or 1 on each exam: summing it counts the exams with this finding.'
   NU_PAAF_B_L_E_P:
+    missing: []
+    # measured 2022 (14606 rows, 14606 filled): range [0, 4], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: exam.count_of_benign_fna_results_proliferative_epithelial_lesion_
     kind: number
     model: mark
@@ -197,6 +212,8 @@ columns:
     - 2025
     note: '0 or 1 on each exam: summing it counts the exams with this finding.'
   NU_PAAF_B_MASTITE:
+    missing: []
+    # measured 2022 (14606 rows, 14606 filled): range [0, 2], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: exam.count_of_benign_fna_results_mastitis
     kind: number
     model: mark
@@ -207,6 +224,8 @@ columns:
     - 2025
     note: '0 or 1 on each exam: summing it counts the exams with this finding.'
   NU_PAAF_B_NECR_GORDUR:
+    missing: []
+    # measured 2022 (14606 rows, 14606 filled): range [0, 4], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: exam.count_of_benign_fna_results_fat_necrosis
     kind: number
     model: mark
@@ -217,6 +236,8 @@ columns:
     - 2025
     note: '0 or 1 on each exam: summing it counts the exams with this finding.'
   NU_PAAF_B_OUTRAS:
+    missing: []
+    # measured 2022 (14606 rows, 14606 filled): range [0, 5], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: exam.count_of_other_benign_fna_results
     kind: number
     model: mark
@@ -227,6 +248,8 @@ columns:
     - 2025
     note: '0 or 1 on each exam: summing it counts the exams with this finding.'
   NU_PAAF_M_IND_OUTROS:
+    missing: []
+    # measured 2022 (14606 rows, 14606 filled): range [0, 0], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: exam.count_of_fna_results_of_indeterminate_malignancy_other
     kind: number
     model: mark
@@ -237,6 +260,8 @@ columns:
     - 2025
     note: '0 or 1 on each exam: summing it counts the exams with this finding.'
   NU_PAAF_M_IND_TUMF:
+    missing: []
+    # measured 2022 (14606 rows, 14606 filled): range [0, 3], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: exam.count_of_fna_results_of_indeterminate_malignancy_phyllodes_t
     kind: number
     model: mark
@@ -247,6 +272,7 @@ columns:
     - 2025
     note: '0 or 1 on each exam: summing it counts the exams with this finding.'
   NU_PAAF_M_IND_TUMPA:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: exam.count_of_fna_results_of_indeterminate_malignancy_papillary_t
     kind: number
     model: mark
@@ -257,6 +283,8 @@ columns:
     - 2025
     note: '0 or 1 on each exam: summing it counts the exams with this finding.'
   NU_PAAF_P_M_CARC_DUC:
+    missing: []
+    # measured 2022 (14606 rows, 14606 filled): range [0, 2], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: exam.count_of_malignant_fna_results_ductal_carcinoma
     kind: number
     model: mark
@@ -267,6 +295,8 @@ columns:
     - 2025
     note: '0 or 1 on each exam: summing it counts the exams with this finding.'
   NU_PAAF_P_M_CARC_LOB:
+    missing: []
+    # measured 2022 (14606 rows, 14606 filled): range [0, 2], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: exam.count_of_malignant_fna_results_lobular_carcinoma
     kind: number
     model: mark
@@ -277,6 +307,8 @@ columns:
     - 2025
     note: '0 or 1 on each exam: summing it counts the exams with this finding.'
   NU_PAAF_P_M_OUTROS:
+    missing: []
+    # measured 2022 (14606 rows, 14606 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: exam.count_of_malignant_fna_results_other_type
     kind: number
     model: mark
@@ -287,6 +319,8 @@ columns:
     - 2025
     note: '0 or 1 on each exam: summing it counts the exams with this finding.'
   NU_PAAF_SUSM_OUTROS:
+    missing: []
+    # measured 2022 (14606 rows, 14606 filled): range [0, 2], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: exam.count_of_suspicious_fna_results_other
     kind: number
     model: mark
@@ -297,6 +331,8 @@ columns:
     - 2025
     note: '0 or 1 on each exam: summing it counts the exams with this finding.'
   NU_PAAF_SUS_L_E_P:
+    missing: []
+    # measured 2022 (14606 rows, 14606 filled): range [0, 3], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: exam.count_of_suspicious_fna_results_proliferative_epithelial_les
     kind: number
     model: mark
@@ -307,6 +343,8 @@ columns:
     - 2025
     note: '0 or 1 on each exam: summing it counts the exams with this finding.'
   NU_QDESC_LES_PAPIL:
+    missing: []
+    # measured 2022 (14606 rows, 14606 filled): range [0, 2], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: exam.count_of_nipple_discharge_cytology_results_papillary_lesion
     kind: number
     model: mark
@@ -317,6 +355,8 @@ columns:
     - 2025
     note: '0 or 1 on each exam: summing it counts the exams with this finding.'
   NU_QDESC_MALIG_INDT:
+    missing: []
+    # measured 2022 (14606 rows, 14606 filled): range [0, 5], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: exam.count_of_nipple_discharge_cytology_results_indeterminate_mal
     kind: number
     model: mark
@@ -327,6 +367,8 @@ columns:
     - 2025
     note: '0 or 1 on each exam: summing it counts the exams with this finding.'
   NU_QDESC_MAT_ACELULAR:
+    missing: []
+    # measured 2022 (14606 rows, 14606 filled): range [0, 4], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: exam.count_of_nipple_discharge_cytology_results_acellular_materia
     kind: number
     model: mark
@@ -337,6 +379,8 @@ columns:
     - 2025
     note: '0 or 1 on each exam: summing it counts the exams with this finding.'
   NU_QDESC_NEG_MALIG:
+    missing: []
+    # measured 2022 (14606 rows, 14606 filled): range [0, 2], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: exam.count_of_nipple_discharge_cytology_results_negative_for_mali
     kind: number
     model: mark
@@ -347,6 +391,8 @@ columns:
     - 2025
     note: '0 or 1 on each exam: summing it counts the exams with this finding.'
   NU_QDESC_POS_MALIG:
+    missing: []
+    # measured 2022 (14606 rows, 14606 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: exam.count_of_nipple_discharge_cytology_results_positive_for_mali
     kind: number
     model: mark
@@ -357,6 +403,8 @@ columns:
     - 2025
     note: '0 or 1 on each exam: summing it counts the exams with this finding.'
   NU_QDESC_PROC_INFL:
+    missing: []
+    # measured 2022 (14606 rows, 14606 filled): range [0, 3], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: exam.count_of_nipple_discharge_cytology_results_inflammatory_proc
     kind: number
     model: mark
@@ -367,6 +415,7 @@ columns:
     - 2025
     note: '0 or 1 on each exam: summing it counts the exams with this finding.'
   QT_EXAME:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: exam.total_exam_count
     kind: number
     model: mark
@@ -400,6 +449,8 @@ columns:
     - 2013
     - 2025
   TP_ADEQUABILIDAD_MATERIAL:
+    missing: []
+    # declared from DATASUS's own sources (2022): no form dictionary; the table names every code the records use, each with its own label (01='satisfatório', 02='insatisfatório'): a code table, not a catch-all; no value labelled as not recorded
     role: exam.material_adequacy
     kind: category
     model: mark
@@ -410,6 +461,7 @@ columns:
     - 2013
     - 2025
   TP_DESCARGA_PAPILAR:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2022)'
     role: exam.nipple_discharge_type
     kind: category
     model: mark
@@ -420,6 +472,7 @@ columns:
     - 2013
     - 2025
   TP_LATERALIDADE_MAMA:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2022)'
     role: exam.breast_side_sampled
     kind: category
     model: mark
@@ -430,6 +483,8 @@ columns:
     - 2013
     - 2025
   TP_MATERIAL:
+    missing: []
+    # declared from DATASUS's own sources (2022): no form dictionary; the table names every code the records use, each with its own label (01='descarga papilar', 02='punção aspirativa', 03='conteúdo cístico'): a code table, not a catch-all; no value labelled as not recorded
     role: exam.material_submitted
     kind: category
     model: mark
@@ -440,6 +495,8 @@ columns:
     - 2013
     - 2025
   TP_NODULO:
+    missing: []
+    # declared from DATASUS's own sources (2022): no form dictionary; the table names every code the records use, each with its own label (01='sólido', 02='sólido-cístico', 03='cístico'): a code table, not a catch-all; no value labelled as not recorded
     role: exam.nodule_type
     kind: category
     model: mark
@@ -450,6 +507,8 @@ columns:
     - 2013
     - 2025
   TP_PADRAO_CITOPATOL_AMOST:
+    missing: []
+    # declared from DATASUS's own sources (2022): no form dictionary; the table names every code the records use, each with its own label (01='material acelular', 02='negativo para malignidade', 03='padrão citopatológico de malig. indeterminada', 04='positivos para malignidade', 05='consistente com lesão papilar', 06='consistente com processo inflamatório.'): a code table, not a catch-all; no value labelled as not recorded
     role: exam.cytology_pattern_for_discharge_cyst_material
     kind: category
     model: mark
@@ -460,6 +519,8 @@ columns:
     - 2013
     - 2025
   TP_PADR_CITO_MALIG_INDET:
+    missing: []
+    # declared from DATASUS's own sources (2022): no form dictionary; the table names every code the records use, each with its own label (01='tumor papilar', 03='outros'): a code table, not a catch-all; no value labelled as not recorded
     role: exam.indeterminate_malignancy_pattern
     kind: category
     model: mark
@@ -470,6 +531,8 @@ columns:
     - 2013
     - 2025
   TP_PADR_CITO_POSI_MALIG:
+    missing: []
+    # declared from DATASUS's own sources (2022): no form dictionary; the table names every code the records use, each with its own label (01='carcinoma ductal', 02='carcinoma lobular', 03='outros'): a code table, not a catch-all; no value labelled as not recorded
     role: exam.positive_for_malignancy_pattern
     kind: category
     model: mark
@@ -480,6 +543,8 @@ columns:
     - 2013
     - 2025
   TP_PADR_CITO_SUSP_MALIG:
+    missing: []
+    # declared from DATASUS's own sources (2022): no form dictionary; the table names every code the records use, each with its own label (01='lesão epitelial proliferativa com atipias', 02='outros'): a code table, not a catch-all; no value labelled as not recorded
     role: exam.suspicious_for_malignancy_pattern
     kind: category
     model: mark
@@ -490,6 +555,8 @@ columns:
     - 2013
     - 2025
   TP_PROC_BENI_NEGA_MALI_COMPATI:
+    missing: []
+    # declared from DATASUS's own sources (2022): no form dictionary; the table names every code the records use, each with its own label (01='mastite', 02='abscesso', 03='fibroadenoma', 04='necrose', 05='condição fibrocística', 06='lesão epitelial', 07='outras'): a code table, not a catch-all; no value labelled as not recorded
     role: exam.benign_negative_pattern_compatible_diagnosis
     kind: category
     model: mark
@@ -500,6 +567,8 @@ columns:
     - 2013
     - 2025
   TP_RESULTA_PUNCAO_ASPIRATIVA:
+    missing: []
+    # declared from DATASUS's own sources (2022): no form dictionary; the table names every code the records use, each with its own label (01='processos benignos neg. malinnidade', 02='malignidade indeterminada compativel', 03='suspeito para malignidade', 04='positivo para malignidade'): a code table, not a catch-all; no value labelled as not recorded
     role: exam.fine_needle_aspiration_result
     kind: category
     model: mark

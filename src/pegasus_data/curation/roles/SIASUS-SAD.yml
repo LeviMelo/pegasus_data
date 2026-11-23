@@ -216,6 +216,7 @@ columns:
     - 2012
     - 2018
   ETNIA:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2018)'
     role: care.indigenous_ethnicity
     kind: category
     model: mark
@@ -324,6 +325,7 @@ columns:
     - 2012
     - 2018
   NACION_PAC:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2018)'
     role: patient.nationality
     kind: category
     model: dimension
@@ -412,6 +414,8 @@ columns:
     - 2012
     - 2018
   PA_QTDAPR:
+    missing: []
+    # measured 2018 (1158 rows, 1158 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: care.approved_quantity
     kind: number
     model: mark
@@ -425,6 +429,8 @@ columns:
     - 2012
     - 2018
   PA_QTDPRO:
+    missing: []
+    # measured 2018 (1158 rows, 1158 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: care.submitted_presented_quantity
     kind: number
     model: mark
@@ -464,10 +470,11 @@ columns:
     - 2012
     - 2018
   PERMANEN:
+    missing: []
+    # measured 2018 (1158 rows, 383 filled): range [2, 31], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: care.time_in_attendance
     kind: number
     unit_unknown: "Informe_Tecnico_SIASUS_2019_07.pdf PERMANEN \"Permanência em Atendimento\", CHAR (4), no unit stated; whole numbers 1 to 31, 31, 30, 28 and 29 the commonest (first 40 partitions of each SAD family, 2026-10-23; the 2014 family also holds a few negatives and values to 120): a lead, not a unit"
-    missing_unknown: "no codelist or tabulation band of DATASUS bounds it"
     note: "A quantity, not a code: the layout prints no table for it, as for PS's PERMANEN (SIASUS-PS), which is declared a number."
     model: mark
     fact_domain: process
@@ -477,6 +484,8 @@ columns:
     - 2012
     - 2018
   QTDATE:
+    missing: []
+    # measured 2018 (1158 rows, 1158 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: care.number_of_attendances
     kind: number
     model: mark
@@ -490,6 +499,8 @@ columns:
     - 2012
     - 2018
   QTDPCN:
+    missing: []
+    # measured 2018 (1158 rows, 1158 filled): range [0, 1], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: care.number_of_patients
     kind: number
     model: mark
@@ -527,6 +538,7 @@ columns:
     codelists:
     - SEXO
   TPIDADEPAC:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2018)'
     role: care.age_unit_code
     kind: category
     model: mark

@@ -98,6 +98,7 @@ columns:
     name: Quantidade em estoque
     note: The swagger gives the column no description; read from its name and values.
   sigla_programa_saude:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2026)'
     role: stock.programme
     kind: category
     model: dimension
@@ -107,6 +108,7 @@ columns:
     name: Sigla do programa de saúde vinculado ao item
     note: TOXO, AF, ANTMICRO, PRODSAUDE, INFECDST, HOSP ...; NI is not informed.
   sigla_sistema_origem:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2026)'
     role: stock.source_system
     kind: category
     model: mark
@@ -116,6 +118,8 @@ columns:
     name: Sigla do sistema de origem do dado
     note: HORUS or SI_BNAFAR in the rows read.
   tipo_produto:
+    missing: []
+    # declared from DATASUS's own sources (2026): no form dictionary; the table names every code the records use, each with its own label (B='componente básico da assistência farmacêutica (anexos i e iv da rename)', O='financiado somente com recursos próprios do ente', S='componente estratégico da assistência farmacêutica (anexos ii e iv da rename)'): a code table, not a catch-all; no value labelled as not recorded
     role: stock.product_type
     kind: category
     model: dimension

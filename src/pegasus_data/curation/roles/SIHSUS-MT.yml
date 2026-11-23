@@ -181,6 +181,8 @@ columns:
     - 1997
     note: role from SIH-RD
   VAL_ATO:
+    missing: []
+    # measured 1996 (4483286 rows, 4483286 filled): range [0, 4649.74], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded
     role: act.value
     kind: number
     model: mark

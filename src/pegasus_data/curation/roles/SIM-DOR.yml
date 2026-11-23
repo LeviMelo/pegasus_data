@@ -531,6 +531,9 @@ columns:
     - 1979
     - 1995
   PESONASC:
+    missing: []
+    domain: [1, 8000]
+    # declared 2026-11-23 as SIM-DO's PESO (the same SIM layout variable, 'Peso ao nascer em gramas'; domain [1, 8000] there): read 1995 (893877 rows): range [-700, 9999] with 22 records at 9999; 1 negative, 6 non-numeric; what falls outside the domain (9999, 0, negatives, text) is not a weight
     role: birth.weight
     kind: number
     model: mark

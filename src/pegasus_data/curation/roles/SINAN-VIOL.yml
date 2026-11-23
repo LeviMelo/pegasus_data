@@ -1521,6 +1521,7 @@ columns:
     - 2009
     - 2025
   REL_SEXUAL:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (8=''Ign/Branco'', 9=''Ign/Branco''; 2025)'
     role: patient.sexual_partner_sex
     kind: category
     model: dimension

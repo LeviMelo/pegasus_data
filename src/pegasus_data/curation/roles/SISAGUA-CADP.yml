@@ -9,6 +9,8 @@ dataset: SISAGUA-CADP
 record: supply_form
 columns:
   CAIXA_DAGUA:
+    missing: []
+    # declared from DATASUS's own sources (2026): no code table: the records hold the labels themselves ('Não', 'Sim')
     role: supply.water_tank
     kind: category
     model: dimension
@@ -20,6 +22,8 @@ columns:
     - 2026
     note: 'Whether the SAI has a water tank: Sim / Não (dictionary). Only SAI carries it.'
   CANALIZAÇÃO:
+    missing: []
+    # declared from DATASUS's own sources (2026): no code table: the records hold the labels themselves ('Não', 'Sim')
     role: supply.piping
     kind: category
     model: dimension
@@ -31,6 +35,8 @@ columns:
     - 2026
     note: 'Piped distribution to the homes: Sim / Não (dictionary). No data for SAA and SAI. The header keeps its accent.'
   CAPTACAO_AGUA_CHUVA:
+    missing: []
+    # declared from DATASUS's own sources (2026): no code table: the records hold the labels themselves ('Não', 'Sim')
     role: supply.rain_intake
     kind: category
     model: dimension
@@ -43,6 +49,8 @@ columns:
     - 2026
     note: 'Rainwater capture: Sim / Não (dictionary). No data for SAA.'
   CAPTACAO_SUBTERRANEA:
+    missing: []
+    # declared from DATASUS's own sources (2026): no code table: the records hold the labels themselves ('Não', 'Sim')
     role: supply.ground_intake
     kind: category
     model: dimension
@@ -55,6 +63,8 @@ columns:
     - 2026
     note: 'At least one intake from groundwater: Sim / Não (dictionary).'
   CAPTACAO_SUPERFICIAL:
+    missing: []
+    # declared from DATASUS's own sources (2026): no code table: the records hold the labels themselves ('Não', 'Sim')
     role: supply.surface_intake
     kind: category
     model: dimension
@@ -67,6 +77,8 @@ columns:
     - 2026
     note: 'At least one intake from a surface source: Sim / Não (dictionary).'
   CARRO_PIPA:
+    missing: []
+    # declared from DATASUS's own sources (2026): no code table: the records hold the labels themselves ('Não', 'Sim')
     role: supply.carro_pipa
     kind: category
     model: dimension
@@ -78,6 +90,8 @@ columns:
     - 2026
     note: 'Tanker truck as a supply type: Sim / Não (dictionary). No data for SAA and SAI.'
   CHAFARIZ:
+    missing: []
+    # declared from DATASUS's own sources (2026): no code table: the records hold the labels themselves ('Não', 'Sim')
     role: supply.fountain
     kind: category
     model: dimension
@@ -89,6 +103,8 @@ columns:
     - 2026
     note: 'Public fountain as a supply type: Sim / Não (dictionary). No data for SAA and SAI.'
   CISTERNA:
+    missing: []
+    # declared from DATASUS's own sources (2026): no code table: the records hold the labels themselves ('Não', 'Sim')
     role: supply.cistern
     kind: category
     model: dimension
@@ -114,6 +130,8 @@ columns:
     note: 'IBGE code of the supplied municipality, 6 digits (dictionary): where the water is supplied, not where the supplier
       is based.'
   DESINFECCAO:
+    missing: []
+    # declared from DATASUS's own sources (2026): no code table: the records hold the labels themselves ('Não', 'Sim')
     role: supply.disinfection
     kind: category
     model: dimension
@@ -150,6 +168,8 @@ columns:
     - 2026
     note: Date the information was entered in SISAGUA, filled automatically (dictionary).
   FILTRACAO:
+    missing: []
+    # declared from DATASUS's own sources (2026): no code table: the records hold the labels themselves ('Não', 'Sim')
     role: supply.filtration
     kind: category
     model: dimension
@@ -162,6 +182,8 @@ columns:
     note: 'Filtration among the treatment steps; for SAI, filtration inside the home: Sim / Não (dictionary). An empty value
       is not Não (intake.yml).'
   FONTE:
+    missing: []
+    # declared from DATASUS's own sources (2026): no code table: the records hold the labels themselves ('Não', 'Sim')
     role: supply.spring
     kind: category
     model: dimension
@@ -279,6 +301,8 @@ columns:
     note: CNPJ of the office; no data for Local institutions or SAI (dictionary). Header NU_CNPJ_1 matched by position; same
       ".0" suffix as NU_CNPJ.
   NU_ECONOMIAS_DOMICILIOS_NAO_PE:
+    missing: []
+    # measured 2026 (182317 rows, 68576 filled): range [0, 1e+06], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: supply.occasional_dwellings
     kind: number
     model: mark
@@ -295,6 +319,8 @@ columns:
     note: Residential economies of occasional use, such as holiday homes (dictionary). Header truncated in the file, matched
       by position. Landed as text with ".0".
   NU_ECONOMIA_DOMICILIO_PERMAN:
+    missing: []
+    # measured 2026 (182317 rows, 182227 filled): range [0, 1.76e+06], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: supply.permanent_dwellings
     kind: number
     model: mark
@@ -320,6 +346,8 @@ columns:
     note: Generated by SISAGUA at registration or yearly update (dictionary); an SAA code does not repeat within a municipality
       and year but can repeat across the municipalities it supplies.
   NU_VALOR_POPULACAO_ESTIMADA:
+    missing: []
+    # measured 2026 (182317 rows, 182166 filled): range [0, 4.664e+06], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: supply.population
     kind: number
     model: mark
@@ -337,6 +365,8 @@ columns:
       has a value for each. SISAGUA caps the sum over forms (except SAC receiving SAA water and SAI receiving SAA/SAC water)
       at the IBGE population of the previous year; the forms of a municipality still overlap (intake.yml).
   NU_VALOR_RURAL:
+    missing: []
+    # measured 2026 (182317 rows, 134805 filled): range [0, 1.50682e+06], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: supply.rural_population
     kind: number
     model: mark
@@ -352,6 +382,8 @@ columns:
     - 2026
     note: Estimated rural population supplied by the SAA or SAC (dictionary).
   NU_VALOR_URBANA:
+    missing: []
+    # measured 2026 (182317 rows, 129298 filled): range [0, 4.664e+06], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: supply.urban_population
     kind: number
     model: mark
@@ -376,6 +408,7 @@ columns:
     - 2026
     note: Free-text description of a supply type SISAGUA does not tabulate; no data for SAA (dictionary).
   POP_RECEBE_AGUA_SAA:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2026)'
     role: supply.also_receives_saa
     kind: category
     model: dimension
@@ -389,6 +422,8 @@ columns:
     note: Whether the population of an SAC also receives water from an SAA (dictionary); data for SAC only. The dictionary
       does not list the values.
   POP_RECEBE_AGUA_SAA_SAC:
+    missing: []
+    # declared from DATASUS's own sources (2026): no code table: the records hold the labels themselves ('Não', 'Sim')
     role: supply.also_receives_saa_sac
     kind: category
     model: dimension
@@ -402,6 +437,8 @@ columns:
     note: Whether the population of an SAI also receives water from an SAA or SAC (dictionary); data for SAI only. The dictionary
       does not list the values.
   SEM_RESERVACAO:
+    missing: []
+    # declared from DATASUS's own sources (2026): no code table: the records hold the labels themselves ('Não', 'Sim')
     role: supply.no_storage
     kind: category
     model: dimension
@@ -434,6 +471,7 @@ columns:
     - 2026
     note: State abbreviation of the supplied municipality (dictionary).
   TP_ABASTECIMENTO:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2026)'
     role: supply.type
     kind: category
     model: dimension
@@ -447,6 +485,8 @@ columns:
     note: SAA (Sistema de Abastecimento de Água), SAC (Solução Alternativa Coletiva), SAI (Solução Alternativa Individual),
       as defined by the potability norm (dictionary).
   TP_ABRANGENCIA:
+    missing: []
+    # declared from DATASUS's own sources (2026): no code table: the records hold the labels themselves ('Local', 'Regional')
     role: institution.scope
     kind: category
     model: dimension

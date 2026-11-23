@@ -24,6 +24,8 @@ columns:
     - 1992
     - 2025
   POPULACAO:
+    missing: []
+    # measured 2025 (5571 rows, 5571 filled): range [856, 1.1905e+07], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: population.count
     kind: number
     model: mark

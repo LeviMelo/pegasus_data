@@ -21,6 +21,7 @@ columns:
     note: 'Applicable to antimicrobials only and often blank even then (dictionary section 3.6): 2 of the first 4,063 rows
       filled in 2021-10, none in the first rows of the other four months read.'
   DS_DESCRICAO_APRESENTACAO:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2021)'
     role: medicine.presentation
     kind: category
     model: mark
@@ -32,6 +33,7 @@ columns:
     - 2026
     note: How the medicine is presented in its packaging (5 MG COM CT BL AL X 20), in ANVISA's controlled vocabulary.
   DS_PRINCIPIO_ATIVO:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2021)'
     role: medicine.active_principle
     kind: category
     model: dimension
@@ -44,6 +46,7 @@ columns:
     - 2026
     note: Several active principles are joined by '+' (dictionary); as registered at ANVISA, in the form of salts or esters.
   DS_UNIDADE_MEDIDA:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2021)'
     role: sale.quantity_unit
     kind: category
     model: mark
@@ -55,6 +58,7 @@ columns:
     - 2026
     note: CAIXA or FRASCO (dictionary).
   NO_CONSELHO_PRESCRITOR:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2021)'
     role: prescriber.council
     kind: category
     model: dimension
@@ -115,6 +119,8 @@ columns:
     - 2014
     - 2026
   NU_UNIDADE_IDADE:
+    missing: []
+    # declared from DATASUS's own sources (2021): no form dictionary; the table names every code the records use, each with its own label (1='years', 2='months'): a code table, not a catch-all; no value labelled as not recorded
     role: patient.age_unit
     kind: category
     model: mark
@@ -181,6 +187,8 @@ columns:
     - 2026
     note: State of the pharmacy's address in ANVISA's registry, taken as the state where the sale happened (dictionary).
   TP_RECEITUARIO:
+    missing: []
+    # declared from DATASUS's own sources (2021): no form dictionary; the table names every code the records use, each with its own label (1='receita de controle especial em 2 vias (receita branca)', 2='notificação de receita b (notificação azul)', 3='notificação de receita especial (notificação branca)', 4='notificação de receita a (notificação amarela)', 5='receita antimicrobiano e glp-1 em 2 vias'): a code table, not a catch-all; no value labelled as not recorded
     role: prescription.type
     kind: category
     model: dimension

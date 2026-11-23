@@ -435,7 +435,8 @@ columns:
     - 2007
     - 2026
   DIAS:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: []
+    # measured 2026 (70 rows, 22 filled): range [2, 28], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: treatment.antibiotic_days
     kind: number
     model: mark

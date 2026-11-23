@@ -2,6 +2,7 @@ dataset: SIHSUS-SP
 record: act
 columns:
   FONTE_ORC:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2026)'
     role: admission.budget_source
     kind: category
     model: mark
@@ -398,6 +399,8 @@ columns:
     - 1997
     - 2026
   SP_PTSP:
+    missing: []
+    # measured 2026 (38820 rows, 38820 filled): range [0, 1680], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: act.points
     kind: number
     model: mark
@@ -408,6 +411,8 @@ columns:
     - 2006
     - 2026
   SP_PTSP_NF:
+    missing: []
+    # measured 2001 (65 rows, 65 filled): range [30008, 70378], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: act.points_legacy
     kind: number
     model: mark
@@ -418,6 +423,8 @@ columns:
     - 1997
     - 2006
   SP_QTD_ATO:
+    missing: []
+    # measured 2001 (65 rows, 65 filled): range [1, 21], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: act.quantity
     kind: number
     model: mark
@@ -428,6 +435,8 @@ columns:
     - 1997
     - 2026
   SP_QT_PROC:
+    missing: []
+    # measured 2026 (38820 rows, 38820 filled): range [0, 700], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: act.procedures_performed
     kind: number
     model: mark
@@ -449,6 +458,7 @@ columns:
     - 2026
     note: Zeroed from 2008.
   SP_TP_ATO:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2001)'
     role: act.type
     kind: category
     model: mark
@@ -485,6 +495,8 @@ columns:
     - 2026
     note: '1 on exactly one row per AIH: the filter that turns act rows into admissions.'
   SP_VALATO:
+    missing: []
+    # measured 2001 (65 rows, 65 filled): range [0.26, 106.63], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: act.value
     kind: number
     model: mark

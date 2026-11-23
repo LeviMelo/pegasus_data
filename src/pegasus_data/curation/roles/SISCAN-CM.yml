@@ -289,6 +289,8 @@ columns:
     - 2009
     - 2011
   DELESMALIG:
+    missing: []
+    # declared 2026-11-23 from the tabulation's own definition: an I (incremento) line is a count the tabulator sums, so each record adds a recorded count (a zero is a recorded zero) and no code stands for not recorded (unit_evidence)
     role: exam.nipple_discharge_cystic_result_consistent_with_papillary_les
     kind: number
     unit: "count"
@@ -302,6 +304,8 @@ columns:
     - 2009
     - 2015
   DEMALIINDT:
+    missing: []
+    # declared 2026-11-23 from the tabulation's own definition: an I (incremento) line is a count the tabulator sums, so each record adds a recorded count (a zero is a recorded zero) and no code stands for not recorded (unit_evidence)
     role: exam.nipple_discharge_finding_padrao_citopatologico_de_malignidad
     kind: number
     unit: "count"
@@ -315,6 +319,8 @@ columns:
     - 2009
     - 2015
   DEMATACELU:
+    missing: []
+    # declared 2026-11-23 from the tabulation's own definition: an I (incremento) line is a count the tabulator sums, so each record adds a recorded count (a zero is a recorded zero) and no code stands for not recorded (unit_evidence)
     role: exam.nipple_discharge_finding_material_acelular
     kind: number
     unit: "count"
@@ -328,6 +334,8 @@ columns:
     - 2009
     - 2015
   DENEGMALIG:
+    missing: []
+    # declared 2026-11-23 from the tabulation's own definition: an I (incremento) line is a count the tabulator sums, so each record adds a recorded count (a zero is a recorded zero) and no code stands for not recorded (unit_evidence)
     role: exam.nipple_discharge_finding_negativo_para_malignidade
     kind: number
     unit: "count"
@@ -341,6 +349,8 @@ columns:
     - 2009
     - 2015
   DEPOSMALIG:
+    missing: []
+    # declared 2026-11-23 from the tabulation's own definition: an I (incremento) line is a count the tabulator sums, so each record adds a recorded count (a zero is a recorded zero) and no code stands for not recorded (unit_evidence)
     role: exam.nipple_discharge_finding_positivo_para_malignidade
     kind: number
     unit: "count"
@@ -354,6 +364,8 @@ columns:
     - 2009
     - 2015
   DEPROCINFL:
+    missing: []
+    # declared 2026-11-23 from the tabulation's own definition: an I (incremento) line is a count the tabulator sums, so each record adds a recorded count (a zero is a recorded zero) and no code stands for not recorded (unit_evidence)
     role: exam.nipple_discharge_finding_consistente_com_processo_inflamator
     kind: number
     unit: "count"
@@ -420,6 +432,8 @@ columns:
     - 2009
     - 2015
   PBENABSUBA:
+    missing: []
+    # declared 2026-11-23 from the tabulation's own definition: an I (incremento) line is a count the tabulator sums, so each record adds a recorded count (a zero is a recorded zero) and no code stands for not recorded (unit_evidence)
     role: exam.benign_paaf_finding_abscesso_subareolar_recorrente
     kind: number
     unit: "count"
@@ -433,6 +447,8 @@ columns:
     - 2009
     - 2015
   PBENCONDFI:
+    missing: []
+    # declared 2026-11-23 from the tabulation's own definition: an I (incremento) line is a count the tabulator sums, so each record adds a recorded count (a zero is a recorded zero) and no code stands for not recorded (unit_evidence)
     role: exam.benign_paaf_finding_condicao_fibrocistica_mamaria
     kind: number
     unit: "count"
@@ -446,6 +462,8 @@ columns:
     - 2009
     - 2015
   PBENFIBROA:
+    missing: []
+    # declared 2026-11-23 from the tabulation's own definition: an I (incremento) line is a count the tabulator sums, so each record adds a recorded count (a zero is a recorded zero) and no code stands for not recorded (unit_evidence)
     role: exam.benign_paaf_finding_fibroadenoma
     kind: number
     unit: "count"
@@ -459,6 +477,8 @@ columns:
     - 2009
     - 2015
   PBENLESEPI:
+    missing: []
+    # declared 2026-11-23 from the tabulation's own definition: an I (incremento) line is a count the tabulator sums, so each record adds a recorded count (a zero is a recorded zero) and no code stands for not recorded (unit_evidence)
     role: exam.benign_paaf_finding_lesao_epitelial_benigna_proliferativa_se
     kind: number
     unit: "count"
@@ -472,6 +492,8 @@ columns:
     - 2009
     - 2015
   PBENMASTIT:
+    missing: []
+    # declared 2026-11-23 from the tabulation's own definition: an I (incremento) line is a count the tabulator sums, so each record adds a recorded count (a zero is a recorded zero) and no code stands for not recorded (unit_evidence)
     role: exam.benign_paaf_finding_mastite
     kind: number
     unit: "count"
@@ -485,6 +507,8 @@ columns:
     - 2009
     - 2015
   PBENNECGOR:
+    missing: []
+    # declared 2026-11-23 from the tabulation's own definition: an I (incremento) line is a count the tabulator sums, so each record adds a recorded count (a zero is a recorded zero) and no code stands for not recorded (unit_evidence)
     role: exam.benign_paaf_finding_necrose_gordurosa
     kind: number
     unit: "count"
@@ -498,6 +522,8 @@ columns:
     - 2009
     - 2015
   PBENOUTRAS:
+    missing: []
+    # declared 2026-11-23 from the tabulation's own definition: an I (incremento) line is a count the tabulator sums, so each record adds a recorded count (a zero is a recorded zero) and no code stands for not recorded (unit_evidence)
     role: exam.benign_paaf_finding_outros_exclusivamente_benignos
     kind: number
     unit: "count"
@@ -511,6 +537,8 @@ columns:
     - 2009
     - 2015
   PMALINOUTR:
+    missing: []
+    # declared 2026-11-23 from the tabulation's own definition: an I (incremento) line is a count the tabulator sums, so each record adds a recorded count (a zero is a recorded zero) and no code stands for not recorded (unit_evidence)
     role: exam.indeterminate_malignancy_paaf_finding_outros
     kind: number
     unit: "count"
@@ -524,6 +552,8 @@ columns:
     - 2009
     - 2015
   PMALINTUMF:
+    missing: []
+    # declared 2026-11-23 from the tabulation's own definition: an I (incremento) line is a count the tabulator sums, so each record adds a recorded count (a zero is a recorded zero) and no code stands for not recorded (unit_evidence)
     role: exam.indeterminate_malignancy_paaf_finding_tumor_filoide
     kind: number
     unit: "count"
@@ -537,6 +567,8 @@ columns:
     - 2009
     - 2015
   PMALINTUMP:
+    missing: []
+    # declared 2026-11-23 from the tabulation's own definition: an I (incremento) line is a count the tabulator sums, so each record adds a recorded count (a zero is a recorded zero) and no code stands for not recorded (unit_evidence)
     role: exam.indeterminate_malignancy_paaf_finding_tumor_papilar
     kind: number
     unit: "count"
@@ -550,6 +582,8 @@ columns:
     - 2009
     - 2015
   PPOSMACDUC:
+    missing: []
+    # declared 2026-11-23 from the tabulation's own definition: an I (incremento) line is a count the tabulator sums, so each record adds a recorded count (a zero is a recorded zero) and no code stands for not recorded (unit_evidence)
     role: exam.malignant_paaf_finding_carcinoma_ductal
     kind: number
     unit: "count"
@@ -563,6 +597,8 @@ columns:
     - 2009
     - 2015
   PPOSMACLOB:
+    missing: []
+    # declared 2026-11-23 from the tabulation's own definition: an I (incremento) line is a count the tabulator sums, so each record adds a recorded count (a zero is a recorded zero) and no code stands for not recorded (unit_evidence)
     role: exam.malignant_paaf_finding_carcinoma_lobular
     kind: number
     unit: "count"
@@ -576,6 +612,8 @@ columns:
     - 2009
     - 2015
   PPOSMACOUT:
+    missing: []
+    # declared 2026-11-23 from the tabulation's own definition: an I (incremento) line is a count the tabulator sums, so each record adds a recorded count (a zero is a recorded zero) and no code stands for not recorded (unit_evidence)
     role: exam.malignant_paaf_finding_outros_exclusivamente_malignos
     kind: number
     unit: "count"
@@ -627,6 +665,8 @@ columns:
     codelists:
     - PRESULPAAF
   PSUSLEJPCA:
+    missing: []
+    # declared 2026-11-23 from the tabulation's own definition: an I (incremento) line is a count the tabulator sums, so each record adds a recorded count (a zero is a recorded zero) and no code stands for not recorded (unit_evidence)
     role: exam.suspicious_paaf_finding_proliferative_epithelial_lesion_with
     kind: number
     unit: "count"
@@ -640,6 +680,8 @@ columns:
     - 2009
     - 2015
   PSUSOUTROS:
+    missing: []
+    # declared 2026-11-23 from the tabulation's own definition: an I (incremento) line is a count the tabulator sums, so each record adds a recorded count (a zero is a recorded zero) and no code stands for not recorded (unit_evidence)
     role: exam.suspicious_paaf_finding_other
     kind: number
     unit: "count"

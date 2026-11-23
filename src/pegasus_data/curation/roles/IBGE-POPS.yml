@@ -38,6 +38,8 @@ columns:
     - 2025
     note: 'An age or a band as the table codes it: single years (000), bands (2559 = 25-59), or A0000.'
   POP:
+    missing: []
+    # measured 2025 (902502 rows, 902502 filled): range [1, 216049], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: population.count
     kind: number
     model: mark

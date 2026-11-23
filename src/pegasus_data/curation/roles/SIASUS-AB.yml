@@ -45,6 +45,8 @@ columns:
     - 2008
     - 2025
   AB_MESACOM:
+    missing: []
+    # measured 2025 (19782 rows, 17148 filled): range [0, 36], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: authorisation.months_of_follow_up
     kind: number
     model: mark
@@ -73,6 +75,7 @@ columns:
     - 2008
     - 2025
   AB_PONTBAR:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: authorisation.barros_score
     kind: number
     model: mark
@@ -125,6 +128,7 @@ columns:
     - 2008
     - 2025
   AB_TABBARR:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2025)'
     role: authorisation.baros_outcome_score
     kind: category
     model: mark
@@ -307,6 +311,7 @@ columns:
     - 2025
     note: role from SIASUS-AN
   AP_COIDADE:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2025)'
     role: patient.age_unit
     kind: category
     model: mark
@@ -746,6 +751,8 @@ columns:
     - 2025
     note: role from SIASUS-AN
   AP_VL_AP:
+    missing: []
+    # measured 2025 (19782 rows, 19781 filled): range [0, 40], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: authorisation.approved_value
     kind: number
     model: mark

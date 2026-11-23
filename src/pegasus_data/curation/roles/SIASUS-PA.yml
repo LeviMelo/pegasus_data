@@ -2,7 +2,8 @@ dataset: SIASUS-PA
 record: procedure
 columns:
   IDADEMAX:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: []
+    # measured 2026 (2210914 rows, 2196050 filled): range [0, 130], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: procedure.procedures_maximum_eligible_age
     kind: number
     model: mark
@@ -14,7 +15,8 @@ columns:
     - 2008
     - 2026
   IDADEMIN:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: []
+    # measured 2026 (2210914 rows, 2196050 filled): range [0, 60], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: procedure.procedures_minimum_eligible_age
     kind: number
     model: mark
@@ -26,7 +28,8 @@ columns:
     - 2008
     - 2026
   NU_PA_TOT:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: []
+    # measured 2026 (2210914 rows, 2210914 filled): range [0, 11644], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: procedure.sigtap_unit_price
     kind: number
     model: mark
@@ -40,7 +43,8 @@ columns:
     - 2008
     - 2026
   NU_VPA_TOT:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: []
+    # measured 2026 (2210914 rows, 2210914 filled): range [0, 150], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: procedure.vpa_unit_price
     kind: number
     model: mark
@@ -302,7 +306,8 @@ columns:
     - 2007
     note: 'YYYYMM (200709-200711 in 2007-11 AP): the month the production refers to.'
   PA_DIF_VAL:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: []
+    # measured 2026 (2210914 rows, 2210914 filled): range [0, 0], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: procedure.unit_price_gap_x_approved_quantity_brl
     kind: number
     model: mark
@@ -399,6 +404,7 @@ columns:
     - 2008
     - 2026
   PA_FNTORC:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2026)'
     role: procedure.funding_source_code
     kind: category
     model: mark
@@ -701,7 +707,8 @@ columns:
     - 2008
     - 2026
   PA_QTDAPR:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: []
+    # measured 2026 (2210914 rows, 2210914 filled): range [0, 376020], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: procedure.approved_quantity
     kind: number
     model: mark
@@ -715,7 +722,8 @@ columns:
     - 1994
     - 2026
   PA_QTDPRO:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: []
+    # measured 2026 (2210914 rows, 2210914 filled): range [0, 376020], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: procedure.submitted_presented_quantity
     kind: number
     model: mark
@@ -931,7 +939,8 @@ columns:
     - 1994
     - 2026
   PA_VALAPR:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: []
+    # measured 2026 (2210914 rows, 2210914 filled): range [0, 1.39763e+06], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: procedure.approved_value_brl
     kind: number
     model: mark
@@ -945,7 +954,8 @@ columns:
     - 1994
     - 2026
   PA_VALPRO:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: []
+    # measured 2026 (2210914 rows, 2210914 filled): range [0, 6.95497e+06], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: procedure.submitted_value_brl
     kind: number
     model: mark
@@ -959,7 +969,8 @@ columns:
     - 1994
     - 2026
   PA_VL_CF:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: []
+    # measured 2026 (2210914 rows, 2210914 filled): range [0, 771.6], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: procedure.federal_supplement_value
     kind: number
     model: mark
@@ -971,7 +982,8 @@ columns:
     - 2011
     - 2026
   PA_VL_CL:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: []
+    # measured 2026 (2210914 rows, 2210914 filled): range [0, 22026.5], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: procedure.local_supplement_value
     kind: number
     model: mark
@@ -983,6 +995,8 @@ columns:
     - 2011
     - 2026
   PA_VL_CRD:
+    missing: []
+    # measured 2026 (2210914 rows, 2210914 filled): range [0, 0], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: procedure.value_credit
     kind: number
     model: mark
@@ -994,7 +1008,8 @@ columns:
     - 2026
     note: Undocumented (2025-); 0.00 on all 4,813,028 rows of 2026-04 PR; read from the name as a value.
   PA_VL_INC:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: []
+    # measured 2026 (2210914 rows, 2210914 filled): range [0, 1726.2], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: procedure.increment_value
     kind: number
     model: mark

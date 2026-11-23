@@ -2,6 +2,7 @@ dataset: PNI-DPNIUF
 record: vaccination
 columns:
   ABAND:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: vaccination.dropout_rate
     kind: number
     model: mark
@@ -34,6 +35,7 @@ columns:
     - 2010
     note: As in PNI-DPNI (the same file republished).
   DIFER:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: vaccination.dropout_difference
     kind: number
     model: mark
@@ -59,6 +61,7 @@ columns:
     - 2010
     note: As in PNI-DPNI (the same file republished).
   DOSE1:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: vaccination.first_doses
     kind: number
     model: mark
@@ -69,6 +72,7 @@ columns:
     - 2010
     note: As in PNI-DPNI (the same file republished).
   DOSEN:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: vaccination.closing_doses
     kind: number
     model: mark
@@ -124,6 +128,8 @@ columns:
     - 2009
     note: As in PNI-DPNI (the same file republished).
   QT_DOSE:
+    missing: []
+    # measured 2009 (19268 rows, 19268 filled): range [0, 2.4441e+06], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: vaccination.doses
     kind: number
     model: mark

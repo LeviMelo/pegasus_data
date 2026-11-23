@@ -92,6 +92,8 @@ columns:
     - 2007
     note: Empty in every file read; kind from its variable note.
   COB_NUM:
+    missing: []
+    # measured 2006 (2731 rows, 2731 filled): range [211585, 1.2062e+10], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded
     role: authorisation.apac_number
     kind: number
     model: mark
@@ -101,6 +103,8 @@ columns:
     - 2001
     - 2007
   COB_QTAP:
+    missing: []
+    # measured 2006 (2731 rows, 2731 filled): range [0, 3900], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded
     role: authorisation.quantity_presented
     kind: number
     model: mark
@@ -110,6 +114,8 @@ columns:
     - 2001
     - 2007
   COB_QTPR:
+    missing: []
+    # measured 2006 (2731 rows, 2731 filled): range [0, 3900], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded
     role: authorisation.quantity_approved_produced
     kind: number
     model: mark
@@ -137,6 +143,8 @@ columns:
     - 2001
     - 2007
   COB_VALAP:
+    missing: []
+    # measured 2006 (2731 rows, 2731 filled): range [0, 2780], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded
     role: authorisation.approved_value
     kind: number
     model: mark
@@ -146,6 +154,8 @@ columns:
     - 2001
     - 2007
   COB_VALPR:
+    missing: []
+    # measured 2006 (2731 rows, 2731 filled): range [0, 2780], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded
     role: authorisation.presented_value
     kind: number
     model: mark

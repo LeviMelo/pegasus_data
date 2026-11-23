@@ -153,6 +153,8 @@ columns:
     - 2001
     - 2007
   PAQ_MEPREV:
+    missing: []
+    # measured 2007 (51 rows, 51 filled): range [4, 60], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded
     role: authorisation.planned_months_of_chemotherapy
     kind: number
     model: mark

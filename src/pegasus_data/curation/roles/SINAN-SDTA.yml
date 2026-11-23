@@ -704,7 +704,8 @@ columns:
     - 2022
     - 2024
   NU_A_NUM_1:
-    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2023)'
+    missing: []
+    # measured 2024 (1331 rows, 1331 filled): range [0, 17], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no form dictionary is harvested for it, and DATASUS's tabulation alone does not declare (no value labelled as not recorded; 2023))
     role: outbreak.positive_food_samples_result_1
     kind: number
     unit: count
@@ -732,7 +733,8 @@ columns:
     - 2022
     - 2024
   NU_A_NUM_3:
-    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2023)'
+    missing: []
+    # measured 2024 (1331 rows, 1331 filled): range [0, 6], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no form dictionary is harvested for it, and DATASUS's tabulation alone does not declare (no value labelled as not recorded; 2023))
     role: outbreak.positive_food_samples_result_3
     kind: number
     unit: count
@@ -759,7 +761,8 @@ columns:
     - 2007
     - 2024
   NU_CLI_NUM:
-    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2023)'
+    missing: []
+    # measured 2024 (1331 rows, 1331 filled): range [0, 33], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no form dictionary is harvested for it, and DATASUS's tabulation alone does not declare (no value labelled as not recorded; 2023))
     role: outbreak.positive_clinical_samples_result_1
     kind: number
     unit: count
@@ -953,7 +956,8 @@ columns:
     - 2007
     - 2024
   NU_NUM_2:
-    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2023)'
+    missing: []
+    # measured 2024 (1331 rows, 1331 filled): range [0, 20], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no form dictionary is harvested for it, and DATASUS's tabulation alone does not declare (no value labelled as not recorded; 2023))
     role: outbreak.positive_clinical_samples_result_2
     kind: number
     unit: count
@@ -967,7 +971,8 @@ columns:
     - 2022
     - 2024
   NU_NUM_3:
-    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2023)'
+    missing: []
+    # measured 2024 (1331 rows, 1331 filled): range [0, 20], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no form dictionary is harvested for it, and DATASUS's tabulation alone does not declare (no value labelled as not recorded; 2023))
     role: outbreak.positive_clinical_samples_result_3
     kind: number
     unit: count

@@ -78,6 +78,8 @@ columns:
     - 2007
     - 2026
   AP01CV07:
+    missing: []
+    # declared from DATASUS's own sources (2026): no form dictionary; the table names every code the records use, each with its own label (0='não'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.inpatient_interna_o_care_given_free_of_charge_gratuidade
     kind: category
     model: mark
@@ -164,6 +166,8 @@ columns:
     - 2007
     - 2026
   AP02CV07:
+    missing: []
+    # declared from DATASUS's own sources (2026): no form dictionary; the table names every code the records use, each with its own label (0='não'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.outpatient_ambulatorial_care_given_free_of_charge_gratuidade
     kind: category
     model: mark
@@ -250,6 +254,8 @@ columns:
     - 2007
     - 2026
   AP03CV07:
+    missing: []
+    # declared from DATASUS's own sources (2026): no form dictionary; the table names every code the records use, each with its own label (0='não'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.sadt_care_given_free_of_charge_gratuidade
     kind: category
     model: mark
@@ -336,6 +342,8 @@ columns:
     - 2007
     - 2026
   AP04CV07:
+    missing: []
+    # declared from DATASUS's own sources (2026): no form dictionary; the table names every code the records use, each with its own label (0='não'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.emergency_urg_ncia_care_given_free_of_charge_gratuidade
     kind: category
     model: mark
@@ -422,6 +430,8 @@ columns:
     - 2007
     - 2026
   AP05CV07:
+    missing: []
+    # declared from DATASUS's own sources (2026): no form dictionary; the table names every code the records use, each with its own label (0='não'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.outros_care_given_free_of_charge_gratuidade
     kind: category
     model: mark
@@ -508,6 +518,8 @@ columns:
     - 2007
     - 2026
   AP06CV07:
+    missing: []
+    # declared from DATASUS's own sources (2026): no form dictionary; the table names every code the records use, each with its own label (0='não'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.health_surveillance_care_given_free_of_charge_gratuidade
     kind: category
     model: mark
@@ -594,6 +606,8 @@ columns:
     - 2007
     - 2026
   AP07CV07:
+    missing: []
+    # declared from DATASUS's own sources (2026): no form dictionary; the table names every code the records use, each with its own label (0='não'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.bed_vacancy_regulation_function_given_free_of_charge_gratuid
     kind: category
     model: mark
@@ -797,6 +811,7 @@ columns:
     - 2007
     - 2026
   ESFERA_A:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2026)'
     role: establishment.administrative_sphere
     kind: category
     model: mark
@@ -961,6 +976,7 @@ columns:
     - 2007
     - 2026
   ID_AREA:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2026)'
     role: team.coverage_area
     kind: category
     model: mark
@@ -971,6 +987,7 @@ columns:
     - 2007
     - 2026
   ID_SEGM:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2026)'
     role: team.territorial_segment
     kind: category
     model: mark
@@ -1156,6 +1173,7 @@ columns:
     - 2007
     - 2026
   REGSAUDE:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2026)'
     role: establishment.health_region_local
     kind: category
     model: mark
@@ -1190,6 +1208,8 @@ columns:
     codelists:
     - TERCEIRO
   TIPOSEGM:
+    missing: []
+    # declared from DATASUS's own sources (2026): no form dictionary; the table names every code the records use, each with its own label (1='segmento do tipo urbano', 2='segmento do tipo rural', 9='tipo do segmento inválido'): a code table, not a catch-all; no value labelled as not recorded
     role: team.segment_type
     kind: category
     model: mark
@@ -1200,6 +1220,8 @@ columns:
     - 2007
     - 2026
   TIPO_EQP:
+    missing: []
+    # declared from DATASUS's own sources (2026): no form dictionary; the table names every code the records use, each with its own label (01='01-esf', 04='04-eacs', 06='06-nasf1', 08='08-emsi', 22='22-emad', 23='23-emap', 70='70-esf', 71='71-esb', 72='72-enasfap', 73='73-ecr', 74='74-eapp', 75='75-emaesm', 76='76-eap'): a code table, not a catch-all; no value labelled as not recorded
     role: team.type
     kind: category
     model: dimension

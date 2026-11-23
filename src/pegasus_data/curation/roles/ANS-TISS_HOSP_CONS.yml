@@ -84,6 +84,8 @@ columns:
     name: Tempo de permanência
     note: -1 where ANS could not compute it.
   CD_CARATER_ATENDIMENTO:
+    missing: []
+    # declared from DATASUS's own sources (2025): no form dictionary; the table names every code the records use, each with its own label (1='eletivo', 2='urgência/emergência'): a code table, not a catch-all; no value labelled as not recorded
     role: admission.admission_character
     kind: category
     model: mark
@@ -92,6 +94,7 @@ columns:
     name: Caráter do atendimento
     note: TUSS 23, 1 elective, 2 urgent or emergency.
   CD_TIPO_INTERNACAO:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2025)'
     role: admission.type
     kind: category
     model: mark
@@ -100,6 +103,7 @@ columns:
     name: Tipo de internação
     note: TUSS 57, not reproduced in the dictionary; codes stay undecoded.
   CD_REGIME_INTERNACAO:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2025)'
     role: admission.regime
     kind: category
     model: mark
@@ -108,6 +112,7 @@ columns:
     name: Regime de internação
     note: TUSS 41, not reproduced in the dictionary; codes stay undecoded.
   CD_MOTIVO_SAIDA:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2025)'
     role: admission.discharge_reason
     kind: category
     model: mark
@@ -155,6 +160,8 @@ columns:
     codelists:
     - ICD10
   QT_DIARIA_UTI:
+    missing: []
+    # measured 2025 (8004199 rows, 8004199 filled): range [0, 960], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: admission.icu_days
     kind: number
     model: mark
@@ -164,6 +171,8 @@ columns:
     fact_domain_evidence: "\"Quantidade de diárias de UTI\" (admission.icu_days): ICU days: how the stay happened"
     name: Quantidade de diárias de UTI
   QT_DIARIA_ACOMPANHANTE:
+    missing: []
+    # measured 2025 (8004199 rows, 8004199 filled): range [0, 1573], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: admission.companion_days
     kind: number
     model: mark
@@ -173,6 +182,7 @@ columns:
     fact_domain_evidence: "\"Quantidade de diárias de acompanhante\" (admission.companion_days): how the stay happened"
     name: Quantidade de diárias de acompanhante
   IND_ACIDENTE_DOENCA:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2025)'
     role: admission.accident_indicator
     kind: category
     model: mark
@@ -181,6 +191,7 @@ columns:
     name: Indicador de acidente ou doença relacionada
     note: TUSS 36, not reproduced in the dictionary; codes (0, 1, 2, 9) stay undecoded.
   PORTE:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2025)'
     role: operator.size
     kind: category
     model: mark
@@ -188,6 +199,8 @@ columns:
     fact_domain_evidence: "\"Porte da operadora\" (operator.size): the operator register"
     name: Porte da operadora
   CD_MODALIDADE:
+    missing: []
+    # declared from DATASUS's own sources (2025): no form dictionary; the table names every code the records use, each with its own label (22='cooperativa médica', 24='autogestão', 25='medicina de grupo', 27='filantropia', 28='seguradora especializada em saúde'): a code table, not a catch-all; no value labelled as not recorded
     role: operator.modality
     kind: category
     model: mark
@@ -200,6 +213,8 @@ columns:
     model: excluded
     name: Nome da modalidade da operadora
   VL_EVENTO_INFORMADO:
+    missing: []
+    # measured 2025 (8004199 rows, 8004199 filled): range [0, 2.34058e+08], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: admission.value_billed
     kind: number
     model: mark
@@ -210,6 +225,8 @@ columns:
     fact_domain_evidence: "\"Valor informado do evento\" (admission.value_billed): billing"
     name: Valor informado do evento
   VL_EVENTO_PAGO:
+    missing: []
+    # measured 2025 (8004199 rows, 8004199 filled): range [0, 1.91587e+07], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: admission.value_paid
     kind: number
     model: mark
@@ -220,6 +237,8 @@ columns:
     fact_domain_evidence: "\"Valor pago do evento\" (admission.value_paid): billing"
     name: Valor pago do evento
   VL_EVENTO_GLOSA:
+    missing: []
+    # measured 2025 (8004199 rows, 8004199 filled): range [0, 2.33827e+08], none negative, non-numeric or fill-shaped at the maximum; the sources name no code for not recorded (no codelist or tabulation band of DATASUS bounds it)
     role: admission.value_refused
     kind: number
     model: mark
@@ -230,6 +249,8 @@ columns:
     fact_domain_evidence: "\"Valor glosado do evento\" (admission.value_refused): billing"
     name: Valor glosado do evento
   LG_VALOR_PREESTABELECIDO:
+    missing: []
+    # declared from DATASUS's own sources (2025): no form dictionary; the table names every code the records use, each with its own label (0='no', 1='yes'): a code table, not a catch-all; no value labelled as not recorded
     role: admission.preset_value_contract
     kind: category
     model: mark
