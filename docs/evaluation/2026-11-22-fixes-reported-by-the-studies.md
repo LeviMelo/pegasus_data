@@ -269,3 +269,12 @@ pns_alcohol_abusive_use_percent (7726/4301), pns_violence_by_stranger_percent (5
 computes (CLAUDE.md's rule is about those) but a source's official estimate, which is never recomputed. Minas Gerais
 2019: spine 22.0% [20.2; 23.8] CV 4.2 (as SIDRA), helmet 95.1% [92.9; 96.7], seat belt 82.3%, hypertension 27.7%,
 alcohol 17.2%; 2013 spine 17.7% [15.4; 20.3]; violence 2013 2.5% [1.8; 3.4] CV 16.9. 27 states in every field-year.
+
+**Oncology supply for t05 (science-2).** Accreditation groups oncology_cacon (HB 1701-1703, 1712, 1713), oncology_unacon
+(1706-1711) and radiotherapy (the codes whose label names radiotherapy: 1704, 1707, 1715), and the professional group
+radiotherapists (CBO 225330, 223154 before 2011; the study's "225151" is the anaesthetist). Fields
+cnes_accreditation_oncology_cacon/_unacon/_radiotherapy (2014-2024) and cnes_radiotherapists_professionals/_hours_sus
+(2008-2023). Brazil December 2019: 46 CACON, 263 UNACON, 141 radiotherapy establishments (equal to a direct distinct count
+of the lake's HB), 1,207 radiation oncologists (SBRT's own count is of the order of 1,100). Linear accelerators and cobalt
+units are not CNES-EQ codes: they are counts on CNES-DC (S_ACELL6, S_ALSEME, S_ALCOME, UN_COBAL; layout IT_CNES_1706),
+whose December files the lake holds only for 2026.
