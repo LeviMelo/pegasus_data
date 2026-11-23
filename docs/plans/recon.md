@@ -40,6 +40,11 @@ to ADD what declarations do not reach, and every such addition or exclusion is r
    with a recorded decision. **Done** (65846705; PegaSUS cc6795a: `contexts_considered`, `study.body` part).
 4. **Procedure seeds:** SIGTAP codes as a topic seed. **Done** (PegaSUS cc6795a, `--sigtap`).
 5. **Undeclared missing codes and draft roles** that keep columns out of every scope (`fields.declared` reasons),
-   swept per column. Fillers **done** (720887f3: 127 columns of 5,801 measured); the `fields.declared` reasons in progress.
+   swept per column. Fillers **done** (720887f3: 127 columns of 5,801 measured); roles sweep **done** (deda77f4: 1,122
+   columns); measure zeros **done** but 7 (36e669b3, OQ 101). Contexts carry their measured grain (601e3eda: municipal,
+   capitals, partial, state from IBGE's locality counts) and state-grain fields exist (4e8d168c, 2f67854c); PegaSUS's
+   reading of them is planned (pegasus_project docs/plans/state-contexts.md).
 6. **Studies go through it:** the skills make a PegaSUS scope the first step of any study; its `scope.yml` is the data
-   extent the paper and the reviewer check. Then the ten ABNc papers.
+   extent the paper and the reviewer check. Then the ten ABNc papers. Status 2026-11-23: decided (undecided 0) t10
+   (certified), t08, t09, t05, t06, t03, t07; t01 and t04 scoping; t02 bounded by PegaSUS d0d63b1 and being rerun. The plan
+   closes when the ten scopes are decided.
