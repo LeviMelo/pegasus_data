@@ -220,3 +220,19 @@ chapter XVIII, heart failure I50 among them); Bahia 12.2% ill-defined, Sao Paulo
 (292740) 16,853 / 1,143 / 6,379 and Sao Paulo city (355030) 78,581 / 2,574 / 27,295, equal to the direct count. The only
 differences from it are the 23 "municipality ignored" codes (xx0000), 2,539 deaths that belong to no municipality and
 stay in the state and country cubes (BA 93,058 vs 93,365 direct, the same). Read in 11-15 s a year per field.
+
+**Context fields for the ANS and PNS studies (2026-11-23).** The ANS fields already exist as intake fields; nothing was added
+beside them. `ans_beneficiaries_quarterly` (medical-hospital links, sex x age band x contract x segmentation, quarter stock) gives
+47,038,196 links in December 2019 (ANS: about 47 million); its age band is CD_FAIXA_E as filed (two codes per five-year band from
+15-19 to 55-59, 80+ is 26+27). `ans_beneficiaries` is December 2021-2025 only and keeps dental links as a `coverage` stratum
+(2022: 50,458,049 medical-hospital, 30,002,606 dental; the 2022 TabNet figure is 50,530,569). `ans_tiss_hospital_events` (and
+`_by_cid`; the DET field is `ans_tiss_hospital_items`) had sex but no age band: `age_band` is added (FAIXA_ETARIA as filed,
+spelled '30 a 39' to 2022 and '30 a 39 anos' from 2023). Events placed by residence: 6,134,552 in 2019 and 7,899,364 in 2023
+against a direct count of the lake (residence present, not xx0000) of 6,134,556 and 7,899,364.
+**PNS not declared.** `load_field` reads a SIDRA field at municipality only (`_field_from_cube` calls `cube` at its default place and
+keeps the first six characters of the place as `municipality`); only intake sources with `place.states` come out at state level
+(keyed by their own state column), and no field carries an uncertainty column. The cube layer can serve `sidra:<t>/<v>` at
+`place="uf"` once N3 facts are fetched (`pegasus-data sidra fetch <t> -v <v> --level N3`). IBGE publishes the count (mil pessoas)
+with its 95% interval limits and coefficient of variation (table 4638, variables 4615 count, 4616/4617 limits, 4618 percent, 4934
+CV; MG 2019: 3,646.543 [3,347.879; 3,945.207] thousand, 22.0%, CV 4.2%). No registry table was found for AVC; hypertension
+(4416-4419), helmet (5267-5278), alcohol (7726-7731), violence (5351-5422, 2013) and seat belt (5133-5138, 8082-8093) exist.
