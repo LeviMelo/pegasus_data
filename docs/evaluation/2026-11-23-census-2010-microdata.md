@@ -32,7 +32,7 @@ household, no household without a person, same weighting area (V0011).
 | AC race (5 categories) | 171,257.15 / 41,547.12 / 14,404.19 / 490,507.03 / 15,704.39 | table 136: 171,257 / 41,547 / 14,404 / 490,507 / 15,704 | within 0.4 person |
 | 22 AC municipalities by race (105 cells) | | table 136, n6 | all within 0.5 person |
 | AC private permanent households (V4001 = 01) | 190,643.6 | 190,645 (table 3218) | -1.4 |
-| AC / RR emigrants (EMIG, weighted) | 1,352.8 / 1,401.3 | 1,276 / 1,181 (table 3172) | **not reconciled** |
+| AC / RR emigrants (EMIG, weighted) | 1,352.8 / 1,401.3 | 1,276 / 1,181 (table 3172) | **a census count against a sample expansion, +14.0% nationally (corrected 2026-11-23: `2026-11-23-census2010-codes-emigrants.md`)** |
 
 The weight is calibrated to the census totals by weighting area, so population and sex agree by construction; race, the household
 count and the municipal cells are the checks that read the variables. The emigrant totals differ by 6% (AC) and 19% (RR): table
@@ -45,7 +45,7 @@ files byte-identical; `commute_study_2010.parquet` equal to 2.8e-14 in a weight 
 municipality), the report's counts identical. The national build (27 zips) was not repeated: the read is the same columns,
 and the AC run exercises every branch (foreign, ignored, unlisted, same-as-residence, no-code).
 
-**Left.** (1) The variables' code lists that IBGE keeps in separate workbooks (places of migration and commuting, occupation,
+**Left.** (1) (Done the same day, see `2026-11-23-census2010-codes-emigrants.md`: all but the meso-, micro- and metropolitan-region codes are decoded.) The variables' code lists that IBGE keeps in separate workbooks (places of migration and commuting, occupation,
 activity, courses, religion, weighting-area composition) are named in the roles' notes and not decoded: a code stays undecoded.
 (2) A role's property is English where it is a stratum or a key (sex, age, race, residence, weighting area, household control,
 sample weight) and `<entity>.<IBGE variable>` elsewhere, so no questionnaire item is translated into a claim the layout does not

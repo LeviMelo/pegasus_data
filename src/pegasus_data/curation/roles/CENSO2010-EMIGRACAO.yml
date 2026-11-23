@@ -174,7 +174,7 @@ columns:
     fact_domain_evidence: '"PAÍS DE RESIDÊNCIA EM 31 DE JULHO DE 2010 – CÓDIGO" (emigrant.country_of_residence): attribute of the person or of
       the household they live in'
     name: PAÍS DE RESIDÊNCIA EM 31 DE JULHO DE 2010 – CÓDIGO
-    note: The codes are listed in a workbook of Documentacao.zip, not decoded here.
+    note: The codes are decoded from IBGE's documentation workbook (curation/codes/censo2010.yml).
     years:
     - 2010
     - 2010

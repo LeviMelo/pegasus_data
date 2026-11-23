@@ -3017,7 +3017,7 @@ sources:
       - "Positions and widths are the documentation's layout (Layout_microdados_Amostra.xls, sheet DOMI), checked at every landing; the file is whole lines of 172 characters."
       - "Every variable is landed as filed (text); a numeric one also has a typed column and its digits as filed in `<NAME>__RAW`; the sample weight V0010 has 13 implied decimals."
       - "A household and its persons share V0300 (the control number) and V0011 within a state's file; SP is two files (the capital's region and the rest) with their own households."
-      - "The codes of the places, occupations, activities, courses and religion are in the documentation's workbooks, not decoded here."
+      - "The mesoregion, microregion and metropolitan-region codes (V1002-V1004, keyed by state) are in a workbook of the documentation and are not decoded here."
     citation: IBGE, Censo Demográfico 2010, Resultados Gerais da Amostra, Microdados (ftp.ibge.gov.br/Censos/Censo_Demografico_2010/Resultados_Gerais_da_Amostra/Microdados)
     dictionary: Layout_microdados_Amostra.xls (Documentacao.zip), sheet DOMI
     place: {column: CODMUN, type: municipality}
@@ -3109,7 +3109,7 @@ sources:
       M0401: {description: "MARCA DE IMPUTAÇÃO NA V0401", type: code, positions: [169, 169], codes: {"1": "Sim", "2": "Não"}}
       M0402: {description: "MARCA DE IMPUTAÇÃO NA V0402", type: code, positions: [170, 170], codes: {"1": "Sim", "2": "Não"}}
       M0701: {description: "MARCA DE IMPUTAÇÃO NA V0701", type: code, positions: [171, 171], codes: {"1": "Sim", "2": "Não"}}
-      V1005: {description: "Situação do setor", type: code, positions: [172, 172], codes: {"1": "Masculino", "2": "Feminino", "3": "Área urbanizada isolada", "4": "Área rural de extensão urbana", "5": "Aglomerado rural (povoado)", "6": "Aglomerado rural (núcleo)", "7": "Aglomerado rural (outros)", "8": "Área rural exclusive aglomerado rural"}}
+      V1005: {description: "Situação do setor", type: code, positions: [172, 172], codes: {"1": "Área urbanizada", "2": "Área não urbanizada", "3": "Área urbanizada isolada", "4": "Área rural de extensão urbana", "5": "Aglomerado rural (povoado)", "6": "Aglomerado rural (núcleo)", "7": "Aglomerado rural (outros)", "8": "Área rural exclusive aglomerado rural"}}
 
   census2010_pessoas:
     system: CENSO2010
@@ -3132,7 +3132,7 @@ sources:
       - "Positions and widths are the documentation's layout (Layout_microdados_Amostra.xls, sheet PESS), checked at every landing; the file is whole lines of 540 characters."
       - "Every variable is landed as filed (text); a numeric one also has a typed column and its digits as filed in `<NAME>__RAW`; the sample weight V0010 has 13 implied decimals."
       - "A household and its persons share V0300 (the control number) and V0011 within a state's file; SP is two files (the capital's region and the rest) with their own households."
-      - "The codes of the places, occupations, activities, courses and religion are in the documentation's workbooks, not decoded here."
+      - "The codes of places (UF, municipality, country), occupation (COD 2010 and Census 2000), activity (CNAE-Domiciliar 2.0 and Census 2000), courses and religion are IBGE's documentation workbooks, decoded from curation/codes/censo2010.yml (written by scripts/harvest_codes.py from Documentacao.zip); a code the workbook does not list stays undecoded (municipality 9999999, occupation 6121 of 2000), and the mesoregion, microregion and metropolitan-region codes (V1002-V1004, keyed by state) are not decoded."
     citation: IBGE, Censo Demográfico 2010, Resultados Gerais da Amostra, Microdados (ftp.ibge.gov.br/Censos/Censo_Demografico_2010/Resultados_Gerais_da_Amostra/Microdados)
     dictionary: Layout_microdados_Amostra.xls (Documentacao.zip), sheet PESS
     place: {column: CODMUN, type: municipality}
@@ -3392,7 +3392,7 @@ sources:
       M0605: {description: "MARCA DE IMPUTAÇÃO NA V0605", type: code, positions: [537, 537], codes: {"1": "Sim", "2": "Não"}}
       M6462: {description: "MARCA DE IMPUTAÇÃO NA V6462", type: code, positions: [538, 538], codes: {"1": "Sim", "2": "Não"}}
       M6472: {description: "MARCA DE IMPUTAÇÃO NA V6472", type: code, positions: [539, 539], codes: {"1": "Sim", "2": "Não"}}
-      V1005: {description: "Situação do setor", type: code, positions: [540, 540], codes: {"1": "Masculino", "2": "Feminino", "3": "Área urbanizada isolada", "4": "Área rural de extensão urbana", "5": "Aglomerado rural (povoado)", "6": "Aglomerado rural (núcleo)", "7": "Aglomerado rural (outros)", "8": "Área rural exclusive aglomerado rural"}}
+      V1005: {description: "Situação do setor", type: code, positions: [540, 540], codes: {"1": "Área urbanizada", "2": "Área não urbanizada", "3": "Área urbanizada isolada", "4": "Área rural de extensão urbana", "5": "Aglomerado rural (povoado)", "6": "Aglomerado rural (núcleo)", "7": "Aglomerado rural (outros)", "8": "Área rural exclusive aglomerado rural"}}
 
   census2010_emigracao:
     system: CENSO2010
@@ -3415,7 +3415,7 @@ sources:
       - "Positions and widths are the documentation's layout (Layout_microdados_Amostra.xls, sheet EMIG), checked at every landing; the file is whole lines of 74 characters."
       - "Every variable is landed as filed (text); a numeric one also has a typed column and its digits as filed in `<NAME>__RAW`; the sample weight V0010 has 13 implied decimals."
       - "A household and its persons share V0300 (the control number) and V0011 within a state's file; SP is two files (the capital's region and the rest) with their own households."
-      - "The codes of the places, occupations, activities, courses and religion are in the documentation's workbooks, not decoded here."
+      - "The country code V3061 is decoded from the documentation's country workbook (curation/codes/censo2010.yml); the mesoregion, microregion and metropolitan-region codes (V1002-V1004, keyed by state) are not decoded here."
     citation: IBGE, Censo Demográfico 2010, Resultados Gerais da Amostra, Microdados (ftp.ibge.gov.br/Censos/Censo_Demografico_2010/Resultados_Gerais_da_Amostra/Microdados)
     dictionary: Layout_microdados_Amostra.xls (Documentacao.zip), sheet EMIG
     place: {column: CODMUN, type: municipality}
@@ -3450,7 +3450,7 @@ sources:
       M0304: {description: "MARCA DE IMPUTAÇÃO NA V0304", type: code, positions: [71, 71], codes: {"1": "Sim", "2": "Não"}}
       M0305: {description: "MARCA DE IMPUTAÇÃO NA V0305", type: code, positions: [72, 72], codes: {"1": "Sim", "2": "Não"}}
       M3061: {description: "MARCA DE IMPUTAÇÃO NA V3061", type: code, positions: [73, 73], codes: {"1": "Sim", "2": "Não"}}
-      V1005: {description: "Situação do setor", type: code, positions: [74, 74], codes: {"1": "Masculino", "2": "Feminino", "3": "Área urbanizada isolada", "4": "Área rural de extensão urbana", "5": "Aglomerado rural (povoado)", "6": "Aglomerado rural (núcleo)", "7": "Aglomerado rural (outros)", "8": "Área rural exclusive aglomerado rural"}}
+      V1005: {description: "Situação do setor", type: code, positions: [74, 74], codes: {"1": "Área urbanizada", "2": "Área não urbanizada", "3": "Área urbanizada isolada", "4": "Área rural de extensão urbana", "5": "Aglomerado rural (povoado)", "6": "Aglomerado rural (núcleo)", "7": "Aglomerado rural (outros)", "8": "Área rural exclusive aglomerado rural"}}
 
   census2010_mortalidade:
     system: CENSO2010
@@ -3473,7 +3473,7 @@ sources:
       - "Positions and widths are the documentation's layout (Layout_microdados_Amostra.xls, sheet MORT), checked at every landing; the file is whole lines of 66 characters."
       - "Every variable is landed as filed (text); a numeric one also has a typed column and its digits as filed in `<NAME>__RAW`; the sample weight V0010 has 13 implied decimals."
       - "A household and its persons share V0300 (the control number) and V0011 within a state's file; SP is two files (the capital's region and the rest) with their own households."
-      - "The codes of the places, occupations, activities, courses and religion are in the documentation's workbooks, not decoded here."
+      - "The mesoregion, microregion and metropolitan-region codes (V1002-V1004, keyed by state) are in a workbook of the documentation and are not decoded here."
     citation: IBGE, Censo Demográfico 2010, Resultados Gerais da Amostra, Microdados (ftp.ibge.gov.br/Censos/Censo_Demografico_2010/Resultados_Gerais_da_Amostra/Microdados)
     dictionary: Layout_microdados_Amostra.xls (Documentacao.zip), sheet MORT
     place: {column: CODMUN, type: municipality}
@@ -3508,7 +3508,7 @@ sources:
       M0704: {description: "MARCA DE IMPUTAÇÃO NA V0704", type: code, positions: [63, 63], codes: {"1": "Sim", "2": "Não"}}
       M7051: {description: "MARCA DE IMPUTAÇÃO NA V7051", type: code, positions: [64, 64], codes: {"1": "Sim", "2": "Não"}}
       M7052: {description: "MARCA DE IMPUTAÇÃO NA V7052", type: code, positions: [65, 65], codes: {"1": "Sim", "2": "Não"}}
-      V1005: {description: "Situação do setor", type: code, positions: [66, 66], codes: {"1": "Masculino", "2": "Feminino", "3": "Área urbanizada isolada", "4": "Área rural de extensão urbana", "5": "Aglomerado rural (povoado)", "6": "Aglomerado rural (núcleo)", "7": "Aglomerado rural (outros)", "8": "Área rural exclusive aglomerado rural"}}
+      V1005: {description: "Situação do setor", type: code, positions: [66, 66], codes: {"1": "Área urbanizada", "2": "Área não urbanizada", "3": "Área urbanizada isolada", "4": "Área rural de extensão urbana", "5": "Aglomerado rural (povoado)", "6": "Aglomerado rural (núcleo)", "7": "Aglomerado rural (outros)", "8": "Área rural exclusive aglomerado rural"}}
 
   siops_municipal:
     system: SIOPS

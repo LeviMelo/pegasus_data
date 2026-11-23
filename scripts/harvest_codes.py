@@ -22,7 +22,7 @@ A code list is kept only when:
 
 Hand curation (``codes:`` or ``codelist:`` on a variable) wins over this file.
 
-    python scripts/harvest_codes.py [--dry-run]
+    python scripts/harvest_codes.py [--dry-run] [--only SYSTEM ...]
 """
 
 from __future__ import annotations
@@ -412,8 +412,20 @@ def harvest() -> tuple[dict[str, dict[str, dict[str, dict]]], list[str]]:
     for rel, (system, series) in OTHER_DICTIONARIES.items():
         if (ROOT / rel).exists():
             _read(ROOT / rel, series, out[system])
+    _census2010(out)
     _supplement(out)
     return {k: dict(v) for k, v in out.items()}, unmapped
+
+
+def _census2010(out: dict[str, dict[str, dict[str, dict]]]) -> None:
+    """The Census 2010 sample's code lists, read from the workbooks of the held ``Documentacao.zip`` (the registry
+    ``census2010_microdata`` of the data home): ``pegasus_data.sources.census_codes``. Skipped when that file is not held."""
+    from pegasus_data.sources.census_codes import documentation_codes
+
+    try:
+        out["CENSO2010"] = documentation_codes()
+    except (FileNotFoundError, StopIteration):
+        print("CENSO2010: Documentacao.zip not held, its code lists are not harvested")
 
 
 def _supplement(out: dict[str, dict[str, dict[str, dict]]]) -> None:
@@ -445,8 +457,11 @@ def _supplement(out: dict[str, dict[str, dict[str, dict]]]) -> None:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument("--only", nargs="+", metavar="SYSTEM", help="write only these systems (the others are left as they are)")
     args = parser.parse_args()
     systems, unmapped = harvest()
+    if args.only:
+        systems = {k: v for k, v in systems.items() if k in {s.upper() for s in args.only}}
     for system, tables in sorted(systems.items()):
         count = sum(1 for v in tables.values() for e in v.values() if e.get("codes"))
         typed = sum(1 for v in tables.values() for e in v.values() if e.get("type"))

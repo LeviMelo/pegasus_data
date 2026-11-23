@@ -352,7 +352,7 @@ columns:
     fact_domain_evidence: '"UNIDADE DA FEDERAÇÃO DE NASCIMENTO – código" (person.v6222): attribute of the person or of the household they live
       in'
     name: UNIDADE DA FEDERAÇÃO DE NASCIMENTO – código
-    note: The codes are listed in a workbook of Documentacao.zip, not decoded here.
+    note: The codes are decoded from IBGE's documentation workbook (curation/codes/censo2010.yml).
     years:
     - 2010
     - 2010
@@ -364,7 +364,7 @@ columns:
     fact_domain_evidence: '"QUAL É O PAÍS ESTRANGEIRO DE NASCIMENTO – código" (person.v6224): attribute of the person or of the household they
       live in'
     name: QUAL É O PAÍS ESTRANGEIRO DE NASCIMENTO – código
-    note: The codes are listed in a workbook of Documentacao.zip, not decoded here.
+    note: The codes are decoded from IBGE's documentation workbook (curation/codes/censo2010.yml).
     years:
     - 2010
     - 2010
@@ -417,7 +417,7 @@ columns:
     fact_domain: person
     fact_domain_evidence: '"UF DE RESIDÊNCIA ANTERIOR – código" (person.v6252): attribute of the person or of the household they live in'
     name: UF DE RESIDÊNCIA ANTERIOR – código
-    note: The codes are listed in a workbook of Documentacao.zip, not decoded here.
+    note: The codes are decoded from IBGE's documentation workbook (curation/codes/censo2010.yml).
     years:
     - 2010
     - 2010
@@ -429,7 +429,7 @@ columns:
     fact_domain: person
     fact_domain_evidence: '"MUNICÍPIO DE RESIDÊNCIA ANTERIOR – código" (person.v6254): attribute of the person or of the household they live in'
     name: MUNICÍPIO DE RESIDÊNCIA ANTERIOR – código
-    note: The codes are listed in a workbook of Documentacao.zip, not decoded here.
+    note: The codes are decoded from IBGE's documentation workbook (curation/codes/censo2010.yml).
     years:
     - 2010
     - 2010
@@ -440,7 +440,7 @@ columns:
     fact_domain: person
     fact_domain_evidence: '"PAÍS DE RESIDÊNCIA ANTERIOR – código" (person.v6256): attribute of the person or of the household they live in'
     name: PAÍS DE RESIDÊNCIA ANTERIOR – código
-    note: The codes are listed in a workbook of Documentacao.zip, not decoded here.
+    note: The codes are decoded from IBGE's documentation workbook (curation/codes/censo2010.yml).
     years:
     - 2010
     - 2010
@@ -465,7 +465,7 @@ columns:
     fact_domain_evidence: '"UF DE RESIDÊNCIA EM 31 DE JULHO DE 2005 – código" (person.v6262): attribute of the person or of the household they
       live in'
     name: UF DE RESIDÊNCIA EM 31 DE JULHO DE 2005 – código
-    note: The codes are listed in a workbook of Documentacao.zip, not decoded here.
+    note: The codes are decoded from IBGE's documentation workbook (curation/codes/censo2010.yml).
     years:
     - 2010
     - 2010
@@ -478,7 +478,7 @@ columns:
     fact_domain_evidence: '"MUNICÍPIO DE RESIDÊNCIA EM 31 DE JULHO DE 2005 – código" (person.v6264): attribute of the person or of the household
       they live in'
     name: MUNICÍPIO DE RESIDÊNCIA EM 31 DE JULHO DE 2005 – código
-    note: The codes are listed in a workbook of Documentacao.zip, not decoded here.
+    note: The codes are decoded from IBGE's documentation workbook (curation/codes/censo2010.yml).
     years:
     - 2010
     - 2010
@@ -490,7 +490,7 @@ columns:
     fact_domain_evidence: '"PAÍS DE RESIDÊNCIA EM 31 DE JULHO DE 2005 – código" (person.v6266): attribute of the person or of the household they
       live in'
     name: PAÍS DE RESIDÊNCIA EM 31 DE JULHO DE 2005 – código
-    note: The codes are listed in a workbook of Documentacao.zip, not decoded here.
+    note: The codes are decoded from IBGE's documentation workbook (curation/codes/censo2010.yml).
     years:
     - 2010
     - 2010
@@ -613,7 +613,7 @@ columns:
     fact_domain: person
     fact_domain_evidence: '"CURSO SUPERIOR DE GRADUAÇÃO – código" (person.v6352): attribute of the person or of the household they live in'
     name: CURSO SUPERIOR DE GRADUAÇÃO – código
-    note: The codes are listed in a workbook of Documentacao.zip, not decoded here.
+    note: The codes are decoded from IBGE's documentation workbook (curation/codes/censo2010.yml).
     years:
     - 2010
     - 2010
@@ -625,7 +625,7 @@ columns:
     fact_domain: person
     fact_domain_evidence: '"CURSO DE MESTRADO – código" (person.v6354): attribute of the person or of the household they live in'
     name: CURSO DE MESTRADO – código
-    note: The codes are listed in a workbook of Documentacao.zip, not decoded here.
+    note: The codes are decoded from IBGE's documentation workbook (curation/codes/censo2010.yml).
     years:
     - 2010
     - 2010
@@ -637,7 +637,7 @@ columns:
     fact_domain: person
     fact_domain_evidence: '"CURSO DE DOUTORADO – código" (person.v6356): attribute of the person or of the household they live in'
     name: CURSO DE DOUTORADO – código
-    note: The codes are listed in a workbook of Documentacao.zip, not decoded here.
+    note: The codes are decoded from IBGE's documentation workbook (curation/codes/censo2010.yml).
     years:
     - 2010
     - 2010
@@ -663,7 +663,7 @@ columns:
     fact_domain_evidence: '"UF QUE FREQUENTAVA ESCOLA (OU CRECHE) – código" (person.v6362): attribute of the person or of the household they live
       in'
     name: UF QUE FREQUENTAVA ESCOLA (OU CRECHE) – código
-    note: The codes are listed in a workbook of Documentacao.zip, not decoded here.
+    note: The codes are decoded from IBGE's documentation workbook (curation/codes/censo2010.yml).
     years:
     - 2010
     - 2010
@@ -676,7 +676,7 @@ columns:
     fact_domain_evidence: '"MUNICÍPIO QUE FREQUENTAVA ESCOLA (OU CRECHE) – código" (person.v6364): attribute of the person or of the household
       they live in'
     name: MUNICÍPIO QUE FREQUENTAVA ESCOLA (OU CRECHE) – código
-    note: The codes are listed in a workbook of Documentacao.zip, not decoded here.
+    note: The codes are decoded from IBGE's documentation workbook (curation/codes/censo2010.yml).
     years:
     - 2010
     - 2010
@@ -688,7 +688,7 @@ columns:
     fact_domain_evidence: '"PAÍS ESTRANGEIRO QUE FREQUENTAVA ESCOLA (OU CRECHE) – código" (person.v6366): attribute of the person or of the household
       they live in'
     name: PAÍS ESTRANGEIRO QUE FREQUENTAVA ESCOLA (OU CRECHE) – código
-    note: The codes are listed in a workbook of Documentacao.zip, not decoded here.
+    note: The codes are decoded from IBGE's documentation workbook (curation/codes/censo2010.yml).
     years:
     - 2010
     - 2010
@@ -812,7 +812,7 @@ columns:
     fact_domain: person
     fact_domain_evidence: '"OCUPAÇÃO – código" (person.v6461): attribute of the person or of the household they live in'
     name: OCUPAÇÃO – código
-    note: The codes are listed in a workbook of Documentacao.zip, not decoded here. (pode ter valor branco)
+    note: The codes are decoded from IBGE's documentation workbook (curation/codes/censo2010.yml). (pode ter valor branco)
     years:
     - 2010
     - 2010
@@ -824,7 +824,7 @@ columns:
     fact_domain: person
     fact_domain_evidence: '"ATIVIDADE – código" (person.v6471): attribute of the person or of the household they live in'
     name: ATIVIDADE – código
-    note: The codes are listed in a workbook of Documentacao.zip, not decoded here. (pode ter valor branco)
+    note: The codes are decoded from IBGE's documentation workbook (curation/codes/censo2010.yml). (pode ter valor branco)
     years:
     - 2010
     - 2010
@@ -1175,7 +1175,7 @@ columns:
     fact_domain_evidence: '"EM QUE UNIDADE DA FEDERAÇÃO TRABALHAVA - código" (person.v6602): attribute of the person or of the household they
       live in'
     name: EM QUE UNIDADE DA FEDERAÇÃO TRABALHAVA - código
-    note: The codes are listed in a workbook of Documentacao.zip, not decoded here.
+    note: The codes are decoded from IBGE's documentation workbook (curation/codes/censo2010.yml).
     years:
     - 2010
     - 2010
@@ -1187,7 +1187,7 @@ columns:
     fact_domain: person
     fact_domain_evidence: '"EM QUE MUNICÍPIO TRABALHAVA - código" (person.v6604): attribute of the person or of the household they live in'
     name: EM QUE MUNICÍPIO TRABALHAVA - código
-    note: The codes are listed in a workbook of Documentacao.zip, not decoded here.
+    note: The codes are decoded from IBGE's documentation workbook (curation/codes/censo2010.yml).
     years:
     - 2010
     - 2010
@@ -1199,7 +1199,7 @@ columns:
     fact_domain_evidence: '"EM QUE PAÍS ESTRANGEIRO TRABALHAVA - código" (person.v6606): attribute of the person or of the household they live
       in'
     name: EM QUE PAÍS ESTRANGEIRO TRABALHAVA - código
-    note: The codes are listed in a workbook of Documentacao.zip, not decoded here.
+    note: The codes are decoded from IBGE's documentation workbook (curation/codes/censo2010.yml).
     years:
     - 2010
     - 2010
