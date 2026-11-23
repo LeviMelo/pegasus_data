@@ -95,7 +95,7 @@ def _census_fields(settings: Any, files: Sequence[dict[str, Any]]) -> dict[int, 
     from ._query_engine.readplan import schema_presence
     from .catalog.store import CatalogStore
 
-    store = CatalogStore(settings.catalog_path, read_only=True)
+    store = CatalogStore.shared(settings.catalog_path)
     try:
         signature: dict[str, str | None] = {}
         paths = [f["path"] for f in files]

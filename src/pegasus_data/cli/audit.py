@@ -81,7 +81,7 @@ def meaning(
     from ..semantics.coverage import as_records, measure, summarise
 
     settings = _settings(root)
-    store = CatalogStore(settings.catalog_path, read_only=True)
+    store = CatalogStore.shared(settings.catalog_path)
     try:
         rows = measure(store, system)
     finally:

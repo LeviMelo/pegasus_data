@@ -161,7 +161,7 @@ def translate(
 
     resolved = settings or load_settings(root=Path(root) if root else None)
 
-    store = CatalogStore(resolved.catalog_path, read_only=True)
+    store = CatalogStore.shared(resolved.catalog_path)
     try:
         # A fresh catalog is the seed: bindings and curation are already in it
         # (ADR-0067); labels come from the shipped pack when there is no dictionary.

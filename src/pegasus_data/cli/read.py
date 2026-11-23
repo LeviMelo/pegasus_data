@@ -848,7 +848,7 @@ def translate_file(
         from ..presentation import present as apply_presentation
 
         settings = _settings(root)
-        store = CatalogStore(settings.catalog_path, read_only=True)
+        store = CatalogStore.shared(settings.catalog_path)
         try:
             table = apply_presentation(
                 table, present or settings.presentation, names=documented_names(store, system.upper())  # type: ignore[arg-type]
@@ -1096,7 +1096,7 @@ def query_cmd(
     from ..retrieve import parse_dataset
 
     system = parse_dataset(dataset)[0]
-    store = CatalogStore(settings.catalog_path, read_only=True)
+    store = CatalogStore.shared(settings.catalog_path)
     try:
         if dictionary_out:
             _, book = describe_table(store, system, table, dataset=dataset)

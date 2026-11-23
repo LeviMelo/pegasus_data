@@ -45,7 +45,7 @@ class ResourceProvider:
             if estimate is None and sizing and settings.catalog_path.is_file():
                 from .catalog.store import CatalogStore
 
-                store = CatalogStore(settings.catalog_path, read_only=True)
+                store = CatalogStore.shared(settings.catalog_path)
                 try:
                     row = store.query(
                         "SELECT COUNT(*) count FROM dictionary WHERE value_group LIKE ?", (str(sizing["groups"]),)

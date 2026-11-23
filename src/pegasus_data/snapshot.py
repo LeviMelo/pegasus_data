@@ -551,7 +551,7 @@ def versions(
     from .persist.versions import current_digest
 
     resolved = settings or load_settings(root=Path(root) if root else None)
-    catalog = CatalogStore(resolved.catalog_path, read_only=True)
+    catalog = CatalogStore.shared(resolved.catalog_path)
     try:
         blobs = BlobStore(resolved.blobs_dir)
         found: dict[tuple[str, str], dict[str, Any]] = {}

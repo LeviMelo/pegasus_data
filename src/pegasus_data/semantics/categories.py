@@ -42,7 +42,7 @@ def code_labels(dataset: str, column: str, year: int, codes: Sequence[str | None
     settings = load_settings(root=Path(root) if root else None)
     system, series = parse_dataset(dataset)
     present = sorted({str(c).strip() for c in codes if c is not None and str(c).strip()})
-    store = CatalogStore(settings.catalog_path, read_only=True)
+    store = CatalogStore.shared(settings.catalog_path)
     try:
         return codelist_levels(column, store=store, lake_root=settings.lake_dir, system=system,
                                family_id=f"{system}.{series}", year=year, codes=present)

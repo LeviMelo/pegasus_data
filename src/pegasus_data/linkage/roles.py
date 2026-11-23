@@ -364,7 +364,7 @@ def _listed_paths(settings: Any, year: int) -> set[str] | None:
 
     if not Path(settings.catalog_path).exists():
         return None
-    store = CatalogStore(settings.catalog_path, read_only=True)
+    store = CatalogStore.shared(settings.catalog_path)
     try:
         return {str(r["relative_path"]) for r in store.query("SELECT relative_path FROM lake_partitions WHERE year=?",
                                                               (year,))}
@@ -686,7 +686,7 @@ def _listed(dataset: str, uf: str, period: object, settings: Any) -> bool:
     system, series = parse_dataset(dataset)
     resolved = _period(period)
     years = resolved.years if resolved is not None else ()
-    store = CatalogStore(settings.catalog_path, read_only=True)
+    store = CatalogStore.shared(settings.catalog_path)
     try:
         marks = ",".join("?" for _ in years) or "NULL"
         row = store.query(

@@ -1170,7 +1170,7 @@ def _records_stamp(settings: Any, dataset: str, digest: Any) -> None:
     digest.update(geography_pack_checksum(("geography.parquet", "municipalities.parquet")).encode())
     semantics = semantics_for(dataset)
     system, series = (str(semantics.system or "").upper(), str(semantics.series or "").upper()) if semantics else ("", "")
-    store = CatalogStore(settings.catalog_path, read_only=True)
+    store = CatalogStore.shared(settings.catalog_path)
     try:
         for row in store.query(
             "SELECT lp.relative_path, lp.byte_size, lp.written_at FROM lake_partitions lp JOIN families f"

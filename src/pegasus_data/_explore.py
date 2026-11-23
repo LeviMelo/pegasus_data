@@ -166,7 +166,7 @@ def _pairs(store: Any, system: str | None, role: str | None) -> list[tuple[str, 
 
 def _known_systems(settings: Settings, role: str | None) -> list[str]:
     """The systems the catalog lists (for a system it does not know: the nearest are suggested)."""
-    store = CatalogStore(settings.catalog_path, read_only=True)
+    store = CatalogStore.shared(settings.catalog_path)
     try:
         sql = "SELECT DISTINCT system FROM file_facts WHERE system IS NOT NULL" + (" AND role = ?" if role else "")
         return sorted(str(r[0]) for r in store.query(sql, [role] if role else []))
@@ -275,7 +275,7 @@ def explore(
     resolved = settings or load_settings(root=Path(root) if root else None)
     system, parsed_series = _resolve(target)
     want_series = (series or parsed_series or "").upper() or None
-    store = CatalogStore(resolved.catalog_path, read_only=True)
+    store = CatalogStore.shared(resolved.catalog_path)
     try:
         if not store.has_rows("files", "gone_at IS NULL"):
             raise FileNotFoundError(
@@ -483,7 +483,7 @@ def lake_coverage(dataset: str, *, root: str | Path | None = None,
     if not system:
         raise ValueError(f"not a dataset: {dataset!r}")
     prefix = f"{system}_{series}_" if series else f"{system}_"
-    store = CatalogStore(resolved.catalog_path, read_only=True)
+    store = CatalogStore.shared(resolved.catalog_path)
     try:
         lake = Path(resolved.lake_dir)
         rows = [r for r in store.query("SELECT family_id, year, uf, row_count, byte_size, relative_path, source_paths "
@@ -656,7 +656,7 @@ def publications(
     wanted_ufs = None if ufs is None else {u.upper() for u in ([ufs] if isinstance(ufs, str) else ufs)} | {"BR"}
     final_after = _final_after_years(dataset)
 
-    store = CatalogStore(resolved.catalog_path, read_only=True)
+    store = CatalogStore.shared(resolved.catalog_path)
     try:
         named = sorted({pair[1] or None for pair in _of_dataset(_pairs(store, system, "data"), system, series.upper())},
                        key=lambda x: (x is None, x or ""))

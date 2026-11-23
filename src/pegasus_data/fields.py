@@ -254,7 +254,7 @@ def _landed(source: dict[str, Any]) -> bool:
     from .catalog.store import CatalogStore
     from .config import load_settings
 
-    store = CatalogStore(load_settings().catalog_path, read_only=True)
+    store = CatalogStore.shared(load_settings().catalog_path)
     try:
         return bool(store.query("SELECT 1 FROM families WHERE system = ? AND series = ? AND schema_source = 'intake' LIMIT 1",
                                 (str(source["system"]).upper(), str(source["series"]).upper())))
@@ -739,3 +739,71 @@ def _load_field(name: str, spec: dict[str, Any], wanted: list[int] | None, setti
     dataset = ds.dataset(directory, format="parquet", partitioning="hive")
     expression = ds.field("year").isin(wanted) if wanted else None
     return dataset.to_table(filter=expression)
+
+
+def context_candidates(years: tuple[int, int] | None = None, levels: tuple[str, ...] = ("N6",), *,
+                       root: str | Path | None = None) -> list[dict[str, Any]]:
+    """What could be a context of a study of places and years and is not yet a declared field, or is one: each group with
+    its tables or columns, so that a study decides on each knowing what it is (docs/plans/recon.md, gap 3).
+
+    * one entry per IBGE SIDRA research and subject with a table published at one of ``levels`` (``N6``: the
+      municipality) in ``years``: the tables (id, name, periods), and which a declared field already reads (``table:``,
+      or a census series' sources);
+    * one entry per intake source placed by a municipality or a state: its declared columns, and the fields that
+      read it.
+
+    A group a declared field covers is still listed: covered is a fact about it, not a reason to stop considering it.
+    Read from the SIDRA registry and the declarations only."""
+    import json
+    import sqlite3
+
+    from .config import curation_root, load_settings
+    from .semantics.curation import read_yaml
+    from .semantics.intake_declarations import declared_sources
+
+    cfg = load_settings(root=Path(root) if root else None)
+    fields = declared_fields()
+    read_tables: dict[int, list[str]] = {}
+    series = (read_yaml(curation_root() / "sidra" / "series.yml", missing_ok=True) or {}).get("series") or {}
+    for name, spec in fields.items():
+        tables = [spec["table"]] if spec.get("table") else []
+        if spec.get("series"):
+            tables += [s.get("table") for s in ((series.get(spec["series"]) or {}).get("sources") or []) if s.get("table")]
+        for t in tables:
+            read_tables.setdefault(int(t), []).append(name)
+    out: list[dict[str, Any]] = []
+    path = cfg.registry_dir("sidra", "registry.sqlite")
+    if Path(path).is_file():
+        con = sqlite3.connect(f"file:{Path(path).as_posix()}?mode=ro", uri=True)
+        try:
+            rows = con.execute("SELECT id, name, research_id, research, subject, levels, first_period, last_period "
+                               "FROM tab ORDER BY research, subject, id").fetchall()
+        finally:
+            con.close()
+        groups: dict[tuple[str, str], dict[str, Any]] = {}
+        for tid, name, rid, research, subject, lv, first, last in rows:
+            held = set(json.loads(lv or "[]"))
+            if not held & set(levels):
+                continue
+            lo, hi = int(str(first or "0")[:4] or 0), int(str(last or "9999")[:4] or 9999)
+            if years and (hi < years[0] or lo > years[1]):
+                continue
+            g = groups.setdefault((str(research), str(subject)), {
+                "kind": "sidra", "id": f"sidra:{rid}:{subject}", "research": research, "subject": subject,
+                "tables": [], "fields": set()})
+            g["tables"].append({"table": int(tid), "name": name, "first": lo, "last": hi,
+                                "levels": sorted(held & set(levels)), "fields": read_tables.get(int(tid), [])})
+            g["fields"] |= set(read_tables.get(int(tid), []))
+        for g in groups.values():
+            g["fields"] = sorted(g["fields"])
+            g["covered_tables"] = sum(1 for t in g["tables"] if t["fields"])
+            out.append(g)
+    for name, src in sorted(declared_sources().items()):
+        place = src.get("place") or {}
+        if place.get("type") not in ("municipality", "municipality_name") and place.get("states") is None:
+            continue
+        reading = sorted(f for f, spec in fields.items() if spec.get("source") == "intake" and spec.get("intake") == name)
+        out.append({"kind": "intake", "id": f"intake:{name}", "research": str(src.get("citation") or src.get("what") or name)[:200],
+                    "subject": name, "columns": sorted(str(c).upper() for c in (src.get("columns") or {})),
+                    "fields": reading})
+    return out

@@ -727,7 +727,7 @@ def _register_held_pieces(settings: Any, name: str, spec: dict[str, Any], lake_r
     import pyarrow.parquet as pq
 
     system, series = str(spec["system"]).upper(), str(spec["series"]).upper()
-    store = CatalogStore(settings.catalog_path, read_only=True)
+    store = CatalogStore.shared(settings.catalog_path)
     try:
         paths = {str(r["path"]).split(SLICE)[0] for r in store.query(
             "SELECT path FROM file_facts WHERE system = ? AND series_prefix = ? AND grammar = 'intake'", (system, series))}

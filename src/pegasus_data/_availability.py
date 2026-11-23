@@ -569,7 +569,7 @@ def _derived_recipes(dataset: str, field: str, settings: Settings) -> list[tuple
     from .semantics.curation import load_variable_docs
 
     system, _series = parse_dataset(dataset)
-    catalog = CatalogStore(settings.catalog_path, read_only=True)
+    catalog = CatalogStore.shared(settings.catalog_path)
     try:
         docs = load_variable_docs(catalog, system)
     finally:
