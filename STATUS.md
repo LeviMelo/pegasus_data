@@ -27,11 +27,11 @@ holds and can do, one space × time object, and the principles audits' defects c
   home, then the real home migrated (evaluation 2026-11-22-versions-as-deltas): every download landed
   or released, blobs 21.95 → 0.64 GB (kits and documentation, corrupt archive members, current-year copies), 258
   versions kept as deltas (46 MB), listed lake 29.9 → 39.5 GB.
-- **Tests at HEAD (2026-11-24).** 41 failed before this check. 33 were the test double `FakeBlobs` lacking `has()`, which
-  retrieval calls since c4b9483c (ADR-0233); fixed in `tests/conftest.py`. 8 remain, each its own defect, open:
-  `test_labelpack` geography kept, `test_lake_streaming` batch before the next, `test_next_resources` manifest,
-  `test_no_module_shadows_a_verb` (`holdings` is a module and a verb), `test_query_api` (2: fresh-install plan,
-  unbounded acquisition opt-in), `test_semantic_relations` (2: relation artifact per vintage, mid-year change).
+- **Tests at HEAD (2026-11-24).** The 41 failing at the start of the night now pass: 33 from the `FakeBlobs.has` double;
+  and, one by one, the `widths_json` column of a fresh install's seed, the `holdings` module renamed `_holdings`, the
+  resource manifest's `tuss.parquet`, `test_labelpack` following codelists.yml (MUNICBR a classification), and
+  `test_lake_streaming` watching the row-group writer. The `decode_isolation` and `semantic_relations` tests pass with
+  the double.
 - **Extract speed (2026-11-24).** A new filter re-reads every published file: the SIH-SP 0415* extract downloads
   about 28 GB at DATASUS's total of about 6 MB/s, near 1.5 h, threads (48.7 files/min) and eight processes
   (50.0 files/min) alike. `build_extract(processes=)` is there for runs that decode held files.
