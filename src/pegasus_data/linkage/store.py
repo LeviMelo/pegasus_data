@@ -40,12 +40,26 @@ STATE_IDENTITY = "content-key-1"
 #: merging links into entities (linkage/entities.py); `same_event` what the pairs mean; `sensitivity` which side's
 #: linked share measures the link (engine.side_counts).
 _NOT_LINKING = ("person", "same_event", "sensitivity")
+#: Keys inside a linking part that describe the pairs for the quality measures and choose none of them: the outcome's
+#: ``known`` (the events the left records itself) and a pass's ``known_only`` (`followup.quantities`). Hashing them
+#: orphaned every stored sih_admissions_to_sim run when Q1 declared them (019cc63f; t07, 2026-11-23).
+_NOT_LINKING_INSIDE = {"outcome": ("known",), "passes": ("known_only",)}
 
 
 def _spec_digest(name: str) -> str:
     body = dict((raw_links().get("links") or {}).get(name) or {})
     for key in _NOT_LINKING:
         body.pop(key, None)
+    if isinstance(body.get("outcome"), dict):
+        body["outcome"] = {k: v for k, v in body["outcome"].items() if k not in _NOT_LINKING_INSIDE["outcome"]}
+    for part in ("deterministic", "probabilistic"):
+        sub = body.get(part)
+        if isinstance(sub, dict) and isinstance(sub.get("passes"), list):
+            body[part] = {**sub, "passes": [{k: v for k, v in p.items() if k not in _NOT_LINKING_INSIDE["passes"]}
+                                            if isinstance(p, dict) else p for p in sub["passes"]]}
+    if isinstance(body.get("passes"), list):
+        body["passes"] = [{k: v for k, v in p.items() if k not in _NOT_LINKING_INSIDE["passes"]}
+                          if isinstance(p, dict) else p for p in body["passes"]]
     return hashlib.sha256(json.dumps(body, sort_keys=True, default=str).encode()).hexdigest()[:12]
 
 
