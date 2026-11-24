@@ -43,26 +43,29 @@ class TestItDoesNotMaterialiseThePartition:
                 produced += 1
                 yield _batch(100, i)
 
-        real = pq.ParquetWriter.write_batch
+        # batches are gathered into row groups of `row_group_size` rows (RowGroups, `write_table`): with 500-row groups
+        # and 100-row batches a group is written after every fifth batch, never after all fifty (the test watched
+        # `write_batch`, which the row-group writer no longer calls; updated 2026-11-24)
+        real = pq.ParquetWriter.write_table
 
-        def watched(self, batch, **kw):
+        def watched(self, table, *a, **kw):
             produced_at_write.append(produced)
-            return real(self, batch, **kw)
+            return real(self, table, *a, **kw)
 
-        monkeypatch.setattr(pq.ParquetWriter, "write_batch", watched)
+        monkeypatch.setattr(pq.ParquetWriter, "write_table", watched)
 
-        lake = Lake(tmp_path / "lake")
+        lake = Lake(tmp_path / "lake", row_group_size=500)
         written = lake.write_batches(
             source(), system="SIHSUS", family_id="F1",
             schema_signature="sig", uf="AL", year=2023,
         )
         assert written is not None and written.row_count == 5000
-        assert produced_at_write[0] == 1, (
-            f"{produced_at_write[0]} batches were produced before the first was "
-            "written; the partition was materialised before streaming"
+        assert produced_at_write and produced_at_write[0] == 5, (
+            f"{produced_at_write[:1]} batches were produced before the first write; "
+            "the partition was materialised before streaming"
         )
-        assert produced_at_write == list(range(1, 51)), (
-            "each batch must be written before the next is produced"
+        assert produced_at_write == list(range(5, 51, 5)), (
+            "each row group must be written before the next is gathered"
         )
 
     def test_it_is_lazy_before_the_first_batch_is_needed(self, tmp_path):
