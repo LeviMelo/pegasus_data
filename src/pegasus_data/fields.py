@@ -706,7 +706,8 @@ def load_field(name: str, *, years: list[int] | int | None = None, settings: Any
     a municipality-month without records has no row (missing, never 0).
 
     ``years`` are integers; one the field does not hold is refused with the years it holds (an empty table must not look
-    like a field with no value that year), as `load_population` does."""
+    like a field with no value that year), as `load_population` does. When only some are held, the table answers those,
+    with a UserWarning and the absent years in its schema metadata (``pegasus.absent_years``, JSON)."""
     if name not in declared_fields():
         raise KeyError(f"unknown field {name!r}; declared: {sorted(declared_fields())}")
     wanted = [years] if isinstance(years, numbers.Integral) else years
@@ -732,6 +733,12 @@ def load_field(name: str, *, years: list[int] | int | None = None, settings: Any
 
             warnings.warn(f"field {name!r} holds no data for {sorted(absent)} (it holds {held}); those years are absent "
                           "from the table, not zero", UserWarning, stacklevel=2)
+            # and in the table itself, where a warning filter cannot drop it: a caller summing over years checks this
+            import json
+
+            meta = dict(table.schema.metadata or {})
+            meta[b"pegasus.absent_years"] = json.dumps(sorted(absent)).encode()
+            table = table.replace_schema_metadata(meta)
     return table
 
 
