@@ -77,6 +77,13 @@ class Followup:
     def window(self) -> int:
         return int(self.quality["window_days"])
 
+    @property
+    def reach_days(self) -> int:
+        """The days after the origin within which the run looks for the event: the window, or less when a pass with too
+        many chance matches over the window was kept to a shorter horizon (``passes[].reach_days``)."""
+        kept = [p["reach_days"] for p in self.quality.get("passes") or [] if p.get("kept") and p.get("reach_days")]
+        return int(min(kept or [self.window]))
+
     def horizon(self, days: int) -> dict[str, Any]:
         """The quality of the follow-up within ``days``: the first horizon of the run that covers it."""
         for row in self.quality["horizons"]:
@@ -87,13 +94,17 @@ class Followup:
     def died_within(self, days: int, *, allow_not_viable: bool = False) -> pa.Array:
         """Whether each person died within ``days`` of the origin: True or False when the person was followed that long,
         null when followed for less (the origin plus ``days`` is past the last day of deaths the data hold, or that day
-        is unknown), a death as much as a survival: a death inside a window the data do not cover counted while a
+        is unknown, or ``days`` is past the run's `reach_days`), a death as much as a survival: a death inside a window the data do not cover counted while a
         survivor in the same place dropped, and inflated the mortality of the last origins (ABNc, 2026-11-24). Refused
         (`LinkNotViable`) when the run's verdict at that horizon is "not viable", as pairs of a linkage that fails its
         own verdict look like pairs of one that passes."""
         row = self.horizon(days)
         if row["verdict"] == "not viable" and not allow_not_viable:
             raise LinkNotViable(_Refusal(self.quality["link"], row))
+        if days > self.reach_days:
+            # the run found no event after its reach: a person alive then is not known to be alive at ``days``, and
+            # counting the deaths it found while dropping them would inflate the rate (ABNc t07, 2026-11-24)
+            return pa.nulls(len(self.table), pa.bool_())
         died = pc.fill_null(pc.less_equal(self.table.column(self.days_column), days), False)
         # a death link names it death_data_end, an event link (`linked_outcomes`) event_data_end
         end = self.quality.get("death_data_end", self.quality.get("event_data_end"))
