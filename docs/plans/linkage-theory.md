@@ -228,6 +228,8 @@ checks are added:
 
 ## 5. Fields that must not be evidence
 
+*2026-11-23: the ban below becomes a declared, recorded choice of the consuming study (`linkage-evidence.md`).*
+
 **A field studied as an outcome or an exposure is not identity evidence.**
 If race were used to link, the links would favour people whose race agrees
 across systems, and every race comparison on linked data would inherit that

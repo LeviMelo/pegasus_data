@@ -620,6 +620,13 @@ OQ-64), 1990s SIH V-codes.
 
 ## Open fronts
 
+- **Link evidence and link quality, for studies** (`docs/plans/linkage-evidence.md`, proposed 2026-11-23). Which evidence
+  a link uses becomes the consuming study's declared choice (cause of death congruent with the procedure, for example),
+  stored beside the generic run with its consequence for outcomes flagged. Quality is reported as quantities instead of
+  a verdict: the false-match share among link-only events, sensitivity on a truth subset, the corrected count and the
+  link's reach. Then one engine for cohorts, chosen by measurement, and life tables for excess mortality. Nothing is
+  built yet.
+
 - **Cohort links are the studies' largest run cost** (about 40% of the ABNc queues' wall time). Done 2026-11-22: windowed
   passes join on the window's ends instead of one row per day (identical outputs on eight slices, 2-3x faster on state
   slices). Left: the national role-table rebuild after a key change (a one-time cost per change) and running per-year
