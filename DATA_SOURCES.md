@@ -1254,6 +1254,21 @@ TabNet's state forms classify by `territorio/{UF}_macsaud.cnv` and `{UF}_regsaud
 - **Landed.** `siops_municipal` (dataset `SIOPS-MUNICIPAL`, fields `siops_health_spending`, `_own_resources`, `_transfers_sus`, `_tax_base`, `_spending_personnel`, `siops_declarations`). National command in
   RUNBOOK ("Subnational health spending").
 
+## 19. SIH billing routes and the records of one stay (measured 2026-11-24; docs/evaluation/2026-11-24-sih-stay-continuation.md)
+
+- **Operations billed inside 0415* AIHs.** A multiple, sequential or polytrauma surgery AIH (SIGTAP 0415*) names the
+  billing rule as its main procedure; the operations are its SIH-SP act lines (SP_ATOPROF). They grew from 279,678
+  AIHs in 2010 to 1,059,895 in 2025. Those with a neurosurgical act (0403*) went from 12,300 to 94,579. In 2023
+  (AC, AL, PE, held whole) 68% of AIHs with a 0403 act were 0415*; no third route was seen. A cohort selected by the
+  main procedure (PROC_REA) misses them, and the share differs by state (RN billed spine 444 against 31 in 2019).
+- **An act line is a billed step, not always an operation.** The act lines list every step billed, so a code can mean
+  something else than as a main procedure. Inside 0415*, 41.7% of AIH stays with the decompressive-craniectomy code
+  (0403010020) also bill cranioplasty or cranial reconstruction: a craniotomy whose bone was put back. That holds for
+  3.7% of main-procedure stays (2010-2025; ABNc t03).
+- **A stay continues across COBRANCA 51** (encerramento administrativo), as across 21-29: declared since 0da8018e.
+- **Long-stay continuation records (IDENT 5)** carry deaths that the principal AIH does not: 1,376 in 2019, 1,171
+  sharing N_AIH with a principal AIH whose record shows none (OQ 104).
+
 ## SINAN residence codes and representations (measured 2026-10-24; ADR-0207)
 
 - `ID_MN_RESI` (SINAN-DENG 2010-2026) writes Federal District residents with region codes as well as 530010: 5300xx (530020-530180, as SIH did before 2018) and SINAN's 5399xx (539901-539934), 22,958 rows, 13,585 of them in 2024; DATASUS's TabWin tables AGLBR and BR_CAPITAL map 530000-539999 to Brasília. `XX0000` is the state with its municipality unknown (BR_DIVADM: "Município ignorado - UF").
