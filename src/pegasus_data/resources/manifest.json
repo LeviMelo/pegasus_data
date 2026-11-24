@@ -158,6 +158,13 @@
       "bytes": 59674,
       "sha256": "dcbb27f21e9d96258822ec6a9d4f885bc361ab3ab1811241d4cfb69c7a23ae01",
       "rows": 14233
+    },
+    "tuss": {
+      "file": "tuss.parquet",
+      "tier": "A",
+      "bytes": 127414,
+      "rows": 5997,
+      "sha256": "c2f9d07b76ee998022983232432cac4333012e1d7b86ecf3d9d008315452622e"
     }
   },
   "note": "Bundled resources are an offline runtime baseline. Local version-compatible updates take precedence."
