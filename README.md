@@ -200,7 +200,7 @@ not hold comes back as `not_recorded`, never as a guess.
 ```python
 from pegasus_data import (query, memberships, municipality_point, distance_km, cep_points, mesh, load_field, grade_cells,
                           tract_population, climate_daily,
-                          load_population, race_reliability, age_standardised_rates)
+                          load_population, race_reliability, age_standardised_rates, indirect_standardised)
 
 # Roll a code up a published hierarchy (curation/joins.yml): ICD-10 chapter,
 # the Ministry's mortality list, avoidable deaths, primary-care-sensitive admissions.
@@ -252,6 +252,7 @@ query("FA-HUM", period=2017)         # a source off the FTP (curation/intake.yml
                                      # ("ANS-ICB") are such sources too, landed with `pegasus-data fields`
 race_reliability(admissions)         # flags SIH hospital-months whose race code is unusable
 age_standardised_rates(deaths, year=2022, uf="SE")   # crude and WHO-standardised rate per 100,000
+indirect_standardised(deaths, years=[2021, 2022], by="CODMUNRES", sex="SEXO", area="27")  # observed, expected, SMR by municipality
 ```
 
 - **Dimensions** roll a code up:

@@ -135,8 +135,8 @@ There are two halves.
   records: IBGE statistics, BR-DWGD climate by municipality-month (INMET stations validate it), S2iD disasters.
 - **Places** (`geography.municipality_point`, `distance_km`) use the Census
   2022 population centre.
-- **Rates** (`rates.age_standardised_rates`) divide queried records by
-  POPSVS, crude and age-standardised.
+- **Rates** (`rates.age_standardised_rates`, `rates.indirect_standardised`) divide queried records by
+  POPSVS, crude and age-standardised (direct), or give observed against expected by place (indirect).
 - **Linkage** (`linkage/`, `link()`):
   - specs in `curation/links.yml` compare roles (the `compare:` columns of `curation/roles/`)
     probabilistically, with error measured against a shifted placebo;

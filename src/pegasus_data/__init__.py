@@ -52,6 +52,7 @@ _EXPORTS: dict[str, str] = {
     "Sidra": ".sidra",
     "price_index": ".sidra.prices",
     "age_standardised_rates": ".rates",
+    "indirect_standardised": ".rates",
     "race_reliability": ".quality",
     "load_reference": ".api",
     "FieldDescription": ".api",
