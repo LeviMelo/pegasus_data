@@ -375,10 +375,14 @@ def held_rows(directory: Path, path: str, entry: Mapping[str, Any]) -> pa.Table 
 
 
 def extract_table(dataset: str, column: str, codes: Sequence[str], years: Sequence[int] | None = None, *,
-                  root: str | Path | None = None, settings: Any = None) -> tuple[pa.Table, dict[str, Any]]:
+                  ufs: Sequence[str] | None = None, root: str | Path | None = None,
+                  settings: Any = None) -> tuple[pa.Table, dict[str, Any]]:
     """The records of ``dataset`` whose ``column`` starts with one of ``codes``, for ``years``, from an extract with a
     filter on ``column`` whose prefixes cover every asked code; with its manifest. LookupError when no extract covers
-    them or a year is not read whole (a failed file, or a file of the year not yet read)."""
+    them or a year is not read whole (a failed file, or a file of the year not yet read). ``ufs``: only those states,
+    as `build_extract` takes them; a year then needs only those states' files read, the rows are those states', and the
+    manifest returned says so (``served_ufs``). An extract built for four states could not be read back (ABNc t09,
+    2026-11-24)."""
     from ._request import parse_dataset
     from .config import load_settings
 
@@ -398,7 +402,7 @@ def extract_table(dataset: str, column: str, codes: Sequence[str], years: Sequen
         assert m is not None  # held is non-empty only when the manifest was read
         read = {int(v["year"]) for v in m["files"].values()}
         want = sorted(set(map(int, years))) if years else sorted(read)
-        listed = {f["path"] for f in _files(settings, dataset, want)}
+        listed = {f["path"] for f in _files(settings, dataset, want, ufs)}
         unread = [p for p in listed if p not in m["files"]]
         # a failure counts against its own year only: one stray file of DATASUS's "teste" folder (2024) had made
         # every year of SIA-PA's extract unheld (2026-10-12)
@@ -413,6 +417,10 @@ def extract_table(dataset: str, column: str, codes: Sequence[str], years: Sequen
         if table.num_rows:
             mask = _match(table, column, asked)
             table = table.filter(mask) if mask is not None else table.slice(0, 0)
+        if ufs:
+            if "_source_path" in table.column_names:      # the asked states' rows only
+                table = table.filter(pc.is_in(pc.cast(table.column("_source_path"), pa.string()), value_set=pa.array(sorted(listed))))
+            m = {**m, "served_ufs": sorted(set(ufs))}
         return table, m
     if short:
         raise LookupError(f"{dataset} {column} {asked}: no extract holds {list(years) if years else 'its years'} whole ("
