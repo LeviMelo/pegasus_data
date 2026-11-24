@@ -86,6 +86,10 @@ class Side:
 class Pass:
     name: str
     keys: tuple[tuple[str, str], ...]
+    #: the pass can only find an event the left side records itself (`Outcome.known`): its keys read the recorded event
+    #: (an admission's discharge day and hospital for a death in hospital). Its pairs say nothing of the events only the
+    #: link finds, and its share of the recorded events is no sensitivity for them (`followup.quantities`)
+    known_only: bool = False
 
 
 @dataclass(frozen=True, slots=True)
@@ -144,6 +148,9 @@ class Outcome:
     first: bool = False
     #: a role both sides carry that must differ in a pair: the index admission is not its own readmission (the AIH)
     differ: str = ""
+    #: the events the left side records itself, the truth subset of the link's quality (`followup.quantities`):
+    #: (role, value, date role), e.g. SIH's discharge by death (``admission.death`` = "1", on ``admission.end``)
+    known: tuple[str, str, str] | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -248,7 +255,8 @@ def load_links() -> dict[str, LinkSpec]:
     out: dict[str, LinkSpec] = {}
     for name, body in (data.get("links") or {}).items():
         passes = tuple(
-            Pass(str(p["name"]), tuple((str(k[0]), str(k[1])) for k in p["keys"])) for p in body["passes"]
+            Pass(str(p["name"]), tuple((str(k[0]), str(k[1])) for k in p["keys"]), bool(p.get("known_only")))
+            for p in body["passes"]
         )
         control = body["control"]
         validations = tuple(
@@ -297,7 +305,13 @@ def _params(name: str, body: dict[str, Any]) -> CodesParam | None:
 
 def _outcome(body: dict[str, Any]) -> Outcome | None:
     item = body.get("outcome")
-    return Outcome(str(item["origin"]), str(item["event"]), bool(item.get("first")), str(item.get("differ") or ""))         if item else None
+    if not item:
+        return None
+    known = item.get("known")
+    if known is not None and not all(known.get(k) for k in ("role", "value", "date")):
+        raise ValueError(f"links.yml: outcome.known needs role, value and date: {known!r}")
+    return Outcome(str(item["origin"]), str(item["event"]), bool(item.get("first")), str(item.get("differ") or ""),
+                   (str(known["role"]), str(known["value"]), str(known["date"])) if known else None)
 
 
 #: a code prefix as DATASUS writes codes: letters and digits, up to 15 (ICD-10 I210, SIGTAP 0403070171, CBO 225260)

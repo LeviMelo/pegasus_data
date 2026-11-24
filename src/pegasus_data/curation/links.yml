@@ -602,7 +602,10 @@ links:
     same_event: false   # an admission and the person's death, possibly months later
     params:
       codes: {side: left, roles: {principal: admission.diagnosis, any: admission.diagnoses, procedure: admission.procedure}}
-    outcome: {origin: admission.start, event: death.date}
+    # known: the deaths the admission records itself (discharge by death, on the discharge day): the truth subset of
+    # the link's quality, and the deaths a study counts without the link (`followup.quantities`)
+    outcome: {origin: admission.start, event: death.date,
+              known: {role: admission.death, value: "1", date: admission.end}}
     left:
       dataset: SIH-RD
       group: [patient.birth_date, patient.sex, patient.residence]
@@ -622,6 +625,7 @@ links:
       - name: birth date, sex, death on the discharge day, hospital
         keys: [[patient.birth_date, deceased.birth_date], [patient.sex, deceased.sex], [admission.end, death.date],
                [admission.facility, death.facility]]
+        known_only: true   # a death in the hospital on the discharge day: one the admission records
     control: {role: patient.birth_date, shift_days: 7}
     validate:
       # held out: the certificate of an in-hospital death says so, in the hospital's municipality and CNES

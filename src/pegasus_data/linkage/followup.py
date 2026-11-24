@@ -9,6 +9,8 @@ run for the caller's codes, years and area (``engine.link(codes=...)``, stored p
     fu.table             # one row per person: record, origin, death_date, days_to_death, death_record, link_pass, p_match
     fu.quality           # verdict, false-match rate at each horizon, validations, the last day of deaths the data hold
     fu.mortality(30)     # {"followed": ..., "died": ..., "rate": ...}, 30-day mortality over those followed that long
+    fu.quality["quantities"]   # per horizon: pairs, link-only events, expected chance, false-match shares, sensitivity
+    fu.reach(["state", "year"])  # linked share by stratum (``among="known"``: on the events the left records)
 
 The false-match rate of a late death is not that of an early one: a false pair needs a namesake (same birth date, sex and
 residence) dying inside the person's window, which a longer window makes likelier. Each horizon has its own rate and
@@ -46,7 +48,7 @@ from .engine import (
 )
 from .identity import connect, quote
 
-__all__ = ["Followup", "RunNotStored", "linked_deaths", "linked_outcomes"]
+__all__ = ["Followup", "RunNotStored", "linked_deaths", "linked_outcomes", "quantities"]
 
 
 class RunNotStored(LookupError):
@@ -113,6 +115,40 @@ class Followup:
         return {"days": days, "followed": followed, "died": died, "rate": died / followed if followed else None,
                 "false_match_percent": row["chance_percent"], "verdict": row["verdict"],
                 "died_corrected": max(died - row["control_pairs"], 0) if whole else None}
+
+
+    def quantities(self, among: Any = None) -> list[dict]:
+        """The link's quality as quantities per horizon (`quantities`), on the whole cohort or on the subset
+        ``among`` (a boolean mask over `table`'s rows: the persons a claim is about)."""
+        # passes and outcome are the spec's own, whatever codes bound it
+        return quantities(self.table, self.report, load_links()[self.quality["link"]], days_column=self.days_column,
+                          among=among)
+
+    def reach(self, by: Iterable[str] | str, *, among: str | None = None) -> pa.Table:
+        """The linked share by stratum: persons, linked (within the window) and their share, for ``by`` among
+        ``state`` (the residence's first two digits), ``year`` (the origin's), ``age_band`` (ten years at the origin),
+        ``sex`` or any column of `table`. ``among="known"``: only the persons whose own record carries the event
+        (`quantities`), where linked against unlinked shows whom the link misses (GUILD's linked against unlinked)."""
+        import pandas as pd
+
+        by = [by] if isinstance(by, str) else list(by)
+        d = self.table.to_pandas()
+        if among == "known":
+            known = self.quality.get("known_role")
+            if not known:
+                raise ValueError(f"{self.quality['link']}: the spec declares no event the left records (outcome.known)")
+            d = d[d[known[0]].astype(str) == known[1]]
+        elif among is not None:
+            raise ValueError("among is None or 'known'")
+        origin = pd.to_datetime(d["origin"])
+        derived = {"state": lambda: d["patient.residence"].astype(str).str[:2], "year": lambda: origin.dt.year,
+                   "sex": lambda: d["patient.sex"],
+                   "age_band": lambda: ((origin - pd.to_datetime(d["patient.birth_date"])).dt.days // 3652.5 * 10)}
+        keys = {b: (derived[b]() if b in derived and b not in d.columns else d[b]) for b in by}
+        g = pd.DataFrame({**keys, "linked": d[self.days_column].notna()})
+        out = g.groupby(by, dropna=False).linked.agg(persons="size", linked="sum").reset_index()
+        out["share"] = out.linked / out.persons
+        return pa.Table.from_pandas(out, preserve_index=False)
 
 
 class _Refusal:
@@ -260,6 +296,9 @@ def _followup(dataset: str, codes: Iterable[str] | str, *, years: object, geogra
         "cohort": table.num_rows, "linked": linked, "linked_share": round(linked / table.num_rows, 4) if table.num_rows else 0.0,
         "death_data_end": ((report.get("carried") or {}).get(outcome.event) or {}).get("last"),
         "run_seconds": seconds, "run": key.stem,
+        # the verdict's measurements: what a study reports on the subset its claim uses (linkage-evidence plan, Q1)
+        "quantities": quantities(table, report, spec),
+        "known_role": list(spec.outcome.known) if spec.outcome.known else None,
     }
     if death_names:
         return Followup(table, quality, pairs, report)
@@ -307,7 +346,8 @@ def _table(spec: Any, pairs: pa.Table, report: dict[str, Any], period: object, a
            query_kwargs: dict[str, Any]) -> pa.Table:
     """The cohort of the left side as the run saw it (the same filter, group and identity), left-joined to the pairs."""
     outcome: Outcome = spec.outcome
-    wanted = sorted(set(_roles_needed(spec, "left")) | set(extra) | {outcome.origin})
+    wanted = sorted(set(_roles_needed(spec, "left")) | set(extra) | {outcome.origin}
+                    | ({outcome.known[0], outcome.known[2]} if outcome.known else set()))
     left = _side_table(spec.left, wanted, period=period, geography=area, **query_kwargs)
     con = connect()
     _prepare(con, "L", left, replace(spec.left, explode_days=None, explode_values=None))
@@ -339,3 +379,125 @@ def _p_match(report: dict[str, Any], outcome: Outcome) -> pa.Table:
     if not rows:
         rows = [{"lo": -1, "hi": 10**6, "p": 1.0 - float(report.get("chance_percent") or 0.0) / 100.0}]
     return pa.table({"lo": [r["lo"] for r in rows], "hi": [r["hi"] for r in rows], "p": [r["p"] for r in rows]})
+
+
+def _poisson95(n: int) -> tuple[float, float]:
+    """The exact (Garwood) 95% interval of a Poisson count."""
+    from scipy.stats import chi2
+
+    return (float(chi2.ppf(0.025, 2 * n) / 2) if n > 0 else 0.0, float(chi2.ppf(0.975, 2 * (n + 1)) / 2))
+
+
+def _binomial95(k: int, n: int) -> tuple[float | None, float | None]:
+    """The exact (Clopper-Pearson) 95% interval of k of n."""
+    from scipy.stats import beta
+
+    if n <= 0:
+        return None, None
+    return (float(beta.ppf(0.025, k, n - k + 1)) if k > 0 else 0.0,
+            float(beta.ppf(0.975, k + 1, n - k)) if k < n else 1.0)
+
+
+def quantities(table: pa.Table, report: dict[str, Any], spec: Any, *, days_column: str = "days_to_death",
+               among: Any = None) -> list[dict]:
+    """The link's quality as quantities, per horizon of the run (linkage-evidence plan, Q1; GUILD, Gilbert et al. 2018;
+    RECORD, Benchimol et al. 2015), where the spec declares the events the left side records itself
+    (``outcome.known``: SIH's discharge by death). For each horizon of ``days``:
+
+    - ``pairs``: persons linked to an event within the horizon; ``known_linked`` of them carry the event in their own
+      record, ``link_only`` do not (the events only the link finds);
+    - ``known``: persons whose own record carries the event within the horizon, linked or not (a study counts them
+      without the link);
+    - ``expected_chance`` and its exact Poisson interval: the control's pairs (a birth date moved by the control's
+      shift, so all false) at the horizon, the run's estimate of its chance pairs;
+    - ``false_match_share``: expected chance over all pairs; ``false_match_share_link_only``: over the link-only
+      events, an upper bound (it assumes every chance pair falls on a person whose record has no event; the persons
+      who do have their own partner, which the one-to-one step prefers);
+    - ``sensitivity``: the share of the known events the kept passes that can reach an unrecorded event link (passes
+      not ``known_only``), with its exact binomial interval (0 and a ``note`` when none is kept, as on spine surgery
+      2019, whose year pass was dropped at 53% chance: ``dropped_passes`` gives its pairs and control pairs); ``sensitivity_any_pass`` with every pass. Taking it for the
+      link-only events assumes an unrecorded event is found as often as a recorded one by the same keys: stated, not
+      tested (a death after discharge has the same birth date, sex and residence to match, and another hospital or
+      none);
+    - ``corrected``: known + (link-only − expected chance) / sensitivity, the events within the horizon, with bounds
+      from the chance interval and the sensitivity interval taken together (conservative: both ends at once).
+
+    Persons with an event known in their own record but no link count in ``known`` and in the sensitivity's
+    denominator. A spec without ``outcome.known`` gives pairs and chance only.
+
+    ``among``: a boolean mask over ``table``'s rows, the subset a claim is about (the paper's analytic cohort). Every
+    count is then the subset's, and the control's pairs, counted over the run's whole cohort, are scaled by the
+    subset's share of its persons (``expected_chance`` is no longer an integer): this assumes chance pairs fall evenly
+    over persons, so a subset of unusual birth dates or towns is not served by it. Dividing the whole cohort's chance
+    pairs by a subset's link-only events overstates the share (t03's review: 10-39% at 30 days on the analytic file,
+    5-17% on the run's own cohort)."""
+    outcome = spec.outcome
+    scale = 1.0
+    if among is not None:
+        mask = pa.array(among, pa.bool_()) if not isinstance(among, (pa.Array, pa.ChunkedArray)) else among
+        if len(mask) != table.num_rows:
+            raise ValueError(f"among has {len(mask)} values for {table.num_rows} persons")
+        scale = pc.sum(pc.cast(mask, pa.int64())).as_py() / table.num_rows if table.num_rows else 0.0
+        table = table.filter(mask)
+    rows = table.select([c for c in (days_column, "link_pass", "origin") if c in table.column_names]).to_pydict()
+    days = rows[days_column]
+    passes = rows["link_pass"]
+    ran = {(p.get("name") if isinstance(p, dict) else getattr(p, "name", None)): p for p in report.get("passes") or []}
+
+    def kept(name: str) -> bool:
+        p = ran.get(name)
+        return True if p is None else bool(p.get("kept") if isinstance(p, dict) else getattr(p, "kept", True))
+    reaching = {p.name for p in spec.passes if not p.known_only and kept(p.name)}
+    # a pass dropped for its chance share is a quantity too: keeping it and correcting may beat dropping it
+    dropped = [{"name": n, "pairs": p.get("pairs"), "control_pairs": p.get("control_pairs"),
+                "chance_percent": p.get("chance_percent")}
+               for n, p in ran.items() if isinstance(p, dict) and not p.get("kept") and not p.get("skipped")]
+    known_days: list[int | None] = [None] * table.num_rows
+    if outcome.known is not None:
+        role, value, date = outcome.known
+        flag = [None if v is None else str(v) for v in table.column(role).to_pylist()]
+        end, origin = table.column(date).to_pylist(), rows["origin"]
+        for i, (f, e, o) in enumerate(zip(flag, end, origin, strict=True)):
+            if f == value and e is not None and o is not None:
+                known_days[i] = (e - o).days if hasattr(e - o, "days") else int(e - o)
+    out = []
+    for h in report.get("horizons") or []:
+        d = int(h["days"])
+        linked = [x is not None and x <= d for x in days]
+        known = [k is not None and k <= d for k in known_days]
+        pairs = sum(linked)
+        raw = int(h.get("control_pairs") or 0)
+        lo, hi = (x * scale for x in _poisson95(raw))
+        control = raw * scale
+        row: dict[str, Any] = {"days": d, "pairs": pairs, "expected_chance": round(control, 2),
+                               "expected_chance_95": [round(lo, 2), round(hi, 2)],
+                               "false_match_share": round(control / pairs, 4) if pairs else None}
+        if outcome.known is not None:
+            n_known = sum(known)
+            known_linked = sum(1 for a, b in zip(linked, known, strict=True) if a and b)
+            link_only = pairs - known_linked
+            reach = sum(1 for k, p in zip(known, passes, strict=True) if k and p in reaching)
+            anyp = sum(1 for k, p in zip(known, passes, strict=True) if k and p is not None)
+            s_lo, s_hi = _binomial95(reach, n_known)
+            sens = reach / n_known if n_known else None
+            row.update({
+                "known": n_known, "known_linked": known_linked, "link_only": link_only,
+                "false_match_share_link_only": round(min(control / link_only, 1.0), 4) if link_only else None,
+                "false_match_share_link_only_95": ([round(min(lo / link_only, 1.0), 4), round(min(hi / link_only, 1.0), 4)]
+                                                   if link_only else None),
+                "sensitivity": round(sens, 4) if sens is not None else None,
+                "sensitivity_95": [round(s_lo, 4), round(s_hi, 4)] if sens is not None else None,
+                "sensitivity_any_pass": round(anyp / n_known, 4) if n_known else None,
+                "sensitivity_passes": sorted(reaching),
+            })
+            if not reaching:
+                row["note"] = ("no kept pass can find an event the left does not record: the link-only events are not "
+                               "counted, and the horizon holds the recorded events only")
+            if dropped:
+                row["dropped_passes"] = dropped
+            if sens:
+                row["corrected"] = round(n_known + max(link_only - control, 0) / sens, 1)
+                row["corrected_bounds"] = [round(n_known + max(link_only - hi, 0) / s_hi, 1),
+                                           round(n_known + max(link_only - lo, 0) / s_lo, 1) if s_lo else None]
+        out.append(row)
+    return out

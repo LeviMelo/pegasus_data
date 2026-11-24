@@ -90,7 +90,7 @@ The winner becomes the cohort readers' default (ADR). The other either generates
 
 | Step | Done when |
 |---|---|
-| Q1 quantities in the run's report and the readers' quality | on the stored t03, t07 and spine runs the library reproduces the studies' own link-only shares (t03 10-39% at 30 days by year) and the spine sensitivity (SP 2019, 56 of 58) |
+| Q1 quantities in the run's report and the readers' quality | on the stored t03, t07 and spine runs the library reproduces the studies' own link-only shares (t03 10-39% at 30 days by year) and the spine sensitivity (SP 2019, 56 of 58). **Done 2026-11-23** (`followup.quantities`, `outcome.known`, `known_only` passes): t07 link-only share at 30 days 0.206 in 2019 against the study's 0.209; spine SP 2019 56 of 58 by any pass, with the year pass dropped at 53% chance reported in `dropped_passes`; t03's 10-39% divided the whole cohort's chance pairs by a subset's deaths, and on the run's own cohort the share is 5-17% (`among=` scales chance to the subset) |
 | Q2 `evidence=` on `link` and the cohort readers, stored beside the generic run, roles flagged | an aneurysm cohort linked with and without cause evidence; events per horizon both ways; the cause distribution flagged as conditioned |
 | Q3 the engine comparison | an evaluation entry with the four measures; an ADR naming the default |
 | Q4 life tables and excess mortality | life tables by sex, age, state and year with their sources; one cohort's excess mortality against its all-cause linked mortality |
