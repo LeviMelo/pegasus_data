@@ -55,3 +55,18 @@ relative to the file as stored; write seconds are given for the level-19 rewrite
 **Not kept: folding versions into one another.** Account-3 and -4 match account-6 in census years and the forecast,
 but not in the intercensal years. Version 6 carried the intercensal residual along the cohorts, by up to 4,447 people
 a cell in 2016. They are different estimates. A first check on two years (2010, 2025) had suggested they were copies.
+
+## Addendum 2026-11-24: SIH-SP is at its floor under ADR-0232
+
+SIH-SP 2010-2024 was landed whole, 2.06 bn act lines in 17.4 GB: 7.5-10.0 bytes a row, every file stamped
+`zstd9-rg262144`. São Paulo 2019 is 38.2 M rows in 311 MB. Its largest columns are act code (13%), act value (12%),
+AIH number (11%), professional document (10%) and line sequence (9%); provenance is 0.5%. Two further levers were tried
+on PE and AL 2019 (zstd 9, 262,144-row groups, against pyarrow's rewrite of the same table):
+
+- **Rows sorted by AIH and sequence:** -3% (PE) to +10% (AL). The files are already 79-82% grouped by AIH in source
+  order.
+- **Digit-only columns typed as integers** (28 columns, each checked lossless): -1%. zstd packs digit text nearly as
+  tightly.
+
+The writer's own files are 19% smaller than pyarrow's rewrite at the same settings. Neither lever is adopted. What
+remains is zstd 19 (9-18% at 5-7x the write time, rejected above).
