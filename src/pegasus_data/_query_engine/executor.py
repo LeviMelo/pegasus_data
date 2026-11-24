@@ -144,8 +144,8 @@ def _refuse_before_reading(query_plan: Any, *, as_of: object, max_download: int 
             raise DownloadBudgetExceeded(
                 f"this query would download {new / 2**30:.2f} GiB of new files "
                 f"({retrieval.download_bytes / 2**30:.2f} GiB selected), over max_download="
-                f"{max_download / 2**30:.2f} GiB. Narrow period or geography, or pass a larger "
-                "max_download (None for no limit) after checking plan(...).explain()"
+                f"{max_download / 2**30:.2f} GiB ({max_download:,} bytes). Narrow period or geography, or pass a larger "
+                "max_download, in bytes (None for no limit), after checking plan(...).explain()"
             )
     # max_download=0 reads the lake only: no source file is fetched or decoded, whatever the cache claims. SIA-PA 2016
     # planned 6.75 GB "cached" whose blobs an extract had released, and fetched them again, 324 files, inside a study
