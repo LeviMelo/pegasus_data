@@ -52,3 +52,17 @@ def test_spec_without_known_gives_pairs_and_chance_only():
     spec = SimpleNamespace(outcome=SimpleNamespace(known=None), passes=SPEC.passes)
     (q,) = quantities(run(), {"horizons": [{"days": 10, "control_pairs": 1}]}, spec)
     assert q["pairs"] == 9 and q["false_match_share"] == pytest.approx(1 / 9, abs=1e-4) and "sensitivity" not in q
+
+
+def test_known_given_by_the_study_replaces_the_spec_flag():
+    # the study counts the 6 day-20 deaths too as known (deaths later in the chained stay): no link-only event remains
+    t = run()
+    known = [5] * 10 + [20] * 6 + [None] * 4
+    rep = {"horizons": [{"days": 30, "control_pairs": 2}],
+           "passes": [{"name": REACH, "kept": True}, {"name": KNOWN, "kept": True}]}
+    (q,) = quantities(t, rep, SPEC, known=known)
+    assert (q["known"], q["link_only"]) == (16, 0) and q["sensitivity"] == pytest.approx(14 / 16)
+    with pytest.raises(ValueError, match="known has"):
+        quantities(t, rep, SPEC, known=known[:-1])
+    (s,) = quantities(t, rep, SPEC, known=known, among=[True] * 10 + [False] * 10)
+    assert s["known"] == 10

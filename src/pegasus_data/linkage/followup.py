@@ -117,12 +117,13 @@ class Followup:
                 "died_corrected": max(died - row["control_pairs"], 0) if whole else None}
 
 
-    def quantities(self, among: Any = None) -> list[dict]:
+    def quantities(self, among: Any = None, known: Any = None) -> list[dict]:
         """The link's quality as quantities per horizon (`quantities`), on the whole cohort or on the subset
-        ``among`` (a boolean mask over `table`'s rows: the persons a claim is about)."""
+        ``among`` (a boolean mask over `table`'s rows: the persons a claim is about); ``known``: the study's own known
+        event, as days from the origin per row (None where none), in place of the spec's."""
         # passes and outcome are the spec's own, whatever codes bound it
         return quantities(self.table, self.report, load_links()[self.quality["link"]], days_column=self.days_column,
-                          among=among)
+                          among=among, known=known)
 
     def reach(self, by: Iterable[str] | str, *, among: str | None = None) -> pa.Table:
         """The linked share by stratum: persons, linked (within the window) and their share, for ``by`` among
@@ -399,7 +400,7 @@ def _binomial95(k: int, n: int) -> tuple[float | None, float | None]:
 
 
 def quantities(table: pa.Table, report: dict[str, Any], spec: Any, *, days_column: str = "days_to_death",
-               among: Any = None) -> list[dict]:
+               among: Any = None, known: Any = None) -> list[dict]:
     """The link's quality as quantities, per horizon of the run (linkage-evidence plan, Q1; GUILD, Gilbert et al. 2018;
     RECORD, Benchimol et al. 2015), where the spec declares the events the left side records itself
     (``outcome.known``: SIH's discharge by death). For each horizon of ``days``:
@@ -430,15 +431,29 @@ def quantities(table: pa.Table, report: dict[str, Any], spec: Any, *, days_colum
     subset's share of its persons (``expected_chance`` is no longer an integer): this assumes chance pairs fall evenly
     over persons, so a subset of unusual birth dates or towns is not served by it. Dividing the whole cohort's chance
     pairs by a subset's link-only events overstates the share (t03's review: 10-39% at 30 days on the analytic file,
-    5-17% on the run's own cohort)."""
+    5-17% on the run's own cohort).
+
+    ``known``: the study's own definition of the events it counts without the link, as days from the origin to the
+    event per row of ``table`` (None or NaN where none), in place of the spec's ``outcome.known``: a study that counts
+    every death of the chained stay (continuation and transfer AIHs) has more known deaths than the first AIH's
+    discharge by death, and the link-only events, their chance share and the sensitivity follow its definition (t07:
+    631 of the spec's link-only deaths at 30 days were deaths in the stay)."""
     outcome = spec.outcome
     scale = 1.0
+    given: list[int | None] | None = None
+    if known is not None:
+        vals = known.to_pylist() if isinstance(known, (pa.Array, pa.ChunkedArray)) else list(known)
+        if len(vals) != table.num_rows:
+            raise ValueError(f"known has {len(vals)} values for {table.num_rows} persons")
+        given = [None if v is None or v != v else int(v) for v in vals]     # NaN != NaN
     if among is not None:
         mask = pa.array(among, pa.bool_()) if not isinstance(among, (pa.Array, pa.ChunkedArray)) else among
         if len(mask) != table.num_rows:
             raise ValueError(f"among has {len(mask)} values for {table.num_rows} persons")
         scale = pc.sum(pc.cast(mask, pa.int64())).as_py() / table.num_rows if table.num_rows else 0.0
         table = table.filter(mask)
+        if given is not None:
+            given = [g for g, m in zip(given, mask.to_pylist(), strict=True) if m]
     rows = table.select([c for c in (days_column, "link_pass", "origin") if c in table.column_names]).to_pydict()
     days = rows[days_column]
     passes = rows["link_pass"]
@@ -453,7 +468,10 @@ def quantities(table: pa.Table, report: dict[str, Any], spec: Any, *, days_colum
                 "chance_percent": p.get("chance_percent")}
                for n, p in ran.items() if isinstance(p, dict) and not p.get("kept") and not p.get("skipped")]
     known_days: list[int | None] = [None] * table.num_rows
-    if outcome.known is not None:
+    has_known = given is not None or outcome.known is not None
+    if given is not None:
+        known_days = given
+    elif outcome.known is not None:
         role, value, date = outcome.known
         flag = [None if v is None else str(v) for v in table.column(role).to_pylist()]
         end, origin = table.column(date).to_pylist(), rows["origin"]
@@ -472,7 +490,7 @@ def quantities(table: pa.Table, report: dict[str, Any], spec: Any, *, days_colum
         row: dict[str, Any] = {"days": d, "pairs": pairs, "expected_chance": round(control, 2),
                                "expected_chance_95": [round(lo, 2), round(hi, 2)],
                                "false_match_share": round(control / pairs, 4) if pairs else None}
-        if outcome.known is not None:
+        if has_known:
             n_known = sum(known)
             known_linked = sum(1 for a, b in zip(linked, known, strict=True) if a and b)
             link_only = pairs - known_linked
