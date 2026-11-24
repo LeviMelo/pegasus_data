@@ -1266,6 +1266,12 @@ TabNet's state forms classify by `territorio/{UF}_macsaud.cnv` and `{UF}_regsaud
   (0403010020) also bill cranioplasty or cranial reconstruction: a craniotomy whose bone was put back. That holds for
   3.7% of main-procedure stays (2010-2025; ABNc t03).
 - **A stay continues across COBRANCA 51** (encerramento administrativo), as across 21-29: declared since 0da8018e.
+- **Secondary diagnoses and their type (2015 on).** DIAGSEC1-9 with TPDISEC1-9: 1 present on admission, 2 acquired
+  in the stay (0: none). A comorbidity score counts type 1 only: type 2 is a complication. For injury admissions the
+  external cause (V-Y) is filed here on every stay, with an unreliable type: in national decompressive craniectomies
+  for head injury (2015-2024) the same causes are typed 2 about as often as 1. A third carry only unspecified causes
+  (X58, X59, Y34, W99), and that share is a hospital habit (92% at one Curitiba trauma reference, 17% elsewhere).
+  CID_ASSO, the older external-cause field, is empty after 2012 in these cohorts (ABNc D-14, 2026-11-25).
 - **Long-stay continuation records (IDENT 5)** carry deaths that the principal AIH does not: 1,376 in 2019, 1,171
   sharing N_AIH with a principal AIH whose record shows none (OQ 104).
 
