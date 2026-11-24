@@ -37,8 +37,10 @@ class Pace:
 
 
 def adaptive_map(fn: Callable[[T], R], items: Iterable[T], *, measure: Callable[[R], float], start: int = 4,
-                 cap: int = 24, pace: Pace | None = None) -> Iterator[R]:
-    """``fn`` over ``items`` in threads, yielding each result as it completes (not in order). ``measure`` says how many
+                 cap: int = 24, pace: Pace | None = None, processes: bool = False) -> Iterator[R]:
+    """``fn`` over ``items`` in threads (``processes=True``: in worker processes, ``fn`` and items picklable, ``cap``
+    processes at most), yielding each result as it completes (not in order). Threads share one interpreter lock, so
+    Python-bound work (decoding) gains from processes; a download-bound run does not (extract.EXTRACT_PROCESSES). ``measure`` says how many
     bytes a result moved. Every window of as many completions as tasks in flight, the window's rate is compared with the
     last: a rise of more than `STEP` adds a task (up to ``cap``), a fall of more than `STEP` removes one (down to 1).
     ``measure`` is any work a result stands for: bytes downloaded, or 1 for a task of a kind whose sizes are alike."""
@@ -53,7 +55,12 @@ def adaptive_map(fn: Callable[[T], R], items: Iterable[T], *, measure: Callable[
     window_bytes, window_done, window_start = 0.0, 0, time.monotonic()      # the work of the window, in ``measure``
     last_rate: float | None = None
     exhausted = False
-    with ThreadPoolExecutor(max_workers=max(cap, start), thread_name_prefix="adaptive") as pool:
+    if processes:
+        from concurrent.futures import ProcessPoolExecutor
+        executor = ProcessPoolExecutor(max_workers=max(cap, start))
+    else:
+        executor = ThreadPoolExecutor(max_workers=max(cap, start), thread_name_prefix="adaptive")
+    with executor as pool:
         def fill() -> None:
             nonlocal exhausted
             while not exhausted and len(pending) < limit:

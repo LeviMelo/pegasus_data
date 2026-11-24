@@ -183,6 +183,34 @@ def _match(table: pa.Table, column: str, prefixes: Sequence[str]) -> pa.Array | 
 #: 0.5 MB/s a connection (2026-10-11); decoding waits for memory in pegasus_data's admission control, and a worker
 #: hands back only its file's kept records
 EXTRACT_WORKERS = 6
+# worker processes for an extract's files (0: threads, the default). Measured on the SIH-SP 0415* extract
+# (2026-11-24): threads 48.7 files/min at 4.4 MB/s, eight processes 50.0 files/min at 5.6 MB/s. A download-bound run
+# gains nothing (DATASUS gives about 6 MB/s in total, evaluation 2026-11-21) and processes cost about 300 MB each.
+# Processes pay where decoding is the limit: files already held raw.
+EXTRACT_PROCESSES = 0
+
+
+def _read_file(job: tuple) -> tuple[dict[str, Any], Any, int, int]:
+    """One file fetched, decoded and filtered in a worker (a process: module-level, picklable): only its kept records
+    travel back. Returns (file, kept table or the exception, rows decoded, bytes downloaded)."""
+    dataset, f, filt, settings = job
+    from .retrieve import fetch
+    try:
+        # the filters go into the read: rows that cannot match are dropped raw, before they are normalised and
+        # hashed (SIH-SP: 1.3% of 1.6 billion rows kept, and the rest had cost two thirds of the extract's time)
+        table, report = fetch(dataset, labels=False, provenance=True, only_paths=[f["path"]], report=True,
+                              max_bytes=None, settings=settings, on_missing_column="null_fill",
+                              rows=filt, rows_join="any")
+    except Exception as exc:  # noqa: BLE001 - a file that does not open is a recorded gap, not an absence
+        return f, exc, 0, 0
+    mask = None
+    for column, prefixes in filt.items():
+        hit = _match(table, column, prefixes)          # a layout without the column holds none of its records
+        if hit is not None:
+            mask = hit if mask is None else pc.or_(mask, hit)
+    # the file's own records, counted before the read's row filter dropped the ones that cannot match
+    return (f, (table.filter(mask) if mask is not None else table.slice(0, 0)),
+            int(getattr(report, "rows_decoded", 0) or table.num_rows), int(getattr(report, "bytes_downloaded", 0) or 0))
 
 
 def _write_manifest(path: Path, manifest: dict[str, Any]) -> None:
@@ -207,7 +235,8 @@ def _read_manifest(path: Path) -> dict[str, Any] | None:
 
 def build_extract(dataset: str, years: Sequence[int], filters: dict[str, Sequence[str]], *,
                   ufs: Sequence[str] | None = None, root: str | Path | None = None, settings: Any = None,
-                  log: Callable[[str], None] = print, workers: int = EXTRACT_WORKERS) -> dict[str, Any]:
+                  log: Callable[[str], None] = print, workers: int = EXTRACT_WORKERS,
+                  processes: int | None = None) -> dict[str, Any]:
     """`_build_extract` under the extract's own lock: one builder at a time. Two would each read the files the manifest
     lacks and each write the manifest as it saw it, losing entries and writing a file's records twice (a study's
     store step beside the long SIA-PA extract, 2026-10-12). A second caller does not wait for hours: it returns the
@@ -227,14 +256,16 @@ def build_extract(dataset: str, years: Sequence[int], filters: dict[str, Sequenc
         log(f"extract {dataset}: another process is building it; read as it stands")
         return _read_manifest(mpath) or {"dataset": dataset, "filters": _filters(filters), "files": {}, "failed": {}}
     try:
-        return _build_extract(dataset, years, filters, ufs=ufs, settings=settings, log=log, workers=workers)
+        return _build_extract(dataset, years, filters, ufs=ufs, settings=settings, log=log, workers=workers,
+                              processes=processes)
     finally:
         lock.release()
 
 
 def _build_extract(dataset: str, years: Sequence[int], filters: dict[str, Sequence[str]], *,
                    ufs: Sequence[str] | None = None, root: str | Path | None = None, settings: Any = None,
-                   log: Callable[[str], None] = print, workers: int = EXTRACT_WORKERS) -> dict[str, Any]:
+                   log: Callable[[str], None] = print, workers: int = EXTRACT_WORKERS,
+                   processes: int | None = None) -> dict[str, Any]:
     """Extract the records of ``dataset`` in ``years`` that any of ``filters`` (column -> code prefixes) matches, file
     by file (module docstring), ``workers`` files at a time. A file already in the manifest is not read again, so an
     interrupted extract resumes. Returns the manifest. ``ufs`` reads only those states' files (an extract that is not
@@ -258,33 +289,20 @@ def _build_extract(dataset: str, years: Sequence[int], filters: dict[str, Sequen
     log(f"extract {dataset} {filt}: {len(files)} files in {sorted(set(map(int, years)))}, {len(todo)} to read")
     t0 = time.time()
 
-    def read(f: dict[str, Any]) -> tuple[dict[str, Any], Any, int, Any]:
-        """One file fetched, decoded and filtered in the worker: only its kept records wait for their turn."""
-        try:
-            # the filters go into the read: rows that cannot match are dropped raw, before they are normalised and
-            # hashed (SIH-SP: 1.3% of 1.6 billion rows kept, and the rest had cost two thirds of the extract's time)
-            table, report = fetch(dataset, labels=False, provenance=True, only_paths=[f["path"]], report=True,
-                                  max_bytes=None, settings=settings, on_missing_column="null_fill",
-                                  rows=filt, rows_join="any")
-        except Exception as exc:  # noqa: BLE001 - a file that does not open is a recorded gap, not an absence
-            return f, exc, 0, None
-        mask = None
-        for column, prefixes in filt.items():
-            hit = _match(table, column, prefixes)          # a layout without the column holds none of its records
-            if hit is not None:
-                mask = hit if mask is None else pc.or_(mask, hit)
-        # the file's own records, counted before the read's row filter dropped the ones that cannot match
-        return f, (table.filter(mask) if mask is not None else table.slice(0, 0)),             int(getattr(report, "rows_decoded", 0) or table.num_rows), report
-
     # as many files in flight as the total rate keeps rising with (`concurrency.adaptive_map`), starting at ``workers``:
     # a fixed six was short of the line one hour and past it the next (2026-11-21)
     pace = Pace()
 
     def results():
-        return adaptive_map(read, todo, start=max(1, workers),
-                            measure=lambda out: getattr(out[3], "bytes_downloaded", 0) or 0, pace=pace)
+        # worker processes where decoding is the limit (EXTRACT_PROCESSES)
+        procs = processes if processes is not None else EXTRACT_PROCESSES
+        jobs = [(dataset, f, filt, settings) for f in todo]
+        if procs:
+            return adaptive_map(_read_file, jobs, start=min(max(1, workers), procs), cap=procs,
+                                measure=lambda out: out[3], pace=pace, processes=True)
+        return adaptive_map(_read_file, jobs, start=max(1, workers), measure=lambda out: out[3], pace=pace)
 
-    for i, (f, kept, rows, report) in enumerate(results()):
+    for i, (f, kept, rows, downloaded) in enumerate(results()):
         if isinstance(kept, Exception):
             manifest["failed"][f["path"]] = f"{type(kept).__name__}: {kept}"[:300]
             log(f"extract {dataset}: {f['path']} failed: {type(kept).__name__}: {kept}")
@@ -295,7 +313,7 @@ def _build_extract(dataset: str, years: Sequence[int], filters: dict[str, Sequen
             write_parquet_atomic(kept, part, compression="zstd")
         manifest["files"][f["path"]] = {"year": int(f["year"]), "uf": f["geo_code"], "period": f["normalized_date"],
                                         "rows": rows, "kept": kept.num_rows,
-                                        "downloaded": int(getattr(report, "bytes_downloaded", 0) or 0)}
+                                        "downloaded": int(downloaded)}
         manifest["failed"].pop(f["path"], None)
         _release(settings, [f["path"]])
         if (i + 1) % 25 == 0 or i + 1 == len(todo):

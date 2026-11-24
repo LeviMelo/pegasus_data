@@ -27,6 +27,14 @@ holds and can do, one space × time object, and the principles audits' defects c
   home, then the real home migrated (evaluation 2026-11-22-versions-as-deltas): every download landed
   or released, blobs 21.95 → 0.64 GB (kits and documentation, corrupt archive members, current-year copies), 258
   versions kept as deltas (46 MB), listed lake 29.9 → 39.5 GB.
+- **Tests at HEAD (2026-11-24).** 41 failed before this check. 33 were the test double `FakeBlobs` lacking `has()`, which
+  retrieval calls since c4b9483c (ADR-0233); fixed in `tests/conftest.py`. 8 remain, each its own defect, open:
+  `test_labelpack` geography kept, `test_lake_streaming` batch before the next, `test_next_resources` manifest,
+  `test_no_module_shadows_a_verb` (`holdings` is a module and a verb), `test_query_api` (2: fresh-install plan,
+  unbounded acquisition opt-in), `test_semantic_relations` (2: relation artifact per vintage, mid-year change).
+- **Extract speed (2026-11-24).** A new filter re-reads every published file: the SIH-SP 0415* extract downloads
+  about 28 GB at DATASUS's total of about 6 MB/s, near 1.5 h, threads (48.7 files/min) and eight processes
+  (50.0 files/min) alike. `build_extract(processes=)` is there for runs that decode held files.
 - **Storage and speed (2026-11-21/22).**
   - The record key is computed on read, not stored (ADR-0231).
   - One Parquet encoding (ADR-0232): zstd 9, 262,144-row groups. A typed intake column's text is stored only where a

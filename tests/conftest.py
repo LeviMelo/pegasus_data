@@ -293,6 +293,11 @@ class FakeBlobs:
         self.payload_for = payload_for or (lambda _digest: one_file())
         self._dir = tempfile.mkdtemp(prefix="pegasus_fakeblobs_")
 
+    def has(self, digest: str) -> bool:
+        # every digest has a payload here; the real store's `has` decides whether a version was downloaded
+        # (retrieve, ADR-0233/0234): without it 33 tests failed at HEAD from c4b9483c (2026-11-24)
+        return True
+
     def read(self, digest: str) -> bytes:
         return self.payload_for(digest)
 
