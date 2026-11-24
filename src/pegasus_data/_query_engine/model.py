@@ -202,6 +202,8 @@ class QueryReport:
     publication_resolution: str = "unknown"
     adaptations: list[dict[str, str]] = field(default_factory=list)
     structural_absence: dict[str, list[str]] = field(default_factory=dict)
+    # years a range asked for that DATASUS never published (SIH-CH 2021): left out and said, not refused
+    absent_years: list[int] = field(default_factory=list)
     dimensions: list[dict[str, Any]] = field(default_factory=list)
     enrichments: list[EnrichmentReport] = field(default_factory=list)
     warnings: list[str] = field(default_factory=list)

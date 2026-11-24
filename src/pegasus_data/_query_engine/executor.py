@@ -282,24 +282,27 @@ def _read_fetched(
     from .._request import _as_years, _clean_months, _clean_ufs
     from ..retrieve import read_source
 
+    from ..retrieve import NothingPublished, PublishedEmpty
+
     retrieval = query_plan.retrieval
     months_by_year = dict(retrieval.year_months)
+    several = len({*retrieval.lake_years, *[y for y in fetch_years if y is not None]}) > 1
+    absent: list[int] = []
     for fetch_year in fetch_years:
-        fetched_table, fetched_report = read_source(
-            dataset, request,
-            uf=_clean_ufs(list(retrieval.geography_for(fetch_year)) or None),
-            years=_as_years([fetch_year] if fetch_year is not None else None),
-            months=_clean_months(months_by_year.get(fetch_year) or None),  # type: ignore[arg-type]
-            settings=resolved,
-            # every provenance column rides to the end of the query; the key is hashed per row (about 9 us each)
-            # and kept only for the caller who asked for provenance
-            provenance=True, record_key=query_plan.spec.provenance == "all",
-            # A file that would not download or open is a recorded gap (report.excluded), never a silent
-            # absence; accepting a short table is the caller's explicit choice.
-            allow_partial=allow_partial,
-            max_bytes=None,  # the budget is max_download, checked before anything moves, on NEW bytes
-            as_of=as_of,
-        )
+        try:
+            fetched_table, fetched_report = _read_one_year(
+                dataset, request, retrieval, months_by_year, fetch_year, resolved, query_plan, allow_partial, as_of)
+        except NothingPublished as exc:
+            # a range asked over a year DATASUS never published (SIH-CH 2021): the year is absent, said in the
+            # report, and the others are answered; a single year, or a range with nothing at all, still refuses
+            # (t03, 2026-11-24)
+            if not several or isinstance(exc, PublishedEmpty) or fetch_year is None:
+                raise
+            absent.append(int(fetch_year))
+            message = f"{dataset}: DATASUS publishes nothing for {fetch_year}; that year is absent from the answer"
+            report.warnings.append(message)
+            warnings.warn(message, PartialSourceWarning, stacklevel=3)
+            continue
         tables.append(_with_competence(fetched_table, fetched_report))
         source_reports.append(fetched_report)
         del fetched_table
@@ -311,6 +314,33 @@ def _read_fetched(
             )
             report.warnings.append(message)
             warnings.warn(message, PartialSourceWarning, stacklevel=3)
+    if absent:
+        report.absent_years.extend(sorted(absent))
+        if not tables:
+            raise NothingPublished(f"{dataset}: DATASUS publishes nothing for any of {sorted(absent)}")
+
+
+def _read_one_year(dataset, request, retrieval, months_by_year, fetch_year, resolved, query_plan, allow_partial, as_of):
+    """One fetched year read from the published files (`_read_fetched`)."""
+    from .._request import _as_years, _clean_months, _clean_ufs
+    from ..retrieve import read_source
+
+    fetched_table, fetched_report = read_source(
+        dataset, request,
+        uf=_clean_ufs(list(retrieval.geography_for(fetch_year)) or None),
+        years=_as_years([fetch_year] if fetch_year is not None else None),
+        months=_clean_months(months_by_year.get(fetch_year) or None),  # type: ignore[arg-type]
+        settings=resolved,
+        # every provenance column rides to the end of the query; the key is hashed per row (about 9 us each)
+        # and kept only for the caller who asked for provenance
+        provenance=True, record_key=query_plan.spec.provenance == "all",
+        # A file that would not download or open is a recorded gap (report.excluded), never a silent
+        # absence; accepting a short table is the caller's explicit choice.
+        allow_partial=allow_partial,
+        max_bytes=None,  # the budget is max_download, checked before anything moves, on NEW bytes
+        as_of=as_of,
+    )
+    return fetched_table, fetched_report
 
 
 def _land_read(source_reports: list[Any], report: QueryReport, resolved: Settings) -> None:
