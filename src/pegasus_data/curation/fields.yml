@@ -95,7 +95,10 @@ cnes:
     hospital: ['05', '07', '15']                    # general hospital, specialised hospital, mixed unit (a small hospital)
     primary_care_unit: ['01', '02', '45']           # health post, health centre / basic unit (UBS), family-health unit
     specialised_clinic: ['04', '36']                # polyclinic, clinic / specialty centre
-    # other = every other TP_UNID: isolated offices (22), diagnostic units (39), emergency, pharmacies, CAPS, mobile units, ...
+    mobile_emergency: ['42']                        # SUS mobile prehospital urgency / emergency unit (SAMU ambulances, 2023: 5,136)
+    emergency_unit: ['20', '21', '73']              # general and specialised emergency rooms (pronto socorro), urgent-care units (UPA)
+    # other = every other TP_UNID: isolated offices (22), diagnostic units (39), pharmacies, CAPS, ... (mobile prehospital
+    # units and emergency units left it on 2026-11-24, asked by ABNc t06: their own groups above)
   icu_bed_codes: ['51', '52', '61', '62', '63', '74', '75', '76', '77', '78', '79', '80', '81', '82', '83', '85', '86']
   # ESP_LEIT: UTI adulto / infantil / neonatal (and their types I-III), burns ICU, coronary ICU, and the COVID-19 adult
   # and paediatric type II ICUs of 2020-2021 (51, 52; TabNet's Leitos_compl2.cnv). The intermediate units (64, 65,
@@ -626,6 +629,58 @@ fields:
     what: >
       Registered specialised clinics (polyclinic, clinic / specialty centre) not linked to the SUS (VINC_SUS 0), December of the year (CNES-ST, one row per establishment).
     gaps: SUS = VINC_SUS 1. The register counts what is registered, not what works.
+  cnes_facilities_mobile_emergency_sus:
+    label: "Mobile prehospital emergency units linked to the SUS"
+    over: population
+    source: cnes
+    family: facilities
+    group: mobile_emergency
+    sector: sus
+    unit: establishments
+    law: sum
+    years: 2008-2023
+    what: >
+      Registered mobile prehospital urgency and emergency units (TP_UNID 42: the SAMU's ambulances and motorcycles, each registered as an establishment) linked to the SUS (VINC_SUS 1), December of the year (CNES-ST, one row per establishment).
+    gaps: SUS = VINC_SUS 1. The register counts what is registered, not what works. A unit is registered where its base is, and serves a region, not only its municipality.
+  cnes_facilities_mobile_emergency_nonsus:
+    label: "Mobile prehospital emergency units not linked to the SUS"
+    over: population
+    source: cnes
+    family: facilities
+    group: mobile_emergency
+    sector: nonsus
+    unit: establishments
+    law: sum
+    years: 2008-2023
+    what: >
+      Registered mobile prehospital urgency and emergency units (TP_UNID 42: the SAMU's ambulances and motorcycles, each registered as an establishment) not linked to the SUS (VINC_SUS 0), December of the year (CNES-ST, one row per establishment).
+    gaps: SUS = VINC_SUS 1. The register counts what is registered, not what works. A unit is registered where its base is, and serves a region, not only its municipality.
+  cnes_facilities_emergency_unit_sus:
+    label: "Emergency and urgent-care units linked to the SUS"
+    over: population
+    source: cnes
+    family: facilities
+    group: emergency_unit
+    sector: sus
+    unit: establishments
+    law: sum
+    years: 2008-2023
+    what: >
+      Registered emergency rooms (pronto socorro general 20 and specialised 21) and urgent-care units (pronto atendimento 73, the UPA) linked to the SUS (VINC_SUS 1), December of the year (CNES-ST, one row per establishment).
+    gaps: SUS = VINC_SUS 1. The register counts what is registered, not what works. Emergency rooms inside hospitals are counted with the hospital, not here.
+  cnes_facilities_emergency_unit_nonsus:
+    label: "Emergency and urgent-care units not linked to the SUS"
+    over: population
+    source: cnes
+    family: facilities
+    group: emergency_unit
+    sector: nonsus
+    unit: establishments
+    law: sum
+    years: 2008-2023
+    what: >
+      Registered emergency rooms (pronto socorro general 20 and specialised 21) and urgent-care units (pronto atendimento 73, the UPA) not linked to the SUS (VINC_SUS 0), December of the year (CNES-ST, one row per establishment).
+    gaps: SUS = VINC_SUS 1. The register counts what is registered, not what works. Emergency rooms inside hospitals are counted with the hospital, not here.
   cnes_facilities_other_sus:
     label: "Other establishments linked to the SUS"
     over: population
@@ -637,7 +692,7 @@ fields:
     law: sum
     years: 2008-2023
     what: >
-      Registered other establishments (offices, diagnostic units, emergency, pharmacies, CAPS, mobile units, ...) linked to the SUS (VINC_SUS 1), December of the year (CNES-ST, one row per establishment).
+      Registered other establishments (offices, diagnostic units, pharmacies, CAPS, ...; mobile prehospital and emergency units have their own fields) linked to the SUS (VINC_SUS 1), December of the year (CNES-ST, one row per establishment).
     gaps: SUS = VINC_SUS 1. The register counts what is registered, not what works.
   cnes_facilities_other_nonsus:
     label: "Other establishments not linked to the SUS"
@@ -650,7 +705,7 @@ fields:
     law: sum
     years: 2008-2023
     what: >
-      Registered other establishments (offices, diagnostic units, emergency, pharmacies, CAPS, mobile units, ...) not linked to the SUS (VINC_SUS 0), December of the year (CNES-ST, one row per establishment).
+      Registered other establishments (offices, diagnostic units, pharmacies, CAPS, ...; mobile prehospital and emergency units have their own fields) not linked to the SUS (VINC_SUS 0), December of the year (CNES-ST, one row per establishment).
     gaps: SUS = VINC_SUS 1. The register counts what is registered, not what works.
   cnes_beds_total: {label: "Existing hospital beds", over: population, source: cnes, years: 2008-2023, law: sum, family: beds, kind: all, sector: all, unit: beds, what: "Existing hospital beds of every kind (QT_EXIST: surgical, clinical, obstetric, paediatric, other specialties, hospital-day and the complementary ICU and isolation beds), December (CNES-LT).", gaps: "Registered capacity, not staffed or occupied beds. Complementary beds (ICU, intermediate, isolation) are inside the total: subtract cnes_beds_icu_total for the others."}
   cnes_beds_sus: {label: "Beds available to the SUS", over: population, source: cnes, years: 2008-2023, law: sum, family: beds, kind: all, sector: sus, unit: beds, what: "Beds available to the SUS (QT_SUS), December (CNES-LT).", gaps: "QT_SUS is what the establishment makes available to the SUS; contracted beds (QT_CONTR) are a contractual figure and are not used."}
