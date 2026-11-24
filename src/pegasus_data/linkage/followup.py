@@ -241,8 +241,9 @@ def linked_outcomes(
     the date of the partner's event within the link's window (a radiotherapy course after a tumour's surgery,
     ``sih_admissions_to_radiotherapy``; a readmission; a death). The table's columns are named for an event, not a death:
     ``record``, ``origin``, ``event_date``, ``days_to_event``, ``partner_record``, ``link_pass``, ``p_match``, the
-    cohort's ``roles``, then each of ``partner_roles`` (roles of the partner's record: an APAC's pathology date and
-    patient token) as ``partner.<role>``. Quality, horizons and refusals are `linked_deaths`'."""
+    cohort's ``roles``, then each of ``partner_roles`` (roles of the partner's record, named as the partner's dataset
+    names them: an APAC's pathology date and patient token; a certificate's ``deceased.race`` or ``death.cause``) as
+    ``partner.<role>``. Quality, horizons and refusals are `linked_deaths`'."""
     return _followup(dataset, codes, years=years, geography=geography, link_name=link_name, match=match, roles=roles,
                      partner_roles=partner_roles, compute=compute, refresh=refresh, death_names=False, **query_kwargs)
 

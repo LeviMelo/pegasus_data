@@ -511,8 +511,12 @@ def role_table(
     if unheld := [n for n in names if n not in spec.roles]:
         # a role table holds the linkage roles (a column declared with `compare:`), not every role a dataset declares:
         # the others were dropped on the way and then raised a bare KeyError in the projection (2026-11-22)
+        # the same attribute under this dataset's own subject (SIM-DO's race is deceased.race, not patient.race: ABNc t03)
+        near = {n: [r for r in spec.roles if r.split(".")[-1] == n.split(".")[-1]] for n in unheld}
+        hint = "; ".join(f"{n}: did you mean {', '.join(rs)}?" for n, rs in near.items() if rs)
         raise KeyError(f"{dataset}: {unheld} are not linkage roles (no `compare:` in curation/roles/{dataset}.yml), so a "
-                       "role table does not hold them; read them with query(), or declare their comparison")
+                       "role table does not hold them; read them with query(), or declare their comparison"
+                       + (f" ({hint})" if hint else ""))
     settings = query_kwargs.get("settings") or load_settings(root=query_kwargs.get("root"))
     needed = list(dict.fromkeys([*names, *_where_roles(spec, where)]))
     provenance = ["_blob_sha256", "_row", "_source_path", "_record_key"]
