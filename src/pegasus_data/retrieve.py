@@ -396,7 +396,11 @@ def read_source(
             fetch_report.warnings.append(
                 f"{len(refused)} representation(s) refused for schema; read again from another: "
                 + ", ".join(sorted(refused)[:3]))
-        if table.num_rows == 0:
+        # records decoded and none matching the row filter is an answer, zero, not an empty publication: the extract of
+        # four rare SIA-PA codes recorded every PE and CE file of 2016 (21 MB each) as 'PublishedEmpty' (ABNc t09, 2026-11-24)
+        matched_none = (bool(request.filters) and fetch_report.rows_decoded > 0
+                        and not fetch_report.undecoded and not fetch_report.schema_mismatch)
+        if table.num_rows == 0 and not matched_none:
             empty = (
                 fetch_report.files_read > 0
                 and not fetch_report.undecoded
