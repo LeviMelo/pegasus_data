@@ -35,8 +35,20 @@ def test_event_link_reads_its_own_data_end():
 
 def test_horizon_past_the_reach_is_unknown():
     fu = _fu("2025-06-30")
-    fu.quality["passes"] = [{"name": "year pass", "kept": True, "reach_days": 20}, {"name": "discharge day", "kept": True}]
+    fu.quality["passes"] = [{"name": "year pass", "kept": True, "reach_days": 20}]
     assert fu.reach_days == 20
     assert fu.died_within(30).to_pylist() == [None, None, None]
     fu.quality["horizons"].insert(0, {"days": 7, "verdict": "viable", "chance_percent": 1.0, "control_pairs": 0})
     assert fu.died_within(7).to_pylist() == [False, True, False]
+
+
+def test_dropped_year_pass_reaches_nothing():
+    from pegasus_data.linkage.engine import load_links
+    spec = load_links()["sih_admissions_to_sim"]
+    year, day = (p.name for p in spec.passes)
+    fu = _fu("2025-06-30")
+    fu.quality["link"] = "sih_admissions_to_sim"
+    fu.quality["passes"] = [{"name": year, "kept": False}, {"name": day, "kept": True}]
+    assert fu.reach_days == 0 and fu.died_within(30).to_pylist() == [None, None, None]
+    fu.quality["passes"][0]["kept"] = True
+    assert fu.reach_days == 365

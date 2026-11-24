@@ -79,10 +79,18 @@ class Followup:
 
     @property
     def reach_days(self) -> int:
-        """The days after the origin within which the run looks for the event: the window, or less when a pass with too
-        many chance matches over the window was kept to a shorter horizon (``passes[].reach_days``)."""
-        kept = [p["reach_days"] for p in self.quality.get("passes") or [] if p.get("kept") and p.get("reach_days")]
-        return int(min(kept or [self.window]))
+        """The days after the origin within which the run looks for an event the left does not record: the longest
+        horizon of a kept pass that is not ``known_only`` (the window, or less when the pass's chance matches over the
+        window were too many: ``passes[].reach_days``), and 0 when every such pass was dropped (ABNc t08: 10 of 12
+        years, where the run found only the deaths the admissions record)."""
+        passes = self.quality.get("passes") or []
+        if not passes:                       # a run stored without its passes: the window, as before
+            return self.window
+        spec = load_links().get(self.quality.get("link", ""))
+        known_only = {p.name for p in spec.passes if p.known_only} if spec is not None else set()
+        kept = [p.get("reach_days") or self.window for p in passes
+                if p.get("kept") and p.get("name") not in known_only]
+        return int(max(kept or [0]))
 
     def horizon(self, days: int) -> dict[str, Any]:
         """The quality of the follow-up within ``days``: the first horizon of the run that covers it."""
