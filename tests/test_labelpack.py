@@ -42,8 +42,10 @@ class TestRoleDecidesWhatShips:
 
     def test_geography_is_kept(self) -> None:
         roles = codelist_roles()
-        assert _role_of("MUNICBR", roles) == "geography"
         assert _role_of("BR_MUNICIP", roles) == "geography"
+        # MUNICBR carries code ranges (41% of its rows): declared a classification since b77ce357 (audit #2), which
+        # kept every bound codelist's verdict; this test still expected geography
+        assert _role_of("MUNICBR", roles) == "classification"
 
     def test_an_ordinary_enumeration_has_no_special_role(self) -> None:
         assert _role_of("SEXO", codelist_roles()) is None
