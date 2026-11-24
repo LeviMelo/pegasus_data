@@ -283,7 +283,7 @@ def holdings_cmd(
     as_json: JsonOpt = False,
 ) -> None:
     """Every store of the home against what describes it, variable by variable: what is held and nothing describes."""
-    from ..holdings import holdings
+    from .._holdings import holdings
 
     rows = [h.as_dict() for h in holdings()]
     bad = [r for r in rows if r["defect"]]

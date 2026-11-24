@@ -97,7 +97,7 @@ _EXPORTS: dict[str, str] = {
     "field_available": "._availability",
     "field_coverage": "._availability",
     "field_fill": "._availability",
-    "holdings": ".holdings",
+    "holdings": "._holdings",
     "context_candidates": ".fields",
     "grids": ".semantics.grids",
     "grid_table": ".semantics.grids",

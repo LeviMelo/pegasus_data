@@ -1552,7 +1552,7 @@ def _write_products(db: sqlite3.Connection, cfg: Settings, report: CompendiumRep
 
     # Every store of the home against what describes it, variable by variable (`holdings`): a store claimed by a product
     # that reads two of its variables (the Census 2010 microdata, for commuting) hid the rest from every scope.
-    from .holdings import holdings
+    from ._holdings import holdings
 
     rows_h = [h.as_dict() for h in holdings(cfg)]
     db.executemany("INSERT INTO holdings VALUES (?,?,?,?,?,?,?,?)",
