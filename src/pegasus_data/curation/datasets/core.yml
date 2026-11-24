@@ -110,7 +110,7 @@ datasets:
             end: DT_SAIDA
             reason: COBRANCA
             facility: CNES
-            continues: ["21", "22", "23", "24", "25", "26", "27", "28", "29"]
+            continues: ["21", "22", "23", "24", "25", "26", "27", "28", "29", "51"]
             transfer: ["31"]
             record: N_AIH   # ties of one person's order broken by the AIH number, so the chaining never depends on reading order
             gap: [-1, 1]   # days from the previous AIH's end to the next one's start, measured (evidence)
@@ -122,6 +122,10 @@ datasets:
               1,065,304 AIHs form 971,334 stays; a stay with a shunt holds a median 2 AIHs (OPEN_QUESTIONS #96). The window is the data's: after a
               2x reason the next AIH starts 0 or 1 days later 78,500 times and 2-10 days later 577 (0.7%); after a 31
               the next starts the day before 886 times of 16,324 (Pernambuco 2019-2020).
+              51 "encerramento administrativo" closes an AIH while the patient stays: in 2019 (BR, IDENT 1, keyed persons)
+              78.7% of 129,979 AIHs closed with 51 have the same person's next AIH at the same CNES starting -1..1 days
+              after, against 79.7% after 21-29 and 0.8% after a discharge (11-12); RR 4.1% of AIHs, RN 2.0%, MG 1.7%.
+              Reported by t08 (a spine hospital closing 70% of its AIHs with 51, deaths on the continuation), 2026-11-24.
         note: >-
           A stay is chained inside the period read: one that crosses the period's edge is cut there. hospitalisation
           (one event per principal AIH) is TabNet's "Internações" and stays as it was.
