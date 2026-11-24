@@ -370,6 +370,8 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
 - `__init__.py`: the public names, resolved lazily.
 - `api.py`: `Catalog` facade, `describe`, `load`, `scan`, `export`, `open_lake`,
   `write_table`, `load_population`, `load_reference`.
+  `open_lake` also registers `lake_holdings` (dataset, year, uf): what each view reads, so a partial view
+  (SIH-SP: three states of 2023) is not read as the country.
 - `retrieve.py`: `fetch()`, DATASUS to a table in one call; the de facto read engine.
 - `_request.py`: what a request asks for, checked before a byte is fetched: the dataset spec, axis refusals, state/month/year cleaning, and the errors `fetch` raises.
 - `view.py`: rendering into the canonical form: codelist selection, `_label` companions, derived columns.

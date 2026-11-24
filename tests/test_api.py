@@ -180,6 +180,15 @@ class TestDuckLake:
             assert "SEXO_label" in columns
             assert "uf" in columns and "year" in columns  # hive partitions surface
 
+    def test_holdings_say_which_years_and_states_a_view_reads(self, built_lake):
+        # a partial view read as the country (sihsus_sp, three states of 2023; t08, 2026-11-24)
+        settings, catalog, family_id = built_lake
+        with DuckLake(settings.lake_dir, catalog) as duck:
+            duck.register_all()
+            held = duck.query("SELECT DISTINCT year, uf FROM lake_holdings WHERE dataset = 'sihsus_rd'").to_pylist()
+            seen = duck.query('SELECT DISTINCT year, uf FROM "sihsus_rd"').to_pylist()
+            assert held and sorted((r["year"], r["uf"]) for r in held) == sorted((int(r["year"]), r["uf"]) for r in seen)
+
 
 class TestPopulation:
     def test_a_series_refuses_a_stratification_it_cannot_support(self, built_lake):

@@ -121,8 +121,10 @@ class DuckLake:
             groups.setdefault((row["system"], row["series"]), []).append(row)
         listed = listed_partitions(self.catalog, sorted({str(r["family_id"]) for r in rows}))
         widths = declared_widths(self.catalog)
+        held: dict[tuple[str, str | None], set[tuple[int, str]]] = {}
         for (system, series), members in groups.items():
             chosen = one_reading([p for m in members for p in listed.get(str(m["family_id"]), ())], widths)
+            held[(system, series)] = {(int(p.year), str(p.uf)) for p in chosen if p.year is not None}
             files: dict[str, list[str]] = {}
             for part in sorted(chosen, key=lambda p: (p.uf, p.year, p.relative_path)):
                 files.setdefault(part.family_id, []).append(part.relative_path)
@@ -133,6 +135,7 @@ class DuckLake:
                     by_series.setdefault((system, series), []).append(name)
 
         dataset_rows: list[tuple[object, ...]] = []
+        holding_rows: list[tuple[str, int, str]] = []
         for (system, series), views in by_series.items():
             name = dataset_name(system, series)
             if not name or not views:
@@ -140,12 +143,23 @@ class DuckLake:
             union = " UNION ALL BY NAME ".join(f'SELECT * FROM "{v}"' for v in views)
             self.conn.execute(f'CREATE OR REPLACE VIEW "{name}" AS {union}')
             registered.append(name)
+            hy: dict[int, set[str]] = {}
+            for y, uf in held.get((system, series), ()):
+                hy.setdefault(y, set()).add(uf)
+            holding_rows.extend((name, y, uf) for y, ufs in hy.items() for uf in ufs)
+            # what the view holds, said where a reader looks: a view of three states' 2023 SIH-SP read as the country
+            # (t08, 2026-11-24). `lake_holdings` lists every (dataset, year, uf) a view reads.
+            partial = sorted(y for y, ufs in hy.items() if len(ufs) < 27 and not ({"BR", "00"} & ufs))
             dataset_rows.append(
                 (
                     name, system, series, ",".join(views),
-                    f"{system} {series or ''}".strip() + f" — {len(views)} schema generation(s)",
+                    f"{system} {series or ''}".strip() + f" — {len(views)} schema generation(s)"
+                    + (f"; partial: {', '.join(f'{y} ({len(hy[y])} states)' for y in partial)}" if partial else ""),
                 )
             )
+        self.conn.execute("CREATE OR REPLACE TEMP TABLE lake_holdings(dataset VARCHAR, year INTEGER, uf VARCHAR)")
+        if holding_rows:
+            self.conn.executemany("INSERT INTO lake_holdings VALUES (?, ?, ?)", holding_rows)
         # Registering views is a read-only act as far as the lake is concerned;
         # recording the dataset names is a convenience. A caller holding the
         # catalog read-only (`verify`, `describe`) still gets its views.
