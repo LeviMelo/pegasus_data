@@ -85,21 +85,23 @@ class Followup:
         raise ValueError(f"the run looks for deaths within {self.window} days, not {days}")
 
     def died_within(self, days: int, *, allow_not_viable: bool = False) -> pa.Array:
-        """Whether each person died within ``days`` of the origin: True, False (alive at ``days`` and followed that long)
-        or null (followed for less: the origin plus ``days`` is past the last day of deaths the data hold). Refused
+        """Whether each person died within ``days`` of the origin: True or False when the person was followed that long,
+        null when followed for less (the origin plus ``days`` is past the last day of deaths the data hold, or that day
+        is unknown), a death as much as a survival: a death inside a window the data do not cover counted while a
+        survivor in the same place dropped, and inflated the mortality of the last origins (ABNc, 2026-11-24). Refused
         (`LinkNotViable`) when the run's verdict at that horizon is "not viable", as pairs of a linkage that fails its
         own verdict look like pairs of one that passes."""
         row = self.horizon(days)
         if row["verdict"] == "not viable" and not allow_not_viable:
             raise LinkNotViable(_Refusal(self.quality["link"], row))
         died = pc.fill_null(pc.less_equal(self.table.column(self.days_column), days), False)
-        end = self.quality["death_data_end"]
+        # a death link names it death_data_end, an event link (`linked_outcomes`) event_data_end
+        end = self.quality.get("death_data_end", self.quality.get("event_data_end"))
         if end is None:
-            return pc.if_else(died, True, pa.scalar(None, pa.bool_())).combine_chunks()
+            return pa.nulls(len(self.table), pa.bool_())
         last = (datetime.date.fromisoformat(end) - datetime.date(1970, 1, 1)).days
-        followed = pc.less_equal(pc.add(pc.cast(self.table.column("origin"), pa.int32()), days), last)
-        return pc.if_else(died, True, pc.if_else(pc.fill_null(followed, False), False,
-                                                 pa.scalar(None, pa.bool_()))).combine_chunks()
+        followed = pc.fill_null(pc.less_equal(pc.add(pc.cast(self.table.column("origin"), pa.int32()), days), last), False)
+        return pc.if_else(followed, died, pa.scalar(None, pa.bool_())).combine_chunks()
 
     def mortality(self, days: int, *, allow_not_viable: bool = False) -> dict[str, Any]:
         """Deaths within ``days`` over the people followed that long: {"followed", "died", "rate"}, with the horizon's
