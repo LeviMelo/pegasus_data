@@ -198,6 +198,8 @@ MOBILITY_LAYERS: dict[str, tuple[str, str]] = {
     "road_links_2016": ("ibge_links", "IBGE Ligações rodoviárias 2016: weekly coach departures from `from` to `to`"),
     "waterway_links_2016": ("ibge_links", "IBGE Ligações hidroviárias 2016: weekly boat departures from `from` to `to`"),
     "air_passengers": ("anac_air", "ANAC: domestic air passengers from `from` to `to` in the month `vintage` (YYYYMM)"),
+    "road_osrm": ("road_matrix", "OSRM car route between municipal seats (Saldanha 2024, OpenStreetMap): `weight` minutes, "
+                                 "`distance_km` beside it, every routed pair both ways"),
 }
 
 

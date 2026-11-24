@@ -96,7 +96,7 @@ def tracts(
 
 @app.command(rich_help_panel="PIPELINE")
 def mobility(
-    layer: Annotated[list[str] | None, typer.Option("--layer", help="census_commuting, ibge_links or anac_air (repeat); default all")] = None,
+    layer: Annotated[list[str] | None, typer.Option("--layer", help="census_commuting, ibge_links, anac_air or road_matrix (repeat); default all")] = None,
     root: RootOpt = None,
     as_json: JsonOpt = False,
 ) -> None:
