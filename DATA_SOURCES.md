@@ -1349,6 +1349,24 @@ TabNet's `leiutibr.def` (Leitos Complementares) classifies by `TPCO_LEITO` (type
 - ANS open data (dadosabertos.ans.gov.br/FTP/PDA/): `informacoes_consolidadas_de_beneficiarios-024` has monthly folders from 2021-05; `taxa_de_cobertura_de_planos_de_saude-047` and `dados_de_beneficiarios_por_regiao_geografica` hold the current year only; `beneficiarios_identificados_sus_abi` identifies plan holders found in SUS reimbursement. Older series: ANS TabNet (now anstabnet-ds.ans.gov.br), not retrieved. The `ans_beneficiaries` field stores the coverage label with a replacement character ("M?dico-hospitalar").
 - www.ibge.gov.br answers 403 to curl with a browser user agent; ftp.ibge.gov.br answers. IBGE's sub-registro estimates are of civil registration, not of SIM or SINASC.
 
+### CNES-PF: hours and occupation codes change meaning at 2011 (measured 2026-11-24)
+
+- **Hospital hours sit in HORAOUTR before 2011.** Share of professional records with hours > 0 (lake, December
+  competence, BR):
+
+  | year | HORAOUTR | HORAHOSP | HORA_AMB |
+  |---|---:|---:|---:|
+  | 2008 | 29.4% | 5.9% | 74.0% |
+  | 2010 | 32.6% | 7.9% | 73.2% |
+  | 2011 | 9.6% | 32.3% | 73.2% |
+  | 2013 | 11.8% | 32.9% | 72.0% |
+
+  Alagoas 2010 against 2011: HORAOUTR plus HORAHOSP sum to 217,622 and 232,783 hours, so the total holds while the
+  split flips. A series of hospital hours across 2010-2011 breaks unless both columns are read together. Reported by
+  t10: neurosurgeons' HORAHOSP was 1,310 h in 2010 against 42,789 in 2011.
+- **Occupations change CBO edition at 2011:** the neurosurgeon is 223140 to 2010 and 225260 from 2011 (OQ 103).
+- The lake holds one competence a year for 2009-2013 (December), so the month of the switch is not measured here.
+
 ### CNES December files as municipal supply (measured 2026-10-05)
 
 - **Layout.** `CNES/200508_/Dados/<DS>/<DS><UF><YY>12.dbc` on the mirror (the S3 key has no `dissemin/publicos` prefix). Compressed December files for 2005-2025: ST 277 MB, LT 13 MB, EQ 131 MB, EP 49 MB, PF 3,795 MB (SP 2023 PF: 68 MB, 0.5 GB peak, 28 s). EP starts 2007-04.
