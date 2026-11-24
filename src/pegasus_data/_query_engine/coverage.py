@@ -144,6 +144,11 @@ def declared_widths(store: Any) -> dict[str, dict[str, int]]:
     import json
 
     def load() -> dict[str, dict[str, int]]:
+        # a catalog older than the widths census (the packaged seed of a fresh install) has no such column: no widths
+        # known, which `one_reading` already handles, rather than a failed plan (2026-11-24)
+        cols = {str(r["name"]) for r in store.query("PRAGMA table_info(file_schemas)")}
+        if "widths_json" not in cols:
+            return {}
         return {
             str(r["path"]): json.loads(r["widths_json"])
             for r in store.query("SELECT path, widths_json FROM file_schemas WHERE widths_json IS NOT NULL")
