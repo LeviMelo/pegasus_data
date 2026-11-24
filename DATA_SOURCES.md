@@ -1427,6 +1427,18 @@ The 1996 `.DEF` binds `CIRCOBITO` to `TIPOVIOL.CNV`, which in that kit is the ne
   It is recording at two facilities, not incidence. Nationally, P37.1 admissions per 1,000 live births rise 4-fold over
   2010–2024 (0.21 → 0.87), with deaths flat (about 30 a year).
 
+
+### SIM undercounts head injury among in-hospital deaths (measured 2026-11-24, ABNc t06)
+
+Of the SIM certificates linked (`sih_admissions_to_sim`) to 84,512 SUS stays that ended in death with a principal head-injury
+diagnosis (S06), 2015-2023, **66.9% carry S06 on any line** (LINHAA-D, LINHAII or CAUSABAS). The share falls with age (76.4% at
+15-29, 55.7% at 75+), with the certifier (77.3% by the forensic service, ATESTANTE 3, against 37.6% by the attending physician, 1)
+and with time to death (72.3% at 2-7 days, 51.3% at 31+). False links do not explain it: on links made by the stay's own AIH
+67.8% carry S06. Of those without S06, 44.8% have an external underlying cause, 16.2% T06/T07 and 13.0% S02, and 24.7% I60-I64
+(mostly stays billed S06.5: a spontaneous haemorrhage billed as trauma or a traumatic one certified as stroke, which neither source
+separates). **A count of head-injury deaths from SIM's cause lines undercounts in-hospital ones by about a third**, unevenly by
+age and certifier. ABNc QUESTIONS Q-12; t06 data notes and `t06_s3_certification.json`.
+
 ## Facts read off the codes the whole partitions left bare (measured 2026-10-24; docs/evaluation/2026-10-24-bare-codes-whole-partitions.md)
 
 - **DATASUS publishes its CID-10 of 2019.** `SIM/CID10/TAB/CNVS_CID10_v2019.rar` (1.1 MB, 2025-10-13) holds 58 files: one `CID10_NN.CNV` per chapter (full descriptions, flat; `_ST` the same as a tree), `CID10_3DN.CNV` (the 2,065 three-character categories), the sex-restricted and trivial-cause lists. A line starts `&` when the code is new since 2008, `@` when reworded, `#` when retired (`A90 ... >> A97`); some descriptions are cut at the column. `SIM/CID10/TABELAS/CID10.DBF` (2020-05-11) differs from its 2011 copy by 59 added codes (U07.1 among them) and still lacks A97, R65, K64 and C86. DATASUS's v2019 table keeps A09 undivided, WHO's 2019 edition has A09.0 and A09.9, and the SIM files of 2025 write them (3,313 and 1,741 cells of `CAUSABAS` in the year's largest file): they read through the category fallback ("categoria A09 ... não consta").
