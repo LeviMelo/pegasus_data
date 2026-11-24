@@ -34,10 +34,16 @@ def connect() -> duckdb.DuckDBPyConnection:
 
     from ..config import load_settings
 
+    import os
+
     con = duckdb.connect()
     total = psutil.virtual_memory().total
-    spill = load_settings().duckdb_spill()
-    con.execute(f"SET memory_limit = '{max(1, int(total * 0.4) // 2**30)}GB'")
+    settings = load_settings()
+    spill = settings.duckdb_spill()
+    # the settings' link memory (2 GB by default, PEGASUS_LINK_MEMORY_GB overrides), never above 40% of the machine
+    gb = float(os.environ.get("PEGASUS_LINK_MEMORY_GB") or getattr(settings, "link_memory_gb", 2.0))
+    mb = int(min(gb * 1024, total * 0.4 / 2**20))
+    con.execute(f"SET memory_limit = '{max(512, mb)}MB'")
     con.execute(f"SET temp_directory = '{spill.as_posix()}'")
     return con
 

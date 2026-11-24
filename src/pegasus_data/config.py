@@ -138,6 +138,11 @@ class Settings:
     #: Decoder processes in a pool, and partitions built at once (`decode.admission.decode_workers` when None).
     decode_workers: int | None = None
 
+    #: DuckDB memory for a link's connection (`linkage.identity.connect`), in GB; beyond it the join spills to the work
+    #: directory. ``PEGASUS_LINK_MEMORY_GB`` overrides it. It was 40% of physical memory (12.8 GB here): a national
+    #: year of SIH-RD to SIM peaked at 5-7 GB of resident memory whatever the cohort's size (5,025 persons: 6.17 GB,
+    #: 2026-11-24), a heavy job on a shared machine.
+    link_memory_gb: float = 2.0
     keep_raw: bool = False
     #: A build releases each downloaded file once a verified partition holds its records (`BlobStore.prune_verified`;
     #: snapshot versions are always kept), so the Parquet is what stays. True keeps every download beside its Parquet,
