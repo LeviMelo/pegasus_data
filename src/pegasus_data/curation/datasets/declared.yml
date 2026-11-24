@@ -610,6 +610,7 @@ datasets:
             (366 of 3,287). Counting rows of type 1 or 3 counts each APAC once.
         consolidation:
           key: [AP_AUTORIZ]
+          state_local: true    # as N_AIH: no APAC of SIA-AQ or SIA-AR 2016 and 2023 in two states' files (2026-11-24)
         note: >-
           Counts authorisations, not patients or new treatments: a regimen is a chain of APACs, and AQ_CONTTR
           (continuity, S/N) marks the chain's later links but would need a second status column.
@@ -646,6 +647,7 @@ datasets:
             (366 of 3,287). Counting rows of type 1 or 3 counts each APAC once.
         consolidation:
           key: [AP_AUTORIZ]
+          state_local: true    # as N_AIH: no APAC of SIA-AQ or SIA-AR 2016 and 2023 in two states' files (2026-11-24)
     asserted_by: pegasus_data
     what_one_row_is: one authorisation for a radiotherapy course
     unit_of_analysis: authorisation
@@ -675,6 +677,7 @@ datasets:
             counts each APAC once (data/probes/apac/measure6.py, 2026-10-10).
         consolidation:
           key: [AP_AUTORIZ]
+          state_local: true    # as N_AIH: no APAC of SIA-AQ or SIA-AR 2016 and 2023 in two states' files (2026-11-24)
     asserted_by: pegasus_data
     what_one_row_is: one authorisation to dispense a specialised-component medicine
     unit_of_analysis: authorisation
@@ -707,6 +710,7 @@ datasets:
             counts each APAC once (data/probes/apac/measure6.py, 2026-10-10).
         consolidation:
           key: [AP_AUTORIZ]
+          state_local: true    # as N_AIH: no APAC of SIA-AQ or SIA-AR 2016 and 2023 in two states' files (2026-11-24)
         note: >-
           Heterogeneous by construction (cataract, hearing, cardiac and other procedures in AC 2023): read by
           AP_PRIPAL.
@@ -745,6 +749,7 @@ datasets:
             data/probes/apac/measure6.py's; ATD's own numbers are data/probes/fix9/event_atd.py's (2026-10-14).
         consolidation:
           key: [AP_AUTORIZ]
+          state_local: true    # as N_AIH: no APAC of SIA-AQ or SIA-AR 2016 and 2023 in two states' files (2026-11-24)
         note: >-
           The renal diagnosis is in AP_CIDCAS: AP_CIDPRI and AP_CIDSEC are 0000 on every row read (2015, 2019, 2023).
           AP_CIDCAS is blank ('0000') on most authorisations and the classifier is a minority's: of the authorisations
@@ -795,6 +800,7 @@ datasets:
             counts each APAC once (data/probes/apac/measure6.py, 2026-10-10).
         consolidation:
           key: [AP_AUTORIZ]
+          state_local: true    # as N_AIH: no APAC of SIA-AQ or SIA-AR 2016 and 2023 in two states' files (2026-11-24)
         note: >-
           AP_CIDPRI and AP_CIDSEC are 0000 on every row read; the renal diagnosis, where given, is in
           AP_CIDCAS (half of AC 2023's rows).
@@ -829,6 +835,7 @@ datasets:
             (366 of 3,287). Counting rows of type 1 or 3 counts each APAC once.
         consolidation:
           key: [AP_AUTORIZ]
+          state_local: true    # as N_AIH: no APAC of SIA-AQ or SIA-AR 2016 and 2023 in two states' files (2026-11-24)
     asserted_by: pegasus_data
     what_one_row_is: one authorisation for nephrology care short of dialysis
     unit_of_analysis: authorisation
@@ -1086,6 +1093,7 @@ datasets:
             counts each APAC once (data/probes/apac/measure6.py, 2026-10-10).
         consolidation:
           key: [AP_AUTORIZ]
+          state_local: true    # as N_AIH: no APAC of SIA-AQ or SIA-AR 2016 and 2023 in two states' files (2026-11-24)
         note: >-
           Every row's AP_PRIPAL is 0301120056, the procedure of SIA.AB, which ABO continues from 2014 (the two
           overlap in 2014-2017). The layout has no AP_CIDPRI, and AP_CIDCAS is empty on every row read; the
@@ -1118,6 +1126,7 @@ datasets:
             counts each APAC once (data/probes/apac/measure6.py, 2026-10-10).
         consolidation:
           key: [AP_AUTORIZ]
+          state_local: true    # as N_AIH: no APAC of SIA-AQ or SIA-AR 2016 and 2023 in two states' files (2026-11-24)
         note: >-
           Every row's AP_PRIPAL is 0301120056, ACOMPANHAMENTO DE PACIENTE POS-GASTROPLASTIA (Manual Operacional APAC
           6.5, sources/apac_manual.txt): the surgery itself is an AIH, in SIH. AP_CIDPRI and AP_CIDSEC are 0000 on every
@@ -1153,6 +1162,7 @@ datasets:
             counts each APAC once (data/probes/apac/measure6.py, 2026-10-10).
         consolidation:
           key: [AP_AUTORIZ]
+          state_local: true    # as N_AIH: no APAC of SIA-AQ or SIA-AR 2016 and 2023 in two states' files (2026-11-24)
         note: >-
           AP_CIDPRI is 0000 on every row read; AP_CIDCAS is filled on 4% of SP 2023's rows. Two procedures
           (0301130051 on single-row APACs, 0301130060 on the others).

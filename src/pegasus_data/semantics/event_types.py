@@ -132,6 +132,8 @@ class EventType:
     #: (a SINAN notification still under investigation is a probable case).
     status_excluded: tuple[str, ...] = ()
     consolidation_key: tuple[str, ...] = ()
+    #: The key never spans two states' files (it carries the state's code): a count may read one state at a time
+    state_local: bool = False
     #: Records chained into one event (`Chain`): SIH's AIHs of one stay; None when the key alone consolidates
     chain: Chain | None = None
     #: Duplicate entries: rows equal on every column but these (entry metadata) are one record (``None``: no rule)
@@ -166,7 +168,8 @@ class EventType:
                            for c in self.classifiers],
             "status": ({"column": self.status_column, "values": list(self.status_values),
                         "excluded": list(self.status_excluded)} if self.status_column else None),
-            "consolidation": ({"key": list(self.consolidation_key)} if self.consolidation_key else
+            "consolidation": ({"key": list(self.consolidation_key), **({"state_local": True} if self.state_local else {})}
+                              if self.consolidation_key else
                               {"chain": {"person": list(self.chain.person), "start": self.chain.start, "end": self.chain.end,
                                          "reason": self.chain.reason, "facility": self.chain.facility,
                                          "continues": list(self.chain.continues), "transfer": list(self.chain.transfer),
@@ -360,6 +363,7 @@ def _event(key: str, body: dict[str, Any], spec: dict[str, Any], where: str) -> 
         status_values=tuple(str(v) for v in status.get("values") or ()),
         status_excluded=tuple(str(v) for v in status.get("exclude") or ()),
         consolidation_key=tuple(str(c).upper() for c in (spec.get("consolidation") or {}).get("key") or ()),
+        state_local=bool((spec.get("consolidation") or {}).get("state_local")),
         chain=_chain((spec.get("consolidation") or {}).get("chain"), f"{where}: {key}.{name}"),
         duplicates_except=_duplicates(spec.get("duplicates"), f"{where}: {key}.{name}"),
         duplicates_flag=_duplicate_flag(spec.get("duplicates"), f"{where}: {key}.{name}"),
@@ -959,10 +963,18 @@ def count_events(
     then has a column ``unknown``: the events whose condition could not be decided (a weight not recorded is not "under
     2,500 g" and not "over" either), by the same groups, so a rate can state its unknown share; the totals are
     `conditions.condition_report`'s ``satisfied`` and ``unknown``. A group with only unknown events shows ``events`` 0.
-    A grid event reports its unknown records in that metadata alone."""
+    A grid event reports its unknown records in that metadata alone.
+
+    A request over several states' files is counted one state at a time and summed (`_state_reads`), when no event can
+    span two states' files: the national read of a year held every record in memory before grouping (PegaSUS's scope
+    of ABNc t01 reached 16.5 GB, the machine 0.16 GB free, 2026-11-24)."""
     from ..conditions import CONDITION, CONDITION_META
 
     event = event_type(dataset, name)
+    pieces = None if records is not None else _state_reads(dataset, event, period, geography, query_kwargs)
+    if pieces:
+        return _summed([count_events(dataset, name, period=per, geography=uf, by=by, condition=condition, **query_kwargs)
+                        for uf, per in pieces], by)
     if event.grid:
         record_by = [c for c in by or [] if c not in (GRID_SEX, GRID_AGE)]
         events = read_events(dataset, event, record_by, records=records, period=period, geography=geography,
@@ -998,6 +1010,65 @@ def count_events(
                       f"as an event of its own, as consolidating them into one would lose events", stacklevel=2)
         out = out.replace_schema_metadata({UNKEYED: str(unkeyed).encode()})
     return _with_meta(out, events, {CONDITION_META})
+
+
+def _state_reads(dataset: str, event: EventType, period: object, geography: object,
+                 query_kwargs: dict) -> list[tuple[str, object]] | None:
+    """The (state, period) pieces a count reads one at a time, or None to read the request whole. Only where no event
+    spans two pieces: a row is its own event (no consolidation key), or the key is ``state_local`` (N_AIH and AP_AUTORIZ
+    carry their state's IBGE code: none of SIH-RD's 12.2 million AIHs of 2019, nor of SIA-AQ's and SIA-AR's APACs of
+    2016 and 2023, was filed by two states); never a chain (a transfer continues a stay in another state) or a
+    whole-row duplicates rule; and only when the lake holds the request as state files of two states or more. The
+    largest state is still read whole: SIH-SP's procedures of 2023 by two columns peaked at 5.8 GB (59 s), São Paulo's
+    year; a month's request reads its state-year file whole too (6.3 GB, 314 s), so months are no smaller piece."""
+    if event.chain is not None or event.duplicates_except is not None or event.grid:
+        return None
+    if event.consolidation_key and not event.state_local:
+        return None
+    from .._query_engine.planner import plan
+
+    try:
+        retrieval = plan(dataset, period=period, geography=geography, root=query_kwargs.get("root"),
+                         rows=query_kwargs.get("rows")).retrieval
+    except Exception:  # noqa: BLE001 - a request the plan cannot split is read whole, as before
+        return None
+    ufs = {str(p.uf).upper() for p in retrieval.lake_partitions}
+    if len(ufs) < 2 or any(len(u) != 2 or not u.isalpha() or u == "BR" for u in ufs):
+        return None
+    return [(u, period) for u in sorted(ufs)]
+
+
+def _summed(parts: list[pa.Table], by: list[str] | None) -> pa.Table:
+    """Per-state counts (`count_events`' own results) summed into one: the counts by ``by``, the unkeyed rows, and the
+    condition's satisfied and unknown totals."""
+    import json
+
+    from ..conditions import CONDITION_META
+    from .through import THROUGH_META
+
+    table = pa.concat_tables(parts, promote_options="default")
+    values = [c for c in table.column_names if c not in (by or [])]
+    if by:
+        out = table.group_by(list(by)).aggregate([(c, "sum") for c in values]).select(
+            [*by, *(f"{c}_sum" for c in values)]).rename_columns([*by, *values])
+    else:
+        out = pa.table({c: [pc.sum(table.column(c)).as_py() or 0] for c in values})
+    metas = [p.schema.metadata or {} for p in parts]
+    meta: dict[bytes, bytes] = {}
+    unkeyed = sum(int(m.get(UNKEYED, b"0")) for m in metas)
+    if unkeyed:
+        meta[UNKEYED] = str(unkeyed).encode()
+    reports = [json.loads(m[CONDITION_META]) for m in metas if m.get(CONDITION_META)]
+    if reports:
+        merged = dict(reports[0])
+        for k in ("satisfied", "unknown"):
+            if all(isinstance(r.get(k), int) for r in reports):
+                merged[k] = sum(r[k] for r in reports)
+        meta[CONDITION_META] = json.dumps(merged, ensure_ascii=False).encode()
+    through = [m[THROUGH_META] for m in metas if m.get(THROUGH_META)]
+    if through:
+        meta[THROUGH_META] = through[0]
+    return out.replace_schema_metadata(meta) if meta else out
 
 
 def _with_meta(out: pa.Table, events: pa.Table, keys: set[bytes]) -> pa.Table:

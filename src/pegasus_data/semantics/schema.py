@@ -136,7 +136,7 @@ _AXES = obj("default_geography default_time geography time", sub={"geography": _
 _EVENT = obj(
     "classifiers consolidation duplicates evidence exposure grain kind marks name note persons present source_notes "
     "status weight",
-    sub={"classifiers": seq(obj("column recodes role structure")), "consolidation": obj("chain key", sub={"chain": obj("continues end evidence facility gap gap_days person reason record start transfer")}),
+    sub={"classifiers": seq(obj("column recodes role structure")), "consolidation": obj("chain key state_local", sub={"chain": obj("continues end evidence facility gap gap_days person reason record start transfer")}),
          "duplicates": obj("evidence except flag"), "exposure": obj("events evidence per"),
          "source_notes": obj("definition final_after_years form known_errors limitations source valid_from valid_to"),
          "status": obj("column evidence exclude values"),

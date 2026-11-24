@@ -19,6 +19,7 @@ datasets:
             "Internações" excludes them: AC 2014 type-1 rows 52,733 = TabNet 52,733.
         consolidation:
           key: [N_AIH]
+          state_local: true    # N_AIH carries its state's IBGE code: none of SIH-RD 2019's 12.2 million AIHs in two states' files (2026-11-24)
         note: >-
           Transfers between hospitals are separate AIHs; consolidating them needs
           linkage and is not done here.
