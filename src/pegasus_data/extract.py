@@ -664,7 +664,7 @@ def migrate_extracts(dataset: str, *, settings: Any = None, apply: bool = False,
         if (add.num_rows if add is not None else 0) != int(entry.get("kept") or 0):
             # the folder lost rows of this file: its part was named by state and period, and the files DATASUS splits
             # (SIA-PA's PASP2301a, b, c) wrote one part over another. Not carried: the file is read again.
-            plan.setdefault("short", {})[path] = (f"{d.name}: {entry.get('kept')} rows recorded, "
+            plan.setdefault("short", {})[f"{d.name} {path}"] = (f"{d.name}: {entry.get('kept')} rows recorded, "
                                                   f"{add.num_rows if add is not None else 0} in its part")
             continue
         sha = None

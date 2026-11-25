@@ -35,8 +35,8 @@ holds and can do, one space × time object, and the principles audits' defects c
 - **One model of holdings (2026-11-24, ADR-0236).** A published file is held whole by the lake or by predicate in its
   dataset's extract store; a new filter reads only what a file lacks and stores only the rows it adds; the lake
   absorbs a file it takes whole; `lake_coverage` shows partial holdings. SIH-SP's five extract folders (10,692 files,
-  204 M rows, 6.3 GB) are all held by the lake, row for row; SIA-PA's are carried into its store. Deleting the old
-  folders awaits the author (evaluation 2026-11-24-holdings). The old folders had lost 2.77 M rows of 390 SIA-PA split
+  204 M rows, 6.3 GB) are all held by the lake, row for row; SIA-PA's are carried into its store. The old folders
+  were removed on the author's go (6.3 GB), except three SIA-PA folders that hold short files (evaluation 2026-11-24-holdings). The old folders had lost 2.77 M rows of 390 SIA-PA split
   files (OQ 112).
 - **Extract speed (2026-11-24).** A new filter used to re-read every published file: the SIH-SP 0415* extract
   downloaded about 28 GB at DATASUS's total of about 6 MB/s, near 1.5 h, threads (48.7 files/min) and eight processes
