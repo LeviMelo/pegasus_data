@@ -1279,6 +1279,38 @@ TabNet's state forms classify by `territorio/{UF}_macsaud.cnv` and `{UF}_regsaud
   CID_ASSO, the older external-cause field, is empty after 2012 in these cohorts (ABNc D-14, 2026-11-25).
 - **Long-stay continuation records (IDENT 5)** carry deaths that the principal AIH does not: 1,376 in 2019, 1,171
   sharing N_AIH with a principal AIH whose record shows none (OQ 104).
+- **Payment follows the billing route (ABNc D-12).** A 0415* AIH's value (VAL_TOT) pays every act it bills, the
+  devices and the intensive-care days, so a stay found by one act inside it carries far more than that operation. In
+  2023 the median subdural stay was paid R$ 7,954 on the act route against R$ 3,576 on the main route, and craniectomy
+  R$ 10,780 against R$ 8,339. The act-route share rises every year, so a pooled payment trend mixes the billing rule's
+  shift with the operation's price (real median payment 2012-2024: subdural -14% pooled against -25% on the main route;
+  craniectomy -6% against +9%). Report payment by route, or decompose route, procedure mix and price (Das Gupta; ABNc
+  `lib/decompose`); per operation on the act route, take the value of the topic's act lines, not the AIH's.
+- **Admission character (CAR_INT) is partly a billing habit (ABNc D-13).** The hospital sets it when it bills, and for
+  the same diagnoses it varies by state and hospital far beyond case mix (2019-2023, the stay's first AIH): unruptured
+  aneurysm (I67) coded elective 47% nationally, from 1.8% (PE) to 67.8% (RS); craniectomy 11%, from 0% (TO) to 34% (MA);
+  degenerative spine (M4, M5) coded urgent 46%, from 14% (RN) to 82% (MS), with 29% of those stays in hospitals that
+  code under 10% or over 90% of them urgent. A model comparing hospitals, regions or periods that adjusts for it shows
+  the contrast without it; a diagnosis-based severity marker is preferred.
+- **A stay that ends on an administrative closure with no continuation (ABNc D-15).** After the chain (51 continues a
+  stay), 0.4-1.6% of a cohort's stays still end on a 51 with no next AIH within a day. Their end is not a discharge:
+  among 1,335 craniectomy stays that end so, in-stay death is 1.5% against 41.9% for the rest, a death only the link
+  finds 29.5% against 8.0%, and 6.9% die within 3 days of the AIH's end. They concentrate: one hospital (CNES 2525569)
+  ends 37% of its spina-bifida-cohort stays on a 51, with median length 0 days and the same person's next AIH there a
+  median 3 days later (repeated same-day AIHs a readmission count reads as returns). In-stay death and length of stay
+  are lower bounds for them; hospital comparisons report each hospital's share.
+- **Concurrent AIHs make two stays of one admission (ABNc D-16).** The chain links an AIH that starts within a day of
+  the previous one's end; an AIH that overlaps another of the same person at the same hospital stays a stay of its own.
+  0.27% of neurosurgical stays (t10) and 0.38% of a paediatric cohort's (t04) overlap another, almost all at the same
+  hospital, and concentrated: CNES 2088193 has 25% of its stays overlapping, a main-procedure AIH and a 0415* AIH on the
+  same dates with different codes; CNES 0017884 13%. They count operations, volume and in-hospital deaths twice; among
+  newborns part may be twins, whom a birth-date, sex and postcode key merges. OPEN_QUESTIONS 110.
+- **The false share of link-only deaths climbs with the window (ABNc D-11).** On a cohort's own subset, the share of
+  deaths found only by the `sih_admissions_to_sim` link (the stay records none) that are expected by chance rises with
+  the horizon, because the year pass matches more namesakes the longer it looks: craniectomy 23.6% at 30 days, 30.3% at
+  90, 40.5% at 180, 59.4% at 365; aneurysm 22.7%, 35.3%, 45.6% (to 180); subdural 33.9%, 37.5%, 40.2%; head injury
+  24.2%, 36.3%, 47.0%; thrombectomy 13.7%, 20.2%, 32.1%; glioma radiotherapy 20.0%, 12.8%, 14.1%, 18.6%. Report the
+  false share at the horizon a claim uses, on its own subset, and word a 180- or 365-day death by its worst case.
 
 ## SINAN residence codes and representations (measured 2026-10-24; ADR-0207)
 
