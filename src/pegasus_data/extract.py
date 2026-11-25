@@ -564,20 +564,28 @@ def _lake_row_ids(whole: Mapping[str, tuple[str, list[Path]]],
             union = union.union(pred)
         paths = sorted({p for p, _pr in items})
         cols = sorted({c for c, _ in union.atoms or ()})
-        pieces = []
+        found: dict[tuple[str, Predicate], list[int]] = {(p, pred): [] for p, pred in items}
         for f in files:
             names = {x.upper(): x for x in pq.read_schema(f).names}
             present = {c: v for c, v in union.filters().items() if c in names}
             test = pads.field("_source_path").isin(paths)
             if union.atoms is not None:
                 test = test & (rows_expression(present, "any") if present else pc.scalar(False))
-            pieces.append(pads.dataset(f, format="parquet").to_table(
-                columns=["_source_path", "_row", *[names[c] for c in cols if c in names]], filter=test))
-        lake = pa.concat_tables(pieces, promote_options="permissive")
-        source = pc.cast(lake.column("_source_path"), pa.string())
-        for path, pred in items:
-            own = lake.filter(pc.equal(source, path))
-            out[(path, pred)] = sorted(own.filter(pred.mask(own)).column("_row").to_pylist()) if own.num_rows else []
+            # batch by batch: a state-year's provenance read whole took the migration to 8.1 GB (2026-11-24)
+            scanner = pads.dataset(f, format="parquet").scanner(
+                columns=["_source_path", "_row", *[names[c] for c in cols if c in names]], filter=test,
+                batch_size=262_144, batch_readahead=2, fragment_readahead=1)
+            for batch in scanner.to_batches():
+                if not batch.num_rows:
+                    continue
+                part = pa.Table.from_batches([batch])
+                source = pc.cast(part.column("_source_path"), pa.string())
+                for path, pred in items:
+                    own = part.filter(pc.equal(source, path))
+                    if own.num_rows:
+                        found[(path, pred)].extend(own.filter(pred.mask(own)).column("_row").to_pylist())
+        for key, rows in found.items():
+            out[key] = sorted(rows)
     return out
 
 
