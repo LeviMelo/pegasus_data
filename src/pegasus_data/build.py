@@ -833,6 +833,12 @@ class Builder:
             # a representation refused for its columns holds no record of any partition: it is released with the rest
             counts["released"] = self.pipeline.blobs.prune_verified(
                 Path(self.settings.lake_dir), paths=selected_paths, held=self.refused)
+        if selected_paths:
+            # a file now held whole needs no extract-store rows (ADR-0236): they are dropped once the lake's equal them
+            from .extract import absorb_landed
+
+            absorbed = absorb_landed(self.settings, sorted(selected_paths), log=lambda _m: None)
+            counts["absorbed"] = sum(v["dropped"] for v in absorbed.values())
         return StageResult("build", counts=counts)
 
     def decoded_version(self, family_id: str, path: str, digest: str) -> dict[str, pa.Table]:

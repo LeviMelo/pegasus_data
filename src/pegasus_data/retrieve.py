@@ -191,8 +191,9 @@ class FetchReport:
     sources_read: int = 0
     #: The physical files read (paths): what a query builds into the lake after reading them (`build.land`).
     paths_read: list[str] = field(default_factory=list)
-    #: The files read from an extract that holds every record the row filter can keep (`extract.held_files`): read,
-    #: not downloaded, and not landed
+    #: The files read from the home's holdings instead of their publication (`extract.held_files`, ADR-0236): the
+    #: lake's partition that holds a file whole in a year it does not hold whole, or the extract store whose rows of a
+    #: file cover the row filter. Read, not downloaded, and not landed
     from_extract: list[str] = field(default_factory=list)
     representations_deduplicated: list[str] = field(default_factory=list)
     representation_conflicts: list[str] = field(default_factory=list)
@@ -1336,18 +1337,22 @@ def _version_outcome(
 
 
 def _extract_outcome(
-    position: int, item: dict[str, Any], directory: Path, entry: dict[str, Any], keep_columns: frozenset[str] | None,
-    record_key: bool,
+    position: int, item: dict[str, Any], directory: Path | None, entry: dict[str, Any],
+    keep_columns: frozenset[str] | None, record_key: bool,
+    row_filter: tuple[Mapping[str, Sequence[str]], str] | None = None,
 ) -> dict[str, object]:
-    """A selected file's outcome read from an extract that holds it (`extract.held_rows`), in the form a decode gives."""
+    """A selected file's outcome read from what the home holds of it (`extract.held_rows`: the lake's partition, with
+    the row filter pushed into the scan, or the extract store), in the form a decode gives."""
     from .extract import held_rows
     from .normalize.engine import record_keys
 
     path = str(item["path"])
+    rows, join = row_filter or (None, "all")
+    where = "the lake" if directory is None else "the extract store"
     try:
-        table = held_rows(directory, path, entry)
+        table = held_rows(directory, path, entry, rows, join, record_key=False)
     except OSError as exc:
-        return {"position": position, "path": path, "item": item, "failure": f"extract {directory.name}: {exc}"}
+        return {"position": position, "path": path, "item": item, "failure": f"{where}: {exc}"}
     batches = []
     if table is not None:
         table = table.drop_columns([c for c in (*_BUILD_ONLY, "_record_key") if c in table.column_names])
@@ -1535,14 +1540,16 @@ def _read_families(
         selected = [triple for triple in selected if str(triple[2]["path"]) in wanted]
     report.files_matched = len(selected)
     alternatives = _alternative_plans(catalog, families, plans, municipalities, cache)
-    # The files an extract holds every record of that the row filter can keep are read from it, never downloaded
-    # again (`extract.held_files`): SIH-SP's procedure lines, 1.3% of 1.6 billion rows, were extracted once and every
-    # query of them planned the whole files' download (science-2, 2026-11-23)
-    held: dict[str, tuple[Path, dict[str, Any]]] = {}
-    if row_filter and as_of is None and not only_paths:
+    # The files the home holds every record of that the row filter can keep are read from it, never downloaded again
+    # (`extract.held_files`, ADR-0236): a file a lake partition holds whole in a year the lake does not hold whole, and
+    # a file whose extract-store rows cover the filter (SIH-SP's procedure lines, 1.3% of 1.6 billion rows, were
+    # extracted once and every query of them planned the whole files' download, science-2, 2026-11-23)
+    held: dict[str, tuple[Path | None, dict[str, Any]]] = {}
+    if as_of is None and not only_paths:
         from .extract import held_files
 
-        held = held_files(pipeline.settings, f"{report.system}.{report.series or report.system}", *row_filter)
+        held = held_files(pipeline.settings, f"{report.system}.{report.series or report.system}",
+                          *(row_filter or (None, "all")), paths=sorted({str(t[2]["path"]) for t in selected}))
     from_extract = [(i, t) for i, t in enumerate(selected) if str(t[2]["path"]) in held]
     to_read = [(i, t) for i, t in enumerate(selected) if str(t[2]["path"]) not in held]
     _measure_selection(catalog, [t for _, t in to_read], report, max_bytes)
@@ -1586,7 +1593,8 @@ def _read_families(
     ) if reading else []
     for outcome in outcomes:
         outcome["position"] = original[int(outcome["position"])]
-    outcomes += [_extract_outcome(i, t[2], *held[str(t[2]["path"])], keep_columns, record_key) for i, t in from_extract]
+    outcomes += [_extract_outcome(i, t[2], *held[str(t[2]["path"])], keep_columns, record_key, row_filter)
+                 for i, t in from_extract]
     batches, seen_years, seen_ufs, read_sources = _fold_outcomes(catalog, settings, outcomes, report)
 
     # Every member has been read into memory; the decoder spools on disk can go

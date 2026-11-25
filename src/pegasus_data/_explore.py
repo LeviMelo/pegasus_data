@@ -475,7 +475,13 @@ def lake_coverage(dataset: str, *, root: str | Path | None = None,
     counted, so a study priced national SIH years as free and its lanes, forbidden to download, failed (2026-10-15).
 
     A year SIM and SINASC publish both nationally and per state is on disk twice; the rows, partitions and bytes are of the
-    one reading a query opens (`coverage.national_or_states`), and ``also_on_disk`` of that year names the other copy."""
+    one reading a query opens (`coverage.national_or_states`), and ``also_on_disk`` of that year names the other copy.
+
+    ``held`` of a year counts its published files by what the home holds of them (ADR-0236): ``whole`` (a partition
+    holds the file at its listed version), ``partial`` (the extract store holds the rows of a predicate: predicate ->
+    files and rows) and ``neither``. A year with partitions is not held whole unless ``neither`` and ``partial`` are
+    empty: SIA-PA 2010 had partitions for 26 states holding some months only, and the coverage did not say so (OQ 108).
+    A year only the store holds appears with no partitions."""
     from ._query_engine.coverage import declared_widths, national_or_states
 
     resolved = settings or load_settings(root=Path(root) if root else None)
@@ -515,7 +521,40 @@ def lake_coverage(dataset: str, *, root: str | Path | None = None,
                                  "note": "the same records as the other representation, not counted"}
     # the states held by name too: a year built from a national file holds the one partition "BR" where the server
     # publishes 27 state files beside it, and is whole all the same
-    return {k: {**v, "ufs": len(v["ufs"]), "uf_codes": sorted(v["ufs"])} for k, v in sorted(out.items())}
+    held = _held_by_year(resolved, dataset, sorted(out))
+    for year in held:
+        out.setdefault(year, {"partitions": 0, "ufs": set(), "rows": 0, "bytes": 0})
+    return {k: {**v, "ufs": len(v["ufs"]), "uf_codes": sorted(v["ufs"]), **({"held": held[k]} if k in held else {})}
+            for k, v in sorted(out.items())}
+
+
+def _held_by_year(settings: Settings, dataset: str, lake_years: Sequence[int]) -> dict[int, dict[str, Any]]:
+    """Per year of the lake or the extract store, the published files by holding (`lake_coverage`'s ``held``)."""
+    from .extract import _files, _stale, _whole
+    from .persist.held import ExtractStore
+
+    store = ExtractStore(settings.lake_dir, dataset)
+    holdings = store.holdings()
+    years = sorted({*lake_years, *(h.year for h in holdings.values())})
+    if not years:
+        return {}
+    files = _files(settings, dataset, years)
+    whole = _whole(settings, dataset, [f["path"] for f in files])
+    void = _stale(settings, holdings)
+    out: dict[int, dict[str, Any]] = {}
+    for f in files:
+        y = out.setdefault(int(f["year"]), {"published": 0, "whole": 0, "partial": {}, "neither": 0})
+        y["published"] += 1
+        h = holdings.get(f["path"])
+        if f["path"] in whole:
+            y["whole"] += 1
+        elif h is not None and f["path"] not in void:
+            part = y["partial"].setdefault(str(h.predicate), {"files": 0, "rows": 0})
+            part["files"] += 1
+            part["rows"] += h.kept
+        else:
+            y["neither"] += 1
+    return out
 
 
 #: The server's directory of files still being collected (SIM, SINASC and SINAN publish their open years there).

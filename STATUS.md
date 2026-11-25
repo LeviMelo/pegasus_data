@@ -32,8 +32,14 @@ holds and can do, one space × time object, and the principles audits' defects c
   resource manifest's `tuss.parquet`, `test_labelpack` following codelists.yml (MUNICBR a classification), and
   `test_lake_streaming` watching the row-group writer. The `decode_isolation` and `semantic_relations` tests pass with
   the double.
-- **Extract speed (2026-11-24).** A new filter re-reads every published file: the SIH-SP 0415* extract downloads
-  about 28 GB at DATASUS's total of about 6 MB/s, near 1.5 h, threads (48.7 files/min) and eight processes
+- **One model of holdings (2026-11-24, ADR-0236).** A published file is held whole by the lake or by predicate in its
+  dataset's extract store; a new filter reads only what a file lacks and stores only the rows it adds; the lake
+  absorbs a file it takes whole; `lake_coverage` shows partial holdings. SIH-SP's five extract folders (10,692 files,
+  204 M rows, 6.3 GB) are all held by the lake, row for row; SIA-PA's are carried into its store. Deleting the old
+  folders awaits the author (evaluation 2026-11-24-holdings). The old folders had lost 2.77 M rows of 390 SIA-PA split
+  files (OQ 112).
+- **Extract speed (2026-11-24).** A new filter used to re-read every published file: the SIH-SP 0415* extract
+  downloaded about 28 GB at DATASUS's total of about 6 MB/s, near 1.5 h, threads (48.7 files/min) and eight processes
   (50.0 files/min) alike. `build_extract(processes=)` is there for runs that decode held files.
 - **Storage and speed (2026-11-21/22).**
   - The record key is computed on read, not stored (ADR-0231).

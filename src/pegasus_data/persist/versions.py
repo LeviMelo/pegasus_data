@@ -82,22 +82,42 @@ def partition_digests(lake_root: Path, rows: Iterable[Mapping[str, Any]]) -> dic
     return out
 
 
-def source_rows(files: Sequence[Path], source_id: str, sha: str | None = None) -> pa.Table:
+def source_rows(files: Sequence[Path], source_id: str, sha: str | None = None, where: Any = None) -> pa.Table:
     """The rows of one source in partition files (no partition columns), in ``_row`` order, each typed column's text
     as filed given back whole (`raw_text`, ADR-0232): a file's renders are its own, so rows taken out of it carry no
     render metadata and are compared and kept by their whole text. A split partition's files can differ by a column:
-    read file by file and promoted."""
+    read file by file and promoted. ``where``: a scan predicate on the rows (a query's row filter, ADR-0236)."""
+    return sources_rows(files, {source_id: sha}, where)
+
+
+def sources_rows(files: Sequence[Path], sources: Mapping[str, str | None], where: Any = None) -> pa.Table:
+    """`source_rows` of several sources of the same partition files, read once: ``sources`` maps each source id to its
+    digest (None: any), in ``_row`` order (each source's rows in its own order once taken apart)."""
     import pyarrow.dataset as ds
 
     from ..raw_text import META_KEY, quote, renders_of, restored
 
+    pinned = {s: d for s, d in sources.items() if d is not None}
+    test = ds.field("_source_path").isin(sorted(sources)) if len(sources) > 1 else (
+        ds.field("_source_path") == next(iter(sources)))
+    if len(pinned) == 1 and len(sources) == 1:
+        test = test & (ds.field("_blob_sha256") == next(iter(pinned.values())))
+    elif pinned:
+        test = test & ds.field("_blob_sha256").isin(sorted(set(pinned.values())))
+    if where is not None:
+        test = test & where
     pieces = []
     for file in files:
         dataset = ds.dataset(str(file), format="parquet")
-        test = ds.field("_source_path") == source_id
-        if sha is not None:
-            test = test & (ds.field("_blob_sha256") == sha)
         table = dataset.to_table(filter=test)
+        if len(pinned) > 1 and table.num_rows:
+            # each source at its own digest: two sources' digests are one set test above
+            pairs = pc.binary_join_element_wise(pc.cast(table.column("_source_path"), pa.string()),
+                                                pc.cast(table.column("_blob_sha256"), pa.string()), "|")
+            want = [f"{s}|{d}" for s, d in pinned.items()] + [f"{s}|" for s in sources if s not in pinned]
+            unpinned = pc.is_in(pc.cast(table.column("_source_path"), pa.string()),
+                                value_set=pa.array(sorted(set(sources) - set(pinned)), pa.string()))
+            table = table.filter(pc.or_(pc.is_in(pairs, value_set=pa.array(want)), unpinned))
         renders = renders_of(pq.read_schema(file).metadata)
         if renders:
             table = restored(table, renders, quote)
@@ -364,4 +384,4 @@ def held_versions(catalog: CatalogStore) -> set[tuple[str, str]]:
 
 __all__ = ["VERSIONS_DIR", "VersionUnavailable", "current_digest", "file_digests", "held_versions",
            "listing_of", "partition_digests", "partitions_holding", "read_version", "record_partition_digests",
-           "source_rows", "write_delta"]
+           "source_rows", "sources_rows", "write_delta"]

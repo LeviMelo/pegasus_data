@@ -100,6 +100,9 @@ $PD info --all                                                 # the whole overv
 $PD download --system SIHSUS                                   # maintainer: raw files into the cache
 $PD extract SIASUS-PA --years 2010-2025 --filter PA_PROC_ID=0202030768,0202030873   # a dataset too large for the lake:
                                                                # the filters' records, its files read and released one by one
+                                                               # (only what the lake and the store do not hold: ADR-0236)
+$PD extracts SIHSUS-SP [--apply]                               # the store by year and predicate; --apply drops rows the lake holds whole
+$PD extracts SIHSUS-SP --migrate [--apply [--remove]]          # fold the per-filter folders of before ADR-0236 (dry run first)
 ```
 
 ## 5. Maintainer builds

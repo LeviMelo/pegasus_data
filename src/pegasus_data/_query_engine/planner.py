@@ -153,7 +153,9 @@ def plan(
         provider(name).describe(resolved, resource_period) for name in required
     )
     held: frozenset[str] = frozenset()
-    if rows and capabilities.fetch_years:
+    if capabilities.fetch_years:
+        # what the home holds of the fetch years' files, read and never downloaded (ADR-0236): the lake's partitions,
+        # whole, and the extract store's rows that cover the row filter
         from ..extract import held_files
 
         held = frozenset(held_files(resolved, dataset, rows))

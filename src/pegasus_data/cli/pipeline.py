@@ -258,8 +258,34 @@ def extract(
     except ValueError as exc:      # a filter column in no file's header, refused before any fetch
         console.print(f"[red]{exc}[/red]")
         raise typer.Exit(code=1) from exc
-    _emit({k: v for k, v in result.items() if k != "files"} | {"files_read": len(result["files"]),
-          "kept": sum(v["kept"] for v in result["files"].values())}, as_json, "extract")
+    files = result["files"].values()
+    _emit({k: v for k, v in result.items() if k not in ("files", "unheld")} | {
+        "files_held": len(result["files"]), "by_lake": sum(1 for v in files if v["store"] == "lake"),
+        "store_rows": sum(int(v.get("kept") or 0) for v in files), "unheld": len(result["unheld"])}, as_json, "extract")
+
+
+@app.command(rich_help_panel="PIPELINE")
+def extracts(
+    dataset: Annotated[str, typer.Argument(help="e.g. SIHSUS-SP")],
+    migrate: Annotated[bool, typer.Option("--migrate", help="fold the per-filter folders of before ADR-0236 into the store")] = False,
+    apply: Annotated[bool, typer.Option("--apply", help="write; without it, say what would be done")] = False,
+    remove: Annotated[bool, typer.Option("--remove", help="with --migrate --apply: delete each folder folded whole")] = False,
+    root: RootOpt = None,
+    as_json: JsonOpt = False,
+) -> None:
+    """A dataset's extract store (ADR-0236): what it holds, by year and predicate; ``--apply`` drops the rows of files
+    the lake now holds whole (verified against the lake's); ``--migrate`` folds the older per-filter folders in."""
+    from .._explore import _held_by_year
+    from ..extract import absorb, migrate_extracts
+
+    settings = _writer(root)
+    if migrate:
+        plan = migrate_extracts(dataset, settings=settings, apply=apply, remove=remove, log=console.print)
+        _emit({k: v for k, v in plan.items() if k != "folders"} | {"folders": plan["folders"]}, as_json, "extracts")
+        return
+    dropped = absorb(dataset, settings=settings, dry_run=not apply, log=console.print)
+    _emit({"held": {str(y): v for y, v in _held_by_year(settings, dataset, []).items()}, "absorb": dropped},
+          as_json, "extracts")
 
 
 @app.command(rich_help_panel="PIPELINE")
