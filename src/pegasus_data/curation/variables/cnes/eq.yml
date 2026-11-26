@@ -9,15 +9,20 @@ variables:
   CODEQUIP:
     official_name: Código do equipamento
     translated_name: Equipment code
-    description: 'Code of the specific equipment item. It is read within the equipment
-      type given by TIPEQUIP (a one-character type code), so the pair TIPEQUIP +
-      CODEQUIP identifies the equipment.'
-    code_system: none
-    source: layout_doc
-    source_ref: 'CNES - Informe Técnico 2017-06 (DATASUS) —
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
-      (local: sources/IT_CNES_1706.txt), §2.5 Equipamentos (EQ*.dbf) SEQ 22 ''Código do
-      equipamento'' (SEQ 21 TIPEQUIP ''Código do tipo do equipamento'')'
+    description: 'Code of the specific equipment item within its group (TIPEQUIP): the pair TIPEQUIP + CODEQUIP
+      identifies the equipment (gamma camera, CT scanner, haemodynamics X-ray, ventilator).'
+    code_system: internal
+    key: [TIPEQUIP, CODEQUIP]
+    codelist: EQUIPAM2507
+    codelists: [EQUIPAM2508]
+    source: def
+    source_ref: 'TAB_CNES Equipamento.def: "XEquipam ate 202507, TIPEQUIP, 1, cnv\equipam2507.cnv" and "XEquipam a
+      partir 202508, TIPEQUIP, 1, cnv\equipam2508.cnv" (the CNV reads from TIPEQUIP on, so its code is TIPEQUIP followed
+      by CODEQUIP); IT_CNES_1706 §2.5 SEQ 21-22'
+    notes: 'From 202508 TIPEQUIP is written in two characters (group 10, dialysis, was created) and the key is four wide
+      (0101 Gama Camara) where it was three (101); the two tables do not share a code, so each year is decoded by the
+      table of its width. Measured 2026-11-25 on AL: 2023-12, 12,355 rows, all decoded by equipam2507; 2025-12, 13,300
+      rows, all decoded by equipam2508. Before 2026-11-25 the column had no codelist and read as bare codes.'
   IND_NSUS:
     official_name: Equipamento não disponível ao SUS
     translated_name: Equipment not available to SUS
@@ -61,16 +66,17 @@ variables:
       em uso do equipamento'''
   TIPEQUIP:
     official_name: Tipo de equipamento
-    translated_name: Equipment type
-    description: 'Which equipment the row refers to — gamma camera, mammography unit,
-      X-ray by current rating, and so on. The type is what makes an equipment tally
-      interpretable.
-
-      '
+    translated_name: Equipment group
+    description: 'The equipment group (diagnostic imaging, infrastructure, optical methods, graphic methods, life
+      support, other, dentistry, audiology, telehealth imaging; from 202508 also dialysis, anthropometry, radiotherapy,
+      chemotherapy, rehabilitation, clinical and surgical procedures). The item itself is CODEQUIP, read with this group.'
     code_system: internal
+    codelist: GRP_EQPAM2507
+    codelists: [GRP_EQPAM2508]
     source: def
-    source_ref: EQUIP_TP.CNV
-    reasoning: 'Bound to EQUIP_TP, whose values are gama câmara, mamógrafo, raio X
-      by current and the rest of the equipment list.
-
-      '
+    source_ref: 'TAB_CNES Equipamento.def: "XGrupo Equipam ate 202507, TIPEQUIP, 1, cnv\grp_eqpam2507.cnv" and "XGrupo
+      Equipam a partir 202508 ..., cnv\grp_eqpam2508.cnv"'
+    reasoning: 'Was described as the equipment item and bound by measurement to TP_EQUIPAM (groups 1-8), which left group 9
+      (telehealth, 900 of 12,355 AL rows in 2023-12) and every two-character code from 202508 undecoded (2026-11-25).
+      grp_eqpam2507 is one character wide (1-9) and grp_eqpam2508 two (01-16), so each year is decoded by the table of
+      its width.'

@@ -29,6 +29,13 @@ Two properties that a naive reading gets wrong:
   "Ignorado". The catch-all-then-specialise idiom recurs throughout
   (``IDADE18.CNV`` opens with ``Ign → 000-999``), so resolution order is load
   bearing and is recorded per entry.
+* **A range never overrides a code written out.** ``NIV_HIER.CNV`` (CNES) lists
+  ``01``-``08`` one by one and closes with ``NH não informado → ,00-99``; read
+  last-match-wins, every level was "não informado". The catch-all is a range
+  and the levels are codes written out, so the range fills only the codes no
+  line names. 22 of 777 harvested files close this way (``AMB_HOSP``,
+  ``NIV_HIER``; 2026-11-25). Between two ranges, or two written codes, the
+  last still wins, which keeps ``SEXO.CNV`` and the tree files as they were.
 * **Alphanumeric ranges need a universe.** ``A00-B99`` cannot be enumerated
   without knowing which codes exist. Where a universe is supplied (the
   14,197-row ``CID10.DBF`` from the same kit) the range is expanded against it;
@@ -92,6 +99,8 @@ class CnvCategory:
     line_no: int
     codes: list[str] = field(default_factory=list)
     unexpanded: list[str] = field(default_factory=list)
+    #: The codes this line reaches only through a range (``00-99``), which never override a code another line writes out.
+    ranged: frozenset[str] = frozenset()
     #: In a tree ``.CNV`` (``CID10BR``, the ICSAP lists), the sequence of the
     #: line this one sits under; None for a top-level line or a flat file.
     parent: str | None = None
@@ -118,10 +127,17 @@ class CnvFile:
         return len(self.categories)
 
     def mapping(self) -> dict[str, tuple[str, CnvCategory]]:
-        """Resolve overlaps with last-match-wins and return ``code → (label, category)``."""
+        """Resolve overlaps and return ``code → (label, category)``: last match wins, except that a code reached only
+        through a range never overrides a line that writes the code out (module docstring)."""
         out: dict[str, tuple[str, CnvCategory]] = {}
+        written: set[str] = set()
         for category in self.categories:  # already in file order
             for code in category.codes:
+                if code in category.ranged:
+                    if code in written:
+                        continue
+                else:
+                    written.add(code)
                 out[code] = (category.label, category)
         return out
 
@@ -440,6 +456,7 @@ def parse_cnv_bytes(
                 line_no=line_no,
                 codes=codes,
                 unexpanded=unexpanded,
+                ranged=_range_only(expression, codes, width=width, universe=universe, max_expansion=max_expansion),
                 parent=parent,
             )
         )
@@ -502,6 +519,17 @@ def _is_expression(text: str) -> bool:
     is a label that overran the expression column.
     """
     return " " not in _EXPRESSION_GLUE.sub(r"\1", text.strip())
+
+
+def _range_only(expression: str, codes: list[str], **kw: object) -> frozenset[str]:
+    """The codes of ``codes`` an expression reaches through a range and does not also write out."""
+    if "-" not in expression:
+        return frozenset()
+    written: set[str] = set()
+    for part in (p.strip() for p in expression.split(",")):
+        if part and not _NUMERIC_RANGE.match(part) and not _ALNUM_RANGE.match(part):
+            written.update(expand_expression(part, **kw)[0])  # type: ignore[arg-type]
+    return frozenset(c for c in codes if c not in written)
 
 
 _NUMERIC_RANGE = re.compile(r"^(\d+)\s*-\s*(\d+)$")

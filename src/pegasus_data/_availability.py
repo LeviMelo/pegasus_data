@@ -435,7 +435,10 @@ def field_coverage(
 def field_fill(dataset: str, fields: list[str] | str, years: list[int] | range, **query_kwargs: Any):
     """How much of each year a column FILLS (OPEN_QUESTIONS 71): per (year, field) the records, those holding a value
     (not empty, not one of the column's declared missing codes in its roles), their share, and the most common filled
-    value with its share of the filled (``modal``, ``modal_share``): a column one value fills is filled and uninformative. Presence is not fill:
+    value with its share of the filled (``modal``, ``modal_share``): a column one value fills is filled and uninformative.
+    ``placeholder`` counts the filled values no curation declares missing that are one repeated 0 or 9 of four or more
+    characters, outside numbers (``placeholder_values`` lists them); ``informative`` is ``filled`` less those, and
+    ``informative_share`` its share of the records: the true non-null rate (2026-11-25). Presence is not fill:
     SIH-RD's CID_MORTE and CID_ASSO are present every year and hold 0000 in every record from 2015, and SIM-DO's CB_PRE
     is present from 2014 and empty (DATA_SOURCES §1.9); `field_available` says "present" for all of them. A field the
     year's files lack has records but no filled ones, and a year with no publication is left out. A year whose files
@@ -458,7 +461,8 @@ def field_fill(dataset: str, fields: list[str] | str, years: list[int] | range, 
     except KeyError:  # a dataset without roles has no declared missing codes
         roles = {}
     out: dict[str, list[Any]] = {"year": [], "field": [], "records": [], "filled": [], "share": [], "modal": [],
-                                 "modal_share": []}
+                                 "modal_share": [], "placeholder": [], "placeholder_values": [], "informative": [],
+                                 "informative_share": []}
     seen: set[str] = set()
     read_any = False
     for year in years:
@@ -479,14 +483,15 @@ def field_fill(dataset: str, fields: list[str] | str, years: list[int] | range, 
         if table is None:
             for f in wanted if unread else ():
                 for k, v in (("year", int(year)), ("field", f), ("records", None), ("filled", None), ("share", None),
-                             ("modal", None), ("modal_share", None)):
+                             ("modal", None), ("modal_share", None), ("placeholder", None), ("placeholder_values", None),
+                             ("informative", None), ("informative_share", None)):
                     out[k].append(v)
             continue
         n = table.num_rows
         read_any = True
         seen |= set(table.column_names)
         for f in wanted:
-            filled, modal, modal_n = 0, None, 0
+            filled, modal, modal_n, suspect, suspect_values = 0, None, 0, 0, []
             if f in table.column_names:
                 v = pc.utf8_trim_whitespace(pc.cast(table.column(f), pa.string()))
                 ok = pc.and_(pc.is_valid(v), pc.not_equal(v, ""))
@@ -494,6 +499,14 @@ def field_fill(dataset: str, fields: list[str] | str, years: list[int] | range, 
                 if miss:
                     ok = pc.and_(ok, pc.invert(pc.is_in(v, value_set=pa.array(miss, pa.string()))))
                 filled = int(pc.sum(pc.fill_null(ok, False).cast(pa.int64())).as_py() or 0)
+                # placeholders no curation declares: a code, identifier, date or place written as one repeated 0 or 9
+                # (SIH-SP's SP_PF_DOC '000000000000000' on most of AL 2023's acts, the zero-filled CNES of SP_PJ_DOC).
+                # A quantity's 0 is a value, so numbers are left alone.
+                if (roles[f].kind if f in roles else None) != "number":
+                    rep = pc.and_(pc.greater_equal(pc.utf8_length(v), 4), pc.match_substring_regex(v, r"^(0+|9+)$"))
+                    sus = pc.and_(pc.fill_null(ok, False), pc.fill_null(rep, False))
+                    suspect = int(pc.sum(sus.cast(pa.int64())).as_py() or 0)
+                    suspect_values = sorted({str(x) for x in pc.unique(pc.filter(v, sus)).to_pylist()}) if suspect else []
                 # the most common value among the filled ones: a field one value fills (a 0.00 every record, a sentinel
                 # no curation declared yet) is filled and says nothing, which the share alone cannot show
                 counts = pc.value_counts(pc.filter(v, pc.fill_null(ok, False))).to_pylist()
@@ -507,6 +520,10 @@ def field_fill(dataset: str, fields: list[str] | str, years: list[int] | range, 
             out["share"].append(round(filled / n, 6) if n else None)
             out["modal"].append(modal)
             out["modal_share"].append(round(modal_n / filled, 6) if filled else None)
+            out["placeholder"].append(suspect)
+            out["placeholder_values"].append(suspect_values)
+            out["informative"].append(filled - suspect)
+            out["informative_share"].append(round((filled - suspect) / n, 6) if n else None)
     never = [f for f in wanted if f not in seen]
     if read_any and never:
         # a column no year of the dataset carries is a typo or a renamed field: a share of 0 would look like a measured

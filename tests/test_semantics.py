@@ -68,6 +68,17 @@ class TestCnv:
         assert labels["0"] == "Ignorado"
         assert labels["9"] == "Ignorado"
 
+    def test_a_closing_catch_all_range_does_not_override_written_codes(self):
+        """NIV_HIER.CNV (CNES) writes its levels out and closes with a catch-all range: last-match-wins labelled every
+        level "não informado" (2026-11-25). Two written codes still resolve last-match (SEXO.CNV)."""
+        niv = (b"3 2 L\r\n      1  NH 1-PAB-PABA                                      01\r\n"
+               b"      2  NH 2-Media M1                                      02\r\n"
+               b"      3  NH nao informado                                     ,00-99\r\n")
+        labels = {k: v[0] for k, v in parse_cnv_bytes(niv, name="NIV_HIER.CNV", source_ref="x").mapping().items()}
+        assert labels["01"] == "NH 1-PAB-PABA"
+        assert labels["02"] == "NH 2-Media M1"
+        assert labels["00"] == labels["57"] == "NH nao informado"
+
     def test_provenance_reaches_the_line(self):
         cnv = parse_cnv_bytes(SEXO_CNV, name="SEXO.CNV", source_ref="kit!SEXO.CNV")
         _, category = cnv.mapping()["1"]
