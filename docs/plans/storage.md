@@ -24,6 +24,18 @@ CNES as runs (each distinct record once, with a 12-bit mask of the months it app
 | CNES-EQ | 135,196 | 14,148 (9.6×) | 0.47 | 0.09 (-81%) |
 | CNES-SR | 160,114 | 16,550 (9.7×) | 0.49 | 0.09 (-82%) |
 
+CNES-PF AL 2023 further, every step found by counting, not told (scratch `delta.py`, `fd.py`, rebuild checked row for row):
+- **Key:** greedy distinct counting found `CPF_PROF, CNES, CBO, VINCULAC, PROF_SUS` unique in every month (97,646 posts).
+- **Changes:** 4% of post-months differ from the month before, 1.23 cells each (`NOMEPROF`, `MICR_REG`, `CNS_PROF`).
+  First versions, presence masks and changed cells: 3.64 MB, no better than runs (3.31): the bytes are in the
+  entities, not in their changes. `xz -9e` of the same tables: 2.67 MB.
+- **Dependencies:** 21 columns are fixed by `CNES` (the establishment's own fields, repeated on each professional's
+  row), 3 by `CPF_PROF` (name, CNS, residence). Split into establishments 0.06 + persons 1.52 + posts 1.36 = 2.94 MB.
+  The persons table, names and identifiers, is the floor.
+- **Across years** (one month a year held, 2012-2025): 50-72% of rows are identical to the year before, 70-80% of
+  posts persist. Year partitions store each persisting record again every year; a timeline across years would not.
+  2014-2015: no row identical though 53% of posts persist (a column rewritten for every record; unexplained).
+
 Per-row lineage columns (`_source_path`, `_blob_sha256` and the rest) cost 0.2% (CNES-ST SP 2023): not worth moving.
 
 **Reading.** SIH-RD and SIH-SP are near their floor: their bytes are values unique to each record (AIH number,
@@ -33,9 +45,12 @@ procedure once sorted. Projected on the full holding (about 280 GB at today's en
 2026-11-25): CNES-PF 28 to about 4 GB, SIA-PA and SIA-BI together about 30 GB less, the rest 8-10%: about 220 GB.
 
 **Plan, each step general and reversible value for value:**
-1. **Snapshot runs** for datasets that republish a whole register each month (CNES; any dataset declaring
-   `snapshot: monthly`): a partition stores distinct records and their month mask; `Lake.read` expands them, so every
-   reader, `_row` and version deltas (ADR-0234) see the rows they see now. The largest step.
+1. **Repetition models found by measurement, for any dataset** (nothing declared): on a probe, count repetition
+   along the publication month; find a key by greedy distinct counting and the columns each part of it fixes
+   (functional dependencies); store the split tables with presence masks and changed cells, a violation of a found key
+   or dependency kept as an exception row, so the form is lossless whatever later months hold. Kept only where it
+   shrinks the probe. `Lake.read` gives back the rows, so every reader, `_row` and version deltas (ADR-0234) see what
+   they see now. Then the same across years, as one timeline per dataset and state. The largest step.
 2. **A cluster key per dataset, chosen by measurement** on a probe partition, as `raw_text.choose` chooses a render:
    candidates are the declared roles (establishment, competence, procedure), kept only if they shrink the probe; file
    order stays the default (SIH). It also prunes row groups for the commonest filter (an establishment).
