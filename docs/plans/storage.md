@@ -105,6 +105,22 @@ and SIA, whose rows cluster by establishment and procedure once sorted.
 4. **Typed storage for DBF numeric fields** through the `raw_text` renders, the DBF header's declared width and
    decimals as the render: small on disk, but typed columns scan faster. Last.
 
+**Done 2026-11-26.** Step 3 as ADR-0238 (zstd 19, which matched 22; dictionary per column on a 65,536-row probe), run
+over the lake in the background. Step 2 as ADR-0239 for republished registers: the order is the found record key then
+the publication, inside the same files (CNES-PF AL 2023 24.9 to 6.6 MB), which gives most of step 1's gain without a
+new file form; step 1 (separate tables) is set aside because statistics, extracts, version deltas, row-count checks
+and DuckDB globs all read lake files as rows. National CNES is landed in that encoding, step by step
+(`abnc2027_neuro/work/cnes_national.sh`).
+
+**Relations between datasets, from the curation.** `joins.yml` names each shared key with its members, grain
+(`rows_per_key`), time-versioning (`as_of`) and subset notes ("a subset of RD", "its complement"); `column_roles`
+declares a column read `through` another dataset's key (SIH-SP's sex and age from SIH-RD) and gives every column a
+role, so two columns of one role on one key are candidates for equality. Measured on SIH-SP AL 2023 the cross-dataset
+step adds 5% (11.72 to 11.15 MB) on top of the split within SIH-SP itself (13.49 to 11.72), and it couples a
+partition to another dataset's version (a republished SIH-RD would void SIH-SP's derivation). Deferred: the
+mechanical within-file procedures (dictionary probe, found order, found dependencies) take the bulk without coupling;
+the curation's keys and roles are the candidate generator when step 1 is taken up.
+
 Step 1's split applies to event datasets too: on SIH-SP it found by counting 14 columns fixed by the AIH number
 (`SP_NAIH`: hospital, dates, diagnoses, main procedure), a parent table (rebuilt with 0 differences).
 
