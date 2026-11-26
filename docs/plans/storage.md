@@ -122,5 +122,18 @@ against 1.29-1.31 at 9; only writing is slower, once. So the lake keeps one stor
 tier. Projected on the DATASUS lake held (41.3 GB): SIH-SP 19.2 to about 13.5 GB, SIH-RD about -10%, SIA about -20%
 (sort measured -16-17%), SIM, SINASC, SINAN and CIHA about -12%, CNES 2-4× across years: about 11 GB off, a quarter.
 
+Further levers, measured (scratch `milk.py`, `colmeta.py`):
+- **Typed values** on top of zstd 22 and the per-column dictionary: SIH-RD AL 2023 4.57 to 4.45 MB (-2.5%; 46 integer
+  and 18 decimal columns, each round-tripped to its text), SIH-SP 0%. Step 4 stays last.
+- **Across datasets**: every one of SIH-SP AL 2023's 162,559 AIHs is in SIH-RD, and 7 of its parent fields (CNES,
+  admission date, diagnosis, main procedure, municipality, year, complexity) equal SIH-RD's in 100% of them. Read
+  `through` the AIH (the `column_roles` mechanism already used for SIH-SP's sex and age), the parent table falls from
+  0.77 to 0.20 MB: SIH-SP 16.52 to 11.15 MB, -33%.
+- **A dependency split on SIH-RD**: none found beyond the AIH number itself; no gain.
+- **Bookkeeping**: `_record_key` is computed on read, not stored; all `_` columns are 0.21 of 46.0 GB of DATASUS lake.
+  The linkage role cache (`lake/roles`, 8.2 GB, capped at `role_cache_gb` 20) stores it as 16 bytes, 47-66% of each
+  table (SIH-RD 5.9 GB, 170.8 M rows); a cache, rebuilt on demand.
+- **The label build catalog** is kept packed between builds (13.2 to 1.3 GB, 2026-11-26).
+
 Not pursued: a second file format (Vortex, Lance; FSST and ALP encodings) until DuckDB reads it as a stable extension;
 an archive tier, which the one form matches.
