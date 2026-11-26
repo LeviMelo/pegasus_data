@@ -82,14 +82,12 @@ spilled 43 GB in one query. The rebuild must be the interval join, under a test.
   dataset without such a key keeps `_row`.
 - **Archives.** `xz -9e` of the compact tables: 2.32 MB (-6% against its Parquet, thawed in 0.2 s). Of a whole
   partition's data columns: SIH-RD AL 2023 5.11 to 4.16 MB (-19%), SIM-DO AL 2022 0.95 to 0.86 (-9%), each thawed in
-  under 0.3 s. A cold tier of `xz` partitions, thawed on read, would take 10-20% off event datasets it holds; queries
-  cannot read it in place.
+  under 0.3 s. The one form below matches these sizes, so no archive tier.
 
-**Reading.** SIH-RD and SIH-SP are near their floor: their bytes are values unique to each record (AIH number,
-postcode, birth date, amounts), and their file order (by AIH) is already the best order. Typing numbers saves 2-3%
-there. The gains are where records repeat: CNES across months (6-10×), and SIA, whose rows cluster by establishment and
-procedure once sorted. Projected on the full holding (about 280 GB at today's encoding, the DBC-to-lake ratio of
-2026-11-25): CNES-PF 28 to about 4 GB, SIA-PA and SIA-BI together about 30 GB less, the rest 8-10%: about 220 GB.
+**Reading.** Event datasets (SIH, SIM) hold values unique to each record (AIH number, postcode, birth date, amounts),
+but SIH-SP repeats its AIH's fields on every act row, which Parquet's per-column pages cannot see and a dependency split
+removes (below). The large gains are where records repeat: CNES across months (6-10×), SIH-SP across its acts (-29%),
+and SIA, whose rows cluster by establishment and procedure once sorted.
 
 **Plan, each step general and reversible value for value:**
 1. **Repetition models found by measurement, for any dataset** (nothing declared): on a probe, count repetition
@@ -101,16 +99,28 @@ procedure once sorted. Projected on the full holding (about 280 GB at today's en
 2. **A cluster key per dataset, chosen by measurement** on a probe partition, as `raw_text.choose` chooses a render:
    candidates are the declared roles (establishment, competence, procedure), kept only if they shrink the probe; file
    order stays the default (SIH). It also prunes row groups for the commonest filter (an establishment).
-3. **zstd 19 and 1M-row groups for closed partitions** (no preliminary month), by `reencode-lake` in the background:
-   5-10%, decompression as fast as level 9. ADR-0232 rejected level 15 at write time; a closed partition is written
-   once.
+3. **zstd 22, the dictionary chosen per column on a probe, 1M-row groups, for closed partitions** (no preliminary
+   month), by `reencode-lake` in the background. ADR-0232 rejected level 15 at write time; a closed partition is
+   written once, and level 22 reads at the speed of 9.
 4. **Typed storage for DBF numeric fields** through the `raw_text` renders, the DBF header's declared width and
    decimals as the render: small on disk, but typed columns scan faster. Last.
 
-5. **A cold tier**: partitions no read has touched for months kept as `xz` of their data columns, thawed by
-   `Lake.read` into a scratch file on first use (under a second per partition measured). 10-20% on event datasets;
-   little on CNES once step 1 holds it compactly. Last.
+Step 1's split applies to event datasets too: on SIH-SP it found by counting 14 columns fixed by the AIH number
+(`SP_NAIH`: hospital, dates, diagnoses, main procedure), a parent table (rebuilt with 0 differences).
+
+**One form, at the archive's size (2026-11-26).** Data columns of AL partitions, MB (scratch `maxpq.py`, `spsplit.py`):
+
+| Partition | Now (zstd 9) | zstd 22, 1M rows | + dictionary per column | + dependency split | `xz -9e` of the text |
+|---|---|---|---|---|---|
+| SIH-SP AL 2023 (1.82 M acts) | 16.52 | 14.91 | 13.49 | 11.72 | 11.77 |
+| SIH-RD AL 2023 | 5.09 | 4.85 | 4.59 | | 4.16 |
+| SIM-DO AL 2022 | 0.95 | 0.91 | 0.84 | | 0.86 |
+
+Parquet so written reaches `xz` (SIH-SP, SIM; SIH-RD within 10%): `xz` wins only by seeing a whole row's text at once,
+and the split gives Parquet the same cross-column redundancy. Reading every row of SIH-SP AL at zstd 22: 1.43-1.50 s,
+against 1.29-1.31 at 9; only writing is slower, once. So the lake keeps one storage form, queryable, and no archive
+tier. Projected on the DATASUS lake held (41.3 GB): SIH-SP 19.2 to about 13.5 GB, SIH-RD about -10%, SIA about -20%
+(sort measured -16-17%), SIM, SINASC, SINAN and CIHA about -12%, CNES 2-4× across years: about 11 GB off, a quarter.
 
 Not pursued: a second file format (Vortex, Lance; FSST and ALP encodings) until DuckDB reads it as a stable extension;
-splitting SIH-SP's AIH fields into a parent table,
-which zstd already absorbs in file order.
+an archive tier, which the one form matches.
