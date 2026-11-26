@@ -73,21 +73,56 @@ def _file_keys(path: str, fields: Sequence[str]) -> pa.Array:
         con.close()
 
 
-def parquet_writer(path: Path, schema: pa.Schema, compression: str = "zstd") -> pq.ParquetWriter:
+def parquet_writer(path: Path, schema: pa.Schema, compression: str = "zstd",
+                   closed_dictionary: Sequence[str] | None = None) -> pq.ParquetWriter:
     """The lake's Parquet encoding, for every writer of a partition file (`persist.kept.parquet_options`: zstd 9, the
     encoding stamped in the schema). `_row` counts up within each file: delta-encoded it is a few bits a row, against
     4.6% of an SIH partition dictionary-encoded (measured 2026-10-04, SP 2022). Delta encoding excludes the dictionary.
-    The row groups are made by `RowGroups`, which gathers batches to `ROW_GROUP_ROWS`."""
-    from .kept import ENCODING, ZSTD_LEVEL
+    The row groups are made by `RowGroups`, which gathers batches to `ROW_GROUP_ROWS`.
+
+    ``closed_dictionary`` writes the closed encoding instead (`persist.kept.CLOSED_ENCODING`, ADR-0238): zstd 22 and the
+    dictionary on those columns only (`probe_dictionary`); its `RowGroups` take `CLOSED_ROW_GROUP_ROWS`. The
+    probe of 65,536 rows chose 34 of SIH-SP's 43 columns in 8 s, that of 262,144 rows 35 in 30 s."""
+    from .kept import CLOSED_ENCODING, CLOSED_ZSTD_LEVEL, ENCODING, ZSTD_LEVEL
 
     sequential = [n for n in schema.names if n == "_row"]
-    schema = schema.with_metadata({**(schema.metadata or {}), b"pegasus.encoding": ENCODING.encode()})
+    closed = closed_dictionary is not None
+    stamp = CLOSED_ENCODING if closed else ENCODING
+    schema = schema.with_metadata({**(schema.metadata or {}), b"pegasus.encoding": stamp.encode()})
+    level = (CLOSED_ZSTD_LEVEL if closed else ZSTD_LEVEL) if compression == "zstd" else None
+    dictionary = [n for n in (closed_dictionary if closed else schema.names) if n not in sequential and n in schema.names]
     return pq.ParquetWriter(
-        path, schema, compression=compression, compression_level=ZSTD_LEVEL if compression == "zstd" else None,
-        use_dictionary=[n for n in schema.names if n not in sequential],
+        path, schema, compression=compression, compression_level=level, use_dictionary=dictionary,
         column_encoding=dict.fromkeys(sequential, "DELTA_BINARY_PACKED"),
         write_statistics=True, version="2.6",
     )
+
+
+def probe_dictionary(source: pq.ParquetFile, columns: Sequence[str], rows: int = 65_536) -> list[str]:
+    """The columns of ``source`` whose dictionary encoding is smaller than plain, each written alone at the closed level
+    over the file's first ``rows`` rows (ADR-0238). Dictionary pays on coded columns and loses on near-unique ones (an
+    AIH number, a postcode); the probe decides per file, nothing is declared. `_row` is delta-encoded and never asked."""
+    import io
+
+    from .kept import CLOSED_ZSTD_LEVEL
+
+    probe = next(source.iter_batches(batch_size=rows, columns=list(columns)), None)
+    if probe is None:
+        return [c for c in columns if c != "_row"]
+    chosen = []
+    for name in probe.schema.names:
+        if name == "_row":
+            continue
+        one = pa.table([probe.column(name)], names=[name])
+        sizes = []
+        for dictionary in (True, False):
+            sink = io.BytesIO()
+            pq.write_table(one, sink, compression="zstd", compression_level=CLOSED_ZSTD_LEVEL, use_dictionary=dictionary,
+                           row_group_size=rows)
+            sizes.append(sink.tell())
+        if sizes[0] <= sizes[1]:
+            chosen.append(name)
+    return chosen
 
 
 class RowGroups:
@@ -923,9 +958,10 @@ def drop_redundant_partitions(catalog: CatalogStore, lake_dir: str | Path, *, dr
     return out
 
 
-def _reencode_file(path_text: str, dry_run: bool, compression: str) -> dict[str, Any]:
+def _reencode_file(path_text: str, dry_run: bool, compression: str, closed: bool = False) -> dict[str, Any]:
     """One partition file rewritten as the lake writes now (`reencode_lake`): ``{"state": "current" | "differing" |
-    "rewritten" | "counted", "before", "after"}``. Runs in a worker process: a file is one task."""
+    "rewritten" | "counted", "before", "after"}``. Runs in a worker process: a file is one task. ``closed`` writes the
+    closed encoding (ADR-0238); a file already closed is current either way, never written back to the open one."""
     import json
     import os
 
@@ -933,7 +969,7 @@ def _reencode_file(path_text: str, dry_run: bool, compression: str) -> dict[str,
 
     from ..normalize.engine import key_fields, record_key_sql
     from ..raw_text import META_KEY, choose, compacted_sql, quote
-    from .kept import ENCODING
+    from .kept import CLOSED_ENCODING, CLOSED_ROW_GROUP_ROWS, ENCODING
 
     path = Path(path_text)
     if not path.is_file():
@@ -942,7 +978,8 @@ def _reencode_file(path_text: str, dry_run: bool, compression: str) -> dict[str,
     names = source.schema_arrow.names
     keyed = RECORD_KEY in names
     meta = source.schema_arrow.metadata or {}
-    encoded = meta.get(b"pegasus.encoding") == ENCODING.encode()
+    stamp = meta.get(b"pegasus.encoding")
+    encoded = stamp == CLOSED_ENCODING.encode() or (not closed and stamp == ENCODING.encode())
     raw_whole = META_KEY not in meta and any(n.endswith("__RAW") and n.removesuffix("__RAW") in names for n in names)
     if not keyed and encoded and not raw_whole:
         source.close()
@@ -975,8 +1012,12 @@ def _reencode_file(path_text: str, dry_run: bool, compression: str) -> dict[str,
                     {n: {"render": r, "type": types[n]} for n, r in renders.items()}, sort_keys=True).encode()})
         swaps = ", ".join(f"{compacted_sql(n, r, types[n], quote)} AS {quote(n + '__RAW')}" for n, r in renders.items())
         temporary = path.with_name(f".{path.name}.reencode")
-        writer = parquet_writer(temporary, schema, compression)
-        groups = RowGroups(writer)
+        if closed:
+            writer = parquet_writer(temporary, schema, compression, closed_dictionary=probe_dictionary(source, keep))
+            groups = RowGroups(writer, CLOSED_ROW_GROUP_ROWS)
+        else:
+            writer = parquet_writer(temporary, schema, compression)
+            groups = RowGroups(writer)
         try:
             for batch in source.iter_batches(batch_size=65_536, columns=keep):
                 if swaps:
@@ -1015,7 +1056,8 @@ def _reencode_file(path_text: str, dry_run: bool, compression: str) -> dict[str,
 
 
 def reencode_lake(catalog: CatalogStore, lake_dir: str | Path, *, dry_run: bool = False,
-                  compression: str = "zstd", workers: int | None = None) -> dict[str, int]:
+                  compression: str = "zstd", workers: int | None = None,
+                  closed_before: int | None = None) -> dict[str, int]:
     """Rewrite, value for value, the listed partition files not written as the lake writes now: those that store what
     the lake computes (the record key, `Lake._read_derived`) and those of another encoding than `persist.kept.ENCODING`
     (smaller row groups, a lower zstd level; their ``pegasus.encoding`` stamp says), and those whose typed columns keep
@@ -1028,7 +1070,10 @@ def reencode_lake(catalog: CatalogStore, lake_dir: str | Path, *, dry_run: bool 
 
     Files are rewritten in ``workers`` processes at once (`_reencode_file`), by default as many as the cores less two and
     the free memory at 1 GiB a worker allow (a worker streams one file and holds about one row group): pyarrow compresses a file's columns in one thread, and one file at a
-    time used 1.4 of 20 cores (2026-11-22). The catalog is written here, in one process."""
+    time used 1.4 of 20 cores (2026-11-22). The catalog is written here, in one process.
+
+    ``closed_before``: partitions of earlier years are closed and take the closed encoding (zstd 19, 1M-row groups, the
+    dictionary chosen per column on a probe; ADR-0238); later years, still revised, keep the open one. Largest first."""
     import os
     from concurrent.futures import ProcessPoolExecutor, as_completed
 
@@ -1036,13 +1081,16 @@ def reencode_lake(catalog: CatalogStore, lake_dir: str | Path, *, dry_run: bool 
 
     root = Path(lake_dir)
     out = {"files": 0, "rewritten": 0, "kept_differing": 0, "bytes_before": 0, "bytes_after": 0}
-    rows = [str(r["relative_path"]) for r in catalog.query("SELECT relative_path FROM lake_partitions ORDER BY relative_path")]
+    listed = catalog.query("SELECT relative_path, year, byte_size FROM lake_partitions ORDER BY byte_size DESC, relative_path")
+    rows = [str(r["relative_path"]) for r in listed]
+    closing = {str(r["relative_path"]) for r in listed
+               if closed_before is not None and r["year"] is not None and int(r["year"]) < closed_before}
     if workers is None:
         by_memory = int(psutil.virtual_memory().available // 2**30)
         workers = max(1, min((os.cpu_count() or 2) - 2, by_memory))
     out["workers"] = workers
     with ProcessPoolExecutor(max_workers=workers) as pool:
-        futures = {pool.submit(_reencode_file, str(root / rel), dry_run, compression): rel for rel in rows}
+        futures = {pool.submit(_reencode_file, str(root / rel), dry_run, compression, rel in closing): rel for rel in rows}
         for future in as_completed(futures):
             rel = futures[future]
             done = future.result()

@@ -495,24 +495,33 @@ def prune(
 def reencode_lake(
     root: RootOpt = None,
     dry_run: Annotated[bool, typer.Option("--dry-run", help="Count what would be rewritten, write nothing")] = False,
+    closed_before: Annotated[int | None, typer.Option(
+        "--closed-before", help="Years before this one are closed: zstd 19, 1M-row groups, dictionary chosen per column "
+                                "(ADR-0238). Default: last year (the current and last years stay open)")] = None,
+    open_only: Annotated[bool, typer.Option("--open-only", help="Close no year: only the open encoding")] = False,
+    workers: Annotated[int | None, typer.Option("--workers", help="Files rewritten at once (1 GiB each)")] = None,
     as_json: JsonOpt = False,
 ) -> None:
-    """Rewrite lake files that store what the lake now computes on read (the record key), value for value.
+    """Rewrite lake files, value for value, as the lake writes now: those that store what the lake computes on read
+    (the record key), those of an older encoding, and closed years in the closed encoding (ADR-0238).
 
     A file is rewritten only when the key its fields hash to is the key it stores on every row; one that differs is
     kept and counted. The role tables and stored link runs current before stay current (`linkage.store.carried_currency`).
     """
+    import datetime
+
     from ..linkage.store import carried_currency
     from ..persist.lake import reencode_lake as rewrite
 
+    closing = None if open_only else (closed_before or datetime.date.today().year - 1)
     settings = _writer(root)
     catalog = CatalogStore(settings.catalog_path)
     try:
         if dry_run:
-            result = rewrite(catalog, settings.lake_dir, dry_run=True)
+            result = rewrite(catalog, settings.lake_dir, dry_run=True, closed_before=closing, workers=workers)
         else:
             with carried_currency(settings) as carried:
-                result = rewrite(catalog, settings.lake_dir)
+                result = rewrite(catalog, settings.lake_dir, closed_before=closing, workers=workers)
             result.update(carried)
         _emit(result, as_json, "reencode-lake (dry run)" if dry_run else "reencode-lake")
     finally:

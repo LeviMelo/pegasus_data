@@ -43,6 +43,14 @@ ZSTD_LEVEL = 9
 ROW_GROUP_ROWS = 262_144
 ENCODING = f"zstd{ZSTD_LEVEL}-rg{ROW_GROUP_ROWS}"
 
+#: The encoding of a closed lake partition (a year no longer revised), written once by `persist.lake.reencode_lake`
+#: (ADR-0238): zstd 19, row groups of 1,048,576 rows, and the dictionary kept only on the columns where it is smaller on
+#: a probe of the file. Whole AL 2023 files: SIH-SP 16.71 to 13.69 MB (-18%), SIH-RD 5.11 to 4.58 (-10%), CNES-PF 24.93
+#: to 21.55 (-14%). Level 22 gave 13.71 MB where 19 gave 13.74, in 34 s against 27; both read at about the speed of 9.
+CLOSED_ZSTD_LEVEL = 19
+CLOSED_ROW_GROUP_ROWS = 1_048_576
+CLOSED_ENCODING = f"zstd{CLOSED_ZSTD_LEVEL}-rg{CLOSED_ROW_GROUP_ROWS}-dictprobe"
+
 
 def parquet_options(**options: Any) -> dict[str, Any]:
     """``options`` for `pq.write_table`/`pq.ParquetWriter` with the home's encoding wherever the caller set none."""
