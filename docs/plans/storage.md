@@ -36,6 +36,28 @@ CNES-PF AL 2023 further, every step found by counting, not told (scratch `delta.
   posts persist. Year partitions store each persisting record again every year; a timeline across years would not.
   2014-2015: no row identical though 53% of posts persist (a column rewritten for every record; unexplained).
 
+Every CNES dataset, AL, same procedure (scratch `floor.py`; all 22 forms rebuilt to the original rows). Factor =
+lake size now / smallest form; "queryable" is the split stored as Parquet, "archival" the split as text under `xz -9e`
+or `zstd --ultra -22`. Totals: measured whole histories (IN, RC, GM, EF, EE), else the 12-month factor of AL 2023 times
+the repetition across annual snapshots (estimated, one month a year held). National now: server DBC × the measured
+lake/DBC ratio.
+
+| Dataset | National lake now | Within a year (queryable / archival) | Across years | Queryable floor | Archival floor |
+|---|---|---|---|---|---|
+| PF professionals | 25.9 GB | 8.6 / 10.7× | 2.08× | 1.46 GB | 1.17 GB |
+| ST establishments | 1.80 GB | 2.6 / 4.1× | 2.83× | 248 MB | 156 MB |
+| EQ equipment | 1.07 GB | 6.1 / 8.1× | 4.02× | 44 MB | 33 MB |
+| SR services | 0.96 GB | 6.2 / 7.6× | 3.10× | 50 MB | 41 MB |
+| EP teams | 0.67 GB | (annual only) | | 137 MB | 92 MB |
+| LT beds | 0.22 GB | 2.5 / 6.2× | 2.70× | 33 MB | 13 MB |
+| HB accreditations | 0.19 GB | 2.0 / 3.8× | 2.72× | 35 MB | 19 MB |
+| DC, IN, RC, GM, EF, EE | 0.22 GB | | measured whole | 28 MB | 4 MB |
+| **All CNES** | **31.0 GB** | | | **2.0 GB** | **1.5 GB** |
+
+The small datasets are larger in the lake than as DBC (DC 4.1×, EP 1.17×, HB 1.07×, LT 1.05×): one Parquet file per
+state-year, each with a footer and statistics for up to 207 columns, holding a few hundred rows. Partition size should
+be chosen by row count (one file per dataset when small), whatever the dataset.
+
 Per-row lineage columns (`_source_path`, `_blob_sha256` and the rest) cost 0.2% (CNES-ST SP 2023): not worth moving.
 
 **Reading.** SIH-RD and SIH-SP are near their floor: their bytes are values unique to each record (AIH number,
