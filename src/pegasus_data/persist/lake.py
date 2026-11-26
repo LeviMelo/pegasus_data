@@ -958,10 +958,12 @@ def drop_redundant_partitions(catalog: CatalogStore, lake_dir: str | Path, *, dr
     return out
 
 
-def _reencode_file(path_text: str, dry_run: bool, compression: str, closed: bool = False) -> dict[str, Any]:
+def _reencode_file(path_text: str, dry_run: bool, compression: str, closed: bool = False,
+                   order: Sequence[str] | None = None) -> dict[str, Any]:
     """One partition file rewritten as the lake writes now (`reencode_lake`): ``{"state": "current" | "differing" |
     "rewritten" | "counted", "before", "after"}``. Runs in a worker process: a file is one task. ``closed`` writes the
-    closed encoding (ADR-0238); a file already closed is current either way, never written back to the open one."""
+    closed encoding (ADR-0238); a file already closed is current either way, never written back to the open one.
+    ``order``: a closed file's rows sorted so (its family's order, `persist.cluster`, ADR-0239), stamped in the file."""
     import json
     import os
 
@@ -969,9 +971,12 @@ def _reencode_file(path_text: str, dry_run: bool, compression: str, closed: bool
 
     from ..normalize.engine import key_fields, record_key_sql
     from ..raw_text import META_KEY, choose, compacted_sql, quote
+    from .cluster import ORDER_META, ordered_batches
     from .kept import CLOSED_ENCODING, CLOSED_ROW_GROUP_ROWS, ENCODING
 
     path = Path(path_text)
+    order = list(order) if (closed and order) else None
+    order_stamp = json.dumps(order).encode() if order else None
     if not path.is_file():
         return {"state": "absent"}
     source = pq.ParquetFile(path)
@@ -979,13 +984,18 @@ def _reencode_file(path_text: str, dry_run: bool, compression: str, closed: bool
     keyed = RECORD_KEY in names
     meta = source.schema_arrow.metadata or {}
     stamp = meta.get(b"pegasus.encoding")
-    encoded = stamp == CLOSED_ENCODING.encode() or (not closed and stamp == ENCODING.encode())
+    encoded = ((stamp == CLOSED_ENCODING.encode() and (not closed or meta.get(ORDER_META) == order_stamp))
+               or (not closed and stamp == ENCODING.encode()))
     raw_whole = META_KEY not in meta and any(n.endswith("__RAW") and n.removesuffix("__RAW") in names for n in names)
     if not keyed and encoded and not raw_whole:
         source.close()
         return {"state": "current"}
     con = duckdb.connect()
     con.execute("SET memory_limit='1GB'; SET threads=1; SET enable_progress_bar=false")
+    if order:            # a sort beyond memory spills under the lake's staging directory, never the caller's folder
+        spill = path.parents[5] / STAGING_DIR / "duckdb"
+        spill.mkdir(parents=True, exist_ok=True)
+        con.execute(f"SET temp_directory='{spill.as_posix()}'; SET max_temp_directory_size='16GiB'")
     try:
         if keyed:
             fields = key_fields(names)
@@ -1012,14 +1022,21 @@ def _reencode_file(path_text: str, dry_run: bool, compression: str, closed: bool
                     {n: {"render": r, "type": types[n]} for n, r in renders.items()}, sort_keys=True).encode()})
         swaps = ", ".join(f"{compacted_sql(n, r, types[n], quote)} AS {quote(n + '__RAW')}" for n, r in renders.items())
         temporary = path.with_name(f".{path.name}.reencode")
+        if order_stamp:
+            schema = schema.with_metadata({**(schema.metadata or {}), ORDER_META: order_stamp})
         if closed:
             writer = parquet_writer(temporary, schema, compression, closed_dictionary=probe_dictionary(source, keep))
             groups = RowGroups(writer, CLOSED_ROW_GROUP_ROWS)
         else:
             writer = parquet_writer(temporary, schema, compression)
             groups = RowGroups(writer)
+        target = pa.schema([schema.field(n) for n in keep])
+        batches = ((pa.Table.from_batches([b]).cast(target).to_batches()[0] if b.num_rows else b)
+                   for b in ordered_batches(con, path, keep, order)) if order else             source.iter_batches(batch_size=65_536, columns=keep)
         try:
-            for batch in source.iter_batches(batch_size=65_536, columns=keep):
+            for batch in batches:
+                if not batch.num_rows:
+                    continue
                 if swaps:
                     con.register("_b", batch)
                     compacted = con.execute(f"SELECT * REPLACE ({swaps}) FROM _b").to_arrow_table()
@@ -1055,6 +1072,56 @@ def _reencode_file(path_text: str, dry_run: bool, compression: str, closed: bool
         con.close()
 
 
+def _family_of(path: Path) -> str:
+    from .cluster import family_dir
+
+    return str(family_dir(path))
+
+
+def _choose_family_order(path_text: str) -> dict[str, Any]:
+    """`cluster.choose_order` in a worker process, on one probe file."""
+    import duckdb
+
+    from .cluster import choose_order
+
+    con = duckdb.connect()
+    con.execute("SET memory_limit='1GB'; SET threads=1; SET enable_progress_bar=false")
+    try:
+        return choose_order(Path(path_text), con)
+    finally:
+        con.close()
+
+
+def _family_orders(root: Path, closing: Sequence[Any], workers: int) -> dict[str, list[str] | None]:
+    """Each closing family's row order (ADR-0239): kept in ``<family>/_order.json``, else measured once on the family's
+    largest closing file of at most `cluster.PROBE_ROWS` rows and kept."""
+    from concurrent.futures import ProcessPoolExecutor
+
+    from .cluster import PROBE_ROWS, family_dir, keep_order, kept_order
+
+    by_family: dict[str, list[Any]] = {}
+    for r in closing:
+        by_family.setdefault(str(family_dir(root / str(r["relative_path"]))), []).append(r)
+    orders: dict[str, list[str] | None] = {}
+    probes: dict[str, str] = {}
+    for family, rs in by_family.items():
+        kept = kept_order(Path(family))
+        if kept is not None:
+            orders[family] = kept.get("order")
+            continue
+        fit = [r for r in rs if r["row_count"] is not None and int(r["row_count"]) <= PROBE_ROWS]
+        if not fit:
+            orders[family] = None
+            continue
+        probes[family] = str(root / str(max(fit, key=lambda r: int(r["row_count"]))["relative_path"]))
+    with ProcessPoolExecutor(max_workers=workers) as pool:
+        chosen = dict(zip(probes, pool.map(_choose_family_order, probes.values())))
+    for family, choice in chosen.items():
+        keep_order(Path(family), choice)
+        orders[family] = choice.get("order")
+    return orders
+
+
 def reencode_lake(catalog: CatalogStore, lake_dir: str | Path, *, dry_run: bool = False,
                   compression: str = "zstd", workers: int | None = None,
                   closed_before: int | None = None) -> dict[str, int]:
@@ -1081,7 +1148,8 @@ def reencode_lake(catalog: CatalogStore, lake_dir: str | Path, *, dry_run: bool 
 
     root = Path(lake_dir)
     out = {"files": 0, "rewritten": 0, "kept_differing": 0, "bytes_before": 0, "bytes_after": 0}
-    listed = catalog.query("SELECT relative_path, year, byte_size FROM lake_partitions ORDER BY byte_size DESC, relative_path")
+    listed = catalog.query("SELECT relative_path, year, byte_size, row_count FROM lake_partitions "
+                           "ORDER BY byte_size DESC, relative_path")
     rows = [str(r["relative_path"]) for r in listed]
     closing = {str(r["relative_path"]) for r in listed
                if closed_before is not None and r["year"] is not None and int(r["year"]) < closed_before}
@@ -1089,8 +1157,11 @@ def reencode_lake(catalog: CatalogStore, lake_dir: str | Path, *, dry_run: bool 
         by_memory = int(psutil.virtual_memory().available // 2**30)
         workers = max(1, min((os.cpu_count() or 2) - 2, by_memory))
     out["workers"] = workers
+    orders = {} if dry_run else _family_orders(root, [r for r in listed if str(r["relative_path"]) in closing], workers)
+    out["ordered_families"] = sum(1 for o in orders.values() if o)
     with ProcessPoolExecutor(max_workers=workers) as pool:
-        futures = {pool.submit(_reencode_file, str(root / rel), dry_run, compression, rel in closing): rel for rel in rows}
+        futures = {pool.submit(_reencode_file, str(root / rel), dry_run, compression, rel in closing,
+                               orders.get(_family_of(root / rel)) if rel in closing else None): rel for rel in rows}
         for future in as_completed(futures):
             rel = futures[future]
             done = future.result()
