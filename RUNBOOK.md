@@ -69,7 +69,9 @@ $PD config set --root D:/datasus [--blobs E:/cache] [--catalog C:/fast]
   (`$PD crawl --prefix <dir>`).
 - The label pack's build catalog is `<root>/_label_build/catalog.sqlite`
   (`config.label_build_catalog()`), read by the maintainer scripts. It is not a
-  data home, and the repository holds none (ADR-0208).
+  data home, and the repository holds none (ADR-0208). Between label builds it
+  is packed (`catalog.sqlite.zst`, 13.2 to 1.3 GB, SHA-256 beside it): unpack
+  with `zstd -d --long=27`, pack again with `zstd -T4 -15 --long=27` after.
 - To act as a fresh user, set `PEGASUS_DATA_HOME` to an empty directory
   outside the repository, and `adopt --apply --remove` it when done.
 - Decoding is admitted machine-wide (`decode/admission.py`): `PEGASUS_DECODE_SLOTS`

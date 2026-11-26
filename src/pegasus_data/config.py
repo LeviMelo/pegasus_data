@@ -49,8 +49,15 @@ def default_root() -> Path:
 def label_build_catalog() -> Path:
     """The label pack's build catalog: the dictionary, code tables and kits the maintainer scripts build the packaged
     resources from (13 GB on 2026-10-24, held nowhere else). It lives in the one data home, beside that home's own
-    catalog and never as it, so no folder outside the home holds pegasus data (ADR-0208)."""
-    return default_root() / "_label_build" / "catalog.sqlite"
+    catalog and never as it, so no folder outside the home holds pegasus data (ADR-0208). Between label builds it is
+    kept as `catalog.sqlite.zst` (1.3 GB, 2026-11-26, its SHA-256 beside it); a script that needs it is told how to
+    unpack it rather than finding none."""
+    path = default_root() / "_label_build" / "catalog.sqlite"
+    packed = path.with_name(path.name + ".zst")
+    if not path.exists() and packed.exists():
+        raise FileNotFoundError(f"the label build catalog is packed: zstd -d --long=27 {packed} -o {path} "
+                                f"(check it against {path.name}.sha256), and pack it again after the build")
+    return path
 
 
 @dataclass(slots=True)
