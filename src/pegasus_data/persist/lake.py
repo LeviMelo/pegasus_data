@@ -1124,7 +1124,7 @@ def _family_orders(root: Path, closing: Sequence[Any], workers: int) -> dict[str
 
 def reencode_lake(catalog: CatalogStore, lake_dir: str | Path, *, dry_run: bool = False,
                   compression: str = "zstd", workers: int | None = None,
-                  closed_before: int | None = None) -> dict[str, int]:
+                  closed_before: int | None = None, families: Sequence[str] | None = None) -> dict[str, int]:
     """Rewrite, value for value, the listed partition files not written as the lake writes now: those that store what
     the lake computes (the record key, `Lake._read_derived`) and those of another encoding than `persist.kept.ENCODING`
     (smaller row groups, a lower zstd level; their ``pegasus.encoding`` stamp says), and those whose typed columns keep
@@ -1140,7 +1140,8 @@ def reencode_lake(catalog: CatalogStore, lake_dir: str | Path, *, dry_run: bool 
     time used 1.4 of 20 cores (2026-11-22). The catalog is written here, in one process.
 
     ``closed_before``: partitions of earlier years are closed and take the closed encoding (zstd 19, 1M-row groups, the
-    dictionary chosen per column on a probe; ADR-0238); later years, still revised, keep the open one. Largest first."""
+    dictionary chosen per column on a probe; ADR-0238); later years, still revised, keep the open one. Largest first.
+    ``families``: only the partitions of these family ids (a build's own, re-encoded right after it)."""
     import os
     from concurrent.futures import ProcessPoolExecutor, as_completed
 
@@ -1150,6 +1151,9 @@ def reencode_lake(catalog: CatalogStore, lake_dir: str | Path, *, dry_run: bool 
     out = {"files": 0, "rewritten": 0, "kept_differing": 0, "bytes_before": 0, "bytes_after": 0}
     listed = catalog.query("SELECT relative_path, year, byte_size, row_count FROM lake_partitions "
                            "ORDER BY byte_size DESC, relative_path")
+    if families:
+        wanted = set(families)
+        listed = [r for r in listed if PurePosixPath(str(r["relative_path"])).parts[1] in wanted]
     rows = [str(r["relative_path"]) for r in listed]
     closing = {str(r["relative_path"]) for r in listed
                if closed_before is not None and r["year"] is not None and int(r["year"]) < closed_before}
