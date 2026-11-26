@@ -60,6 +60,31 @@ be chosen by row count (one file per dataset when small), whatever the dataset.
 
 Per-row lineage columns (`_source_path`, `_blob_sha256` and the rest) cost 0.2% (CNES-ST SP 2023): not worth moving.
 
+**The lake against its sources** (every DATASUS partition held, each file's blobs sized from `fetches`): 41.3 GB of
+lake from 99.3 GB of DBC, 0.42. SIH 0.44, SIA 0.37, SIM 0.42, SINASC 0.39, SINAN 0.48, CIHA 0.42, CNES 0.61.
+
+**The compact form served** (CNES-PF AL 2023, 913,623 rows; establishments, persons and posts as Parquet, 2.47 MB
+against 24.9; scratch `m2build.py`, `m2q.py`, each query in its own process):
+
+| Query | Lake: s, peak MB | Compact: s, peak MB |
+|---|---|---|
+| every row and column to Python | 1.39, 572 | 0.83, 463 |
+| professionals per establishment-month | 0.11, 136 | 0.16, 142 (0.17 on the posts table alone) |
+| one establishment's rows, all columns | 0.40, 142 | 0.26, 99 |
+
+The rebuild joins the three tables on key and overlapping month intervals, then expands the overlap: 0 differences
+both ways. A first version expanded every table to months before joining; DuckDB matched on the key alone and
+spilled 43 GB in one query. The rebuild must be the interval join, under a test.
+- **Row identity.** Each month is one file and one blob, `_row` dense 0..n-1, so path and blob derive from the month.
+  The file order does not: 80-84% of adjacent rows follow a key sort, and storing it costs 1.9-2.1 MB, 80% of the
+  compact form. `_row` is the record identity (`_blob_sha256:_row`) of linkage, extracts and version deltas; where a
+  key is found unique in every month, identity becomes `_blob_sha256` with that key and the order is not kept; a
+  dataset without such a key keeps `_row`.
+- **Archives.** `xz -9e` of the compact tables: 2.32 MB (-6% against its Parquet, thawed in 0.2 s). Of a whole
+  partition's data columns: SIH-RD AL 2023 5.11 to 4.16 MB (-19%), SIM-DO AL 2022 0.95 to 0.86 (-9%), each thawed in
+  under 0.3 s. A cold tier of `xz` partitions, thawed on read, would take 10-20% off event datasets it holds; queries
+  cannot read it in place.
+
 **Reading.** SIH-RD and SIH-SP are near their floor: their bytes are values unique to each record (AIH number,
 postcode, birth date, amounts), and their file order (by AIH) is already the best order. Typing numbers saves 2-3%
 there. The gains are where records repeat: CNES across months (6-10×), and SIA, whose rows cluster by establishment and
@@ -82,6 +107,10 @@ procedure once sorted. Projected on the full holding (about 280 GB at today's en
 4. **Typed storage for DBF numeric fields** through the `raw_text` renders, the DBF header's declared width and
    decimals as the render: small on disk, but typed columns scan faster. Last.
 
+5. **A cold tier**: partitions no read has touched for months kept as `xz` of their data columns, thawed by
+   `Lake.read` into a scratch file on first use (under a second per partition measured). 10-20% on event datasets;
+   little on CNES once step 1 holds it compactly. Last.
+
 Not pursued: a second file format (Vortex, Lance; FSST and ALP encodings) until DuckDB reads it as a stable extension;
-whole-file archives of cold years (`xz`), which a query cannot read; splitting SIH-SP's AIH fields into a parent table,
+splitting SIH-SP's AIH fields into a parent table,
 which zstd already absorbs in file order.
