@@ -1153,34 +1153,44 @@ def _family_orders(root: Path, closing: Sequence[Any], workers: int) -> dict[str
                  else min(counted, key=lambda r: int(r["row_count"])))
         probes[family] = (str(root / str(probe["relative_path"])), kept)
     import sys
-    from concurrent.futures import as_completed
     from concurrent.futures.process import BrokenProcessPool
 
-    def run(families: list[str], at_once: int) -> list[str]:
-        """The families whose probe was lost to a worker that died (a native crash or memory), each kept as it comes."""
-        lost: list[str] = []
-        with ProcessPoolExecutor(max_workers=max(1, at_once)) as pool:
-            futures = {pool.submit(_choose_family, *probes[f]): f for f in families}
-            for future in as_completed(futures):
-                family = futures[future]
-                try:
-                    choice = future.result()
-                except BrokenProcessPool:
-                    lost.append(family)
-                    continue
-                keep_order(Path(family), choice)
-                choices[family] = choice
-                print(f"family {len(choices)}/{len(by_family)} {Path(family).name}: {choice.get('why')}",
-                      file=sys.stderr, flush=True)
-        return lost
+    from concurrent.futures import FIRST_COMPLETED, wait
 
-    # a worker that dies breaks the whole pool (2026-11-26): the families it took down are asked again one at a time,
-    # and one that dies alone is kept with its why and the file order
-    for family in run(list(probes), workers):
-        for again in run([family], 1):
-            choices[again] = {"probe": probes[again][0], "order": None, "why": "probe worker died"}
-            keep_order(Path(again), choices[again])
-            print(f"family {Path(again).name}: probe worker died", file=sys.stderr, flush=True)
+    def run(families: list[str], at_once: int) -> list[str]:
+        """Probes ``families``, at most ``at_once`` in flight, each kept as it comes; returns those a dying worker (a
+        native crash, memory) took down: only the ones in flight, since the rest are not yet submitted."""
+        queue = list(families)
+        with ProcessPoolExecutor(max_workers=max(1, at_once)) as pool:
+            flight: dict[Any, str] = {}
+            while queue or flight:
+                while queue and len(flight) < at_once:
+                    family = queue.pop(0)
+                    flight[pool.submit(_choose_family, *probes[family])] = family
+                finished, _ = wait(list(flight), return_when=FIRST_COMPLETED)
+                for future in finished:
+                    family = flight.pop(future)
+                    try:
+                        choice = future.result()
+                    except BrokenProcessPool:
+                        return [family, *flight.values(), *queue]
+                    keep_order(Path(family), choice)
+                    choices[family] = choice
+                    print(f"family {len(choices)}/{len(by_family)} {Path(family).name}: {choice.get('why')}",
+                          file=sys.stderr, flush=True)
+        return []
+
+    # a worker that dies breaks the whole pool (2026-11-26): the families then in flight are asked again one at a
+    # time, the one that dies alone is kept with its why and the file order, and the rest go on at full width
+    left = list(probes)
+    while left:
+        lost = run(left, workers)
+        flown, left = lost[:workers], lost[workers:]
+        for family in flown:
+            if run([family], 1):
+                choices[family] = {"probe": probes[family][0], "order": None, "why": "probe worker died"}
+                keep_order(Path(family), choices[family])
+                print(f"family {Path(family).name}: probe worker died", file=sys.stderr, flush=True)
     return choices
 
 
