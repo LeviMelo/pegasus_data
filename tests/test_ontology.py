@@ -316,3 +316,14 @@ class TestPublicNamesAreCallable:
     def test_the_module_is_still_reachable(self) -> None:
         """Renaming must not make the implementation unreachable for testing."""
 
+
+
+def test_dataset_id_names_one_dataset_whatever_the_spelling():
+    import pytest
+    from pegasus_data import dataset_id
+    from pegasus_data._request import DatasetUnknown
+
+    assert {dataset_id(n) for n in ("SIH.RD", "SIH-RD", "SIHSUS.RD", "sih.rd", "RD")} == {"SIH.RD"}
+    assert dataset_id("SIA-PA") == "SIA.PA" and dataset_id("SIM") == "SIM"
+    with pytest.raises(DatasetUnknown):
+        dataset_id("NOT.A.SOURCE")

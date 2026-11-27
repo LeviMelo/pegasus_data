@@ -83,6 +83,7 @@ lake_coverage("SIH.RD")   # what the local lake already holds, by year: partitio
 publications("SIH.RD", range(2014, 2024), ufs="AL")   # which files it was read from, one row each: the server's size and date, the digest
                           # decoded, when and from where fetched, the rows, preliminary or final; the files listed but not held, with why
 dataset_facts("SIH.RD")   # what the curation documents of a dataset, with its sources: what a row is, its dates, the events, the notes
+dataset_id("sih-rd")      # the one name of a dataset or system whatever the spelling ("SIH.RD"); DatasetUnknown otherwise
 garbage_codes()          # the ICD-10 codes of little use as an underlying cause, with their GBD level 1-4 and package (GBD2017 for França's list)
 price_index(reference="2025-12")   # IBGE's IPCA by month (or grain="year"): `factor` x a nominal amount = reais of December 2025
 search("raça")            # columns about race: RACACOR, CS_RACA, RACA_COR …, each hit with the call that gets it

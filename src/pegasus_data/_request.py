@@ -114,6 +114,18 @@ def _load_aliases() -> None:
         SYSTEM_ALIASES.setdefault(node.code, node.code)
 
 
+def dataset_id(name: str) -> str:
+    """The one name of a dataset or system, whatever the spelling: ``"SIH.RD"`` for SIH.RD, SIH-RD, SIHSUS.RD, sih.rd
+    and a bare RD; ``"SIM"`` for the system. Raises `DatasetUnknown` for a name the ontology does not declare, so a
+    caller comparing names never takes a guess for an identity (ADR-0073; the thesis-graph checker's source resolver)."""
+    onto = _ontology()
+    found = onto.resolve(str(name).strip()) if onto is not None and str(name).strip() else None
+    if found is None:
+        raise DatasetUnknown(f"no dataset or system named {name!r}")
+    kind, node = found
+    return node.code
+
+
 def parse_dataset(spec: str, series: str | None = None) -> tuple[str, str | None]:
     """Split ``"SIH-RD"`` into ``("SIHSUS", "RD")``.
 

@@ -35,6 +35,7 @@ except PackageNotFoundError:  # pragma: no cover - direct, uninstalled source ch
 #: loader and ``dir()`` cannot disagree about what the package exports.
 _EXPORTS: dict[str, str] = {
     "describe": ".api",
+    "dataset_id": "._request",
     "levels": ".api",
     "load_population": ".api",
     "load_field": ".fields",
