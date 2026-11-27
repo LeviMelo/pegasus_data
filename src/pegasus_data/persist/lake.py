@@ -967,6 +967,17 @@ def drop_redundant_partitions(catalog: CatalogStore, lake_dir: str | Path, *, dr
     return out
 
 
+def _spill_dir(path: Path) -> Path:
+    """A DuckDB spill folder of this process's own, under the lake's staging directory: DuckDB names its temporary
+    files alike in every process, and in one shared folder a probe had deleted another's (2026-11-26)."""
+    import os
+    import tempfile
+
+    base = path.parents[5] / STAGING_DIR / "duckdb"
+    base.mkdir(parents=True, exist_ok=True)
+    return Path(tempfile.mkdtemp(prefix=f"{os.getpid()}-", dir=base))
+
+
 def _reencode_file(path_text: str, dry_run: bool, compression: str, closed: bool = False,
                    order: Sequence[str] | None = None, dictionary: Sequence[str] | None = None) -> dict[str, Any]:
     """One partition file rewritten as the lake writes now (`reencode_lake`): ``{"state": "current" | "differing" |
@@ -1001,9 +1012,9 @@ def _reencode_file(path_text: str, dry_run: bool, compression: str, closed: bool
         return {"state": "current"}
     con = duckdb.connect()
     con.execute("SET memory_limit='1GB'; SET threads=1; SET enable_progress_bar=false")
+    spill = None
     if order:            # a sort beyond memory spills under the lake's staging directory, never the caller's folder
-        spill = path.parents[5] / STAGING_DIR / "duckdb"
-        spill.mkdir(parents=True, exist_ok=True)
+        spill = _spill_dir(path)
         con.execute(f"SET temp_directory='{spill.as_posix()}'; SET max_temp_directory_size='16GiB'")
     try:
         if keyed:
@@ -1081,6 +1092,10 @@ def _reencode_file(path_text: str, dry_run: bool, compression: str, closed: bool
         return {"state": "rewritten", "before": before, "after": path.stat().st_size}
     finally:
         con.close()
+        if spill is not None:
+            import shutil
+
+            shutil.rmtree(spill, ignore_errors=True)
 
 
 def _family_of(path: Path) -> str:
@@ -1099,10 +1114,10 @@ def _choose_family(path_text: str, kept: dict[str, Any] | None) -> dict[str, Any
 
     con = duckdb.connect()
     con.execute("SET memory_limit='1GB'; SET threads=1; SET enable_progress_bar=false")
+    spill = None
     try:
         path = Path(path_text)
-        spill = path.parents[5] / STAGING_DIR / "duckdb"      # never the caller's working folder
-        spill.mkdir(parents=True, exist_ok=True)
+        spill = _spill_dir(path)                              # never the caller's working folder
         con.execute(f"SET temp_directory='{spill.as_posix()}'; SET max_temp_directory_size='16GiB'")
         try:
             choice = dict(kept) if kept is not None else choose_order(path, con)
@@ -1123,6 +1138,10 @@ def _choose_family(path_text: str, kept: dict[str, Any] | None) -> dict[str, Any
         return choice
     finally:
         con.close()
+        if spill is not None:
+            import shutil
+
+            shutil.rmtree(spill, ignore_errors=True)
 
 
 def _family_orders(root: Path, closing: Sequence[Any], workers: int) -> dict[str, dict[str, Any]]:

@@ -62,6 +62,30 @@ def _closed_size(table: pa.Table) -> int:
     return sink.tell()
 
 
+def _streamed_size(con: Any, sql: str) -> int:
+    """`_closed_size` of the rows of ``sql``, streamed: the dictionary is chosen on the first 65,536 rows and the rows
+    are written in closed row groups, so memory holds one group, never the whole result."""
+    from .kept import CLOSED_ROW_GROUP_ROWS, CLOSED_ZSTD_LEVEL
+    from .lake import RowGroups, dictionary_of
+
+    reader = con.execute(sql).fetch_record_batch(65_536)
+    first = next(iter(reader), None)
+    if first is None:
+        return 0
+    dictionary = [c for c in dictionary_of(first) if c != "_row"]
+    sink = io.BytesIO()
+    writer = pq.ParquetWriter(sink, first.schema, compression="zstd", compression_level=CLOSED_ZSTD_LEVEL,
+                              use_dictionary=dictionary,
+                              column_encoding={"_row": "DELTA_BINARY_PACKED"} if "_row" in first.schema.names else None)
+    groups = RowGroups(writer, CLOSED_ROW_GROUP_ROWS)
+    groups.write(first)
+    for batch in reader:
+        groups.write(batch)
+    groups.flush()
+    writer.close()
+    return sink.tell()
+
+
 def choose_order(path: Path, con: Any) -> dict[str, Any]:
     """The order for the files of ``path``'s family, measured on ``path``: ``{"order": [...] | None, "why", ...}``."""
     rel = f"read_parquet('{Path(path).as_posix()}', hive_partitioning=false)"
@@ -116,12 +140,13 @@ def choose_order(path: Path, con: Any) -> dict[str, Any]:
     candidates: list[list[str] | None] = [None]
     for first in key:
         candidates.append([first, *[c for c in key if c != first], PUBLICATION])
+    # each candidate streamed from DuckDB into the writer, one row group in memory at a time: the whole probe in Arrow,
+    # once a candidate, had held several GB a worker and four at once killed workers (2026-11-26)
+    by = ", _row" if "_row" in names else ""
     sizes: dict[str, int] = {}
     for order in candidates:
-        sql = "SELECT * FROM _probe" + ("" if order is None else " ORDER BY " + ", ".join(_q(c) for c in order) + ", _row")
-        if order is None:
-            sql += " ORDER BY " + PUBLICATION + ", _row" if "_row" in names else ""
-        sizes[json.dumps(order)] = _closed_size(con.execute(sql).to_arrow_table())
+        sql = "SELECT * FROM _probe ORDER BY " + ", ".join(_q(c) for c in (order or [PUBLICATION])) + by
+        sizes[json.dumps(order)] = _streamed_size(con, sql)
     con.execute("DROP TABLE _probe")
     file_size = sizes[json.dumps(None)]
     chosen, size = min(sizes.items(), key=lambda kv: kv[1])
