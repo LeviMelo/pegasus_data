@@ -119,6 +119,12 @@ file's size, most of the work over the lake's ~11,000 small files; the family's 
 against 38.486), so it is asked once per family and kept in `_order.json`. Five fixed workers held 25% of the 20
 threads; workers are now admitted by the memory each will hold, up to the physical cores less two.
 
+**Measured outcome (2026-11-27, closed years, CNES left to its national intake).** 14,300 files, 33.45 to 28.44 GB
+(-15%) in 3 h 10 min at 12 workers, after a first pass of 5 workers had closed ~14.5 GB to 12.7 unordered. 22 families
+take a found order: 20 of SIA (by cardinality, 0.65-0.83 of the file order on the probe; SIA-PS by its record key,
+0.89), SIH-CH and Painel Oncologia; SIH-RD, SIM, SINASC and SINAN are larger in every order tried (1.1-2.1); CIHA 0.90,
+under the 10% bar. 11 files held open by readers wait for the next run. Left: SIH-SP's dependency split (about 2 GB).
+
 **Relations between datasets, from the curation.** `joins.yml` names each shared key with its members, grain
 (`rows_per_key`), time-versioning (`as_of`) and subset notes ("a subset of RD", "its complement"); `column_roles`
 declares a column read `through` another dataset's key (SIH-SP's sex and age from SIH-RD) and gives every column a
