@@ -35,6 +35,13 @@ MIN_GAIN = 0.10
 MIN_REPEAT = 0.20
 MAX_KEY = 6
 PROBE_ROWS = 2_000_000
+#: event records (no repeats) are tried in one more order, on the probe's first rows: its columns of few values, fewest
+#: first. Measured on 400,000 rows (2026-11-26): SIA-PA AL 2015 0.84 of the file order, CIHA RS 2018 0.83; SIH-RD, SIM-DO
+#: and SINASC-DN larger (1.05, 1.15, 1.39), where the file order stays
+EVENT_BLOCK = 400_000
+LOW_CARDINALITY = 0.05
+#: the rule's version: a family's kept choice made by another is measured again
+ORDER_RULE = 2
 
 
 def _q(name: str) -> str:
@@ -61,28 +68,35 @@ def choose_order(path: Path, con: Any) -> dict[str, Any]:
     names = [str(r[0]) for r in con.execute(f"DESCRIBE SELECT * FROM {rel}").fetchall()]
     data = [n for n in names if not n.startswith("_")]
     rows = int(con.execute(f"SELECT count(*) FROM {rel}").fetchone()[0])
-    out: dict[str, Any] = {"probe": Path(path).as_posix(), "rows": rows}
+    out: dict[str, Any] = {"probe": Path(path).as_posix(), "rows": rows, "rule": ORDER_RULE}
     if PUBLICATION not in names or not data:
         return {**out, "order": None, "why": f"no {PUBLICATION} or no data column"}
     if rows < 10_000:
         return {**out, "order": None, "why": "probe under 10,000 rows"}
     if rows > PROBE_ROWS:
-        return {**out, "order": None, "why": f"probe over {PROBE_ROWS:,} rows"}
+        return _event_order(con, rel, names, data, out, f"probe over {PROBE_ROWS:,} rows")
     publications = int(con.execute(f"SELECT count(DISTINCT {PUBLICATION}) FROM {rel}").fetchone()[0])
     # a column constant within each publication (CNES's COMPETEN: the month) says which copy a row is, not what record:
     # it is left out of the repeat count and of the key, found by counting, not named
-    per_publication = [c for c in data if int(con.execute(
-        f"SELECT count(*) FROM (SELECT DISTINCT {PUBLICATION}, {_q(c)} FROM {rel})").fetchone()[0]) == publications]
+    # one scan for every column: constant within each publication where its least and greatest values agree and it is
+    # filled on all or none of the publication's rows (a DISTINCT per column had cost 120 scans of SIH-RD's probe)
+    grouped = ", ".join(f"min({_q(c)}) IS NOT DISTINCT FROM max({_q(c)}) AND count({_q(c)}) IN (0, count(*)) AS f{i}"
+                        for i, c in enumerate(data))
+    flags = con.execute(f"SELECT {', '.join(f'bool_and(f{i})' for i in range(len(data)))} FROM "
+                        f"(SELECT {grouped} FROM {rel} GROUP BY {PUBLICATION})").fetchone()
+    per_publication = [c for c, constant in zip(data, flags) if constant]
     data = [c for c in data if c not in per_publication]
     out["per_publication"] = per_publication
     if not data:
         return {**out, "order": None, "why": "every data column is constant within a publication"}
     cols = ", ".join(_q(c) for c in data)
-    distinct = int(con.execute(f"SELECT count(*) FROM (SELECT DISTINCT {cols} FROM {rel})").fetchone()[0])
+    # rows counted by a 64-bit hash of their columns: a DISTINCT over every column of a wide file had asked DuckDB for
+    # one 7.2 GiB block (2026-11-26); a collision among 2 M rows is about 1e-7 likely and only nudges a share
+    distinct = int(con.execute(f"SELECT count(DISTINCT hash({cols})) FROM {rel}").fetchone()[0])
     repeat = 1 - distinct / rows
     out.update(publications=publications, repeat_share=round(repeat, 4))
     if publications < 2 or repeat < MIN_REPEAT:
-        return {**out, "order": None, "why": f"repeats {repeat:.1%} across {publications} publications"}
+        return _event_order(con, rel, names, data, out, f"repeats {repeat:.1%} across {publications} publications")
     con.execute(f"CREATE OR REPLACE TEMP TABLE _probe AS SELECT * FROM {rel}")
     key: list[str] = []
     best = 0
@@ -92,7 +106,7 @@ def choose_order(path: Path, con: Any) -> dict[str, Any]:
             if c in key:
                 continue
             k = ", ".join(_q(x) for x in [PUBLICATION, *key, c])
-            scored.append((int(con.execute(f"SELECT count(*) FROM (SELECT DISTINCT {k} FROM _probe)").fetchone()[0]), c))
+            scored.append((int(con.execute(f"SELECT count(DISTINCT hash({k})) FROM _probe").fetchone()[0]), c))
         top = max(scored)
         if top[0] <= best:
             break
@@ -115,6 +129,30 @@ def choose_order(path: Path, con: Any) -> dict[str, Any]:
     if chosen == json.dumps(None) or size > file_size * (1 - MIN_GAIN):
         return {**out, "order": None, "why": f"no order beat the file order by {MIN_GAIN:.0%}"}
     return {**out, "order": json.loads(chosen), "why": f"{size / file_size:.2f} of the file order's size"}
+
+
+def _event_order(con: Any, rel: str, names: Sequence[str], data: Sequence[str], out: dict[str, Any],
+                 why: str) -> dict[str, Any]:
+    """Records that do not repeat: their columns of few values (under `LOW_CARDINALITY` of the rows, by DuckDB's
+    approximate count), fewest first, against the file order, on the probe's first `EVENT_BLOCK` rows."""
+    by = ", _row" if "_row" in names else ""
+    con.execute(f"CREATE OR REPLACE TEMP TABLE _block AS SELECT * FROM {rel} ORDER BY {PUBLICATION}{by} "
+                f"LIMIT {EVENT_BLOCK}")
+    try:
+        block = int(con.execute("SELECT count(*) FROM _block").fetchone()[0])
+        cards = con.execute("SELECT " + ", ".join(f"approx_count_distinct({_q(c)})" for c in data) + " FROM _block").fetchone()
+        order = [c for n, c in sorted((int(n or 0), c) for n, c in zip(cards, data)) if 1 < n < LOW_CARDINALITY * block]
+        if not order:
+            return {**out, "order": None, "why": f"{why}; no column of few values"}
+        file_size = _closed_size(con.execute(f"SELECT * FROM _block ORDER BY {PUBLICATION}{by}").to_arrow_table())
+        size = _closed_size(con.execute("SELECT * FROM _block ORDER BY " + ", ".join(_q(c) for c in order) + by).to_arrow_table())
+    finally:
+        con.execute("DROP TABLE IF EXISTS _block")
+    out["event_sizes"] = {"file_order": file_size, "by_cardinality": size}
+    ratio = size / file_size
+    if ratio > 1 - MIN_GAIN:
+        return {**out, "order": None, "why": f"{why}; by cardinality {ratio:.2f} of the file order's size"}
+    return {**out, "order": order, "why": f"{why}; by cardinality {ratio:.2f} of the file order's size"}
 
 
 def family_dir(path: Path) -> Path:

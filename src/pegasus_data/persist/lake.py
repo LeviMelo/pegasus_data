@@ -1101,7 +1101,14 @@ def _choose_family(path_text: str, kept: dict[str, Any] | None) -> dict[str, Any
     con.execute("SET memory_limit='1GB'; SET threads=1; SET enable_progress_bar=false")
     try:
         path = Path(path_text)
-        choice = dict(kept) if kept is not None else choose_order(path, con)
+        spill = path.parents[5] / STAGING_DIR / "duckdb"      # never the caller's working folder
+        spill.mkdir(parents=True, exist_ok=True)
+        con.execute(f"SET temp_directory='{spill.as_posix()}'; SET max_temp_directory_size='16GiB'")
+        try:
+            choice = dict(kept) if kept is not None else choose_order(path, con)
+        except duckdb.Error as error:      # one family's probe never stops the lake's re-encode; kept, with its why
+            choice = {"probe": path.as_posix(), "order": None,
+                      "why": f"order probe failed: {type(error).__name__}: {str(error)[:200]}"}
         if "dictionary" not in choice or "arrow_bytes_per_row" not in choice:
             source = pq.ParquetFile(path)
             columns = [n for n in source.schema_arrow.names if n != RECORD_KEY]
@@ -1124,7 +1131,7 @@ def _family_orders(root: Path, closing: Sequence[Any], workers: int) -> dict[str
     `cluster.PROBE_ROWS` rows (else its smallest: the order then stays the file's, the dictionary is still asked)."""
     from concurrent.futures import ProcessPoolExecutor
 
-    from .cluster import PROBE_ROWS, family_dir, keep_order, kept_order
+    from .cluster import ORDER_RULE, PROBE_ROWS, family_dir, keep_order, kept_order
 
     by_family: dict[str, list[Any]] = {}
     for r in closing:
@@ -1133,6 +1140,8 @@ def _family_orders(root: Path, closing: Sequence[Any], workers: int) -> dict[str
     probes: dict[str, tuple[str, dict[str, Any] | None]] = {}
     for family, rs in by_family.items():
         kept = kept_order(Path(family))
+        if kept is not None and kept.get("rule") != ORDER_RULE:
+            kept = None                              # chosen by an earlier rule: measured again
         if kept is not None and "dictionary" in kept and "arrow_bytes_per_row" in kept:
             choices[family] = kept
             continue
@@ -1144,12 +1153,14 @@ def _family_orders(root: Path, closing: Sequence[Any], workers: int) -> dict[str
                  else min(counted, key=lambda r: int(r["row_count"])))
         probes[family] = (str(root / str(probe["relative_path"])), kept)
     if probes:
-        with ProcessPoolExecutor(max_workers=max(1, workers)) as pool:
-            chosen = dict(zip(probes, pool.map(_choose_family, [p for p, _ in probes.values()],
-                                               [k for _, k in probes.values()])))
-        for family, choice in chosen.items():
-            keep_order(Path(family), choice)
-            choices[family] = choice
+        from concurrent.futures import as_completed
+
+        with ProcessPoolExecutor(max_workers=max(1, workers)) as pool:     # each kept as it comes: a stop loses none
+            futures = {pool.submit(_choose_family, p, k): family for family, (p, k) in probes.items()}
+            for future in as_completed(futures):
+                choice = future.result()
+                keep_order(Path(futures[future]), choice)
+                choices[futures[future]] = choice
     return choices
 
 
@@ -1208,7 +1219,9 @@ def reencode_lake(catalog: CatalogStore, lake_dir: str | Path, *, dry_run: bool 
     if workers is None:
         workers = max(1, (psutil.cpu_count(logical=False) or 4) - 2)
     out["workers"] = workers
-    choices = {} if dry_run else _family_orders(root, [r for r in listed if str(r["relative_path"]) in closing], workers)
+    # a family probe holds DuckDB's 1 GB and a probe table: as many at once as the free memory allows at 1.5 GiB each
+    probing = max(1, min(workers, int((psutil.virtual_memory().available - REENCODE_RESERVE_BYTES) // (1.5 * 2**30))))
+    choices = {} if dry_run else _family_orders(root, [r for r in listed if str(r["relative_path"]) in closing], probing)
     out["ordered_families"] = sum(1 for c in choices.values() if c.get("order"))
 
     def need(r: Any) -> int:
