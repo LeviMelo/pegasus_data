@@ -1305,6 +1305,9 @@ TabNet's state forms classify by `territorio/{UF}_macsaud.cnv` and `{UF}_regsaud
   hospital, and concentrated: CNES 2088193 has 25% of its stays overlapping, a main-procedure AIH and a 0415* AIH on the
   same dates with different codes; CNES 0017884 13%. They count operations, volume and in-hospital deaths twice; among
   newborns part may be twins, whom a birth-date, sex and postcode key merges. OPEN_QUESTIONS 110.
+- **The admitted are not the dead (ABNc t06).** Of 408,418 death certificates naming head injury (2015-2023), 57.2%
+  died outside any health establishment, and part of the rest in establishments with no admission for it: in-hospital
+  death in SIH measures the admitted, never the condition's mortality, which is counted from SIM.
 - **The false share of link-only deaths climbs with the window (ABNc D-11).** On a cohort's own subset, the share of
   deaths found only by the `sih_admissions_to_sim` link (the stay records none) that are expected by chance rises with
   the horizon, because the year pass matches more namesakes the longer it looks: craniectomy 23.6% at 30 days, 30.3% at

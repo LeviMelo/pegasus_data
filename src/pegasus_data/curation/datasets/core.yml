@@ -166,6 +166,37 @@ datasets:
       - "RACA_COR 99 (no information) all but disappears from 2023: Sao Paulo 247,460 AIHs with 99 in 2022, 19,909 in 2023, 1,398 in 2024; Bahia 183,467, 31,925, 4; Rio Grande do Sul 86,503, 8,364, 29 (lake, 2026-11-22). Stated race jumps to 98-100%: a change of recording, not of the people; a trend in race across 2022-2023 is a trend in the field's filling first."
       - VAL_TOT is nominal reais at billing time, never deflated; `price_index()` (IBGE's IPCA) deflates by competence month (Alagoas AIH type 1, 2014 to 2023: R$ 153.7 to 222.8 million nominal, R$ 287.8 to 247.5 million in December 2025 reais).
       - An AIH may be re-presented after rejection; the same episode can appear across competências.
+      # measured in the ABNc line (2026-11); numbers in DATA_SOURCES.md §19, decisions in abnc2027_neuro DECISIONS.md
+      - >-
+        Two billing routes: a procedure is the AIH's main procedure (PROC_REA) or an act line inside a multiple,
+        sequential or polytrauma AIH (SIGTAP 0415*, SIH-SP SP_ATOPROF), 10-92% of a procedure by state and year and
+        rising. Count both; a trend, rate, regional contrast or payment from PROC_REA alone is wrong (§19).
+      - >-
+        An act line is a billed step, not always the operation: inside 0415* the craniectomy code (0403010020) bills
+        the opening of craniotomies whose bone is put back (41.7% co-bill cranioplasty), and 0408030372 is mostly
+        posterior-fossa surgery. Validate an act-route code before pooling it with the main route (§19).
+      - >-
+        A stay is a chain of AIHs: across transfers and closures (COBRANCA 21-29 and 51) and IDENT 5 continuations,
+        which carry deaths, discharges, payments and ICU days the first AIH does not. A stay ending on a 51 with no
+        next AIH has an unresolved end (in-stay death and length are lower bounds); two overlapping AIHs of one person
+        at one hospital are one admission counted twice (§19).
+      - >-
+        VAL_TOT follows the billing route: a 0415* AIH pays every act, device and ICU day in it, so payment per
+        operation is read by route or decomposed, never pooled across routes (§19).
+      - >-
+        CAR_INT (elective/urgent) is partly the hospital's billing habit: for the same diagnoses it ranges 1.8-67.8%
+        elective by state. It is not severity (§19).
+      - >-
+        DIAGSEC1-9 with TPDISEC1-9 from 2015: 1 present on admission, 2 acquired in the stay (a complication). An
+        external cause's type is unreliable, and unspecified causes (X58, X59, Y34, W99) are a hospital habit (§19).
+      - >-
+        Deaths after discharge come only from linkage to SIM; the false share among deaths only the link finds climbs
+        with the window (craniectomy 23.6% at 30 days to 59.4% at 365) and is measured on the claim's own subset (§19).
+      - >-
+        In-hospital death of the admitted is not the condition's mortality: of 408,418 head-injury death certificates
+        (2015-2023) 57.2% died outside any health establishment (§19).
+      - SEXO is 1 male, 3 female (SIM and SINASC 1 and 2); harmonise before joining populations or other systems.
+      - The latest year's files are preliminary and are revised by later reprocessing.
       - >-
         Which AIHs are admissions: the file holds IDENT 1 (principal AIH) and IDENT 5 (long-stay AIH, the continuation
         billed in a later month); an admission is an IDENT 1 row, as TabNet's "Internações" counts it and as RIPSA's
