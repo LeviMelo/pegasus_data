@@ -1152,15 +1152,35 @@ def _family_orders(root: Path, closing: Sequence[Any], workers: int) -> dict[str
         probe = (max(fit, key=lambda r: int(r["row_count"])) if fit
                  else min(counted, key=lambda r: int(r["row_count"])))
         probes[family] = (str(root / str(probe["relative_path"])), kept)
-    if probes:
-        from concurrent.futures import as_completed
+    import sys
+    from concurrent.futures import as_completed
+    from concurrent.futures.process import BrokenProcessPool
 
-        with ProcessPoolExecutor(max_workers=max(1, workers)) as pool:     # each kept as it comes: a stop loses none
-            futures = {pool.submit(_choose_family, p, k): family for family, (p, k) in probes.items()}
+    def run(families: list[str], at_once: int) -> list[str]:
+        """The families whose probe was lost to a worker that died (a native crash or memory), each kept as it comes."""
+        lost: list[str] = []
+        with ProcessPoolExecutor(max_workers=max(1, at_once)) as pool:
+            futures = {pool.submit(_choose_family, *probes[f]): f for f in families}
             for future in as_completed(futures):
-                choice = future.result()
-                keep_order(Path(futures[future]), choice)
-                choices[futures[future]] = choice
+                family = futures[future]
+                try:
+                    choice = future.result()
+                except BrokenProcessPool:
+                    lost.append(family)
+                    continue
+                keep_order(Path(family), choice)
+                choices[family] = choice
+                print(f"family {len(choices)}/{len(by_family)} {Path(family).name}: {choice.get('why')}",
+                      file=sys.stderr, flush=True)
+        return lost
+
+    # a worker that dies breaks the whole pool (2026-11-26): the families it took down are asked again one at a time,
+    # and one that dies alone is kept with its why and the file order
+    for family in run(list(probes), workers):
+        for again in run([family], 1):
+            choices[again] = {"probe": probes[again][0], "order": None, "why": "probe worker died"}
+            keep_order(Path(again), choices[again])
+            print(f"family {Path(again).name}: probe worker died", file=sys.stderr, flush=True)
     return choices
 
 
@@ -1219,8 +1239,8 @@ def reencode_lake(catalog: CatalogStore, lake_dir: str | Path, *, dry_run: bool 
     if workers is None:
         workers = max(1, (psutil.cpu_count(logical=False) or 4) - 2)
     out["workers"] = workers
-    # a family probe holds DuckDB's 1 GB and a probe table: as many at once as the free memory allows at 1.5 GiB each
-    probing = max(1, min(workers, int((psutil.virtual_memory().available - REENCODE_RESERVE_BYTES) // (1.5 * 2**30))))
+    # a family probe holds DuckDB's 1 GB and a probe table: as many at once as the free memory allows at 2.5 GiB each
+    probing = max(1, min(workers, int((psutil.virtual_memory().available - REENCODE_RESERVE_BYTES) // (2.5 * 2**30))))
     choices = {} if dry_run else _family_orders(root, [r for r in listed if str(r["relative_path"]) in closing], probing)
     out["ordered_families"] = sum(1 for c in choices.values() if c.get("order"))
 
@@ -1230,11 +1250,19 @@ def reencode_lake(catalog: CatalogStore, lake_dir: str | Path, *, dry_run: bool 
         per_row = int(choices.get(_family_of(root / rel), {}).get("arrow_bytes_per_row") or 1000)
         return int(WORKER_BASE_BYTES + WORKER_GROUP_FACTOR * min(int(r["row_count"] or group), group) * per_row)
 
+    import sys
+    import time
+    from concurrent.futures.process import BrokenProcessPool
+
     budget = psutil.virtual_memory().available - REENCODE_RESERVE_BYTES
+    by_rel = {str(r["relative_path"]): r for r in listed}
     pending = list(listed)
     running: dict[Any, tuple[str, int]] = {}
+    tries: dict[str, int] = {}
     out["peak_workers"] = 0
-    with ProcessPoolExecutor(max_workers=workers) as pool:
+    started = time.monotonic()
+    pool = ProcessPoolExecutor(max_workers=workers)
+    try:
         while pending or running:
             while pending and len(running) < workers:
                 r = pending[0]
@@ -1249,13 +1277,23 @@ def reencode_lake(catalog: CatalogStore, lake_dir: str | Path, *, dry_run: bool 
                                     choice.get("order"), choice.get("dictionary"))] = (rel, n)
             out["peak_workers"] = max(out["peak_workers"], len(running))
             finished, _ = wait(list(running), timeout=30, return_when=FIRST_COMPLETED)
+            broken = False
             for future in finished:
                 rel, _ = running.pop(future)
-                done = future.result()
+                try:
+                    done = future.result()
+                except BrokenProcessPool:
+                    broken = True
+                    running[future] = (rel, 0)        # handled with the others the dead worker took down
+                    continue
                 state = done["state"]
                 if state in ("absent", "current"):
                     continue
                 out["files"] += 1
+                if out["files"] % 100 == 0:
+                    print(f"{out['files']} files, {out['bytes_before'] / 1e9:.2f} GB read, "
+                          f"{out['bytes_after'] / 1e9:.2f} GB written, {time.monotonic() - started:.0f} s",
+                          file=sys.stderr, flush=True)
                 if state == "differing":
                     out["kept_differing"] += 1
                     continue
@@ -1270,4 +1308,20 @@ def reencode_lake(catalog: CatalogStore, lake_dir: str | Path, *, dry_run: bool 
                 with catalog.write() as conn:
                     conn.execute("UPDATE lake_partitions SET byte_size = byte_size - ? + ? WHERE relative_path = ?",
                                  (int(done["before"]), int(done["after"]), rel))
+            if broken:
+                # a worker that dies (a native crash, memory) breaks the pool: the files it held are asked again on a
+                # fresh pool, and one that has died twice is left as it was and named
+                lost = [rel for rel, _ in running.values()]
+                running.clear()
+                pool.shutdown(wait=False, cancel_futures=True)
+                pool = ProcessPoolExecutor(max_workers=workers)
+                for rel in reversed(lost):
+                    tries[rel] = tries.get(rel, 0) + 1
+                    if tries[rel] > 2:
+                        out.setdefault("died", []).append(rel)
+                    else:
+                        pending.insert(0, by_rel[rel])
+                print(f"worker died; asking again {len(lost)} files", file=sys.stderr, flush=True)
+    finally:
+        pool.shutdown(wait=True, cancel_futures=True)
     return out
