@@ -1268,7 +1268,11 @@ def reencode_lake(catalog: CatalogStore, lake_dir: str | Path, *, dry_run: bool 
                 r = pending[0]
                 n = need(r)
                 held = sum(b for _, b in running.values())
-                if running and (held + n > budget or n > psutil.virtual_memory().available - REENCODE_RESERVE_BYTES):
+                free = psutil.virtual_memory().available - REENCODE_RESERVE_BYTES
+                # memory the rest of the machine gives back widens the budget (half of what the workers hold is
+                # counted as not yet taken, since a worker reaches its row group's size only as it fills it)
+                budget = max(budget, free + held // 2)
+                if running and (held + n > budget or n > free):
                     break
                 pending.pop(0)
                 rel = str(r["relative_path"])
