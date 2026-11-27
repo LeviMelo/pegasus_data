@@ -1161,15 +1161,19 @@ def _family_orders(root: Path, closing: Sequence[Any], workers: int) -> dict[str
         kept = kept_order(Path(family))
         if kept is not None and kept.get("rule") != ORDER_RULE:
             kept = None                              # chosen by an earlier rule: measured again
-        if kept is not None and "dictionary" in kept and "arrow_bytes_per_row" in kept:
-            choices[family] = kept
-            continue
         counted = [r for r in rs if r["row_count"] is not None]
         if not counted:
             continue
         fit = [r for r in counted if int(r["row_count"]) <= PROBE_ROWS]
         probe = (max(fit, key=lambda r: int(r["row_count"])) if fit
                  else min(counted, key=lambda r: int(r["row_count"])))
+        # a family that has grown is measured again: a choice made on a probe of one month (CNES-PF SP 2011, no repeats
+        # to see) would have left the national intake's twelve-month files unordered (2026-11-27)
+        if kept is not None and int(probe["row_count"]) >= 2 * int(kept.get("rows") or 0):
+            kept = None
+        if kept is not None and "dictionary" in kept and "arrow_bytes_per_row" in kept:
+            choices[family] = kept
+            continue
         probes[family] = (str(root / str(probe["relative_path"])), kept)
     import sys
     from concurrent.futures.process import BrokenProcessPool
