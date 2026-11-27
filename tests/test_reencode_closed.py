@@ -149,3 +149,24 @@ def test_lake_rewrite_asks_the_dictionary_once_per_family_and_skips_systems(tmp_
         assert stamp == (ENCODING if rel.startswith("OTHER") else CLOSED_ENCODING).encode()
         assert back.read().select(original.column_names).equals(original)
     assert not (tmp_path / "OTHER/OTHER_F/_order.json").exists()
+
+
+def test_a_key_sorted_file_splits_by_competence_in_bounded_memory_and_keeps_row_order():
+    """ADR-0239 sorts a register by record key then publication, so the competence alternates row by row: the split
+    must not make one slice per run (900,000 for CNES-PF AL 2023, a national read past 88 GB, 2026-11-27)."""
+    import pyarrow as pa
+
+    from pegasus_data.render_groups import _partition
+
+    n = 10_000
+    comp = [202311 if i % 2 else 202312 for i in range(n)]
+    comp[5] = None
+    t = pa.table({"_competencia": pa.array(comp, pa.int32()), "_row": pa.array(range(n), pa.int64())})
+    chunks, rest = _partition(t, "_competencia", [202311, 202312])
+    assert [v for v, _ in chunks] == [202311, 202312]
+    for v, c in chunks:
+        rows = c.column("_row").to_pylist()
+        assert rows == sorted(rows) and all(comp[r] == v for r in rows)
+        assert c.num_columns == 2 and len(c.column(0).chunks) == 1   # one take, not thousands of slices
+    assert rest.column("_row").to_pylist() == [5]
+    assert sum(c.num_rows for _, c in chunks) + rest.num_rows == n

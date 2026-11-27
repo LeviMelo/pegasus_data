@@ -721,6 +721,7 @@ def _read_generations(
     *,
     companion_probes: bool = True,
     leave_out: frozenset[str] = frozenset(),
+    competence: tuple[int, int] | None = None,
 ) -> tuple[list, dict[str, list[str]]]:
     """Read each generation the request needs, applying the structural missing-column policy.
 
@@ -797,6 +798,15 @@ def _read_generations(
                 structurally_absent.setdefault(fid, []).extend(f"{c} (row filter)" for c in unfilterable)
                 continue
         scan = where
+        if competence is not None and "_competencia" in set(lake.columns_of(parts)):
+            # a month's request reads its months, not the year: rows outside are dropped by the period filter after the
+            # read, and a whole national CNES-PF year read for its December went past 10 GB (2026-11-27). Rows with no
+            # month or a year's competence (YYYY00, annual enclosures) stay for that filter to decide.
+            first, last = competence
+            col = pc.field("_competencia")
+            annual = [y * 100 for y in range(first // 100 - 1, last // 100 + 1)] + [0]
+            months = col.is_null() | ((col >= first) & (col <= last)) | col.isin(annual)
+            scan = months if scan is None else (scan & months)
         if condition is not None:
             years_of = sorted({p.year for p in parts})
             predicate = condition.scan(years_of)
@@ -831,6 +841,7 @@ def read_lake(
     family_id: str | None = None,
     partitions: Sequence[LakePartition] | None = None,
     leave_out: frozenset[str] = frozenset(),
+    competence: tuple[int, int] | None = None,
 ) -> tuple[pa.Table, RenderReport]:
     """The lake's rows for ``request``, rendered, in the engine's form: the columns the engine carries (``year``,
     ``_competencia``, ``_source_resolution``) still on the rows, and each record's answer to the condition in
@@ -861,6 +872,7 @@ def read_lake(
     tables, structurally_absent = _read_generations(
         cat, resolved, request,
         companion_probes=_keeps_companions(request.profile, request.companions), leave_out=leave_out,
+        competence=competence,
     )
     if not tables:
         # Every generation in play lacks a column the filter is on: the rows asked for cannot be told from the

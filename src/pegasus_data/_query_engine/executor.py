@@ -217,6 +217,13 @@ def _require_known_columns(
             request.require_known(known_store, resolve_family(known_store, retrieval.system, retrieval.series, None))
 
 
+def _month_range(period: Any) -> tuple[int, int] | None:
+    """A month-precision period as the competence range the lake scan may prune to (YYYYMM, inclusive)."""
+    if period is None or getattr(period, "precision", None) != "month":
+        return None
+    return int(period.start), int(period.end)
+
+
 def _read_lake(
     tables: list[pa.Table], source_reports: list[Any], query_plan: Any, request: Any,
     requested_columns: list[str] | None, resolved: Settings,
@@ -247,6 +254,7 @@ def _read_lake(
             uf=list(retrieval.physical_geography) or None,
             years=list(retrieval.lake_years) or None,
             partitions=retrieval.lake_partitions, leave_out=leave_out,
+            competence=_month_range(query_plan.spec.period),
         )
         # the lake's report says where its rows came from as a fetch's does: the source files of the partitions read
         competence = dict(retrieval.lake_competence)

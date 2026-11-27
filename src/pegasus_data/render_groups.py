@@ -152,6 +152,19 @@ def _partition(table: pa.Table, column: str, values: Sequence[int]) -> tuple[lis
     if len(col) == 0:
         return [], table
     cut = np.flatnonzero(col[1:] != col[:-1]) + 1
+    if len(cut) + 1 > 64 + 8 * len(wanted):
+        # a file sorted by record key (ADR-0239: CNES registers, key then publication) alternates its competence row
+        # by row: one slice per run was 900,000 Table objects for CNES-PF AL 2023 and took a national read past 88 GB
+        # of commit (2026-11-27). Here each value's rows are taken once, in their order, by a stable index sort.
+        order = np.argsort(col, kind="stable")
+        ordered = col[order]
+        chunks = []
+        for v in sorted(wanted):
+            a, b = np.searchsorted(ordered, v, "left"), np.searchsorted(ordered, v, "right")
+            if b > a:
+                chunks.append((v, table.take(pa.array(order[a:b]))))
+        other = np.flatnonzero(~np.isin(col, list(wanted)))
+        return chunks, (table.take(pa.array(other)) if len(other) else table.slice(0, 0))
     starts, ends = np.r_[0, cut].tolist(), np.r_[cut, len(col)].tolist()
     heads = col[np.r_[0, cut]].tolist()
     runs: dict[int, list[pa.Table]] = {}
