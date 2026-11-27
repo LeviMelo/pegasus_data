@@ -153,3 +153,24 @@ class TestItSharesTheRenderPath:
         )
         assert out.column("SEXO").to_pylist() == ["1", "3"]
         assert out.column("SEXO_label").to_pylist() == ["Masculino", "Feminino"]
+
+
+def test_a_few_columns_of_a_series_take_its_agreed_binding_and_a_system_alias_resolves():
+    """SIM's SEXO bindings are family-scoped, so SEXO alone matched no generation and stayed unlabelled; PegaSUS's sex
+    mapping then refused every SIM read (2026-11-27). "SIH" names SIHSUS."""
+    import pyarrow as pa
+    import pytest
+
+    from pegasus_data import translate
+    from pegasus_data._request import DatasetUnknown  # noqa: F401  (the resolver the alias goes through)
+
+    try:
+        t = translate(pa.table({"SEXO": ["1", "2", "3"]}), system="SIM", series="DO")
+    except Exception as exc:  # noqa: BLE001 - a home without a catalog cannot answer
+        pytest.skip(f"no catalog: {exc}")
+    labels = [str(x or "").lower() for x in t.column("SEXO_label").to_pylist()]
+    if not any(labels):
+        pytest.skip("this home's catalog binds no SIM SEXO")
+    assert labels[:2] == ["masculino", "feminino"] and labels[2] == ""
+    assert translate(pa.table({"SEXO": ["3"]}), system="SIH").column("SEXO_label").to_pylist() == \
+        translate(pa.table({"SEXO": ["3"]}), system="SIHSUS").column("SEXO_label").to_pylist()

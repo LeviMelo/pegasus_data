@@ -158,6 +158,10 @@ def translate(
     table = _as_arrow(data)
     if table.num_rows == 0:
         raise TranslationImpossible("the table has no rows to label")
+    # a system named as the manual names it ("SIH", "SIA") is the catalog's (SIHSUS, SIASUS): "SIH" had labelled nothing
+    from ._request import parse_dataset
+
+    system = parse_dataset(str(system))[0]
 
     resolved = settings or load_settings(root=Path(root) if root else None)
 
@@ -221,4 +225,30 @@ def _family_for(store, system: str, series: str | None, columns: Sequence[str]) 
         f"SELECT family_id FROM families WHERE system = ?{clause} AND schema_signature = ?",
         params,
     )
-    return str(rows[0]["family_id"]) if rows else None
+    if rows:
+        return str(rows[0]["family_id"])
+    if not series:
+        return None
+    # No generation has exactly these columns (a few columns of a dataset, a reader's selection): when every family of
+    # the series that binds them binds each to the same codelists, that binding is the series', and its latest family
+    # stands for it. SIM's bindings are all family-scoped (CURATED.SIM.DO.SEXO), so SEXO alone was left unlabelled and
+    # PegaSUS's sex mapping refused every SIM read (2026-11-27). Families that disagree leave the table system-scoped.
+    names = [str(c) for c in columns]
+    if not names:
+        return None
+    marks = ",".join("?" for _ in names)
+    found = store.query(
+        f"SELECT b.family_id, b.field_name, b.codelists, f.time_max FROM label_bindings b JOIN families f "
+        f"USING (family_id) WHERE f.system = ? AND f.series = ? AND b.field_name IN ({marks})",
+        [str(system).upper(), str(series).upper(), *names],
+    )
+    by_field: dict[str, set[str]] = {}
+    latest: dict[str, str] = {}
+    for r in found:
+        by_field.setdefault(str(r["field_name"]), set()).add(str(r["codelists"]))
+        latest[str(r["family_id"])] = str(r["time_max"] or "")
+    if not by_field or any(len(v) > 1 for v in by_field.values()):
+        return None
+    holds = {str(r["family_id"]) for r in found}
+    full = [f for f in holds if sum(1 for r in found if str(r["family_id"]) == f) == len(by_field)]
+    return max(full or holds, key=lambda f: (latest.get(f, ""), f))
