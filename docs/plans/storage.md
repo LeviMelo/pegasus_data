@@ -125,6 +125,15 @@ take a found order: 20 of SIA (by cardinality, 0.65-0.83 of the file order on th
 0.89), SIH-CH and Painel Oncologia; SIH-RD, SIM, SINASC and SINAN are larger in every order tried (1.1-2.1); CIHA 0.90,
 under the 10% bar. 11 files held open by readers wait for the next run. Left: SIH-SP's dependency split (about 2 GB).
 
+**National CNES (2026-11-27).** Every register and PF 2005-2026 built and closed in place, one year at a time: 43 steps,
+32.0 GB as built to 9.0 GB (-72%), 11 h, no errors; CNES holds 6.7 GB, PF 5.3 GB of it. Registers by key order at
+0.24-0.61 of the file order (ST by establishment, 0.24-0.26); PF 90916a73e2 and dc2a3d33a6 by establishment, person,
+CBO, link at 0.26 and 0.39 (dc2a3d33a6 re-measured once its probe grew from a one-month file), each year -80 to -82%.
+PF 2005 only -8%: generation b84cacab0c holds two months (08-09/2005) with 9% exact repeats, since CNS_PROF was being
+filled in between and 41% repeat even without it. Near-repeats still pay: SP 2005 by establishment, person, CBO, link
+is 0.76 of the file order (20.8 to 15.9 MB), so the family would fall about 24 MB; not taken, since lowering the repeat
+gate re-measures all 236 families for it.
+
 **Relations between datasets, from the curation.** `joins.yml` names each shared key with its members, grain
 (`rows_per_key`), time-versioning (`as_of`) and subset notes ("a subset of RD", "its complement"); `column_roles`
 declares a column read `through` another dataset's key (SIH-SP's sex and age from SIH-RD) and gives every column a
