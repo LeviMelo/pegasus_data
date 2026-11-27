@@ -499,8 +499,11 @@ def reencode_lake(
         "--closed-before", help="Years before this one are closed: zstd 19, 1M-row groups, dictionary chosen per column "
                                 "(ADR-0238). Default: last year (the current and last years stay open)")] = None,
     open_only: Annotated[bool, typer.Option("--open-only", help="Close no year: only the open encoding")] = False,
-    workers: Annotated[int | None, typer.Option("--workers", help="Files rewritten at once (1 GiB each)")] = None,
+    workers: Annotated[int | None, typer.Option(
+        "--workers", help="At most this many files at once (default: physical cores less two), each admitted while "
+                          "its memory fits")] = None,
     family: Annotated[list[str] | None, typer.Option("--family", help="Only these family ids")] = None,
+    skip_system: Annotated[list[str] | None, typer.Option("--skip-system", help="Not these systems (e.g. SIASUS)")] = None,
     as_json: JsonOpt = False,
 ) -> None:
     """Rewrite lake files, value for value, as the lake writes now: those that store what the lake computes on read
@@ -520,10 +523,11 @@ def reencode_lake(
     try:
         if dry_run:
             result = rewrite(catalog, settings.lake_dir, dry_run=True, closed_before=closing, workers=workers,
-                             families=family)
+                             families=family, skip_systems=skip_system)
         else:
             with carried_currency(settings) as carried:
-                result = rewrite(catalog, settings.lake_dir, closed_before=closing, workers=workers, families=family)
+                result = rewrite(catalog, settings.lake_dir, closed_before=closing, workers=workers, families=family,
+                                 skip_systems=skip_system)
             result.update(carried)
         _emit(result, as_json, "reencode-lake (dry run)" if dry_run else "reencode-lake")
     finally:

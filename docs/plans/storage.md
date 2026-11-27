@@ -112,6 +112,13 @@ new file form; step 1 (separate tables) is set aside because statistics, extract
 and DuckDB globs all read lake files as rows. National CNES is landed in that encoding, step by step
 (`abnc2027_neuro/work/cnes_national.sh`).
 
+**The re-encode's cost (2026-11-26).** SIH-RD MG 2019, 1.29 M rows, 42.8 MB, dictionary probed, 1M-row groups:
+zstd 9 42.0 MB in 15 s, 12 41.4 in 25, 15 40.1 in 36, 16 38.7 in 50, 19 38.5 in 57 (19 with 262,144-row groups 38.8).
+The gain is in zstd's optimal-parse levels (16+), so 19 stays. The per-file dictionary probe cost 12 s whatever the
+file's size, most of the work over the lake's ~11,000 small files; the family's choice gives the same file (38.487 MB
+against 38.486), so it is asked once per family and kept in `_order.json`. Five fixed workers held 25% of the 20
+threads; workers are now admitted by the memory each will hold, up to the physical cores less two.
+
 **Relations between datasets, from the curation.** `joins.yml` names each shared key with its members, grain
 (`rows_per_key`), time-versioning (`as_of`) and subset notes ("a subset of RD", "its complement"); `column_roles`
 declares a column read `through` another dataset's key (SIH-SP's sex and age from SIH-RD) and gives every column a

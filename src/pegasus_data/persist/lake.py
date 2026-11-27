@@ -102,13 +102,22 @@ def probe_dictionary(source: pq.ParquetFile, columns: Sequence[str], rows: int =
     """The columns of ``source`` whose dictionary encoding is smaller than plain, each written alone at the closed level
     over the file's first ``rows`` rows (ADR-0238). Dictionary pays on coded columns and loses on near-unique ones (an
     AIH number, a postcode); the probe decides per file, nothing is declared. `_row` is delta-encoded and never asked."""
+    probe = next(source.iter_batches(batch_size=rows, columns=list(columns)), None)
+    if probe is None:
+        return [c for c in columns if c != "_row"]
+    return dictionary_of(probe)
+
+
+def dictionary_of(probe: pa.RecordBatch | pa.Table) -> list[str]:
+    """`probe_dictionary` on rows already read: each column of ``probe`` written alone at the closed level, with and
+    without the dictionary. About 12 s on 65,536 rows of SIH-RD's 120 columns whatever the file's size, so it is asked
+    once per family (`_family_orders`), not once per file: on the closed re-encode's 11,000 small files it had been
+    most of the work (2026-11-26)."""
     import io
 
     from .kept import CLOSED_ZSTD_LEVEL
 
-    probe = next(source.iter_batches(batch_size=rows, columns=list(columns)), None)
-    if probe is None:
-        return [c for c in columns if c != "_row"]
+    rows = probe.num_rows
     chosen = []
     for name in probe.schema.names:
         if name == "_row":
@@ -959,7 +968,7 @@ def drop_redundant_partitions(catalog: CatalogStore, lake_dir: str | Path, *, dr
 
 
 def _reencode_file(path_text: str, dry_run: bool, compression: str, closed: bool = False,
-                   order: Sequence[str] | None = None) -> dict[str, Any]:
+                   order: Sequence[str] | None = None, dictionary: Sequence[str] | None = None) -> dict[str, Any]:
     """One partition file rewritten as the lake writes now (`reencode_lake`): ``{"state": "current" | "differing" |
     "rewritten" | "counted", "before", "after"}``. Runs in a worker process: a file is one task. ``closed`` writes the
     closed encoding (ADR-0238); a file already closed is current either way, never written back to the open one.
@@ -1025,7 +1034,9 @@ def _reencode_file(path_text: str, dry_run: bool, compression: str, closed: bool
         if order_stamp:
             schema = schema.with_metadata({**(schema.metadata or {}), ORDER_META: order_stamp})
         if closed:
-            writer = parquet_writer(temporary, schema, compression, closed_dictionary=probe_dictionary(source, keep))
+            chosen = ([c for c in dictionary if c in keep] if dictionary is not None
+                      else probe_dictionary(source, keep))    # the family's choice (`_family_orders`), else this file's
+            writer = parquet_writer(temporary, schema, compression, closed_dictionary=chosen)
             groups = RowGroups(writer, CLOSED_ROW_GROUP_ROWS)
         else:
             writer = parquet_writer(temporary, schema, compression)
@@ -1078,23 +1089,39 @@ def _family_of(path: Path) -> str:
     return str(family_dir(path))
 
 
-def _choose_family_order(path_text: str) -> dict[str, Any]:
-    """`cluster.choose_order` in a worker process, on one probe file."""
+def _choose_family(path_text: str, kept: dict[str, Any] | None) -> dict[str, Any]:
+    """A family's closed-encoding choices, measured in a worker process on one probe file: its row order
+    (`cluster.choose_order`, unless ``kept``), the columns that take the dictionary (`dictionary_of`, on the probe's first
+    rows in that order) and the Arrow bytes a row takes in memory, by which `reencode_lake` admits workers."""
     import duckdb
 
-    from .cluster import choose_order
+    from .cluster import choose_order, ordered_batches
 
     con = duckdb.connect()
     con.execute("SET memory_limit='1GB'; SET threads=1; SET enable_progress_bar=false")
     try:
-        return choose_order(Path(path_text), con)
+        path = Path(path_text)
+        choice = dict(kept) if kept is not None else choose_order(path, con)
+        if "dictionary" not in choice or "arrow_bytes_per_row" not in choice:
+            source = pq.ParquetFile(path)
+            columns = [n for n in source.schema_arrow.names if n != RECORD_KEY]
+            order = choice.get("order")
+            batches = (ordered_batches(con, path, columns, order, 65_536) if order
+                       else source.iter_batches(batch_size=65_536, columns=columns))
+            probe = next(iter(batches), None)
+            source.close()
+            if probe is not None and probe.num_rows:
+                choice["dictionary"] = dictionary_of(probe)
+                choice["arrow_bytes_per_row"] = round(probe.nbytes / probe.num_rows)
+        return choice
     finally:
         con.close()
 
 
-def _family_orders(root: Path, closing: Sequence[Any], workers: int) -> dict[str, list[str] | None]:
-    """Each closing family's row order (ADR-0239): kept in ``<family>/_order.json``, else measured once on the family's
-    largest closing file of at most `cluster.PROBE_ROWS` rows and kept."""
+def _family_orders(root: Path, closing: Sequence[Any], workers: int) -> dict[str, dict[str, Any]]:
+    """Each closing family's choices (`_choose_family`): its row order (ADR-0239), its dictionary columns and its
+    in-memory row size, kept in ``<family>/_order.json``, measured once on the family's largest closing file of at most
+    `cluster.PROBE_ROWS` rows (else its smallest: the order then stays the file's, the dictionary is still asked)."""
     from concurrent.futures import ProcessPoolExecutor
 
     from .cluster import PROBE_ROWS, family_dir, keep_order, kept_order
@@ -1102,29 +1129,43 @@ def _family_orders(root: Path, closing: Sequence[Any], workers: int) -> dict[str
     by_family: dict[str, list[Any]] = {}
     for r in closing:
         by_family.setdefault(str(family_dir(root / str(r["relative_path"]))), []).append(r)
-    orders: dict[str, list[str] | None] = {}
-    probes: dict[str, str] = {}
+    choices: dict[str, dict[str, Any]] = {}
+    probes: dict[str, tuple[str, dict[str, Any] | None]] = {}
     for family, rs in by_family.items():
         kept = kept_order(Path(family))
-        if kept is not None:
-            orders[family] = kept.get("order")
+        if kept is not None and "dictionary" in kept and "arrow_bytes_per_row" in kept:
+            choices[family] = kept
             continue
-        fit = [r for r in rs if r["row_count"] is not None and int(r["row_count"]) <= PROBE_ROWS]
-        if not fit:
-            orders[family] = None
+        counted = [r for r in rs if r["row_count"] is not None]
+        if not counted:
             continue
-        probes[family] = str(root / str(max(fit, key=lambda r: int(r["row_count"]))["relative_path"]))
-    with ProcessPoolExecutor(max_workers=workers) as pool:
-        chosen = dict(zip(probes, pool.map(_choose_family_order, probes.values())))
-    for family, choice in chosen.items():
-        keep_order(Path(family), choice)
-        orders[family] = choice.get("order")
-    return orders
+        fit = [r for r in counted if int(r["row_count"]) <= PROBE_ROWS]
+        probe = (max(fit, key=lambda r: int(r["row_count"])) if fit
+                 else min(counted, key=lambda r: int(r["row_count"])))
+        probes[family] = (str(root / str(probe["relative_path"])), kept)
+    if probes:
+        with ProcessPoolExecutor(max_workers=max(1, workers)) as pool:
+            chosen = dict(zip(probes, pool.map(_choose_family, [p for p, _ in probes.values()],
+                                               [k for _, k in probes.values()])))
+        for family, choice in chosen.items():
+            keep_order(Path(family), choice)
+            choices[family] = choice
+    return choices
+
+
+#: memory a re-encode worker holds beyond its row group (interpreter, pyarrow, DuckDB), and the factor on the row
+#: group's Arrow size (the gathered batches and their concatenation): workers measured at 0.7-1.5 GB on 1M-row SIH
+#: groups of about 850 bytes a row (2026-11-26)
+WORKER_BASE_BYTES = 300 * 2**20
+WORKER_GROUP_FACTOR = 1.5
+#: memory left free for the rest of the machine while workers are admitted
+REENCODE_RESERVE_BYTES = 2 * 2**30
 
 
 def reencode_lake(catalog: CatalogStore, lake_dir: str | Path, *, dry_run: bool = False,
                   compression: str = "zstd", workers: int | None = None,
-                  closed_before: int | None = None, families: Sequence[str] | None = None) -> dict[str, int]:
+                  closed_before: int | None = None, families: Sequence[str] | None = None,
+                  skip_systems: Sequence[str] | None = None) -> dict[str, int]:
     """Rewrite, value for value, the listed partition files not written as the lake writes now: those that store what
     the lake computes (the record key, `Lake._read_derived`) and those of another encoding than `persist.kept.ENCODING`
     (smaller row groups, a lower zstd level; their ``pegasus.encoding`` stamp says), and those whose typed columns keep
@@ -1135,17 +1176,22 @@ def reencode_lake(catalog: CatalogStore, lake_dir: str | Path, *, dry_run: bool 
     fields hash to is the key it stores, on every row (`record_key_sql`): one that differed would change the identity of
     its records, and is kept and counted instead.
 
-    Files are rewritten in ``workers`` processes at once (`_reencode_file`), by default as many as the cores less two and
-    the free memory at 1 GiB a worker allow (a worker streams one file and holds about one row group): pyarrow compresses a file's columns in one thread, and one file at a
-    time used 1.4 of 20 cores (2026-11-22). The catalog is written here, in one process.
+    Files are rewritten in worker processes (`_reencode_file`; pyarrow compresses a file's columns in one thread), at
+    most ``workers`` at once (default: the physical cores less two), each admitted only while the memory it will hold
+    fits: its row group's rows times its family's Arrow bytes a row (`_choose_family`), times `WORKER_GROUP_FACTOR`,
+    plus `WORKER_BASE_BYTES`, within the memory free at the start less `REENCODE_RESERVE_BYTES`, and within what is free
+    now. A fixed five workers had held 25% of the CPU on the closed re-encode while its small files needed a fraction of
+    a gigabyte each (2026-11-26). The catalog is written here, in one process.
 
     ``closed_before``: partitions of earlier years are closed and take the closed encoding (zstd 19, 1M-row groups, the
-    dictionary chosen per column on a probe; ADR-0238); later years, still revised, keep the open one. Largest first.
-    ``families``: only the partitions of these family ids (a build's own, re-encoded right after it)."""
-    import os
-    from concurrent.futures import ProcessPoolExecutor, as_completed
+    dictionary chosen per column once per family; ADR-0238); later years, still revised, keep the open one. Largest
+    first. ``families``: only the partitions of these family ids (a build's own, re-encoded right after it).
+    ``skip_systems``: not the partitions of these systems (one whose closed encoding is about to change)."""
+    from concurrent.futures import FIRST_COMPLETED, ProcessPoolExecutor, wait
 
     import psutil
+
+    from .kept import CLOSED_ROW_GROUP_ROWS, ROW_GROUP_ROWS
 
     root = Path(lake_dir)
     out = {"files": 0, "rewritten": 0, "kept_differing": 0, "bytes_before": 0, "bytes_after": 0}
@@ -1154,37 +1200,61 @@ def reencode_lake(catalog: CatalogStore, lake_dir: str | Path, *, dry_run: bool 
     if families:
         wanted = set(families)
         listed = [r for r in listed if PurePosixPath(str(r["relative_path"])).parts[1] in wanted]
-    rows = [str(r["relative_path"]) for r in listed]
+    if skip_systems:
+        skipped = set(skip_systems)
+        listed = [r for r in listed if PurePosixPath(str(r["relative_path"])).parts[0] not in skipped]
     closing = {str(r["relative_path"]) for r in listed
                if closed_before is not None and r["year"] is not None and int(r["year"]) < closed_before}
     if workers is None:
-        by_memory = int(psutil.virtual_memory().available // 2**30)
-        workers = max(1, min((os.cpu_count() or 2) - 2, by_memory))
+        workers = max(1, (psutil.cpu_count(logical=False) or 4) - 2)
     out["workers"] = workers
-    orders = {} if dry_run else _family_orders(root, [r for r in listed if str(r["relative_path"]) in closing], workers)
-    out["ordered_families"] = sum(1 for o in orders.values() if o)
+    choices = {} if dry_run else _family_orders(root, [r for r in listed if str(r["relative_path"]) in closing], workers)
+    out["ordered_families"] = sum(1 for c in choices.values() if c.get("order"))
+
+    def need(r: Any) -> int:
+        rel = str(r["relative_path"])
+        group = CLOSED_ROW_GROUP_ROWS if rel in closing else ROW_GROUP_ROWS
+        per_row = int(choices.get(_family_of(root / rel), {}).get("arrow_bytes_per_row") or 1000)
+        return int(WORKER_BASE_BYTES + WORKER_GROUP_FACTOR * min(int(r["row_count"] or group), group) * per_row)
+
+    budget = psutil.virtual_memory().available - REENCODE_RESERVE_BYTES
+    pending = list(listed)
+    running: dict[Any, tuple[str, int]] = {}
+    out["peak_workers"] = 0
     with ProcessPoolExecutor(max_workers=workers) as pool:
-        futures = {pool.submit(_reencode_file, str(root / rel), dry_run, compression, rel in closing,
-                               orders.get(_family_of(root / rel)) if rel in closing else None): rel for rel in rows}
-        for future in as_completed(futures):
-            rel = futures[future]
-            done = future.result()
-            state = done["state"]
-            if state in ("absent", "current"):
-                continue
-            out["files"] += 1
-            if state == "differing":
-                out["kept_differing"] += 1
-                continue
-            out["bytes_before"] += int(done.get("before") or 0)
-            if state == "locked":
-                out["locked"] = out.get("locked", 0) + 1
-                continue
-            if state != "rewritten":
-                continue
-            out["bytes_after"] += int(done["after"])
-            out["rewritten"] += 1
-            with catalog.write() as conn:
-                conn.execute("UPDATE lake_partitions SET byte_size = byte_size - ? + ? WHERE relative_path = ?",
-                             (int(done["before"]), int(done["after"]), rel))
+        while pending or running:
+            while pending and len(running) < workers:
+                r = pending[0]
+                n = need(r)
+                held = sum(b for _, b in running.values())
+                if running and (held + n > budget or n > psutil.virtual_memory().available - REENCODE_RESERVE_BYTES):
+                    break
+                pending.pop(0)
+                rel = str(r["relative_path"])
+                choice = choices.get(_family_of(root / rel), {}) if rel in closing else {}
+                running[pool.submit(_reencode_file, str(root / rel), dry_run, compression, rel in closing,
+                                    choice.get("order"), choice.get("dictionary"))] = (rel, n)
+            out["peak_workers"] = max(out["peak_workers"], len(running))
+            finished, _ = wait(list(running), timeout=30, return_when=FIRST_COMPLETED)
+            for future in finished:
+                rel, _ = running.pop(future)
+                done = future.result()
+                state = done["state"]
+                if state in ("absent", "current"):
+                    continue
+                out["files"] += 1
+                if state == "differing":
+                    out["kept_differing"] += 1
+                    continue
+                out["bytes_before"] += int(done.get("before") or 0)
+                if state == "locked":
+                    out["locked"] = out.get("locked", 0) + 1
+                    continue
+                if state != "rewritten":
+                    continue
+                out["bytes_after"] += int(done["after"])
+                out["rewritten"] += 1
+                with catalog.write() as conn:
+                    conn.execute("UPDATE lake_partitions SET byte_size = byte_size - ? + ? WHERE relative_path = ?",
+                                 (int(done["before"]), int(done["after"]), rel))
     return out

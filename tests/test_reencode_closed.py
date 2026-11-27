@@ -107,3 +107,45 @@ def test_event_records_keep_their_file_order(tmp_path):
     table = table.append_column("_source_path", pa.array([f"DOAL{i % 2}.dbc" for i in range(table.num_rows)]))
     pq.write_table(table, path)
     assert choose_order(path, duckdb.connect())["order"] is None
+
+
+class _Catalog:
+    """The two calls `reencode_lake` makes on the catalog, over a list of partition rows."""
+
+    def __init__(self, rows):
+        self.rows = rows
+
+    def query(self, sql):
+        return sorted(self.rows, key=lambda r: -r["byte_size"])
+
+    def write(self):
+        import contextlib
+        import sqlite3
+
+        @contextlib.contextmanager
+        def conn():
+            yield sqlite3.connect(":memory:").execute("CREATE TABLE lake_partitions (relative_path, byte_size)").connection
+        return conn()
+
+
+def test_lake_rewrite_asks_the_dictionary_once_per_family_and_skips_systems(tmp_path):
+    import json
+
+    from pegasus_data.persist.lake import reencode_lake
+
+    rows, originals = [], {}
+    for system, uf in (("SYS", "AL"), ("SYS", "SE"), ("OTHER", "AL")):
+        rel = f"{system}/{system}_F/schema_signature=x/uf={uf}/year=2020/part-00000.parquet"
+        (tmp_path / rel).parent.mkdir(parents=True)
+        originals[rel] = _partition(tmp_path / rel)
+        rows.append({"relative_path": rel, "year": 2020, "byte_size": (tmp_path / rel).stat().st_size, "row_count": 20000})
+    out = reencode_lake(_Catalog(rows), tmp_path, closed_before=2025, workers=2, skip_systems=["OTHER"])
+    assert out["rewritten"] == 2
+    kept = json.loads((tmp_path / "SYS/SYS_F/_order.json").read_text(encoding="utf-8"))
+    assert "CODE" in kept["dictionary"] and "UNIQUE" not in kept["dictionary"] and kept["arrow_bytes_per_row"] > 0
+    for rel, original in originals.items():
+        back = pq.ParquetFile(tmp_path / rel)
+        stamp = back.schema_arrow.metadata[b"pegasus.encoding"]
+        assert stamp == (ENCODING if rel.startswith("OTHER") else CLOSED_ENCODING).encode()
+        assert back.read().select(original.column_names).equals(original)
+    assert not (tmp_path / "OTHER/OTHER_F/_order.json").exists()
