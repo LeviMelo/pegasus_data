@@ -38,6 +38,7 @@ $PY scripts/live.py --show <run-id>
 - Establishment, team and CNPJ names (the registry tables) are built, never fetched by a read (ADR-0176):
   `$PD registries build CNES [--refresh]` (SIH's names need CNES's kit, 127 MB, once; `SIASUS` for `INE_EQUIPE`).
   Without it a `load`/`query` leaves those labels null and says this command in one warning.
+- Homes: `$PY scripts/homes.py` fails when a module does a declared job (open a DuckDB connection, an archive, a spreadsheet, an HTTP request...) beside its one home, and lists the second implementations still owed; `$PY scripts/homes.py WORD` names a job's home (ADR-0246).
 - Layers: `$PY scripts/layers.py` fails on a module-level import from a higher layer or a module no layer places (ADR-0225); `--lazy` lists the function-level upward imports. A new top-level module is added to `LAYERS` there.
 - Declared shapes: `$PY scripts/validate_curation.py --schema` checks every curation file against its kind (`semantics/schema.py`, ADR-0223) and prints every violation; the same check runs whenever a file is parsed. A new key goes into the schema with the code that reads it.
 - Types: `$PY -m mypy src/pegasus_data` is clean and blocks CI.

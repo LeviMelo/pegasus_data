@@ -21,6 +21,8 @@ from pathlib import Path
 
 import pyarrow as pa
 
+from .duckdb_session import connect as duck_connect
+
 __all__ = ["race_reliability"]
 
 
@@ -44,7 +46,6 @@ def race_reliability(table: pa.Table, *, root: str | Path | None = None) -> pa.T
     Measured on SIH-RD 2022 (43,945 hospital-months of 30+ admissions): 329 unreliable in 64 hospitals (89,003
     admissions); 1,297 suspect in 278.
     """
-    import duckdb
 
     from .config import curation_root
     from .linkage.roles import dataset_roles
@@ -59,7 +60,7 @@ def race_reliability(table: pa.Table, *, root: str | Path | None = None) -> pa.T
         if name not in table.column_names:
             raise KeyError(f"{name}: required column for race_reliability is absent")
     categories = dict(dataset_roles(dataset).roles[str(spec["race"])].categories)
-    con = duckdb.connect()
+    con = duck_connect()
     try:
         # An explicit position, not row_number() OVER (): a parallel scan does not
         # promise to keep the input order, and the flags must land on their rows.

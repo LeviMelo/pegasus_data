@@ -45,6 +45,7 @@ import numpy as np
 import pyarrow as pa
 
 from ..config import curation_root, load_settings
+from ..duckdb_session import connect as duck_connect
 from ..normalize.time import year_of
 from ..semantics.curation import read_yaml
 from ..semantics.epoch import curated
@@ -1151,7 +1152,7 @@ def side_counts(name: str, *, period: object, side: str, by: str, method: str | 
                      *(r for r in declared if s.where and f'"{r}"' in s.where)})
     scope = period if side == "left" else (right_period or period)
     table = role_table(s.dataset, period=scope, geography="BR", roles=needed, **query_kwargs)
-    con = duckdb.connect()
+    con = duck_connect()
     _prepare(con, "x", table, replace(s, explode_days=None, explode_values=None, pad_years=(0, 0)))
     pairs = stored[0]
     p = pairs.column("p_match") if "p_match" in pairs.column_names else pa.array([1.0] * pairs.num_rows)

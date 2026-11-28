@@ -59,6 +59,7 @@ import pyarrow.parquet as pq
 from .catalog.store import CatalogStore, utcnow
 from .decode.archives import ArchiveFile
 from .decode.spreadsheet import read_table
+from .duckdb_session import connect as duck_connect
 from .normalize.time import month_of, year_of
 from .persist.kept import write_json_atomic, write_parquet_atomic
 from .persist.lake import SLICE, Lake, unit_parts
@@ -277,22 +278,16 @@ def _ident(name: str) -> str:
 def _duck(settings: Any, spec: dict[str, Any]) -> Any:
     """A DuckDB connection bounded in memory, with the IBGE universe (and, for a source that gives a municipality's name and
     its state, the names that resolve to one code) registered."""
-    import duckdb
 
-    from .geography import municipalities
-
-    con = duckdb.connect(":memory:")
-    work = settings.duckdb_spill()          # this process's own: a shared one broke another process's reads
     # a decode slot's share of the machine (`decode.admission`: total RAM over the slots), not a fixed 2 GB: SRAG's ~190
     # columns of text ran out of memory re-landing a year under 2 GB (the parquet writer's buffers do not spill, 2026-10-24)
     import psutil
 
     from .decode.admission import slot_count
+    from .geography import municipalities
 
-    con.execute(f"SET memory_limit='{max(2, psutil.virtual_memory().total // slot_count() // 2**30)}GB'")
-    con.execute("SET threads=4")
-    con.execute("SET preserve_insertion_order=false")
-    con.execute(f"SET temp_directory='{work.as_posix()}'")
+    con = duck_connect(memory_gb=max(2, psutil.virtual_memory().total // slot_count() // 2**30), threads=4, ordered=False,
+                       settings=settings)
     from .geography import placing_rule
 
     # the one placing rule's facts (`geography.placing_rule`), as tables: the universe, a state of one municipality
@@ -1316,7 +1311,6 @@ def _held_records(settings: Any, spec: dict[str, Any], unit: dict[str, Any]) -> 
     day, holding every declared column's value as filed (the column itself, or its `__RAW` beside a typed or rewritten
     one). Returns (parts, read day, rows, the columns as filed), else None: a unit landed from another file, before a column
     was declared, or never landed is read from the source."""
-    import duckdb
 
     system, series = str(spec["system"]), str(spec["series"])
     found_parts = unit_parts(settings.lake_dir, f"{_safe(system.upper())}_{_safe(series.upper())}_*", _safe(unit["key"]))
@@ -1330,9 +1324,8 @@ def _held_records(settings: Any, spec: dict[str, Any], unit: dict[str, Any]) -> 
         by_family.setdefault(f.parents[3], []).append(f)
     newest = max(by_family, key=lambda fam: max(p.stat().st_mtime for p in by_family[fam]))
     parts = sorted(str(f) for f in by_family[newest])
-    con = duckdb.connect(":memory:")
+    con = duck_connect(memory_gb=1)
     try:
-        con.execute("SET memory_limit='1GB'")
         relation = f"read_parquet({parts!r}, hive_partitioning=false, union_by_name=true)"
         names = [r[0] for r in con.execute(f"DESCRIBE SELECT * FROM {relation}").fetchall()]
         if "_SOURCE_PATH" not in names or "_READ_ON" not in names:

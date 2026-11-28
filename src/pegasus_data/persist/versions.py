@@ -30,6 +30,7 @@ import pyarrow.compute as pc
 import pyarrow.parquet as pq
 
 from ..catalog.store import CatalogStore, utcnow
+from ..duckdb_session import connect as duck_connect
 from .lake import RowGroups, _safe, parquet_writer
 
 #: Under the lake root, beside the systems: `<lake>/versions/<system>/<family>/<source>/<sha>.{removed,kept}.parquet`.
@@ -139,11 +140,7 @@ def _duck(duckdb: Any) -> Any:
     machine is shared and pages when a join takes its default 80% of memory."""
     from ..config import load_settings
 
-    con = duckdb.connect()
-    spill = load_settings().duckdb_spill().as_posix()
-    con.execute(f"SET memory_limit = '1500MB'; SET threads = 4; SET temp_directory = '{spill}'; "
-                "SET preserve_insertion_order = false")
-    return con
+    return duck_connect(memory_gb=1.5, threads=4, ordered=False, settings=load_settings())
 
 
 def _matched(old: pa.Table, new: pa.Table) -> pa.Table:

@@ -53,6 +53,11 @@ PegaSUS). A module is placed by the longest prefix that names it, so `persist.re
 
 Each layer has one job per module (§6). What was duplicated across them, and what became of it, is §5.
 
+The jobs that are recognisable as a call (open a DuckDB connection, an archive, a spreadsheet, an HTTP request...) are
+declared with their one home in `scripts/homes.py` and checked like the layers (ADR-0246): `python scripts/homes.py`
+fails on a new second implementation and lists the ones still owed; `python scripts/homes.py WORD` names the home
+of a job before one writes.
+
 ---
 
 ## 2. The runtime paths
@@ -326,6 +331,7 @@ the milestone that removes the duplicate; an ADR is written when it is done.
 | spell a dataset id; read a curation YAML; reach a server | ~~`.upper().replace(".", "-")` in ten modules; `ontology._read_yaml` imported by twelve; `snapshot`'s own httpx client, `sigtap`'s own ftplib~~ | **done** (2026-11-09): `ontology.dataset_key`; `semantics.curation.read_yaml(missing_ok=)`; `transport.get_text` and `discovery.ftp_client.FtpClient` |
 | keep the home's map current | ~~one file `compendium.sqlite` that a rebuild had to replace under its readers; a marker that a hung rebuild held for days; a rebuild that died with the `pegasus-data` command that started it~~ | **done** (ADR-0241): one file per fingerprint, a 30-minute life for a rebuild, started outside the launcher's job; a stale map says so in `search` and the overview |
 | open an archive | ~~`decode/archives.py` for DATASUS files; in `intake.py` four `zipfile` readers and a RAR branch with its own 7-Zip search~~ | **done** (ADR-0242): `decode.archives.ArchiveFile` for an archive on disk read member by member; `Archive` for bytes with every member |
+| open a DuckDB connection | ~~`duckdb.connect` at 39 sites in 23 modules, 29 on DuckDB's defaults (80% of RAM, spill into the caller's folder), three private `connect` helpers~~ | **done** (ADR-0245): `duckdb_session.connect`, a memory limit and the home's spill directory for every connection |
 | read a spreadsheet | ~~`intake._excel_to_parquet` with its own cell reader; `scripts/ibge_dtb_vintages.py` with `xlrd`~~; `sources/anac_air.py`, `sources/census_commuting.py`, `sources/ibge_links.py` and `proximity.py`, each with its own `read_excel`; `decode/text_.py` (openpyxl, the documentation's tables) | **partly done** (ADR-0243): `decode/spreadsheet.py` is the reader of a sheet as text cells; the intake, `sources.ibge_dtb` and the probe script call it. **Open**: the four source modules, each moved with its source re-landed and its totals compared |
 | place a municipality written by name | ~~IBGE's current names plus `geography.yml`'s `municipality_name_aliases`, a hand list of 43 applied to every source and year~~ | **done** (ADR-0244): `geography.municipality_name_keys`: IBGE's current names, the names its yearly division wrote since 1994 (`municipality_names.parquet`, `sources/ibge_dtb.py`), then the source's own `place.aliases` and `truncated` |
 
@@ -479,6 +485,7 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
 - `decode/base.py`: the reader interface.
 - `decode/dbc.py`, `decode/dbf.py`, `decode/lha.py`, `decode/archives.py`,
   `decode/duckdb_.py`, `decode/text_.py`: readers.
+- `duckdb_session.py` is the one place a DuckDB connection is opened (`connect`; ADR-0245).
 - `decode/spreadsheet.py` is the one reader of a sheet (`sheets`, `read_table`; ADR-0243).
 - `decode/archives.py` is the one place an archive is opened: `Archive` (an archive's bytes, every member with its
   role: DATASUS files) and `ArchiveFile` (an archive on disk, one member streamed out: intake sources; ADR-0242).

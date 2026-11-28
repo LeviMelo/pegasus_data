@@ -23,6 +23,7 @@ from pathlib import Path
 
 import pyarrow as pa
 
+from ..duckdb_session import connect as duck_connect
 from .base import DecodedTable, DecodeError, FieldMeta
 
 _VERSION_ERROR = re.compile(r"version|storage", re.I)
@@ -62,10 +63,9 @@ def storage_version(path: str | Path) -> int | None:
 
 def list_tables(path: str | Path) -> list[tuple[str, str]]:
     """Return ``(schema, table)`` pairs, or raise a typed version error."""
-    import duckdb
 
     try:
-        conn = duckdb.connect(str(path), read_only=True)
+        conn = duck_connect(path, read_only=True)
     except Exception as exc:
         detail = str(exc)
         if _VERSION_ERROR.search(detail):
@@ -98,7 +98,6 @@ def read_duckdb(
     ``fields`` continues to describe the complete physical table so schema
     matching is stable, while the lazy query materialises only ``columns``.
     """
-    import duckdb
 
     tables = list_tables(path)
     out: list[DecodedTable] = []
@@ -107,7 +106,7 @@ def read_duckdb(
         if members is not None and member not in members:
             continue
         qualified = f'"{schema_name}"."{table_name}"'
-        conn = duckdb.connect(str(path), read_only=True)
+        conn = duck_connect(path, read_only=True)
         try:
             described = conn.execute(f"DESCRIBE {qualified}").fetchall()
             row_count = conn.execute(f"SELECT COUNT(*) FROM {qualified}").fetchone()
@@ -136,7 +135,7 @@ def read_duckdb(
             selection: str = select_list,
             names: list[str] = output_names,
         ) -> Iterator[pa.RecordBatch]:
-            conn2 = duckdb.connect(str(path), read_only=True)
+            conn2 = duck_connect(path, read_only=True)
             try:
                 sql = f"SELECT {selection} FROM {q}"
                 if row_limit is not None:

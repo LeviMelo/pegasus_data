@@ -33,6 +33,7 @@ from typing import Any
 import pyarrow as pa
 import pyarrow.parquet as pq
 
+from ..duckdb_session import connect as duck_connect
 from ..persist.kept import write_parquet_atomic
 from .client import Response
 
@@ -149,7 +150,6 @@ def load_facts(lake: Path, table: int, *, variables: list[int] | None = None, pe
     Selections of the same table overlap (a field wants the Total cells, a census series the cells below
     them), so the same observation can sit in two parts; the most recently fetched one is kept. Raises if
     nothing is stored (never an empty table that could pass for an empty result)."""
-    import duckdb
 
     directory = facts_dir(lake, table)
     files = sorted(directory.glob("req-*.parquet")) if directory.exists() else []
@@ -165,11 +165,9 @@ def load_facts(lake: Path, table: int, *, variables: list[int] | None = None, pe
     if level:
         where.append("level = ?")
         args.append(level)
-    con = duckdb.connect()
     from ..config import load_settings
 
-    spill = load_settings().duckdb_spill()       # this process's own: a shared one broke another process's reads
-    con.execute(f"SET memory_limit='2GB'; SET threads=2; SET preserve_insertion_order=false; SET temp_directory='{spill.as_posix()}'")
+    con = duck_connect(memory_gb=2, threads=2, ordered=False, settings=load_settings())
     drop = "_rn, value_raw, request, fetched" if light else "_rn"
     listing = ",".join("?" * len(files))
     # The window over a big table is held in memory, so a big table is dealt with in buckets of localities (an

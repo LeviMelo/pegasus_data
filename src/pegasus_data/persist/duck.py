@@ -23,6 +23,7 @@ import duckdb
 import pyarrow as pa
 
 from ..catalog.store import CatalogStore
+from ..duckdb_session import connect as duck_connect
 
 _SAFE_NAME = re.compile(r"[^a-z0-9_]+")
 
@@ -46,7 +47,7 @@ class DuckLake:
         self.lake_root = Path(lake_root)
         self.catalog = catalog
         self._owned_catalog: Any = None
-        self.conn = duckdb.connect(database, read_only=read_only)
+        self.conn = duck_connect(database, read_only=read_only)
         self.conn.execute("SET enable_progress_bar = false")
 
     def close(self) -> None:

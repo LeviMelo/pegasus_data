@@ -26,6 +26,8 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 
+from ..duckdb_session import connect as duck_connect
+
 HEADER_BYTES = 3 * 4096
 BLOCK_BYTES = 262144
 MAX_BLOCKS = 64
@@ -74,7 +76,7 @@ def remote_duckdb_tables(
 
         put(0, HEADER_BYTES)
         for _ in range(max_blocks + 1):
-            con = duckdb.connect()
+            con = duck_connect()
             try:
                 con.execute(f"ATTACH '{local.as_posix()}' AS r (READ_ONLY)")
                 rows = con.execute(

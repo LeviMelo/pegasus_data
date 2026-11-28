@@ -55,6 +55,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from ..config import UF_NUMERIC, Settings, load_settings
+from ..duckdb_session import connect as duck_connect
 from ..persist.kept import write_atomic, write_json_atomic
 from ..semantics.curation import declared
 from ..transport import download, request
@@ -336,14 +337,8 @@ def land_uf(uf: str | int, settings: Settings | None = None, *, keep_raw: bool |
 
 
 def _connect(settings: Settings) -> Any:
-    import duckdb
 
-    spill = settings.duckdb_spill()          # this process's own: a shared one broke another process's reads
-    con = duckdb.connect()
-    con.execute(f"SET memory_limit='{DUCKDB_MEMORY_GB}GB'")
-    con.execute(f"SET threads={DUCKDB_THREADS}")
-    con.execute(f"SET temp_directory='{spill.as_posix()}'")
-    return con
+    return duck_connect(memory_gb=DUCKDB_MEMORY_GB, threads=DUCKDB_THREADS, settings=settings)
 
 
 def derive_ceps(uf: str | int, settings: Settings | None = None, *, log: Callable[[str], None] | None = None) -> dict[str, Any]:
@@ -549,7 +544,6 @@ def cep_points(*, municipality: str | int | Iterable[str] | None = None, uf: str
 
     A UF not built raises `CnefeNotBuilt`; with no ``uf`` and fewer than 27 built, a CEP not found may belong to an unbuilt UF and a
     warning says so; a place filter that matches no CEP raises (an absent place is not an empty answer)."""
-    import duckdb
 
     settings = settings or load_settings()
     built = built_ufs(settings)
@@ -592,7 +586,7 @@ def cep_points(*, municipality: str | int | Iterable[str] | None = None, uf: str
     if shares:
         extra = ", " + ", ".join(f"n_coord_level_{k} / n_addresses AS share_coord_level_{k}" for k in LEVELS)
         extra += ", (n_coord_level_1 + n_coord_level_2 + n_coord_level_3) / n_addresses AS share_address_coordinates"
-    con = duckdb.connect()
+    con = duck_connect()
     try:
         table = con.execute(
             f"SELECT {columns}{extra} FROM read_parquet([{', '.join(repr(p) for p in paths)}], hive_partitioning = true) "

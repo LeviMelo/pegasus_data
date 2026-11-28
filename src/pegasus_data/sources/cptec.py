@@ -51,6 +51,8 @@ from email.utils import parsedate_to_datetime
 from pathlib import Path
 from typing import Any, cast
 
+from ..duckdb_session import connect as duck_connect
+
 BASE = "https://ftp.cptec.inpe.br/modelos/tempo/"
 
 
@@ -290,13 +292,12 @@ def grid(settings: Any, lon: Any, lat: Any) -> _Weights:
 
 def _manifest(settings: Any, variable: str) -> Any:
     """The files read so far for ``variable`` (a pyarrow table; empty when none)."""
-    import duckdb
 
     files = sorted((_store(settings) / variable).glob("manifest/*.parquet"))
     if not files:
         return None
     paths = ", ".join(f"'{p.as_posix()}'" for p in files)
-    return duckdb.connect().execute(f"SELECT * FROM read_parquet([{paths}])").to_arrow_table()
+    return duck_connect().execute(f"SELECT * FROM read_parquet([{paths}])").to_arrow_table()
 
 
 def _months(start: dt.date, end: dt.date) -> list[tuple[int, int]]:
@@ -475,14 +476,13 @@ def daily(variables: str | Iterable[str] = ("precipitation", "tmax", "tmin", "tm
     One row per municipality and day, from the latest vintage, or with ``as_of`` (a date or datetime, UTC) the latest one
     published on or before it; a day with no vintage by then has no value. ``municipality`` takes 6 or 7 digits, ``uf``
     2-digit codes. Raises when nothing is held for a variable (`update`, ``pegasus-data climate update``)."""
-    import duckdb
 
     from ..config import load_settings
 
     settings = settings or load_settings()
     names = [variables] if isinstance(variables, str) else list(variables)
     clause = _clause(start, end, municipality, uf, as_of)
-    con = duckdb.connect()
+    con = duck_connect()
     joined = None
     for name in names:
         _latest(con, name, weight, clause, settings)
@@ -500,7 +500,6 @@ def period_sums(variable: str, grain: str, *, start: Any, end: Any, municipality
 
     Aggregated inside the scan, over the latest vintage (or ``as_of``) of the files of ``start``'s to ``end``'s years: no
     daily table is held. For ``epi_week`` the days run to the whole weeks that touch the range."""
-    import duckdb
     import pyarrow as pa
 
     from ..config import load_settings
@@ -519,9 +518,7 @@ def period_sums(variable: str, grain: str, *, start: Any, end: Any, municipality
         if width is None:
             raise ValueError(f"grain is one of day, epi_week, month, year, got {grain!r}")
         period = [d.isoformat()[:width] for d in days]
-    con = duckdb.connect()
-    con.execute("SET memory_limit = '2GB'")
-    con.execute("SET threads = 2")
+    con = duck_connect(memory_gb=2, threads=2)
     con.register("calendar", pa.table({"date": pa.array(days, pa.date32()), "period": pa.array(period, pa.string())}))
     _latest(con, variable, weight, _clause(first, last, municipality, uf, as_of), settings, first, last)
     return con.execute(f"""SELECT municipality7, period, sum({variable}) AS value, count({variable}) AS days,
@@ -536,13 +533,12 @@ def weekly(variables: str | Iterable[str] = ("precipitation", "tmax", "tmin", "t
     ``epi_week``, ``first_day``, ``last_day`` (of the days held), and per variable ``<variable>_sum`` (the sum of the daily
     values: the week's rain; a mean temperature is ``_sum / _days``) and ``<variable>_days``. Sums and counts, never a
     stored mean. Each variable is `period_sums` at ``epi_week``, the cube's own aggregation."""
-    import duckdb
 
     names = [variables] if isinstance(variables, str) else list(variables)
     start, end = options.pop("start", None), options.pop("end", None)
     start = start if start is not None else DEFAULT_START
     end = end if end is not None else dt.date.today()
-    con = duckdb.connect()
+    con = duck_connect()
     joined = None
     for name in names:
         part = period_sums(name, "epi_week", start=start, end=end, **options)

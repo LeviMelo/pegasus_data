@@ -24,6 +24,7 @@ from typing import Any, cast
 
 import numpy as np
 
+from ..duckdb_session import connect as duck_connect
 from .population_account import (
     BAND_LABELS,
     BANDS,
@@ -713,7 +714,6 @@ def constrained_to_ibge(tables, settings, log=print):
     account decides only what IBGE does not publish: the spread over municipalities and over race. The intervals take
     the same factor. Years before 2000 have no IBGE series by state and age and stay the account's. Two passes: the
     tables are kept in the work area, their state totals read, then yielded with the factor."""
-    import duckdb
     import pyarrow as pa
     import pyarrow.parquet as pq
 
@@ -731,7 +731,7 @@ def constrained_to_ibge(tables, settings, log=print):
     writer.close()
     lo, hi = IBGE_YEARS
     own = np.zeros((100, hi - lo + 1, 2, 91))
-    con = duckdb.connect()
+    con = duck_connect()
     for uf, year, sex, age, n in con.execute(f"""SELECT municipality // 100000, year, sex, least(age, 90), sum(population) FROM '{tmp.as_posix()}'
                                                  WHERE race = 'total' AND year BETWEEN {lo} AND {hi} GROUP BY ALL""").fetchall():
         own[int(uf), int(year) - lo, int(sex) - 1, int(age)] = n

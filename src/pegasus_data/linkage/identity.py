@@ -12,6 +12,8 @@ import duckdb
 import pyarrow as pa
 import pyarrow.compute as pc
 
+from ..duckdb_session import connect as duck_connect
+
 
 def quote(name: str) -> str:
     """A role or column name as a SQL identifier."""
@@ -30,22 +32,15 @@ def connect() -> duckdb.DuckDBPyConnection:
     that no longer exist are removed first: one shared directory kept 6.7 GB
     of a killed run's temp files for a day (2026-10-04).
     """
-    import psutil
+    import os
 
     from ..config import load_settings
 
-    import os
-
-    con = duckdb.connect()
-    total = psutil.virtual_memory().total
     settings = load_settings()
-    spill = settings.duckdb_spill()
     # the settings' link memory (2 GB by default, PEGASUS_LINK_MEMORY_GB overrides), never above 40% of the machine
+    # (`duckdb_session.connect`'s own bound)
     gb = float(os.environ.get("PEGASUS_LINK_MEMORY_GB") or getattr(settings, "link_memory_gb", 2.0))
-    mb = int(min(gb * 1024, total * 0.4 / 2**20))
-    con.execute(f"SET memory_limit = '{max(512, mb)}MB'")
-    con.execute(f"SET temp_directory = '{spill.as_posix()}'")
-    return con
+    return duck_connect(memory_gb=gb, settings=settings)
 
 
 #: SQL for a record's identity over a relation with provenance columns; the

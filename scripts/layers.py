@@ -22,9 +22,9 @@ PKG = Path(__file__).resolve().parent.parent / "src" / "pegasus_data"
 LAYERS: list[tuple[str, str]] = [
     # settings, text, time arithmetic, the HTTP client: no knowledge of DATASUS
     ("base", "config locate textenc identifiers _lazy transport _vintage _geometry normalize.time normalize.types "
-             "persist.staging persist.kept"),
+             "persist.staging persist.kept duckdb_session _bounded formats"),
     # what is on the server and how a file becomes a table
-    ("ingest", "catalog discovery acquire decode inventory profile persist progress"),
+    ("ingest", "catalog discovery acquire decode inventory profile persist progress concurrency raw_text"),
     # what a column and a code mean: declarations, codelists, geography, the reference tables
     ("meaning", "semantics ontology registry labelpack lookups geography sidra sources _age _request _resources "
                 "persist.reference persist.decisions normalize"),
@@ -36,7 +36,7 @@ LAYERS: list[tuple[str, str]] = [
     ("derive", "cubes fields measures _aggregate rates quality proximity careflow concepts linkage capabilities "
                "workbook suggest modelled sources.anac_air"),
     # the map of everything held
-    ("describe", "_info _translate _unknowns _compendium _search verify adopt"),
+    ("describe", "_info _translate _unknowns _compendium _search _holdings _manual verify adopt"),
     # modelled products built on all of it
     ("studies", "studies"),
     # the doors

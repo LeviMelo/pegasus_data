@@ -38,6 +38,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any, cast
 
+from ..duckdb_session import connect as duck_connect
 from ..persist.kept import write_parquet_atomic
 from ..semantics.curation import declared
 
@@ -333,13 +334,12 @@ def municipal_check(root: str | Path | None = None) -> dict[str, Any]:
     sums (it is built from the same cells, so a difference would be a reading error), and the tracts' residents
     (``v0001`` of the basic file, never suppressed) against the sum of their published sex-band cells: per municipality the
     people the bands leave out. Reported, never spread back."""
-    import duckdb
 
     from ..transport import download
 
     directory = _directory(root)
     path = download(SOURCE + FILES["municipios_demografia"], directory / Path(FILES["municipios_demografia"]).name)
-    con = duckdb.connect()
+    con = duck_connect()
     con.register("m", _csv(path, "cp1252"))
     population = (directory / "tract_population_2022.parquet").as_posix()
     identity = (directory / "tracts_2022.parquet").as_posix()
@@ -387,12 +387,11 @@ def _where(municipality: Any, uf: Any) -> str:
 
 
 def _read(name: str, municipality: Any, uf: Any, root: str | Path | None) -> Any:
-    import duckdb
 
     path = _directory(root) / name
     if not path.is_file():
         raise FileNotFoundError(f"the tract tables are not built in {path.parent}; run `pegasus-data tracts`")
-    return duckdb.connect().execute(f"SELECT * FROM read_parquet('{path.as_posix()}') {_where(municipality, uf)}").to_arrow_table()
+    return duck_connect().execute(f"SELECT * FROM read_parquet('{path.as_posix()}') {_where(municipality, uf)}").to_arrow_table()
 
 
 def tracts(*, municipality: Any = None, uf: Any = None, root: str | Path | None = None) -> Any:
@@ -422,12 +421,11 @@ def tract_aggregates(topic: str, variables: Any = None, *, municipality: Any = N
         if unknown := [v for v in wanted if v not in known]:
             raise ValueError(f"not variables of {topic!r} (see tract_dictionary({topic!r})): {unknown[:5]}")
         select = ", ".join(["tract", "municipality7", *wanted])
-    import duckdb
 
     path = _directory(root) / f"tract_aggregates_{topic}_2022.parquet"
     if not path.is_file():
         raise FileNotFoundError(f"the tract aggregates are not built in {path.parent}; run `pegasus-data tracts`")
-    return duckdb.connect().execute(f"SELECT {select} FROM read_parquet('{path.as_posix()}') {_where(municipality, uf)}").to_arrow_table()
+    return duck_connect().execute(f"SELECT {select} FROM read_parquet('{path.as_posix()}') {_where(municipality, uf)}").to_arrow_table()
 
 
 def described_columns(root: str | Path | None = None) -> set[str]:
@@ -456,13 +454,12 @@ def tract_dictionary(topic: str | None = None, *, root: str | Path | None = None
     """IBGE's dictionary of the tract variables (a pyarrow table): ``variable``, ``topic``, IBGE's ``theme``, ``unit`` (people or
     households) and ``label``, IBGE's own description (it carries the universe: "Domicílios Particulares Permanentes Ocupados, ...").
     The basic theme's variables are ``V0001`` ... (the columns ``v0001`` of `census_tracts`)."""
-    import duckdb
 
     path = _directory(root) / "tract_dictionary_2022.parquet"
     if not path.is_file():
         raise FileNotFoundError(f"the tract dictionary is not built in {path.parent}; run `pegasus-data tracts`")
     where = "" if topic is None else f"WHERE topic = '{topic.replace(chr(39), '')}'"
-    return duckdb.connect().execute(f"SELECT * FROM read_parquet('{path.as_posix()}') {where}").to_arrow_table()
+    return duck_connect().execute(f"SELECT * FROM read_parquet('{path.as_posix()}') {where}").to_arrow_table()
 
 
 def tract_weighting_area(*, municipality: Any = None, uf: Any = None, root: str | Path | None = None) -> Any:

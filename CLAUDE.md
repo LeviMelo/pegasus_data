@@ -97,8 +97,10 @@ $PY scripts/live.py --list                        # the live scenarios (§5)
 - **Never act outward as the user.** Pushing to GitHub, publishing to PyPI or
   contacting anyone needs explicit authorisation, each time.
 - **Replace, never build beside.** Before adding a mechanism, find the one that
-  already does the job (`ARCHITECTURE.md`). A second mechanism for the same job
-  is a defect; this project already has several (ARCHITECTURE §5).
+  already does the job (`ARCHITECTURE.md`; `python scripts/homes.py WORD` names
+  the home of a recurring job). A second mechanism for the same job is a
+  defect; this project already has several (ARCHITECTURE §5), and
+  `scripts/homes.py` fails on a new one (ADR-0246).
 - **Carry the whole request.** Each instruction is done or reported as not
   done, with the reason.
 - **Always ask whether it can be made better** (user, 2026-10-07): more

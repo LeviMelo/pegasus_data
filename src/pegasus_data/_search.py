@@ -24,6 +24,7 @@ from pathlib import Path
 from typing import cast
 
 from .config import Settings, load_settings
+from .duckdb_session import connect as duck_connect
 from .textenc import fold, fold_sql
 
 KINDS = ("dataset", "variable", "field", "product", "role", "event", "link", "aggregate", "operation", "sidra", "code")
@@ -124,12 +125,10 @@ def _code_hits(needle: str, system: str | None, limit: int) -> list[dict[str, ob
     ABNc study, 2026-11-22)."""
     from importlib.resources import files
 
-    import duckdb
-
     from .labelpack import PACK_NAME
 
     hits: list[dict[str, object]] = []
-    con = duckdb.connect()
+    con = duck_connect()
     try:
         folded = fold_sql("label")
         pattern = r"(^|[^0-9A-Z])" + re.escape(needle)

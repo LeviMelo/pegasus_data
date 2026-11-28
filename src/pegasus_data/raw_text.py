@@ -19,6 +19,8 @@ import json
 from collections.abc import Mapping, Sequence
 from typing import Any
 
+from .duckdb_session import connect as duck_connect
+
 #: the file metadata key a landing writes its renders under
 META_KEY = b"pegasus.raw_render"
 
@@ -104,16 +106,14 @@ def renders_of(metadata: Mapping[bytes, bytes] | None) -> dict[str, dict[str, st
 def restored(table: Any, renders: Mapping[str, Mapping[str, str]], quote: Any) -> Any:
     """``table`` with each ``<name>__RAW`` of ``renders`` given back whole: ``coalesce(<name>__RAW, render(<name>))``.
     A raw column whose typed column the table does not hold is left as stored (the caller reads the typed one too)."""
-    import duckdb
 
     present = [n for n in renders if f"{n}__RAW" in table.column_names and n in table.column_names]
     if not present:
         return table
     import pyarrow as pa
 
-    con = duckdb.connect()
+    con = duck_connect(ordered=True)
     try:
-        con.execute("SET preserve_insertion_order = true")
         con.register("t", table.select([c for n in present for c in (n, f"{n}__RAW")]))
         exprs = ", ".join(f"coalesce({quote(n + '__RAW')}, {render_sql(renders[n]['render'], quote(n), renders[n]['type'])}) "
                           f"AS {quote(n + '__RAW')}" for n in present)

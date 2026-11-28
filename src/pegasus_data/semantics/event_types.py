@@ -64,6 +64,7 @@ from typing import Any, cast
 import pyarrow as pa
 import pyarrow.compute as pc
 
+from ..duckdb_session import connect as duck_connect
 from .epoch import curated
 
 
@@ -483,14 +484,13 @@ FROM __g"""
 
 def _chained_first(table: pa.Table, event: EventType) -> pa.Table:
     """The first record of each chain of ``table`` (`chain_sql`), in the table's order."""
-    import duckdb
 
     chain = event.chain
     assert chain is not None
     missing = [c for c in chain.columns if c not in table.column_names]
     if missing:
         raise KeyError(f"chain columns {missing} are not in the table")
-    con = duckdb.connect()
+    con = duck_connect()
     con.register("t", table.select([*dict.fromkeys(c for c in (*chain.columns, *((event.status_column,) if event.status_column else ())))]).append_column(
         "__i", pa.array(range(table.num_rows), pa.int64())))
     sql = chain_sql("t", f"{event.system}-{event.series}", event.name, order="__i")

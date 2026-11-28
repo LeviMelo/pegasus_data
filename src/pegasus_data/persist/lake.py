@@ -30,6 +30,7 @@ import pyarrow.parquet as pq
 from .._bounded import Bounded
 from .._lazy import LazyModule
 from ..catalog.store import CatalogStore, utcnow
+from ..duckdb_session import connect as duck_connect
 from .staging import _remove_tree, _retry_on_permission, staged_file, staged_tree
 
 if TYPE_CHECKING:
@@ -60,13 +61,11 @@ def _has_renders(dataset: ds.Dataset) -> bool:
 
 def _file_keys(path: str, fields: Sequence[str]) -> pa.Array:
     """The record key of every row of one partition file, in its row order (`normalize.engine.record_key_sql`)."""
-    import duckdb
 
     from ..normalize.engine import record_key_sql
 
-    con = duckdb.connect()
+    con = duck_connect(ordered=True)
     try:
-        con.execute("SET preserve_insertion_order = true")
         return con.execute(f"SELECT {record_key_sql(fields)} AS k FROM read_parquet('{Path(path).as_posix()}', "
                            "hive_partitioning = false)").to_arrow_table().column("k").combine_chunks()
     finally:
@@ -849,7 +848,6 @@ def drop_redundant_partitions(catalog: CatalogStore, lake_dir: str | Path, *, dr
     unlisted partition whose year has no listed reading holds records the catalog lost: kept and counted under
     ``unlisted_kept``, for a build of that year to register again.
     """
-    import duckdb
 
     root = Path(lake_dir)
     listed = [dict(r) for r in catalog.query(
@@ -902,8 +900,7 @@ def drop_redundant_partitions(catalog: CatalogStore, lake_dir: str | Path, *, dr
         candidates = [c for c in candidates if not stands_on(c[2])]
     hashed: dict[tuple[tuple[str, ...], tuple[str, ...]], str] = {}
     serial = iter(range(1 << 30))
-    con = duckdb.connect()
-    con.execute("SET memory_limit='1GB'; SET threads=2; SET enable_progress_bar=false")
+    con = duck_connect(memory_gb=1, threads=2)
     for path, refs, row in candidates:
         contained = False
         if refs:
@@ -995,8 +992,6 @@ def _reencode_file(path_text: str, dry_run: bool, compression: str, closed: bool
     import json
     import os
 
-    import duckdb
-
     from ..normalize.engine import key_fields, record_key_sql
     from ..raw_text import META_KEY, choose, compacted_sql, quote
     from .cluster import ORDER_META, ordered_batches
@@ -1018,8 +1013,7 @@ def _reencode_file(path_text: str, dry_run: bool, compression: str, closed: bool
     if not keyed and encoded and not raw_whole:
         source.close()
         return {"state": "current"}
-    con = duckdb.connect()
-    con.execute("SET memory_limit='1GB'; SET threads=1; SET enable_progress_bar=false")
+    con = duck_connect(memory_gb=1, threads=1)
     spill = None
     if order:            # a sort beyond memory spills under the lake's staging directory, never the caller's folder
         spill = _spill_dir(path)
@@ -1120,8 +1114,7 @@ def _choose_family(path_text: str, kept: dict[str, Any] | None) -> dict[str, Any
 
     from .cluster import choose_order, ordered_batches
 
-    con = duckdb.connect()
-    con.execute("SET memory_limit='1GB'; SET threads=1; SET enable_progress_bar=false")
+    con = duck_connect(memory_gb=1, threads=1)
     spill = None
     try:
         path = Path(path_text)
@@ -1184,9 +1177,8 @@ def _family_orders(root: Path, closing: Sequence[Any], workers: int) -> dict[str
             continue
         probes[family] = (str(root / str(probe["relative_path"])), kept)
     import sys
-    from concurrent.futures.process import BrokenProcessPool
-
     from concurrent.futures import FIRST_COMPLETED, wait
+    from concurrent.futures.process import BrokenProcessPool
 
     def run(families: list[str], at_once: int) -> list[str]:
         """Probes ``families``, at most ``at_once`` in flight, each kept as it comes; returns those a dying worker (a

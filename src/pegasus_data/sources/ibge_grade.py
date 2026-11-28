@@ -29,6 +29,7 @@ import re
 from pathlib import Path
 from typing import Any, cast
 
+from ..duckdb_session import connect as duck_connect
 from ..persist.kept import write_parquet_atomic
 
 SOURCE = "https://geoftp.ibge.gov.br/recortes_para_fins_estatisticos/grade_estatistica/censo_2022/"
@@ -224,7 +225,6 @@ def cells(*, municipality: Any = None, uf: Any = None, resolution: int | None = 
     people. ``resolution`` (one of `RESOLUTIONS`, metres) sums the cells into the grade's coarser cells, named as IBGE
     names them (``5KME6325N8835``); with ``by_municipality=False`` a coarse cell is one row whatever municipalities it
     spans. Counts are summed, never averaged. Raises when the grade is not built (`build`, ``pegasus-data grade``)."""
-    import duckdb
 
     path = _directory(root) / CELLS_NAME
     if not path.is_file():
@@ -252,7 +252,7 @@ def cells(*, municipality: Any = None, uf: Any = None, resolution: int | None = 
     base = f"""SELECT cell, size_m, x, y, municipality7, share, total * share AS population, total_dom * share AS households,
                       size_m::DOUBLE * size_m * share / 1e6 AS area_km2
                FROM read_parquet('{path.as_posix()}') {clause}"""
-    con = duckdb.connect()
+    con = duck_connect()
     if resolution is None:
         return con.execute(base + " ORDER BY municipality7, cell").to_arrow_table()
     km, r = resolution // 1000, resolution
@@ -324,7 +324,6 @@ def grid_weights(lon: Any, lat: Any, *, root: str | Path | None = None) -> Any:
     population-weighted mean over the grid is Σ population × value / Σ population, and an area-weighted one the same
     with ``area_km2``, at the grade's resolution (a 1 km cell is not split across two grid cells: its centre decides).
     Grade rows whose centre is outside the grid are dropped and counted in the table's metadata (``outside``)."""
-    import duckdb
     import numpy as np
     import pyarrow as pa
 
@@ -342,7 +341,7 @@ def grid_weights(lon: Any, lat: Any, *, root: str | Path | None = None) -> Any:
                       "i": pa.array(i[inside]), "j": pa.array(j[inside]),
                       "population": grade.column("population").filter(pa.array(inside)),
                       "area_km2": grade.column("area_km2").filter(pa.array(inside))})
-    con = duckdb.connect()
+    con = duck_connect()
     con.register("t", table)
     out = con.execute("""SELECT municipality7, i, j, sum(population) AS population, sum(area_km2) AS area_km2
                          FROM t GROUP BY ALL ORDER BY municipality7, i, j""").to_arrow_table()

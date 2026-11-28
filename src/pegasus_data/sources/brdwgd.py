@@ -35,6 +35,7 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any, cast
 
+from ..duckdb_session import connect as duck_connect
 from ..persist.kept import write_json_atomic, write_parquet_atomic
 from ..transport import get_json, read_range
 
@@ -217,12 +218,11 @@ def municipality_months(cache_dir: str | Path, log: Any = None) -> tuple[Any, di
     temperature of the municipality, °C), ``precipitation_mm_sum`` (the sum of its daily mean precipitation, mm: the
     month's total when ``days`` is the month's length) and ``product`` (``BR-DWGD v3.2.3 (Zenodo 13906834)``).
     """
-    import duckdb
 
     release = latest_release(cache_dir)
     with ThreadPoolExecutor(max_workers=len(VARIABLES)) as pool:       # the three variables at once: the throttle is per request
         files = dict(zip(VARIABLES, pool.map(lambda bd: monthly(cache_dir, release, bd, log), VARIABLES.values()), strict=True))
-    con = duckdb.connect()
+    con = duck_connect()
     for name, path in files.items():
         con.execute(f"CREATE VIEW {name} AS SELECT * FROM read_parquet('{Path(path).as_posix()}')")
     differing = cast(tuple[Any, ...], con.execute("""SELECT count(*) FROM tmax JOIN tmin USING (municipality7, year, month)
@@ -250,9 +250,8 @@ def municipality_years(months: Any) -> Any:
     monthly mean daily maximum and minimum); ``precipitation_mm`` (the sum of the precipitation of the days held) and
     ``product``. Over the months, the means are those of the days held; a month half held counts half.
     """
-    import duckdb
 
-    con = duckdb.connect()
+    con = duck_connect()
     con.register("m", months)
     return con.execute("""
         WITH base AS (

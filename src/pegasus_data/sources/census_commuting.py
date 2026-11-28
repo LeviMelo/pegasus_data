@@ -37,6 +37,7 @@ from pathlib import Path
 from typing import Any
 
 from ..config import UF_ABBREVIATIONS, load_settings
+from ..duckdb_session import connect as duck_connect
 from ..semantics.curation import declared
 
 SOURCE = "https://ftp.ibge.gov.br/Censos/Censo_Demografico_2010/Resultados_Gerais_da_Amostra/Microdados/"
@@ -106,7 +107,6 @@ def _municipality_codes(documentation: Path) -> set[int]:
 
 def _persons(settings: Any, state: str) -> Iterator[Any]:
     """The columns this module reads of one state's landed person records, as Arrow batches of `BLOCK` rows (never the whole state)."""
-    import duckdb
 
     from ..intake import _safe
     from ..persist.lake import unit_parts
@@ -114,7 +114,7 @@ def _persons(settings: Any, state: str) -> Iterator[Any]:
     parts = unit_parts(settings.lake_dir, "CENSO2010_PESSOAS_*", _safe(f"{VINTAGE}-{state}"))
     if not parts:
         raise FileNotFoundError(f"the person records of {state} are not in the lake (intake source {PERSONS})")
-    con = duckdb.connect(":memory:")
+    con = duck_connect()
     try:
         con.execute(f"SELECT {', '.join(COLUMNS)} FROM read_parquet({sorted(p.as_posix() for p in parts)!r}, hive_partitioning=false)")
         reader = con.fetch_record_batch(BLOCK)

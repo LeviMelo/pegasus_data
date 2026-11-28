@@ -41,6 +41,7 @@ import re
 from pathlib import Path
 from typing import Any
 
+from ..duckdb_session import connect as duck_connect
 from ..geography import place_points
 from ..transport import download
 
@@ -105,9 +106,8 @@ def stations(cache_dir: str | Path, mesh: str | Path) -> list[dict[str, Any]]:
 
 def monthly(cache_dir: str | Path, years: list[int] | None = None) -> Any:
     """Station-month sums, counts and extremes of both networks (a pyarrow table)."""
-    import duckdb
 
-    con = duckdb.connect()
+    con = duck_connect()
     where = f"WHERE year(datetime) IN ({','.join(str(y) for y in years)})" if years else ""
     parts = []
     for _catalog, db, _kind, network in NETWORKS:
@@ -150,9 +150,8 @@ def station_months(cache_dir: str | Path, years: list[int] | None = None, comple
     month that is not complete is null, never a statistic of the days held. A precipitation total is the mean
     counted day times the days of the month. An hourly gauge that reported nothing is a null month, not a dry one.
     """
-    import duckdb
 
-    con = duckdb.connect()
+    con = duck_connect()
     where = f"WHERE year(datetime) IN ({','.join(str(y) for y in years)})" if years else ""
     parts = []
     for _catalog, db, _kind, network in NETWORKS:

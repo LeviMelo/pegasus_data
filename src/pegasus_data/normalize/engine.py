@@ -38,6 +38,7 @@ import pyarrow.compute as pc
 
 from ..catalog.store import CatalogStore, utcnow
 from ..decode.base import DecodedTable
+from ..duckdb_session import connect as duck_connect
 from ..semantics.dictionary import (
     DictionaryCache,
     codelists_for,
@@ -77,12 +78,11 @@ def record_key_sql(fields: Sequence[str]) -> str:
 def record_keys(batch: pa.RecordBatch, fields: Sequence[str] | None = None) -> pa.Array:
     """The content key of each record (`record_key_sql`) over ``fields``, by default every field of the batch
     (`key_fields`), so the key depends only on what the source published for the record."""
-    import duckdb
 
     names = key_fields(batch.schema.names) if fields is None else list(fields)
     if not names:
         return pa.nulls(batch.num_rows, pa.string())
-    con = duckdb.connect()
+    con = duck_connect()
     con.register("b", pa.Table.from_batches([batch.select(names)]))
     return con.execute(f"SELECT {record_key_sql(names)} AS k FROM b").to_arrow_table().column("k").combine_chunks()
 

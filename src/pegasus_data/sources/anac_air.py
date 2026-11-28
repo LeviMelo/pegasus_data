@@ -49,11 +49,11 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
-import duckdb
 import pyarrow as pa
 
 from .. import transport
 from ..config import load_settings
+from ..duckdb_session import connect as duck_connect
 from ..geography import municipalities, place_points
 from ..persist.kept import write_json_atomic, write_parquet_atomic
 from ..proximity import proximity_graph
@@ -198,7 +198,7 @@ def build(root: str | Path | None = None, log: Callable[[str], None] | None = No
     registered = _register(raw / "AerodromosPrivados.csv", ufs)
     registered.update(_register(raw / "AerodromosPublicos.csv", ufs))        # a public entry outranks a private one
 
-    con = duckdb.connect()
+    con = duck_connect()
     con.execute(f"""CREATE VIEW stats AS SELECT * FROM read_csv('{(raw / "Dados_Estatisticos.csv").as_posix()}', delim=';', quote='"',
                     header=true, skip=1, all_varchar=true, encoding='utf-8')""")
     cast = lambda c: f"TRY_CAST({c} AS BIGINT)"  # noqa: E731
