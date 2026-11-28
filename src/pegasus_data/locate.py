@@ -145,10 +145,12 @@ def user_config_path() -> Path:
     if override:
         return Path(override).expanduser()
     if sys.platform == "win32":
-        base = os.environ.get("APPDATA")
-        if base:
-            return Path(base) / "pegasus-data" / "config.toml"
-    elif sys.platform == "darwin":
+        # the roaming profile, from the user's home when APPDATA is not set: a scheduled task runs without it, and the
+        # config was then looked for under ~/.config, so its home fell to the empty default and every run downloaded
+        # into it (nees-gt-ms's daily update, 2026-11-27)
+        base = os.environ.get("APPDATA") or str(Path.home() / "AppData" / "Roaming")
+        return Path(base) / "pegasus-data" / "config.toml"
+    if sys.platform == "darwin":
         return Path.home() / "Library" / "Application Support" / "pegasus-data" / "config.toml"
     xdg = os.environ.get("XDG_CONFIG_HOME")
     base_dir = Path(xdg).expanduser() if xdg else Path.home() / ".config"
@@ -285,6 +287,28 @@ def default_data_home() -> Resolved:
     return Resolved("root", base / "pegasus-data", "default", "the per-user data directory")
 
 
+class UnreadUserConfig(RuntimeError):
+    """The data home fell to the default while a user config that places it exists where this process did not look."""
+
+
+def _refuse_unread_user_config(start: Path | None) -> None:
+    """Refuse the default home when a per-user config that sets a root exists at a standard place this resolution did not
+    read (a process whose environment lacks APPDATA or XDG_CONFIG_HOME): falling silently to an empty home downloads into
+    it, the failure nees-gt-ms's daily task met (2026-11-27). ``PEGASUS_CONFIG`` (the tests' and a deliberate choice)
+    decides alone."""
+    if os.environ.get("PEGASUS_CONFIG"):
+        return
+    read = {path.resolve() for _scope, path, exists in config_search_path(start) if exists}
+    candidates = [Path.home() / "AppData" / "Roaming" / "pegasus-data" / "config.toml",
+                  Path.home() / ".config" / "pegasus-data" / "config.toml"]
+    for candidate in candidates:
+        if candidate.is_file() and candidate.resolve() not in read and "root" in read_config_file(candidate):
+            raise UnreadUserConfig(
+                f"no data home was found for this process, but {candidate} sets one: its environment lacks the variable "
+                "that points to it (APPDATA, XDG_CONFIG_HOME). Set PEGASUS_DATA_HOME, or run it with that variable, rather "
+                "than let it fill the empty default home")
+
+
 def resolve_placement(
     explicit: dict[str, Path | str | None] | None = None,
     *,
@@ -329,6 +353,7 @@ def resolve_placement(
             )
             continue
         if key == "root":
+            _refuse_unread_user_config(start)
             out[key] = default_data_home()
         else:
             # Derived from the root unless separately placed. Left as None here

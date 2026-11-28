@@ -205,3 +205,33 @@ class TestOtherSettingsFromFiles:
         monkeypatch.chdir(tmp_path)
         write_config_file(tmp_path / "pegasus-data.toml", {"not_a_setting": "x"})
         load_settings()
+
+
+class TestAMissingEnvironment:
+    """A scheduled task runs without APPDATA: its home fell to the empty default and every run downloaded into it
+    (nees-gt-ms's daily update, 2026-11-27)."""
+
+    @pytest.fixture
+    def profile(self, tmp_path, monkeypatch):
+        monkeypatch.delenv("PEGASUS_CONFIG", raising=False)
+        monkeypatch.delenv("APPDATA", raising=False)
+        monkeypatch.delenv("XDG_CONFIG_HOME", raising=False)
+        monkeypatch.setenv("USERPROFILE", str(tmp_path))
+        monkeypatch.setenv("HOME", str(tmp_path))
+        return tmp_path
+
+    @pytest.mark.skipif(__import__("sys").platform != "win32", reason="the roaming profile is Windows'")
+    def test_the_roaming_config_is_found_from_the_profile(self, profile):
+        target = profile / "AppData" / "Roaming" / "pegasus-data" / "config.toml"
+        write_config_file(target, {"root": str(profile / "home")})
+        assert user_config_path() == target
+        assert str(resolve_placement({}, start=profile)["root"].value) == str(profile / "home")
+
+    def test_a_user_config_not_read_refuses_the_default_home(self, profile, monkeypatch):
+        from pegasus_data import locate
+
+        stray = profile / ".config" / "pegasus-data" / "config.toml"
+        write_config_file(stray, {"root": str(profile / "home")})
+        monkeypatch.setattr(locate, "user_config_path", lambda: profile / "nowhere" / "config.toml")
+        with pytest.raises(locate.UnreadUserConfig, match="sets one"):
+            resolve_placement({}, start=profile)
