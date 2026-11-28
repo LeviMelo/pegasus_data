@@ -165,7 +165,7 @@ _FIELD_DECL = obj("by declares grain label law measure outcome over population_l
 _SOURCE = obj(
     "citation columns compare dictionary dictionary_columns fields gotchas known_biases official_name one_row origin period place series "
     "snapshot system system_name translated_name unit_of_analysis use what why_no_event_type",
-    sub={"columns": free(obj("aliases codelist codes decimal derived description format from implied_decimals key label_from optional positions take type")),
+    sub={"columns": free(obj("aliases codelist codes decimal derived description format from implied_decimals key label_from optional positions take type zero_tokens")),
          "fields": free(_FIELD_DECL), "place": obj("as column states type uf"),
          "period": obj("column format grain month type valid year"),
          "system_name": obj("authority official_name translated_name what_it_is")})
@@ -257,7 +257,7 @@ KINDS: tuple[tuple[str, Any], ...] = (
                 "registry": obj("columns establishments owners patterns reach_it_instead_by what",
                                 sub={"columns": free(obj("code label"))})})})),
         ("geography.yml", obj(
-            "classifications excluded ibge_classifications ipea_classifications legacy_places municipality_fields municipalities_by_year "
+            "classifications excluded ibge_classifications ipea_classifications legacy_places municipality_fields municipality_name_aliases municipalities_by_year "
             "state_only_codes tabnet_classifications", sub={
                 "classifications": free(_RESTRICTED),
                 "ibge_classifications": free(obj("source status verified what")),

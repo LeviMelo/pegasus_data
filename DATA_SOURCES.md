@@ -1315,6 +1315,29 @@ TabNet's state forms classify by `territorio/{UF}_macsaud.cnv` and `{UF}_regsaud
   24.2%, 36.3%, 47.0%; thrombectomy 13.7%, 20.2%, 32.1%; glioma radiotherapy 20.0%, 12.8%, 14.1%, 18.6%. Report the
   false share at the horizon a claim uses, on its own subset, and word a 180- or 365-day death by its worst case.
 
+## 20. SENATRAN's vehicle fleet and IBGE's coverage of death registration (measured 2026-11-27; intake `senatran_fleet`, `ibge_death_pairing`, `ibge_death_coverage`)
+
+- **SENATRAN, Frota por Município e Tipo.** One spreadsheet a month, 2015-2024 (120), on the year's gov.br page
+  (`frota-de-veiculos-<year>`): RAR in 2015-2016, .xls and .xlsx after, names changing month to month ("copy_of_...",
+  "...MARO2024.xls" for March). The layout holds across the decade: a title, the national total, the header (twice in
+  some years), one row per municipality with the total and 21 types. Municipalities are named, not coded: 44 names of
+  the 2015 and 2024 Decembers are not IBGE's current ones (Embu, Parati, cut at 30 characters, "BARAO D0 MONTE ALTO"),
+  now `geography.yml`'s `municipality_name_aliases`; IBITIUVA (a district of Pitangueiras-SP) and "MUNICIPIO NAO
+  INFORMADO" stay unallocated. With them every year places all 5,570 municipalities and the fields equal the sheets'
+  totals but 9 vehicles (2015 90,686,936; 2024 123,974,520). The December 2015 workbook's data sheet is named JUL_2015:
+  the month is read from the file name. The pages answer a browser User-Agent.
+- **IBGE, pareamento of the civil registry with SIM** (ftp.ibge.gov.br, Estatisticas_Vitais/Pareamento_de_dados/<year>),
+  Tabela 2.2: deaths by municipality of residence found only in the registry, only in SIM, in both, 2015-2024, with IBGE
+  codes (6 digits in 2015). A zero is written "." (no cell holds 0). 2024: 14,690 registry only, 51,638 SIM only,
+  1,478,428 both, against Tabela 2.1's national 15,047, 52,059 and 1,479,877 (the deaths of unknown residence).
+  Editions 2015-2023 were republished on 2026-06-10 (dated file names). Registrations not paired by design (witnesses,
+  court order, FUNAI) are outside "registry only" (footnote 1).
+- **IBGE, estimativas de sub-registro** (Estimativas_sub_registro_nascimentos/<year>, deaths in 02obitos), Tabela 2.2:
+  per municipality the estimated total deaths and the shares missing from the registry and from SIM, 2015-2024; 2023 on
+  also by state, age and sex, place of occurrence and municipal schooling and density classes (Tabelas 2.3-2.13, not
+  landed). 2024: SIM missed 1.0% of deaths nationally, 1.2% in the North, 3.1% in Acre. The host refuses non-browser
+  clients (403), as WebFetch met it.
+
 ## SINAN residence codes and representations (measured 2026-10-24; ADR-0207)
 
 - `ID_MN_RESI` (SINAN-DENG 2010-2026) writes Federal District residents with region codes as well as 530010: 5300xx (530020-530180, as SIH did before 2018) and SINAN's 5399xx (539901-539934), 22,958 rows, 13,585 of them in 2024; DATASUS's TabWin tables AGLBR and BR_CAPITAL map 530000-539999 to Brasília. `XX0000` is the state with its municipality unknown (BR_DIVADM: "Município ignorado - UF").

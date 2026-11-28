@@ -50,7 +50,7 @@ from collections.abc import Iterator, Sequence
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, cast
-from urllib.parse import urlsplit
+from urllib.parse import unquote, urljoin, urlsplit
 
 import numpy as np
 import pyarrow as pa
@@ -313,6 +313,12 @@ def _duck(settings: Any, spec: dict[str, Any]) -> Any:
                 key = (fold(state), fold(row["name"]))
                 keys[key] = None if key in keys and keys[key] != code else code
         found = {k: v for k, v in keys.items() if v}
+        # the names a source writes that are not IBGE's current one (geography.yml; Embu, Parati), by state abbreviation;
+        # IBGE's own names win where both name a place
+        from .geography import municipality_name_aliases
+
+        for key, code in municipality_name_aliases().items():
+            found.setdefault(key, code)
         con.register("names", pa.table({"key": pa.array([f"{u}|{n}" for (u, n) in found], pa.string()),
                                         "code": pa.array(list(found.values()), pa.string())}))
         con.create_function("fold", fold, ["VARCHAR"], "VARCHAR", null_handling="special")  # type: ignore[call-overload]  # duckdb stub types null_handling as an enum; the string is accepted
@@ -320,8 +326,13 @@ def _duck(settings: Any, spec: dict[str, Any]) -> Any:
 
 
 def _typed(expr: str, decl: dict[str, Any]) -> str | None:
-    """The SQL of a column's typed value from its raw (VARCHAR, NULL when empty) expression."""
+    """The SQL of a column's typed value from its raw (VARCHAR, NULL when empty) expression. ``zero_tokens``: the signs a
+    table writes for zero (IBGE's pareamento files "." in every zero cell and no "0" anywhere), read as 0 by a number or an
+    integer, the sign kept in ``__RAW``."""
     kind = decl.get("type")
+    if decl.get("zero_tokens") and kind in ("number", "integer"):
+        signs = ", ".join("'" + str(t).replace("'", "''") + "'" for t in decl["zero_tokens"])
+        expr = f"(CASE WHEN {expr} IN ({signs}) THEN '0' ELSE {expr} END)"
     if kind == "date":
         value = f"substr({expr}, 1, {int(decl['take'])})" if decl.get("take") else expr
         formats = decl.get("formats") or [decl.get("format", "%Y-%m-%d")]
@@ -421,8 +432,12 @@ def _records_sql(spec: dict[str, Any], columns: list[str], unit: dict[str, Any],
     elif kind == "year":
         y = f"regexp_replace({raw[period['column'].upper()]}, '\\.0+$', '')"
         year, month = f"CASE WHEN regexp_matches({y}, '^[0-9]{{4}}$') THEN CAST({y} AS INTEGER) END", "NULL"
-    else:                                            # the file's own year
+    else:                                            # the file's own year, and its month when the file is a month's
         year, month = (str(int(unit["year"])) if unit.get("year") else "NULL"), "NULL"
+        if period.get("grain") == "month" and unit.get("month"):
+            # a monthly publication whose rows carry no date (SENATRAN's fleet by municipality): the month is the file's,
+            # read from its name where it is listed (`_listed_units`), never from the sheet's tab (December 2015's is "JUL_2015")
+            month = str(int(unit["month"]) % 100)
     out.append(f"CAST({month} AS INTEGER) AS _MONTH")
     out.append(f"'{source_path}' AS _SOURCE_PATH")
     out.append(f"'{read_on}' AS _READ_ON")
@@ -548,10 +563,19 @@ def _commit(settings: Any, source: str, spec: dict[str, Any], unit: dict[str, An
     kind = re.compile(rf"^{re.escape(system)}_{re.escape(series)}_[0-9a-f]{{10}}$")      # the dataset's families, not a series that starts alike
     if (lake_root / system).is_dir():
         for folder in sorted(p for p in (lake_root / system).iterdir() if p.is_dir() and kind.match(p.name)):
-            for old in folder.glob("schema_signature=*/uf=BR/year=*/part-*.parquet"):
-                if mine.match(old.name):
-                    old.unlink()
-                    _prune(old.parent, lake_root / system)
+            # units land side by side, and another's `_prune` can remove a year folder this walk is in: the walk is taken
+            # again (IBGE's pairing re-landed under a new signature, 2026-11-27: "the system cannot find the path")
+            for _attempt in range(20):
+                try:
+                    found = [old for old in folder.glob("schema_signature=*/uf=BR/year=*/part-*.parquet") if mine.match(old.name)]
+                    break
+                except FileNotFoundError:
+                    continue
+            else:
+                raise RuntimeError(f"{folder}: its folders kept changing while {key}'s old parts were looked for")
+            for old in found:
+                old.unlink(missing_ok=True)
+                _prune(old.parent, lake_root / system)
     parts: list[Path] = []
     for staged in sorted(staging.glob("year=*/*.parquet")):
         destination = target / staged.parent.name / staged.name
@@ -817,6 +841,8 @@ def _units(spec: dict[str, Any], years: list[int] | None) -> list[dict[str, Any]
     for entry in origin.get("files") or []:
         out.append({"key": entry.get("key") or Path(urlsplit(entry["url"]).path).name, "url": entry["url"], "year": entry.get("year"),
                     "extension": entry.get("extension")})
+    if origin.get("listing"):
+        out.extend(_listed_units(origin["listing"], years))
     if origin.get("pattern"):
         # `across` names further axes of the pattern (ANS files each month by state: {uf: [AC, AL, ...]}): one unit per combination
         across = origin.get("across") or {}
@@ -837,6 +863,72 @@ def _units(spec: dict[str, Any], years: list[int] | None) -> list[dict[str, Any]
     return [u for u in out if not years or u["year"] is None or u["year"] in years]
 
 
+#: Portuguese month names as file names write them (without the accent: "marco"), and their three-letter forms
+_MONTH_NAMES = ("janeiro", "fevereiro", "marco", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro",
+                "dezembro")
+
+
+def _month_in(name: str) -> int | None:
+    """The month a file name states (``frota_munic_dezembro_2017.xls``, ``FrotaporMunicipioeTipoNovembro20242.xlsx``,
+    ``frota_por_municipio_e_tipo-dez_15.rar``): a full month name anywhere in it, else a three-letter form standing alone
+    between non-letters; None when it states none, or more than one."""
+    text = fold(unquote(name)).lower()
+    # spellings a publisher's file names hold: SENATRAN's March 2024 is "FrotaporMunicpioeTipoMARO2024.xls" (the Ç lost)
+    full = {i + 1 for i, m in enumerate(_MONTH_NAMES) if m in text} | ({3} if "maro" in text else set())
+    if len(full) == 1:
+        return full.pop()
+    if full:
+        return None
+    short = {i + 1 for i, m in enumerate(_MONTH_NAMES) if re.search(rf"(?<![a-z]){m[:3]}(?![a-z])", text)}
+    if not short:
+        # a capitalised form run into the word before it ("...eTipoJUL2024.xlsx"): capitals, then a digit or the end
+        cased = fold(unquote(name))
+        short = {i + 1 for i, m in enumerate(_MONTH_NAMES) if re.search(rf"{m[:3].upper()}(?=[0-9]|\.|$)", cased)}
+    return short.pop() if len(short) == 1 else None
+
+
+@functools.lru_cache(maxsize=64)
+def _listing_page(url: str) -> str:
+    from .transport import get_text
+
+    return get_text(url)
+
+
+def _listed_units(listing: dict[str, Any], years: list[int] | None) -> list[dict[str, Any]]:
+    """The units a ``listing`` origin finds on its pages (`origin.listing`: ``page`` with ``{year}``, ``years``, ``match`` and
+    ``exclude`` (regexes on a link, without case), ``by`` month | year). A source whose file names change from month to month
+    (SENATRAN's "copy_of_...", "...20242.xlsx") or carry a revision date (IBGE's "..._20260610.zip") is found where it is
+    published, never guessed from a pattern. ``by: month``: one link per month, the month read from the file name
+    (`_month_in`); a month with two links, or a link stating no month, raises. ``by: year``: one link per page."""
+    out: list[dict[str, Any]] = []
+    for year in _span(listing["years"]):
+        if years and year not in years:
+            continue
+        page = listing["page"].format(year=year)
+        links = sorted({urljoin(page, h) for h in re.findall(r'href="([^"#]+)"', _listing_page(page))})
+        found = [u for u in links if re.search(listing["match"], unquote(u), re.I)
+                 and not (listing.get("exclude") and re.search(listing["exclude"], unquote(u), re.I))]
+        named = {u: Path(urlsplit(u).path.removesuffix("/@@download/file")).name for u in found}
+        if listing.get("by", "month") == "year":
+            if len(found) != 1:
+                raise ValueError(f"{page}: expected one link matching {listing['match']!r}, found {sorted(named.values())}")
+            out.append({"key": str(year), "url": found[0], "year": year, "month": None,
+                        "extension": Path(named[found[0]]).suffix.lstrip(".").lower()})
+            continue
+        months: dict[int, str] = {}
+        for u, name in named.items():
+            m = _month_in(name)
+            if m is None:
+                raise ValueError(f"{page}: {name} states no single month")
+            if m in months:
+                raise ValueError(f"{page}: two links for month {m}: {named[months[m]]} and {name}")
+            months[m] = u
+        for m, u in sorted(months.items()):
+            out.append({"key": f"{year}{m:02d}", "url": u, "year": year, "month": year * 100 + m,
+                        "extension": Path(named[u]).suffix.lstrip(".").lower()})
+    return out
+
+
 #: The version of each period derivation (`_records_sql`): bump a kind when its SQL changes what the lake's `_MONTH` and `year`
 #: hold, so the units landed by the old one are landed again (the fingerprint carries it). `parts` 2: a month part accepts
 #: "01"-"09" (SISAGUA's and SNGPC's months 1-9 had landed as no month, 2026-10-14). A kind not listed has never changed.
@@ -847,7 +939,8 @@ PERIOD_DERIVATION = {"parts": 2}
 #: `_flag`), the spellings its header is found by, whether it may be absent. Its description and its code table are read
 #: with the lake, so editing them lands nothing again (until 2026-10-19 the whole declaration was digested, and any
 #: curation edit to a source's columns downloaded the source again: SNGPC-IND's 94 months for a code table, OQ-90).
-LANDED_KEYS = ("type", "take", "format", "formats", "decimal", "implied_decimals", "positions", "tokens", "aliases", "optional")
+LANDED_KEYS = ("type", "take", "format", "formats", "decimal", "implied_decimals", "positions", "tokens", "aliases", "optional",
+               "zero_tokens")
 
 
 def _fingerprint(spec: dict[str, Any], unit: dict[str, Any]) -> str:
@@ -1001,6 +1094,115 @@ def _fixed_relation(path: Path, origin: dict[str, Any], spec: dict[str, Any]) ->
             f"quote='', escape='', all_varchar=true, encoding='{encoding}'))"), extracted
 
 
+def _seven_zip() -> str:
+    """7-Zip's command, which reads the RAR archives SENATRAN publishes (``rarfile``'s backend; no RAR reader is pure Python)."""
+    found = shutil.which("7z") or shutil.which("7za")
+    for candidate in (found, r"C:\Program Files\7-Zip\7z.exe", r"C:\Program Files (x86)\7-Zip\7z.exe"):
+        if candidate and Path(candidate).is_file():
+            return str(candidate)
+    raise RuntimeError("a RAR archive needs 7-Zip (7z on PATH or in Program Files): install it to land this source")
+
+
+def _archive_member(path: Path, member: str | None, suffixes: tuple[str, ...], unit: dict[str, Any]) -> Path:
+    """The one member of a zip or RAR ``path`` matching ``member`` (a regex, ``{year}`` allowed) or, unnamed, the one with
+    ``suffixes``, extracted beside it (returned, to delete). Not one: raises with what the archive holds."""
+    if path.suffix.lower() == ".rar":
+        import rarfile
+
+        rarfile.SEVENZIP_TOOL = _seven_zip()
+        rarfile.tool_setup(unrar=False, unar=False, bsdtar=False, sevenzip=True, sevenzip2=False, force=True)
+        archive: Any = rarfile.RarFile(path)
+    else:
+        archive = zipfile.ZipFile(path)
+    with archive:
+        names = [n for n in archive.namelist() if not n.endswith("/")]
+        if member:
+            wanted = str(member).format(year=unit.get("year"))
+            chosen = [n for n in names if re.search(wanted, n, re.I)]
+        else:
+            chosen = [n for n in names if n.lower().endswith(suffixes)]
+        if len(chosen) != 1:
+            raise ValueError(f"{path.name}: expected one member{f' matching {member!r}' if member else ''}, found {names}")
+        target = path.with_name(path.stem + "." + Path(chosen[0]).name)
+        with archive.open(chosen[0]) as src, target.open("wb") as dst:
+            shutil.copyfileobj(src, dst, 1 << 24)
+    return target
+
+
+def _cell_text(value: Any) -> str | None:
+    """A spreadsheet cell as the text it shows: a whole number filed as a float (xlrd reads 4717 as 4717.0) without its
+    ``.0``, an empty cell as None."""
+    if value is None or (isinstance(value, float) and np.isnan(value)):
+        return None
+    if isinstance(value, float) and value.is_integer():
+        return str(int(value))
+    text = str(value).strip()
+    return text or None
+
+
+def _excel_to_parquet(path: Path, excel: dict[str, Any], unit: dict[str, Any]) -> Path:
+    """A spreadsheet table (``format: excel``) as a Parquet of strings beside it (returned, to delete), every cell as the
+    sheet shows it. ``excel``: ``member`` (the table inside a zip or RAR), ``sheet`` (name or index, default the first),
+    ``header`` (a regex the header row's first cell matches), ``names`` (the columns in order, when the header's own words
+    are long or change between editions: their number must equal the header's cells), ``stop`` (a regex on a row's first
+    cell that ends the table: the notes under it), ``total`` ({cell: [row, column] above the header, column: a declared
+    name}: the sheet's own total, which the rows must sum to, or nothing is landed). Repeated header rows (SENATRAN prints
+    its header twice) and empty rows are dropped. The independent count is the total, where the sheet prints one."""
+    import pandas as pd
+
+    source = path
+    if path.suffix.lower() in (".zip", ".rar"):
+        source = _archive_member(path, excel.get("member"), (".xls", ".xlsx", ".ods"), unit)
+    pattern = re.compile(str(excel.get("header", ".")), re.I)
+
+    def header_of(cells: list[list[str | None]]) -> int | None:
+        return next((i for i, row in enumerate(cells) if row and row[0] and pattern.search(row[0])), None)
+
+    try:
+        # the sheet named, else the one sheet whose header is found: SENATRAN's 2015 workbooks open on a glossary
+        grids = pd.read_excel(source, sheet_name=excel["sheet"] if "sheet" in excel else None, header=None, dtype=object)
+        grids = grids if isinstance(grids, dict) else {excel.get("sheet"): grids}
+        found = {}
+        for name, grid in grids.items():
+            cells = [[_cell_text(v) for v in row] for row in grid.itertuples(index=False, name=None)]
+            if header_of(cells) is not None:
+                found[name] = cells
+    finally:
+        if source is not path:
+            source.unlink(missing_ok=True)
+    if len(found) != 1:
+        raise ValueError(f"{path.name}: expected one sheet with a row whose first cell matches {excel.get('header')!r}, "
+                         f"found {sorted(map(str, found))} of {sorted(map(str, grids))}")
+    cells = next(iter(found.values()))
+    head = header_of(cells)
+    assert head is not None
+    header = cells[head]
+    width = max(i for i, c in enumerate(header) if c is not None) + 1
+    names = [str(n).upper() for n in excel.get("names") or []] or [str(c).upper() for c in header[:width]]
+    if len(names) != width:
+        raise ValueError(f"{path.name}: {len(names)} names declared, the header has {width} cells: {header[:width]}")
+    stop = re.compile(str(excel["stop"]), re.I) if excel.get("stop") else None
+    rows: list[list[str | None]] = []
+    for row in cells[head + 1:]:
+        row = (row + [None] * width)[:width]
+        if row[0] and stop and stop.search(row[0]):
+            break
+        if all(c is None for c in row) or row == header[:width]:
+            continue
+        rows.append(row)
+    table = pa.table({n: pa.array([r[i] for r in rows], pa.string()) for i, n in enumerate(names)})
+    total = excel.get("total")
+    if total:
+        r, c = total["cell"]
+        stated = cells[r][c] if r < len(cells) and c < len(cells[r]) else None
+        summed = pc.sum(pc.cast(table.column(str(total["column"]).upper()), pa.int64())).as_py() or 0
+        if stated is None or int(float(stated)) != summed:
+            raise _LostRecords(f"{path.name}: the sheet's total {stated} is not its rows' sum {summed}")
+    target = path.with_name(path.stem + ".excel.parquet")
+    pq.write_table(table, target, compression="zstd")
+    return target
+
+
 def _raw_path(source: str, root: Path | str | None, origin: dict[str, Any], unit: dict[str, Any]) -> Path:
     """Where a unit's file is kept: the source's own ``raw/``, or, for files several sources read (one zip holding the census's
     four record types), the shared registry folder the declaration names (``store``) under the file's own name."""
@@ -1013,6 +1215,9 @@ def _file_relation(path: Path, origin: dict[str, Any], unit: dict[str, Any], spe
     """A DuckDB relation over a downloaded file; a zip's CSV member is extracted beside it (returned, to delete)."""
     if origin.get("format") == "fixed":
         return _fixed_relation(path, origin, spec or {})
+    if origin.get("format") == "excel":
+        extracted = _excel_to_parquet(path, origin.get("excel") or {}, unit)
+        return f"read_parquet('{extracted.as_posix()}')", extracted
     if origin.get("format", "csv") == "parquet":
         return f"read_parquet('{path.as_posix()}')", None
     if origin.get("format") == "dbc":

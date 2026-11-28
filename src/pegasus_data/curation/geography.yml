@@ -348,6 +348,36 @@ legacy_places:
       deaths a year, and 330455 itself only 700-1,500), and from 1999 as 330455 (49,979 deaths); no IBGE municipality
       code begins 3345 (population_account, measured 2026-10).
 
+# Names a source writes for a municipality that are not IBGE's current name, by state: an older name (Embu, now Embu das
+# Artes; Campo de Santana, now Tacima), a spelling IBGE changed (Parati, Paraty), a form cut at 30 characters ("VILA BELA DA
+# SANTISSIMA TRINDA"), a typed slip ("BARAO D0 MONTE ALTO"). Each maps to the current IBGE name, which resolves to its code
+# in the universe (`geography.municipality_name_aliases`); a source placed by name (`place: municipality_name`) reads them
+# beside IBGE's own names. Found in SENATRAN's fleet tables (2015 and 2024 Decembers, 2026-11-27: 44 of 46 unmatched names;
+# IBITIUVA, a district of Pitangueiras-SP, and "MUNICIPIO NAO INFORMADO" stay unallocated, as no municipality is named).
+municipality_name_aliases:
+  BA: {LAGEDO DO TABOCAL: Lajedo do Tabocal, SANTA TERESINHA: Santa Terezinha}
+  GO: {BOM JESUS: Bom Jesus de Goiás}
+  MG: {AMPARO DA SERRA: Amparo do Serra, BARAO D0 MONTE ALTO: Barão do Monte Alto, BRASOPOLIS: Brazópolis, GOUVEA: Gouveia,
+       QUELUZITA: Queluzito}
+  MT: {POXOREO: Poxoréu, SANTO ANTONIO DO LEVERGER: Santo Antônio de Leverger,
+       VILA BELA DA SANTISSIMA TRINDA: Vila Bela da Santíssima Trindade}
+  PA: {ELDORADO DOS CARAJAS: Eldorado do Carajás, SANTA ISABEL DO PARA: Santa Izabel do Pará}
+  PB: {CAMPO DE SANTANA: Tacima, SANTAREM: Joca Claudino, SAO DOMINGOS DE POMBAL: São Domingos}
+  PE: {BELEM DE SAO FRANCISCO: Belém do São Francisco, IGUARACI: Iguaracy, LAGOA DO ITAENGA: Lagoa de Itaenga}
+  PI: {SAO FRANCISCO DE ASSIS DO PIAU: São Francisco de Assis do Piauí}
+  PR: {BELA VISTA DO CAROBA: Bela Vista da Caroba, MUNHOZ DE MELLO: Munhoz de Melo, PINHAL DO SAO BENTO: Pinhal de São Bento,
+       SANTA CRUZ DO MONTE CASTELO: Santa Cruz de Monte Castelo}
+  RJ: {ARMACAO DE BUZIOS: Armação dos Búzios, PARATI: Paraty, TRAJANO DE MORAIS: Trajano de Moraes}
+  RN: {ARES: Arez, BOA SAUDE: Januário Cicco, LAGOA DANTA: "Lagoa d'Anta"}
+  RO: {NOVA DO MAMORE: Nova Mamoré}
+  RR: {SAO LUIZ: São Luiz do Anauá}
+  RS: {SANTANA DO LIVRAMENTO: "Sant'Ana do Livramento"}
+  SC: {BALNEARIO DE PICARRAS: Balneário Piçarras, LAGEADO GRANDE: Lajeado Grande, PRESIDENTE CASTELO BRANCO: Presidente Castello Branco,
+       "SAO LOURENCO D'OESTE": São Lourenço do Oeste, "SAO MIGUEL D'OESTE": São Miguel do Oeste}
+  SE: {AMPARO DE SAO FRANCISCO: Amparo do São Francisco}
+  SP: {EMBU: Embu das Artes}
+  TO: {COUTO DE MAGALHAES: Couto Magalhães, FORTALEZA DO TABOCAO: Tabocão, SAO VALERIO DA NATIVIDADE: São Valério}
+
 # A code that names a state and no municipality: the state's two digits followed by zeros to the code's width (6 or 7
 # digits), "Município ignorado - <UF>" in DATASUS's municipality table (MUNICBR of the SIHSUS kit: 330000 "Município
 # ignorado - RJ", one per state). Such an event is in its state and the country and in no municipality

@@ -15,6 +15,14 @@
 #                       `months` files the units by month, and each is the publication of its month: a query for one month opens
 #                       that month's part file. `years` and listed files are filed by year, whatever month column their records
 #                       hold (`period` below dates the records, never the publication)
+#   origin.listing      files found where they are published, for names no pattern holds (SENATRAN's "copy_of_...20242.xlsx",
+#                       IBGE's "..._20260610.zip"): `page` ({year}), `years`, `match` and `exclude` (regexes on a link), `by`
+#                       month (one link a month, its month read from the file name; two links for a month raise) or year (one a page)
+#   origin.format excel a spreadsheet table, alone or a zip's or RAR's member (RAR through 7-Zip): `excel` {member (regex),
+#                       sheet (default: the one sheet whose header is found), header (a regex the header row's first cell
+#                       matches), names (positional, when the header's words change between editions), stop (a regex on a row's
+#                       first cell that ends the table), total {cell: [row, column], column}: the sheet's own total the rows must
+#                       sum to}. `period: {type: file, grain: month}` dates a listed month's rows by its file
 #   origin.kind tabnet  a TabNet base read as one table per period file and `across` axis value (SIOPS: a state and a year): `base`,
 #                       `definition` ({uf} from across), `file` ({year}, {yy}), `years`, `row` (the classification on the rows),
 #                       `row_label` {code, name} (the two columns a row label "120001 Acrelândia" is cut into), `contents` {the
@@ -47,9 +55,11 @@
 #                       list, raw value -> meaning, when the dictionary gives one), `codelist` (a table the package ships, ICD10
 #                       or CBO2002, when the dictionary names a standard instead of listing codes), `key` (the columns whose concatenated values are the code's lookup key, when the code means something only with them: TISS's item with its TUSS table, ADR-0088), `label_from` (a sibling column
 #                       of the same record that names the code, ADR-0090), `decimal` for a number written with a comma,
-#                       `derived` (the curated recipe of a column made from this one, as variables/*.yml writes it)
+#                       `derived` (the curated recipe of a column made from this one, as variables/*.yml writes it),
+#                       `zero_tokens` (the signs a table writes for zero, read as 0 by a number or integer: IBGE's ".")
 #   place               the key a context is served by: {column, type: municipality (IBGE code, 6 or 7 digits, as given) |
-#                       municipality_name (+ uf: the state column; exact fold match against IBGE's names) | code, as: name}
+#                       municipality_name (+ uf: the state column; exact fold match against IBGE's names and geography.yml's
+#                       municipality_name_aliases) | code, as: name}
 #   period              {type: date (+ format, take) | month (YYYYMM) | year | parts (year, month columns) | file (the file's own
 #                       year), grain: year|month, valid: the years kept}
 #   fields              each a measure over the rows: `count` or `{sum: column}` (never a mean), `where` {column: [raw values]},
@@ -3659,3 +3669,254 @@ sources:
         unit: declarations (1 where the municipality declared the year)
         what: Whether the municipality declared the year to SIOPS (1), so a missing figure can be told from a not-declared year.
         years: 2000-2025
+
+  senatran_fleet:
+    system: SENATRAN
+    series: FROTA
+    system_name:
+      official_name: Registro Nacional de Veículos Automotores (RENAVAM)
+      translated_name: National Register of Motor Vehicles
+      authority: Ministério dos Transportes / Secretaria Nacional de Trânsito (SENATRAN, formerly DENATRAN)
+      what_it_is: The national register of every motor vehicle licensed in Brazil, kept by the state traffic departments
+        (DETRAN) and consolidated by SENATRAN, which publishes the registered fleet each month.
+    official_name: Frota de Veículos, Frota por Município e Tipo
+    translated_name: Vehicle fleet by municipality and type
+    what: >
+      SENATRAN's monthly table of the registered vehicle fleet (RENAVAM) by municipality and vehicle type, 2015-2024: one row per
+      municipality of each month's publication with the total fleet and 21 types (automobile, motorcycle, scooter, bus, truck, ...).
+      Published as one spreadsheet a month on the year's page of gov.br (RAR archives in 2015-2016, .xls and .xlsx later).
+    one_row: one municipality's registered fleet in one month, by vehicle type
+    unit_of_analysis: month x municipality
+    use: context
+    why_no_event_type: >-
+      A stock of vehicles registered in a municipality at a month's end, not events that happened to persons: the exposure a road
+      traffic study reads injuries and deaths against.
+    known_biases: >-
+      A vehicle is counted where it is registered (the owner's address on the RENAVAM record), not where it circulates: fleets of
+      leasing and rental companies concentrate in a few municipalities, and vehicles registered in another state circulate
+      unregistered locally. Vehicles never deregistered (scrapped, stolen) stay in the stock, so the register overstates the fleet in
+      use, more so for old motorcycles. Municipalities are named, not coded: they are matched to IBGE's codes by state and name.
+    gotchas:
+      - "The month is the file's, read from its name: the December 2015 workbook's data sheet is named JUL_2015 while its total (90,686,936) is December's."
+      - "A year's value is its December stock (`law: stock`), never the sum of its months."
+      - "MOTOCICLETA and MOTONETA (scooter) are separate types; motorcycle studies usually take both, and CICLOMOTOR (moped) apart."
+      - "The 2015 workbooks open on a glossary sheet; the table is the one sheet whose header row starts with UF."
+    citation: SENATRAN, Frota de Veículos (RENAVAM), Frota por Município e Tipo, gov.br/transportes
+    dictionary: the glossary sheet of the 2015 workbooks (Termos e Definições, CTB Anexo I)
+    origin:
+      kind: files
+      format: excel
+      listing:
+        page: https://www.gov.br/transportes/pt-br/assuntos/transito/conteudo-Senatran/frota-de-veiculos-{year}
+        years: 2015-2024
+        by: month
+        match: 'frota[-_]?(por[-_]?)?(reg[-_]?)?munic'
+        exclude: 'uf[-_]?munic|por[-_]?uf|uf[-_]?e[-_]?tipo|cep|especie|eixo|fab|combust|[-_]cor[-_]|potencia|restri|marca'
+      excel:
+        header: '^UF$'
+        stop: '^Fonte'
+        total: {cell: [1, 2], column: TOTAL}
+    columns:
+      UF: {description: state of the municipality (abbreviation), type: code}
+      MUNICIPIO: {description: "municipality name as SENATRAN writes it (upper case, no accents)", type: label}
+      TOTAL: {description: registered vehicles of every type, type: integer}
+      AUTOMOVEL: {description: "automobiles (passenger cars, up to eight seats besides the driver)", type: integer}
+      BONDE: {description: trams, type: integer}
+      CAMINHAO: {description: trucks, type: integer}
+      CAMINHAO TRATOR: {description: tractor trucks, type: integer}
+      CAMINHONETE: {description: "pickups (cargo, up to 3.5 t)", type: integer}
+      CAMIONETA: {description: light mixed passenger-cargo vehicles, type: integer}
+      CHASSI PLATAF: {description: chassis with platform, type: integer}
+      CICLOMOTOR: {description: "mopeds (up to 50 cm3, up to 50 km/h)", type: integer}
+      MICRO-ONIBUS: {description: minibuses, type: integer}
+      MOTOCICLETA: {description: motorcycles, type: integer}
+      MOTONETA: {description: scooters (motorcycles ridden seated), type: integer}
+      ONIBUS: {description: buses, type: integer}
+      QUADRICICLO: {description: quadricycles, type: integer}
+      REBOQUE: {description: trailers, type: integer}
+      SEMI-REBOQUE: {description: semi-trailers, type: integer}
+      SIDE-CAR: {description: sidecars, type: integer}
+      OUTROS: {description: other types, type: integer}
+      TRATOR ESTEI: {description: crawler tractors, type: integer}
+      TRATOR RODAS: {description: wheeled tractors, type: integer}
+      TRICICLO: {description: tricycles, type: integer}
+      UTILITARIO: {description: utility vehicles, type: integer}
+    place: {column: MUNICIPIO, uf: UF, type: municipality_name}
+    period: {type: file, grain: month}
+    fields:
+      senatran_fleet_total:
+        label: "Registered vehicles (all types)"
+        measure: {sum: TOTAL}
+        over: population
+        unit: registered vehicles at the month's end
+        what: The registered fleet of every type by municipality of registration and month (SENATRAN, RENAVAM).
+        years: 2015-2024
+        declares: {law: stock}
+      senatran_fleet_automobiles:
+        label: "Registered automobiles"
+        measure: {sum: AUTOMOVEL}
+        over: population
+        unit: registered automobiles at the month's end
+        what: Registered passenger cars by municipality of registration and month (SENATRAN, RENAVAM).
+        years: 2015-2024
+        declares: {law: stock}
+      senatran_fleet_motorcycles:
+        label: "Registered motorcycles"
+        measure: {sum: MOTOCICLETA}
+        over: population
+        unit: registered motorcycles at the month's end
+        what: Registered motorcycles by municipality of registration and month (SENATRAN, RENAVAM); scooters are senatran_fleet_scooters.
+        years: 2015-2024
+        declares: {law: stock}
+      senatran_fleet_scooters:
+        label: "Registered scooters"
+        measure: {sum: MOTONETA}
+        over: population
+        unit: registered scooters (motonetas) at the month's end
+        what: Registered scooters by municipality of registration and month (SENATRAN, RENAVAM).
+        years: 2015-2024
+        declares: {law: stock}
+
+  ibge_death_pairing:
+    system: IBGE
+    series: PAREAMENTO_OBITOS
+    official_name: Pareamento de dados do Registro Civil e do SIM, Tabela 2.2 (óbitos por município de residência)
+    translated_name: Linkage of civil-registry and SIM deaths, by municipality of residence
+    what: >
+      IBGE's yearly linkage (pareamento) of the deaths registered in the civil registry (Estatísticas do Registro Civil) with the
+      deaths notified to the Ministry of Health (SIM), 2015-2024: for each municipality of residence of the deceased, the deaths
+      found only in the civil registry, only in SIM, and in both. The table behind IBGE's estimates of death under-registration
+      and under-notification (ibge_death_coverage).
+    one_row: one municipality of residence in one year's edition
+    unit_of_analysis: year x municipality
+    use: context
+    why_no_event_type: >-
+      Counts of deaths by where each system found them, a property of the two registers in a place and year: the coverage of SIM,
+      not deaths to study themselves.
+    known_biases: >-
+      "Only civil registry" leaves out the registrations that are not paired by design (footnote 1 of every edition): those made on
+      the declaration of qualified witnesses without a death certificate, by court order, FUNAI's administrative registrations and
+      others, which IBGE adds back when it estimates the total. A pair is found by IBGE's own probabilistic linkage, whose errors are
+      not published per municipality.
+    gotchas:
+      - "A zero is written '.' (no cell holds 0 in any edition: 2024, 2,642 municipalities '.' in only-registry and 1,625 in only-SIM); read as 0 (`zero_tokens`), the sign kept in __RAW."
+      - "Editions 2015-2023 were republished on 2026-06-10 (their file names carry the date): the year's figures are those of that revision."
+      - "2015's municipality codes have 6 digits, later editions 7; both place the same municipalities."
+      - "Figueirão (MS) is listed without its code in 2020-2022 (2, 2 and 1 deaths): unplaced, counted."
+      - "The municipal table holds the deaths whose municipality of residence is known: in 2024 its sums (14,690 registry only, 51,638 SIM only, 1,478,428 both) fall short of Tabela 2.1's national row (15,047, 52,059, 1,479,877), whose difference is the deaths of unknown residence (Tabela 2.1's 'Ignorado' row and the states' unplaced)."
+    citation: IBGE, Pareamento de dados do Registro Civil e do Sistema de Informações sobre Mortalidade, Tabela 2.2
+    dictionary: the edition's indice_tabelas_pareamento_<year> and each table's footnotes
+    origin:
+      kind: files
+      format: excel
+      listing:
+        page: https://ftp.ibge.gov.br/Estatisticas_Vitais/Pareamento_de_dados/{year}/xlsx/
+        years: 2015-2024
+        by: year
+        match: '02obitos_xlsx(_[0-9]+)?\.zip$'
+      excel:
+        member: 'Tabela 2\.2\.xlsx$'
+        header: '^C.digo da Unidade'
+        names: [UF_CODE, UF_NAME, MUNICIPALITY_CODE, MUNICIPALITY_NAME, ONLY_REGISTRY, ONLY_SIM, IN_BOTH]
+        stop: '^Fonte'
+    columns:
+      UF_CODE: {description: IBGE code of the state of residence, type: code}
+      UF_NAME: {description: state of residence, type: label}
+      MUNICIPALITY_CODE: {description: "IBGE code of the municipality of residence of the deceased (6 digits in 2015, 7 later)", type: municipality}
+      MUNICIPALITY_NAME: {description: municipality of residence, type: label}
+      ONLY_REGISTRY: {description: "deaths found only in the civil registry (Apenas IBGE), paired registrations only", type: integer, zero_tokens: ["."]}
+      ONLY_SIM: {description: "deaths found only in SIM (Apenas Ministério da Saúde)", type: integer, zero_tokens: ["."]}
+      IN_BOTH: {description: deaths found in both bases (Ambas as bases), type: integer, zero_tokens: ["."]}
+    place: {column: MUNICIPALITY_CODE, type: municipality}
+    period: {type: file, grain: year}
+    fields:
+      ibge_deaths_registry_only:
+        label: "Deaths in the civil registry only"
+        measure: {sum: ONLY_REGISTRY}
+        over: population
+        unit: deaths of residents (paired registrations)
+        what: Deaths found in the civil registry and not in SIM, by municipality of residence (IBGE pareamento, Tabela 2.2).
+        years: 2015-2024
+      ibge_deaths_sim_only:
+        label: "Deaths in SIM only"
+        measure: {sum: ONLY_SIM}
+        over: population
+        unit: deaths of residents
+        what: Deaths notified to SIM and not found in the civil registry, by municipality of residence (IBGE pareamento, Tabela 2.2).
+        years: 2015-2024
+      ibge_deaths_both_bases:
+        label: "Deaths in both registry and SIM"
+        measure: {sum: IN_BOTH}
+        over: population
+        unit: deaths of residents
+        what: Deaths found in both the civil registry and SIM, by municipality of residence (IBGE pareamento, Tabela 2.2).
+        years: 2015-2024
+
+  ibge_death_coverage:
+    system: IBGE
+    series: SUBREGISTRO_OBITOS
+    official_name: Estimativas de sub-registro e subnotificação de óbitos, Tabela 2.2 (por município de residência)
+    translated_name: Estimated under-registration (civil registry) and under-notification (SIM) of deaths, by municipality
+    what: >
+      IBGE's yearly estimates, from the linkage of the civil registry with SIM (ibge_death_pairing), of the total deaths of each
+      municipality of residence and of the share of them missing from the civil registry (sub-registro) and from SIM
+      (subnotificação), 2015-2024.
+    one_row: one municipality of residence in one year's edition
+    unit_of_analysis: year x municipality
+    use: context
+    why_no_event_type: >-
+      An estimate of how completely two registers capture deaths in a place and year: the coverage a death rate from SIM is read
+      against, not deaths themselves.
+    known_biases: >-
+      An estimate of IBGE's method (capture-recapture on the paired bases, plus the registrations not paired), not a count: small
+      municipalities carry large uncertainty, which the tables do not publish. The percentages are of the estimated total.
+    gotchas:
+      - "The percentages are shares of each municipality's estimated total: a region's share is the sum of the estimated missing deaths (total x percentage / 100) over the sum of totals, never a mean of percentages."
+      - "Editions 2015-2023 were republished on 2026-06-10 (their file names carry the date)."
+      - "A few tiny municipalities carry '.' or nothing where a percentage or total should be (Figueirão 2020 and 2024, Santo Antônio do Leste 2020, Galinhos 2022, Paraíso das Águas 2023): no number, counted as unparsed, never read as 0% (a share of an estimate is not a zero count)."
+    citation: IBGE, Estimativas de sub-registro de nascimentos e óbitos, Tabela 2.2 (óbitos)
+    dictionary: the edition's indice_tabelas_sub_registro_<year> and each table's footnotes
+    origin:
+      kind: files
+      format: excel
+      listing:
+        page: https://ftp.ibge.gov.br/Estatisticas_Vitais/Estimativas_sub_registro_nascimentos/{year}/xlsx/
+        years: 2015-2024
+        by: year
+        match: '02obitos_xlsx(_[0-9]+)?\.zip$'
+      excel:
+        member: 'Tabela 2\.2\.xlsx$'
+        header: '^C.digo da Unidade'
+        names: [UF_CODE, UF_NAME, MUNICIPALITY_CODE, MUNICIPALITY_NAME, ESTIMATED_TOTAL, REGISTRY_MISSING_PCT, SIM_MISSING_PCT]
+        stop: '^Fonte'
+    columns:
+      UF_CODE: {description: IBGE code of the state of residence, type: code}
+      UF_NAME: {description: state of residence, type: label}
+      MUNICIPALITY_CODE: {description: "IBGE code of the municipality of residence (6 digits in 2015, 7 later)", type: municipality}
+      MUNICIPALITY_NAME: {description: municipality of residence, type: label}
+      ESTIMATED_TOTAL: {description: estimated total deaths of residents (Total estimado de óbitos), type: number}
+      REGISTRY_MISSING_PCT: {description: "estimated share of the total missing from the civil registry (sub-registro, %)", type: number}
+      SIM_MISSING_PCT: {description: "estimated share of the total missing from SIM (subnotificação, %)", type: number}
+    place: {column: MUNICIPALITY_CODE, type: municipality}
+    period: {type: file, grain: year}
+    fields:
+      ibge_deaths_estimated_total:
+        label: "Estimated total deaths (IBGE)"
+        measure: {sum: ESTIMATED_TOTAL}
+        over: population
+        unit: estimated deaths of residents
+        what: IBGE's estimated total deaths by municipality of residence (Estimativas de sub-registro, Tabela 2.2).
+        years: 2015-2024
+      ibge_death_coverage_municipal:
+        label: "Death registration coverage by municipality"
+        rows:
+          municipality: _MUNICIPALITY
+          year: year
+          estimated_total: ESTIMATED_TOTAL
+          registry_missing_pct: REGISTRY_MISSING_PCT
+          sim_missing_pct: SIM_MISSING_PCT
+        unit: one row per municipality and edition (percentages of the estimated total)
+        what: >
+          IBGE's estimated total deaths and the shares missing from the civil registry and from SIM, per municipality of residence and
+          year: the record of the coverage check a SIM death rate is read against. Sum estimated_total x share / 100 to pool places.
+        years: 2015-2024

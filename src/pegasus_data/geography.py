@@ -653,6 +653,29 @@ def _placer(path: str, mtime_ns: int = 0) -> tuple[dict[str, int], dict[str, int
     return by_six, sole, legacy
 
 
+def municipality_name_aliases() -> dict[tuple[str, str], str]:
+    """``geography.yml``'s ``municipality_name_aliases`` as ``(folded state abbreviation, folded name) -> six-digit code``:
+    the names a source writes that are not IBGE's current one (Embu, Parati, a name cut at 30 characters), each resolved
+    through the current name it is declared to be. A declared name that resolves to no municipality, or to two, raises:
+    an alias must never place a record in the wrong place, or in none silently."""
+    from .semantics.curation import read_yaml
+    from .textenc import fold
+
+    declared = (read_yaml(_curation_root(None) / "geography.yml", missing_ok=True) or {}).get("municipality_name_aliases") or {}
+    current: dict[tuple[str, str], set[str]] = {}
+    for code, row in municipalities().items():
+        current.setdefault((fold(row["uf_sigla"]), fold(row["name"])), set()).add(code)
+    out: dict[tuple[str, str], str] = {}
+    for uf, names in declared.items():
+        for alias, name in names.items():
+            codes = current.get((fold(str(uf)), fold(str(name))), set())
+            if len(codes) != 1:
+                raise ValueError(f"geography.yml municipality_name_aliases {uf} {alias!r}: {name!r} names {len(codes)} "
+                                 "municipalities of the universe, not one")
+            out[(fold(str(uf)), fold(str(alias)))] = codes.pop()
+    return out
+
+
 def placing_rule(pack_path: str | Path | None = None) -> dict[str, Any]:
     """The facts the one placing rule applies, for every reader of it (`place_municipalities` in Python, the intake's
     landing in SQL): ``universe`` (a municipality's six digits -> its IBGE code), ``sole`` (a state of one municipality ->
