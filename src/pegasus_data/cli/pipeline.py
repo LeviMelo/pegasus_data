@@ -165,15 +165,21 @@ def intake(
     unit: Annotated[list[str] | None, typer.Option("--unit", help="A file of the source to land (AC; repeat); default every file")] = None,
     years: Annotated[str | None, typer.Option("--years", help="e.g. 2010 (required of a source declared on request)")] = None,
     refresh: Annotated[bool, typer.Option("--refresh", help="Land the units again even where they are current")] = False,
+    held: Annotated[bool, typer.Option("--held", help="Download nothing: derive again, from their own records in the lake, the "
+                                                      "units a changed declaration or rule reads differently; the others "
+                                                      "are reported not_held")] = False,
     root: RootOpt = None,
     as_json: JsonOpt = False,
 ) -> None:
     """Land a declared intake source's records in the lake, every column kept, with no field built: for a source that is
-    records first (the Census 2010 sample's four record types, `census2010_*`). Units already landed as declared are skipped."""
+    records first (the Census 2010 sample's four record types, `census2010_*`). Units already landed as declared are skipped.
+    The answer's ``landed`` counts how each unit was landed (current, from_lake, fetched, not_held, absent)."""
     from ..intake import build_source
 
+    if held and refresh:
+        raise typer.BadParameter("--held downloads nothing and --refresh reads every unit from the source: choose one")
     with console.status(f"landing {source}…"):
-        result = build_source(_writer(root), source, [], _parse_years(years), refresh=refresh, units=unit or None)
+        result = build_source(_writer(root), source, [], _parse_years(years), refresh=refresh, units=unit or None, fetch=not held)
     _emit(result, as_json, "intake")
 
 

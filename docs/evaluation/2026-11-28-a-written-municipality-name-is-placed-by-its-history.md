@@ -25,3 +25,11 @@ the way and fixed: the first `intake` on an empty home failed with `duplicate co
 workers open the new catalog at once, each sees the column missing and adds it); `CatalogStore` now accepts a
 column another opener added in between. Two empty homes then land SENATRAN 2015 at the first run (motorcycles
 237,368,050). IBGE's pairing of 2024 through the new reader: 14,690, 51,638 and 1,478,428, IBGE's Tabela 2.2.
+
+**In the main home (the platform session's run of `intake sngpc_compounded`).** 103 units, 34,232,170 rows,
+unallocated 0, 710 s, 2.86 GB peak. 34 units (2019-01 to 2021-10, the months the home held: 11,758,269 rows before)
+were derived again from the lake; 69 (2014-2018 and 2026) had never been landed and were downloaded, because a plain
+`intake` lands every declared unit and its answer did not tell the two apart. No held month was replaced by a
+download. Since then the answer has `landed` (current, from_lake, fetched, not_held, absent) and `replaced_held` (a
+held unit that could not be derived again, with why), and `intake --held` downloads nothing. On a scratch copy, 2021
+with two units made stale and one removed: `landed` current 7, from_lake 2, not_held 1; no file downloaded.

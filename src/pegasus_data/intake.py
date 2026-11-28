@@ -1256,10 +1256,11 @@ def _land_unit(settings: Any, source: str, spec: dict[str, Any], unit: dict[str,
         # a unit the declaration now reads differently, whose records are in the lake with every value as filed: derived
         # again from them, nothing downloaded (SNGPC's 94 months and SISAGUA's control files after the month fix, 2026-10-24)
         held = _held_records(settings, spec, unit)
-        if held is not None:
+        if isinstance(held, tuple):
             return _reland(settings, source, spec, unit, side, held)
+    declined = held if not refresh and isinstance(held, str) else None      # held, and not derivable from what is held
     if not fetch:
-        return {"not_held": True, "url": unit["url"]}
+        return {"not_held": True, "url": unit["url"], **({"held_not_derivable": declined} if declined else {})}
     origin = _origin(spec)
     target = _raw_path(source, root, origin, unit)
     raw = _tabnet_csv(origin, unit, target) if origin.get("kind") == "tabnet" else download(unit["url"], target)
@@ -1317,14 +1318,16 @@ def _land_unit(settings: Any, source: str, spec: dict[str, Any], unit: dict[str,
                 path.unlink()
     side.parent.mkdir(parents=True, exist_ok=True)
     write_json_atomic({"fingerprint": unit["fingerprint"], "stats": stats}, side)
-    return stats
+    # a unit the lake held, replaced by the source's file of today: said in this run's answer, not kept in the sidecar
+    return {**stats, **({"replaced_held": declined} if declined else {})}
 
 
-def _held_records(settings: Any, spec: dict[str, Any], unit: dict[str, Any]) -> tuple[list[str], str, int, list[str]] | None:
+def _held_records(settings: Any, spec: dict[str, Any], unit: dict[str, Any]) -> tuple[list[str], str, int, list[str]] | str | None:
     """The unit's records in the lake, when they can stand for its file: every part read from the unit's own path on one
     day, holding every declared column's value as filed (the column itself, or its `__RAW` beside a typed or rewritten
-    one). Returns (parts, read day, rows, the columns as filed), else None: a unit landed from another file, before a column
-    was declared, or never landed is read from the source."""
+    one). Returns (parts, read day, rows, the columns as filed); None for a unit the lake does not hold; and, for one it
+    holds that cannot stand for its file (landed from another file, or before a column was declared), the reason in words:
+    such a unit is read from the source again, and the run says so (`build_source`'s ``landed``)."""
 
     system, series = str(spec["system"]), str(spec["series"])
     found_parts = unit_parts(settings.lake_dir, f"{_safe(system.upper())}_{_safe(series.upper())}_*", _safe(unit["key"]))
@@ -1343,17 +1346,17 @@ def _held_records(settings: Any, spec: dict[str, Any], unit: dict[str, Any]) -> 
         relation = f"read_parquet({parts!r}, hive_partitioning=false, union_by_name=true)"
         names = [r[0] for r in con.execute(f"DESCRIBE SELECT * FROM {relation}").fetchall()]
         if "_SOURCE_PATH" not in names or "_READ_ON" not in names:
-            return None
+            return "its parts carry no source path or read day (landed before they were kept)"
         found = con.execute(f"SELECT DISTINCT _SOURCE_PATH, _READ_ON FROM {relation}").fetchall()
         if len(found) != 1 or found[0][0] != unit["path"]:
-            return None
+            return f"its parts were read from {sorted({str(f[0]) for f in found})[:2]} on {len(found)} occasions, not once from {unit['path']}"
         rows = con.execute(f"SELECT count(*) FROM {relation}").fetchone()[0]  # type: ignore[index]  # duckdb stub: fetchone is Optional; an aggregate returns one row
     finally:
         con.close()
     filed = [n for n in names if not n.startswith("_") and not n.endswith(("__RAW", "__FLAG"))]
     declared = [c.upper() for c, d in (spec.get("columns") or {}).items() if not (d or {}).get("optional")]
     if any(c not in filed for c in declared):
-        return None
+        return f"its parts lack declared columns as filed: {[c for c in declared if c not in filed][:6]}"
     return parts, str(found[0][1]), int(rows), [f"{n}__RAW" if f"{n}__RAW" in names else n for n in filed]
 
 
@@ -1630,6 +1633,18 @@ def build_source(settings: Any, source: str, names: list[str] | None = None, yea
             first = next(iter(absent.values()))
             raise SourceAbsent(first.url, first.status, f"{source}: all {len(absent)} units are absent")
         report["absent"] = sorted(absent)
+    # How this run landed each unit: `current` (as declared already, untouched), `from_lake` (derived again from its own
+    # held records, nothing downloaded), `fetched` (read from the source), `not_held` (``fetch=False`` and nothing to
+    # derive from), `absent` (the source does not publish it). A plain run of SNGPC's compounded sales meant to derive 34
+    # held months again also downloaded the 69 declared months the home had never held, and its answer did not tell them
+    # apart (2026-11-28). `replaced_held`: the fetched units the lake already held, with why they were not derivable.
+    how = [("absent" if "absent" in u else "current" if u.get("cached") else "not_held" if u.get("not_held")
+            else "from_lake" if u.get("relanded_from_lake") else "fetched") for k, u in report["units"].items() if k != "api"]
+    if how:
+        report["landed"] = {name: how.count(name) for name in ("current", "from_lake", "fetched", "not_held", "absent") if name in how}
+        replaced = {k: u["replaced_held"] for k, u in report["units"].items() if u.get("replaced_held")}
+        if replaced:
+            report["replaced_held"] = replaced
     for k in ("rows", "undated", "unplaced", "unallocated"):
         report[k] = sum(u.get(k, 0) for u in report["units"].values())
     unparsed: dict[str, int] = {}
