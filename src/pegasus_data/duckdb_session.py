@@ -29,10 +29,14 @@ MACHINE_SHARE = 0.4
 
 
 @lru_cache(maxsize=1)
-def _process_spill() -> str:
+def _process_spill() -> str | None:
+    """The process's spill directory in its home, or None while that home does not exist: opening a connection never
+    creates a home (a test run under a redirected profile made ``%LOCALAPPDATA%/pegasus-data/work`` this way,
+    2026-11-28). Without one DuckDB keeps its own default, a ``.tmp`` it creates only if it spills."""
     from .config import load_settings
 
-    return load_settings().duckdb_spill().as_posix()
+    settings = load_settings()
+    return settings.duckdb_spill().as_posix() if settings.root.is_dir() else None
 
 
 @lru_cache(maxsize=1)
@@ -58,7 +62,9 @@ def connect(database: str | Path = ":memory:", *, read_only: bool = False, memor
     asked = memory_gb if memory_gb is not None else float(os.environ.get("PEGASUS_DUCKDB_MEMORY_GB") or DEFAULT_MEMORY_GB)
     limit_mb = int(max(0.5, min(asked, MACHINE_SHARE * _machine_gb())) * 1024)
     spill = settings.duckdb_spill().as_posix() if settings is not None else _process_spill()
-    options = [f"SET memory_limit='{limit_mb}MiB'", f"SET temp_directory='{spill}'", "SET enable_progress_bar=false"]
+    options = [f"SET memory_limit='{limit_mb}MiB'", "SET enable_progress_bar=false"]
+    if spill:
+        options.append(f"SET temp_directory='{spill}'")
     if threads is not None:
         options.append(f"SET threads={int(threads)}")
     if ordered is not None:
