@@ -433,11 +433,16 @@ def aggregate_lake(tmp_path):
 
 
 @pytest.fixture
-def fresh_install(monkeypatch):
+def fresh_install(monkeypatch, tmp_path):
     """A new user's machine: the catalog starts from the shipped seed (ADR-0067).
 
     The suite disables seeding by default so that a test building a catalog from
     nothing gets nothing; a test about what a fresh install can do asks for it.
+    The new user's home is a temporary one: with placement cleared it fell back to
+    the real per-user home (%LOCALAPPDATA%/pegasus-data), which grew to 1.2 GB of
+    test writes and whose catalog was found corrupt (2026-11-27), failing the
+    tests that read it.
     """
     monkeypatch.setenv("PEGASUS_SEED", "1")
+    monkeypatch.setenv("PEGASUS_DATA_HOME", str(tmp_path / "fresh-home"))
     yield
