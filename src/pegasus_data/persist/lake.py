@@ -792,6 +792,8 @@ class Lake:
         where: ds.Expression | None = None,
         batch_size: int = 131_072,
         partitions: Sequence[LakePartition] | None = None,
+        batch_readahead: int = 2,
+        fragment_readahead: int = 1,
     ) -> ds.Scanner:
         """:meth:`read` without materialising the table.
 
@@ -799,6 +801,11 @@ class Lake:
         of `to_table()`, so a caller can iterate batches under bounded memory.
         `where` is an extra predicate on the data columns, pushed into the scan
         rather than applied afterwards.
+
+        The scanner decodes ahead of its reader. Arrow's defaults (16 batches, 4 files) held 2.0 GB for seven columns of
+        SNGPC's sales once closed partitions took million-row groups (ADR-0238), against 0.5 GB at two batches of one
+        file, for three seconds instead of one over 75 million rows (2026-11-27): "bounded memory" is the promise here,
+        so the bounded setting is the default, and a caller that wants the speed asks for more.
         """
         dataset, axes = self._source(system, family_id, schema_signature, uf, years, partitions)
         expression = axes
@@ -806,7 +813,8 @@ class Lake:
             expression = where if expression is None else (expression & where)
         projection = self._projection(dataset, family_id, columns, optional_columns)
         return dataset.scanner(
-            columns=projection, filter=expression, batch_size=batch_size
+            columns=projection, filter=expression, batch_size=batch_size,
+            batch_readahead=batch_readahead, fragment_readahead=fragment_readahead,
         )
 
     # ------------------------------------------------------------- accounting

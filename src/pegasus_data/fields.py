@@ -388,12 +388,49 @@ def rows_view(name: str, spec: dict[str, Any]) -> dict[str, Any] | None:
     return {"dataset": f"{source['system']}-{source['series']}", "rows": dict(fs["rows"]), "where": dict(fs.get("where") or {})}
 
 
+#: A register field answers with its records themselves. Above this many values (records x columns) the answer does not
+#: fit a working machine's memory and is refused before it is read (`FieldTooLarge`).
+REGISTER_VALUES_MAX = 60_000_000
+
+
+class FieldTooLarge(ValueError):
+    """A register field asked for more records than can be held at once. The message says how many, and how to read
+    them in bounded memory."""
+
+
+def _register_size(register: dict[str, Any], years: list[int] | None, settings: Any) -> int | None:
+    """The records a register field would return for ``years``, from the lake files' footers (nothing is read), or
+    None where the lazy scan cannot say."""
+    from ._request import parse_dataset
+    from .api import scan
+
+    try:
+        system, series = parse_dataset(register["dataset"])
+        return int(scan(system, series, years=years or None, settings=settings).count_rows())
+    except Exception:
+        return None
+
+
 def _field_from_rows(register: dict[str, Any], years: list[int] | None, settings: Any) -> pa.Table:
-    """A register field read from its records (`query`), each record column under the field's name, with its year."""
+    """A register field read from its records (`query`), each record column under the field's name, with its year.
+
+    The answer is as large as the register: ANS's hospital claim items of 2019 are 40,169,363 records by 9 columns,
+    and reading them at once went past 9 GB in eight seconds (2026-11-27). A request above ``REGISTER_VALUES_MAX``
+    values is refused with its size, before anything is read; a filter in the field's declaration is not counted, so a
+    filtered register may be refused though its answer would fit."""
     import pyarrow.compute as pc
 
     from ._query_engine import query
 
+    records = None if register["where"] else _register_size(register, years, settings)
+    if records is not None and records * len(register["rows"]) > REGISTER_VALUES_MAX:
+        dataset = register["dataset"]
+        raise FieldTooLarge(
+            f"this register is {records:,} records of {dataset} by {len(register['rows'])} columns for "
+            f"{years or 'every year'}: too many to hold at once. Read it in batches "
+            f"(pegasus_data.api.scan({dataset!r} split into system and series, years=[...], columns=[...]).iter_batches()), "
+            f"or count and sum it where it lies (pegasus_data.cube('records:{dataset}/rows', by=[...], measure=..., "
+            f"periods=[...])), or ask for fewer years")
     columns = list(dict.fromkeys([*register["rows"].values(), "year"]))
     period = [str(y) for y in years] if years else None
     table = cast("pa.Table", query(register["dataset"], period=period, geography="BR", select=columns, present="codes",

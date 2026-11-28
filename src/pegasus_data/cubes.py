@@ -553,15 +553,114 @@ def _count_span(req: _Request, span: Any) -> pa.Table:
     parts_summed = s.summed.split("+") if s.summed else []
     extra_columns = [*parts_summed, *([s.distinct] if s.distinct else []), *([s.numbered] if s.numbered else []),
                      *([s.argument] if s.moment or s.extreme else [])]
+    columns = list(dict.fromkeys([*s.group, *extra_columns]))
+    if isinstance(span, int):
+        streamed = _count_span_streamed(req, span, columns, parts_summed)
+        if streamed is not None:
+            return streamed
     table = _banded(_placed(_kept(query(req.dataset, period=span, geography=req.publications,
-                                        select=list(dict.fromkeys([*s.group, *extra_columns])), present="codes",
-                                        **s.extra), s.after), req.bound), s.bands)
+                                        select=columns, present="codes", **s.extra), s.after), req.bound), s.bands)
     return _reduce_rows(table, s, parts_summed, req.bound.place_column)
 
 
-def _reduce_rows(table: pa.Table, s: _Strata, parts_summed: list[str], place_column: str) -> pa.Table:
+#: A year of a dataset's rows above this many is reduced batch by batch (`_count_span_streamed`), never held whole.
+STREAM_ROWS = 2_000_000
+
+
+def _count_span_streamed(req: _Request, year: int, columns: list[str], parts_summed: list[str]) -> pa.Table | None:
+    """One year of a dataset's rows reduced to ``events`` in bounded memory, or None where the whole read is small
+    enough (or the lazy scan cannot serve it) and `_count_span` reads it at once.
+
+    The rows come from the lake's lazy scan (`api.scan`: the raw codes the query returns with ``present="codes"``,
+    row for row) in batches; each part of at most ``STREAM_ROWS / 2`` rows is filtered, placed, banded and reduced as
+    the whole table would be, and the partial results are merged: sums, counts and moments add, an extreme is the
+    extreme of the parts', and a distinct count keeps its (cell, value) pairs until the end. A dataset's rows have
+    no identity across files, so a year read in parts counts what the year read at once counts. A national year of
+    SNGPC's sales, ANS's beneficiaries or SISAGUA's samples is 7 to 70 million rows of repeated strings: read whole it
+    took 3 to more than 10 GB for a table of a few hundred thousand cells (2026-11-27)."""
+    import pyarrow.compute as pc
+
+    from ._request import parse_dataset
+    from .api import scan
+
+    s = req.strata
+    exact = dict(s.extra.get("rows") or {})
+    read = list(dict.fromkeys([*columns, *exact]))
+    system, series = parse_dataset(req.dataset)
+    try:
+        lazy = scan(system, series, uf=None if req.publications == "BR" else [req.publications], years=[year],
+                    columns=read, settings=req.settings)
+        if lazy.count_rows() <= STREAM_ROWS:
+            return None
+        batches = lazy.iter_batches()
+        first = next(batches, None)
+    except Exception:   # a generation without a column, an axis the dataset lacks: the query's own policies answer it
+        return None
+    if first is None:
+        return None
+
+    def reduce(held: list[pa.RecordBatch]) -> pa.Table:
+        table = pa.Table.from_batches(held)
+        for column, codes in exact.items():      # a code list on a plain column, as the query's ``rows=`` keeps it
+            text = pc.cast(table.column(column), pa.string())
+            table = table.filter(pc.fill_null(pc.is_in(text, pa.array([str(c) for c in codes], pa.string())), False))
+        table = _banded(_placed(_kept(table.select(columns), s.after), req.bound), s.bands)
+        return _reduce_rows(table, s, parts_summed, req.bound.place_column, partial=True)
+
+    partials: list[pa.Table] = []
+    held, rows = [first], first.num_rows
+    for batch in batches:
+        if batch.schema != held[0].schema or rows + batch.num_rows > STREAM_ROWS // 2:
+            partials.append(_packed(reduce(held)))
+            held, rows = [], 0
+            # merged when the parts since the last merge hold as many cells as it did (or eight parts wait): a result
+            # of millions of cells is then merged a few times, never once per part
+            if len(partials) >= 8 or sum(t.num_rows for t in partials[1:]) > max(STREAM_ROWS, partials[0].num_rows):
+                partials = [_merge_partials(partials, s)]
+        held.append(batch)
+        rows += batch.num_rows
+    if held:
+        partials.append(_packed(reduce(held)))
+    return _merge_partials(partials, s, final=True)
+
+
+def _packed(table: pa.Table) -> pa.Table:
+    """A partial result with its text keys dictionary-encoded: a cell's strata repeat (an active principle's name in
+    every municipality and month), and millions of cells held as plain strings while they are merged cost several GB."""
+    import pyarrow.compute as pc
+
+    for i, field in enumerate(table.schema):
+        if pa.types.is_string(field.type) or pa.types.is_large_string(field.type):
+            table = table.set_column(i, field.name, pc.dictionary_encode(table.column(i)))
+    return table
+
+
+def _unpacked(table: pa.Table) -> pa.Table:
+    """`_packed` undone: every dictionary column as its values' type, as the whole read returns it."""
+    for i, field in enumerate(table.schema):
+        if pa.types.is_dictionary(field.type):
+            table = table.set_column(i, field.name, table.column(i).cast(field.type.value_type))
+    return table
+
+
+def _merge_partials(parts: list[pa.Table], s: _Strata, final: bool = False) -> pa.Table:
+    """Partial reductions of one span merged by the cell's keys (`_count_span_streamed`)."""
+    parts = [_packed(t) for t in parts]
+    table = (pa.concat_tables(parts, promote_options="permissive") if len(parts) > 1 else parts[0]).unify_dictionaries()
+    cell = s.cell
+    if s.distinct:
+        pairs = table.group_by([*cell, s.distinct]).aggregate([])
+        if not final:
+            return pairs
+        return _unpacked(pairs.group_by(cell).aggregate([(s.distinct, "count")]).rename_columns([*cell, "events"]))
+    merged = table.group_by(cell).aggregate([("events", s.extreme or "sum")]).rename_columns([*cell, "events"])
+    return _unpacked(merged) if final else merged
+
+
+def _reduce_rows(table: pa.Table, s: _Strata, parts_summed: list[str], place_column: str, partial: bool = False) -> pa.Table:
     """A dataset's rows reduced to ``events`` by the cell's keys: the measure summed, an extreme, a moment, a count of
-    numbers, the distinct values, or every row."""
+    numbers, the distinct values, or every row. ``partial``: one part of a span read in parts (`_count_span_streamed`);
+    a distinct count then returns its (cell, value) pairs, to be merged with the other parts' before counting."""
     import pyarrow.compute as pc
 
     cell = s.cell
@@ -610,6 +709,8 @@ def _reduce_rows(table: pa.Table, s: _Strata, parts_summed: list[str], place_col
         table = table.set_column(table.schema.get_field_index(distinct), distinct, values).filter(
             pc.fill_null(pc.not_equal(values, ""), False))
         table = table.group_by([*cell, distinct]).aggregate([])
+        if partial:
+            return table
         return table.group_by(cell).aggregate([(distinct, "count")]).rename_columns([*cell, "events"])
     # every row, its place unplaced included (a count of the place column skips nulls: the unplaced vanished)
     return table.group_by(cell).aggregate([(place_column, "count", pc.CountOptions(mode="all"))]).rename_columns(
