@@ -16,7 +16,11 @@ the reader of a sheet and the placing rule changes any landed value.
 | `scripts/ibge_dtb_vintages.py` through the package's fetch and reader | its JSON byte for byte as before |
 | `tests/test_intake_excel.py` | 12 pass |
 
-Not measured: SNGPC re-landed (540 million rows; the gain above is computed from the lake's written names). Found on
+SNGPC's compounded sales copied to a scratch home and run through `intake` with the name rule in the unit's
+fingerprint: 2021 re-derived from the lake's own records, nothing downloaded, 14 s, 2.61 GB peak; 3,455,252 rows and
+638,911,239 units as before; unallocated 2,530 to 0, all into 150650 (Santa Izabel do Pará) and 240020 (Açu); no
+other municipality's total changed; 2020, not asked, untouched. Not measured: the industrialized sales (528 million
+rows) and the main home. Found on
 the way and fixed: the first `intake` on an empty home failed with `duplicate column name: widths_json` (twelve
 workers open the new catalog at once, each sees the column missing and adds it); `CatalogStore` now accepts a
 column another opener added in between. Two empty homes then land SENATRAN 2015 at the first run (motorcycles

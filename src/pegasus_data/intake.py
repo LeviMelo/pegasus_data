@@ -934,11 +934,25 @@ LANDED_KEYS = ("type", "take", "format", "formats", "decimal", "implied_decimals
 
 def _fingerprint(spec: dict[str, Any], unit: dict[str, Any]) -> str:
     """What a landed unit is a function of: the file or piece, the columns' `LANDED_KEYS`, the place, the period, the
-    origin, and the period derivation's version."""
+    origin, the period derivation's version, and, for a source placed by name, the names that place it (`_names_version`)."""
     version = PERIOD_DERIVATION.get(cast(str, (spec.get("period") or {}).get("type")))
     columns = {c: {k: (d or {})[k] for k in LANDED_KEYS if (d or {}).get(k) is not None} for c, d in (spec.get("columns") or {}).items()}
+    place = spec.get("place") or {}
+    names = _names_version(json.dumps([place.get("aliases"), place.get("truncated")], sort_keys=True)) if place.get("type") == "municipality_name" else None
     return _digest({"columns": columns, **{k: spec.get(k) for k in ("place", "period", "origin")}}, unit.get("url"), unit.get("key"),
-                   *([{"period_derivation": version}] if version else []))
+                   *([{"period_derivation": version}] if version else []), *([{"names": names}] if names else []))
+
+
+@functools.lru_cache(maxsize=8)
+def _names_version(declared: str) -> str:
+    """The digest of the names a source placed by name is placed with (`geography.municipality_name_keys`, under its
+    declared aliases and cut). A unit's municipality is a function of them as much as of its declaration: when IBGE's
+    name history joined the rule (ADR-0244), SNGPC's units still read as current, with 635,457 rows it would now place
+    left unallocated. In the fingerprint, a changed rule lands the unit again from its own held records (`_reland`)."""
+    from .geography import municipality_name_keys
+
+    aliases, truncated = json.loads(declared)
+    return _digest(sorted(municipality_name_keys(aliases=aliases, truncated=truncated).items()))
 
 
 def _current(side: Path, known: dict[str, Any], spec: dict[str, Any], unit: dict[str, Any]) -> bool:

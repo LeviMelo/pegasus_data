@@ -32,4 +32,7 @@ division (DTB) lists every municipality with its name for 1994, 2000 and each ye
 scratch home place the same 5,570 municipalities with identical cells (133,704) and the same 34 unallocated rows.
 SNGPC, landed before the list existed, holds 627,552 industrialized rows (22 names, of 528,478,139) and 7,905
 compounded rows (2 names) that name a municipality and are unallocated in the home; the name history places all 24
-names. They take effect when SNGPC is next landed (not done here: 540 million rows).
+names. A unit's fingerprint now includes the names that place it (`intake._names_version`), so a changed rule lands the
+unit again from its own held records, with nothing downloaded: the next `intake` of SNGPC places them (checked on
+a copy of the compounded sales: 2021's 2,530 unallocated rows go to Santa Izabel do Pará and Açu, every other
+municipality's total unchanged).
