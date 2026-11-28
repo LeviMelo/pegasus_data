@@ -3,7 +3,7 @@
 **Date:** 2026-11-28. **Status:** active. **Request:** the platform session, after landing SNGPC's industrialized
 sales one unit per process by hand: "the intake has no option to bound units in flight"; ADR-0240's sense of bounded.
 
-**Context.** `adaptive_map` chooses how many units land at once by the rate they give (ADR-0218's controller): it
+**Context.** `adaptive_map` chooses how many units land at once by the rate they give (`concurrency.py`): it
 starts at four and knows nothing of memory beyond not adding a task under the admission floor. Each landing opened a
 connection allowed a decode slot's share of the machine (7 GB here), whatever its file. Four SNGPC months in flight
 were therefore allowed 28 GB on a 32 GB machine; one month alone peaked 7.39 to 7.59 GB (it fills what it is given).
