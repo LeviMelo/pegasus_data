@@ -163,13 +163,22 @@ def search(
     question to ask here. Every word must match; accents are folded. Reads the home's map (`compendium`), rebuilt
     when what it describes has changed.
     """
+    from .._compendium import stale_since
     from .._search import search as _search
+    from ..config import load_settings
 
     hits = _search(query, kind=kind, system=system, limit=limit, root=root)
+    # a search of a map older than the home says so: "nothing matches" for a source landed after the map was built
+    # sent a study to ask for data that was already held (2026-11-27)
+    stale = stale_since(load_settings(root=root))
+    warning = (f"the map searched is of {stale} and the home has changed since: what was landed or declared after it is "
+               "not in it. `pegasus-data manual` builds the new map now (minutes).") if stale else None
     if not hits:
-        console.print(f"[yellow]nothing matches {query!r}[/yellow]")
+        console.print(f"[yellow]nothing matches {query!r}[/yellow]" + (f"\n[red]{warning}[/red]" if warning else ""))
         return
     _emit(hits, as_json, f"search: {query}")
+    if warning and not as_json:
+        console.print(f"[red]{warning}[/red]")
 
 
 @app.command(name="compendium", rich_help_panel="UNDERSTAND")

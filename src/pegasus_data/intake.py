@@ -45,7 +45,6 @@ import itertools
 import json
 import re
 import shutil
-import zipfile
 from collections.abc import Iterator, Sequence
 from datetime import UTC, datetime
 from pathlib import Path
@@ -58,6 +57,7 @@ import pyarrow.compute as pc
 import pyarrow.parquet as pq
 
 from .catalog.store import CatalogStore, utcnow
+from .decode.archives import ArchiveFile
 from .normalize.time import month_of, year_of
 from .persist.kept import write_json_atomic, write_parquet_atomic
 from .persist.lake import SLICE, Lake, unit_parts
@@ -1067,14 +1067,9 @@ def _fixed_relation(path: Path, origin: dict[str, Any], spec: dict[str, Any]) ->
     if problems:
         raise ValueError(f"{fixed['record']}: the declaration disagrees with the documentation's layout: {problems[:8]}")
     width = layout["width"]
-    with zipfile.ZipFile(path) as archive:
-        members = [m for m in archive.namelist() if re.search(str(fixed["member"]), m, re.I)]
-        if len(members) != 1:
-            raise ValueError(f"{path.name}: expected one member matching {fixed['member']!r}, found {members}")
-        extracted = path.with_name(Path(members[0]).name)
-        with archive.open(members[0]) as src, extracted.open("wb") as dst:
-            while chunk := src.read(1 << 24):
-                dst.write(chunk)
+    with ArchiveFile(path) as archive:
+        member = archive.one(match=str(fixed["member"]))
+        extracted = archive.extract(member, path.with_name(Path(member).name))
     size = extracted.stat().st_size
     eol = np.frombuffer(str(fixed.get("eol", "\n")).encode(), dtype=np.uint8)
     step = width + len(eol)
@@ -1094,39 +1089,13 @@ def _fixed_relation(path: Path, origin: dict[str, Any], spec: dict[str, Any]) ->
             f"quote='', escape='', all_varchar=true, encoding='{encoding}'))"), extracted
 
 
-def _seven_zip() -> str:
-    """7-Zip's command, which reads the RAR archives SENATRAN publishes (``rarfile``'s backend; no RAR reader is pure Python)."""
-    found = shutil.which("7z") or shutil.which("7za")
-    for candidate in (found, r"C:\Program Files\7-Zip\7z.exe", r"C:\Program Files (x86)\7-Zip\7z.exe"):
-        if candidate and Path(candidate).is_file():
-            return str(candidate)
-    raise RuntimeError("a RAR archive needs 7-Zip (7z on PATH or in Program Files): install it to land this source")
-
-
 def _archive_member(path: Path, member: str | None, suffixes: tuple[str, ...], unit: dict[str, Any]) -> Path:
-    """The one member of a zip or RAR ``path`` matching ``member`` (a regex, ``{year}`` allowed) or, unnamed, the one with
-    ``suffixes``, extracted beside it (returned, to delete). Not one: raises with what the archive holds."""
-    if path.suffix.lower() == ".rar":
-        import rarfile
-
-        rarfile.SEVENZIP_TOOL = _seven_zip()
-        rarfile.tool_setup(unrar=False, unar=False, bsdtar=False, sevenzip=True, sevenzip2=False, force=True)
-        archive: Any = rarfile.RarFile(path)
-    else:
-        archive = zipfile.ZipFile(path)
-    with archive:
-        names = [n for n in archive.namelist() if not n.endswith("/")]
-        if member:
-            wanted = str(member).format(year=unit.get("year"))
-            chosen = [n for n in names if re.search(wanted, n, re.I)]
-        else:
-            chosen = [n for n in names if n.lower().endswith(suffixes)]
-        if len(chosen) != 1:
-            raise ValueError(f"{path.name}: expected one member{f' matching {member!r}' if member else ''}, found {names}")
-        target = path.with_name(path.stem + "." + Path(chosen[0]).name)
-        with archive.open(chosen[0]) as src, target.open("wb") as dst:
-            shutil.copyfileobj(src, dst, 1 << 24)
-    return target
+    """The one member of an archive ``path`` (`decode.archives.ArchiveFile`: zip, RAR) matching ``member`` (a regex,
+    ``{year}`` allowed) or, unnamed, the one with ``suffixes``, extracted beside it (returned, to delete)."""
+    with ArchiveFile(path) as archive:
+        name = archive.one(match=str(member).format(year=unit.get("year")) if member else None,
+                           endswith=() if member else suffixes)
+        return archive.extract(name, path.with_name(path.stem + "." + Path(name).name))
 
 
 def _cell_text(value: Any) -> str | None:
@@ -1230,8 +1199,8 @@ def _file_relation(path: Path, origin: dict[str, Any], unit: dict[str, Any], spe
         opener: Any = path.open      # a zip names its member and opens it below
         name = path.name
         if path.suffix.lower() == ".zip":
-            archive = zipfile.ZipFile(path)
-            members = [m for m in archive.namelist() if m.lower().endswith((".csv", ".txt"))]
+            archive = ArchiveFile(path)
+            members = [m for m in archive.names() if m.lower().endswith((".csv", ".txt"))]
             if csv.get("member"):         # the zip holds more than one table (INEP's: the schools and a supplement): the one named
                 wanted = str(csv["member"]).format(year=unit.get("year")).lower()
                 members = [m for m in members if m.lower().endswith(wanted)]
@@ -1790,8 +1759,8 @@ def _stream_batches(path: Path, origin: dict[str, Any], columns: list[str]) -> I
             yield pa.table({c: pc.cast(table.column(names[c.lower()]), pa.string()) for c in columns})
 
     if path.suffix == ".zip":
-        with zipfile.ZipFile(path) as archive:
-            for member in [m for m in archive.namelist() if m.lower().endswith((".csv", ".txt"))]:
+        with ArchiveFile(path) as archive:
+            for member in [m for m in archive.names() if m.lower().endswith((".csv", ".txt"))]:
                 with archive.open(member) as handle:
                     yield from read(handle)
     else:

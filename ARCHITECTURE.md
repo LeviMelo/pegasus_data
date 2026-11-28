@@ -324,6 +324,10 @@ the milestone that removes the duplicate; an ADR is written when it is done.
 | write a derived file | ~~about twenty hand-written temp-and-rename copies, some sharing a temp name between processes, some deleting the old version first, some writing in place~~ | **done** (ADR-0224): `persist/kept.py` (`write_atomic`, `kept`, `cap_by_recency`) |
 | check a declaration's keys | ~~each loader's own checks; only `column_roles` refused an unknown key~~ | **done** (ADR-0223): one declared shape per kind of file (`semantics/schema.py`), checked where the file is parsed |
 | spell a dataset id; read a curation YAML; reach a server | ~~`.upper().replace(".", "-")` in ten modules; `ontology._read_yaml` imported by twelve; `snapshot`'s own httpx client, `sigtap`'s own ftplib~~ | **done** (2026-11-09): `ontology.dataset_key`; `semantics.curation.read_yaml(missing_ok=)`; `transport.get_text` and `discovery.ftp_client.FtpClient` |
+| keep the home's map current | ~~one file `compendium.sqlite` that a rebuild had to replace under its readers; a marker that a hung rebuild held for days; a rebuild that died with the `pegasus-data` command that started it~~ | **done** (ADR-0241): one file per fingerprint, a 30-minute life for a rebuild, started outside the launcher's job; a stale map says so in `search` and the overview |
+| open an archive | ~~`decode/archives.py` for DATASUS files; in `intake.py` four `zipfile` readers and a RAR branch with its own 7-Zip search~~ | **done** (ADR-0242): `decode.archives.ArchiveFile` for an archive on disk read member by member; `Archive` for bytes with every member |
+| read a spreadsheet | `intake._excel_to_parquet` (declarative: `excel:` in `intake.yml`, pandas); `decode/text_.py` (openpyxl, the documentation's tables); `sources/anac_air.py`, `sources/census_commuting.py`, `sources/ibge_links.py` and `proximity.py`, each with its own `read_excel` | **open**: one reader of a sheet as text cells (the intake's), which the four source modules call; each moved with its source re-landed and its totals compared |
+| place a municipality written by name | IBGE's current names (`geography.municipalities`); `geography.yml`'s `municipality_name_aliases`, a hand list of 44 that mixes former official names, spellings IBGE changed and one source's truncations and slips, applied to every source and every year | **open**: a name is a fact with years, as a code is; IBGE's names by year resolve a written name, a curated alias is for a source's own artefact and scoped to that source, truncation is a rule |
 
 Also known, not duplicates:
 - ~~`decode/_native/` compiled into the package with a hardcoded Visual
@@ -426,7 +430,7 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
 - `_translate.py`: `translate()`, labels for a user's own files.
 - `_unknowns.py`: `gaps()`, `questions()`.
 - `_holdings.py`: `holdings()`, every store of the home against what describes it, variable by variable (a lake dataset's schema against its roles, an intake source's or registry's file headers against its declared columns, `registry_columns` of `published_tables.yml`, or a documented fixed-width layout; the Parquet files of a registry store a product claims are classed built); the map's `holdings` table and `pegasus-data holdings --check` list what is held and undescribed (docs/plans/recon.md).
-- `_compendium.py`: `compendium()`, the map of everything the package holds and can do, as a SQLite file; `current()` keeps the home's copy (`_catalog/compendium.sqlite`) fresh, serving a stale one while one detached process rebuilds it; `entries` is the index `search()` reads (ADR-0216).
+- `_compendium.py`: `compendium()`, the map of everything the package holds and can do, as a SQLite file; `current()` keeps the home's copy (`_catalog/compendium-<fingerprint>.sqlite`, one file per version, ADR-0241) fresh, serving a stale one while one detached process rebuilds it; `entries` is the index `search()` reads (ADR-0216).
 - `_manual.py`: `write_manual()`, the map written as text files to grep (`<home>/manual/`: `INDEX.md`, a page per dataset, per dataset's columns and roles, per link, and pages for fields, products, operations and SIDRA tables); `pegasus-data info` with no target prints `INDEX.md` (docs/plans/agent-interface.md).
 - `_search.py`: `search()`, over the catalog's docs and the shipped label pack (ADR-0069).
 - `_resources.py`: resource status, validation, `ensure`, `build` (the local resources `curation/resources.yml` declares).
@@ -475,6 +479,8 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
 - `decode/base.py`: the reader interface.
 - `decode/dbc.py`, `decode/dbf.py`, `decode/lha.py`, `decode/archives.py`,
   `decode/duckdb_.py`, `decode/text_.py`: readers.
+- `decode/archives.py` is the one place an archive is opened: `Archive` (an archive's bytes, every member with its
+  role: DATASUS files) and `ArchiveFile` (an archive on disk, one member streamed out: intake sources; ADR-0242).
 - `decode/header.py`: DBF header parsing for the census (dBase III/IV/7).
 - `decode/duckdb_remote.py`: a remote DuckDB database's tables and columns from a few ranged reads (ADR-0083).
 - `decode/isolation.py`, `decode/_worker.py`: killable subprocess decoding.

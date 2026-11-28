@@ -585,8 +585,39 @@ def compendium(
 
 
 def default_path(settings: Settings) -> Path:
-    """Where the home keeps its own map: beside the catalog it is built from."""
+    """The home's map under the one name it had before each version took its own (`versioned_path`): read while no
+    versioned map exists, removed once one does."""
     return settings.catalog_dir / "compendium.sqlite"
+
+
+#: A background rebuild older than this is taken for dead and another is started (a rebuild takes 1 to 11 minutes).
+REBUILD_LIMIT_S = 30 * 60
+
+
+def versioned_path(settings: Settings, digest: str) -> Path:
+    """The home's map of one fingerprint. Each version has its own file: a rebuild writes a name no reader has open,
+    so it never has to replace a file in use. On Windows that replace is refused (``PermissionError``) while any
+    ``search`` or ``info`` holds the old map, and a single name left the home serving the map of 23 November for five
+    days, without the sources landed since (2026-11-28)."""
+    return settings.catalog_dir / f"compendium-{digest[:16]}.sqlite"
+
+
+def held_maps(settings: Settings) -> list[Path]:
+    """The maps on disk, newest first: the versioned ones, then the one under the old name."""
+    found = sorted(settings.catalog_dir.glob("compendium-*.sqlite"), key=lambda f: f.stat().st_mtime, reverse=True)
+    legacy = default_path(settings)
+    return [*found, *([legacy] if legacy.is_file() else [])]
+
+
+def _prune_maps(settings: Settings, keep: Path) -> None:
+    """Older maps and the staging files of rebuilds that died, removed where nothing holds them (`remove_if_free`)."""
+    import time
+
+    from .persist.kept import prune_siblings
+
+    dead = [f for f in settings.catalog_dir.glob(".compendium*.staging.*")
+            if time.time() - f.stat().st_mtime > REBUILD_LIMIT_S]
+    prune_siblings(keep, [*held_maps(settings), *dead])
 
 
 def fingerprint(settings: Settings, options: dict[str, Any] | None = None) -> str:
@@ -635,24 +666,29 @@ def current(*, settings: Settings | None = None, root: str | Path | None = None,
     job wrote it (a header census, a build) every `info` and `search` call rebuilt the whole map inside itself, 52 s
     to 11 min (OQ #100). ``wait=True`` rebuilds a stale map here."""
     cfg = settings or load_settings(root=Path(root) if root else None)
-    target = default_path(cfg)
-    stored = None
+    target = versioned_path(cfg, fingerprint(cfg))
     if target.is_file():
-        try:
-            con = sqlite3.connect(f"file:{target.as_posix()}?mode=ro", uri=True)
-            try:
-                stored = con.execute("SELECT value FROM meta WHERE key = 'fingerprint'").fetchone()
-            finally:
-                con.close()
-        except sqlite3.Error:
-            stored = None
-        if stored and stored[0] == fingerprint(cfg):
-            return target
-    if stored and not wait:
-        _rebuild_detached(cfg)
         return target
+    older = held_maps(cfg)
+    if older and not wait:
+        _rebuild_detached(cfg)
+        return older[0]
     compendium(target, settings=cfg)
+    _prune_maps(cfg, target)
     return target
+
+
+def stale_since(settings: Settings) -> str | None:
+    """When the map being served was built, if the home has changed since; None when the map is current. A reader is
+    told: a map that silently lacks what was landed after it makes a search answer "nothing" for data that is held."""
+    import datetime as dt
+
+    if versioned_path(settings, fingerprint(settings)).is_file():
+        return None
+    older = held_maps(settings)
+    if not older:
+        return None
+    return dt.datetime.fromtimestamp(older[0].stat().st_mtime).strftime("%Y-%m-%d %H:%M")
 
 
 def _lock_path(cfg: Settings) -> Path:
@@ -660,14 +696,19 @@ def _lock_path(cfg: Settings) -> Path:
 
 
 def rebuilding(cfg: Settings) -> int | None:
-    """The process rebuilding the home's map in the background, or None."""
+    """The process rebuilding the home's map in the background, or None. One that has run past ``REBUILD_LIMIT_S`` is
+    taken for dead: a rebuild that hung on 22 November kept its marker for five days, and no other was started."""
+    import time
+
     import psutil
 
+    lock = _lock_path(cfg)
     try:
-        pid = int(_lock_path(cfg).read_text(encoding="utf-8").strip())
+        pid = int(lock.read_text(encoding="utf-8").strip())
+        age = time.time() - lock.stat().st_mtime
     except (OSError, ValueError):
         return None
-    return pid if psutil.pid_exists(pid) else None
+    return pid if psutil.pid_exists(pid) and age < REBUILD_LIMIT_S else None
 
 
 def _rebuild_detached(cfg: Settings) -> None:
@@ -681,12 +722,35 @@ def _rebuild_detached(cfg: Settings) -> None:
         return
     log = cfg.work_dir / "compendium_rebuild.log"
     log.parent.mkdir(parents=True, exist_ok=True)
-    env = {**os.environ, "PEGASUS_DATA_HOME": str(cfg.catalog_dir.parent), "PYTHONUTF8": "1"}
-    flags = (subprocess.DETACHED_PROCESS | subprocess.CREATE_NEW_PROCESS_GROUP) if os.name == "nt" else 0
-    with log.open("ab") as out:
-        child = subprocess.Popen([sys.executable, "-m", "pegasus_data.cli", "manual"], stdout=out, stderr=out,
-                                 stdin=subprocess.DEVNULL, env=env, creationflags=flags, close_fds=True)
-    _lock_path(cfg).write_text(str(child.pid), encoding="utf-8")
+    home = str(cfg.catalog_dir.parent)
+    env = {**os.environ, "PEGASUS_DATA_HOME": home, "PYTHONUTF8": "1"}
+    command = [sys.executable, "-m", "pegasus_data.cli", "manual"]
+    if os.name != "nt":
+        with log.open("ab") as out:
+            pid = subprocess.Popen(command, stdout=out, stderr=out, stdin=subprocess.DEVNULL, env=env,
+                                   start_new_session=True, close_fds=True).pid
+        _lock_path(cfg).write_text(str(pid), encoding="utf-8")
+        return
+    # The rebuild must outlive the command that starts it. `pegasus-data` is a console-script launcher, which runs
+    # Python inside a job object that kills every process in it when the command returns: a rebuild started by
+    # `pegasus-data search` died with the search, every time, so a home used through the command line never got a
+    # new map (2026-11-28). The child is therefore started outside the job; where the job forbids leaving it, the
+    # WMI service starts it, which is in no job of ours.
+    flags = subprocess.DETACHED_PROCESS | subprocess.CREATE_NEW_PROCESS_GROUP | 0x01000000   # CREATE_BREAKAWAY_FROM_JOB
+    try:
+        with log.open("ab") as out:
+            pid = subprocess.Popen(command, stdout=out, stderr=out, stdin=subprocess.DEVNULL, env=env,
+                                   creationflags=flags, close_fds=True).pid
+    except OSError:
+        line = (f'cmd /c "set "PEGASUS_DATA_HOME={home}" && set "PYTHONUTF8=1" && "{sys.executable}" -m pegasus_data.cli manual '
+                f'>> "{log}" 2>&1"')
+        made = subprocess.run(["powershell", "-NoProfile", "-NonInteractive", "-Command",
+                               "(Invoke-CimMethod -ClassName Win32_Process -MethodName Create -Arguments @{CommandLine=$env:PEGASUS_REBUILD}).ProcessId"],
+                              capture_output=True, text=True, env={**os.environ, "PEGASUS_REBUILD": line}, check=False)
+        if not made.stdout.strip().isdigit():
+            return   # no rebuild could be started: the next reader tries again, and `stale_since` keeps saying so
+        pid = int(made.stdout.strip())
+    _lock_path(cfg).write_text(str(pid), encoding="utf-8")
 
 
 def overview(*, settings: Settings | None = None, root: str | Path | None = None) -> str:
@@ -700,8 +764,11 @@ def overview(*, settings: Settings | None = None, root: str | Path | None = None
         built = (q("SELECT value FROM meta WHERE key = 'generated_at'").fetchone() or ["?"])[0]
         cfg = settings or load_settings(root=Path(root) if root else None)
         moving = rebuilding(cfg)
+        stale = stale_since(cfg)
         out = [f"pegasus_data: what this install holds and can do (map of {built})."
-               + (f" The home has changed since; a new map is being built (process {moving})." if moving else ""),
+               + (" THE HOME HAS CHANGED SINCE THIS MAP WAS BUILT: what was landed or declared after it is missing below."
+                  + (f" A new map is being built (process {moving}); `pegasus-data manual` builds it now." if moving
+                     else " Run `pegasus-data manual` to build the new one.") if stale else ""),
                "  search <words> finds anything below, and every column, role, SIDRA table and code;",
                "  info <dataset> / info <dataset>.<COLUMN> describes one. Rows held are in this install's lake.", ""]
 

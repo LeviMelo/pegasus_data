@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import gzip
 import io
+import re
 import shutil
 import subprocess
 import tarfile
@@ -337,6 +338,72 @@ class Archive:
             self._tmp = None
 
     def __enter__(self) -> Archive:
+        return self
+
+    def __exit__(self, *exc: object) -> None:
+        self.close()
+
+
+class ArchiveFile:
+    """An archive on disk read one member at a time, never held in memory: zip, and RAR through 7-Zip.
+
+    `Archive` above takes an archive's bytes and returns every member with its role, which is what a DATASUS file needs
+    (an APAC ``.exe`` holds seven schemas). An intake source is the other case: a file of megabytes to gigabytes whose one
+    table is streamed out to disk. Both are archives, so both live here: the container is told by its first bytes, never
+    its suffix, and a member whose name would leave the folder is refused. Before 2026-11-28 `intake.py` opened zips in
+    four places of its own and RARs in a fifth, each choosing "the one member" its own way."""
+
+    def __init__(self, path: str | Path) -> None:
+        self.path = Path(path)
+        with self.path.open("rb") as handle:
+            self.container = detect_container(handle.read(4096))
+        if self.container in ("zip", "zip_sfx"):
+            self._archive: zipfile.ZipFile | object = zipfile.ZipFile(self.path)
+        elif self.container == "rar":
+            import rarfile
+
+            tool = _find_7z()
+            if tool is None:
+                raise UnsupportedContainer(f"{self.path.name}: a RAR archive needs 7-Zip (7z on PATH or in Program Files)")
+            rarfile.SEVENZIP_TOOL = tool
+            rarfile.tool_setup(unrar=False, unar=False, bsdtar=False, sevenzip=True, sevenzip2=False, force=True)
+            self._archive = rarfile.RarFile(self.path)
+        else:
+            raise UnsupportedContainer(f"{self.path.name}: not a zip or RAR archive ({self.container or 'unknown container'})")
+
+    def names(self) -> list[str]:
+        """The members that are files. A name that escapes the archive's folder refuses the whole archive."""
+        names = [n for n in self._archive.namelist() if not n.endswith("/")]  # type: ignore[attr-defined]
+        unsafe = [n for n in names if safe_member_path(n, self.path.parent) is None]
+        if unsafe:
+            raise DecodeError(f"{self.path.name}: member names leave the archive's folder: {unsafe[:3]}")
+        return names
+
+    def one(self, *, match: str | None = None, endswith: tuple[str, ...] = ()) -> str:
+        """The single member whose name matches ``match`` (a regex, case ignored) and ends with one of ``endswith``.
+        None or several: an error naming what the archive holds, never a guess at the "best" one."""
+        names = self.names()
+        chosen = [n for n in names if (not match or re.search(match, n, re.I)) and (not endswith or n.lower().endswith(endswith))]
+        if len(chosen) != 1:
+            asked = " and ".join(x for x in (f"matching {match!r}" if match else "", f"ending in {endswith}" if endswith else "") if x)
+            raise ValueError(f"{self.path.name}: expected one member {asked}, found {chosen or names}")
+        return chosen[0]
+
+    def open(self, name: str):
+        """A member as a binary stream."""
+        return self._archive.open(name)  # type: ignore[attr-defined]
+
+    def extract(self, name: str, dest: str | Path) -> Path:
+        """A member streamed to ``dest`` (16 MiB at a time), which is returned."""
+        dest = Path(dest)
+        with self.open(name) as src, dest.open("wb") as dst:
+            shutil.copyfileobj(src, dst, 1 << 24)
+        return dest
+
+    def close(self) -> None:
+        self._archive.close()  # type: ignore[attr-defined]
+
+    def __enter__(self) -> ArchiveFile:
         return self
 
     def __exit__(self, *exc: object) -> None:
