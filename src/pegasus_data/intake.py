@@ -45,7 +45,7 @@ import itertools
 import json
 import re
 import shutil
-from collections.abc import Iterator, Sequence
+from collections.abc import Callable, Iterator, Sequence
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, cast
@@ -275,19 +275,67 @@ def _ident(name: str) -> str:
     return '"' + name.replace('"', '""') + '"'
 
 
-def _duck(settings: Any, spec: dict[str, Any]) -> Any:
-    """A DuckDB connection bounded in memory, with the IBGE universe (and, for a source that gives a municipality's name and
-    its state, the names that resolve to one code) registered."""
-
-    # a decode slot's share of the machine (`decode.admission`: total RAM over the slots), not a fixed 2 GB: SRAG's ~190
-    # columns of text ran out of memory re-landing a year under 2 GB (the parquet writer's buffers do not spill, 2026-10-24)
+def _slot_share_gb() -> float:
+    """The most one landing's connection is given: a decode slot's share of the machine (`decode.admission`: total RAM
+    over the slots), not a fixed 2 GB: SRAG's ~190 columns of text ran out of memory re-landing a year under 2 GB (the
+    parquet writer's buffers do not spill, 2026-10-24)."""
     import psutil
 
     from .decode.admission import slot_count
+
+    return float(max(2, psutil.virtual_memory().total // slot_count() // 2**30))
+
+
+#: A landing's memory by what it reads, where that is known before it starts (ADR-0247). Measured 2026-11-28 on SNGPC:
+#: a month of 5.9 million records by 24 columns (141 million cells) filled a 7 GB connection; six compounded months of
+#: about 9 million cells each peaked 2.9 GB together. The grant only chooses how many land at once: a landing that runs
+#: out under it is run again alone with the whole share (`_granted`), so a low figure costs time and nothing else.
+GRANT_BASE_GB = 1.0
+GRANT_BYTES_PER_CELL = 45
+GRANT_PER_FILE_BYTE = 8
+
+
+def _grant_gb(*, cells: int | None = None, file_bytes: int | None = None) -> float:
+    """The memory a landing is granted: by its records' cells (a unit derived again from the lake) or its file's bytes
+    (a unit read from the source), between `GRANT_BASE_GB` and the slot's share; the whole share when neither is known."""
+    share = _slot_share_gb()
+    if cells is not None:
+        return min(share, GRANT_BASE_GB + cells * GRANT_BYTES_PER_CELL / 2**30)
+    if file_bytes is not None:
+        return min(share, GRANT_BASE_GB + file_bytes * GRANT_PER_FILE_BYTE / 2**30)
+    return share
+
+
+@functools.lru_cache(maxsize=1)
+def _budget() -> Any:
+    from .concurrency import MemoryBudget
+
+    return MemoryBudget(_slot_share_gb())
+
+
+def _granted(grant: float, land: Callable[[float], dict[str, Any]]) -> dict[str, Any]:
+    """Run ``land(memory_gb)`` holding its grant of the process's memory budget; where it runs out of memory under a
+    grant smaller than the slot's share, run it again holding the whole share (alone, when the budget is one share)."""
+    import duckdb
+
+    share = _slot_share_gb()
+    with _budget().hold(grant) as held:
+        try:
+            return land(held)
+        except (duckdb.OutOfMemoryException, MemoryError):
+            if held >= share:
+                raise
+    with _budget().hold(share) as held:
+        return {**land(held), "granted_again_gb": held}
+
+
+def _duck(settings: Any, spec: dict[str, Any], memory_gb: float | None = None) -> Any:
+    """A DuckDB connection bounded in memory (``memory_gb``: the landing's grant, `_grant_gb`; the slot's share where none
+    is given), with the IBGE universe (and, for a source that gives a municipality's name and its state, the names that
+    resolve to one code) registered."""
     from .geography import municipalities
 
-    con = duck_connect(memory_gb=max(2, psutil.virtual_memory().total // slot_count() // 2**30), threads=4, ordered=False,
-                       settings=settings)
+    con = duck_connect(memory_gb=memory_gb or _slot_share_gb(), threads=4, ordered=False, settings=settings)
     from .geography import placing_rule
 
     # the one placing rule's facts (`geography.placing_rule`), as tables: the universe, a state of one municipality
@@ -1257,14 +1305,14 @@ def _land_unit(settings: Any, source: str, spec: dict[str, Any], unit: dict[str,
         # again from them, nothing downloaded (SNGPC's 94 months and SISAGUA's control files after the month fix, 2026-10-24)
         held = _held_records(settings, spec, unit)
         if isinstance(held, tuple):
-            return _reland(settings, source, spec, unit, side, held)
+            return _granted(_grant_gb(cells=held[2] * len(held[3])),
+                            lambda gb: _reland(settings, source, spec, unit, side, held, memory_gb=gb))
     declined = held if not refresh and isinstance(held, str) else None      # held, and not derivable from what is held
     if not fetch:
         return {"not_held": True, "url": unit["url"], **({"held_not_derivable": declined} if declined else {})}
     origin = _origin(spec)
     target = _raw_path(source, root, origin, unit)
     raw = _tabnet_csv(origin, unit, target) if origin.get("kind") == "tabnet" else download(unit["url"], target)
-    extracted = None
     counted = origin.get("format", "csv") == "csv"
     if counted and raw.suffix.lower() != ".zip":
         with raw.open("rb") as handle:
@@ -1272,50 +1320,59 @@ def _land_unit(settings: Any, source: str, spec: dict[str, Any], unit: dict[str,
         if head.lstrip()[:1] == b"<":         # a firewall's page answered with status 200 (MIDR's): not the file, and not kept
             raw.unlink()
             raise ValueError(f"{unit['url']} answered a page, not the file: {head!r}")
-    con = _duck(settings, spec)
+    def read(memory_gb: float) -> dict[str, Any]:
+        # the landing under its grant of memory (`_granted`): the file stays for a second reading with the whole share
+        extracted: Path | None = None
+        con = _duck(settings, spec, memory_gb)
 
-    def land(relation: str, extracted: Path | None) -> dict[str, Any]:
-        # The independent count: the file's own lines less the header. DuckDB's strict_mode=false dropped 4,007 of SISAGUA
-        # 2019's 2,844,261 rows without an error (2026-10-10); a record the reader loses is a recorded gap. It is checked
-        # before the swap (`_land`), so a unit that lost records is never registered.
-        path = extracted or raw
-        csv = origin.get("csv") or {}
-        expected: int | None = None
-        found: dict[str, Any] = {}
-        if origin.get("format") == "fixed":
-            # the records are the lines of the declared width (`_fixed_relation` checked it): the file's own count is the figure
-            lines = _lines(path)
-            expected, found = lines, {"file_lines": lines, "rows_equal_lines": True}
-        elif counted and csv.get("multiline"):
-            # a field holds line breaks (free text in quotes): the lines are not the records, a second parser counts them
-            expected = _records(path, csv, transcoded=path.name.endswith(".utf8.csv"))
-            found = {"file_records": expected, "rows_equal_lines": True}
-        elif counted:
-            lines = _lines(path)
-            expected, found = lines - 1, {"file_lines": lines, "rows_equal_lines": True}
-        return {**_land(settings, source, spec, unit, con, relation, datetime.now(UTC).date().isoformat(), sidecar=side, expect_rows=expected), **found}
-
-    try:
-        relation, extracted = _file_relation(raw, origin, unit, spec)
-        unit["size"] = raw.stat().st_size
-        try:
-            stats = land(relation, extracted)
-        except Exception as exc:
-            # a month published in another encoding than the source declares (SNGPC's latin-1 files hold UTF-8 months
-            # among 2014-2018's, 2026-10-11): read as mixed, each line's valid UTF-8 kept and stray bytes as cp1252
+        def land(relation: str, extracted: Path | None) -> dict[str, Any]:
+            # The independent count: the file's own lines less the header. DuckDB's strict_mode=false dropped 4,007 of SISAGUA
+            # 2019's 2,844,261 rows without an error (2026-10-10); a record the reader loses is a recorded gap. It is checked
+            # before the swap (`_land`), so a unit that lost records is never registered.
+            path = extracted or raw
             csv = origin.get("csv") or {}
-            if isinstance(exc, _LostRecords) or not counted or csv.get("encoding") == "mixed" or "encoded" not in str(exc):
-                raise
+            expected: int | None = None
+            found: dict[str, Any] = {}
+            if origin.get("format") == "fixed":
+                # the records are the lines of the declared width (`_fixed_relation` checked it): the file's own count is the figure
+                lines = _lines(path)
+                expected, found = lines, {"file_lines": lines, "rows_equal_lines": True}
+            elif counted and csv.get("multiline"):
+                # a field holds line breaks (free text in quotes): the lines are not the records, a second parser counts them
+                expected = _records(path, csv, transcoded=path.name.endswith(".utf8.csv"))
+                found = {"file_records": expected, "rows_equal_lines": True}
+            elif counted:
+                lines = _lines(path)
+                expected, found = lines - 1, {"file_lines": lines, "rows_equal_lines": True}
+            return {**_land(settings, source, spec, unit, con, relation, datetime.now(UTC).date().isoformat(), sidecar=side, expect_rows=expected), **found}
+
+        try:
+            relation, extracted = _file_relation(raw, origin, unit, spec)
+            unit["size"] = raw.stat().st_size
+            try:
+                stats = land(relation, extracted)
+            except Exception as exc:
+                # a month published in another encoding than the source declares (SNGPC's latin-1 files hold UTF-8 months
+                # among 2014-2018's, 2026-10-11): read as mixed, each line's valid UTF-8 kept and stray bytes as cp1252
+                csv = origin.get("csv") or {}
+                if isinstance(exc, _LostRecords) or not counted or csv.get("encoding") == "mixed" or "encoded" not in str(exc):
+                    raise
+                if extracted is not None and extracted.is_file():
+                    extracted.unlink()
+                relation, extracted = _file_relation(raw, {**origin, "csv": {**csv, "encoding": "mixed"}}, unit, spec)
+                stats = land(relation, extracted)
+                stats["encoding"] = f"mixed (the declared {csv.get('encoding')} failed: {str(exc).splitlines()[0][:120]})"
+        finally:
+            con.close()
             if extracted is not None and extracted.is_file():
                 extracted.unlink()
-            relation, extracted = _file_relation(raw, {**origin, "csv": {**csv, "encoding": "mixed"}}, unit, spec)
-            stats = land(relation, extracted)
-            stats["encoding"] = f"mixed (the declared {csv.get('encoding')} failed: {str(exc).splitlines()[0][:120]})"
+        return stats
+
+    try:
+        stats = _granted(_grant_gb(file_bytes=raw.stat().st_size), read)
     finally:
-        con.close()
-        for path in (extracted, None if origin.get("keep") else raw):
-            if path is not None and path.is_file():
-                path.unlink()
+        if not origin.get("keep") and raw.is_file():
+            raw.unlink()
     side.parent.mkdir(parents=True, exist_ok=True)
     write_json_atomic({"fingerprint": unit["fingerprint"], "stats": stats}, side)
     # a unit the lake held, replaced by the source's file of today: said in this run's answer, not kept in the sidecar
@@ -1361,11 +1418,11 @@ def _held_records(settings: Any, spec: dict[str, Any], unit: dict[str, Any]) -> 
 
 
 def _reland(settings: Any, source: str, spec: dict[str, Any], unit: dict[str, Any], side: Path,
-            held: tuple[list[str], str, int, list[str]]) -> dict[str, Any]:
+            held: tuple[list[str], str, int, list[str]], memory_gb: float | None = None) -> dict[str, Any]:
     """Land a unit again from its own records (`_held_records`): their values as filed, under their own names, through the
     declaration as it stands, replacing the unit's parts (`_land`) only when every record came back."""
     parts, read_on, rows, columns = held
-    con = _duck(settings, spec)
+    con = _duck(settings, spec, memory_gb)
     copy = Path(settings.work_dir) / "intake" / f"reland-{_safe(source)}-{_safe(unit['key'])}.parquet"
     copy.parent.mkdir(parents=True, exist_ok=True)
     try:

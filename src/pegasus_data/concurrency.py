@@ -7,6 +7,9 @@ while the total rate keeps rising, takes one away when it falls, and adds none w
 admission's floor (`decode.admission.free_floor_bytes`). It never removes one for memory: the admission already makes
 each decode wait for free memory, and a guard that also removed tasks held a synthetic run at one task on a machine
 short of memory (2026-11-22).
+
+What the tasks in flight may hold together is another matter, and `MemoryBudget`'s: a task that holds memory takes its
+grant from the budget before it starts.
 """
 
 from __future__ import annotations
@@ -14,6 +17,7 @@ from __future__ import annotations
 import time
 from collections.abc import Callable, Iterable, Iterator
 from concurrent.futures import FIRST_COMPLETED, Future, ThreadPoolExecutor, wait
+from contextlib import contextmanager
 from dataclasses import dataclass, field
 from typing import Any, TypeVar
 
@@ -95,4 +99,53 @@ def adaptive_map(fn: Callable[[T], R], items: Iterable[T], *, measure: Callable[
             fill()
 
 
-__all__ = ["Pace", "adaptive_map"]
+class MemoryBudget:
+    """The memory the tasks in flight of one process may hold together (ADR-0247).
+
+    `adaptive_map` chooses how many tasks run at once by the rate they give; it knows nothing of what each may hold. A
+    task that opens a connection with a memory limit holds, at worst, that limit: four SNGPC months in flight, each
+    allowed 7 GB, were 28 GB on a 32 GB machine (2026-11-28). A task takes its grant from the budget before it opens
+    the connection (`hold`) and waits while the grants in flight leave no room. The budget is the machine's free memory
+    less the admission floor, measured when nothing is held, and never under one ``largest`` grant, so one task always
+    runs. A grant the budget cannot fit waits for it to be empty and runs alone. It bounds one process: several
+    processes are bounded by what starts them (a slot, the guard)."""
+
+    def __init__(self, largest_gb: float) -> None:
+        import threading
+
+        self.largest = float(largest_gb)
+        self.total = self.largest
+        self.held = 0.0
+        self.peak = 0.0
+        self._room = threading.Condition()
+
+    def _measure(self) -> None:
+        import psutil
+
+        from .decode.admission import free_floor_bytes
+
+        self.total = max(self.largest, (psutil.virtual_memory().available - free_floor_bytes()) / 2**30)
+
+    @contextmanager
+    def hold(self, gb: float) -> Iterator[float]:
+        gb = min(float(gb), self.largest)
+        with self._room:
+            while True:
+                if self.held == 0:
+                    self._measure()
+                if self.held == 0 or self.held + gb <= self.total:
+                    break
+                self._room.wait(timeout=30)
+            self.held += gb
+            self.peak = max(self.peak, self.held)
+        try:
+            yield gb
+        finally:
+            with self._room:
+                self.held -= gb
+                if self.held < 1e-9:
+                    self.held = 0.0
+                self._room.notify_all()
+
+
+__all__ = ["MemoryBudget", "Pace", "adaptive_map"]

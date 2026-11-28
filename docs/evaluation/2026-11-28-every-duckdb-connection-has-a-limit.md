@@ -17,3 +17,9 @@ changes any answer.
 
 Not measured: the maintainer builds that had no limit (Grade Estatística, CNEFE, CPTEC, INMET, BRDWGD, the 2010
 commuting matrix, the population tensor) under the new 2 GB.
+
+**Units in flight (ADR-0247), same day.** In the main home the platform session measured one industrialized SNGPC
+month at 7.39 GB (7.59 the highest of 94) and four in flight by default, so it landed 93 months one per process. With
+the budget, in a scratch home: four stale months of 2019 in one process, 5.39 GB peak, 85 s, 75,450,371 rows in the
+year, grants of 5.0 GB each in a budget of 8.6 GB (13 GB free); a month granted 0.5 GB on purpose ran out and landed
+at the second try with 7 GB (7.49 GB peak, 27 s, 6,574,501 rows).
