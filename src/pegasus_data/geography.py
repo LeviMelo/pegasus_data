@@ -84,6 +84,9 @@ GEOGRAPHY_PACK_NAME = "geography.parquet"
 #: "what is it inside of".
 MUNICIPALITY_PACK_NAME = "municipalities.parquet"
 
+#: What each municipality was called, by year: `code7, name, first_year, last_year` (IBGE's yearly division; ADR-0244).
+NAMES_PACK_NAME = "municipality_names.parquet"
+
 _MUNICIPALITY_FIELDS = (
     "code6", "code7", "name", "uf_code", "uf_sigla", "uf_name", "macroregion",
 )
@@ -653,27 +656,91 @@ def _placer(path: str, mtime_ns: int = 0) -> tuple[dict[str, int], dict[str, int
     return by_six, sole, legacy
 
 
-def municipality_name_aliases() -> dict[tuple[str, str], str]:
-    """``geography.yml``'s ``municipality_name_aliases`` as ``(folded state abbreviation, folded name) -> six-digit code``:
-    the names a source writes that are not IBGE's current one (Embu, Parati, a name cut at 30 characters), each resolved
-    through the current name it is declared to be. A declared name that resolves to no municipality, or to two, raises:
-    an alias must never place a record in the wrong place, or in none silently."""
-    from .semantics.curation import read_yaml
+def build_municipality_names(out_path: str | Path, editions: dict[int, list[tuple[str, str]]]) -> dict[str, Any]:
+    """Compile what each municipality was called and when, from IBGE's yearly division (`sources.ibge_dtb`):
+    ``editions`` is ``{year: [(code7, name)]}``. One row per municipality and name, with the first and last edition
+    that wrote it (``code7, name, first_year, last_year``). Two writings that compare equal (`textenc.fold`: 1994's
+    capitals without accents, an accent IBGE added later) are one name, kept as its latest edition wrote it. No live
+    fetch here, as in `build_municipality_pack`: the caller reads the editions."""
+    import pyarrow as pa
+    import pyarrow.parquet as pq
+
+    if not editions:
+        raise ValueError("build_municipality_names needs at least one edition")
     from .textenc import fold
 
-    declared = (read_yaml(_curation_root(None) / "geography.yml", missing_ok=True) or {}).get("municipality_name_aliases") or {}
-    current: dict[tuple[str, str], set[str]] = {}
-    for code, row in municipalities().items():
-        current.setdefault((fold(row["uf_sigla"]), fold(row["name"])), set()).add(code)
-    out: dict[tuple[str, str], str] = {}
-    for uf, names in declared.items():
-        for alias, name in names.items():
-            codes = current.get((fold(str(uf)), fold(str(name))), set())
-            if len(codes) != 1:
-                raise ValueError(f"geography.yml municipality_name_aliases {uf} {alias!r}: {name!r} names {len(codes)} "
-                                 "municipalities of the universe, not one")
-            out[(fold(str(uf)), fold(str(alias)))] = codes.pop()
-    return out
+    span: dict[tuple[str, str], dict[int, str]] = {}
+    for year, pairs in editions.items():
+        for code7, name in pairs:
+            span.setdefault((str(code7), fold(name)), {})[int(year)] = str(name)
+    rows = sorted((code7, written[max(written)], min(written), max(written)) for (code7, _), written in span.items())
+    table = pa.table({"code7": pa.array([r[0] for r in rows], pa.string()), "name": pa.array([r[1] for r in rows], pa.string()),
+                      "first_year": pa.array([r[2] for r in rows], pa.int16()), "last_year": pa.array([r[3] for r in rows], pa.int16())})
+    out = Path(out_path)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    pq.write_table(table, str(out), compression="zstd")
+    return {"path": str(out), "rows": len(rows), "municipalities": len({r[0] for r in rows}),
+            "editions": [min(editions), max(editions), len(editions)]}
+
+
+@lru_cache(maxsize=2)
+def _names_rows(path: str, mtime_ns: int = 0) -> tuple[tuple[str, str, int, int], ...]:
+    import pyarrow.parquet as pq
+
+    table = pq.read_table(path).to_pydict()
+    return tuple(zip(table["code7"], table["name"], table["first_year"], table["last_year"], strict=True))
+
+
+def municipality_names(pack_path: str | Path | None = None) -> tuple[tuple[str, str, int, int], ...]:
+    """``(code7, name, first_year, last_year)``: every name IBGE's yearly division wrote for a municipality and the
+    editions that wrote it (1994, 2000, 2003 on; ADR-0244). Embu is 3515004 "Embu" 1994-2011 and "Embu das Artes"
+    2012 on. Writings that differ only by case, accent, hyphen or apostrophe are one name."""
+    resolved = _pack_path(pack_path, NAMES_PACK_NAME)
+    return () if resolved is None else _names_rows(str(resolved), _pack_mtime(str(resolved)))
+
+
+def municipality_name_keys(*, aliases: dict[str, dict[str, str]] | None = None, truncated: int | None = None) -> dict[tuple[str, str], str]:
+    """``(folded state, folded name) -> six-digit code``: how a municipality written by name is placed (the intake's
+    ``place: municipality_name``). The state is its abbreviation or its name. In order, a later rule never replacing
+    an earlier one:
+
+    1. IBGE's current name (`municipalities`).
+    2. A name IBGE's division wrote in any year (`municipality_names`), where it names one municipality of the state
+       in all those years: sources keep a name long after it changed, so the year of the record does not bound it.
+    3. ``aliases``, a source's own spellings that IBGE never wrote (``{UF: {written: current name}}``, declared in
+       that source's ``place``): each must resolve to one municipality, and one that rules 1 and 2 already place is an
+       error, so the list holds only what it must.
+    4. ``truncated``, the width at which the source cuts a name: a longer name cut there, where the cut names one
+       municipality of the state.
+
+    A key two municipalities share is in none of them: the record stays unallocated and is counted."""
+    from .textenc import fold
+
+    universe = municipalities()
+    states: dict[str, tuple[str, str]] = {r["uf_code"]: (fold(r["uf_sigla"]), fold(r["uf_name"])) for r in universe.values()}
+
+    def layer(pairs: Iterable[tuple[str, str]], known: dict[tuple[str, str], str]) -> dict[tuple[str, str], str]:
+        seen: dict[tuple[str, str], set[str]] = {}
+        for code, name in pairs:
+            for state in states[universe[code]["uf_code"]]:
+                seen.setdefault((state, name), set()).add(code)
+        return {key: next(iter(codes)) for key, codes in seen.items() if len(codes) == 1 and key not in known}
+
+    found = layer(((code, fold(row["name"])) for code, row in universe.items()), {})
+    found.update(layer(((c7[:6], fold(name)) for c7, name, _, _ in municipality_names() if c7[:6] in universe), found))
+    for uf, names in (aliases or {}).items():
+        for written, name in names.items():
+            key, target = (fold(str(uf)), fold(str(written))), found.get((fold(str(uf)), fold(str(name))))
+            if target is None:
+                raise ValueError(f"place aliases {uf} {written!r}: {name!r} names no single municipality of the state")
+            if key in found:
+                raise ValueError(f"place aliases {uf} {written!r}: IBGE's names already place it; remove the alias")
+            for state in states[universe[target]["uf_code"]]:
+                found[(state, key[1])] = target
+    if truncated:
+        found.update(layer(((code, name[:truncated].strip()) for (state, name), code in list(found.items())
+                            if len(name) > truncated and state == states[universe[code]["uf_code"]][0]), found))
+    return found
 
 
 def placing_rule(pack_path: str | Path | None = None) -> dict[str, Any]:

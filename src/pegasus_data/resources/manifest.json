@@ -165,6 +165,13 @@
       "bytes": 127414,
       "rows": 5997,
       "sha256": "c2f9d07b76ee998022983232432cac4333012e1d7b86ecf3d9d008315452622e"
+    },
+    "municipality_names": {
+      "file": "municipality_names.parquet",
+      "tier": "A",
+      "bytes": 72601,
+      "sha256": "ffd67db12d21290dec7ece28c5734fa7d916b2f136c171c63a9cb2607f425fe6",
+      "rows": 5630
     }
   },
   "note": "Bundled resources are an offline runtime baseline. Local version-compatible updates take precedence."

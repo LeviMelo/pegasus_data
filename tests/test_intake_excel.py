@@ -1,4 +1,4 @@
-"""Spreadsheet sources, listed links and name aliases of the intake (SENATRAN's fleet, IBGE's death pairing, 2026-11-27)."""
+"""Spreadsheet sources, listed links and the placing of written municipality names in the intake (SENATRAN's fleet, IBGE's death pairing, 2026-11-27)."""
 from __future__ import annotations
 
 import zipfile
@@ -84,10 +84,18 @@ def test_a_declared_zero_sign_reads_as_zero():
     assert duckdb.sql(f"SELECT {sql} AS v FROM (VALUES ('.'), ('7'), (NULL)) t(x)").fetchall() == [(0,), (7,), (None,)]
 
 
-def test_municipality_name_aliases_resolve_to_one_code_each():
-    from pegasus_data.geography import municipalities, municipality_name_aliases
+def test_a_written_municipality_name_is_placed_by_ibges_names_then_the_sources_own():
+    from pegasus_data.geography import municipalities, municipality_name_keys, municipality_names
 
-    if not municipalities():
-        pytest.skip("no municipality pack in this home")
-    aliases = municipality_name_aliases()
-    assert aliases[("SP", "EMBU")] == "351500" and aliases[("RR", "SAO LUIZ")] == "140060"
+    if not municipalities() or not municipality_names():
+        pytest.skip("no municipality packs in this home")
+    keys = municipality_name_keys()
+    assert keys[("SP", "EMBU DAS ARTES")] == keys[("SP", "EMBU")] == "351500"        # the name until 2011
+    assert keys[("SAO PAULO", "EMBU")] == "351500" and keys[("RR", "SAO LUIZ")] == "140060"
+    assert ("MT", "VILA BELA DA SANTISSIMA TRINDA") not in keys
+    own = municipality_name_keys(aliases={"RN": {"LAGOA DANTA": "Lagoa d'Anta"}}, truncated=30)
+    assert own[("MT", "VILA BELA DA SANTISSIMA TRINDA")] == "510550" and own[("RN", "LAGOA DANTA")] == keys[("RN", "LAGOA D ANTA")]
+    with pytest.raises(ValueError, match="already place it"):
+        municipality_name_keys(aliases={"SP": {"EMBU": "Embu das Artes"}})
+    with pytest.raises(ValueError, match="no single municipality"):
+        municipality_name_keys(aliases={"SP": {"EMBU VELHO": "Embu Novo"}})

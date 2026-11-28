@@ -58,8 +58,10 @@
 #                       `derived` (the curated recipe of a column made from this one, as variables/*.yml writes it),
 #                       `zero_tokens` (the signs a table writes for zero, read as 0 by a number or integer: IBGE's ".")
 #   place               the key a context is served by: {column, type: municipality (IBGE code, 6 or 7 digits, as given) |
-#                       municipality_name (+ uf: the state column; exact fold match against IBGE's names and geography.yml's
-#                       municipality_name_aliases) | code, as: name}
+#                       municipality_name (+ uf: the state column; a fold match against IBGE's current names, then the names
+#                       its yearly division wrote since 1994; `aliases` {UF: {written: current name}} for this source's own
+#                       spellings that IBGE never wrote, refused when IBGE's names already place them; `truncated` the
+#                       width the source cuts a name at; `geography.municipality_name_keys`, ADR-0244) | code, as: name}
 #   period              {type: date (+ format, take) | month (YYYYMM) | year | parts (year, month columns) | file (the file's own
 #                       year), grain: year|month, valid: the years kept}
 #   fields              each a measure over the rows: `count` or `{sum: column}` (never a mean), `where` {column: [raw values]},
@@ -3741,7 +3743,25 @@ sources:
       TRATOR RODAS: {description: wheeled tractors, type: integer}
       TRICICLO: {description: tricycles, type: integer}
       UTILITARIO: {description: utility vehicles, type: integer}
-    place: {column: MUNICIPIO, uf: UF, type: municipality_name}
+    # RENAVAM's own municipality table: names cut at 30 characters, and 15 spellings IBGE's division never wrote (a
+    # preposition changed, a letter doubled, a zero typed for an O, a word dropped), found in the Decembers of 2015 and
+    # 2024 (2026-11-27). IBITIUVA (a district of Pitangueiras-SP) and "MUNICIPIO NAO INFORMADO" name no municipality
+    # and stay unallocated.
+    place:
+      column: MUNICIPIO
+      uf: UF
+      type: municipality_name
+      truncated: 30
+      aliases:
+        BA: {LAGEDO DO TABOCAL: Lajedo do Tabocal}
+        GO: {BOM JESUS: Bom Jesus de Goiás}
+        MG: {AMPARO DA SERRA: Amparo do Serra, BARAO D0 MONTE ALTO: Barão do Monte Alto}
+        PR: {BELA VISTA DO CAROBA: Bela Vista da Caroba, MUNHOZ DE MELLO: Munhoz de Melo, PINHAL DO SAO BENTO: Pinhal de São Bento,
+             SANTA CRUZ DO MONTE CASTELO: Santa Cruz de Monte Castelo}
+        RJ: {ARMACAO DE BUZIOS: Armação dos Búzios}
+        RN: {BOA SAUDE: Januário Cicco, LAGOA DANTA: "Lagoa d'Anta"}
+        RO: {NOVA DO MAMORE: Nova Mamoré}
+        SC: {BALNEARIO DE PICARRAS: Balneário Piçarras, LAGEADO GRANDE: Lajeado Grande, "SAO LOURENCO D'OESTE": São Lourenço do Oeste}
     period: {type: file, grain: month}
     fields:
       senatran_fleet_total:

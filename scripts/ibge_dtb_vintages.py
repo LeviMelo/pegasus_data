@@ -15,19 +15,18 @@ division as of each year:
 without regions. Formats vary by year:
 - 1994: fixed-width text;
 - 2000: one row per level, with a level code;
-- 2005 on: .xls, read with ``xlrd``, which is not a package dependency.
+- 2005 on: .xls (`decode.spreadsheet`; the ``excel`` extra).
 
 Each year's region codes are compared with the pack's current IBGE rows.
 Writes data/probes/geography/ibge_dtb_vintages.json; archives are cached
-under sources/ibge_dtb/.
+under sources/ibge_dtb/ (`sources.ibge_dtb.year_archive`, which also reads each
+year's names for ``resources/municipality_names.parquet``; ADR-0244).
 """
 
 from __future__ import annotations
 
 import io
-import re
 import unicodedata
-import urllib.request
 import zipfile
 from pathlib import Path
 
@@ -44,30 +43,11 @@ CLASSIFICATIONS = {
     "ibge_immediate_region": 6,
 }
 
-def fetch(year: int, cache_dir: str | Path, *, timeout: float = 300.0) -> Path:
-    """The year's DTB archive (the national municipality file), cached."""
-    cache = Path(cache_dir)
-    found = sorted(cache.glob(f"{year}_*.zip"))
-    if found:
-        return found[0]
-    with urllib.request.urlopen(f"{BASE}/{year}/", timeout=timeout) as response:
-        listing = response.read().decode("latin-1")
-    names = re.findall(r'href="([^"?/][^"]*\.zip)"', listing)
-    if year == 1994:
-        names = [n for n in names if n.lower() == "brasil.zip"]
-    else:
-        names = [n for n in names if n.lower().startswith("dtb") and "distrito" not in n.lower()
-                 and "nome" not in n.lower()]
-    if not names:
-        raise FileNotFoundError(f"IBGE publishes no national DTB archive for {year}")
-    cache.mkdir(parents=True, exist_ok=True)
-    target = cache / f"{year}_{names[0]}"
-    with urllib.request.urlopen(f"{BASE}/{year}/{names[0]}", timeout=timeout) as response:
-        data = response.read()
-    tmp = target.with_suffix(".tmp")
-    tmp.write_bytes(data)
-    tmp.replace(target)
-    return target
+def fetch(year: int, cache_dir: str | Path) -> Path:
+    """The year's DTB archive (the national municipality file), cached: the package's one fetch of it."""
+    from pegasus_data.sources.ibge_dtb import year_archive
+
+    return year_archive(cache_dir, year)
 
 
 def divisions(path: str | Path, year: int) -> dict[str, dict[str, tuple[str, str]]]:
@@ -80,10 +60,9 @@ def divisions(path: str | Path, year: int) -> dict[str, dict[str, tuple[str, str
     if not members:
         raise FileNotFoundError(f"{path}: no .xls member")
     member = sorted(members, key=lambda n: ("munic" not in n.lower(), n))[0]
-    import xlrd
+    from pegasus_data.decode.spreadsheet import sheets
 
-    sheet = xlrd.open_workbook(file_contents=archive.read(member), logfile=io.StringIO()).sheet_by_index(0)
-    rows = [[_text(cell.value) for cell in sheet.row(r)] for r in range(sheet.nrows)]
+    rows = [[c or "" for c in row] for row in sheets(io.BytesIO(archive.read(member)), 0)[0]]
     header = next(i for i, row in enumerate(rows[:12]) if any("munic" in _fold(c) for c in row))
     names = [_fold(c) for c in rows[header]]
     if "nivel" in names:
@@ -180,12 +159,6 @@ def _tabular(names: list[str], rows: list[list[str]]) -> dict[str, dict[str, tup
             entry[cls] = (code, row[name_i] if name_i is not None else "")
         out[code7] = entry
     return out
-
-
-def _text(value: object) -> str:
-    if isinstance(value, float) and value.is_integer():
-        return str(int(value))
-    return str(value).strip()
 
 
 def _fold(text: str) -> str:

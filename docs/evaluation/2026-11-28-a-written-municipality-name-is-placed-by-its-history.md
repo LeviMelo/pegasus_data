@@ -1,0 +1,23 @@
+# A written municipality name is placed by its history; one reader of a sheet (2026-11-28)
+
+Regime: the working tree on bc1b55f2, the one home (`C:\Users\Galaxy\pegasus_core_data`) read only, a scratch home
+for landing (removed after), Windows 11. ADR-0243, ADR-0244.
+
+**What was counted, and why.** Whether IBGE's own record of names can replace a hand list of 43, and whether changing
+the reader of a sheet and the placing rule changes any landed value.
+
+| Step | Result |
+|---|---|
+| IBGE's division read for 25 editions (1994, 2000, 2003-2025) | each year's count equals `municipalities_by_year` (4,974; 5,507; 5,560; ... 5,571); 5,630 names of 5,571 municipalities; every code is in today's universe |
+| Names that ever named two municipalities of one state | 0 |
+| The 43 hand entries against the history | 26 placed by IBGE's former names; 2 by the 30-character cut; 15 are SENATRAN's own spellings (declared in its `place`) |
+| SENATRAN 2015 and 2024 re-landed (new reader, new rule) against the home | 133,704 municipality-months identical (total and motorcycles); 5,570 municipalities placed each year; 34 unallocated rows in both (32 "MUNICIPIO NAO INFORMADO", 2 IBITIUVA) |
+| SNGPC rows that name a municipality and are unallocated in the home | industrialized 627,552 of 528,478,139 (22 names); compounded 7,905 of 11,758,269 (2 names); the history places all 24 names (AÇU, ITAPAGÉ, SÃO THOMÉ DAS LETRAS, SANTA ISABEL DO PARÁ...) |
+| `scripts/ibge_dtb_vintages.py` through the package's fetch and reader | its JSON byte for byte as before |
+| `tests/test_intake_excel.py` | 12 pass |
+
+Not measured: SNGPC re-landed (540 million rows; the gain above is computed from the lake's written names). Found on
+the way and fixed: the first `intake` on an empty home failed with `duplicate column name: widths_json` (twelve
+workers open the new catalog at once, each sees the column missing and adds it); `CatalogStore` now accepts a
+column another opener added in between. Two empty homes then land SENATRAN 2015 at the first run (motorcycles
+237,368,050). IBGE's pairing of 2024 through the new reader: 14,690, 51,638 and 1,478,428, IBGE's Tabela 2.2.

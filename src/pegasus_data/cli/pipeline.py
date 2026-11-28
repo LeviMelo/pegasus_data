@@ -38,7 +38,8 @@ def geography(
     identity), TabNet's current territorial tables (health macroregion, the
     current health regions), IPEA's comparable areas and IBGE's population arrangements. Maintainer step; the result ships as
     ``resources/geography.parquet``, with the points pack and the proximity graphs rebuilt from the Grade Estatística
-    (`pegasus-data grade` first; ADR-0203).
+    (`pegasus-data grade` first; ADR-0203), and what each municipality was called by year, from IBGE's yearly division
+    (``resources/municipality_names.parquet``; ADR-0244).
     """
     from importlib.resources import files
 
@@ -61,6 +62,10 @@ def geography(
         result["points"] = build_municipality_points(
             target.with_name(POINTS_PACK_NAME), localities=sources["localities.gpkg"], mesh=maxima, grade_root=settings.root)
         result["proximity"] = build_proximity_graphs(target.parent, mesh=maxima, grade_root=settings.root)
+        from ..geography import NAMES_PACK_NAME, build_municipality_names
+        from ..sources.ibge_dtb import editions
+
+        result["names"] = build_municipality_names(target.with_name(NAMES_PACK_NAME), editions(settings.registry_dir("ibge_dtb")))
     _emit(result, as_json, "geography")
 
 

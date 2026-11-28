@@ -571,7 +571,15 @@ class CatalogStore:
             # index on a column the old table lacks fails before anything else
             # in the script has had a chance to run.
             for table, column, decl in _missing_columns(self.conn, schema):
-                self.conn.execute(f"ALTER TABLE {table} ADD COLUMN {column} {decl}")
+                try:
+                    self.conn.execute(f"ALTER TABLE {table} ADD COLUMN {column} {decl}")
+                except sqlite3.OperationalError:
+                    # Another opener (a worker thread's own connection, another process) added it between the look
+                    # and the change: a new home's first `intake` opened the catalog from several workers at once and
+                    # failed with "duplicate column name: widths_json" (2026-11-28). Present is what was wanted;
+                    # anything else is still an error.
+                    if column not in {r[1] for r in self.conn.execute(f"PRAGMA table_info({table})")}:
+                        raise
             # Then refuse, before the script runs, if what remains cannot be
             # closed by adding columns. Failing here points at the catalog;
             # failing later points at whichever query happened to touch it first.

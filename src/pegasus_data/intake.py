@@ -58,6 +58,7 @@ import pyarrow.parquet as pq
 
 from .catalog.store import CatalogStore, utcnow
 from .decode.archives import ArchiveFile
+from .decode.spreadsheet import read_table
 from .normalize.time import month_of, year_of
 from .persist.kept import write_json_atomic, write_parquet_atomic
 from .persist.lake import SLICE, Lake, unit_parts
@@ -307,18 +308,11 @@ def _duck(settings: Any, spec: dict[str, Any]) -> Any:
                                      "code": pa.array([str(c)[:6] if c else None for _, c in rule["legacy"]], pa.string())}))
     place = spec.get("place") or {}
     if place.get("type") == "municipality_name":
-        keys: dict[tuple[str, str], str | None] = {}
-        for code, row in universe.items():
-            for state in (row["uf_sigla"], row["uf_name"]):
-                key = (fold(state), fold(row["name"]))
-                keys[key] = None if key in keys and keys[key] != code else code
-        found = {k: v for k, v in keys.items() if v}
-        # the names a source writes that are not IBGE's current one (geography.yml; Embu, Parati), by state abbreviation;
-        # IBGE's own names win where both name a place
-        from .geography import municipality_name_aliases
+        # IBGE's current names, the names its yearly division wrote, then the source's own spellings and the width it
+        # cuts a name at (`geography.municipality_name_keys`; ADR-0244)
+        from .geography import municipality_name_keys
 
-        for key, code in municipality_name_aliases().items():
-            found.setdefault(key, code)
+        found = municipality_name_keys(aliases=place.get("aliases"), truncated=place.get("truncated"))
         con.register("names", pa.table({"key": pa.array([f"{u}|{n}" for (u, n) in found], pa.string()),
                                         "code": pa.array(list(found.values()), pa.string())}))
         con.create_function("fold", fold, ["VARCHAR"], "VARCHAR", null_handling="special")  # type: ignore[call-overload]  # duckdb stub types null_handling as an enum; the string is accepted
@@ -1098,72 +1092,28 @@ def _archive_member(path: Path, member: str | None, suffixes: tuple[str, ...], u
         return archive.extract(name, path.with_name(path.stem + "." + Path(name).name))
 
 
-def _cell_text(value: Any) -> str | None:
-    """A spreadsheet cell as the text it shows: a whole number filed as a float (xlrd reads 4717 as 4717.0) without its
-    ``.0``, an empty cell as None."""
-    if value is None or (isinstance(value, float) and np.isnan(value)):
-        return None
-    if isinstance(value, float) and value.is_integer():
-        return str(int(value))
-    text = str(value).strip()
-    return text or None
-
-
 def _excel_to_parquet(path: Path, excel: dict[str, Any], unit: dict[str, Any]) -> Path:
     """A spreadsheet table (``format: excel``) as a Parquet of strings beside it (returned, to delete), every cell as the
-    sheet shows it. ``excel``: ``member`` (the table inside a zip or RAR), ``sheet`` (name or index, default the first),
-    ``header`` (a regex the header row's first cell matches), ``names`` (the columns in order, when the header's own words
-    are long or change between editions: their number must equal the header's cells), ``stop`` (a regex on a row's first
-    cell that ends the table: the notes under it), ``total`` ({cell: [row, column] above the header, column: a declared
-    name}: the sheet's own total, which the rows must sum to, or nothing is landed). Repeated header rows (SENATRAN prints
-    its header twice) and empty rows are dropped. The independent count is the total, where the sheet prints one."""
-    import pandas as pd
-
+    sheet shows it (`decode.spreadsheet.read_table`). ``excel``: ``member`` (the table inside a zip or RAR), ``sheet``
+    (name or index; default the one sheet with the header), ``header`` (a regex the header row's first cell matches),
+    ``names`` (the columns in order, when the header's own words are long or change between editions), ``stop`` (a
+    regex on a row's first cell that ends the table), ``total`` ({cell: [row, column] above the header, column: a
+    declared name}: the sheet's own total, which the rows must sum to, or nothing is landed). The independent count is
+    the total, where the sheet prints one."""
     source = path
     if path.suffix.lower() in (".zip", ".rar"):
         source = _archive_member(path, excel.get("member"), (".xls", ".xlsx", ".ods"), unit)
-    pattern = re.compile(str(excel.get("header", ".")), re.I)
-
-    def header_of(cells: list[list[str | None]]) -> int | None:
-        return next((i for i, row in enumerate(cells) if row and row[0] and pattern.search(row[0])), None)
-
     try:
-        # the sheet named, else the one sheet whose header is found: SENATRAN's 2015 workbooks open on a glossary
-        grids = pd.read_excel(source, sheet_name=excel["sheet"] if "sheet" in excel else None, header=None, dtype=object)
-        grids = grids if isinstance(grids, dict) else {excel.get("sheet"): grids}
-        found = {}
-        for name, grid in grids.items():
-            cells = [[_cell_text(v) for v in row] for row in grid.itertuples(index=False, name=None)]
-            if header_of(cells) is not None:
-                found[name] = cells
+        found = read_table(source, header=str(excel.get("header", ".")), sheet=excel.get("sheet"), names=excel.get("names"),
+                           stop=str(excel["stop"]) if excel.get("stop") else None, label=path.name)
     finally:
         if source is not path:
             source.unlink(missing_ok=True)
-    if len(found) != 1:
-        raise ValueError(f"{path.name}: expected one sheet with a row whose first cell matches {excel.get('header')!r}, "
-                         f"found {sorted(map(str, found))} of {sorted(map(str, grids))}")
-    cells = next(iter(found.values()))
-    head = header_of(cells)
-    assert head is not None
-    header = cells[head]
-    width = max(i for i, c in enumerate(header) if c is not None) + 1
-    names = [str(n).upper() for n in excel.get("names") or []] or [str(c).upper() for c in header[:width]]
-    if len(names) != width:
-        raise ValueError(f"{path.name}: {len(names)} names declared, the header has {width} cells: {header[:width]}")
-    stop = re.compile(str(excel["stop"]), re.I) if excel.get("stop") else None
-    rows: list[list[str | None]] = []
-    for row in cells[head + 1:]:
-        row = (row + [None] * width)[:width]
-        if row[0] and stop and stop.search(row[0]):
-            break
-        if all(c is None for c in row) or row == header[:width]:
-            continue
-        rows.append(row)
-    table = pa.table({n: pa.array([r[i] for r in rows], pa.string()) for i, n in enumerate(names)})
+    table = pa.table({n: pa.array([r[i] for r in found.rows], pa.string()) for i, n in enumerate(found.names)})
     total = excel.get("total")
     if total:
         r, c = total["cell"]
-        stated = cells[r][c] if r < len(cells) and c < len(cells[r]) else None
+        stated = found.cells[r][c] if r < len(found.cells) and c < len(found.cells[r]) else None
         summed = pc.sum(pc.cast(table.column(str(total["column"]).upper()), pa.int64())).as_py() or 0
         if stated is None or int(float(stated)) != summed:
             raise _LostRecords(f"{path.name}: the sheet's total {stated} is not its rows' sum {summed}")

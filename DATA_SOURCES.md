@@ -637,6 +637,11 @@ TabNet's state forms classify by `territorio/{UF}_macsaud.cnv` and `{UF}_regsaud
   - no municipality's region code in any year differs from today's, and no
     municipality left; only new ones appeared (4,974 in 1994; 5,571 now);
   - 2001–2002 are not published, and 2003–2004 carry no regions.
+  - every edition names each municipality (2026-11-28, `sources/ibge_dtb.py`, ADR-0244): 5,630 names of 5,571
+    municipalities over the 25 editions, 59 municipalities with two (Embu until 2011, Embu das Artes from 2012;
+    Parati until 2008); no name ever named two municipalities of one state. Layouts: fixed-width text (1994), one
+    row per level (2000, 2003, 2004), one row per subdistrict or per municipality (2005 on), headers and file names
+    changing between editions.
 - The 46 `CIRBRN` contests left after scoping are all SIM against SINASC
   (2026-10-03, ADR-0129).
   - 33 are one region in two code schemes: SINASC's Santa Catarina table
@@ -1320,9 +1325,10 @@ TabNet's state forms classify by `territorio/{UF}_macsaud.cnv` and `{UF}_regsaud
 - **SENATRAN, Frota por Município e Tipo.** One spreadsheet a month, 2015-2024 (120), on the year's gov.br page
   (`frota-de-veiculos-<year>`): RAR in 2015-2016, .xls and .xlsx after, names changing month to month ("copy_of_...",
   "...MARO2024.xls" for March). The layout holds across the decade: a title, the national total, the header (twice in
-  some years), one row per municipality with the total and 21 types. Municipalities are named, not coded: 44 names of
-  the 2015 and 2024 Decembers are not IBGE's current ones (Embu, Parati, cut at 30 characters, "BARAO D0 MONTE ALTO"),
-  now `geography.yml`'s `municipality_name_aliases`; IBITIUVA (a district of Pitangueiras-SP) and "MUNICIPIO NAO
+  some years), one row per municipality with the total and 21 types. Municipalities are named, not coded: 43 names of
+  the 2015 and 2024 Decembers are not IBGE's current ones: 26 are names IBGE's division wrote in earlier years (Embu,
+  Parati), 2 are cut at 30 characters, and 15 are RENAVAM's own spellings ("BARAO D0 MONTE ALTO"), declared in the
+  source's `place` (ADR-0244); IBITIUVA (a district of Pitangueiras-SP) and "MUNICIPIO NAO
   INFORMADO" stay unallocated. With them every year places all 5,570 municipalities and the fields equal the sheets'
   totals but 9 vehicles (2015 90,686,936; 2024 123,974,520). The December 2015 workbook's data sheet is named JUL_2015:
   the month is read from the file name. The pages answer a browser User-Agent.
