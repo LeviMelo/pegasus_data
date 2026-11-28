@@ -23,7 +23,7 @@ limit, where before it could take the machine: the caller passes `memory_gb` for
 through the changed paths return the rows of the 2026-11-27 sweep at the same peaks (`ans_beneficiaries` 362,857 at
 1.81 GB; `sisagua_control_counts` 1,428,419 at 2.40 GB; `senatran_fleet_total` 66,840; three SIDRA fields 5,570);
 `query`, `search` and a census-tract read answer; the tests that touch a connection pass but one that fails the same
-on 04990c91 (it reads the deleted default home). Not rerun: the maintainer builds that had no limit (the Grade
+on 04990c91 (a defect of `fields._landed`, fixed after: it asked the process's home, not the caller's). Not rerun: the maintainer builds that had no limit (the Grade
 Estatística, CNEFE's joins beyond its own helper, CPTEC's daily means, INMET, the population tensor, the 2010
 commuting matrix, BRDWGD): each now runs under 2 GB with a spill directory, and the first that needs more will say
 so by name.

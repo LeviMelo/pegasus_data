@@ -237,7 +237,7 @@ def _field_from_cube(name: str, spec: dict[str, Any], years: list[int] | None, s
     })
 
 
-def intake_cube(name: str, spec: dict[str, Any]) -> dict[str, Any] | None:
+def intake_cube(name: str, spec: dict[str, Any], settings: Any = None) -> dict[str, Any] | None:
     """The records cube an intake field is, or None for one still built apart: a count or a sum, with its `where` and
     `by`, over a landed dataset placed by a municipality's code or name, with place and time bindings (curated, read
     from its roles, or the place and period it was landed by). Shares (`outcome`), unpivoted margins and row registers are not yet cubes; neither is a field whose dataset
@@ -258,7 +258,7 @@ def intake_cube(name: str, spec: dict[str, Any]) -> dict[str, Any] | None:
     if place.get("type") not in ("municipality", "municipality_name") and place.get("states") is None:
         return None
     dataset = f"{source['system']}-{source['series']}"
-    if semantics_for(dataset) is None or not _landed(source):
+    if semantics_for(dataset) is None or not _landed(source, settings):
         return None
     from .semantics.event_types import event_types
 
@@ -310,11 +310,14 @@ def records_cube(name: str, spec: dict[str, Any]) -> dict[str, Any] | None:
             "measure": None, "grain": "year", "states": None, "citation": f"{dataset} {event}"}
 
 
-def _landed(source: dict[str, Any]) -> bool:
+def _landed(source: dict[str, Any], settings: Any = None) -> bool:
+    """Whether the home in use holds landed records of an intake source: asked of ``settings``' catalog, the process's
+    only when none is given. It read the process's always: the map of another home answered from the default one, and
+    raised where that one did not exist (2026-11-28)."""
     from .catalog.store import CatalogStore
     from .config import load_settings
 
-    store = CatalogStore.shared(load_settings().catalog_path)
+    store = CatalogStore.shared((settings or load_settings()).catalog_path)
     try:
         return bool(store.query("SELECT 1 FROM families WHERE system = ? AND series = ? AND schema_source = 'intake' LIMIT 1",
                                 (str(source["system"]).upper(), str(source["series"]).upper())))
@@ -372,7 +375,7 @@ def _field_from_records(name: str, spec: dict[str, Any], plan: dict[str, Any], y
     return pa.table(out)
 
 
-def rows_view(name: str, spec: dict[str, Any]) -> dict[str, Any] | None:
+def rows_view(name: str, spec: dict[str, Any], settings: Any = None) -> dict[str, Any] | None:
     """A field that is a register of records (``rows:`` in its intake declaration: the field's column -> the record's), as
     a view of the landed records, or None while the source has none landed."""
     from .semantics.intake_declarations import declared_sources
@@ -383,7 +386,7 @@ def rows_view(name: str, spec: dict[str, Any]) -> dict[str, Any] | None:
     if not source:
         return None
     fs = (source.get("fields") or {}).get(name)
-    if not fs or not fs.get("rows") or not _landed(source):
+    if not fs or not fs.get("rows") or not _landed(source, settings):
         return None
     return {"dataset": f"{source['system']}-{source['series']}", "rows": dict(fs["rows"]), "where": dict(fs.get("where") or {})}
 
@@ -441,7 +444,7 @@ def _field_from_rows(register: dict[str, Any], years: list[int] | None, settings
     return pa.table(out)
 
 
-def margins_view(name: str, spec: dict[str, Any]) -> dict[str, Any] | None:
+def margins_view(name: str, spec: dict[str, Any], settings: Any = None) -> dict[str, Any] | None:
     """A field whose margins the source publishes as columns (``unpivot:`` in its intake declaration: a column -> its
     margin and category; INEP's enrolments by sex, race and age band, each summing to the total), as one records cube
     per column over the landed records, or None while the source has none landed."""
@@ -453,7 +456,7 @@ def margins_view(name: str, spec: dict[str, Any]) -> dict[str, Any] | None:
     if not source:
         return None
     fs = (source.get("fields") or {}).get(name)
-    if not fs or not fs.get("unpivot") or not _landed(source):
+    if not fs or not fs.get("unpivot") or not _landed(source, settings):
         return None
     unpivot = fs["unpivot"]
     return {"dataset": f"{source['system']}-{source['series']}", "as": list(unpivot["as"]),
@@ -797,7 +800,7 @@ def _held_years(name: str, spec: dict[str, Any], settings: Any) -> list[int]:
             return sorted(set(_field_from_cube(name, spec, None, settings).column("year").to_pylist()))
         except (LookupError, FileNotFoundError, KeyError, ValueError):
             return []
-    plan = intake_cube(name, spec) or records_cube(name, spec)
+    plan = intake_cube(name, spec, settings) or records_cube(name, spec)
     if plan is not None:
         family = str(plan["dataset"]).replace("-", "_").replace(".", "_") + "_%"
         con = sqlite3.connect(f"file:{Path(settings.catalog_path).as_posix()}?mode=ro", uri=True)
@@ -825,7 +828,7 @@ def _load_field(name: str, spec: dict[str, Any], wanted: list[int] | None, setti
     settings = settings or load_settings()
     if cube_of(spec) is not None:                 # a SIDRA or series field is its cube, read from the fact store
         return _field_from_cube(name, spec, wanted, settings)
-    plan = intake_cube(name, spec) or records_cube(name, spec)
+    plan = intake_cube(name, spec, settings) or records_cube(name, spec)
     if plan is not None:                          # an intake or records field is its records cube (ADR-0217)
         return _field_from_records(name, spec, plan, wanted, settings)
     plan = cnes_cube(name, spec)
@@ -833,10 +836,10 @@ def _load_field(name: str, spec: dict[str, Any], wanted: list[int] | None, setti
         return _field_from_cnes(name, spec, plan, wanted, settings)
     if spec.get("source") == "brdwgd" and spec.get("measure"):   # an annual climate sum is its climate cube
         return _field_from_climate(name, spec, wanted, settings)
-    register = rows_view(name, spec)
+    register = rows_view(name, spec, settings)
     if register is not None:                      # a register (S2iD's events) is its landed records, renamed
         return _field_from_rows(register, wanted, settings)
-    margins = margins_view(name, spec)
+    margins = margins_view(name, spec, settings)
     if margins is not None:                       # margins published as columns (INEP's) are one cube per column
         return _field_from_margins(name, spec, margins, wanted, settings)
     directory = Path(settings.lake_dir) / "fields" / name

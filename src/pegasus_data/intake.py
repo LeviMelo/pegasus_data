@@ -1630,9 +1630,9 @@ def build_source(settings: Any, source: str, names: list[str] | None = None, yea
 
     declared = declared_fields()
     for name in fields:
-        if name not in declared or all(view(name, declared[name]) is None for view in (intake_cube, rows_view, margins_view)):
+        if name not in declared or all(view(name, declared[name], settings) is None for view in (intake_cube, rows_view, margins_view)):
             raise ValueError(f"{source}.{name}: an intake field that is neither a records cube nor a view of the records")
-        register = rows_view(name, declared[name])
+        register = rows_view(name, declared[name], settings)
         if register is not None:
             # a register is a view of the landed records, never copied: there is nothing to build, and reading it whole would put
             # every record of the years in memory (ANS's itemised lines are 5.1 million rows for two states and two years)
@@ -1642,7 +1642,7 @@ def build_source(settings: Any, source: str, names: list[str] | None = None, yea
         # beneficiaries) held whole took 10.8 GB (2026-11-22); the cube of each year stays cached by its own request
         wanted = years or _years(str(declared[name].get("years") or ""))
         rows, total = 0, None
-        plan = intake_cube(name, declared[name])
+        plan = intake_cube(name, declared[name], settings)
         months = sorted(k for k in report["units"] if re.fullmatch(r"\d{6}", k) and int(k[:4]) in wanted)
         if plan is not None and plan["grain"] == "month" and months:
             # a month-grain source filed by month (ANS's quarters): the records cube of each month alone, so no more than one
